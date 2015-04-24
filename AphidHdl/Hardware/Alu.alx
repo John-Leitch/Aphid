@@ -1,0 +1,18 @@
+﻿BinOpUnit = macro(@(name, exp)
+	name = @(
+		param size = dword,
+		input wire clk,
+		input wire reset,
+		input wire size a,
+		input wire size b,
+		output wire size c)
+		c -> exp);
+
+BinOpUnit(Adder, a + b);
+BinOpUnit(Subtracter, a - b);
+BinOpUnit(Multiplier, a * b);
+BinOpUnit(Ander, a & b);
+BinOpUnit(Orer, a | b);
+BinOpUnit(LeftShifter, a << b);
+BinOpUnit(RightShifter, a >> b);
+BinOpUnit(Xorer, a ^ b);

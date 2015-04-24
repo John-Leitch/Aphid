@@ -1,0 +1,7 @@
+﻿bit = 1;
+hnib = 2;
+nib = 4;
+byte = 8;
+word = 16;
+dword = 32;
+qword = 64;

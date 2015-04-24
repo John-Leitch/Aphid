@@ -1,0 +1,17 @@
+﻿CrossDomainBuffer = @(
+	input wire clk,
+	input wire dword bufferIn,
+	input wire save,
+	output reg dword bufferOut = 0,
+	output wire saved
+) {
+	hnib syncSaved;
+	saved -> syncSaved[1];
+
+	@(posedge save) bufferOut = bufferIn;
+	
+	@(posedge clk) {
+		syncSaved[0] = save;
+		syncSaved[1] = syncSaved[0];
+	};
+};

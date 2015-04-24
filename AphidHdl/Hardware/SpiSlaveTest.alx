@@ -1,0 +1,62 @@
+﻿tickCount = macro(@() 8);
+
+SpiSlaveTest = @() {
+	clk;
+	reset;
+	dword count = 0;
+	dword ssCount = 0;	
+	sck = 1;
+	ss = 1;
+	mosi = 0;
+	wire byte mosiBuffer;
+	wire miso
+	wire shiftComplete;	
+	byte mosiTestBuffer = 0xde;
+	byte misoTestBuffer = 0;	
+	mosiTest;
+	misoTest;
+	
+	slave = SpiSlave({
+		sck,
+		ss,
+		mosi,
+		mosiBuffer,
+		miso,
+		misoBuffer: 0xad,
+		shiftComplete
+	});
+
+	initial(@() {
+		clk = 0;
+		forever(@() {
+			sleep(10);
+			clk = !clk;
+		});
+	});
+
+	@(posedge clk) {
+		count++;
+		sck = ~ss & (ssCount < tickCount()) ? count & 1 : 1;
+
+		if (ssCount == tickCount()) ss = 1;
+
+		if (count == 1) {
+			ss = 0;
+			ssCount = 0;
+		}
+	};
+
+	@(posedge sck) if (~ss) {
+		misoTestBuffer[7 - ssCount] = miso;
+		ssCount++;
+	};
+
+	@(negedge sck) if (~ss) {
+		mosi = mosiTestBuffer[7 - ssCount];
+	};
+
+	@(posedge shiftComplete) {
+		mosiTest = mosiBuffer == 0xde;
+		misoTest = misoTestBuffer == 0xad;
+	};
+};

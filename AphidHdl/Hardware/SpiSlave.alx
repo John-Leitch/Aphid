@@ -1,0 +1,30 @@
+﻿SpiSlave = @(
+	param bufferSize = byte,
+	input wire sck,
+	input wire ss,
+	input wire mosi,
+	output reg bufferSize mosiBuffer,
+	input wire bufferSize misoBuffer,
+	output reg miso,
+	output reg shiftComplete
+) {
+	word bitNumber = 0;
+
+	@(posedge sck) if (~ss) {
+		mosiBuffer = [ mosiBuffer[bufferSize - 2 .. 0], mosi ];
+
+		if (bitNumber != bufferSize - 1) {
+			bitNumber++;
+			shiftComplete = false;
+		} else {				
+			bitNumber = 0;
+			shiftComplete = true;
+		}
+	} else {
+		bitNumber = 0;
+		mosiBuffer = 0;
+		shiftComplete = false;
+	};
+	
+	@(negedge sck) miso = ~ss ? misoBuffer[bufferSize - 1 - bitNumber] : 0;
+};

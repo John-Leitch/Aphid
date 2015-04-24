@@ -45,85 +45,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILWeave", "ILWeave\ILWeave.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mantispid", "Mantispid\Mantispid.csproj", "{5404CE66-6322-49B2-8D42-CB06EBBAC715}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dialects", "Dialects", "{FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidHdl", "AphidHdl\AphidHdl.csproj", "{C29B4B38-86EA-4760-8830-5006CE6868D1}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 22
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs08
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Aphid\\Aphid.csproj
-		SccProjectName1 = Aphid
-		SccLocalPath1 = Aphid
-		SccProjectUniqueName2 = AphidCodeGenerator\\AphidCodeGenerator.csproj
-		SccProjectName2 = AphidCodeGenerator
-		SccLocalPath2 = AphidCodeGenerator
-		SccProjectUniqueName3 = Components.Aphid.Net\\Components.Aphid.Net.csproj
-		SccProjectName3 = Components.Aphid.Net
-		SccLocalPath3 = Components.Aphid.Net
-		SccProjectUniqueName4 = Components.Aphid.Tests.Integration\\Components.Aphid.Tests.Integration.csproj
-		SccProjectName4 = Components.Aphid.Tests.Integration
-		SccLocalPath4 = Components.Aphid.Tests.Integration
-		SccProjectUniqueName5 = Components.Aphid.VSPackage\\Components.Aphid.VSPackage.csproj
-		SccProjectName5 = Components.Aphid.VSPackage
-		SccLocalPath5 = Components.Aphid.VSPackage
-		SccProjectUniqueName6 = Components.Aphid\\Components.Aphid.csproj
-		SccProjectName6 = Components.Aphid
-		SccLocalPath6 = Components.Aphid
-		SccProjectUniqueName7 = Components.Net\\Components.Net.csproj
-		SccProjectName7 = Components.Net
-		SccLocalPath7 = Components.Net
-		SccProjectUniqueName8 = LLex\\LLex.csproj
-		SccProjectName8 = LLex
-		SccLocalPath8 = LLex
-		SccProjectUniqueName9 = Samples\\VariableGetSample\\VariableGetSample.csproj
-		SccProjectTopLevelParentUniqueName9 = Aphid.sln
-		SccProjectName9 = Samples/VariableGetSample
-		SccLocalPath9 = Samples\\VariableGetSample
-		SccProjectUniqueName10 = Samples\\HelloWorld\\HelloWorld.csproj
-		SccProjectTopLevelParentUniqueName10 = Aphid.sln
-		SccProjectName10 = Samples/HelloWorld
-		SccLocalPath10 = Samples\\HelloWorld
-		SccProjectUniqueName11 = Samples\\InteropFunctionSample\\InteropFunctionSample.csproj
-		SccProjectTopLevelParentUniqueName11 = Aphid.sln
-		SccProjectName11 = Samples/InteropFunctionSample
-		SccLocalPath11 = Samples\\InteropFunctionSample
-		SccProjectUniqueName12 = Samples\\VariableSetSample\\VariableSetSample.csproj
-		SccProjectTopLevelParentUniqueName12 = Aphid.sln
-		SccProjectName12 = Samples/VariableSetSample
-		SccLocalPath12 = Samples\\VariableSetSample
-		SccProjectUniqueName13 = Samples\\CallAphidFunctionSample\\CallAphidFunctionSample.csproj
-		SccProjectTopLevelParentUniqueName13 = Aphid.sln
-		SccProjectName13 = Samples/CallAphidFunctionSample
-		SccLocalPath13 = Samples\\CallAphidFunctionSample
-		SccProjectUniqueName14 = Samples\\LambdaSample\\LambdaSample.csproj
-		SccProjectTopLevelParentUniqueName14 = Aphid.sln
-		SccProjectName14 = Samples/LambdaSample
-		SccLocalPath14 = Samples\\LambdaSample
-		SccProjectUniqueName15 = Samples\\HigherOrderFunctionSample\\HigherOrderFunctionSample.csproj
-		SccProjectTopLevelParentUniqueName15 = Aphid.sln
-		SccProjectName15 = Samples/HigherOrderFunctionSample
-		SccLocalPath15 = Samples\\HigherOrderFunctionSample
-		SccProjectUniqueName16 = Samples\\FunctionSample\\FunctionSample.csproj
-		SccProjectTopLevelParentUniqueName16 = Aphid.sln
-		SccProjectName16 = Samples/FunctionSample
-		SccLocalPath16 = Samples\\FunctionSample
-		SccProjectUniqueName17 = AphidUI\\AphidUI.csproj
-		SccProjectName17 = AphidUI
-		SccLocalPath17 = AphidUI
-		SccProjectUniqueName18 = AphidPerformanceTest\\AphidPerformanceTest.csproj
-		SccProjectName18 = AphidPerformanceTest
-		SccLocalPath18 = AphidPerformanceTest
-		SccProjectUniqueName19 = Samples\\ObjectSample\\ObjectSample.csproj
-		SccProjectTopLevelParentUniqueName19 = Aphid.sln
-		SccProjectName19 = Samples/ObjectSample
-		SccLocalPath19 = Samples\\ObjectSample
-		SccProjectUniqueName20 = ILWeave\\ILWeave.csproj
-		SccProjectName20 = ILWeave
-		SccLocalPath20 = ILWeave
-		SccProjectUniqueName21 = Mantispid\\Mantispid.csproj
-		SccProjectName21 = Mantispid
-		SccLocalPath21 = Mantispid
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -343,6 +269,16 @@ Global
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715}.Release|Win32.ActiveCfg = Release|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -357,8 +293,7 @@ Global
 		{99A6C1DC-674F-4CBF-AF72-AE5959A797AC} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{42671D6B-9866-4197-92B5-230FB492BEFE} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{4774E19C-47A1-445E-9B4F-480BBC2518E5} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
+		{5404CE66-6322-49B2-8D42-CB06EBBAC715} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
+		{C29B4B38-86EA-4760-8830-5006CE6868D1} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 	EndGlobalSection
 EndGlobal

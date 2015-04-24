@@ -1,0 +1,26 @@
+﻿ByteToBits = @(
+	input wire byte byte,
+	output wire bit0,
+	output wire bit1,
+	output wire bit2,
+	output wire bit3,
+	output wire bit4,
+	output wire bit5,
+	output wire bit6,
+	output wire bit7
+) {
+	for (i = 0; i < 8; i++) this.{"bit" + i} -> byte[i];
+};
+
+BitsToByte = @(
+	input wire bit0,
+	input wire bit1,
+	input wire bit2,
+	input wire bit3,
+	input wire bit4,
+	input wire bit5,
+	input wire bit6,
+	input wire bit7,
+	output wire byte byte
+) 
+	byte -> [ bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0 ];
