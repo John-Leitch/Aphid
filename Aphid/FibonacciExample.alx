@@ -1,0 +1,4 @@
+﻿#'Std';
+
+fib = @(n) n < 2 ? n : fib(n - 1) + fib(n - 2);
+0..9->fib->print;

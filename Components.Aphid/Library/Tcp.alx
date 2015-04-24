@@ -1,0 +1,18 @@
+﻿tcp;
+
+@(){
+	##'Components.Aphid.Library.TcpLibrary';
+	##'Components.Aphid.Library.StreamLibrary';	
+	tcp = {
+		connect: @(host, port) {
+			stream = __tcp.connect(host, port);
+		
+			ret {
+				stream,
+				write: @(data) __stream.write(stream, data),
+				read: @(len) __stream.read(stream, len),
+				close: @() __tcp.close(stream),
+			};
+		}
+	};
+}();

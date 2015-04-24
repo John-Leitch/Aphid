@@ -1,0 +1,9 @@
+﻿<Window x:Class="AphidUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:AphidUI"
+        Title="Aphid">
+    <Grid>
+        <l:AphidRepl Background="#FFF0F0F0" />
+    </Grid>
+</Window>

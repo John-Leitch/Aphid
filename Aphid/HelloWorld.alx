@@ -1,0 +1,3 @@
+﻿#'Std';
+
+print('Hello, world');

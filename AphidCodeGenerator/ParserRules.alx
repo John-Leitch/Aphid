@@ -1,0 +1,68 @@
+﻿ret  {
+    binOpExps: [ 
+        {
+            name: "Term",
+            operand: "PrefixUnaryOperatorExpression",
+            operators: [ "MultiplicationOperator", "DivisionOperator", "ModulusOperator" ]
+        }, {
+            name: "AdditionExpression",
+            operand: "Term",
+            operators: [ "AdditionOperator", "MinusOperator" ]
+        }, {
+            name: "ShiftExpression",
+            operand: "AdditionExpression",
+            operators: [ "ShiftLeft", "ShiftRight" ],
+        }, {
+            name: "BinaryAndExpression",
+            operand: "ShiftExpression",
+            operators: [ "BinaryAndOperator" ],
+        }, {
+            name: "XorExpression",
+            operand: "BinaryAndExpression",
+            operators: [ "XorOperator" ],
+        }, {
+            name: "BinaryOrExpression",
+            operand: "XorExpression",
+            operators: [ "BinaryOrOperator" ],
+        }, {
+            name: "ComparisonExpression",
+            operand: "PostfixUnaryOperationExpression",
+            operators:  [ 
+                "EqualityOperator", 
+                "NotEqualOperator", 
+                "LessThanOperator", 
+                "LessThanOrEqualOperator", 
+                "GreaterThanOperator", 
+                "GreaterThanOrEqualOperator"
+            ]
+        }, {
+            name: "LogicalExpression",
+            operand: "ComparisonExpression",
+            operators: [ "AndOperator", "OrOperator" ]
+        }, {
+            name: "RangeExpression",
+            operand: "ConditionalExpression",
+            operators: [ "RangeOperator" ]
+        }, {
+            name: "PipelineExpression",
+            operand: "QueryExpression",
+            operators: [ "PipelineOperator" ]
+        }, {
+            name: "AssignmentExpression",
+            operand: "PipelineExpression",
+            operators: [ 
+				"AssignmentOperator",
+				"PlusEqualOperator",
+				"MinusEqualOperator",
+				"MultiplicationEqualOperator",
+				"DivisionEqualOperator",
+				"ModulusEqualOperator",
+				"BinaryAndEqualOperator",
+				"OrEqualOperator",
+				"XorEqualOperator",
+				"ShiftLeftEqualOperator",
+				"ShiftRightEqualOperator",
+			]
+        },  
+    ]
+};

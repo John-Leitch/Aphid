@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="AphidUI.CodeTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             xmlns:a="clr-namespace:AphidUI.Internal"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Border BorderThickness="1" BorderBrush="Gray">
+        <ScrollViewer x:Name="Viewer" HorizontalScrollBarVisibility="Auto" Background="White"
+                      HorizontalContentAlignment="Stretch"
+                      VerticalContentAlignment="Stretch" SizeChanged="Viewer_SizeChanged">
+            <!--<Border BorderBrush="Yellow" BorderThickness="2">-->
+                <a:CodeCanvas x:Name="TextBox" Margin="4" />
+            <!--</Border>-->
+        </ScrollViewer>
+    </Border>
+    <FocusManager.FocusedElement>
+        <Binding ElementName="TextBox"/>
+    </FocusManager.FocusedElement>
+</UserControl>

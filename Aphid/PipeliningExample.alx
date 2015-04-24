@@ -1,0 +1,5 @@
+﻿#'Std';
+
+square = @(x) x * x;
+cube = @(x) x * x * x;
+2 |> square |> cube |> print;

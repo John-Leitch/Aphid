@@ -1,0 +1,7 @@
+﻿#'Std';
+
+square = @(x) { 
+	ret x * x;
+};
+
+print(square(2));
