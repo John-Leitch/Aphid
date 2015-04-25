@@ -56,7 +56,7 @@ namespace AphidCodeGenerator
 
         public static CodePropertyReferenceExpression PropRef(params string[] propertyNames)
         {
-            return PropRef(This(), propertyNames);
+            return PropRef(null, propertyNames);
         }
 
         public static CodeFieldReferenceExpression FieldRef(CodeExpression targetObject, params string[] propertyNames)
