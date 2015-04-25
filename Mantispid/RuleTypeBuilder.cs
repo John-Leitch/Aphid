@@ -98,17 +98,25 @@ namespace Mantispid
                     .Select(x => CodeHelper.VarRef(x.Name))
                     .ToArray(); ;
 
-                CodeExpression childExpression = new CodeArrayCreateExpression(_baseTypeName, scalarChildren);
+                CodeExpression childExpression = scalarChildren.Any() ? 
+                    new CodeArrayCreateExpression(_baseTypeName, scalarChildren) : 
+                    null;
 
                 var hasLists = false;
 
                 foreach (var child in children.Where(x => x.IsList))
                 {
                     hasLists = true;
-                    childExpression = CodeHelper.Invoke(
-                        childExpression,
-                        "Concat",
-                        CodeHelper.VarRef(child.Name));
+                    var childRef = CodeHelper.VarRef(child.Name);
+
+                    if (childExpression != null)
+                    {
+                        childExpression = CodeHelper.Invoke(childExpression, "Concat", childRef);
+                    }
+                    else
+                    {
+                        childExpression = childRef;
+                    }
                 }
 
                 if (hasLists)
@@ -155,7 +163,9 @@ namespace Mantispid
                 .ToArray();
         }
 
-        private CodeParameterDeclarationExpression CreateCtorParameter(RuleStruct rule, CodeMemberProperty property)
+        private CodeParameterDeclarationExpression CreateCtorParameter(
+            RuleStruct rule, 
+            CodeMemberProperty property)
         {
             var exp = new CodeParameterDeclarationExpression(
                 property.Type,
@@ -163,7 +173,8 @@ namespace Mantispid
 
             if (rule.Properties.Single(x => x.Name == property.Name).IsOptional)
             {
-                exp.CustomAttributes.Add(new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
+                exp.CustomAttributes.Add(
+                    new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
             }
 
             return exp;
