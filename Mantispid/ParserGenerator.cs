@@ -27,18 +27,11 @@ namespace Mantispid
             _nextTokenFunc = "NextToken",
             _matchFunc = "Match";
 
-        private string
-            //_tokenType = "TokenType", 
-            _baseType = "Node",
-            _parsePrefix = "Parse";
-
         private Dictionary<string, string> _locals = new Dictionary<string, string>();
 
         private string[] _ruleNames;
 
         private RuleTypeTable _ruleTypes = new RuleTypeTable();
-
-        private string _currenType;
 
         private ParserGeneratorConfig _config;
 
