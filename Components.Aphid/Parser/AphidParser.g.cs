@@ -4,19 +4,19 @@ namespace Components.Aphid.Parser {
     
     public enum AphidExpressionType {
         
+        ArrayAccessExpression,
+        
+        ArrayExpression,
+        
         BinaryOperatorExpression,
         
-        UnaryOperatorExpression,
+        BooleanExpression,
+        
+        BreakExpression,
         
         CallExpression,
         
-        TernaryOperatorExpression,
-        
-        ArrayAccessExpression,
-        
-        IdentifierExpression,
-        
-        IfExpression,
+        DoWhileExpression,
         
         DynamicMemberExpression,
         
@@ -26,43 +26,43 @@ namespace Components.Aphid.Parser {
         
         ForExpression,
         
-        WhileExpression,
+        FunctionExpression,
         
-        DoWhileExpression,
+        IdentifierExpression,
         
-        LoadScriptExpression,
+        IfExpression,
         
         LoadLibraryExpression,
         
-        TryExpression,
-        
-        SwitchExpression,
-        
-        SwitchCase,
-        
-        StringExpression,
-        
-        ObjectExpression,
-        
-        ArrayExpression,
-        
-        FunctionExpression,
-        
-        PartialFunctionExpression,
-        
-        PatternMatchingExpression,
-        
-        PatternExpression,
-        
-        NumberExpression,
-        
-        BooleanExpression,
-        
-        ThisExpression,
+        LoadScriptExpression,
         
         NullExpression,
         
-        BreakExpression,
+        NumberExpression,
+        
+        ObjectExpression,
+        
+        PartialFunctionExpression,
+        
+        PatternExpression,
+        
+        PatternMatchingExpression,
+        
+        UnaryOperatorExpression,
+        
+        StringExpression,
+        
+        SwitchCase,
+        
+        SwitchExpression,
+        
+        TernaryOperatorExpression,
+        
+        ThisExpression,
+        
+        TryExpression,
+        
+        WhileExpression,
     }
     
     public partial class AphidParser {
