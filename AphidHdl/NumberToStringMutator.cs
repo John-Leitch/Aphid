@@ -11,7 +11,7 @@ namespace AphidHdl
     {
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            if (expression.Type != AphidNodeType.NumberExpression)
+            if (expression.Type != AphidExpressionType.NumberExpression)
             {
                 hasChanged = false;
 

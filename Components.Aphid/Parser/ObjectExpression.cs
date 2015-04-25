@@ -8,9 +8,9 @@ namespace Components.Aphid.Parser
 {
     public class ObjectExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.ObjectExpression; }
+            get { return AphidExpressionType.ObjectExpression; }
         }
 
         public List<BinaryOperatorExpression> Pairs { get; set; }

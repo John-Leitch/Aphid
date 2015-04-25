@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class SwitchExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.SwitchExpression; }
+            get { return AphidExpressionType.SwitchExpression; }
         }
 
         public AphidExpression Expression { get; set; }

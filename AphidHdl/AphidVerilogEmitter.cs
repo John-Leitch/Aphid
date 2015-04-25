@@ -105,35 +105,35 @@ namespace AphidHdl
         {
             switch (node.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     Emit((IdentifierExpression)node);
                     break;
 
-                case AphidNodeType.NumberExpression:
+                case AphidExpressionType.NumberExpression:
                     Emit((NumberExpression)node);
                     break;
 
-                case AphidNodeType.ArrayAccessExpression:
+                case AphidExpressionType.ArrayAccessExpression:
                     Emit((ArrayAccessExpression)node);
                     break;
 
-                case AphidNodeType.BooleanExpression:
+                case AphidExpressionType.BooleanExpression:
                     Emit((BooleanExpression)node);
                     break;
 
-                case AphidNodeType.ArrayExpression:
+                case AphidExpressionType.ArrayExpression:
                     Emit((ArrayExpression)node);
                     break;
 
-                case AphidNodeType.UnaryOperatorExpression:
+                case AphidExpressionType.UnaryOperatorExpression:
                     Emit((UnaryOperatorExpression)node);
                     break;
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     Emit((BinaryOperatorExpression)node);
                     break;
 
-                case AphidNodeType.TernaryOperatorExpression:
+                case AphidExpressionType.TernaryOperatorExpression:
                     Emit((TernaryOperatorExpression)node);
                     break;
 
@@ -253,12 +253,12 @@ namespace AphidHdl
 
             switch (node.RightOperand.Type)
             {
-                case AphidNodeType.FunctionExpression:
+                case AphidExpressionType.FunctionExpression:
                     var body = TryCast<FunctionExpression>(node.RightOperand);
                     EmitModule(id, body);
                     break;
 
-                case AphidNodeType.NumberExpression:
+                case AphidExpressionType.NumberExpression:
                     if (_typeTable.ContainsKey(id.Identifier))
                     {
                         throw new InvalidOperationException();
@@ -324,7 +324,7 @@ namespace AphidHdl
 
             switch (parameter.RightOperand.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     var id2 = TryCast<IdentifierExpression>(parameter.RightOperand);
                     _paramTable.Add(id.Identifier, ResolveType(id2.Identifier));
                     AppendUnindented(ResolveType(id2.Identifier).ToString());
@@ -340,10 +340,10 @@ namespace AphidHdl
         {
             switch (arg.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return (IdentifierExpression)arg;
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     return (IdentifierExpression)((BinaryOperatorExpression)arg).LeftOperand;
 
                 default:
@@ -466,11 +466,11 @@ namespace AphidHdl
 
             switch (expression.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     identifier = TryCast<IdentifierExpression>(expression);
                     break;
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     var binOp = (BinaryOperatorExpression)expression;
                     identifier = TryCast<IdentifierExpression>(binOp.LeftOperand);
                     value = binOp.RightOperand;
@@ -555,20 +555,20 @@ namespace AphidHdl
         {
             switch (statement.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     var id = (IdentifierExpression)statement;
                     EmitVar(id);
                     break;
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     EmitModuleBinaryExpression((BinaryOperatorExpression)statement);
                     break;
 
-                case AphidNodeType.FunctionExpression:
+                case AphidExpressionType.FunctionExpression:
                     EmitAlwaysBlock((FunctionExpression)statement);
                     break;
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     EmitCallStatement((CallExpression)statement);
                     break;
 
@@ -593,14 +593,14 @@ namespace AphidHdl
             RemoveTab();
         }
 
-        private bool CallHasArgs(CallExpression call, params AphidNodeType[] args)
+        private bool CallHasArgs(CallExpression call, params AphidExpressionType[] args)
         {
             return call.Args.Count() == args.Length ?
                 call.Args.Select((x, i) => x.Type == args[i]).All(x => x) :
                 false;
         }
 
-        private void CheckCallArgs(CallExpression call, params AphidNodeType[] args)
+        private void CheckCallArgs(CallExpression call, params AphidExpressionType[] args)
         {
             if (!CallHasArgs(call, args))
             {
@@ -612,7 +612,7 @@ namespace AphidHdl
         {
             switch (block.Type)
             {
-                case AphidNodeType.FunctionExpression:
+                case AphidExpressionType.FunctionExpression:
                     EmitBlock(
                         ((FunctionExpression)block).Body,
                         EmitCodeBlockStatement);
@@ -643,7 +643,7 @@ namespace AphidHdl
                     break;
 
                 case "sleep":
-                    CheckCallArgs(call, AphidNodeType.NumberExpression);
+                    CheckCallArgs(call, AphidExpressionType.NumberExpression);
                     var number = ((NumberExpression)call.Args.First()).Value;
                     Append("#{0}\r\n", number);
                     break;
@@ -682,7 +682,7 @@ namespace AphidHdl
                 case AphidTokenType.AssignmentOperator:
                     switch (binOpExp.RightOperand.Type)
                     {
-                        case AphidNodeType.CallExpression:
+                        case AphidExpressionType.CallExpression:
                             EmitModuleInstantiation(binOpExp);
                             break;
 
@@ -714,10 +714,10 @@ namespace AphidHdl
         {
             switch (expression.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return ((IdentifierExpression)expression).Identifier;
 
-                case AphidNodeType.NumberExpression:
+                case AphidExpressionType.NumberExpression:
                     return ((NumberExpression)expression).Value.ToString();
 
                 default:
@@ -734,7 +734,7 @@ namespace AphidHdl
             Append("{0} {1} (\r\n", callId.Identifier, id.Identifier);
             AddTab();
 
-            if (call.Args.All(x => x.Type == AphidNodeType.IdentifierExpression))
+            if (call.Args.All(x => x.Type == AphidExpressionType.IdentifierExpression))
             {
                 EmitTuple(
                     call.Args
@@ -744,7 +744,7 @@ namespace AphidHdl
                     x => Append(x));
             }
             else if (call.Args.Count() == 1 &&
-                call.Args.First().Type == AphidNodeType.ObjectExpression)
+                call.Args.First().Type == AphidExpressionType.ObjectExpression)
             {
                 var objExp = (ObjectExpression)call.Args.First();
 
@@ -814,19 +814,19 @@ namespace AphidHdl
         {
             switch (statement.Type)
             {
-                case AphidNodeType.IfExpression:
+                case AphidExpressionType.IfExpression:
                     EmitIfExpression((IfExpression)statement);
                     break;
 
-                case AphidNodeType.UnaryOperatorExpression:
+                case AphidExpressionType.UnaryOperatorExpression:
                     EmitCodeBlockUnaryStatement((UnaryOperatorExpression)statement);
                     break;
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     EmitCodeBlockBinaryExpression((BinaryOperatorExpression)statement);
                     break;
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     EmitCallStatement((CallExpression)statement);
                     break;
 

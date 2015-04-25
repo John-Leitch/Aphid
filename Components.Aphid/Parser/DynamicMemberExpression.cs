@@ -5,9 +5,9 @@ namespace Components.Aphid.Parser
 {
     public class DynamicMemberExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.DynamicMemberExpression; }
+            get { return AphidExpressionType.DynamicMemberExpression; }
         }
 
         public AphidExpression MemberExpression { get; set; }

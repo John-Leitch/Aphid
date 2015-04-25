@@ -72,11 +72,6 @@ namespace Components.Aphid.Parser.Fluent
             return (LoadScriptExpression)expression;
         }
 
-        public static MemberExpression ToMember(this AphidExpression expression)
-        {
-            return (MemberExpression)expression;
-        }
-
         public static NullExpression ToNull(this AphidExpression expression)
         {
             return (NullExpression)expression;

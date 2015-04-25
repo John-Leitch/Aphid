@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class ExtendExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.ExtendExpression; }
+            get { return AphidExpressionType.ExtendExpression; }
         }
 
         public string ExtendType { get; set; }

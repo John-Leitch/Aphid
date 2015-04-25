@@ -26,7 +26,7 @@ namespace Mantispid
         {
             hasChanged = false;
 
-            if (IsStatement && expression.Type == AphidNodeType.IdentifierExpression)
+            if (IsStatement && expression.Type == AphidExpressionType.IdentifierExpression)
             {
                 var idExp = expression.ToIdentifier();
                 var currentId = ParserIdentifier.FromIdentifierExpression(idExp);
@@ -61,11 +61,11 @@ namespace Mantispid
             CallExpression funcExp;
             BinaryOperatorExpression binOpExp;
 
-            if (expression.Type == AphidNodeType.CallExpression &&
-                (funcExp = expression.ToCall()).FunctionExpression.Type == AphidNodeType.BinaryOperatorExpression &&
+            if (expression.Type == AphidExpressionType.CallExpression &&
+                (funcExp = expression.ToCall()).FunctionExpression.Type == AphidExpressionType.BinaryOperatorExpression &&
                 ((binOpExp = funcExp.FunctionExpression.ToBinaryOperator()).Operator == AphidTokenType.MemberOperator) &&
-                binOpExp.LeftOperand.Type == AphidNodeType.IdentifierExpression &&
-                binOpExp.RightOperand.Type == AphidNodeType.IdentifierExpression &&
+                binOpExp.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
+                binOpExp.RightOperand.Type == AphidExpressionType.IdentifierExpression &&
                 binOpExp.RightOperand.ToIdentifier().Identifier == "Add")
             {
                 var id = binOpExp.LeftOperand.ToIdentifier().Identifier;
@@ -91,10 +91,10 @@ namespace Mantispid
 
             UnaryOperatorExpression unOpExp;
 
-            if (expression.Type == AphidNodeType.UnaryOperatorExpression &&
+            if (expression.Type == AphidExpressionType.UnaryOperatorExpression &&
                 (unOpExp = expression.ToUnaryOperator()).Operator == AphidTokenType.retKeyword)
             {
-                if (unOpExp.Operand.Type == AphidNodeType.IdentifierExpression)
+                if (unOpExp.Operand.Type == AphidExpressionType.IdentifierExpression)
                 {
                     var retId = unOpExp.Operand.ToIdentifier();
 

@@ -15,7 +15,7 @@ namespace Mantispid
         {
             BinaryOperatorExpression binOpExp;
 
-            if (expression.Type != AphidNodeType.BinaryOperatorExpression ||
+            if (expression.Type != AphidExpressionType.BinaryOperatorExpression ||
                 (binOpExp = expression.ToBinaryOperator()).Operator != AphidTokenType.PlusEqualOperator)
             {
                 hasChanged = false;

@@ -4,9 +4,9 @@ namespace Components.Aphid.Parser
 {
     public class NumberExpression : AphidExpression
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.NumberExpression; }
+            get { return AphidExpressionType.NumberExpression; }
         }
 
         public decimal Value { get; set; }

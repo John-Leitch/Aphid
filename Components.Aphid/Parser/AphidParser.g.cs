@@ -2,6 +2,69 @@ namespace Components.Aphid.Parser {
     using Components.Aphid.Lexer;
     
     
+    public enum AphidExpressionType {
+        
+        BinaryOperatorExpression,
+        
+        UnaryOperatorExpression,
+        
+        CallExpression,
+        
+        TernaryOperatorExpression,
+        
+        ArrayAccessExpression,
+        
+        IdentifierExpression,
+        
+        IfExpression,
+        
+        DynamicMemberExpression,
+        
+        ExtendExpression,
+        
+        ForEachExpression,
+        
+        ForExpression,
+        
+        WhileExpression,
+        
+        DoWhileExpression,
+        
+        LoadScriptExpression,
+        
+        LoadLibraryExpression,
+        
+        TryExpression,
+        
+        SwitchExpression,
+        
+        SwitchCase,
+        
+        StringExpression,
+        
+        ObjectExpression,
+        
+        ArrayExpression,
+        
+        FunctionExpression,
+        
+        PartialFunctionExpression,
+        
+        PatternMatchingExpression,
+        
+        PatternExpression,
+        
+        NumberExpression,
+        
+        BooleanExpression,
+        
+        ThisExpression,
+        
+        NullExpression,
+        
+        BreakExpression,
+    }
+    
     public partial class AphidParser {
         
         public System.Collections.Generic.List<AphidExpression> Parse() {

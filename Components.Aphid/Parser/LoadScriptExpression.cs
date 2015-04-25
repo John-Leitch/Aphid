@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class LoadScriptExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.LoadScriptExpression; }
+            get { return AphidExpressionType.LoadScriptExpression; }
         }
 
         public AphidExpression FileExpression { get; set; }

@@ -27,8 +27,8 @@ namespace Mantispid
             IdentifierExpression id;
 
             // Todo: handle member access e.g. decimal.Parse
-            if (expression.Type == AphidNodeType.CallExpression &&
-                (call = expression.ToCall()).FunctionExpression.Type == AphidNodeType.IdentifierExpression &&
+            if (expression.Type == AphidExpressionType.CallExpression &&
+                (call = expression.ToCall()).FunctionExpression.Type == AphidExpressionType.IdentifierExpression &&
                 _parseFunctions.Contains(call.FunctionExpression.ToIdentifier().Identifier))
             {
                 _skip = true;
@@ -39,7 +39,7 @@ namespace Mantispid
             //{
             //    _skip = true;
             //}
-            else if (expression.Type == AphidNodeType.IdentifierExpression &&
+            else if (expression.Type == AphidExpressionType.IdentifierExpression &&
                 _parseFunctions.Contains((id = expression.ToIdentifier()).Identifier))
             {
                 if (_skip)

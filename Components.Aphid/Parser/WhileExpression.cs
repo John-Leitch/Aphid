@@ -8,9 +8,9 @@ namespace Components.Aphid.Parser
 {
     public class WhileExpression : ControlFlowExpression
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.WhileExpression; }
+            get { return AphidExpressionType.WhileExpression; }
         }
 
         public WhileExpression(AphidExpression condition, List<AphidExpression> body)

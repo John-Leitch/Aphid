@@ -59,7 +59,7 @@ namespace Components.Aphid.Parser
 
             switch (expression.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     var id = (IdentifierExpression)expression;
 
                     expanded.Add(new IdentifierExpression(
@@ -69,7 +69,7 @@ namespace Components.Aphid.Parser
                             .ToList()));
                     break;
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     var call = (CallExpression)expression;
 
                     expanded.Add(new CallExpression(
@@ -78,7 +78,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.UnaryOperatorExpression:
+                case AphidExpressionType.UnaryOperatorExpression:
                     var unOp = (UnaryOperatorExpression)expression;
 
                     expanded.Add(new UnaryOperatorExpression(
@@ -90,7 +90,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     var binOp = (BinaryOperatorExpression)expression;
 
                     expanded.Add(new BinaryOperatorExpression(
@@ -100,7 +100,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.SwitchExpression:
+                case AphidExpressionType.SwitchExpression:
                     var switchExp = (SwitchExpression)expression;
 
                     expanded.Add(new SwitchExpression()
@@ -118,7 +118,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.IfExpression:
+                case AphidExpressionType.IfExpression:
                     var ifExp = (IfExpression)expression;
 
                     expanded.Add(new IfExpression(
@@ -128,7 +128,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.ForExpression:
+                case AphidExpressionType.ForExpression:
                     var forExp = (ForExpression)expression;
 
                     expanded.Add(new ForExpression(
@@ -139,7 +139,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.ForEachExpression:
+                case AphidExpressionType.ForEachExpression:
                     var forEachExp = (ForEachExpression)expression;
 
                     expanded.Add(
@@ -150,27 +150,27 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.WhileExpression:
+                case AphidExpressionType.WhileExpression:
                     var cfExp = (WhileExpression)expression;
                     expanded.Add(new WhileExpression(Mutate(cfExp.Condition).Single(), Mutate(cfExp.Body)));
                     break;
 
-                case AphidNodeType.DoWhileExpression:
+                case AphidExpressionType.DoWhileExpression:
                     var dwExp = (DoWhileExpression)expression;
                     expanded.Add(new DoWhileExpression(Mutate(dwExp.Condition).Single(), Mutate(dwExp.Body)));
                     break;
 
-                case AphidNodeType.LoadScriptExpression:
+                case AphidExpressionType.LoadScriptExpression:
                     var lsExp = (LoadScriptExpression)expression;
                     expanded.Add(new LoadScriptExpression(Mutate(lsExp.FileExpression).Single()));
                     break;
 
-                case AphidNodeType.LoadLibraryExpression:
+                case AphidExpressionType.LoadLibraryExpression:
                     var llExp = (LoadLibraryExpression)expression;
                     expanded.Add(new LoadLibraryExpression(Mutate(llExp.LibraryExpression).Single()));
                     break;
 
-                case AphidNodeType.FunctionExpression:
+                case AphidExpressionType.FunctionExpression:
                     var funcExp = (FunctionExpression)expression;
 
                     expanded.Add(new FunctionExpression()
@@ -181,7 +181,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.ArrayExpression:
+                case AphidExpressionType.ArrayExpression:
                     var arrayExp = (ArrayExpression)expression;
 
                     expanded.Add(new ArrayExpression()
@@ -191,7 +191,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.ArrayAccessExpression:
+                case AphidExpressionType.ArrayAccessExpression:
                     var arrayAccessExp = (ArrayAccessExpression)expression;
 
                     expanded.Add(new ArrayAccessExpression(
@@ -200,7 +200,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.ObjectExpression:
+                case AphidExpressionType.ObjectExpression:
                     var pairs = ((ObjectExpression)expression).Pairs
                         .Select(x => (BinaryOperatorExpression)Mutate(x).Single())
                         .ToList();
@@ -208,7 +208,7 @@ namespace Components.Aphid.Parser
                     expanded.Add(new ObjectExpression(pairs));
                     break;
 
-                case AphidNodeType.ExtendExpression:
+                case AphidExpressionType.ExtendExpression:
                     var extendExp = (ExtendExpression)expression;
 
                     expanded.Add(new ExtendExpression(
@@ -217,7 +217,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.TernaryOperatorExpression:
+                case AphidExpressionType.TernaryOperatorExpression:
                     var terExp = (TernaryOperatorExpression)expression;
 
                     expanded.Add(
@@ -229,7 +229,7 @@ namespace Components.Aphid.Parser
 
                     break;
 
-                case AphidNodeType.DynamicMemberExpression:
+                case AphidExpressionType.DynamicMemberExpression:
                     var dynExp = (DynamicMemberExpression)expression;
 
                     expanded.Add(

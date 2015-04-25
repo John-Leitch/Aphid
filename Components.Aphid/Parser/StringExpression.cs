@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class StringExpression : ValueExpression<string>
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.StringExpression; }
+            get { return AphidExpressionType.StringExpression; }
         }
 
         public StringExpression(string value)

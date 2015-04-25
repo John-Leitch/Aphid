@@ -8,9 +8,9 @@ namespace Components.Aphid.Parser
 {
     public class TernaryOperatorExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.TernaryOperatorExpression; }
+            get { return AphidExpressionType.TernaryOperatorExpression; }
         }
 
         public AphidTokenType Operator { get; set; }

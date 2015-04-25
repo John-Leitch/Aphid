@@ -12,7 +12,7 @@ namespace Components.Aphid.Parser
         {
             BinaryOperatorExpression binOpExp;
 
-            if (expression.Type != AphidNodeType.BinaryOperatorExpression ||
+            if (expression.Type != AphidExpressionType.BinaryOperatorExpression ||
                 (binOpExp = (BinaryOperatorExpression)expression).Operator != AphidTokenType.PipelineOperator)
             {
                 hasChanged = false;

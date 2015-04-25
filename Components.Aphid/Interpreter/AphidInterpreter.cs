@@ -1154,93 +1154,93 @@ namespace Components.Aphid.Interpreter
         {
             switch (expression.Type)
             {
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     return InterpretBinaryOperatorExpression((BinaryOperatorExpression)expression);
 
-                case AphidNodeType.ObjectExpression:
+                case AphidExpressionType.ObjectExpression:
                     return InterpretObjectExpression((ObjectExpression)expression);
 
-                case AphidNodeType.StringExpression:
+                case AphidExpressionType.StringExpression:
                     return InterpretStringExpression((StringExpression)expression);
 
-                case AphidNodeType.NumberExpression:
+                case AphidExpressionType.NumberExpression:
                     return InterpretNumberExpression((NumberExpression)expression);
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     return InterpretCallExpression((CallExpression)expression);
 
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return InterpretIdentifierExpression((IdentifierExpression)expression);
 
-                case AphidNodeType.FunctionExpression:
+                case AphidExpressionType.FunctionExpression:
                     return InterpretFunctionExpression((FunctionExpression)expression);
 
-                case AphidNodeType.ArrayExpression:
+                case AphidExpressionType.ArrayExpression:
                     return InterpretArrayExpression((ArrayExpression)expression);
 
-                case AphidNodeType.UnaryOperatorExpression:
+                case AphidExpressionType.UnaryOperatorExpression:
                     return InterpretUnaryOperatorExpression((UnaryOperatorExpression)expression);
 
-                case AphidNodeType.BooleanExpression:
+                case AphidExpressionType.BooleanExpression:
                     return InterpretBooleanExpression((BooleanExpression)expression);
 
-                case AphidNodeType.IfExpression:
+                case AphidExpressionType.IfExpression:
                     return InterpretIfExpression((IfExpression)expression);
 
-                case AphidNodeType.ArrayAccessExpression:
+                case AphidExpressionType.ArrayAccessExpression:
                     return InterpretArrayAccessExpression((ArrayAccessExpression)expression);
 
-                case AphidNodeType.ForEachExpression:
+                case AphidExpressionType.ForEachExpression:
                     return InterpretForEachExpression((ForEachExpression)expression);
 
-                case AphidNodeType.ForExpression:
+                case AphidExpressionType.ForExpression:
                     return InterpretForExpression((ForExpression)expression);
 
-                case AphidNodeType.LoadScriptExpression:
+                case AphidExpressionType.LoadScriptExpression:
                     return InterpretLoadScriptExpression((LoadScriptExpression)expression);
 
-                case AphidNodeType.LoadLibraryExpression:
+                case AphidExpressionType.LoadLibraryExpression:
                     return InterpretLoadLibraryExpression((LoadLibraryExpression)expression);
 
-                case AphidNodeType.NullExpression:
+                case AphidExpressionType.NullExpression:
                     return new AphidObject(null);
 
-                case AphidNodeType.BreakExpression:
+                case AphidExpressionType.BreakExpression:
                     return InterpretBreakExpression();
 
-                case AphidNodeType.PartialFunctionExpression:
+                case AphidExpressionType.PartialFunctionExpression:
                     return InterpretPartialFunctionExpression((PartialFunctionExpression)expression);
 
-                case AphidNodeType.ThisExpression:
+                case AphidExpressionType.ThisExpression:
                     return InterpretThisExpression();
 
-                case AphidNodeType.PatternMatchingExpression:
+                case AphidExpressionType.PatternMatchingExpression:
                     return InterpretPatternMatchingExpression((PatternMatchingExpression)expression);
 
-                case AphidNodeType.ExtendExpression:
+                case AphidExpressionType.ExtendExpression:
                     InterpretExtendExpression((ExtendExpression)expression);
 
                     return null;
 
-                case AphidNodeType.WhileExpression:
+                case AphidExpressionType.WhileExpression:
                     InterpretWhileExpression((WhileExpression)expression);
 
                     return null;
 
-                case AphidNodeType.DoWhileExpression:
+                case AphidExpressionType.DoWhileExpression:
                     InterpretDoWhileExpression((DoWhileExpression)expression);
 
                     return null;
 
-                case AphidNodeType.TryExpression:
+                case AphidExpressionType.TryExpression:
                     InterpretTryExpression((TryExpression)expression);
 
                     return null;
 
-                case AphidNodeType.TernaryOperatorExpression:
+                case AphidExpressionType.TernaryOperatorExpression:
                     return InterpretTernaryOperatorExpression((TernaryOperatorExpression)expression);
 
-                case AphidNodeType.SwitchExpression:
+                case AphidExpressionType.SwitchExpression:
                     InterpretSwitchExpression((SwitchExpression)expression);
 
                     return null;

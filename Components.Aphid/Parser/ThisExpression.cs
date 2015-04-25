@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class ThisExpression : AphidExpression
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.ThisExpression; }
+            get { return AphidExpressionType.ThisExpression; }
         }
     }
 }

@@ -8,9 +8,9 @@ namespace Components.Aphid.Parser
 {
     public class BooleanExpression : AphidExpression
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.BooleanExpression; }
+            get { return AphidExpressionType.BooleanExpression; }
         }
 
         public bool Value { get; set; }

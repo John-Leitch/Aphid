@@ -5,9 +5,9 @@ namespace Components.Aphid.Parser
 {
     public class ArrayAccessExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.ArrayAccessExpression; }
+            get { return AphidExpressionType.ArrayAccessExpression; }
         }
 
         public AphidExpression ArrayExpression { get; set; }

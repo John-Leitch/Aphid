@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class BinaryOperatorExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.BinaryOperatorExpression; }
+            get { return AphidExpressionType.BinaryOperatorExpression; }
         }
 
         private Dictionary<AphidTokenType, string> _opTable = new Dictionary<AphidTokenType, string>

@@ -48,6 +48,7 @@
     <Compile Include="CallIdentifierMutator.cs" />
     <Compile Include="DeclarativeStatementAttributes.cs" />
     <Compile Include="DeclarativeStatementMutator.cs" />
+    <Compile Include="EnumBuilder.cs" />
     <Compile Include="ParserGenerator.cs" />
     <Compile Include="ParserGeneratorConfig.cs" />
     <Compile Include="ParserIdentifier.cs" />

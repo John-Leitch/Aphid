@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class BreakExpression : AphidExpression
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.BreakExpression; }
+            get { return AphidExpressionType.BreakExpression; }
         }
     }
 }

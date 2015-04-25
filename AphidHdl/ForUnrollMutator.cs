@@ -15,7 +15,7 @@ namespace AphidHdl
         {
             hasChanged = false;
 
-            if (expression.Type != AphidNodeType.ForExpression)
+            if (expression.Type != AphidExpressionType.ForExpression)
             {
                 return null;
             }
@@ -24,7 +24,7 @@ namespace AphidHdl
 
             var forExp = (ForExpression)expression;
 
-            if (forExp.Initialization.Type != AphidNodeType.BinaryOperatorExpression)
+            if (forExp.Initialization.Type != AphidExpressionType.BinaryOperatorExpression)
             {
                 throw new InvalidOperationException();
             }
@@ -32,8 +32,8 @@ namespace AphidHdl
             var initExp = (BinaryOperatorExpression)forExp.Initialization;
 
             if (initExp.Operator != AphidTokenType.AssignmentOperator ||
-                initExp.LeftOperand.Type != AphidNodeType.IdentifierExpression ||
-                initExp.RightOperand.Type != AphidNodeType.NumberExpression)
+                initExp.LeftOperand.Type != AphidExpressionType.IdentifierExpression ||
+                initExp.RightOperand.Type != AphidExpressionType.NumberExpression)
             {
                 throw new InvalidOperationException();
             }
@@ -66,7 +66,7 @@ namespace AphidHdl
                 
                 var replaceMutator = new ReplacementMutator(
                     x =>
-                        x.Type == AphidNodeType.IdentifierExpression &&
+                        x.Type == AphidExpressionType.IdentifierExpression &&
                         ((IdentifierExpression)x).Identifier == id,
                     x => new List<AphidExpression> { new NumberExpression(value) });
 

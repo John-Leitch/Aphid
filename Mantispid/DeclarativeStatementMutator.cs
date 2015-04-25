@@ -23,7 +23,7 @@ namespace Mantispid
         {
             hasChanged = false;
 
-            if (!IsStatement || expression.Type != AphidNodeType.IdentifierExpression)
+            if (!IsStatement || expression.Type != AphidExpressionType.IdentifierExpression)
             {
                 return null;
             }

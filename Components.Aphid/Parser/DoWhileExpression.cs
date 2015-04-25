@@ -8,9 +8,9 @@ namespace Components.Aphid.Parser
 {
     public class DoWhileExpression : ControlFlowExpression
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.DoWhileExpression; }
+            get { return AphidExpressionType.DoWhileExpression; }
         }
 
         public DoWhileExpression(AphidExpression condition, List<AphidExpression> body)

@@ -59,11 +59,11 @@ namespace Mantispid
         private BinaryOperatorExpression[] GetRules(List<AphidExpression> nodes)
         {
             return nodes
-                .Where(x => x.Type == AphidNodeType.BinaryOperatorExpression)
+                .Where(x => x.Type == AphidExpressionType.BinaryOperatorExpression)
                 .Cast<BinaryOperatorExpression>()
                 .Where(x =>
-                    x.LeftOperand.Type == AphidNodeType.IdentifierExpression &&
-                    x.RightOperand.Type == AphidNodeType.FunctionExpression)
+                    x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
+                    x.RightOperand.Type == AphidExpressionType.FunctionExpression)
                 .ToArray();
         }
 
@@ -100,14 +100,16 @@ namespace Mantispid
 
             var typeClasses = CreateRuleTypeClasses();
 
+            var enumBuilder = new EnumBuilder(_config.BaseClass, _ruleTypes.Select(x => x.Key));
+            var enumDecl = enumBuilder.CreateEnum();
+            
             var ns = new CodeNamespace(
                 string.Join(".", _config.Namespace.Concat(new[] { "Parser" })));
 
             ns.Imports.Add(new System.CodeDom.CodeNamespaceImport(
                 string.Join(".", _config.Namespace.Concat(new[] { "Lexer" }))));
+            ns.Types.Add(enumDecl);
             //ns.Types.AddRange(typeClasses);
-
-
 
             var parserType = new CodeTypeDeclaration(_config.ParserClass)
             {
@@ -161,7 +163,7 @@ namespace Mantispid
                     Values = Flatten(x)
                 })
                 .SingleOrDefault(x =>
-                    x.Values.All(y => y.Type == AphidNodeType.IdentifierExpression) &&
+                    x.Values.All(y => y.Type == AphidExpressionType.IdentifierExpression) &&
                     ((IdentifierExpression)x.Values.First()).Attributes.Count == 1 &&
                     ((IdentifierExpression)x.Values.First()).Attributes.First().Identifier == directive);
 
@@ -184,7 +186,7 @@ namespace Mantispid
 
             switch (exp.Type)
             {
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     var binOpExp = (BinaryOperatorExpression)exp;
                     expressions.AddRange(Flatten(binOpExp.LeftOperand));
                     expressions.AddRange(Flatten(binOpExp.RightOperand));
@@ -217,8 +219,8 @@ namespace Mantispid
                 .OfType<BinaryOperatorExpression>()
                 .Where(x =>
                     x.Operator == AphidTokenType.AssignmentOperator &&
-                    x.LeftOperand.Type == AphidNodeType.IdentifierExpression &&
-                    x.RightOperand.Type == AphidNodeType.ObjectExpression)
+                    x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
+                    x.RightOperand.Type == AphidExpressionType.ObjectExpression)
                 .ToArray();
 
             foreach (var t in typeExpressions)
@@ -386,7 +388,7 @@ namespace Mantispid
                 .OfType<BinaryOperatorExpression>()
                 .Where(x =>
                     x.Operator == AphidTokenType.AssignmentOperator &&
-                    x.LeftOperand.Type == AphidNodeType.IdentifierExpression)
+                    x.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
                 .Select(x => ((IdentifierExpression)x.LeftOperand).Identifier)
                 .ToArray();
         }
@@ -402,7 +404,7 @@ namespace Mantispid
         {
             switch (node.Type)
             {
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     return Generate((BinaryOperatorExpression)node);
 
                 default:
@@ -418,7 +420,7 @@ namespace Mantispid
 
                     switch (node.RightOperand.Type)
                     {
-                        case AphidNodeType.FunctionExpression:
+                        case AphidExpressionType.FunctionExpression:
                             return GenerateImperativeMethod(node);
 
                         default:
@@ -435,7 +437,7 @@ namespace Mantispid
         {
             _scope.Clear();
 
-            if (node.LeftOperand.Type != AphidNodeType.IdentifierExpression)
+            if (node.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
             {
                 throw new NotImplementedException();
             }
@@ -497,31 +499,31 @@ namespace Mantispid
         {
             switch (node.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return GenerateImperativeStatement((IdentifierExpression)node);
 
-                case AphidNodeType.SwitchExpression:
+                case AphidExpressionType.SwitchExpression:
                     return GenerateImperativeStatement((SwitchExpression)node);
 
-                case AphidNodeType.UnaryOperatorExpression:
+                case AphidExpressionType.UnaryOperatorExpression:
                     return GenerateImperativeStatement((UnaryOperatorExpression)node);
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     return GenerateImperativeStatement((BinaryOperatorExpression)node);
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     return GenerateImperativeStatement((CallExpression)node);
 
-                case AphidNodeType.IfExpression:
+                case AphidExpressionType.IfExpression:
                     return GenerateImperativeStatement((IfExpression)node);
 
-                case AphidNodeType.WhileExpression:
+                case AphidExpressionType.WhileExpression:
                     return GenerateImperativeStatement((WhileExpression)node);
 
-                case AphidNodeType.DoWhileExpression:
+                case AphidExpressionType.DoWhileExpression:
                     return GenerateImperativeStatement((DoWhileExpression)node);
 
-                case AphidNodeType.BreakExpression:
+                case AphidExpressionType.BreakExpression:
                     return GenerateImperativeStatement((BreakExpression)node);
 
                 default:
@@ -571,7 +573,7 @@ namespace Mantispid
         {
             switch (node.FunctionExpression.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     var name = ((IdentifierExpression)node.FunctionExpression).Identifier;
 
                     switch (name)
@@ -662,7 +664,7 @@ namespace Mantispid
             //}
 
 
-            if (node.LeftOperand.Type == AphidNodeType.IdentifierExpression)
+            if (node.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
             {
                 var id = ((IdentifierExpression)node.LeftOperand).Identifier;
                 AphidObject obj;
@@ -811,28 +813,28 @@ namespace Mantispid
         {
             switch (node.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return GenerateImperativeExpression((IdentifierExpression)node, isCondition);
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     return GenerateImperativeExpression((CallExpression)node);
 
-                case AphidNodeType.UnaryOperatorExpression:
+                case AphidExpressionType.UnaryOperatorExpression:
                     return GenerateImperativeExpression((UnaryOperatorExpression)node, isCondition);
 
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     return GenerateImperativeExpression((BinaryOperatorExpression)node, isCondition);
 
-                case AphidNodeType.BooleanExpression:
+                case AphidExpressionType.BooleanExpression:
                     return GenerateImperativeExpression((BooleanExpression)node);
 
-                case AphidNodeType.NullExpression:
+                case AphidExpressionType.NullExpression:
                     return CodeHelper.Null();
 
-                case AphidNodeType.ArrayAccessExpression:
+                case AphidExpressionType.ArrayAccessExpression:
                     return GenerateImperativeExpression((ArrayAccessExpression)node);
 
-                case AphidNodeType.NumberExpression:
+                case AphidExpressionType.NumberExpression:
                     return GenerateImperativeExpression((NumberExpression)node);
 
                 default:
@@ -898,8 +900,8 @@ namespace Mantispid
 
         private CodeExpression GenerateImperativeExpression(CallExpression node)
         {
-            if (node.FunctionExpression.Type != AphidNodeType.IdentifierExpression &&
-                node.FunctionExpression.Type != AphidNodeType.BinaryOperatorExpression &&
+            if (node.FunctionExpression.Type != AphidExpressionType.IdentifierExpression &&
+                node.FunctionExpression.Type != AphidExpressionType.BinaryOperatorExpression &&
                 ((BinaryOperatorExpression)node.FunctionExpression).Operator != AphidTokenType.MemberOperator)
             {
                 throw new NotImplementedException();
@@ -908,7 +910,7 @@ namespace Mantispid
             string id;
             ReferenceType funcType;
 
-            if (node.FunctionExpression.Type == AphidNodeType.IdentifierExpression)
+            if (node.FunctionExpression.Type == AphidExpressionType.IdentifierExpression)
             {
                 id = ((IdentifierExpression)node.FunctionExpression).Identifier;
                 funcType = ResolveType(id);
@@ -980,7 +982,7 @@ namespace Mantispid
             switch (node.Operator)
             {
                 case AphidTokenType.MemberOperator:
-                    if (node.RightOperand.Type != AphidNodeType.IdentifierExpression)
+                    if (node.RightOperand.Type != AphidExpressionType.IdentifierExpression)
                     {
                         throw new NotImplementedException();
                     }
@@ -1011,7 +1013,7 @@ namespace Mantispid
 
         private CodeStatementCollection GenerateParseRuleFunction(BinaryOperatorExpression node)
         {
-            if (node.LeftOperand.Type != AphidNodeType.IdentifierExpression)
+            if (node.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
             {
                 throw new NotImplementedException();
             }
@@ -1057,7 +1059,7 @@ namespace Mantispid
         {
             switch (node.Type)
             {
-                case AphidNodeType.BinaryOperatorExpression:
+                case AphidExpressionType.BinaryOperatorExpression:
                     return GenerateParseRuleBody((BinaryOperatorExpression)node);
 
                 default:
@@ -1086,10 +1088,10 @@ namespace Mantispid
         {
             switch (node.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return GenerateMatchStatement((IdentifierExpression)node);
 
-                case AphidNodeType.CallExpression:
+                case AphidExpressionType.CallExpression:
                     return GenerateMatchStatement((CallExpression)node);
 
                 default:
@@ -1143,7 +1145,7 @@ namespace Mantispid
 
         private CodeStatementCollection GenerateMatchStatement(CallExpression node)
         {
-            if (node.FunctionExpression.Type != AphidNodeType.IdentifierExpression)
+            if (node.FunctionExpression.Type != AphidExpressionType.IdentifierExpression)
             {
                 throw new NotImplementedException();
             }
@@ -1222,7 +1224,7 @@ namespace Mantispid
         {
             switch (node.Type)
             {
-                case AphidNodeType.IdentifierExpression:
+                case AphidExpressionType.IdentifierExpression:
                     return GeneratePeek((IdentifierExpression)node, out varName);
 
                 default:

@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class PartialFunctionExpression : AphidExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.PartialFunctionExpression; }
+            get { return AphidExpressionType.PartialFunctionExpression; }
         }
 
         public CallExpression Call { get; set; }

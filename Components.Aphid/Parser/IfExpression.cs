@@ -7,9 +7,9 @@ namespace Components.Aphid.Parser
 {
     public class IfExpression : ControlFlowExpression, IParentNode
     {
-        public override AphidNodeType Type
+        public override AphidExpressionType Type
         {
-            get { return AphidNodeType.IfExpression; }
+            get { return AphidExpressionType.IfExpression; }
         }
 
         public List<AphidExpression> ElseBody { get; set; }
