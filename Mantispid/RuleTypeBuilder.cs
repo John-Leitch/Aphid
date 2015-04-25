@@ -74,12 +74,13 @@ namespace Mantispid
                     .ToArray());
 
             decl.Members.Add(ctor);
-            AddGetChildren(rule, decl);
+            AddGetChildrenMethod(rule, decl);
+            AddTypeProperty(rule, decl);
 
             return decl;
         }
 
-        private void AddGetChildren(RuleStruct rule, CodeTypeDeclaration decl)
+        private void AddGetChildrenMethod(RuleStruct rule, CodeTypeDeclaration decl)
         {
             if (!rule.Properties.Any(x => _resolver.Is(x.Type, _baseTypeName)))
             {
@@ -124,6 +125,21 @@ namespace Mantispid
 
                 method.Statements.Add(CodeHelper.Return(childExpression));
                 decl.Members.Add(method);
+        }
+
+        private void AddTypeProperty(RuleStruct rule, CodeTypeDeclaration decl)
+        {
+            var enumType = _baseTypeName + "Type";
+
+            var prop = new CodeMemberProperty()
+            {
+                Attributes = MemberAttributes.Public | MemberAttributes.Override,
+                Type = CodeHelper.TypeRef(enumType),
+                Name = "Type",
+            };
+
+            prop.GetStatements.Add(CodeHelper.Return(CodeHelper.PropRef(enumType, rule.Name)));
+            decl.Members.Add(prop);
         }
 
         private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
