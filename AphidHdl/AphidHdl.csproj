@@ -90,10 +90,6 @@
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Components\Components.csproj">
-      <Project>{d3c57893-efbd-465e-830c-104990bfa62d}</Project>
-      <Name>Components</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
