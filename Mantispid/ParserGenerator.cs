@@ -91,7 +91,8 @@ namespace Mantispid
             //    func.Body = callIdMutator.Mutate(func.Body);
             //}
 
-            var typeClasses = CreateRuleTypeClasses();
+            var ruleTypeBuilder = new RuleTypeBuilder(_ruleTypes.Select(x => x.Value));
+            var typeClasses = ruleTypeBuilder.CreateRuleTypeClasses();
 
             var enumBuilder = new EnumBuilder(_config.BaseClass, _ruleTypes.Select(x => x.Key));
             var enumDecl = enumBuilder.CreateEnum();
@@ -241,135 +242,7 @@ namespace Mantispid
                 _ruleTypes.Add(t);
             }
         }
-
-        public CodeTypeDeclarationCollection CreateRuleTypeClasses()
-        {
-            return new CodeTypeDeclarationCollection(
-                _ruleTypes
-                    .Select(x => x.Value)
-                    .Select(CreateCodeType)
-                    .ToArray());
-        }
-
-        public CodeTypeDeclaration CreateCodeType(RuleStruct rule)
-        {
-            // Todo: extract code helper methods from this bullshit
-            var decl = new CodeTypeDeclaration(rule.Name)
-            {
-                IsPartial = true,
-            };
-
-            decl.BaseTypes.Add(CodeHelper.TypeRef(rule.BaseName));
-
-            var properties = CreateProperties(rule);
-
-            foreach (var p in properties)
-            {
-                p.GetStatements.Add(CodeHelper.Return(GetFieldName(p.Name)));
-            }
-
-            decl.Members.AddRange(properties);
-
-            decl.Members.AddRange(
-                properties
-                    .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name))
-                    {
-                        Attributes = MemberAttributes.Private,
-                    })
-                    .ToArray());
-
-            var ctor = new CodeConstructor()
-            {
-                Attributes = MemberAttributes.Public,
-            };
-
-            ctor.Parameters.AddRange(
-                properties
-                    .Select(x => CreateCtorParameter(rule, x))
-                    .ToArray());
-
-            ctor.Statements.AddRange(
-                properties
-                    .Select(x => CodeHelper.Assign(GetFieldName(x.Name), GetLocalName(x.Name)))
-                    .ToArray());
-
-            decl.Members.Add(ctor);
-
-            return decl;
-        }
-
-        private CodeParameterDeclarationExpression CreateCtorParameter(RuleStruct rule, CodeMemberProperty property)
-        {
-            var exp = new CodeParameterDeclarationExpression(
-                property.Type,
-                GetLocalName(property.Name));
-
-            if (rule.Properties.Single(x => x.Name == property.Name).IsOptional)
-            {
-                exp.CustomAttributes.Add(new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
-            }
-
-            return exp;
-        }
-
-        private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
-        {
-            return ruleType.Properties
-                .Select(x => new CodeMemberProperty()
-                {
-                    Name = x.Name,
-                    Attributes = MemberAttributes.Public | MemberAttributes.Final,
-                    Type = GetTypeRef(x),
-                    HasGet = true,
-                })
-                .ToArray();
-        }
-
-        private string GetFieldName(string name)
-        {
-            return "_" + GetLocalName(name);
-        }
-
-        private string GetLocalName(string name)
-        {
-            return name.Substring(0, 1).ToLower() + name.Substring(1);
-        }
-
-        private CodeTypeReference GetListTypeRef(CodeTypeReference typeArg)
-        {
-            var listTypeRef = CodeHelper.TypeRef(typeof(List<>));
-            listTypeRef.TypeArguments.Add(typeArg);
-
-            return listTypeRef;
-        }
-
-        private CodeTypeReference GetTypeRef(ParserIdentifier property)
-        {
-            CodeTypeReference typeRef;
-
-            switch (property.Type)
-            {
-                case "bool":
-                    typeRef = CodeHelper.TypeRef<bool>();
-                    break;
-
-                case "string":
-                    typeRef = CodeHelper.TypeRef<string>();
-                    break;
-
-                default:
-                    typeRef = CodeHelper.TypeRef(property.Type);
-                    break;
-            }
-
-            if (property.IsList)
-            {
-                return GetListTypeRef(typeRef);
-            }
-
-            return typeRef;
-        }
-
+        
         private CodeMethodInvokeExpression GetNextToken()
         {
             return CodeHelper.Invoke("NextToken");
@@ -459,7 +332,7 @@ namespace Mantispid
             var method = new System.CodeDom.CodeMemberMethod()
             {
                 Name = funcId.Identifier,
-                ReturnType = methodAttrs.IsList ? GetListTypeRef(typeRef) : typeRef,
+                ReturnType = methodAttrs.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef,
             };
 
             if (methodAttrs.IsRoot)
@@ -531,7 +404,7 @@ namespace Mantispid
             if (parserId.Name != "Error")
             {
                 var typeRef = CodeHelper.TypeRef(parserId.Type ?? _config.BaseClass);
-                typeRef = parserId.IsList ? GetListTypeRef(typeRef) : typeRef;
+                typeRef = parserId.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef;
                 var init = new CodeDefaultValueExpression(typeRef);
                 var varDecl = new CodeVariableDeclarationStatement(typeRef, node.Identifier, init);
                 _scope.Add(node.Identifier, new AphidObject());
@@ -875,7 +748,7 @@ namespace Mantispid
                         if (attr == "list")
                         {
                             return new CodeObjectCreateExpression(
-                                GetListTypeRef(CodeHelper.TypeRef(node.Identifier)));
+                                ParserCode.GetListTypeRef(CodeHelper.TypeRef(node.Identifier)));
                         }
                         else
                         {

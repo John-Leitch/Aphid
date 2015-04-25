@@ -49,6 +49,7 @@
     <Compile Include="DeclarativeStatementAttributes.cs" />
     <Compile Include="DeclarativeStatementMutator.cs" />
     <Compile Include="EnumBuilder.cs" />
+    <Compile Include="ParserCode.cs" />
     <Compile Include="ParserGenerator.cs" />
     <Compile Include="ParserGeneratorConfig.cs" />
     <Compile Include="ParserIdentifier.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReferenceType.cs" />
     <Compile Include="RuleStruct.cs" />
+    <Compile Include="RuleTypeBuilder.cs" />
     <Compile Include="RuleTypeTable.cs" />
     <Compile Include="SymbolScope.cs" />
     <Compile Include="SymbolTable.cs" />
