@@ -74,7 +74,7 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(new CallExpression(
                         Mutate(call.FunctionExpression).Single(),
-                        call.Args.Select(x => Mutate(x).Single()).ToArray()));
+                        call.Args.Select(x => Mutate(x).Single()).ToList()));
 
                     break;
 
@@ -83,10 +83,8 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(new UnaryOperatorExpression(
                         unOp.Operator,
-                        Mutate(unOp.Operand).Single())
-                        {
-                            IsPostfix = unOp.IsPostfix
-                        });
+                        Mutate(unOp.Operand).Single(), 
+                        unOp.IsPostfix));
 
                     break;
 

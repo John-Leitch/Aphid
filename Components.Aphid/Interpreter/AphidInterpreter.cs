@@ -958,7 +958,8 @@ namespace Components.Aphid.Interpreter
                     new UnaryOperatorExpression(AphidTokenType.retKeyword,
                         new CallExpression(
                             expression.Call.FunctionExpression, 
-                            expression.Call.Args.Concat(partialArgs.Select(x => new IdentifierExpression(x))).ToArray())),
+                            expression.Call.Args.Concat(
+                            partialArgs.Select(x => new IdentifierExpression(x))).ToList())),
                 },
                 ParentScope = _currentScope,
             };
