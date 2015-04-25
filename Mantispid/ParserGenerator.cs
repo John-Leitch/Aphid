@@ -91,7 +91,11 @@ namespace Mantispid
             //    func.Body = callIdMutator.Mutate(func.Body);
             //}
 
-            var ruleTypeBuilder = new RuleTypeBuilder(_ruleTypes.Select(x => x.Value));
+
+            var ruleTypeBuilder = new RuleTypeBuilder(
+                _config.BaseClass, 
+                _ruleTypes.Select(x => x.Value));
+
             var typeClasses = ruleTypeBuilder.CreateRuleTypeClasses();
 
             var enumBuilder = new EnumBuilder(_config.BaseClass, _ruleTypes.Select(x => x.Key));
@@ -100,10 +104,13 @@ namespace Mantispid
             var ns = new CodeNamespace(
                 string.Join(".", _config.Namespace.Concat(new[] { "Parser" })));
 
-            ns.Imports.Add(new System.CodeDom.CodeNamespaceImport(
+            ns.Imports.Add(new CodeNamespaceImport(
                 string.Join(".", _config.Namespace.Concat(new[] { "Lexer" }))));
+
+            ns.Imports.Add(new CodeNamespaceImport("System.Linq"));
+            ns.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
             ns.Types.Add(enumDecl);
-            //ns.Types.AddRange(typeClasses);
+            ns.Types.AddRange(typeClasses);
 
             var parserType = new CodeTypeDeclaration(_config.ParserClass)
             {

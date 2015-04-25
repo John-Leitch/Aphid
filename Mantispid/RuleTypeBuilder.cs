@@ -13,9 +13,14 @@ namespace Mantispid
     {
         private IEnumerable<RuleStruct> _ruleTypes;
 
-        public RuleTypeBuilder(IEnumerable<RuleStruct> ruleTypes)
+        private RuleStructResolver _resolver;
+
+        private string _baseTypeName;
+
+        public RuleTypeBuilder(string baseTypeName, IEnumerable<RuleStruct> ruleTypes)
         {
-            _ruleTypes = ruleTypes;
+            _baseTypeName = baseTypeName;
+            _resolver = new RuleStructResolver(_ruleTypes = ruleTypes);
         }
 
         public CodeTypeDeclarationCollection CreateRuleTypeClasses()
@@ -69,8 +74,56 @@ namespace Mantispid
                     .ToArray());
 
             decl.Members.Add(ctor);
+            AddGetChildren(rule, decl);
 
             return decl;
+        }
+
+        private void AddGetChildren(RuleStruct rule, CodeTypeDeclaration decl)
+        {
+            if (!rule.Properties.Any(x => _resolver.Is(x.Type, _baseTypeName)))
+            {
+                return;
+            }
+
+                decl.BaseTypes.Add("IParentNode");
+
+                var children = rule.Properties
+                    .Where(x => _resolver.Is(x.Type, _baseTypeName))
+                    .ToArray();
+
+                var scalarChildren = children
+                    .Where(x => !x.IsList)
+                    .Select(x => CodeHelper.VarRef(x.Name))
+                    .ToArray(); ;
+
+                CodeExpression childExpression = new CodeArrayCreateExpression(_baseTypeName, scalarChildren);
+
+                var hasLists = false;
+
+                foreach (var child in children.Where(x => x.IsList))
+                {
+                    hasLists = true;
+                    childExpression = CodeHelper.Invoke(
+                        childExpression,
+                        "Concat",
+                        CodeHelper.VarRef(child.Name));
+                }
+
+                if (hasLists)
+                {
+                    childExpression = CodeHelper.Invoke(childExpression, "ToArray");
+                }
+
+                var method = new CodeMemberMethod()
+                {
+                    Attributes = MemberAttributes.Public | MemberAttributes.Final,
+                    Name = "GetChildren",
+                    ReturnType = new CodeTypeReference("IEnumerable", CodeHelper.TypeRef(_baseTypeName)),
+                };
+
+                method.Statements.Add(CodeHelper.Return(childExpression));
+                decl.Members.Add(method);
         }
 
         private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
