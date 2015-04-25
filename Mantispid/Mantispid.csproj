@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReferenceType.cs" />
     <Compile Include="RuleStruct.cs" />
+    <Compile Include="RuleStructResolver.cs" />
     <Compile Include="RuleTypeBuilder.cs" />
     <Compile Include="RuleTypeTable.cs" />
     <Compile Include="SymbolScope.cs" />
