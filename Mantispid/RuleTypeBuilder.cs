@@ -40,24 +40,48 @@ namespace Mantispid
             };
 
             decl.BaseTypes.Add(CodeHelper.TypeRef(rule.BaseName));
-
             var properties = CreateProperties(rule);
+            decl.Members.AddRange(properties);
+            decl.Members.AddRange(CreateFields(properties));
+            decl.Members.Add(CreateConstructor(rule, properties));
+            AddGetChildrenMethod(rule, decl);
+            AddTypeProperty(rule, decl);
+
+            return decl;
+        }
+
+        private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
+        {
+            var properties = ruleType.Properties
+                .Select(x => new CodeMemberProperty()
+                {
+                    Name = x.Name,
+                    Attributes = MemberAttributes.Public | MemberAttributes.Final,
+                    Type = ParserCode.GetTypeRef(x),
+                    HasGet = true,
+                })
+                .ToArray();
 
             foreach (var p in properties)
             {
                 p.GetStatements.Add(CodeHelper.Return(GetFieldName(p.Name)));
             }
 
-            decl.Members.AddRange(properties);
+            return properties;
+        }
 
-            decl.Members.AddRange(
-                properties
-                    .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name))
-                    {
-                        Attributes = MemberAttributes.Private,
-                    })
-                    .ToArray());
+        private CodeMemberField[] CreateFields(CodeMemberProperty[] properties)
+        {
+            return properties
+                .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name))
+                {
+                    Attributes = MemberAttributes.Private,
+                })
+                .ToArray();
+        }
 
+        private CodeConstructor CreateConstructor(RuleStruct rule, CodeMemberProperty[] properties)
+        {
             var ctor = new CodeConstructor()
             {
                 Attributes = MemberAttributes.Public,
@@ -65,7 +89,7 @@ namespace Mantispid
 
             ctor.Parameters.AddRange(
                 properties
-                    .Select(x => CreateCtorParameter(rule, x))
+                    .Select(x => CreateConstructorParameter(rule, x))
                     .ToArray());
 
             ctor.Statements.AddRange(
@@ -73,11 +97,24 @@ namespace Mantispid
                     .Select(x => CodeHelper.Assign(GetFieldName(x.Name), GetLocalName(x.Name)))
                     .ToArray());
 
-            decl.Members.Add(ctor);
-            AddGetChildrenMethod(rule, decl);
-            AddTypeProperty(rule, decl);
+            return ctor;
+        }
 
-            return decl;
+        private CodeParameterDeclarationExpression CreateConstructorParameter(
+            RuleStruct rule,
+            CodeMemberProperty property)
+        {
+            var exp = new CodeParameterDeclarationExpression(
+                property.Type,
+                GetLocalName(property.Name));
+
+            if (rule.Properties.Single(x => x.Name == property.Name).IsOptional)
+            {
+                exp.CustomAttributes.Add(
+                    new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
+            }
+
+            return exp;
         }
 
         private void AddGetChildrenMethod(RuleStruct rule, CodeTypeDeclaration decl)
@@ -148,37 +185,7 @@ namespace Mantispid
 
             prop.GetStatements.Add(CodeHelper.Return(CodeHelper.PropRef(enumType, rule.Name)));
             decl.Members.Add(prop);
-        }
-
-        private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
-        {
-            return ruleType.Properties
-                .Select(x => new CodeMemberProperty()
-                {
-                    Name = x.Name,
-                    Attributes = MemberAttributes.Public | MemberAttributes.Final,
-                    Type = ParserCode.GetTypeRef(x),
-                    HasGet = true,
-                })
-                .ToArray();
-        }
-
-        private CodeParameterDeclarationExpression CreateCtorParameter(
-            RuleStruct rule, 
-            CodeMemberProperty property)
-        {
-            var exp = new CodeParameterDeclarationExpression(
-                property.Type,
-                GetLocalName(property.Name));
-
-            if (rule.Properties.Single(x => x.Name == property.Name).IsOptional)
-            {
-                exp.CustomAttributes.Add(
-                    new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
-            }
-
-            return exp;
-        }
+        }        
 
         private string GetFieldName(string name)
         {
