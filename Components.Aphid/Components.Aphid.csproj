@@ -100,7 +100,6 @@
     <Compile Include="Interpreter\AphidInterpreter.cs" />
     <Compile Include="Interpreter\AphidObject.cs" />
     <Compile Include="Interpreter\AphidRef.cs" />
-    <Compile Include="Lexer\AphidLexer.cs" />
     <Compile Include="Parser\AphidParser.cs" />
     <Compile Include="Parser\ObjectExpression.cs" />
     <Compile Include="Parser\AphidNode.cs" />

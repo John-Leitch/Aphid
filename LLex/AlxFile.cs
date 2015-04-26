@@ -61,6 +61,12 @@ namespace LLex
             var interpreter = new AphidInterpreter();
             interpreter.InterpretFile(file);
             var retVal = interpreter.GetReturnValue();
+
+            return From(retVal);
+        }
+
+        public static string From(AphidObject retVal)
+        {
             var llexFile = new LLexFile();
             retVal.Bind(llexFile);
             var tokenTable = new TokenTable();
@@ -70,7 +76,7 @@ namespace LLex
             int z = 0;
             var modeTable = llexFile.Modes.ToDictionary(x => x.Mode, x => z++);
             var tokenTypes = new List<string>();
-            
+
             foreach (var mode in llexFile.Modes)
             {
                 tokenTable.SetMode(modeTable[mode.Mode]);
@@ -92,7 +98,7 @@ namespace LLex
                                 tokenTable.AddLexemeCode(l, token.Code);
                                 continue;
                             }
-                            
+
                             if (!tokenTypes.Contains(token.TokenType))
                                 tokenTypes.Add(token.TokenType);
 
@@ -150,7 +156,7 @@ namespace LLex
             var generator = new LexerGenerator(tokenTable) { IgnoreCase = llexFile.IgnoreCase };
             var lexer = generator.Generate();
 
-            
+
             return lexer
                 .Replace("{Lexer}", nameInfo.LexerName)
                 .Replace("{Token}", nameInfo.TokenName)

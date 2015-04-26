@@ -3,6 +3,7 @@ using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
+using LLex;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
@@ -62,6 +63,8 @@ namespace Mantispid
 
         public string Generate(List<AphidExpression> nodes)
         {
+            var lexer = GenerateLexer(nodes);
+
             ParseDirectives(nodes);
             ParseRuleStructs(nodes);
             nodes = new PlusEqualMutator().MutateRecursively(nodes);
@@ -137,7 +140,54 @@ namespace Mantispid
 
             var str = CSharpHelper.GenerateCode(ns);
 
-            return str;
+            return lexer + "\r\n\r\n" + str;
+        }
+
+        private string GenerateLexer(List<AphidExpression> nodes)
+        {
+            var lexerCall = nodes.SingleOrDefault(x =>
+                x.Type == AphidExpressionType.CallExpression &&
+                x.ToCall().FunctionExpression.Type == AphidExpressionType.IdentifierExpression &&
+                x.ToCall().FunctionExpression.ToIdentifier().Identifier == "Lexer");
+
+            if (lexerCall == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var lexerObj = lexerCall.ToCall().Args.SingleOrDefault() as ObjectExpression;
+
+            if (lexerObj == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            nodes.Remove(lexerCall);
+            var ast = new List<AphidExpression>();
+            
+            var initKvp = lexerObj.Pairs.SingleOrDefault(x => 
+                x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
+                x.LeftOperand.ToIdentifier().Identifier == "init");
+
+            if (initKvp != null)
+            {
+                var initFunc = initKvp.RightOperand as FunctionExpression;
+
+                if (initFunc == null)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                ast.AddRange(initFunc.Body);
+            }
+
+            ast.Add(new UnaryOperatorExpression(AphidTokenType.retKeyword, lexerObj));
+
+            var interpreter = new AphidInterpreter();
+            interpreter.Interpret(ast);
+            var lexerCode = AlxFile.From(interpreter.GetReturnValue());
+
+            return lexerCode;
         }
 
         private void ParseDirectives(List<AphidExpression> nodes)

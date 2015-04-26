@@ -40,9 +40,10 @@ namespace Mantispid
                 code = File.ReadAllText(args[0]);
                 Console.WriteLine("Parsing input file");
                 var ast = AphidParser.Parse(code);
+                var includeMutator = new IncludeMutator();
                 var macroMutator = new AphidMacroMutator();
                 var pipelineMutator = new PipelineToCallMutator();
-                ast = macroMutator.MutateRecursively(pipelineMutator.Mutate(ast));
+                ast = macroMutator.MutateRecursively(pipelineMutator.Mutate(includeMutator.MutateRecursively(ast)));
                 Console.WriteLine("Generating parser");
                 var parserGenerator = new ParserGenerator();
                 var s = parserGenerator.Generate(ast);
