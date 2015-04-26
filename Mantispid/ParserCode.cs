@@ -24,6 +24,10 @@ namespace Mantispid
                     typeRef = CodeHelper.TypeRef<string>();
                     break;
 
+                case "decimal":
+                    typeRef = CodeHelper.TypeRef<decimal>();
+                    break;
+
                 default:
                     typeRef = CodeHelper.TypeRef(property.Type);
                     break;
