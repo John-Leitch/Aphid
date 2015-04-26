@@ -94,10 +94,45 @@ namespace Mantispid
 
             ctor.Statements.AddRange(
                 properties
-                    .Select(x => CodeHelper.Assign(GetFieldName(x.Name), GetLocalName(x.Name)))
+                    .SelectMany(x => CreateConstructorAssignmentStatements(rule, x))
                     .ToArray());
 
             return ctor;
+        }
+
+        private CodeStatement[] CreateConstructorAssignmentStatements(
+            RuleStruct rule, 
+            CodeMemberProperty property)
+        {
+            var paramName = GetLocalName(property.Name);
+            var fieldName = GetFieldName(property.Name);
+            var assignStmt = CodeHelper.Assign(fieldName, paramName);
+            var stmts = new List<CodeStatement>();
+
+            if (property.Type.BaseType != typeof(List<>).FullName || !IsOptional(rule, property))
+            {
+                stmts.Add(assignStmt);
+            }
+            else
+            {
+                var condition = CodeHelper.BinOpExp(
+                    CodeHelper.VarRef(paramName), 
+                    CodeBinaryOperatorType.IdentityInequality,
+                    CodeHelper.Null());
+
+                var createStmt = CodeHelper.Assign(
+                    fieldName, 
+                    new CodeObjectCreateExpression(property.Type));
+
+                var conditionStmt = new CodeConditionStatement(
+                    condition, 
+                    new[] { assignStmt },
+                    new[] { createStmt });
+
+                stmts.Add(conditionStmt);
+            }
+
+            return stmts.ToArray();
         }
 
         private CodeParameterDeclarationExpression CreateConstructorParameter(
@@ -108,7 +143,7 @@ namespace Mantispid
                 property.Type,
                 GetLocalName(property.Name));
 
-            if (rule.Properties.Single(x => x.Name == property.Name).IsOptional)
+            if (IsOptional(rule, property))
             {
                 exp.CustomAttributes.Add(
                     new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
@@ -195,6 +230,11 @@ namespace Mantispid
         private string GetLocalName(string name)
         {
             return name.Substring(0, 1).ToLower() + name.Substring(1);
+        }
+
+        private bool IsOptional(RuleStruct rule, CodeMemberProperty property)
+        {
+            return rule.Properties.Single(x => x.Name == property.Name).IsOptional;
         }
     }
 }
