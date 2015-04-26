@@ -10,14 +10,31 @@ namespace Components.Aphid.Tests.Integration
     [TestFixture(Category = "AphidLoop")]
     public class LoopTests : AphidTests
     {
+        protected override bool LoadStd
+        {
+            get { return true; }
+        }
+
         [Test]
         public void ForTest()
+        {
+            AssertFoo("c=['f','o','o']; s=''; for(x = 0; x < c.count(); x++){s = s + c[x];} ret s;");
+        }
+
+        [Test]
+        public void ForTest2()
+        {
+            AssertFoo("c=['f','o','o']; s=''; for(x = 0; x < c.count(); x++) s = s + c[x]; ret s;");
+        }
+
+        [Test]
+        public void ForEachTest()
         {
             AssertFoo("c=['f','o','o']; s=''; for(x in c){s = s + x;} ret s;");
         }
 
         [Test]
-        public void ForTest2()
+        public void ForEachTest2()
         {
             AssertFoo("c=['f','o','o']; s=''; for(x in c)s = s + x; ret s;");
         }
