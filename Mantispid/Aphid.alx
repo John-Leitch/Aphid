@@ -122,6 +122,14 @@ _ParseStatement = macro(@(_requireEos) {
             
             default:  {
                 exp ParseExpression;
+
+				if (_requireEos) {
+					while (Comma) {
+						NextToken;
+						exp = BinaryOperatorExpression(exp, Comma, ParseExpression());
+					}
+				}
+
                 MatchEos(_requireEos);
             }
         }
@@ -151,15 +159,10 @@ ParsePipelineExpression = ParseBinOpExp(ParseQueryExpression, PipelineOperator);
 
 ParseQueryExpression = @() {
     exp ParseRangeExpression;
-    inQuery = true;
 
-    do {
+    while(true) {
         switch (TokenType) {
-            AggregateOperator, 
-            AnyOperator,  
-            SelectManyOperator,
-            SelectOperator,
-            WhereOperator: {
+            AggregateOperator, AnyOperator, SelectManyOperator, SelectOperator, WhereOperator: {
                 TakeToken(t);
                 exp = BinaryOperatorExpression(exp, t, ParseRangeExpression());
             }
@@ -169,9 +172,9 @@ ParseQueryExpression = @() {
                 NextToken;
             }
 
-            default: inQuery = false;
+            default: break;
         }
-    } while(inQuery);
+    }
 
     ret exp;
 };

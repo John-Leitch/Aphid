@@ -1117,6 +1117,14 @@ namespace Components.Aphid.Parser {
                                     else {
                                         exp = ParseExpression();
                                         if (true) {
+                                            for (
+                                            ; (_currentToken.TokenType == AphidTokenType.Comma); 
+                                            ) {
+                                                NextToken();
+                                                exp = new BinaryOperatorExpression(exp, AphidTokenType.Comma, ParseExpression());
+                                            }
+                                        }
+                                        if (true) {
                                             Match(AphidTokenType.EndOfStatement);
                                         }
                                     }
@@ -1163,6 +1171,14 @@ namespace Components.Aphid.Parser {
                                     }
                                     else {
                                         exp = ParseExpression();
+                                        if (false) {
+                                            for (
+                                            ; (_currentToken.TokenType == AphidTokenType.Comma); 
+                                            ) {
+                                                NextToken();
+                                                exp = new BinaryOperatorExpression(exp, AphidTokenType.Comma, ParseExpression());
+                                            }
+                                        }
                                         if (false) {
                                             Match(AphidTokenType.EndOfStatement);
                                         }
@@ -1216,7 +1232,6 @@ namespace Components.Aphid.Parser {
         
         private AphidExpression ParseQueryExpression() {
             var exp = ParseRangeExpression();
-            var inQuery = true;
             for (
             ; true; 
             ) {
@@ -1235,11 +1250,8 @@ namespace Components.Aphid.Parser {
                         NextToken();
                     }
                     else {
-                        inQuery = false;
-                    }
-                }
-                if ((inQuery == false)) {
 break;
+                    }
                 }
             }
             return exp;
