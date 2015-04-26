@@ -32,11 +32,6 @@ namespace Components.Aphid.Parser.Fluent
             return (CallExpression)expression;
         }
 
-        public static ControlFlowExpression ToControlFlow(this AphidExpression expression)
-        {
-            return (ControlFlowExpression)expression;
-        }
-
         public static DoWhileExpression ToDoWhile(this AphidExpression expression)
         {
             return (DoWhileExpression)expression;

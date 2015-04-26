@@ -11,9 +11,7 @@ namespace Components.Aphid.Parser
     {
         public override string ToString ()
         {
-            return IsPostfix ? 
-                string.Format ("{0} {1}", Operand, Operator) :
-                    string.Format ("{0} {1}", Operator, Operand);
+            return string.Format(IsPostfix ? "{0} {1}" : "{1} {0}", Operand, Operator);
         }
     }
 }

@@ -101,18 +101,14 @@ namespace Components.Aphid.Parser
                 case AphidExpressionType.SwitchExpression:
                     var switchExp = (SwitchExpression)expression;
 
-                    expanded.Add(new SwitchExpression()
-                    {
-                        Expression = MutateSingle(switchExp.Expression),
-                        Cases = switchExp.Cases
-                            .Select(x => new SwitchCase() 
-                            {
-                                Cases = x.Cases.Select(MutateSingle).ToList(), 
-                                Body = Mutate(x.Body),
-                            })
+                    expanded.Add(new SwitchExpression(
+                        MutateSingle(switchExp.Expression),
+                        switchExp.Cases
+                            .Select(x => new SwitchCase(
+                                x.Cases.Select(MutateSingle).ToList(),
+                                Mutate(x.Body)))
                             .ToList(),
-                        DefaultCase = Mutate(switchExp.DefaultCase),
-                    });
+                        Mutate(switchExp.DefaultCase)));
 
                     break;
 

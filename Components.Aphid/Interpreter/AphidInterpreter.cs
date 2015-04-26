@@ -978,7 +978,7 @@ namespace Components.Aphid.Interpreter
 
             foreach (var pattern in expression.Patterns)
             {
-                if (pattern.Patterns != null)
+                if (pattern.Patterns != null && pattern.Patterns.Any())
                 {
                     foreach (var patternTest in pattern.Patterns)
                     {

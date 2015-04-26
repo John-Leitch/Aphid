@@ -25,18 +25,18 @@ LoadLibraryExpression = { LibraryExpression };
 LoadScriptExpression = { FileExpression };
 NullExpression = { };
 NumberExpression = { decimal Value, };
-ObjectExpression = { foo };
-PartialFunctionExpression = { foo };
-PatternExpression = { foo };
-PatternMatchingExpression = { foo };
+ObjectExpression = { list BinaryOperatorExpression Pairs };
+PartialFunctionExpression = { CallExpression Call };
+PatternExpression = { opt list Patterns, Value };
+PatternMatchingExpression = { TestExpression, list PatternExpression Patterns };
 UnaryOperatorExpression = { AphidTokenType Operator, Operand, opt bool IsPostfix };
-StringExpression = { foo foo };
-SwitchCase = { foo foo };
-SwitchExpression = { foo foo };
+StringExpression = { string Value };
+SwitchCase = { list Cases, list Body };
+SwitchExpression = { Expression, list SwitchCase Cases, list DefaultCase };
 TernaryOperatorExpression = { AphidTokenType Operator, FirstOperand, SecondOperand, ThirdOperand };
-ThisExpression = { foo };
+ThisExpression = { };
 TryExpression = { list TryBody, IdentifierExpression CatchArg, list CatchBody, list FinallyBody };
-WhileExpression = { foo foo };
+WhileExpression = { Condition, list Body };
 
 ////////////////////////////////////////////////////////////////
 // Macros
@@ -676,7 +676,9 @@ ParsePatternMatchingExpression = @() {
 		if (ColonOperator) {
 			NextToken;
 			valueExp ParseExpression;
-			patterns += PatternExpression(tuple, valueExp);
+			// Todo: support opt with overloaded ctors so these args can
+			// be reversed.
+			patterns += PatternExpression(valueExp, tuple);
 		} else {
 			if (tuple.Count != 1) Error;
 

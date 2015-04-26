@@ -644,6 +644,132 @@ namespace Components.Aphid.Parser {
         }
     }
     
+    public partial class ObjectExpression : AphidExpression, IParentNode {
+        
+        private System.Collections.Generic.List<BinaryOperatorExpression> _pairs;
+        
+        public ObjectExpression(System.Collections.Generic.List<BinaryOperatorExpression> pairs) {
+            _pairs = pairs;
+        }
+        
+        public System.Collections.Generic.List<BinaryOperatorExpression> Pairs {
+            get {
+                return _pairs;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.ObjectExpression;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return Pairs.ToArray();
+        }
+    }
+    
+    public partial class PartialFunctionExpression : AphidExpression, IParentNode {
+        
+        private CallExpression _call;
+        
+        public PartialFunctionExpression(CallExpression call) {
+            _call = call;
+        }
+        
+        public CallExpression Call {
+            get {
+                return _call;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.PartialFunctionExpression;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return new AphidExpression[] {
+                    Call};
+        }
+    }
+    
+    public partial class PatternExpression : AphidExpression, IParentNode {
+        
+        private AphidExpression _value;
+        
+        private System.Collections.Generic.List<AphidExpression> _patterns;
+        
+        public PatternExpression(AphidExpression value, [System.Runtime.InteropServices.OptionalAttribute()] System.Collections.Generic.List<AphidExpression> patterns) {
+            _value = value;
+            if ((patterns != null)) {
+                _patterns = patterns;
+            }
+            else {
+                _patterns = new System.Collections.Generic.List<AphidExpression>();
+            }
+        }
+        
+        public AphidExpression Value {
+            get {
+                return _value;
+            }
+        }
+        
+        public System.Collections.Generic.List<AphidExpression> Patterns {
+            get {
+                return _patterns;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.PatternExpression;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return new AphidExpression[] {
+                    Value}.Concat(Patterns).ToArray();
+        }
+    }
+    
+    public partial class PatternMatchingExpression : AphidExpression, IParentNode {
+        
+        private AphidExpression _testExpression;
+        
+        private System.Collections.Generic.List<PatternExpression> _patterns;
+        
+        public PatternMatchingExpression(AphidExpression testExpression, System.Collections.Generic.List<PatternExpression> patterns) {
+            _testExpression = testExpression;
+            _patterns = patterns;
+        }
+        
+        public AphidExpression TestExpression {
+            get {
+                return _testExpression;
+            }
+        }
+        
+        public System.Collections.Generic.List<PatternExpression> Patterns {
+            get {
+                return _patterns;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.PatternMatchingExpression;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return new AphidExpression[] {
+                    TestExpression}.Concat(Patterns).ToArray();
+        }
+    }
+    
     public partial class UnaryOperatorExpression : AphidExpression, IParentNode {
         
         private AphidTokenType _operator;
@@ -685,6 +811,105 @@ namespace Components.Aphid.Parser {
         public IEnumerable<AphidExpression> GetChildren() {
             return new AphidExpression[] {
                     Operand};
+        }
+    }
+    
+    public partial class StringExpression : AphidExpression {
+        
+        private string _value;
+        
+        public StringExpression(string value) {
+            _value = value;
+        }
+        
+        public string Value {
+            get {
+                return _value;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.StringExpression;
+            }
+        }
+    }
+    
+    public partial class SwitchCase : AphidExpression, IParentNode {
+        
+        private System.Collections.Generic.List<AphidExpression> _cases;
+        
+        private System.Collections.Generic.List<AphidExpression> _body;
+        
+        public SwitchCase(System.Collections.Generic.List<AphidExpression> cases, System.Collections.Generic.List<AphidExpression> body) {
+            _cases = cases;
+            _body = body;
+        }
+        
+        public System.Collections.Generic.List<AphidExpression> Cases {
+            get {
+                return _cases;
+            }
+        }
+        
+        public System.Collections.Generic.List<AphidExpression> Body {
+            get {
+                return _body;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.SwitchCase;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return Cases.Concat(Body).ToArray();
+        }
+    }
+    
+    public partial class SwitchExpression : AphidExpression, IParentNode {
+        
+        private AphidExpression _expression;
+        
+        private System.Collections.Generic.List<SwitchCase> _cases;
+        
+        private System.Collections.Generic.List<AphidExpression> _defaultCase;
+        
+        public SwitchExpression(AphidExpression expression, System.Collections.Generic.List<SwitchCase> cases, System.Collections.Generic.List<AphidExpression> defaultCase) {
+            _expression = expression;
+            _cases = cases;
+            _defaultCase = defaultCase;
+        }
+        
+        public AphidExpression Expression {
+            get {
+                return _expression;
+            }
+        }
+        
+        public System.Collections.Generic.List<SwitchCase> Cases {
+            get {
+                return _cases;
+            }
+        }
+        
+        public System.Collections.Generic.List<AphidExpression> DefaultCase {
+            get {
+                return _defaultCase;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.SwitchExpression;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return new AphidExpression[] {
+                    Expression}.Concat(Cases).Concat(DefaultCase).ToArray();
         }
     }
     
@@ -743,6 +968,18 @@ namespace Components.Aphid.Parser {
         }
     }
     
+    public partial class ThisExpression : AphidExpression {
+        
+        public ThisExpression() {
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.ThisExpression;
+            }
+        }
+    }
+    
     public partial class TryExpression : AphidExpression, IParentNode {
         
         private System.Collections.Generic.List<AphidExpression> _tryBody;
@@ -793,6 +1030,41 @@ namespace Components.Aphid.Parser {
         public IEnumerable<AphidExpression> GetChildren() {
             return new AphidExpression[] {
                     CatchArg}.Concat(TryBody).Concat(CatchBody).Concat(FinallyBody).ToArray();
+        }
+    }
+    
+    public partial class WhileExpression : AphidExpression, IParentNode {
+        
+        private AphidExpression _condition;
+        
+        private System.Collections.Generic.List<AphidExpression> _body;
+        
+        public WhileExpression(AphidExpression condition, System.Collections.Generic.List<AphidExpression> body) {
+            _condition = condition;
+            _body = body;
+        }
+        
+        public AphidExpression Condition {
+            get {
+                return _condition;
+            }
+        }
+        
+        public System.Collections.Generic.List<AphidExpression> Body {
+            get {
+                return _body;
+            }
+        }
+        
+        public override AphidExpressionType Type {
+            get {
+                return AphidExpressionType.WhileExpression;
+            }
+        }
+        
+        public IEnumerable<AphidExpression> GetChildren() {
+            return new AphidExpression[] {
+                    Condition}.Concat(Body).ToArray();
         }
     }
     
@@ -1614,7 +1886,7 @@ break;
                 if ((_currentToken.TokenType == AphidTokenType.ColonOperator)) {
                     NextToken();
                     valueExp = ParseExpression();
-                    patterns.Add(new PatternExpression(tuple, valueExp));
+                    patterns.Add(new PatternExpression(valueExp, tuple));
                 }
                 else {
                     if ((tuple.Count != 1)) {
