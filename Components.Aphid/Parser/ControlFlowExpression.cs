@@ -9,7 +9,7 @@ namespace Components.Aphid.Parser
 {
     public abstract class ControlFlowExpression : AphidExpression, IParentNode
     {
-        public AphidTokenType ControlFlowType { get; set; }
+        //public AphidTokenType ControlFlowType { get; set; }
 
         public AphidExpression Condition { get; set; }
 
@@ -17,7 +17,7 @@ namespace Components.Aphid.Parser
 
         public ControlFlowExpression(AphidTokenType type, AphidExpression condition, List<AphidExpression> body)
         {
-            ControlFlowType = type;
+            //ControlFlowType = type;
             Condition = condition;
             Body = body;
         }

@@ -69,16 +69,31 @@ namespace Mantispid
             _ruleNames = GetRuleNames(nodes).ToArray();
             var mutator = new TypeInferenceMutator(_config);
 
+            foreach (var r in rules)
+            {
+                nodes.Remove(r);
+            }
+
             do
             {
-                foreach (var r in rules)
-                {
-                    var func = r.RightOperand.ToFunction();
-                    func.Body = mutator.MutateRecursively(func.Body);
-                }
+                rules = rules
+                    .Select(x => new BinaryOperatorExpression(
+                        x.LeftOperand,
+                        x.Operator,
+                        new FunctionExpression(
+                            x.RightOperand.ToFunction().Args,
+                            mutator.MutateRecursively(x.RightOperand.ToFunction().Body))))
+                    .ToArray();
+
+                //foreach (var r in rules)
+                //{
+                //    var func = r.RightOperand.ToFunction();
+                //    func.Body = mutator.MutateRecursively(func.Body);
+                //}
             }
             while (mutator.HasMutated);
 
+            nodes.AddRange(rules);
             var declMutator = new DeclarativeStatementMutator(_tokenTypes, _ruleNames);
             nodes = declMutator.Mutate(nodes);
 

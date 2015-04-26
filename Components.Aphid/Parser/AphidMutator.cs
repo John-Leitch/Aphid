@@ -171,21 +171,17 @@ namespace Components.Aphid.Parser
                 case AphidExpressionType.FunctionExpression:
                     var funcExp = (FunctionExpression)expression;
 
-                    expanded.Add(new FunctionExpression()
-                    {
-                        Args = funcExp.Args.Select(x => Mutate(x).Single()).ToList(),
-                        Body = Mutate(funcExp.Body)
-                    });
+                    expanded.Add(new FunctionExpression(
+                        funcExp.Args.Select(x => Mutate(x).Single()).ToList(),
+                        Mutate(funcExp.Body)));
 
                     break;
 
                 case AphidExpressionType.ArrayExpression:
                     var arrayExp = (ArrayExpression)expression;
 
-                    expanded.Add(new ArrayExpression()
-                    {
-                        Elements = arrayExp.Elements.Select(x => Mutate(x).Single()).ToList()
-                    });
+                    expanded.Add(new ArrayExpression(
+                        arrayExp.Elements.Select(x => Mutate(x).Single()).ToList()));
 
                     break;
 
