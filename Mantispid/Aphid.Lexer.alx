@@ -1,8 +1,8 @@
 ﻿Lexer({
-	init: @() {
-		#'Aphid.Tmpl';
-		#'Aphid.Code';
-	},
+    init: @() {
+        #'Aphid.Tmpl';
+        #'Aphid.Code';
+    },
     name: "Components.Aphid.Lexer.Aphid",
     modes: [ 
         {
@@ -15,7 +15,7 @@
                 { regex: ":", type: "ColonOperator" },
                 { regex: "@", type: "functionOperator" },
                 { regex: "\\?", type: "ConditionalOperator" },
-				{ regex: "..", type: "RangeOperator" },
+                { regex: "..", type: "RangeOperator" },
 
                 { regex: "\\(", type: "LeftParenthesis" },
                 { regex: "\\)", type: "RightParenthesis" },
@@ -24,10 +24,10 @@
                 { regex: "{", type: "LeftBrace" },
                 { regex: "}", type: "RightBrace" },
 
-				{ regex: "=", type: "AssignmentOperator" },
-				{ regex: ".", type: "MemberOperator" },
+                { regex: "=", type: "AssignmentOperator" },
+                { regex: ".", type: "MemberOperator" },
 
-				{ regex: "-", type: "MinusOperator" },                
+                { regex: "-", type: "MinusOperator" },                
                 { regex: "\\+", type: "AdditionOperator" },
                 { regex: "\\*", type: "MultiplicationOperator" },
                 { regex: "/", type: "DivisionOperator" },
@@ -38,19 +38,19 @@
                 { regex: "<<", type: "ShiftLeft" },
                 { regex: ">>", type: "ShiftRight" },
 
-				{ regex: "-=", type: "MinusEqualOperator" },
-				{ regex: "\\+=", type: "PlusEqualOperator" },                
+                { regex: "-=", type: "MinusEqualOperator" },
+                { regex: "\\+=", type: "PlusEqualOperator" },                
                 { regex: "\\*=", type: "MultiplicationEqualOperator" },
                 { regex: "/=", type: "DivisionEqualOperator" },
                 { regex: "%=", type: "ModulusEqualOperator" },
-				{ regex: "&=", type: "BinaryAndEqualOperator" },
+                { regex: "&=", type: "BinaryAndEqualOperator" },
                 { regex: "\\|=", type: "OrEqualOperator" },
                 { regex: "^=", type: "XorEqualOperator" }, 
-				{ regex: "<<=", type: "ShiftLeftEqualOperator" },
+                { regex: "<<=", type: "ShiftLeftEqualOperator" },
                 { regex: ">>=", type: "ShiftRightEqualOperator" },               
 
-				{ regex: "~", type: "ComplementOperator" },
-				{ regex: "\\+\\+", type: "IncrementOperator" },
+                { regex: "~", type: "ComplementOperator" },
+                { regex: "\\+\\+", type: "IncrementOperator" },
                 { regex: "--", type: "DecrementOperator" },
 
                 { regex: "!", type: "NotOperator" },
@@ -66,13 +66,13 @@
                 { regex: ">=", type: "GreaterThanOrEqualOperator" },
 
                 { regex: "\\|>", type: "PipelineOperator" },    
-				
-				{ regex: "\\+>", type: "AggregateOperator" },
-				{ regex: "=\\?", type: "AnyOperator" },
-				{ regex: "!\\?", type: "DistinctOperator" },
-				{ regex: "-<", type: "SelectManyOperator" },
-				{ regex: "->", type: "SelectOperator" },				
-				{ regex: "-\\?", type: "WhereOperator" },
+                
+                { regex: "\\+>", type: "AggregateOperator" },
+                { regex: "=\\?", type: "AnyOperator" },
+                { regex: "!\\?", type: "DistinctOperator" },
+                { regex: "-<", type: "SelectManyOperator" },
+                { regex: "->", type: "SelectOperator" },                
+                { regex: "-\\?", type: "WhereOperator" },
     
                 { regex: "$", type: "PatternMatchingOperator" },                
 
@@ -82,42 +82,42 @@
                 { code: idCode },
                 { regex: "0", code: getNumber('NextChar();\r\nstate = 1;', 'return AphidTokenType.Number;') },
                 { regex: "0x", code: zeroXCode },
-				{ regex: "0b", code: zeroBCode },
+                { regex: "0b", code: zeroBCode },
                 { code: getNumber(
-					'state = 0;', 
-					'if (state == 1 || state == 3 || state == 5) { return AphidTokenType.Number; }') },
+                    'state = 0;', 
+                    'if (state == 1 || state == 3 || state == 5) { return AphidTokenType.Number; }') },
                 getString('"'),
                 getString("'"),
                 { regex: "//", code: singleLineCommentCode },
                 { regex: "/\\*", code: commentCode }
             ],
-			keywords: [
+            keywords: [
                 "true",
                 "false",
                 "null",
 
-				"if",
+                "if",
                 "else",
-				"switch",
-				"default",
-				"while",
-				"do",
+                "switch",
+                "default",
+                "while",
+                "do",
                 "for",
                 "in",
 
                 "break",
 
-				"ret",
+                "ret",
 
                 "this",
 
-				"defined",
-				"delete",
-				"extend",
+                "defined",
+                "delete",
+                "extend",
 
-				"try",
-				"catch",
-				"finally",
+                "try",
+                "catch",
+                "finally",
             ],
             keywordDefault: getKeywordHelper('Identifier'),
             keywordTail: getKeywordHelper('{Keyword}')            

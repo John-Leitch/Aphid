@@ -125,12 +125,12 @@ _ParseStatement = macro(@(_requireEos) {
             default:  {
                 exp ParseExpression;
 
-				if (_requireEos) {
-					while (Comma) {
-						NextToken;
-						exp = BinaryOperatorExpression(exp, Comma, ParseExpression());
-					}
-				}
+                if (_requireEos) {
+                    while (Comma) {
+                        NextToken;
+                        exp = BinaryOperatorExpression(exp, Comma, ParseExpression());
+                    }
+                }
 
                 MatchEos(_requireEos);
             }
