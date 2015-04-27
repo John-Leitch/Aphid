@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Mantispid
@@ -38,7 +39,7 @@ namespace Mantispid
 
         private AphidObject _scope = new AphidObject();
 
-        private string[] _tokenTypes = Enum.GetNames(typeof(AphidTokenType));
+        private string[] _tokenTypes;
 
         private void EnterChildScope()
         {
@@ -63,9 +64,8 @@ namespace Mantispid
 
         public string Generate(List<AphidExpression> nodes)
         {
-            var lexer = GenerateLexer(nodes);
-
             ParseDirectives(nodes);
+            var lexer = GenerateLexer(nodes);
             ParseRuleStructs(nodes);
             nodes = new PlusEqualMutator().MutateRecursively(nodes);
             var rules = GetRules(nodes);
@@ -87,28 +87,12 @@ namespace Mantispid
                             x.RightOperand.ToFunction().Args,
                             mutator.MutateRecursively(x.RightOperand.ToFunction().Body))))
                     .ToArray();
-
-                //foreach (var r in rules)
-                //{
-                //    var func = r.RightOperand.ToFunction();
-                //    func.Body = mutator.MutateRecursively(func.Body);
-                //}
             }
             while (mutator.HasMutated);
 
             nodes.AddRange(rules);
             var declMutator = new DeclarativeStatementMutator(_tokenTypes, _ruleNames);
             nodes = declMutator.Mutate(nodes);
-
-            //rules = GetRules(nodes);
-            //var callIdMutator = new CallIdentifierMutator(_ruleNames);
-            ////nodes = callIdMutator.Mutate(nodes);
-            //foreach (var r in rules)
-            //{
-            //    var func = r.RightOperand.ToFunction();
-            //    func.Body = callIdMutator.Mutate(func.Body);
-            //}
-
 
             var ruleTypeBuilder = new RuleTypeBuilder(
                 _config.BaseClass, 
@@ -186,6 +170,21 @@ namespace Mantispid
             var interpreter = new AphidInterpreter();
             interpreter.Interpret(ast);
             var lexerCode = AlxFile.From(interpreter.GetReturnValue());
+
+            var tokenTypeEnum = Regex.Match(
+                lexerCode, 
+                @"public\s+enum\s+" + _config.TokenType + @"(.|\s)*?\{((.|\s)*?)\}");
+
+            if (!tokenTypeEnum.Success)
+            {
+                throw new InvalidOperationException();
+            }
+
+            _tokenTypes = tokenTypeEnum.Groups[2].Value
+                .Split(new[] { '\r', '\n', ',', }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => x.Any())
+                .ToArray();
 
             return lexerCode;
         }
