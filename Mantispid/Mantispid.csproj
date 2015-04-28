@@ -49,6 +49,7 @@
     <Compile Include="DeclarativeStatementAttributes.cs" />
     <Compile Include="DeclarativeStatementMutator.cs" />
     <Compile Include="EnumBuilder.cs" />
+    <Compile Include="IndexTrackingMutator.cs" />
     <Compile Include="ParserCode.cs" />
     <Compile Include="ParserGenerator.cs" />
     <Compile Include="ParserGeneratorConfig.cs" />
