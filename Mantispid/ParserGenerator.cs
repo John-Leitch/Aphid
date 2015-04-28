@@ -93,6 +93,7 @@ namespace Mantispid
             nodes.AddRange(rules);
             var declMutator = new DeclarativeStatementMutator(_tokenTypes, _ruleNames);
             nodes = declMutator.Mutate(nodes);
+            nodes = AddIndexTracking(nodes);
 
             var ruleTypeBuilder = new RuleTypeBuilder(
                 _config.BaseClass, 
@@ -125,6 +126,18 @@ namespace Mantispid
             var str = CSharpHelper.GenerateCode(ns);
 
             return lexer + "\r\n\r\n" + str;
+        }
+
+        private List<AphidExpression> AddIndexTracking(List<AphidExpression> nodes)
+        {
+            var ids = nodes
+                .Select(x => x.ToBinaryOperator().LeftOperand.ToIdentifier())
+                .Select(ParserIdentifier.FromIdentifierExpression)
+                .ToArray();
+
+            var nonListIds = ids.Where(x => !x.IsList).Select(x => x.Name).ToArray();
+
+            return new IndexTrackingMutator(nonListIds).Mutate(nodes);
         }
 
         private string GenerateLexer(List<AphidExpression> nodes)
@@ -908,12 +921,20 @@ namespace Mantispid
         {
             var opTable = new Dictionary<AphidTokenType, CodeBinaryOperatorType>
             {
+                { AphidTokenType.AdditionOperator, CodeBinaryOperatorType.Add },
+                { AphidTokenType.MinusOperator, CodeBinaryOperatorType.Subtract },
+                { AphidTokenType.MultiplicationOperator, CodeBinaryOperatorType.Multiply },
+                { AphidTokenType.DivisionOperator, CodeBinaryOperatorType.Divide },
                 { AphidTokenType.OrOperator, CodeBinaryOperatorType.BooleanOr },
                 { AphidTokenType.AndOperator, CodeBinaryOperatorType.BooleanAnd },
                 { AphidTokenType.BinaryOrOperator, CodeBinaryOperatorType.BooleanOr },
                 { AphidTokenType.BinaryAndOperator, CodeBinaryOperatorType.BooleanAnd },
                 { AphidTokenType.EqualityOperator, CodeBinaryOperatorType.ValueEquality },
                 { AphidTokenType.NotEqualOperator, CodeBinaryOperatorType.IdentityInequality },
+                { AphidTokenType.LessThanOperator, CodeBinaryOperatorType.LessThan },
+                { AphidTokenType.GreaterThanOperator, CodeBinaryOperatorType.GreaterThan },
+                { AphidTokenType.LessThanOrEqualOperator, CodeBinaryOperatorType.LessThanOrEqual },
+                { AphidTokenType.GreaterThanOrEqualOperator, CodeBinaryOperatorType.GreaterThanOrEqual },
             };
 
             switch (node.Operator)
