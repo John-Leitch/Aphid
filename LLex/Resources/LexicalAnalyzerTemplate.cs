@@ -5,11 +5,12 @@
 //------------------------------------------------------------------------------
 
 #pragma warning disable 0162
-using System;
-using System.Collections.Generic;
 
 namespace {LexerNamespace}
 {
+    using System;
+    using System.Collections.Generic;
+
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("llex", "1")]
     public enum {TokenType} : short
     {
