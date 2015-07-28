@@ -30,7 +30,7 @@ namespace Mantispid
             else if (args[1].Any(Path.GetInvalidPathChars().Contains))
             {
                 Console.WriteLine("Invalid output file '{0}'", args[1]);
-                Environment.Exit(1);
+                Environment.Exit(2);
             }
 
             string code = "";
@@ -57,6 +57,7 @@ namespace Mantispid
             catch (Exception exception)
             {
                 Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
+                Environment.Exit(3);
             }
         }
     }
