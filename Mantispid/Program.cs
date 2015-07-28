@@ -37,10 +37,11 @@ namespace Mantispid
             
             try
             {
+                var dir = Path.GetDirectoryName(Path.GetFullPath(args[0]));
                 code = File.ReadAllText(args[0]);
                 Console.WriteLine("Parsing input file");
                 var ast = AphidParser.Parse(code);
-                var includeMutator = new IncludeMutator();
+                var includeMutator = new IncludeMutator(dir);
                 var macroMutator = new AphidMacroMutator();
                 var pipelineMutator = new PipelineToCallMutator();
                 ast = macroMutator.MutateRecursively(pipelineMutator.Mutate(includeMutator.MutateRecursively(ast)));

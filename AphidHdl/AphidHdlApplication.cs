@@ -41,7 +41,7 @@ namespace AphidHdl
 
             foreach (var m in new AphidMutator[] 
             {
-                new IncludeMutator(false), 
+                new IncludeMutator(dir, false), 
                 new AphidMacroMutator(),
                 new ConstantFoldingMutator(),
                 new ForUnrollMutator(),

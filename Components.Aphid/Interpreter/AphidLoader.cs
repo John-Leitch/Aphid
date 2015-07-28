@@ -96,7 +96,7 @@ namespace Components.Aphid.Interpreter
             LoadLibrary(typeof(TLibrary), scope);
         }
 
-        public string FindScriptFile(string scriptFile)
+        public string FindScriptFile(string appDir, string scriptFile)
         {
 
             Func<string, string>[] extensionStrategies = new Func<string, string>[]
@@ -109,21 +109,34 @@ namespace Components.Aphid.Interpreter
 
             foreach (var file in files)
             {
+                Console.WriteLine("Searching for {0}", file);
                 if (File.Exists(file))
                 {
+                    Console.WriteLine("Found {0}", file);
                     return file;
                 }
             }
 
-            foreach (var file in files)
-            {
-                foreach (var p in _searchPaths)
-                {
-                    var f = Path.Combine(p, file);
+            var searchPathSets = new List<List<string>> { _searchPaths };
 
-                    if (File.Exists(f))
+            if (appDir != null)
+            {
+                searchPathSets.Add(new List<string> { appDir });
+            }
+
+            foreach (var paths in searchPathSets)
+            {
+                foreach (var file in files)
+                {
+                    foreach (var p in paths)
                     {
-                        return f;
+                        var f = Path.Combine(p, file);
+                        Console.WriteLine("Searching for {0}", f);
+                        if (File.Exists(f))
+                        {
+                            Console.WriteLine("Found {0}", f);
+                            return f;
+                        }
                     }
                 }
             }
@@ -133,7 +146,7 @@ namespace Components.Aphid.Interpreter
 
         public void LoadScript(string scriptFile)
         {
-            var f = FindScriptFile(scriptFile);
+            var f = FindScriptFile(null, scriptFile);
 
             if (f != null)
             {

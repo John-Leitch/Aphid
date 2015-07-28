@@ -36,7 +36,7 @@ namespace Components.Aphid.Interpreter
                 if (loadExp != null && loadExp.FileExpression is StringExpression)
                 {
                     var filename = StringParser.Parse(((StringExpression)loadExp.FileExpression).Value);
-                    filename = _loader.FindScriptFile(filename);
+                    filename = _loader.FindScriptFile(null, filename);
 
                     var childAst = Optimize(File.ReadAllText(filename));
                     optimizedAst.AddRange(childAst);
