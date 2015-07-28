@@ -109,10 +109,8 @@ namespace Components.Aphid.Interpreter
 
             foreach (var file in files)
             {
-                Console.WriteLine("Searching for {0}", file);
                 if (File.Exists(file))
                 {
-                    Console.WriteLine("Found {0}", file);
                     return file;
                 }
             }
@@ -131,10 +129,9 @@ namespace Components.Aphid.Interpreter
                     foreach (var p in paths)
                     {
                         var f = Path.Combine(p, file);
-                        Console.WriteLine("Searching for {0}", f);
+                        
                         if (File.Exists(f))
                         {
-                            Console.WriteLine("Found {0}", f);
                             return f;
                         }
                     }
