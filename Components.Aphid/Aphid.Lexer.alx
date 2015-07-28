@@ -1,7 +1,7 @@
 ﻿Lexer({
     init: @() {
-        #'Aphid.Tmpl';
-        #'Aphid.Code';
+        #'Aphid.Lexer.Tmpl';
+        #'Aphid.Lexer.Code';
     },
     name: "Components.Aphid.Lexer.Aphid",
     modes: [ 

@@ -120,9 +120,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Aphid.alx" />
-    <None Include="Aphid.Code.alx" />
+    <None Include="Aphid.Lexer.Code.alx" />
     <None Include="Aphid.Lexer.alx" />
-    <None Include="Aphid.Tmpl.alx" />
+    <None Include="Aphid.Lexer.Tmpl.alx" />
     <None Include="App.config" />
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
