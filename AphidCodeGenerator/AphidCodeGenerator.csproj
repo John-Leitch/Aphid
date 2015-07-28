@@ -66,15 +66,6 @@
     <Compile Include="TypeExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Aphid.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Aphid.Code.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Aphid.Tmpl.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="App.config" />
     <None Include="AphidObject.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
