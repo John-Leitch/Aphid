@@ -125,7 +125,7 @@ namespace Mantispid
 
             var str = CSharpHelper.GenerateCode(ns);
 
-            return lexer + "\r\n\r\n" + str;
+            return str + "\r\n\r\n" + lexer;
         }
 
         private List<AphidExpression> AddIndexTracking(List<AphidExpression> nodes)
