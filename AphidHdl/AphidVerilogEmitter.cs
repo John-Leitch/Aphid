@@ -512,7 +512,7 @@ namespace AphidHdl
             IEnumerable<AphidExpression> expressions)
         {
             return expressions.Where(x =>
-                GetArgumentId(x).HasAttribute(VerilogKeyword.Param) == isParam);
+                GetArgumentId(x).Attributes.Any(y => y.Identifier == VerilogKeyword.Param) == isParam);
         }
 
         private void EmitTuple<TElement>(TElement[] items, Action<TElement> emit, bool multiline = true)
@@ -656,7 +656,7 @@ namespace AphidHdl
         private void EmitVar(IdentifierExpression id, AphidExpression value = null)
         {
             var size = _typeTable[GetVarType(id)];
-            var isWire = id.HasAttribute(VerilogKeyword.Wire);
+            var isWire = id.Attributes.Any(x => x.Identifier == VerilogKeyword.Wire);
 
             EmitVar(
                 isWire ? VerilogKeyword.Wire : VerilogKeyword.Reg,
