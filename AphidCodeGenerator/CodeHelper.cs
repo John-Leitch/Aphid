@@ -211,5 +211,102 @@ namespace AphidCodeGenerator
         {
             return new CodeExpressionStatement(expression);
         }
+
+        public static CodeExpression Eq(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.ValueEquality, right);
+        }
+
+        public static CodeExpression LessThan(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.LessThan, right);
+        }
+
+        public static CodeExpression LessThanEq(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.LessThanOrEqual, right);
+        }
+
+        public static CodeExpression GreaterThan(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.GreaterThan, right);
+        }
+
+        public static CodeExpression GreaterThanEq(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.GreaterThanOrEqual, right);
+        }
+
+        public static CodeExpression Add(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.Add, right);
+        }
+
+        public static CodeExpression Sub(CodeExpression left, CodeExpression right)
+        {
+            return CodeHelper.BinOpExp(left, CodeBinaryOperatorType.Subtract, right);
+        }
+
+        public static CodeExpression Inc(CodeVariableReferenceExpression exp)
+        {
+            return IncDec(exp, CodeBinaryOperatorType.Add);
+        }
+
+        public static CodeExpression Dec(CodeVariableReferenceExpression exp)
+        {
+            return IncDec(exp, CodeBinaryOperatorType.Subtract);
+        }
+
+        private static CodeExpression IncDec(
+            CodeVariableReferenceExpression exp, 
+            CodeBinaryOperatorType op)
+        {
+            return CodeHelper.BinOpExp(
+                exp,
+                CodeBinaryOperatorType.Assign,
+                CodeHelper.BinOpExp(
+                    exp,
+                    op,
+                    new CodePrimitiveExpression(1)));
+        }
+
+        public static CodeAssignStatement IncStmt(CodeVariableReferenceExpression exp)
+        {
+            return IncDecStmt(exp, CodeBinaryOperatorType.Add);
+        }
+
+        public static CodeAssignStatement DecStmt(CodeVariableReferenceExpression exp)
+        {
+            return IncDecStmt(exp, CodeBinaryOperatorType.Subtract);
+        }
+
+        private static CodeAssignStatement IncDecStmt(
+            CodeVariableReferenceExpression exp,
+            CodeBinaryOperatorType op)
+        {
+            return CodeHelper.Assign(
+                exp,
+                CodeHelper.BinOpExp(
+                    exp,
+                    op,
+                    new CodePrimitiveExpression(1)));
+        }
+
+        public static CodePrimitiveExpression Value(int value)
+        {
+            return new CodePrimitiveExpression(value);
+        }
+
+        public static CodePrimitiveExpression Value(string value)
+        {
+            return new CodePrimitiveExpression(value);
+        }
+
+        public static void AddRange(
+            this CodeStatementCollection collection,
+            params CodeStatement[] statements)
+        {
+            collection.AddRange(statements);
+        }
     }
 }
