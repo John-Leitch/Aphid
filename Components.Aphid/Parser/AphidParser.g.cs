@@ -3020,25 +3020,25 @@ namespace Components.Aphid.Lexer
         public bool IsKeyword()
         {
             return TokenType == AphidTokenType.trueKeyword ||
-                TokenType == AphidTokenType.falseKeyword ||
-                TokenType == AphidTokenType.nullKeyword ||
-                TokenType == AphidTokenType.ifKeyword ||
-                TokenType == AphidTokenType.elseKeyword ||
-                TokenType == AphidTokenType.switchKeyword ||
-                TokenType == AphidTokenType.defaultKeyword ||
-                TokenType == AphidTokenType.whileKeyword ||
-                TokenType == AphidTokenType.doKeyword ||
-                TokenType == AphidTokenType.forKeyword ||
-                TokenType == AphidTokenType.inKeyword ||
-                TokenType == AphidTokenType.breakKeyword ||
-                TokenType == AphidTokenType.retKeyword ||
-                TokenType == AphidTokenType.thisKeyword ||
-                TokenType == AphidTokenType.definedKeyword ||
-                TokenType == AphidTokenType.deleteKeyword ||
-                TokenType == AphidTokenType.extendKeyword ||
-                TokenType == AphidTokenType.tryKeyword ||
-                TokenType == AphidTokenType.catchKeyword ||
-                TokenType == AphidTokenType.finallyKeyword;
+TokenType == AphidTokenType.falseKeyword ||
+TokenType == AphidTokenType.nullKeyword ||
+TokenType == AphidTokenType.ifKeyword ||
+TokenType == AphidTokenType.elseKeyword ||
+TokenType == AphidTokenType.switchKeyword ||
+TokenType == AphidTokenType.defaultKeyword ||
+TokenType == AphidTokenType.whileKeyword ||
+TokenType == AphidTokenType.doKeyword ||
+TokenType == AphidTokenType.forKeyword ||
+TokenType == AphidTokenType.inKeyword ||
+TokenType == AphidTokenType.breakKeyword ||
+TokenType == AphidTokenType.retKeyword ||
+TokenType == AphidTokenType.thisKeyword ||
+TokenType == AphidTokenType.definedKeyword ||
+TokenType == AphidTokenType.deleteKeyword ||
+TokenType == AphidTokenType.extendKeyword ||
+TokenType == AphidTokenType.tryKeyword ||
+TokenType == AphidTokenType.catchKeyword ||
+TokenType == AphidTokenType.finallyKeyword;
         }
     }
 
