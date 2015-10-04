@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Components.Aphid.Parser
@@ -29,6 +30,11 @@ namespace Components.Aphid.Parser
 
         public IncludeMutator(string applicationDirectory)
             : this(applicationDirectory, true)
+        {
+        }
+
+        public IncludeMutator()
+            : this(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location))
         {
         }
 
