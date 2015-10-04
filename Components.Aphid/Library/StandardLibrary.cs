@@ -331,6 +331,12 @@ namespace Components.Aphid.Library
             return str.ToLower();
         }
 
+        [AphidInteropFunction("__string.replace")]
+        private static string StringReplace(string str, string oldValue, string newValue)
+        {
+            return str.Replace(oldValue, newValue);
+        }
+
         private static bool _ignoreCase = false;
 
         [AphidInteropFunction("string.ignoreCase")]
