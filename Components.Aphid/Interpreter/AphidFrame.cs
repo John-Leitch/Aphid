@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Components.Aphid.Library;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -90,10 +91,12 @@ namespace Components.Aphid.Interpreter
 
         private string CreateArgString(bool showParamNames)
         {
-            IEnumerable<string> args = IsUnwrapped ?
-                UnwrappedArguments.Select(x => x.ToString()) : 
-                Arguments.Select(x => x.Value == null ? x.ToString() : x.Value.ToString());
+            var serializer = new AphidSerializer();
 
+            var args = IsUnwrapped ?
+                UnwrappedArguments.Select(x => x.ToString()) : 
+                Arguments.Select(serializer.Serialize);
+            
             if (showParamNames && IsAphid)
             {
                 args = args.Select((x, i) => string.Format(
@@ -103,6 +106,6 @@ namespace Components.Aphid.Interpreter
             }
 
             return string.Join(", ", args);
-        }        
+        }
     }
 }
