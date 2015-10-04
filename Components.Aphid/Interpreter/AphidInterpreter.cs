@@ -671,7 +671,7 @@ namespace Components.Aphid.Interpreter
                     throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
                 }
 
-                var args = expression.Args.Select(x => ValueHelper.Wrap(InterpretExpression(x)));
+                var args = expression.Args.Select(x => ValueHelper.Wrap(InterpretExpression(x))).ToArray();
                 _frames.Push(new AphidFrame(name, func2, args));
                 var retVal = CallFunctionCore(func2, args);
                 _frames.Pop();
