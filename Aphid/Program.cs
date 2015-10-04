@@ -70,7 +70,7 @@ namespace Aphid
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("{0:x4}", i++);
                 Console.ResetColor();
-                Console.WriteLine("] {0}", frame);
+                Console.WriteLine("] {0}", frame.ToString(true));
             }
         }
     }
