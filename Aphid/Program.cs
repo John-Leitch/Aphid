@@ -50,6 +50,27 @@ namespace Aphid
             catch (AphidRuntimeException exception)
             {
                 Console.WriteLine("Unexpected runtime exception\r\n\r\n{0}\r\n", exception.Message);
+                DumpStackTrace(interpreter);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
+                DumpStackTrace(interpreter);
+            }
+        }
+
+        static void DumpStackTrace(AphidInterpreter interpreter)
+        {
+            var trace = interpreter.GetStackTrace();
+            var i = 0;
+
+            foreach (var frame in trace)
+            {
+                Console.Write('[');
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("{0:x4}", i++);
+                Console.ResetColor();
+                Console.WriteLine("] {0}", frame);
             }
         }
     }
