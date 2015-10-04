@@ -19,6 +19,11 @@ namespace Components.Aphid.Interpreter
 
         private bool _isBreaking = false;
 
+        private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
+        { 
+            new AphidFrame("[Entrypoint]", null, null, null, null),
+        });
+
         private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
 
         private AphidLoader _loader;
@@ -648,8 +653,11 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
-            var value = InterpretExpression(expression.FunctionExpression);
+            var name = expression.FunctionExpression.Type == AphidExpressionType.IdentifierExpression ?
+                ((IdentifierExpression)expression.FunctionExpression).Identifier :
+                "[Anonymous]";
 
+            var value = InterpretExpression(expression.FunctionExpression);
             object funcExp = ValueHelper.Unwrap(value);
 
             var func = funcExp as AphidInteropFunction;
@@ -663,7 +671,11 @@ namespace Components.Aphid.Interpreter
                     throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
                 }
 
-                return CallFunctionCore(func2, expression.Args.Select(x => ValueHelper.Wrap(InterpretExpression(x))));
+                var args = expression.Args.Select(x => ValueHelper.Wrap(InterpretExpression(x)));
+                _frames.Push(new AphidFrame(name, func2, args));
+                var retVal = CallFunctionCore(func2, args);
+                _frames.Pop();
+                return retVal;
             }
             else
             {
@@ -692,8 +704,10 @@ namespace Components.Aphid.Interpreter
                 }
 
                 var args = expression.Args.Select(selector).ToArray();
-
-                return ValueHelper.Wrap(func.Invoke(this, args));
+                _frames.Push(new AphidFrame(name, func, args));
+                var retVal = ValueHelper.Wrap(func.Invoke(this, args));;
+                _frames.Pop();
+                return retVal;
             }
         }
 
@@ -716,8 +730,6 @@ namespace Components.Aphid.Interpreter
 
             return list;
         }
-
-        
 
         private AphidObject InterpretUnaryOperatorExpression(UnaryOperatorExpression expression)
         {
@@ -1291,6 +1303,11 @@ namespace Components.Aphid.Interpreter
         public void InterpretFile(string filename)
         {
             _loader.LoadScript(filename);            
+        }
+
+        public AphidFrame[] GetStackTrace()
+        {
+            return _frames.ToArray();
         }
     }
 }

@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interpreter\AphidFrame.cs" />
     <Compile Include="Interpreter\AphidObjectEqualityComparer.cs" />
     <Compile Include="Interpreter\AphidOperationException.cs" />
     <Compile Include="Interpreter\AphidPropertyAttribute.cs" />
