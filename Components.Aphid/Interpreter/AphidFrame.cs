@@ -64,6 +64,7 @@ namespace Components.Aphid.Interpreter
             IEnumerable<AphidObject> arguments,
             IEnumerable<object> unwrappedArguments)
         {
+            Name = name;
             Function = function;
             InteropFunction = interopFunction;
             Arguments = arguments;
