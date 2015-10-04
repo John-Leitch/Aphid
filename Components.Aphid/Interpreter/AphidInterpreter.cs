@@ -1151,7 +1151,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private object InterpretExpression(AphidExpression expression)
+        public object InterpretExpression(AphidExpression expression)
         {
             switch (expression.Type)
             {
