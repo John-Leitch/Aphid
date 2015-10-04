@@ -63,6 +63,12 @@ namespace Components.Aphid.Parser
                     case AphidTokenType.MinusOperator:
                         return new List<AphidExpression> { new NumberExpression(left - right) };
 
+                    case AphidTokenType.MultiplicationOperator:
+                        return new List<AphidExpression> { new NumberExpression(left * right) };
+
+                    case AphidTokenType.DivisionOperator:
+                        return new List<AphidExpression> { new NumberExpression(left / right) };
+
                     default:
                         hasChanged = false;
                         break;
