@@ -36,6 +36,11 @@ namespace Components.Aphid.Parser
                 expectedToken);
         }
 
+        public AphidParserException(string format, params string[] args)
+        {
+            _message = string.Format(format, args);
+        }
+
         private string CreateUnexpectedMessage(AphidToken token)
         {
             return string.Format(
