@@ -96,6 +96,13 @@ namespace Components.Aphid.Interpreter
             LoadLibrary(typeof(TLibrary), scope);
         }
 
+        public string FindScriptFile(string scriptFile)
+        {
+            return FindScriptFile(
+                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+                scriptFile);
+        }
+
         public string FindScriptFile(string appDir, string scriptFile)
         {
 
