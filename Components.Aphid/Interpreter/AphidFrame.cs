@@ -11,6 +11,11 @@ namespace Components.Aphid.Interpreter
 
         public AphidFunction Function { get; private set; }
 
+        public bool IsAphid
+        {
+            get { return Function != null; }
+        }
+
         public AphidInteropFunction InteropFunction { get; private set; }
 
         public bool IsInterop
@@ -73,16 +78,29 @@ namespace Components.Aphid.Interpreter
 
         public override string ToString()
         {
+            return ToString(false);
+        }
+
+        public string ToString(bool showParamNames)
+        {
             return HasFunction ?
-                string.Format("{0}({1})", Name, CreateArgString()) :
+                string.Format("{0}({1})", Name, CreateArgString(showParamNames)) :
                 Name;
         }
 
-        private string CreateArgString()
+        private string CreateArgString(bool showParamNames)
         {
             IEnumerable<string> args = IsUnwrapped ?
                 UnwrappedArguments.Select(x => x.ToString()) : 
                 Arguments.Select(x => x.Value == null ? x.ToString() : x.Value.ToString());
+
+            if (showParamNames && IsAphid)
+            {
+                args = args.Select((x, i) => string.Format(
+                    "{0}: {1}", 
+                    Function.Args[i], 
+                    x));
+            }
 
             return string.Join(", ", args);
         }        
