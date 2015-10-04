@@ -87,16 +87,10 @@
     <None Include="Foreign\Microsoft.Cci.ILGenerator.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Foreign\Microsoft.Cci.ILGenerator.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Foreign\Microsoft.Cci.ILGenerator.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.MetadataHelper.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Foreign\Microsoft.Cci.MetadataHelper.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.MetadataHelper.xml">
@@ -105,16 +99,10 @@
     <None Include="Foreign\Microsoft.Cci.MetadataModel.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Foreign\Microsoft.Cci.MetadataModel.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Foreign\Microsoft.Cci.MetadataModel.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.MutableMetadataModel.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Foreign\Microsoft.Cci.MutableMetadataModel.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.MutableMetadataModel.xml">
@@ -123,16 +111,10 @@
     <None Include="Foreign\Microsoft.Cci.PdbReader.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Foreign\Microsoft.Cci.PdbReader.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Foreign\Microsoft.Cci.PdbReader.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.PdbWriter.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Foreign\Microsoft.Cci.PdbWriter.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.PdbWriter.xml">
@@ -141,25 +123,16 @@
     <None Include="Foreign\Microsoft.Cci.PeReader.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Foreign\Microsoft.Cci.PeReader.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Foreign\Microsoft.Cci.PeReader.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.PeWriter.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Foreign\Microsoft.Cci.PeWriter.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Foreign\Microsoft.Cci.PeWriter.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.SourceModel.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Foreign\Microsoft.Cci.SourceModel.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Foreign\Microsoft.Cci.SourceModel.xml">
