@@ -1,6 +1,7 @@
 ﻿using Components.Aphid.Parser;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -57,8 +58,15 @@ namespace Mantispid
             }
             catch (Exception exception)
             {
-                Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
-                Environment.Exit(3);
+                if (Debugger.IsAttached)
+                {
+                    throw;
+                }
+                else
+                {
+                    Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
+                    Environment.Exit(3);
+                }
             }
         }
     }
