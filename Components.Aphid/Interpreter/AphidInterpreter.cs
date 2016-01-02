@@ -1313,17 +1313,23 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public void Interpret(string code)
+        public void Interpret(string code, bool isTextDocument = false)
         {
             var lexer = new AphidLexer(code);
+
+            if (isTextDocument)
+            {
+                lexer.SetTextMode();
+            }
+
             var parser = new AphidParser(lexer.GetTokens());
             var ast = parser.Parse();
             Interpret(ast);
         }
 
-        public void InterpretFile(string filename)
+        public void InterpretFile(string filename, bool isTextDocument = false)
         {
-            _loader.LoadScript(filename);            
+            _loader.LoadScript(filename, isTextDocument);            
         }
 
         public AphidFrame[] GetStackTrace()

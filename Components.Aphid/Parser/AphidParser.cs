@@ -54,9 +54,16 @@ namespace Components.Aphid.Parser
             }
         }
 
-        public static List<AphidExpression> Parse(string code)
+        public static List<AphidExpression> Parse(string code, bool isTextDocument = false)
         {
-            return new AphidParser(new AphidLexer(code).GetTokens()).Parse();
+            var lexer = new AphidLexer(code);
+
+            if (isTextDocument)
+            {
+                lexer.SetTextMode();
+            }
+
+            return new AphidParser(lexer.GetTokens()).Parse();
         }
     }
 }

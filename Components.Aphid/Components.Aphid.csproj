@@ -67,6 +67,7 @@
     <Compile Include="Interpreter\OperatorHelper.cs" />
     <Compile Include="Interpreter\TypeExtender.cs" />
     <Compile Include="Interpreter\ValueHelper.cs" />
+    <Compile Include="Lexer\AphidLexer.cs" />
     <Compile Include="Lexer\AphidObjectLexer.cs" />
     <Compile Include="Lexer\TokenHelper.cs" />
     <Compile Include="Library\AphidByteConverter.cs" />

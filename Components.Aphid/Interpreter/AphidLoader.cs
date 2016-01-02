@@ -148,7 +148,7 @@ namespace Components.Aphid.Interpreter
             return null;
         }
 
-        public void LoadScript(string scriptFile)
+        public void LoadScript(string scriptFile, bool isTextDocument = false)
         {
             var f = FindScriptFile(null, scriptFile);
 
@@ -164,7 +164,7 @@ namespace Components.Aphid.Interpreter
                     }
                 }
 
-                _interpreter.Interpret(File.ReadAllText(f));
+                _interpreter.Interpret(File.ReadAllText(f), isTextDocument);
             }
             else
             {
