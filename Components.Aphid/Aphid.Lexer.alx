@@ -8,6 +8,8 @@
         {
             mode: "Aphid",
             tokens: [
+                { regex: '%>', type: 'GatorCloseOperator', newMode: "Text" },
+
                 { regex: "#", type: "LoadScriptOperator" },
                 { regex: "##", type: "LoadLibraryOperator" },
 
@@ -121,7 +123,15 @@
             ],
             keywordDefault: getKeywordHelper('Identifier'),
             keywordTail: getKeywordHelper('{Keyword}')            
-        }
+        },
+        {
+            mode: "Text",
+            tokens: [
+                { regex: '<%', type: 'GatorOpenOperator', newMode: "Aphid" },
+                { regex: '<', code: textCode },
+                { code: textCode },
+            ]
+        },
     ],
-    ignore: [ "WhiteSpace", "Comment" ]    
+    ignore: [ "WhiteSpace", "Comment" ]
 });

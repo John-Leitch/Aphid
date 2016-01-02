@@ -144,3 +144,17 @@ commentCode = "
 
     return AphidTokenType.Comment;
 ";
+
+textCode = " 
+    while (NextChar())
+    {
+        if (currentChar == '<')
+        {
+            charIndex--;
+
+            return AphidTokenType.Text;
+        }
+    }
+
+    return AphidTokenType.Text;
+";

@@ -2944,6 +2944,8 @@ namespace Components.Aphid.Lexer
         finallyKeyword,
         forKeyword,
         functionOperator,
+        GatorCloseOperator,
+        GatorOpenOperator,
         GreaterThanOperator,
         GreaterThanOrEqualOperator,
         HexNumber,
@@ -2987,6 +2989,7 @@ namespace Components.Aphid.Lexer
         ShiftRightEqualOperator,
         String,
         switchKeyword,
+        Text,
         thisKeyword,
         trueKeyword,
         tryKeyword,
@@ -3098,6 +3101,28 @@ TokenType == AphidTokenType.finallyKeyword;
 
                     switch (currentChar)
                     {
+                        case '%':
+                            if (charIndex < lastIndex)
+                            {
+                                currentChar = text[++charIndex];
+
+                                switch (currentChar)
+                                {
+                                    case '>':
+
+                                        mode = 1;
+                                        return AphidTokenType.GatorCloseOperator;
+
+                                    case '=':
+
+                                        return AphidTokenType.ModulusEqualOperator;
+
+                                }
+
+                                charIndex--;
+                            }
+                            return AphidTokenType.ModulusOperator;
+
                         case '#':
                             if (charIndex < lastIndex)
                             {
@@ -3335,23 +3360,6 @@ TokenType == AphidTokenType.finallyKeyword;
                                 charIndex--;
                             }
                             return AphidTokenType.DivisionOperator;
-
-                        case '%':
-                            if (charIndex < lastIndex)
-                            {
-                                currentChar = text[++charIndex];
-
-                                switch (currentChar)
-                                {
-                                    case '=':
-
-                                        return AphidTokenType.ModulusEqualOperator;
-
-                                }
-
-                                charIndex--;
-                            }
-                            return AphidTokenType.ModulusOperator;
 
                         case '&':
                             if (charIndex < lastIndex)
@@ -7569,6 +7577,67 @@ TokenType == AphidTokenType.finallyKeyword;
                     return AphidTokenType.Unknown;
                 }
             }
+            else
+                if (mode == 1)
+                {
+                    if (charIndex < lastIndex)
+                    {
+                        currentChar = text[++charIndex];
+
+                        switch (currentChar)
+                        {
+                            case '<':
+                                if (charIndex < lastIndex)
+                                {
+                                    currentChar = text[++charIndex];
+
+                                    switch (currentChar)
+                                    {
+                                        case '%':
+
+                                            mode = 0;
+                                            return AphidTokenType.GatorOpenOperator;
+
+                                    }
+
+                                    charIndex--;
+                                }
+
+                                while (NextChar())
+                                {
+                                    if (currentChar == '<')
+                                    {
+                                        charIndex--;
+
+                                        return AphidTokenType.Text;
+                                    }
+                                }
+
+                                return AphidTokenType.Text;
+
+                                break;
+
+                            default:
+
+                                while (NextChar())
+                                {
+                                    if (currentChar == '<')
+                                    {
+                                        charIndex--;
+
+                                        return AphidTokenType.Text;
+                                    }
+                                }
+
+                                return AphidTokenType.Text;
+
+                                break;
+
+                        }
+
+                        return AphidTokenType.Unknown;
+                    }
+                }
 
 
             return AphidTokenType.EndOfFile;
