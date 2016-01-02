@@ -118,7 +118,7 @@ namespace LLex
                     }
                 }
 
-                foreach (var keyword in mode.Keywords)
+                foreach (var keyword in mode.Keywords ?? new string[0])
                 {
                     tokenTable.AddKeyword(keyword);
                     var t = keyword + "Keyword";
