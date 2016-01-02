@@ -1,9 +1,9 @@
 ﻿This is a text doc.
 <% 
     #'Std';
+	print('Hello world');
     x = 10;
 %>
+A var ref: <%= x %>
+An arithmetic exp: <%= 0x10 >> 4 %>
 
-Some more text.
-
-<% print(x); %>

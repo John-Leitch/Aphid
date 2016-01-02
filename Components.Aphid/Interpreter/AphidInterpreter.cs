@@ -138,6 +138,14 @@ namespace Components.Aphid.Interpreter
                     (decimal)ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
         }
 
+        private void WriteOut(string text)
+        {
+            if (_out != null)
+            {
+                _out.Write(text);
+            }
+        }
+
         private AphidObject InterpretAndExpression(BinaryOperatorExpression expression)
         {
             var left = (bool)ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
@@ -1127,10 +1135,20 @@ namespace Components.Aphid.Interpreter
 
         private void InterpretTextExpression(TextExpression expression)
         {
-            if (Out != null)
+            WriteOut(expression.Text);
+        }
+
+        private void InterpretGatorEmitExpression(GatorEmitExpression expression)
+        {
+            var obj = InterpretExpression(expression.Expression);
+
+            if (obj == null)
             {
-                Out.Write(expression.Text);
+                return;
             }
+
+            var result = ValueHelper.Unwrap(obj).ToString();
+            WriteOut(result);
         }
 
         private AphidObject InterpretTernaryOperatorExpression(TernaryOperatorExpression expression)
@@ -1276,6 +1294,11 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.TextExpression:
                     InterpretTextExpression((TextExpression)expression);
+
+                    return null;
+
+                case AphidExpressionType.GatorEmitExpression:
+                    InterpretGatorEmitExpression((GatorEmitExpression)expression);
 
                     return null;
 
