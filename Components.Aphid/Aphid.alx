@@ -36,6 +36,7 @@ StringExpression = { string Value };
 SwitchCase = { list Cases, list Body };
 SwitchExpression = { Expression, list SwitchCase Cases, list DefaultCase };
 TernaryOperatorExpression = { AphidTokenType Operator, FirstOperand, SecondOperand, ThirdOperand };
+TextExpression = { string Text };
 ThisExpression = { };
 TryExpression = { list TryBody, IdentifierExpression CatchArg, list CatchBody, list FinallyBody };
 WhileExpression = { Condition, list Body };
@@ -121,6 +122,7 @@ _ParseStatement = macro(@(_requireEos) {
             extendKeyword: exp ParseExtendExpression;
             tryKeyword: exp ParseTryExpression;
             switchKeyword: exp ParseSwitchExpression;
+            Text: exp ParseTextExpression;
             
             default:  {
                 exp ParseExpression;
@@ -769,4 +771,11 @@ ParseFactorExpression = @() {
     }
 
     ret exp;
+};
+
+ParseTextExpression = @() {
+    t = TextExpression(Lexeme);
+    NextToken;
+    
+    ret t;
 };
