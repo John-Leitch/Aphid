@@ -1,15 +1,8 @@
-﻿using Components.Aphid;
-using Components.Aphid.Interpreter;
-using Components.Aphid.Lexer;
+﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Aphid
 {
@@ -41,7 +34,6 @@ namespace Aphid
 
             try
             {
-
                 interpreter.Interpret(code, isTextDocument);
             }
             catch (AphidParserException exception)
