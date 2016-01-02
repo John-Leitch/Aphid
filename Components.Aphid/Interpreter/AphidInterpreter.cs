@@ -26,6 +26,14 @@ namespace Components.Aphid.Interpreter
 
         private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
 
+        private TextWriter _out = Console.Out;
+
+        public TextWriter Out
+        {
+            get { return _out; }
+            set { _out = value; }
+        }
+
         private AphidLoader _loader;
 
         public AphidLoader Loader
@@ -1117,6 +1125,14 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+        private void InterpretTextExpression(TextExpression expression)
+        {
+            if (Out != null)
+            {
+                Out.Write(expression.Text);
+            }
+        }
+
         private AphidObject InterpretTernaryOperatorExpression(TernaryOperatorExpression expression)
         {
             switch (expression.Operator)
@@ -1255,6 +1271,11 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.SwitchExpression:
                     InterpretSwitchExpression((SwitchExpression)expression);
+
+                    return null;
+
+                case AphidExpressionType.TextExpression:
+                    InterpretTextExpression((TextExpression)expression);
 
                     return null;
 
