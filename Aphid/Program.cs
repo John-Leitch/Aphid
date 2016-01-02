@@ -33,15 +33,16 @@ namespace Aphid
                 Environment.Exit(1);
             }
 
+            var ext = Path.GetExtension(args[0]).ToLower();
+            var isTextDocument = ext == ".alxt";
             var code = File.ReadAllText(args[0]);
-
             EnvironmentLibrary.SetEnvArgs(true);
-
             var interpreter = new AphidInterpreter();
 
             try
             {
-                interpreter.Interpret(code);
+
+                interpreter.Interpret(code, isTextDocument);
             }
             catch (AphidParserException exception)
             {

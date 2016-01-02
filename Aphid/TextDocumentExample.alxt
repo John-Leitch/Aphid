@@ -1,0 +1,9 @@
+﻿This is a text doc.
+<% 
+    #'Std';
+    x = 10;
+%>
+
+Some more text.
+
+<% print(x); %>
