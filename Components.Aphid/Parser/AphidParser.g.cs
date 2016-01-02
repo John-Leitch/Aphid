@@ -7655,7 +7655,7 @@ TokenType == AphidTokenType.finallyKeyword;
 
             while ((tokenType = GetToken()) != AphidTokenType.EndOfFile)
             {
-                if (tokenType != AphidTokenType.WhiteSpace && tokenType != AphidTokenType.Comment)
+                if (tokenType != AphidTokenType.GatorOpenOperator && tokenType != AphidTokenType.GatorCloseOperator && tokenType != AphidTokenType.WhiteSpace && tokenType != AphidTokenType.Comment)
                 {
                     var index = lastIndex + 1;
                     var lexeme = text.Substring(index, charIndex - lastIndex);

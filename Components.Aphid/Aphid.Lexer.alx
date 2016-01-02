@@ -133,5 +133,10 @@
             ]
         },
     ],
-    ignore: [ "WhiteSpace", "Comment" ]
+    ignore: [ 
+        "GatorOpenOperator",
+        "GatorCloseOperator",
+        "WhiteSpace",
+        "Comment" 
+    ]
 });
