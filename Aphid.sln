@@ -45,7 +45,32 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dialects", "Dialects", "{FC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidHdl", "AphidHdl\AphidHdl.csproj", "{C29B4B38-86EA-4760-8830-5006CE6868D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidUI", "AphidUI\AphidUI.csproj", "{B828964B-52F1-4EA5-9AB3-26D698DB8325}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILWeave", "ILWeave\ILWeave.csproj", "{A0FAE839-87CE-4A92-8955-5B21787D951D}"
+EndProject
 Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
+		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
+		SccProjectName0 = $/Cypress/Aphid/Components.Aphid
+		SccAuxPath0 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath0 = Components.Aphid
+		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName1 = AphidCodeGenerator\\AphidCodeGenerator.csproj
+		SccProjectName1 = $/Cypress/Aphid/AphidCodeGenerator
+		SccAuxPath1 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath1 = AphidCodeGenerator
+		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName2 = Mantispid\\Mantispid.csproj
+		SccProjectTopLevelParentUniqueName2 = Aphid.sln
+		SccProjectName2 = $/Cypress/Aphid/Mantispid
+		SccAuxPath2 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath2 = Mantispid
+		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -255,6 +280,26 @@ Global
 		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C29B4B38-86EA-4760-8830-5006CE6868D1}.Release|Win32.ActiveCfg = Release|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Win32.ActiveCfg = Release|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
