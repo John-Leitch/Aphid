@@ -228,6 +228,14 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.PartialFunctionExpression:
+                    var pfExp = (PartialFunctionExpression)expression;
+
+                    expanded.Add(
+                        new PartialFunctionExpression(Mutate(pfExp.Call).Single()));
+
+                    break;
+
                 default:
                     if (expression is IParentNode)
                     {
