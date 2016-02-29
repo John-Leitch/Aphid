@@ -18,6 +18,13 @@ namespace Boxelder
             { AphidTokenType.MultiplicationOperator, "*" },
             { AphidTokenType.DivisionOperator, "/" },
             { AphidTokenType.MemberOperator, "." },
+            
+            { AphidTokenType.EqualityOperator, "==" },
+            { AphidTokenType.NotEqualOperator, "!=" },
+            { AphidTokenType.LessThanOperator, "<" },
+            { AphidTokenType.LessThanOrEqualOperator, "<=" },
+            { AphidTokenType.GreaterThanOperator, ">" },
+            { AphidTokenType.GreaterThanOrEqualOperator, ">=" },
         };
 
         private Stack<string> _tabs = new Stack<string>();
@@ -29,6 +36,7 @@ namespace Boxelder
             var mutators = new AphidMutator[] 
             {
                 new PipelineToCallMutator(),
+                new UnaryExpressionMutator(),
             };
 
             foreach (var mutator in mutators)
@@ -120,7 +128,21 @@ namespace Boxelder
 
         protected void EmitIdentifierStatement(IdentifierExpression expression)
         {
-            throw new NotImplementedException();            
+            string[] unparsed;
+            var attrs = AphidAttributeParser.Parse<IdentifierStatementAttributes>(expression, out unparsed);
+
+            if (unparsed.Any())
+            {
+                throw new NotImplementedException();
+            }
+            else if (attrs.IsThrow)
+            {
+                Append("raise {0}", expression.Identifier);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         protected void EmitImportStatement(IdentifierExpression expression)
@@ -130,15 +152,22 @@ namespace Boxelder
 
         protected override void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
         {
-            switch (expression.Operator)
+            if (expression.IsPostfix)
             {
-                case AphidTokenType.retKeyword:
-                    Append("return ");
-                    Emit(expression.Operand);
-                    break;
+                throw new NotImplementedException();
+            }
+            else
+            {
+                switch (expression.Operator)
+                {
+                    case AphidTokenType.retKeyword:
+                        Append("return ");
+                        Emit(expression.Operand);
+                        break;
 
-                default:
-                    throw new NotImplementedException();
+                    default:
+                        throw new NotImplementedException();
+                }
             }
         }
 
@@ -146,9 +175,21 @@ namespace Boxelder
         {
             if (expression.RightOperand.Type != AphidExpressionType.FunctionExpression)
             {
+                var useParens = !isStatement && expression.Operator != AphidTokenType.AssignmentOperator;
+
+                if (useParens)
+                {
+                    Append("(");
+                }
+
                 Emit(expression.LeftOperand);
                 Append(" {0} ", GetOperator(expression.Operator));
                 Emit(expression.RightOperand);
+
+                if (useParens)
+                {
+                    Append(")");
+                }
             }
             else
             {
@@ -195,13 +236,12 @@ namespace Boxelder
 
             if (expression.ElseBody != null && expression.Body.Any())
             {
+                AppendTabs();
                 Append("else:\r\n");
                 Indent();
                 Emit(expression.ElseBody);
                 Unindent();
             }
-
-            var s = _out.ToString();
         }
 
         protected override void EmitCallExpression(CallExpression expression, bool isStatement = false)
@@ -210,6 +250,21 @@ namespace Boxelder
             Append("(");
             EmitTuple(expression.Args);
             Append(")");
+        }
+
+        protected override void EmitArrayExpression(ArrayExpression expression, bool isStatement = false)
+        {
+            Append("[");
+            EmitTuple(expression.Elements);
+            Append("]");
+        }
+
+        protected override void EmitArrayAccessExpression(ArrayAccessExpression expression, bool isStatement = false)
+        {
+            Emit(expression.ArrayExpression);
+            Append("[");
+            Emit(expression.KeyExpression);
+            Append("]");
         }
 
         protected override void EmitObjectExpression(ObjectExpression expression, bool isStatement = false)
@@ -271,7 +326,7 @@ namespace Boxelder
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    EmitFunctionDeclarationStatement(p);
                 }
             }
 

@@ -42,9 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidPythonEmitter.cs" />
+    <Compile Include="IdentifierStatementAttributes.cs" />
     <Compile Include="ObjectStatementAttributes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnaryExpressionMutator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
