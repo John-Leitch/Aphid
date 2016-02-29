@@ -191,11 +191,17 @@ namespace Components.Aphid.Parser
                     break;
 
                 case AphidExpressionType.ObjectExpression:
-                    var pairs = ((ObjectExpression)expression).Pairs
+                    var obj = ((ObjectExpression)expression);
+
+                    var pairs = obj.Pairs
                         .Select(x => (BinaryOperatorExpression)Mutate(x).Single())
                         .ToList();
 
-                    expanded.Add(new ObjectExpression(pairs));
+                    var objId = obj.Identifier != null ? 
+                        (IdentifierExpression)Mutate(obj.Identifier).Single() :
+                        null;
+
+                    expanded.Add(new ObjectExpression(pairs, objId));
                     break;
 
                 case AphidExpressionType.ExtendExpression:
