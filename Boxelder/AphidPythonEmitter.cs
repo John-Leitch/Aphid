@@ -275,8 +275,7 @@ namespace Boxelder
                 }
             }
 
-            Unindent();
-            AppendLine();
+            Unindent();            
         }
 
         private void EmitTuple(IEnumerable<AphidExpression> items)
