@@ -54,6 +54,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Todo.txt = Todo.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boxelder", "Boxelder\Boxelder.csproj", "{CEFC631B-3F81-4BA7-84EF-74655CAC704F}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 21
@@ -404,6 +406,16 @@ Global
 		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Win32.ActiveCfg = Release|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -420,5 +432,6 @@ Global
 		{4774E19C-47A1-445E-9B4F-480BBC2518E5} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{C29B4B38-86EA-4760-8830-5006CE6868D1} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
+		{CEFC631B-3F81-4BA7-84EF-74655CAC704F} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 	EndGlobalSection
 EndGlobal
