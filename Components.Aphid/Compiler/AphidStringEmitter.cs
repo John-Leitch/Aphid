@@ -23,7 +23,7 @@ namespace Components.Aphid.Compiler
             foreach (var stmt in statements)
             {
                 BeginStatement();
-                Emit(stmt);
+                Emit(stmt, isStatement: true);
                 EndStatement();
             }
         }
