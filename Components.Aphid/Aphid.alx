@@ -28,7 +28,7 @@ LoadLibraryExpression = { LibraryExpression };
 LoadScriptExpression = { FileExpression };
 NullExpression = { };
 NumberExpression = { decimal Value, };
-ObjectExpression = { list BinaryOperatorExpression Pairs };
+ObjectExpression = { list BinaryOperatorExpression Pairs, opt IdentifierExpression Identifier };
 PartialFunctionExpression = { CallExpression Call };
 PatternExpression = { opt list Patterns, Value };
 PatternMatchingExpression = { TestExpression, list PatternExpression Patterns };
@@ -367,7 +367,7 @@ IdentifierExpression ParseIdentifierExpression = @() {
         } while (Identifier);
 
         exp = IdentifierExpression(id.Identifier, attrs);
-    }
+    }    
 
     ret exp;
 };
@@ -719,11 +719,16 @@ ParseFactorExpression = @() {
         Number: exp ParseNumberExpression;
 
         Identifier: {
-            exp ParseIdentifierExpression;
+            id ParseIdentifierExpression;
 
             if (definedKeyword) {
                 NextToken;
-                exp = UnaryOperatorExpression(definedKeyword, exp, true);
+                exp = UnaryOperatorExpression(definedKeyword, id, true);
+            } else if (LeftBrace) {
+                obj = ParseObjectExpression();
+                exp = ObjectExpression(obj.Pairs, id);
+            } else {
+                exp = id;
             }
         }
 
