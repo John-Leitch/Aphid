@@ -13,6 +13,11 @@ namespace Components.Aphid.Compiler
             _out.AppendFormat(format, args);
         }
 
+        protected void Append(object value)
+        {
+            _out.Append(value.ToString());
+        }
+
         public void Emit(List<AphidExpression> statements)
         {
             foreach (var stmt in statements)
@@ -23,7 +28,7 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        public string Compile(List<AphidExpression> ast)
+        public virtual string Compile(List<AphidExpression> ast)
         {
             _out.Clear();
             Emit(ast);
