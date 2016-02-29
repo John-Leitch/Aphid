@@ -200,6 +200,15 @@ namespace AphidCodeGenerator
             return new CodeMethodInvokeExpression(methodRef, parameters);
         }
 
+        public static CodeMethodInvokeExpression Invoke(CodeExpression targetObject, string methodName, string[] typeParameters, params CodeExpression[] parameters)
+        {
+            return Invoke(
+                targetObject,
+                methodName,
+                typeParameters.Select(x => new CodeTypeReference(x)).ToArray(),
+                parameters);
+        }
+
         public static CodeMethodInvokeExpression Invoke(string methodName, params CodeExpression[] parameters)
         {
             return Invoke(null, methodName, parameters);

@@ -101,7 +101,7 @@ namespace Mantispid
         }
 
         private CodeStatement[] CreateConstructorAssignmentStatements(
-            RuleStruct rule, 
+            RuleStruct rule,
             CodeMemberProperty property)
         {
             var paramName = GetLocalName(property.Name);
@@ -116,16 +116,16 @@ namespace Mantispid
             else
             {
                 var condition = CodeHelper.BinOpExp(
-                    CodeHelper.VarRef(paramName), 
+                    CodeHelper.VarRef(paramName),
                     CodeBinaryOperatorType.IdentityInequality,
                     CodeHelper.Null());
 
                 var createStmt = CodeHelper.Assign(
-                    fieldName, 
+                    fieldName,
                     new CodeObjectCreateExpression(property.Type));
 
                 var conditionStmt = new CodeConditionStatement(
-                    condition, 
+                    condition,
                     new[] { assignStmt },
                     new[] { createStmt });
 
@@ -159,52 +159,56 @@ namespace Mantispid
                 return;
             }
 
-                decl.BaseTypes.Add("IParentNode");
+            decl.BaseTypes.Add("IParentNode");
 
-                var children = rule.Properties
-                    .Where(x => _resolver.Is(x.Type, _baseTypeName))
-                    .ToArray();
+            var children = rule.Properties
+                .Where(x => _resolver.Is(x.Type, _baseTypeName))
+                .ToArray();
 
-                var scalarChildren = children
-                    .Where(x => !x.IsList)
-                    .Select(x => CodeHelper.VarRef(x.Name))
-                    .ToArray(); ;
+            var scalarChildren = children
+                .Where(x => !x.IsList)
+                .Select(x => CodeHelper.VarRef(x.Name))
+                .ToArray(); ;
 
-                CodeExpression childExpression = scalarChildren.Any() ? 
-                    new CodeArrayCreateExpression(_baseTypeName, scalarChildren) : 
-                    null;
+            CodeExpression childExpression = scalarChildren.Any() ?
+                new CodeArrayCreateExpression(_baseTypeName, scalarChildren) :
+                null;
 
-                var hasLists = false;
+            var hasLists = false;
 
-                foreach (var child in children.Where(x => x.IsList))
+            foreach (var child in children.Where(x => x.IsList))
+            {
+                hasLists = true;
+                var childRef = CodeHelper.VarRef(child.Name);
+
+                if (childExpression != null)
                 {
-                    hasLists = true;
-                    var childRef = CodeHelper.VarRef(child.Name);
+                    var target = childExpression is CodeArrayCreateExpression ? 
+                        childExpression : 
+                        CodeHelper.Invoke(childExpression, "OfType", new[] { _baseTypeName });
 
-                    if (childExpression != null)
-                    {
-                        childExpression = CodeHelper.Invoke(childExpression, "Concat", childRef);
-                    }
-                    else
-                    {
-                        childExpression = childRef;
-                    }
+                    childExpression = CodeHelper.Invoke(target, "Concat", childRef);
                 }
-
-                if (hasLists)
+                else
                 {
-                    childExpression = CodeHelper.Invoke(childExpression, "ToArray");
+                    childExpression = childRef;
                 }
+            }
 
-                var method = new CodeMemberMethod()
-                {
-                    Attributes = MemberAttributes.Public | MemberAttributes.Final,
-                    Name = "GetChildren",
-                    ReturnType = new CodeTypeReference("IEnumerable", CodeHelper.TypeRef(_baseTypeName)),
-                };
+            if (hasLists)
+            {
+                childExpression = CodeHelper.Invoke(childExpression, "ToArray");
+            }
 
-                method.Statements.Add(CodeHelper.Return(childExpression));
-                decl.Members.Add(method);
+            var method = new CodeMemberMethod()
+            {
+                Attributes = MemberAttributes.Public | MemberAttributes.Final,
+                Name = "GetChildren",
+                ReturnType = new CodeTypeReference("IEnumerable", CodeHelper.TypeRef(_baseTypeName)),
+            };
+
+            method.Statements.Add(CodeHelper.Return(childExpression));
+            decl.Members.Add(method);
         }
 
         private void AddTypeProperty(RuleStruct rule, CodeTypeDeclaration decl)
@@ -220,7 +224,7 @@ namespace Mantispid
 
             prop.GetStatements.Add(CodeHelper.Return(CodeHelper.PropRef(enumType, rule.Name)));
             decl.Members.Add(prop);
-        }        
+        }
 
         private string GetFieldName(string name)
         {
