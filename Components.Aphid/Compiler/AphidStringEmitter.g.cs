@@ -1,10 +1,12 @@
 ﻿using Components.Aphid.Parser;
 using System;
+using System.Diagnostics;
 
 namespace Components.Aphid.Compiler
 {
     public abstract partial class AphidStringEmitter
     {
+        [DebuggerStepThrough]
         protected void Emit(AphidExpression expression)
         {
             switch (expression.Type)
@@ -46,38 +48,38 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        protected virtual void EmitArrayAccessExpression(ArrayAccessExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitArrayExpression(ArrayExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitBooleanExpression(BooleanExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitBreakExpression(BreakExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitCallExpression(CallExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitDoWhileExpression(DoWhileExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitDynamicMemberExpression(DynamicMemberExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitExtendExpression(ExtendExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitForEachExpression(ForEachExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitForExpression(ForExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitFunctionExpression(FunctionExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitGatorEmitExpression(GatorEmitExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitIdentifierExpression(IdentifierExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitIfExpression(IfExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitLoadLibraryExpression(LoadLibraryExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitLoadScriptExpression(LoadScriptExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitNullExpression(NullExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitNumberExpression(NumberExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitObjectExpression(ObjectExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitPartialFunctionExpression(PartialFunctionExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitPatternExpression(PatternExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitPatternMatchingExpression(PatternMatchingExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitStringExpression(StringExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitSwitchCase(SwitchCase expression) { throw new NotImplementedException(); }
-        protected virtual void EmitSwitchExpression(SwitchExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitTernaryOperatorExpression(TernaryOperatorExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitTextExpression(TextExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitThisExpression(ThisExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitTryExpression(TryExpression expression) { throw new NotImplementedException(); }
-        protected virtual void EmitWhileExpression(WhileExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitArrayAccessExpression(ArrayAccessExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitArrayExpression(ArrayExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitBooleanExpression(BooleanExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitBreakExpression(BreakExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitCallExpression(CallExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitDoWhileExpression(DoWhileExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitDynamicMemberExpression(DynamicMemberExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitExtendExpression(ExtendExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitForEachExpression(ForEachExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitForExpression(ForExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitFunctionExpression(FunctionExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitGatorEmitExpression(GatorEmitExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitIdentifierExpression(IdentifierExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitIfExpression(IfExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitLoadLibraryExpression(LoadLibraryExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitLoadScriptExpression(LoadScriptExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitNullExpression(NullExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitNumberExpression(NumberExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitObjectExpression(ObjectExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitPartialFunctionExpression(PartialFunctionExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitPatternExpression(PatternExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitPatternMatchingExpression(PatternMatchingExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitStringExpression(StringExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitSwitchCase(SwitchCase expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitSwitchExpression(SwitchExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitTernaryOperatorExpression(TernaryOperatorExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitTextExpression(TextExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitThisExpression(ThisExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitTryExpression(TryExpression expression) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitWhileExpression(WhileExpression expression) { throw new NotImplementedException(); }
 
         protected virtual void BeginStatement() { }
 
