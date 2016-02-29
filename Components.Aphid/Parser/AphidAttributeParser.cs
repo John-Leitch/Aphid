@@ -10,6 +10,22 @@ namespace Components.Aphid.Parser
         public static TAttributes Parse<TAttributes>(IdentifierExpression identifierExpression)
             where TAttributes : new()
         {
+            string[] unparsed;
+            var attributes = Parse<TAttributes>(identifierExpression, out unparsed);
+
+            if (unparsed.Any())
+            {
+                throw new InvalidOperationException();
+            }
+
+            return attributes;
+        }
+
+        public static TAttributes Parse<TAttributes>(IdentifierExpression identifierExpression, out string[] unparsed)
+            where TAttributes : new()
+        {
+            var unparsedList = new List<string>();
+
             var properties = typeof(TAttributes)
                 .GetProperties()
                 .Select(x => new
@@ -54,12 +70,15 @@ namespace Components.Aphid.Parser
                     }
                     else
                     {
-                        throw new InvalidOperationException();
+                        unparsedList.Add(idAttr);
+                        //throw new InvalidOperationException();
                     }
                 }
 
                 properties.Remove(property);
             }
+
+            unparsed = unparsedList.ToArray();
 
             return attrObj;
         }
