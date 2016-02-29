@@ -21,6 +21,8 @@ namespace Boxelder
 
         private Stack<string> _tabs = new Stack<string>();
 
+        private uint _varId = 0;
+
         public override string Compile(List<AphidExpression> ast)
         {
             var mutators = new AphidMutator[] 
@@ -154,6 +156,16 @@ namespace Boxelder
             Unindent();
         }
 
+        protected override void EmitPartialFunctionExpression(PartialFunctionExpression expression)
+        {
+            var id = NextVarId();
+            Append("(lambda {0}:", id);
+            Emit(expression.Call.FunctionExpression);
+            Append("(");
+            EmitTuple(expression.Call.Args);
+            Append(", {0}))", id);            
+        }
+
         protected override void EmitIfExpression(IfExpression expression)
         {
             Append("if ");
@@ -211,6 +223,11 @@ namespace Boxelder
             }
 
             return s;
+        }
+
+        private string NextVarId()
+        {
+            return string.Format("var_{0:X8}", _varId++);
         }
     }
 }
