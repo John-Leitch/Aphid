@@ -244,6 +244,18 @@ namespace Boxelder
             }
         }
 
+        protected override void EmitForEachExpression(ForEachExpression expression, bool isStatement = false)
+        {
+            Append("for ");
+            Emit(expression.Element);
+            Append(" in ");
+            Emit(expression.Collection);
+            Append(":\r\n");
+            Indent();
+            Emit(expression.Body);
+            Unindent();
+        }
+
         protected override void EmitCallExpression(CallExpression expression, bool isStatement = false)
         {
             Emit(expression.FunctionExpression);
