@@ -11,5 +11,11 @@ namespace Boxelder
     {
         [AphidAttribute("class")]
         public bool IsClass { get; set; }
+
+        [AphidAttribute("iter")]
+        public bool IsIter { get; set; }
+
+        [AphidAttribute("init")]
+        public bool IsAutoInit { get; set; }
     }
 }

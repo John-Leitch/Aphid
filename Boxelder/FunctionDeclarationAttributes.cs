@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Boxelder
 {
-    public class IdentifierStatementAttributes
+    public class FunctionDeclarationAttributes
     {
-        [AphidAttribute("throw")]
-        public bool IsThrow { get; set; }        
+        [AphidAttribute("static")]
+        public bool IsStatic { get; set; }
     }
 }

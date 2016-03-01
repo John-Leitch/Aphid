@@ -27,6 +27,8 @@ namespace Boxelder
             { AphidTokenType.GreaterThanOrEqualOperator, ">=" },
         };
 
+        private const string _initName = "__init__";
+
         private Stack<string> _tabs = new Stack<string>();
 
         private uint _varId = 0;
@@ -193,21 +195,35 @@ namespace Boxelder
             }
             else
             {
-                EmitFunctionDeclarationStatement(expression);
+                EmitFunctionDeclarationStatement(expression, isMember: false);
             }
         }
 
-        protected void EmitFunctionDeclarationStatement(BinaryOperatorExpression expression)
+        protected void EmitFunctionDeclarationStatement(BinaryOperatorExpression expression, bool isMember)
         {
             var id = expression.LeftOperand.ToIdentifier();
             var func = expression.RightOperand.ToFunction();
+            string[] unparsed;
+            var attrs = AphidAttributeParser.Parse<FunctionDeclarationAttributes>(id, out unparsed);
 
-            if (id.Attributes.Any())
+            if ((!isMember && attrs.IsStatic) || unparsed.Any())
             {
                 throw new NotImplementedException();
             }
 
+            if (attrs.IsStatic)
+            {
+                Append("@staticmethod\r\n");
+                AppendTabs();
+            }
+
             Append("def {0}(", id.Identifier);
+            
+            if (isMember && !attrs.IsStatic)
+            {
+                Append("self{0}", func.Args.Any() ? ", " : "");
+            }
+            
             EmitTuple(func.Args);
             Append("):\r\n");
             Indent();
@@ -303,7 +319,7 @@ namespace Boxelder
 
             if (attrs.IsClass)
             {
-                EmitClassStatement(statement, otherAttrs);
+                EmitClassStatement(statement, attrs, otherAttrs);
             }
             else
             {
@@ -311,17 +327,31 @@ namespace Boxelder
             }
         }
 
-        protected void EmitClassStatement(ObjectExpression statement, string[] otherAttrs)
+        protected void EmitClassStatement(
+            ObjectExpression statement, 
+            ObjectStatementAttributes attributes, 
+            string[] unparsedAttributes)
         {
-            if (otherAttrs.Length > 1)
+            if (unparsedAttributes.Length > 1)
             {
                 throw new NotImplementedException();
+            }
+
+            if (attributes.IsIter)
+            {
+                statement.Pairs.Add(CreateIterExpression());
+            }
+
+            if (attributes.IsAutoInit)
+            {
+                UpdateInitExpression(statement);
             }
 
             Append(
                 "class {0}({1}):",
                 statement.Identifier.Identifier,
-                otherAttrs.Any() ? otherAttrs.First() : "");
+                unparsedAttributes.Any() ? unparsedAttributes.First() : "");
+
             Indent();
             AppendLine();
 
@@ -338,7 +368,7 @@ namespace Boxelder
                 }
                 else
                 {
-                    EmitFunctionDeclarationStatement(p);
+                    EmitFunctionDeclarationStatement(p, isMember: true);
                 }
             }
 
@@ -374,6 +404,68 @@ namespace Boxelder
             }
 
             return s;
+        }
+
+        private BinaryOperatorExpression CreateIterExpression()
+        {
+            return AphidParser
+                .Parse("{__iter__:@()self};")
+                .Cast<ObjectExpression>()
+                .Single().Pairs
+                .Single();
+        }
+
+        private void UpdateInitExpression(ObjectExpression classDeclaration)
+        {
+            var init = classDeclaration.Pairs
+                .SingleOrDefault(x => x.LeftOperand.ToIdentifier().Identifier == _initName);
+
+            if (init == null)
+            {
+                return;
+            }
+
+            if (init.RightOperand.Type != AphidExpressionType.FunctionExpression)
+            {
+                throw new NotImplementedException();
+            }
+
+            var func = init.RightOperand.ToFunction();
+
+            var assigns = func.Args
+                .Select(GetArgIdentifier)
+                .Select(x => new BinaryOperatorExpression(
+                    new BinaryOperatorExpression(
+                        new IdentifierExpression("self"),
+                        AphidTokenType.MemberOperator,
+                        x),
+                    AphidTokenType.AssignmentOperator,
+                    x))
+                .ToArray();
+            
+            func.Body.InsertRange(0, assigns);
+        }
+
+        private IdentifierExpression GetArgIdentifier(AphidExpression arg)
+        {
+            switch (arg.Type)
+            {
+                case AphidExpressionType.IdentifierExpression:
+                    return (IdentifierExpression)arg;
+
+                case AphidExpressionType.BinaryOperatorExpression:
+                    var binOpExp = (BinaryOperatorExpression)arg;
+
+                    if (binOpExp.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    return binOpExp.LeftOperand.ToIdentifier();
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         private string NextVarId()
