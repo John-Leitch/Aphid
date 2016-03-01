@@ -168,6 +168,11 @@ namespace Boxelder
                         Emit(expression.Operand);
                         break;
 
+                    case AphidTokenType.NotOperator:
+                        Append("not ");
+                        Emit(expression.Operand);
+                        break;
+
                     default:
                         throw new NotImplementedException();
                 }
