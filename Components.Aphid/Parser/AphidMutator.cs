@@ -18,6 +18,10 @@ namespace Components.Aphid.Parser
             return ast;
         }
 
+        protected virtual void BeginRecursiveMutationPass(List<AphidExpression> ast) { }
+
+        protected virtual void EndRecursiveMutationPass(List<AphidExpression> ast) { }
+
         private AphidExpression MutateSingle(AphidExpression expression)
         {
             return Mutate(expression).Single();
@@ -267,8 +271,9 @@ namespace Components.Aphid.Parser
             do
             {
                 Reset();
+                BeginRecursiveMutationPass(ast);
                 ast = Mutate(ast);
-
+                EndRecursiveMutationPass(ast);
                 if (HasMutated)
                 {
                     anyMutations = true;
