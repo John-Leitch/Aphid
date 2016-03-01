@@ -42,8 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidPythonEmitter.cs" />
+    <Compile Include="AphidTreeHelper.cs" />
     <Compile Include="FunctionDeclarationAttributes.cs" />
     <Compile Include="IdentifierStatementAttributes.cs" />
+    <Compile Include="LambdaPositionMutator.cs" />
     <Compile Include="ObjectStatementAttributes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

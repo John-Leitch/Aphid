@@ -39,11 +39,12 @@ namespace Boxelder
             {
                 new PipelineToCallMutator(),
                 new UnaryExpressionMutator(),
+                new LambdaPositionMutator(),
             };
 
             foreach (var mutator in mutators)
             {
-                ast = mutator.Mutate(ast);
+                ast = mutator.MutateRecursively(ast);
             }
 
             return base.Compile(ast);
