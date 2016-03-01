@@ -722,7 +722,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Condition}.Concat(Body).OfType<AphidExpression>().Concat(ElseBody).ToArray();
+                    Condition}.Concat(Body).OfType<AphidExpression>().Concat(ElseBody ?? new List<AphidExpression>()).ToArray();
         }
     }
 
