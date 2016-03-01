@@ -12,19 +12,31 @@ namespace Boxelder
     {
         private Dictionary<AphidTokenType, string> _operatorTables = new Dictionary<AphidTokenType, string>
         {
-            { AphidTokenType.AssignmentOperator, "=" },
-            { AphidTokenType.AdditionOperator, "+" },
-            { AphidTokenType.MinusOperator, "-" },
-            { AphidTokenType.MultiplicationOperator, "*" },
-            { AphidTokenType.DivisionOperator, "/" },
+            { AphidTokenType.AssignmentOperator, " = " },
+            { AphidTokenType.AdditionOperator, " + " },
+            { AphidTokenType.MinusOperator, " - " },
+            { AphidTokenType.MultiplicationOperator, " * " },
+            { AphidTokenType.DivisionOperator, " / " },
+            { AphidTokenType.ModulusOperator, " % " },
+
+            { AphidTokenType.AndOperator, " and " },
+            { AphidTokenType.OrOperator, " or " },
+
+            { AphidTokenType.BinaryAndOperator, " & " },
+            { AphidTokenType.BinaryOrOperator, " | " },
+            { AphidTokenType.ShiftLeft, " << " },
+            { AphidTokenType.ShiftRight, " >> " },
+            
             { AphidTokenType.MemberOperator, "." },
             
-            { AphidTokenType.EqualityOperator, "==" },
-            { AphidTokenType.NotEqualOperator, "!=" },
-            { AphidTokenType.LessThanOperator, "<" },
-            { AphidTokenType.LessThanOrEqualOperator, "<=" },
-            { AphidTokenType.GreaterThanOperator, ">" },
-            { AphidTokenType.GreaterThanOrEqualOperator, ">=" },
+            { AphidTokenType.EqualityOperator, " == " },
+            { AphidTokenType.NotEqualOperator, " != " },
+            { AphidTokenType.LessThanOperator, " < " },
+            { AphidTokenType.LessThanOrEqualOperator, " <= " },
+            { AphidTokenType.GreaterThanOperator, " > " },
+            { AphidTokenType.GreaterThanOrEqualOperator, " >= " },
+
+            
         };
 
         private const string _initName = "__init__";
@@ -196,7 +208,7 @@ namespace Boxelder
                 }
 
                 Emit(expression.LeftOperand);
-                Append(" {0} ", GetOperator(expression.Operator));
+                Append(GetOperator(expression.Operator));
                 Emit(expression.RightOperand);
 
                 if (useParens)
