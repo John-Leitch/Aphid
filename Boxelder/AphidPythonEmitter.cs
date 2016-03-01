@@ -173,6 +173,11 @@ namespace Boxelder
                         Emit(expression.Operand);
                         break;
 
+                    case AphidTokenType.MinusOperator:
+                        Append("-");
+                        Emit(expression.Operand);
+                        break;
+
                     default:
                         throw new NotImplementedException();
                 }
