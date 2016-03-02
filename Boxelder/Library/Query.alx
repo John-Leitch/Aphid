@@ -76,4 +76,6 @@ aggr = @(acc, list) {
     }
 };
 
-add = @(list) aggr(@(x, y)x + y, list);
+join = @(sep, list) aggr(@(x, y)x + sep + y, list);
+
+addAll = @(list) aggr(@(x, y)x + y, list);
