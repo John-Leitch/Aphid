@@ -670,6 +670,8 @@ ParseFunctionExpression = @() {
             exp = FunctionExpression(args, body);
         }
 
+        LeftBrace: exp = FunctionExpression(args, ParseBlock());
+
         default: exp = PartialFunctionExpression(ParseCallExpression());
     }
 

@@ -2751,7 +2751,14 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                exp = new PartialFunctionExpression(ParseCallExpression());
+                if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                {
+                    exp = new FunctionExpression(args, ParseBlock());
+                }
+                else
+                {
+                    exp = new PartialFunctionExpression(ParseCallExpression());
+                }
             }
             return exp;
         }
