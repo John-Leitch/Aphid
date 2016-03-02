@@ -296,6 +296,23 @@ namespace Boxelder
 
         protected override void EmitCallExpression(CallExpression expression, bool isStatement = false)
         {
+            if (isStatement && 
+                expression.FunctionExpression.Type == AphidExpressionType.IdentifierExpression)
+            {
+                var id = expression.FunctionExpression.ToIdentifier().Identifier;
+
+                switch (id)
+                {
+                    case "import":
+                        EmitImportStatement(expression);
+                        return;
+
+                    case "from":
+                        EmitFromStatement(expression);
+                        return;
+                }
+            }
+
             Emit(expression.FunctionExpression);
             Append("(");
             EmitTuple(expression.Args);
@@ -446,6 +463,49 @@ namespace Boxelder
 
                 Emit(arg);
             }
+        }
+
+        private bool HasAllStringArgs(CallExpression expression)
+        {
+            return expression.Args.All(x => x.Type == AphidExpressionType.StringExpression);
+        }
+
+        protected void EmitImportStatement(CallExpression statement)
+        {
+            if (!statement.Args.Any() || !HasAllStringArgs(statement))
+            {
+                throw new NotImplementedException();
+            }
+
+            Append("import ");
+
+            // Injectable, should be fixed.
+            var names = string.Join(", ", ParseStringArgs(statement));
+            
+            Append("{0}\r\n", names);
+        }
+
+        protected void EmitFromStatement(CallExpression statement)
+        {
+            if (statement.Args.Count < 2 || !HasAllStringArgs(statement))
+            {
+                throw new InvalidOperationException();
+            }
+
+            // Injectable, should be fixed.
+            var strings = ParseStringArgs(statement);
+            
+            Append(
+                "from {0} import {1}", 
+                strings.First(), 
+                string.Join(", ", strings.Skip(1)));
+        }
+
+        private IEnumerable<string> ParseStringArgs(CallExpression expression)
+        {
+            return expression.Args
+                .Cast<StringExpression>()
+                .Select(x => StringParser.Parse(x.Value));
         }
 
         private string GetOperator(AphidTokenType op)
