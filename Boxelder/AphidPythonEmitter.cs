@@ -35,8 +35,6 @@ namespace Boxelder
             { AphidTokenType.LessThanOrEqualOperator, " <= " },
             { AphidTokenType.GreaterThanOperator, " > " },
             { AphidTokenType.GreaterThanOrEqualOperator, " >= " },
-
-            
         };
 
         private const string _initName = "__init__";
@@ -326,8 +324,40 @@ namespace Boxelder
             }
             else
             {
+                EmitDictionaryExpression(expression);
+            }
+        }
+
+        protected void EmitDictionaryExpression(ObjectExpression expression)
+        {
+            if (expression.Identifier != null)
+            {
                 throw new NotImplementedException();
             }
+
+            Append("{{");
+            var isFirst = true;
+
+            foreach (var kvp in expression.Pairs)
+            {
+                if (!isFirst)
+                {
+                    Append(", ");
+                }
+                else
+                {
+                    isFirst = false;
+                }
+
+                var exp = new StringExpression(
+                    string.Format("'{0}'", kvp.LeftOperand.ToIdentifier().Identifier));
+
+                Emit(exp);
+                Append(": ");
+                Emit(kvp.RightOperand);
+            }
+
+            Append("}}");
         }
 
         protected void EmitObjectStatement(ObjectExpression statement)
