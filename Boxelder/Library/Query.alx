@@ -16,6 +16,8 @@ selectMany = @(selector, list) {
     ret x;
 };
 
+flatten = @(list) selectMany(@(x) x, list);
+
 any = @(predicate, list) {
     for (element in list) if (predicate(element)) ret true;
     ret false;
