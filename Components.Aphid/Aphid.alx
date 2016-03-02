@@ -148,7 +148,7 @@ MatchEos = macro(@(_requireEos) { if (_requireEos) EndOfStatement; });
 ParseExpression = @() ParseAssignmentExpression();
 
 ParseAssignmentExpression = ParseBinOpExp(
-    ParsePipelineExpression, 
+    ParseImplicitPipelineExpression, 
     AssignmentOperator |
     PlusEqualOperator |
     MinusEqualOperator |
@@ -160,6 +160,18 @@ ParseAssignmentExpression = ParseBinOpExp(
     XorEqualOperator |
     ShiftLeftEqualOperator |
     ShiftRightEqualOperator);
+
+ParseImplicitPipelineExpression = @() {
+    exp ParsePipelineExpression;
+
+    if (functionOperator)
+        exp = BinaryOperatorExpression(
+            exp,
+            PipelineOperator,
+            ParseFunctionExpression());
+
+    ret exp;
+};
 
 ParsePipelineExpression = ParseBinOpExp(ParseQueryExpression, PipelineOperator);
 
