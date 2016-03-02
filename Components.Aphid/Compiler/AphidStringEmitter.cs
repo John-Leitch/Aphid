@@ -18,6 +18,8 @@ namespace Components.Aphid.Compiler
             _out.Append(value.ToString());
         }
 
+        protected virtual void EmitHeader() { }
+
         public void Emit(List<AphidExpression> statements)
         {
             foreach (var stmt in statements)
@@ -31,6 +33,7 @@ namespace Components.Aphid.Compiler
         public virtual string Compile(List<AphidExpression> ast)
         {
             _out.Clear();
+            EmitHeader();
             Emit(ast);
 
             return _out.ToString();
