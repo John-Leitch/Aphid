@@ -5,6 +5,7 @@ using Components.Aphid.Parser.Fluent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Boxelder
 {
@@ -52,6 +53,8 @@ namespace Boxelder
         private Stack<string> _tabs = new Stack<string>();
 
         private uint _varId = 0;
+
+        private bool _isEndingStatements;
 
         public override string Compile(List<AphidExpression> ast)
         {
@@ -105,11 +108,27 @@ namespace Boxelder
         protected override void BeginStatement()
         {
             Append(GetTabs());
+            _isEndingStatements = false;
         }
 
         protected override void EndStatement()
         {
-            AppendLine();
+            if (!_isEndingStatements)
+            {
+                AppendLine();
+                _isEndingStatements = true;
+            }
+        }
+
+        protected override void EmitHeader()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            var border = new string('#', 64) + "\r\n";
+            Append(
+                "{0}# Compiled by Boxelder {1}\r\n# {2}\r\n{0}", 
+                border, 
+                version,
+                "https://github.com/John-Leitch/Aphid/tree/master/Boxelder");
         }
 
         protected override void EmitNumberExpression(NumberExpression expression, bool isStatement = false)
@@ -263,6 +282,7 @@ namespace Boxelder
             Indent();
             Emit(func.Body);
             Unindent();
+            AppendLine();
         }
 
         protected override void EmitPartialFunctionExpression(PartialFunctionExpression expression, bool isStatement = false)
@@ -480,6 +500,7 @@ namespace Boxelder
             }
 
             Unindent();
+            AppendLine();
         }
 
         private void EmitTuple(IEnumerable<AphidExpression> items)
