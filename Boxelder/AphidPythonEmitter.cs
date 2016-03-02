@@ -144,7 +144,7 @@ namespace Boxelder
 
         protected override void EmitNullExpression(NullExpression expression, bool isStatement = false)
         {
-            Append("null");
+            Append("None");
         }
 
         protected void EmitIdentifierStatement(IdentifierExpression expression)
@@ -164,11 +164,6 @@ namespace Boxelder
             {
                 throw new NotImplementedException();
             }
-        }
-
-        protected void EmitImportStatement(IdentifierExpression expression)
-        {
-
         }
 
         protected override void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
@@ -506,7 +501,7 @@ namespace Boxelder
             Append("import ");
             // Injectable, should be fixed.
             var names = string.Join(", ", ParseStringArgs(statement));
-            Append("{0}\r\n", names);
+            Append("{0}", names);
         }
 
         protected void EmitFromStatement(CallExpression statement)
