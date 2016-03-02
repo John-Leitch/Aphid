@@ -47,6 +47,7 @@ namespace Boxelder
         {
             var mutators = new AphidMutator[] 
             {
+                new IncludeMutator(),
                 new PipelineToCallMutator(),
                 new UnaryExpressionMutator(),
                 new LambdaPositionMutator(),
