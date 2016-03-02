@@ -140,6 +140,11 @@ namespace Boxelder
             }
         }
 
+        protected override void EmitNullExpression(NullExpression expression, bool isStatement = false)
+        {
+            Append("null");
+        }
+
         protected void EmitIdentifierStatement(IdentifierExpression expression)
         {
             string[] unparsed;
@@ -478,10 +483,8 @@ namespace Boxelder
             }
 
             Append("import ");
-
             // Injectable, should be fixed.
             var names = string.Join(", ", ParseStringArgs(statement));
-            
             Append("{0}\r\n", names);
         }
 
