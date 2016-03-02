@@ -1,0 +1,79 @@
+where = @(predicate, list) {
+    x = [];
+    for (element in list) if (predicate(element)) x.append(element);
+    ret x;
+};
+
+select = @(selector, list) {
+    x = [];
+    for (y in list) y |> selector |> x.append;
+    ret x;
+};
+
+selectMany = @(selector, list) {
+    x = [];
+    for (y in list) for (z in selector(y)) x.append(z);
+    ret x;
+};
+
+any = @(predicate, list) {
+    for (element in list) if (predicate(element)) ret true;
+    ret false;
+};
+
+all = @(predicate, list) {
+    for (x in list) if (!predicate(x)) ret false;
+    ret true;
+};
+
+first = @(predicate, list) {
+    for (x in list) if (predicate(x)) ret x;
+};
+
+distinct = @(list) {
+    x = [];
+    for (y in list) if (!x.__contains__(y)) x.append(y);
+    ret x;
+};
+
+iter = @(action, list) {
+    for (x in list) action(x);
+};
+
+count = len;
+
+concat = @(list, otherList) {
+    x = [];
+    for (y in otherList) x.append(y);
+    for (y in list) x.append(y);
+    ret x;
+};
+
+skip = @(count, list) {
+    x = []; i = 0;
+    for (y in list) {
+        if (i >= count) x.append(y);
+        i++;
+    }
+    ret x;
+};
+
+take = @(count, list) {
+    x = []; i = 0;
+    for (y in list) {
+        if (i < count) x.append(y);
+        i++;
+    }
+    ret x;
+};
+    
+aggr = @(acc, list) {
+    if (len(list) == 1) ret list[0];
+    else {
+        s = list[0];
+        for (x in skip(1, list)) s = acc(s, x);
+        ret s;
+    }
+};
+
+add = @(list) aggr(@(x, y)x + y, list);
