@@ -35,6 +35,8 @@ namespace Boxelder
             { AphidTokenType.LessThanOrEqualOperator, " <= " },
             { AphidTokenType.GreaterThanOperator, " > " },
             { AphidTokenType.GreaterThanOrEqualOperator, " >= " },
+
+            { AphidTokenType.Comma, ", " },
         };
 
         private const string _initName = "__init__";
