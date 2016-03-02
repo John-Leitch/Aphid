@@ -228,6 +228,25 @@ namespace Boxelder
             }
         }
 
+        protected override void EmitTernaryOperatorExpression(TernaryOperatorExpression expression, bool isStatement = false)
+        {
+            switch (expression.Operator)
+            {
+                case AphidTokenType.ConditionalOperator:
+                    Append("(");
+                    Emit(expression.SecondOperand);
+                    Append(") if (");
+                    Emit(expression.FirstOperand);
+                    Append(") else (");
+                    Emit(expression.ThirdOperand);
+                    Append(")");
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         protected void EmitFunctionDeclarationStatement(BinaryOperatorExpression expression, bool isMember)
         {
             var id = expression.LeftOperand.ToIdentifier();
