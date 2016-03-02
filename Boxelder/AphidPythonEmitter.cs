@@ -10,7 +10,15 @@ namespace Boxelder
 {
     public class AphidPythonEmitter : AphidStringEmitter
     {
-        private Dictionary<AphidTokenType, string> _operatorTables = new Dictionary<AphidTokenType, string>
+        private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
+        {
+            { AphidTokenType.retKeyword, "return " },
+            { AphidTokenType.NotOperator, "not " },
+            { AphidTokenType.MinusOperator, "-" },
+            { AphidTokenType.ComplementOperator, "~" },
+        };
+
+        private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.AssignmentOperator, " = " },
             { AphidTokenType.AdditionOperator, " + " },
@@ -175,26 +183,8 @@ namespace Boxelder
             }
             else
             {
-                switch (expression.Operator)
-                {
-                    case AphidTokenType.retKeyword:
-                        Append("return ");
-                        Emit(expression.Operand);
-                        break;
-
-                    case AphidTokenType.NotOperator:
-                        Append("not ");
-                        Emit(expression.Operand);
-                        break;
-
-                    case AphidTokenType.MinusOperator:
-                        Append("-");
-                        Emit(expression.Operand);
-                        break;
-
-                    default:
-                        throw new NotImplementedException();
-                }
+                Append(GetUnaryPrefixOperator(expression.Operator));
+                Emit(expression.Operand);
             }
         }
 
@@ -210,7 +200,7 @@ namespace Boxelder
                 }
 
                 Emit(expression.LeftOperand);
-                Append(GetOperator(expression.Operator));
+                Append(GetBinaryOperator(expression.Operator));
                 Emit(expression.RightOperand);
 
                 if (useParens)
@@ -262,12 +252,12 @@ namespace Boxelder
             }
 
             Append("def {0}(", id.Identifier);
-            
+
             if (isMember && !attrs.IsStatic)
             {
                 Append("self{0}", func.Args.Any() ? ", " : "");
             }
-            
+
             EmitTuple(func.Args);
             Append("):\r\n");
             Indent();
@@ -282,7 +272,7 @@ namespace Boxelder
             Emit(expression.Call.FunctionExpression);
             Append("(");
             EmitTuple(expression.Call.Args);
-            Append(", {0}))", id);            
+            Append(", {0}))", id);
         }
 
         protected override void EmitIfExpression(IfExpression expression, bool isStatement = false)
@@ -316,21 +306,45 @@ namespace Boxelder
             Unindent();
         }
 
+        protected override void EmitWhileExpression(WhileExpression expression, bool isStatement = false)
+        {
+            Append("while ");
+            Emit(expression.Condition);
+            Append(":\r\n");
+            Indent();
+            Emit(expression.Body);
+            Unindent();
+        }
+
+        protected override void EmitBreakExpression(BreakExpression expression, bool isStatement = false)
+        {
+            Append("break");
+        }
+
         protected override void EmitCallExpression(CallExpression expression, bool isStatement = false)
         {
-            if (isStatement && 
-                expression.FunctionExpression.Type == AphidExpressionType.IdentifierExpression)
+            if (expression.FunctionExpression.Type == AphidExpressionType.IdentifierExpression)
             {
                 var id = expression.FunctionExpression.ToIdentifier().Identifier;
 
+                if (isStatement)
+                {
+                    switch (id)
+                    {
+                        case "import":
+                            EmitImportStatement(expression);
+                            return;
+
+                        case "from":
+                            EmitFromStatement(expression);
+                            return;
+                    }
+                }
+
                 switch (id)
                 {
-                    case "import":
-                        EmitImportStatement(expression);
-                        return;
-
-                    case "from":
-                        EmitFromStatement(expression);
+                    case "__emit":
+                        EmitRaw(expression);
                         return;
                 }
             }
@@ -360,7 +374,7 @@ namespace Boxelder
         {
             if (isStatement)
             {
-                EmitObjectStatement(expression);                
+                EmitObjectStatement(expression);
             }
             else
             {
@@ -421,8 +435,8 @@ namespace Boxelder
         }
 
         protected void EmitClassStatement(
-            ObjectExpression statement, 
-            ObjectStatementAttributes attributes, 
+            ObjectExpression statement,
+            ObjectStatementAttributes attributes,
             string[] unparsedAttributes)
         {
             if (unparsedAttributes.Length > 1)
@@ -465,7 +479,7 @@ namespace Boxelder
                 }
             }
 
-            Unindent();            
+            Unindent();
         }
 
         private void EmitTuple(IEnumerable<AphidExpression> items)
@@ -514,11 +528,21 @@ namespace Boxelder
 
             // Injectable, should be fixed.
             var strings = ParseStringArgs(statement);
-            
+
             Append(
-                "from {0} import {1}", 
-                strings.First(), 
+                "from {0} import {1}",
+                strings.First(),
                 string.Join(", ", strings.Skip(1)));
+        }
+
+        protected void EmitRaw(CallExpression statement)
+        {
+            if (statement.Args.Count != 1 || !HasAllStringArgs(statement))
+            {
+                throw new NotImplementedException();
+            }
+
+            Append(ParseStringArgs(statement).Single());
         }
 
         private IEnumerable<string> ParseStringArgs(CallExpression expression)
@@ -528,11 +552,21 @@ namespace Boxelder
                 .Select(x => StringParser.Parse(x.Value));
         }
 
-        private string GetOperator(AphidTokenType op)
+        private string GetBinaryOperator(AphidTokenType op)
+        {
+            return GetOperator(_binaryOperators, op);
+        }
+
+        private string GetUnaryPrefixOperator(AphidTokenType op)
+        {
+            return GetOperator(_unaryPrefixOperators, op);
+        }
+
+        private string GetOperator(Dictionary<AphidTokenType, string> table, AphidTokenType op)
         {
             string s;
 
-            if (!_operatorTables.TryGetValue(op, out s))
+            if (!table.TryGetValue(op, out s))
             {
                 throw new NotImplementedException();
             }
@@ -576,7 +610,7 @@ namespace Boxelder
                     AphidTokenType.AssignmentOperator,
                     x))
                 .ToArray();
-            
+
             func.Body.InsertRange(0, assigns);
         }
 
