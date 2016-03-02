@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Boxelder</RootNamespace>
-    <AssemblyName>Boxelder</AssemblyName>
+    <AssemblyName>be</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -43,6 +43,10 @@
   <ItemGroup>
     <Compile Include="AphidPythonEmitter.cs" />
     <Compile Include="AphidTreeHelper.cs" />
+    <Compile Include="ConsolePlus\Cli.cs" />
+    <Compile Include="ConsolePlus\CliLexerState.cs" />
+    <Compile Include="ConsolePlus\CliProgressBar.cs" />
+    <Compile Include="ConsolePlus\DumpMode.cs" />
     <Compile Include="FunctionDeclarationAttributes.cs" />
     <Compile Include="IdentifierStatementAttributes.cs" />
     <Compile Include="LambdaPositionMutator.cs" />
@@ -53,6 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="HelloWorld.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Query.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
