@@ -154,11 +154,22 @@ namespace Boxelder
 
         protected override void EmitStringExpression(StringExpression expression, bool isStatement = false)
         {
+            if (expression.Value.Contains("\n"))
+            {
+                Console.WriteLine();
+            }
+
+            if (StringParser
+                .Parse(expression.Value).Contains("\n"))
+            {
+                Console.WriteLine();
+            }
+
             var escaped = StringParser
                 .Parse(expression.Value)
                 .Replace("\\", "\\\\")
-                .Replace("\n", "\\\n")
-                .Replace("\r", "\\\r")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
                 .Replace("'", "\\'");
 
             Append("'{0}'", escaped);
