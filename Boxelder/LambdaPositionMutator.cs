@@ -36,6 +36,7 @@ namespace Boxelder
                 var label = AphidTreeHelper.FirstOrDefaultPath(
                     ast,
                     x =>
+                        x != null &&
                         x.Type == AphidExpressionType.IdentifierExpression &&
                         x.ToIdentifier().Identifier == nvp.Key);
 
