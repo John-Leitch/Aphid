@@ -21,7 +21,6 @@ namespace Boxelder
 
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
-            { AphidTokenType.AssignmentOperator, " = " },
             { AphidTokenType.AdditionOperator, " + " },
             { AphidTokenType.MinusOperator, " - " },
             { AphidTokenType.MultiplicationOperator, " * " },
@@ -46,6 +45,18 @@ namespace Boxelder
             { AphidTokenType.GreaterThanOrEqualOperator, " >= " },
 
             { AphidTokenType.Comma, ", " },
+
+            { AphidTokenType.AssignmentOperator, " = " },
+            { AphidTokenType.PlusEqualOperator, " += " },
+            { AphidTokenType.MinusEqualOperator, " -= " },
+            { AphidTokenType.MultiplicationEqualOperator, " *= " },
+            { AphidTokenType.DivisionEqualOperator, " /= " },
+            { AphidTokenType.ModulusEqualOperator, " %= " },
+            { AphidTokenType.ShiftLeftEqualOperator, " <<= " },
+            { AphidTokenType.ShiftRightEqualOperator, " >>= " },
+            { AphidTokenType.BinaryAndEqualOperator, " &= " },
+            { AphidTokenType.OrEqualOperator, " |= " },
+            { AphidTokenType.XorEqualOperator, " ^= " },
         };
 
         private const string _initName = "__init__";
