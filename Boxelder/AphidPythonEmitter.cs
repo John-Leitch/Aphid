@@ -154,17 +154,6 @@ namespace Boxelder
 
         protected override void EmitStringExpression(StringExpression expression, bool isStatement = false)
         {
-            if (expression.Value.Contains("\n"))
-            {
-                Console.WriteLine();
-            }
-
-            if (StringParser
-                .Parse(expression.Value).Contains("\n"))
-            {
-                Console.WriteLine();
-            }
-
             var escaped = StringParser
                 .Parse(expression.Value)
                 .Replace("\\", "\\\\")
@@ -595,9 +584,19 @@ namespace Boxelder
                 .Select(x => StringParser.Parse(x.Value));
         }
 
-        private string GetBinaryOperator(AphidTokenType op)
+        protected override string GetBinaryOperator(AphidTokenType op)
         {
-            return GetOperator(_binaryOperators, op);
+            switch (op)
+            {
+                case AphidTokenType.AndOperator:
+                    return " and ";
+
+                case AphidTokenType.OrOperator:
+                    return " or ";
+
+                default:
+                    return base.GetBinaryOperator(op);
+            }
         }
 
         private string GetUnaryPrefixOperator(AphidTokenType op)
