@@ -24,12 +24,15 @@ namespace Coywolf
         private bool _isPhp = false;
 
         private const string _header = @"<?php
-function __add($lhs, $rhs) {
-	return gettype($lhs) == 'string' || gettype($rhs) == 'string' ?
-		$lhs . $rhs :
-		$lhs + $rhs;
+if (!function_exists('__add')) {
+    function __add($lhs, $rhs) {
+	    return gettype($lhs) == 'string' || gettype($rhs) == 'string' ?
+		    $lhs . $rhs :
+		    $lhs + $rhs;
+    }
 }
 ?>";
+
         private bool IsBuildInFunction(string id)
         {
             return _builtInFunctions.Contains(id);
@@ -61,7 +64,12 @@ function __add($lhs, $rhs) {
 
         protected override void BeginStatement(AphidExpression expression)
         {
-            Append(GetTabs());
+            if (expression.Type != AphidExpressionType.GatorEmitExpression &&
+                expression.Type != AphidExpressionType.TextExpression)
+            {
+                Append(GetTabs());
+            }
+            
             base.BeginStatement(expression);
         }
 
@@ -131,16 +139,21 @@ function __add($lhs, $rhs) {
         {
             Append("<?= ");
             Append("htmlentities(");
-            Emit(expression.Expression);
+            Emit(expression.Expression, isStatement: false);
             Append(", ENT_QUOTES)");
             Append(" ?>");
         }
 
         protected override void EmitIdentifierExpression(IdentifierExpression expression, bool isStatement = false)
         {
-            if (expression.Attributes.Any())
+            //if (expression.Attributes.Any())
+            //{
+            //    throw new NotImplementedException();
+            //}
+
+            foreach (var attr in expression.Attributes)
             {
-                throw new NotImplementedException();
+                Append("{0} ", attr.Identifier);
             }
 
             Append(
@@ -151,35 +164,61 @@ function __add($lhs, $rhs) {
 
         protected override void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
         {
-            switch (expression.Operator)
+            string value;
+
+            if (!_unaryPrefixOperators.TryGetValue(expression.Operator, out value))
             {
-                case AphidTokenType.retKeyword:
-                    Append("return ");
-                    Emit(expression.Operand);
-                    break;
-
-                default:
-                    base.EmitUnaryOperatorExpression(expression, isStatement);
-                    break;
+                base.EmitUnaryOperatorExpression(expression, isStatement);
             }
-
-
+            else
+            {
+                Append(value);
+                Emit(expression.Operand);
+            }
         }
 
         protected override void EmitBinaryOperatorExpression(BinaryOperatorExpression expression, bool isStatement = false)
         {
-            if (expression.Operator != AphidTokenType.AdditionOperator)
+            switch (expression.Operator)
             {
-                base.EmitBinaryOperatorExpression(expression, isStatement);
+                case AphidTokenType.AdditionOperator:
+                    Append("__add(");
+                    Emit(expression.LeftOperand);
+                    Append(", ");
+                    Emit(expression.RightOperand);
+                    Append(")");
+                    break;
+
+                case AphidTokenType.MemberOperator:
+                    Emit(expression.LeftOperand);
+                    Append("->");
+                    if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
+                    {
+                        Append(expression.RightOperand.ToIdentifier().Identifier);
+                    }
+                    else
+                    {
+                        Emit(expression.RightOperand);
+                    }
+                    break;
+
+                default:
+                    base.EmitBinaryOperatorExpression(expression, isStatement);
+                    break;
             }
-            else
-            {
-                Append("__add(");
-                Emit(expression.LeftOperand);
-                Append(", ");
-                Emit(expression.RightOperand);
-                Append(")");
-            }
+        }
+
+        protected override void EmitTernaryOperatorExpression(TernaryOperatorExpression expression, bool isStatement = false)
+        {
+            Append("((");            
+            Emit(expression.FirstOperand);
+            Append(")");
+            Append(" ? ");
+            Append("(");
+            Emit(expression.SecondOperand);
+            Append(") : (");
+            Emit(expression.ThirdOperand);
+            Append("))");
         }
 
         protected override void EmitStringExpression(StringExpression expression, bool isStatement = false)
@@ -204,7 +243,7 @@ function __add($lhs, $rhs) {
         {
             var arg = NextId();
             Append("(function(${0}) ", arg);
-            
+
             EmitUsed(
                 new List<AphidExpression>(),
                 expression.GetChildren().ToList());
@@ -242,7 +281,7 @@ function __add($lhs, $rhs) {
 
             var used = new PhpUseIdFinder()
                 .Find(body)
-                .Cast<IdentifierExpression>()                
+                .Cast<IdentifierExpression>()
                 .Select(x => x.Identifier)
                 .Distinct()
                 .Where(x =>
@@ -250,7 +289,8 @@ function __add($lhs, $rhs) {
                         .Concat(locals)
                         .Any(y => y.Identifier == x) &&
                     !IsBuildInFunction(x))
-                .Select(x => new IdentifierExpression(x));
+                .Select(x => new IdentifierExpression(x))
+                .ToArray();
 
             if (used.Any())
             {
