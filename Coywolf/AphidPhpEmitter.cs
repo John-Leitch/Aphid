@@ -224,24 +224,38 @@ function __add($lhs, $rhs) {
 
         protected void EmitUsed(List<AphidExpression> args, List<AphidExpression> body)
         {
-            var locals = new LocalFinder().Find(body);
+            var argIds = args
+                .Select(x => x.ToIdentifier())
+                .ToArray();
+
+            var parentVariables = Scope
+                .SelectMany(x => x)
+                .Select(DeclarationHelper.GetDeclaredIdentifier)
+                .Where(x => x != null && !argIds.Any(y => x.Identifier == y.Identifier))
+                .Distinct()
+                .ToArray();
+
+            var locals = new LocalFinder()
+                .Find(body)
+                .Where(x => !parentVariables.Any(y => x.Identifier == y.Identifier))
+                .ToArray();
 
             var used = new PhpUseIdFinder()
                 .Find(body)
-                .Cast<IdentifierExpression>()
+                .Cast<IdentifierExpression>()                
                 .Select(x => x.Identifier)
                 .Distinct()
-                .Where(x => 
-                    !args
+                .Where(x =>
+                    !argIds
                         .Concat(locals)
-                        .Any(y => y.ToIdentifier().Identifier == x) &&
+                        .Any(y => y.Identifier == x) &&
                     !IsBuildInFunction(x))
                 .Select(x => new IdentifierExpression(x));
 
             if (used.Any())
             {
                 Append("use (");
-                EmitTuple(used);
+                EmitTuple(used, prefix: "&");
                 Append(") ");
             }
         }
