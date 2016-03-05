@@ -246,6 +246,14 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.GatorEmitExpression:
+                    var emit = (GatorEmitExpression)expression;
+
+                    expanded.Add(
+                        new GatorEmitExpression(Mutate(emit.Expression).Single()));
+
+                    break;
+
                 default:
                     if (expression is IParentNode)
                     {
