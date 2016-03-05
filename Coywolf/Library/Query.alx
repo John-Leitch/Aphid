@@ -1,0 +1,9 @@
+where = @(predicate, source) {
+    x = [];
+    for (element in source) if (predicate(element)) array_push(x, element);
+    ret x;
+};
+
+iter = @(action, source) {
+    for (x in source) action(x);
+};
