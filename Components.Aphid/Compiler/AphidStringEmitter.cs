@@ -166,11 +166,19 @@ namespace Components.Aphid.Compiler
         [DebuggerStepThrough]
         protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression, bool isStatement = false)
         {
-            Append("(");
+            if (!isStatement)
+            {
+                Append("(");
+            }
+
             Emit(expression.LeftOperand);
             Append(GetBinaryOperator(expression.Operator));
             Emit(expression.RightOperand);
-            Append(")");
+
+            if (!isStatement)
+            {
+                Append(")");
+            }
         }
 
         [DebuggerStepThrough]
