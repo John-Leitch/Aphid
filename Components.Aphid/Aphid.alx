@@ -553,8 +553,6 @@ ParseSwitchExpression = @() {
     ret SwitchExpression(exp, cases, defaultCase);
 };
 
-ParseObjectExpression = @() { };
-
 ObjectExpression ParseObjectExpression = @() {
     NextToken;
     inNode = true;
@@ -562,7 +560,7 @@ ObjectExpression ParseObjectExpression = @() {
 
     while (inNode) {
         switch (TokenType) {
-            Identifier: {
+            Identifier, String: {
                 childNodes += ParseKeyValuePairExpression();
                 switch (TokenType) {
                     Comma: NextToken;
@@ -582,6 +580,22 @@ ObjectExpression ParseObjectExpression = @() {
     }
 
     ret ObjectExpression(childNodes);
+};
+
+BinaryOperatorExpression ParseKeyValuePairExpression= @{
+        exp;
+        id;
+        if (Identifier) id = ParseIdentifierExpression();
+        else id = ParseStringExpression();
+
+        if (ColonOperator || AssignmentOperator) {
+            NextToken;
+            exp ParseExpression;
+        } else {
+            exp = id;
+        }
+
+        ret BinaryOperatorExpression(id, ColonOperator, exp);
 };
 
 ParseArrayExpression = @() {
@@ -614,20 +628,6 @@ ParseArrayExpression = @() {
     }
 
     ret ArrayExpression(childNodes);
-};
-
-BinaryOperatorExpression ParseKeyValuePairExpression = @() {
-    id ParseIdentifierExpression;
-    exp;
-
-    if (ColonOperator || AssignmentOperator) {
-        NextToken;
-        exp ParseExpression;
-    } else {
-        exp = id;
-    }
-
-    ret BinaryOperatorExpression(id, ColonOperator, exp);
 };
 
 ParseNumberExpression = @(){
