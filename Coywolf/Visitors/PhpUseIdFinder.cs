@@ -12,7 +12,7 @@ namespace Coywolf.Visitors
 
         protected override IEnumerable<AphidExpression> GetChildren(IParentNode parent)
         {
-            var callExp = parent as CallExpression;
+            var callExp = parent as FunctionExpression;
 
             if (callExp == null)
             {
@@ -20,7 +20,7 @@ namespace Coywolf.Visitors
             }
             else
             {
-                return new List<AphidExpression> { callExp.FunctionExpression };
+                return callExp.Body;
             }
         }
     }
