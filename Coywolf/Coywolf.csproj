@@ -41,9 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AphidTreeHelper.cs" />
-    <Compile Include="LambdaPositionMutator.cs" />
-    <Compile Include="PartialFunctionToLambdaMutator.cs" />
+    <Compile Include="AphidPhpEmitter.cs" />
+    <Compile Include="Visitors\LocalFinder.cs" />
+    <Compile Include="Visitors\PhpUseIdFinder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,0 +1,27 @@
+﻿using Components.Aphid.Parser;
+using System.Collections.Generic;
+
+namespace Coywolf.Visitors
+{
+    public class PhpUseIdFinder : ExpressionFinder
+    {
+        public List<AphidExpression> Find(List<AphidExpression> source)
+        {
+            return Find(source, AphidExpressionType.IdentifierExpression);
+        }
+
+        protected override IEnumerable<AphidExpression> GetChildren(IParentNode parent)
+        {
+            var callExp = parent as CallExpression;
+
+            if (callExp == null)
+            {
+                return base.GetChildren(parent);
+            }
+            else
+            {
+                return new List<AphidExpression> { callExp.FunctionExpression };
+            }
+        }
+    }
+}
