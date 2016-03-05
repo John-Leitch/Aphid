@@ -5,30 +5,46 @@ using System.Text;
 
 namespace Components.Aphid.Parser
 {
-    public class ExpressionFinder : AphidMutator
+    public class ExpressionFinder : AphidVisitor
     {
-        private List<AphidExpression> _expressions = new List<AphidExpression>();
+        private bool _ignoreMatchChildren;
 
-        private AphidExpressionType _type;
+        private Func<AphidExpression, bool> _predicate;
 
-        protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
+        private List<AphidExpression> _results;
+
+        protected override void Visit(AphidExpression expression)
         {
-            hasChanged = false;
-
-            if (expression.Type == _type)
+            if (_predicate(expression))
             {
-                _expressions.Add(expression);
-            }
+                _results.Add(expression);
 
-            return null;
+                if (_ignoreMatchChildren)
+                {
+                    IgnoreChildren();
+                }
+            }
         }
 
-        public AphidExpression[] Find(AphidExpressionType type, List<AphidExpression> ast)
+        public List<AphidExpression> Find(
+            List<AphidExpression> source,
+            AphidExpressionType expressionType,
+            bool ignoreMatchChildren = false)
         {
-            _type = type;
-            MutateRecursively(ast);
-            Reset();
-            return _expressions.ToArray();
+            return Find(source, x => x.Type == expressionType);
+        }
+
+        public List<AphidExpression> Find(
+            List<AphidExpression> source,
+            Func<AphidExpression, bool> predicate,
+            bool ignoreMatchChildren = false)
+        {
+            _results = new List<AphidExpression>();
+            _predicate = predicate;
+            _ignoreMatchChildren = ignoreMatchChildren;
+            Visit(source.ToList());
+
+            return _results;
         }
     }
 }
