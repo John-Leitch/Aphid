@@ -2,12 +2,21 @@
 using Components.Aphid.Parser;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Components.Aphid.Compiler
 {
     public abstract partial class AphidStringEmitter
     {
+        private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
+        {
+            { AphidTokenType.retKeyword, "ret " },
+            { AphidTokenType.NotOperator, "!" },
+            { AphidTokenType.MinusOperator, "-" },
+            { AphidTokenType.ComplementOperator, "~" },
+        };
+
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.AdditionOperator, " + " },
@@ -48,11 +57,43 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.XorEqualOperator, " ^= " },
         };
 
+        private Stack<string> _tabs = new Stack<string>();
+
         protected StringBuilder _out = new StringBuilder();
+
+        protected void Indent()
+        {
+            _tabs.Push("    ");
+        }
+
+        protected void Unindent()
+        {
+            _tabs.Pop();
+        }
+
+        protected string GetTabs()
+        {
+            return string.Join("", _tabs);
+        }
+
+        protected void AppendTabs()
+        {
+            Append(GetTabs());
+        }
+
+        protected void AppendLine()
+        {
+            Append("\r\n");
+        }
 
         protected void Append(string format, params object[] args)
         {
             _out.AppendFormat(format, args);
+        }
+
+        protected void Append(string value)
+        {
+            _out.Append(value);
         }
 
         protected void Append(object value)
@@ -62,16 +103,21 @@ namespace Components.Aphid.Compiler
 
         protected virtual void EmitHeader() { }
 
-        public void Emit(List<AphidExpression> statements)
+        public virtual void Emit(List<AphidExpression> statements)
         {
             foreach (var stmt in statements)
             {
-                BeginStatement();
+                BeginStatement(stmt);
                 Emit(stmt, isStatement: true);
-                EndStatement();
+                EndStatement(stmt);
             }
         }
 
+        protected virtual void BeginExpression(AphidExpression expression) { }
+
+        protected virtual void EndExpression(AphidExpression expression) { }
+
+        [DebuggerStepThrough]
         public virtual string Compile(List<AphidExpression> ast)
         {
             _out.Clear();
@@ -93,9 +139,103 @@ namespace Components.Aphid.Compiler
             return s;
         }
 
+        protected virtual string GetUnaryPrefixOperator(AphidTokenType op)
+        {
+            return GetOperator(_unaryPrefixOperators, op);
+        }
+
         protected virtual string GetBinaryOperator(AphidTokenType op)
         {
             return GetOperator(_binaryOperators, op);
+        }
+
+        [DebuggerStepThrough]
+        protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
+        {
+            if (expression.IsPostfix)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                Append(GetUnaryPrefixOperator(expression.Operator));
+                Emit(expression.Operand);
+            }
+        }
+
+        [DebuggerStepThrough]
+        protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression, bool isStatement = false)
+        {
+            Append("(");
+            Emit(expression.LeftOperand);
+            Append(GetBinaryOperator(expression.Operator));
+            Emit(expression.RightOperand);
+            Append(")");
+        }
+
+        [DebuggerStepThrough]
+        protected virtual void EmitStringExpression(StringExpression expression, bool isStatement = false)
+        {
+            var escaped = StringParser
+                .Parse(expression.Value)
+                .Replace("\\", "\\\\")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\"", "\\\"");
+
+            Append("\"{0}\"", escaped);
+        }
+
+        protected virtual void EmitNumberExpression(NumberExpression expression, bool isStatement = false)
+        {
+            Append(expression.Value);
+        }
+
+        protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false)
+        {
+            Append(expression.Value ? "true" : "talse");
+        }
+
+        protected virtual void EmitCallExpression(CallExpression expression, bool isStatement = false)
+        {
+            Emit(expression.FunctionExpression);
+            Append("(");
+            EmitTuple(expression.Args);
+            Append(")");
+        }
+
+        protected virtual void EmitArrayExpression(ArrayExpression expression, bool isStatement = false)
+        {
+            Append("[");
+            EmitTuple(expression.Elements);
+            Append("]");
+        }
+
+        protected virtual void EmitArrayAccessExpression(ArrayAccessExpression expression, bool isStatement = false)
+        {
+            Emit(expression.ArrayExpression);
+            Append("[");
+            Emit(expression.KeyExpression);
+            Append("]");
+        }
+
+        protected void EmitTuple(IEnumerable<AphidExpression> items)
+        {
+            var first = true;
+
+            foreach (var arg in items)
+            {
+                if (!first)
+                {
+                    Append(", ");
+                }
+                else
+                {
+                    first = false;
+                }
+
+                Emit(arg);
+            }
         }
     }
 }

@@ -7,8 +7,9 @@ namespace Components.Aphid.Compiler
     public abstract partial class AphidStringEmitter
     {
         [DebuggerStepThrough]
-        protected void Emit(AphidExpression expression, bool isStatement = false)
+        protected virtual void Emit(AphidExpression expression, bool isStatement = false)
         {
+            BeginExpression(expression);
             switch (expression.Type)
             {
                 case AphidExpressionType.ArrayAccessExpression: EmitArrayAccessExpression((ArrayAccessExpression)expression, isStatement); break;
@@ -46,14 +47,10 @@ namespace Components.Aphid.Compiler
                 default:
                     throw new NotImplementedException();
             }
+            EndExpression(expression);
         }
 
-        [DebuggerStepThrough] protected virtual void EmitArrayAccessExpression(ArrayAccessExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitArrayExpression(ArrayExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitBreakExpression(BreakExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitCallExpression(CallExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitDoWhileExpression(DoWhileExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitDynamicMemberExpression(DynamicMemberExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitExtendExpression(ExtendExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
@@ -66,13 +63,10 @@ namespace Components.Aphid.Compiler
         [DebuggerStepThrough] protected virtual void EmitLoadLibraryExpression(LoadLibraryExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitLoadScriptExpression(LoadScriptExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitNumberExpression(NumberExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitObjectExpression(ObjectExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitPartialFunctionExpression(PartialFunctionExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitPatternExpression(PatternExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitPatternMatchingExpression(PatternMatchingExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitStringExpression(StringExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitSwitchCase(SwitchCase expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitSwitchExpression(SwitchExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitTernaryOperatorExpression(TernaryOperatorExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
@@ -81,8 +75,8 @@ namespace Components.Aphid.Compiler
         [DebuggerStepThrough] protected virtual void EmitTryExpression(TryExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitWhileExpression(WhileExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
 
-        protected virtual void BeginStatement() { }
+        protected virtual void BeginStatement(AphidExpression expression) { }
 
-        protected virtual void EndStatement() { }
+        protected virtual void EndStatement(AphidExpression expression) { }
     }
 }

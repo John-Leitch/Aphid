@@ -14,54 +14,16 @@ namespace Boxelder
         private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.retKeyword, "return " },
-            { AphidTokenType.NotOperator, "not " },
-            { AphidTokenType.MinusOperator, "-" },
-            { AphidTokenType.ComplementOperator, "~" },
+            { AphidTokenType.NotOperator, "not " },            
         };
 
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
-            { AphidTokenType.AdditionOperator, " + " },
-            { AphidTokenType.MinusOperator, " - " },
-            { AphidTokenType.MultiplicationOperator, " * " },
-            { AphidTokenType.DivisionOperator, " / " },
-            { AphidTokenType.ModulusOperator, " % " },
-
             { AphidTokenType.AndOperator, " and " },
-            { AphidTokenType.OrOperator, " or " },
-
-            { AphidTokenType.BinaryAndOperator, " & " },
-            { AphidTokenType.BinaryOrOperator, " | " },
-            { AphidTokenType.ShiftLeft, " << " },
-            { AphidTokenType.ShiftRight, " >> " },
-            
-            { AphidTokenType.MemberOperator, "." },
-            
-            { AphidTokenType.EqualityOperator, " == " },
-            { AphidTokenType.NotEqualOperator, " != " },
-            { AphidTokenType.LessThanOperator, " < " },
-            { AphidTokenType.LessThanOrEqualOperator, " <= " },
-            { AphidTokenType.GreaterThanOperator, " > " },
-            { AphidTokenType.GreaterThanOrEqualOperator, " >= " },
-
-            { AphidTokenType.Comma, ", " },
-
-            { AphidTokenType.AssignmentOperator, " = " },
-            { AphidTokenType.PlusEqualOperator, " += " },
-            { AphidTokenType.MinusEqualOperator, " -= " },
-            { AphidTokenType.MultiplicationEqualOperator, " *= " },
-            { AphidTokenType.DivisionEqualOperator, " /= " },
-            { AphidTokenType.ModulusEqualOperator, " %= " },
-            { AphidTokenType.ShiftLeftEqualOperator, " <<= " },
-            { AphidTokenType.ShiftRightEqualOperator, " >>= " },
-            { AphidTokenType.BinaryAndEqualOperator, " &= " },
-            { AphidTokenType.OrEqualOperator, " |= " },
-            { AphidTokenType.XorEqualOperator, " ^= " },
+            { AphidTokenType.OrOperator, " or " },   
         };
 
         private const string _initName = "__init__";
-
-        private Stack<string> _tabs = new Stack<string>();
 
         private uint _varId = 0;
 
@@ -86,43 +48,18 @@ namespace Boxelder
             return base.Compile(ast);
         }
 
-        private void Indent()
-        {
-            _tabs.Push("    ");
-        }
-
-        private void Unindent()
-        {
-            _tabs.Pop();
-        }
-
-        private string GetTabs()
-        {
-            return string.Join("", _tabs);
-        }
-
-        private void AppendTabs()
-        {
-            Append(GetTabs());
-        }
-
-        private void AppendLine()
-        {
-            Append("\r\n");
-        }
-
         private void AppendStatement(string format, params object[] args)
         {
             Append(GetTabs() + format, args);
         }
 
-        protected override void BeginStatement()
+        protected override void BeginStatement(AphidExpression expression)
         {
             Append(GetTabs());
             _isEndingStatements = false;
         }
 
-        protected override void EndStatement()
+        protected override void EndStatement(AphidExpression expression)
         {
             if (!_isEndingStatements)
             {
@@ -150,18 +87,6 @@ namespace Boxelder
         protected override void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false)
         {
             Append(expression.Value ? "True" : "False");
-        }
-
-        protected override void EmitStringExpression(StringExpression expression, bool isStatement = false)
-        {
-            var escaped = StringParser
-                .Parse(expression.Value)
-                .Replace("\\", "\\\\")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("'", "\\'");
-
-            Append("'{0}'", escaped);
         }
 
         protected override void EmitIdentifierExpression(IdentifierExpression expression, bool isStatement = false)
@@ -202,19 +127,6 @@ namespace Boxelder
             else
             {
                 throw new NotImplementedException();
-            }
-        }
-
-        protected override void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
-        {
-            if (expression.IsPostfix)
-            {
-                throw new NotImplementedException();
-            }
-            else
-            {
-                Append(GetUnaryPrefixOperator(expression.Operator));
-                Emit(expression.Operand);
             }
         }
 
@@ -380,25 +292,7 @@ namespace Boxelder
                 }
             }
 
-            Emit(expression.FunctionExpression);
-            Append("(");
-            EmitTuple(expression.Args);
-            Append(")");
-        }
-
-        protected override void EmitArrayExpression(ArrayExpression expression, bool isStatement = false)
-        {
-            Append("[");
-            EmitTuple(expression.Elements);
-            Append("]");
-        }
-
-        protected override void EmitArrayAccessExpression(ArrayAccessExpression expression, bool isStatement = false)
-        {
-            Emit(expression.ArrayExpression);
-            Append("[");
-            Emit(expression.KeyExpression);
-            Append("]");
+            base.EmitCallExpression(expression, isStatement);
         }
 
         protected override void EmitObjectExpression(ObjectExpression expression, bool isStatement = false)
@@ -514,25 +408,6 @@ namespace Boxelder
             AppendLine();
         }
 
-        private void EmitTuple(IEnumerable<AphidExpression> items)
-        {
-            var first = true;
-
-            foreach (var arg in items)
-            {
-                if (!first)
-                {
-                    Append(", ");
-                }
-                else
-                {
-                    first = false;
-                }
-
-                Emit(arg);
-            }
-        }
-
         private bool HasAllStringArgs(CallExpression expression)
         {
             return expression.Args.All(x => x.Type == AphidExpressionType.StringExpression);
@@ -586,34 +461,20 @@ namespace Boxelder
 
         protected override string GetBinaryOperator(AphidTokenType op)
         {
-            switch (op)
-            {
-                case AphidTokenType.AndOperator:
-                    return " and ";
+            string value;
 
-                case AphidTokenType.OrOperator:
-                    return " or ";
-
-                default:
-                    return base.GetBinaryOperator(op);
-            }
+            return !_binaryOperators.TryGetValue(op, out value) ?
+                base.GetBinaryOperator(op) :
+                value;
         }
 
-        private string GetUnaryPrefixOperator(AphidTokenType op)
+        protected override string GetUnaryPrefixOperator(AphidTokenType op)
         {
-            return GetOperator(_unaryPrefixOperators, op);
-        }
-
-        private string GetOperator(Dictionary<AphidTokenType, string> table, AphidTokenType op)
-        {
-            string s;
-
-            if (!table.TryGetValue(op, out s))
-            {
-                throw new NotImplementedException();
-            }
-
-            return s;
+            string value;
+            
+            return !_unaryPrefixOperators.TryGetValue(op, out value) ?
+                base.GetUnaryPrefixOperator(op) :
+                value;
         }
 
         private BinaryOperatorExpression CreateIterExpression()
