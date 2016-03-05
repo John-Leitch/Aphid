@@ -61,6 +61,13 @@ namespace Components.Aphid.Compiler
 
         protected StringBuilder _out = new StringBuilder();
 
+        private Stack<List<AphidExpression>> _scope = new Stack<List<AphidExpression>>();
+
+        protected Stack<List<AphidExpression>> Scope
+        {
+            get { return _scope; }
+        }
+
         protected void Indent()
         {
             _tabs.Push("    ");
@@ -105,12 +112,16 @@ namespace Components.Aphid.Compiler
 
         public virtual void Emit(List<AphidExpression> statements)
         {
+            _scope.Push(statements);
+
             foreach (var stmt in statements)
             {
                 BeginStatement(stmt);
                 Emit(stmt, isStatement: true);
                 EndStatement(stmt);
             }
+
+            _scope.Pop();
         }
 
         protected virtual void BeginExpression(AphidExpression expression) { }
@@ -227,7 +238,7 @@ namespace Components.Aphid.Compiler
             Append("]");
         }
 
-        protected void EmitTuple(IEnumerable<AphidExpression> items)
+        protected void EmitTuple(IEnumerable<AphidExpression> items, string prefix = "", string suffix = "")
         {
             var first = true;
 
@@ -242,7 +253,9 @@ namespace Components.Aphid.Compiler
                     first = false;
                 }
 
+                Append(prefix);
                 Emit(arg);
+                Append(suffix);
             }
         }
     }
