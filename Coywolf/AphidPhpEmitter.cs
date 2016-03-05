@@ -271,6 +271,7 @@ function __add($lhs, $rhs) {
                         Append(",\r\n{0}", GetTabs());
                         EmitTuple(expression.Args);
                     }
+                    Unindent();
                     Append(")");
                     return;
             }
