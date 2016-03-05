@@ -201,7 +201,7 @@ namespace Components.Aphid.Compiler
 
         protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false)
         {
-            Append(expression.Value ? "true" : "talse");
+            Append(expression.Value ? "true" : "false");
         }
 
         protected virtual void EmitCallExpression(CallExpression expression, bool isStatement = false)
