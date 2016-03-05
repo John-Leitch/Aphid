@@ -32,6 +32,10 @@ namespace Components.Aphid.Parser
 
         FunctionExpression,
 
+        GatorOpenExpression,
+
+        GatorCloseExpression,
+
         GatorEmitExpression,
 
         IdentifierExpression,
@@ -585,6 +589,38 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return Args.OfType<AphidExpression>().Concat(Body).ToArray();
+        }
+    }
+
+    public partial class GatorOpenExpression : AphidExpression
+    {
+
+        public GatorOpenExpression()
+        {
+        }
+
+        public override AphidExpressionType Type
+        {
+            get
+            {
+                return AphidExpressionType.GatorOpenExpression;
+            }
+        }
+    }
+
+    public partial class GatorCloseExpression : AphidExpression
+    {
+
+        public GatorCloseExpression()
+        {
+        }
+
+        public override AphidExpressionType Type
+        {
+            get
+            {
+                return AphidExpressionType.GatorCloseExpression;
+            }
         }
     }
 
@@ -1528,38 +1564,54 @@ namespace Components.Aphid.Parser
                                         }
                                         else
                                         {
-                                            if ((_currentToken.TokenType == AphidTokenType.GatorEmitOperator))
+                                            if ((_currentToken.TokenType == AphidTokenType.GatorOpenOperator))
                                             {
-                                                var index0008 = _currentToken.Index;
-                                                exp = ParseGatorEmitExpression();
-                                                if ((exp.Index < 0))
-                                                {
-                                                    exp.Index = index0008;
-                                                    exp.Length = (_currentToken.Index - index0008);
-                                                }
+                                                exp = new GatorOpenExpression();
+                                                NextToken();
                                             }
                                             else
                                             {
-                                                var index0009 = _currentToken.Index;
-                                                exp = ParseExpression();
-                                                if ((exp.Index < 0))
+                                                if ((_currentToken.TokenType == AphidTokenType.GatorCloseOperator))
                                                 {
-                                                    exp.Index = index0009;
-                                                    exp.Length = (_currentToken.Index - index0009);
+                                                    exp = new GatorCloseExpression();
+                                                    NextToken();
                                                 }
-                                                if (true)
+                                                else
                                                 {
-                                                    for (
-                                                    ; (_currentToken.TokenType == AphidTokenType.Comma);
-                                                    )
+                                                    if ((_currentToken.TokenType == AphidTokenType.GatorEmitOperator))
                                                     {
-                                                        NextToken();
-                                                        exp = new BinaryOperatorExpression(exp, AphidTokenType.Comma, ParseExpression());
+                                                        var index0008 = _currentToken.Index;
+                                                        exp = ParseGatorEmitExpression();
+                                                        if ((exp.Index < 0))
+                                                        {
+                                                            exp.Index = index0008;
+                                                            exp.Length = (_currentToken.Index - index0008);
+                                                        }
                                                     }
-                                                }
-                                                if (true)
-                                                {
-                                                    Match(AphidTokenType.EndOfStatement);
+                                                    else
+                                                    {
+                                                        var index0009 = _currentToken.Index;
+                                                        exp = ParseExpression();
+                                                        if ((exp.Index < 0))
+                                                        {
+                                                            exp.Index = index0009;
+                                                            exp.Length = (_currentToken.Index - index0009);
+                                                        }
+                                                        if (true)
+                                                        {
+                                                            for (
+                                                            ; (_currentToken.TokenType == AphidTokenType.Comma);
+                                                            )
+                                                            {
+                                                                NextToken();
+                                                                exp = new BinaryOperatorExpression(exp, AphidTokenType.Comma, ParseExpression());
+                                                            }
+                                                        }
+                                                        if (true)
+                                                        {
+                                                            Match(AphidTokenType.EndOfStatement);
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -1676,38 +1728,54 @@ namespace Components.Aphid.Parser
                                         }
                                         else
                                         {
-                                            if ((_currentToken.TokenType == AphidTokenType.GatorEmitOperator))
+                                            if ((_currentToken.TokenType == AphidTokenType.GatorOpenOperator))
                                             {
-                                                var index0012 = _currentToken.Index;
-                                                exp = ParseGatorEmitExpression();
-                                                if ((exp.Index < 0))
-                                                {
-                                                    exp.Index = index0012;
-                                                    exp.Length = (_currentToken.Index - index0012);
-                                                }
+                                                exp = new GatorOpenExpression();
+                                                NextToken();
                                             }
                                             else
                                             {
-                                                var index0013 = _currentToken.Index;
-                                                exp = ParseExpression();
-                                                if ((exp.Index < 0))
+                                                if ((_currentToken.TokenType == AphidTokenType.GatorCloseOperator))
                                                 {
-                                                    exp.Index = index0013;
-                                                    exp.Length = (_currentToken.Index - index0013);
+                                                    exp = new GatorCloseExpression();
+                                                    NextToken();
                                                 }
-                                                if (false)
+                                                else
                                                 {
-                                                    for (
-                                                    ; (_currentToken.TokenType == AphidTokenType.Comma);
-                                                    )
+                                                    if ((_currentToken.TokenType == AphidTokenType.GatorEmitOperator))
                                                     {
-                                                        NextToken();
-                                                        exp = new BinaryOperatorExpression(exp, AphidTokenType.Comma, ParseExpression());
+                                                        var index0012 = _currentToken.Index;
+                                                        exp = ParseGatorEmitExpression();
+                                                        if ((exp.Index < 0))
+                                                        {
+                                                            exp.Index = index0012;
+                                                            exp.Length = (_currentToken.Index - index0012);
+                                                        }
                                                     }
-                                                }
-                                                if (false)
-                                                {
-                                                    Match(AphidTokenType.EndOfStatement);
+                                                    else
+                                                    {
+                                                        var index0013 = _currentToken.Index;
+                                                        exp = ParseExpression();
+                                                        if ((exp.Index < 0))
+                                                        {
+                                                            exp.Index = index0013;
+                                                            exp.Length = (_currentToken.Index - index0013);
+                                                        }
+                                                        if (false)
+                                                        {
+                                                            for (
+                                                            ; (_currentToken.TokenType == AphidTokenType.Comma);
+                                                            )
+                                                            {
+                                                                NextToken();
+                                                                exp = new BinaryOperatorExpression(exp, AphidTokenType.Comma, ParseExpression());
+                                                            }
+                                                        }
+                                                        if (false)
+                                                        {
+                                                            Match(AphidTokenType.EndOfStatement);
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -3075,8 +3143,16 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseTextExpression()
         {
-            var t = new TextExpression(_currentToken.Lexeme);
-            NextToken();
+            AphidExpression t = default(AphidExpression);
+            if ((_currentToken.TokenType == AphidTokenType.Text))
+            {
+                t = new TextExpression(_currentToken.Lexeme);
+                NextToken();
+            }
+            else
+            {
+                t = new TextExpression("");
+            }
             return t;
         }
 
@@ -3084,13 +3160,7 @@ namespace Components.Aphid.Parser
         {
             NextToken();
             var t = new GatorEmitExpression(ParseExpression());
-            if ((((_currentToken.TokenType == AphidTokenType.Text)
-                        == false)
-                        && ((_currentToken.TokenType == AphidTokenType.None)
-                        == false)))
-            {
-                throw new AphidParserException(_currentToken);
-            }
+            Match(AphidTokenType.GatorCloseOperator);
             return t;
         }
     }
@@ -7873,7 +7943,7 @@ namespace Components.Aphid.Lexer
 
             while ((tokenType = GetToken()) != AphidTokenType.EndOfFile)
             {
-                if (tokenType != AphidTokenType.GatorOpenOperator && tokenType != AphidTokenType.GatorCloseOperator && tokenType != AphidTokenType.WhiteSpace && tokenType != AphidTokenType.Comment)
+                if (tokenType != AphidTokenType.WhiteSpace && tokenType != AphidTokenType.Comment)
                 {
                     var index = lastIndex + 1;
                     var lexeme = text.Substring(index, charIndex - lastIndex);

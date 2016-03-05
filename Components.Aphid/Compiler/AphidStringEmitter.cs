@@ -222,6 +222,12 @@ namespace Components.Aphid.Compiler
             Append(expression.Value);
         }
 
+        [DebuggerStepThrough]
+        protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false)
+        {
+            Append("null");
+        }
+
         protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false)
         {
             Append(expression.Value ? "true" : "false");

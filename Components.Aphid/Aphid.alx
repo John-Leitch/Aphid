@@ -21,6 +21,8 @@ ExtendExpression = { string ExtendType, ObjectExpression Object };
 ForEachExpression = { Collection, Element, list Body };
 ForExpression = { Initialization, Condition, Afterthought, list Body };
 FunctionExpression = { list Args, list Body };
+GatorOpenExpression = { };
+GatorCloseExpression = { };
 GatorEmitExpression = { Expression };
 IdentifierExpression = { string Identifier, opt list IdentifierExpression Attributes };
 IfExpression = { Condition, list Body, list ElseBody };
@@ -124,6 +126,8 @@ _ParseStatement = macro(@(_requireEos) {
             tryKeyword: exp ParseTryExpression;
             switchKeyword: exp ParseSwitchExpression;
             Text: exp ParseTextExpression;
+            GatorOpenOperator: { exp = GatorOpenExpression(); NextToken; }
+            GatorCloseOperator: { exp = GatorCloseExpression(); NextToken; }
             GatorEmitOperator: exp ParseGatorEmitExpression;
             
             default:  {
@@ -807,8 +811,12 @@ ParseFactorExpression = @() {
 };
 
 ParseTextExpression = @() {
-    t = TextExpression(Lexeme);
-    NextToken;
+    t;
+    if (Text) {
+        t = TextExpression(Lexeme);
+        NextToken;
+    }
+    else t = TextExpression('');
     
     ret t;
 };
@@ -816,8 +824,6 @@ ParseTextExpression = @() {
 ParseGatorEmitExpression = @() {
     NextToken;
     t = GatorEmitExpression(ParseExpression());
-
-    if (!Text && !None) Error;
-
+    GatorCloseOperator;
     ret t;
 };

@@ -135,8 +135,8 @@
         },
     ],
     ignore: [ 
-        "GatorOpenOperator",
-        "GatorCloseOperator",
+        //"GatorOpenOperator",
+        //"GatorCloseOperator",
         "WhiteSpace",
         "Comment" 
     ]

@@ -24,7 +24,9 @@ namespace Components.Aphid.Compiler
                 case AphidExpressionType.ForEachExpression: EmitForEachExpression((ForEachExpression)expression, isStatement); break;
                 case AphidExpressionType.ForExpression: EmitForExpression((ForExpression)expression, isStatement); break;
                 case AphidExpressionType.FunctionExpression: EmitFunctionExpression((FunctionExpression)expression, isStatement); break;
+                case AphidExpressionType.GatorCloseExpression: EmitGatorCloseExpression((GatorCloseExpression)expression, isStatement); break;
                 case AphidExpressionType.GatorEmitExpression: EmitGatorEmitExpression((GatorEmitExpression)expression, isStatement); break;
+                case AphidExpressionType.GatorOpenExpression: EmitGatorOpenExpression((GatorOpenExpression)expression, isStatement); break;
                 case AphidExpressionType.IdentifierExpression: EmitIdentifierExpression((IdentifierExpression)expression, isStatement); break;
                 case AphidExpressionType.IfExpression: EmitIfExpression((IfExpression)expression, isStatement); break;
                 case AphidExpressionType.LoadLibraryExpression: EmitLoadLibraryExpression((LoadLibraryExpression)expression, isStatement); break;
@@ -57,12 +59,13 @@ namespace Components.Aphid.Compiler
         [DebuggerStepThrough] protected virtual void EmitForEachExpression(ForEachExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitForExpression(ForExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitFunctionExpression(FunctionExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitGatorCloseExpression(GatorCloseExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitGatorEmitExpression(GatorEmitExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitGatorOpenExpression(GatorOpenExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitIdentifierExpression(IdentifierExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitIfExpression(IfExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitLoadLibraryExpression(LoadLibraryExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitLoadScriptExpression(LoadScriptExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
-        [DebuggerStepThrough] protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
+        [DebuggerStepThrough] protected virtual void EmitLoadScriptExpression(LoadScriptExpression expression, bool isStatement = false) { throw new NotImplementedException(); }        
         [DebuggerStepThrough] protected virtual void EmitObjectExpression(ObjectExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitPartialFunctionExpression(PartialFunctionExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
         [DebuggerStepThrough] protected virtual void EmitPatternExpression(PatternExpression expression, bool isStatement = false) { throw new NotImplementedException(); }
