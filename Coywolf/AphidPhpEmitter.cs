@@ -300,7 +300,18 @@ function __add($lhs, $rhs) {
             Indent();
             Emit(expression.Body);
             Unindent();
-            Append(GetTabs() + "}\r\n");
+            Append(GetTabs() + "}");
+
+            if (expression.ElseBody != null)
+            {
+                Append(" else {\r\n");
+                Indent();
+                Emit(expression.ElseBody);
+                Unindent();
+                Append(GetTabs() + "}");
+            }
+
+            Append("\r\n");
         }
 
         protected void EmitEchoStatement(CallExpression expression)
