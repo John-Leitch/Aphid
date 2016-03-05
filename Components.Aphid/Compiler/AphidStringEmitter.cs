@@ -17,6 +17,12 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.ComplementOperator, "~" },
         };
 
+        private Dictionary<AphidTokenType, string> _unaryPostfixOperators = new Dictionary<AphidTokenType, string>
+        {
+            { AphidTokenType.IncrementOperator, "++" },
+            { AphidTokenType.DecrementOperator, "--" },
+        };
+
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.AdditionOperator, " + " },
@@ -155,6 +161,11 @@ namespace Components.Aphid.Compiler
             return GetOperator(_unaryPrefixOperators, op);
         }
 
+        protected virtual string GetUnaryPostfixOperator(AphidTokenType op)
+        {
+            return GetOperator(_unaryPostfixOperators, op);
+        }
+
         protected virtual string GetBinaryOperator(AphidTokenType op)
         {
             return GetOperator(_binaryOperators, op);
@@ -165,7 +176,8 @@ namespace Components.Aphid.Compiler
         {
             if (expression.IsPostfix)
             {
-                throw new NotImplementedException();
+                Emit(expression.Operand);
+                Append(GetUnaryPostfixOperator(expression.Operator));
             }
             else
             {
