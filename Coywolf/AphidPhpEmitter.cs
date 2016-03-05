@@ -328,6 +328,43 @@ function __add($lhs, $rhs) {
             Append("\r\n");
         }
 
+        protected override void EmitObjectExpression(ObjectExpression expression, bool isStatement = false)
+        {
+            if (expression.Identifier != null)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                Append("[");
+                var isFirst = true;
+
+                foreach (var kvp in expression.Pairs)
+                {
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else
+                    {
+                        Append(", ");
+                    }
+
+                    var key = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
+                        new StringExpression(string.Format(
+                            "'{0}'",
+                            kvp.LeftOperand.ToIdentifier().Identifier)) :
+                        (StringExpression)kvp.LeftOperand;
+
+                    Emit(key);
+                    Append(" => ");
+                    Emit(kvp.RightOperand);
+                }
+
+                Append("]");
+            }
+        }
+
         protected void EmitEchoStatement(CallExpression expression)
         {
             Append("echo ");
