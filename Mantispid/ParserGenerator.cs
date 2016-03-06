@@ -787,6 +787,9 @@ namespace Mantispid
                 case AphidExpressionType.NumberExpression:
                     return GenerateImperativeExpression((NumberExpression)node);
 
+                case AphidExpressionType.StringExpression:
+                    return CodeHelper.Value(StringParser.Parse(((StringExpression)node).Value));
+
                 default:
                     throw new NotImplementedException();
 
