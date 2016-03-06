@@ -12,7 +12,9 @@ namespace Coywolf
 {
     public class AphidPhpEmitter : AphidStringEmitter
     {
-        private readonly string[] _builtInFunctions = File.ReadAllLines("phpFunctions.txt");
+        private AphidExpression _lastStatement;
+
+        private readonly string[] _builtInFunctions = File.ReadAllLines(@"C:\source\Aphid\Coywolf\phpFunctions.txt");
 
         private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
         {
@@ -65,6 +67,8 @@ if (!function_exists('__add')) {
         protected override void BeginStatement(AphidExpression expression)
         {
             if (expression.Type != AphidExpressionType.GatorEmitExpression &&
+                expression.Type != AphidExpressionType.GatorOpenExpression &&
+                expression.Type != AphidExpressionType.GatorCloseExpression &&
                 expression.Type != AphidExpressionType.TextExpression)
             {
                 Append(GetTabs());
@@ -77,18 +81,25 @@ if (!function_exists('__add')) {
         {
             if (_isPhp && expression.Type == AphidExpressionType.TextExpression)
             {
-                Append("?>");
+                //Append("?>");
                 _isPhp = false;
             }
             else if (expression.Type == AphidExpressionType.GatorEmitExpression)
             {
-                _isPhp = true;
+                if (_isPhp)
+                {
+                    //Append("?>");
+                }
+                else
+                {
+                    _isPhp = true;
+                }
             }
             else if (!_isPhp &&
                 expression.Type != AphidExpressionType.TextExpression &&
                 expression.Type != AphidExpressionType.GatorEmitExpression)
             {
-                Append("<?php\r\n");
+                //Append("<?php\r\n");
                 _isPhp = true;
             }
 
@@ -112,7 +123,7 @@ if (!function_exists('__add')) {
             if (!_isPhp)
             {
                 _isPhp = true;
-                Append("<?php ");
+                //Append("<?php ");
             }
         }
 
@@ -122,12 +133,25 @@ if (!function_exists('__add')) {
 
             if (isStatement &&
                 expression.Type != AphidExpressionType.TextExpression &&
+                expression.Type != AphidExpressionType.GatorOpenExpression &&
+                expression.Type != AphidExpressionType.GatorCloseExpression &&
                 expression.Type != AphidExpressionType.GatorEmitExpression &&
                 expression.Type != AphidExpressionType.IfExpression &&
+                expression.Type != AphidExpressionType.WhileExpression &&
                 expression.Type != AphidExpressionType.ForEachExpression)
             {
                 Append(";\r\n");
             }
+        }
+
+        protected override void EmitGatorOpenExpression(GatorOpenExpression expression, bool isStatement = false)
+        {
+            Append("<?php\r\n");
+        }
+
+        protected override void EmitGatorCloseExpression(GatorCloseExpression expression, bool isStatement = false)
+        {
+            Append("?>");
         }
 
         protected override void EmitTextExpression(TextExpression expression, bool isStatement = false)
@@ -368,41 +392,63 @@ if (!function_exists('__add')) {
             Append("\r\n");
         }
 
+        protected override void EmitWhileExpression(WhileExpression expression, bool isStatement = false)
+        {
+            Append("while (");
+            Emit(expression.Condition);
+            Append(") {\r\n");
+            Indent();
+            Emit(expression.Body);
+            Unindent();
+            Append("{0}}}\r\n", GetTabs());
+        }
+
         protected override void EmitObjectExpression(ObjectExpression expression, bool isStatement = false)
         {
             if (expression.Identifier != null)
             {
-                throw new NotImplementedException();
-            }
-            else
-            {
-                Append("[");
-                var isFirst = true;
-
-                foreach (var kvp in expression.Pairs)
+                if (expression.Identifier.Attributes.Any())
                 {
-                    if (isFirst)
-                    {
-                        isFirst = false;
-                    }
-                    else
-                    {
-                        Append(", ");
-                    }
-
-                    var key = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
-                        new StringExpression(string.Format(
-                            "'{0}'",
-                            kvp.LeftOperand.ToIdentifier().Identifier)) :
-                        (StringExpression)kvp.LeftOperand;
-
-                    Emit(key);
-                    Append(" => ");
-                    Emit(kvp.RightOperand);
+                    throw new NotImplementedException();
                 }
 
-                Append("]");
+                switch (expression.Identifier.Identifier)
+                {
+                    case "new":
+                        Append("(object)");
+                        break;
+
+                    default:
+                        throw new NotImplementedException();
+                }
             }
+                
+            Append("[");
+            var isFirst = true;
+
+            foreach (var kvp in expression.Pairs)
+            {
+                if (isFirst)
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    Append(", ");
+                }
+
+                var key = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
+                    new StringExpression(string.Format(
+                        "'{0}'",
+                        kvp.LeftOperand.ToIdentifier().Identifier)) :
+                    (StringExpression)kvp.LeftOperand;
+
+                Emit(key);
+                Append(" => ");
+                Emit(kvp.RightOperand);
+            }
+
+            Append("]");
         }
 
         protected void EmitEchoStatement(CallExpression expression)

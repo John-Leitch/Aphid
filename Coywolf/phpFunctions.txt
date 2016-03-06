@@ -1727,6 +1727,8 @@ imap_utf7_encode
 imap_utf8
 implode
 import_request_variables
+include
+include_once
 inclued_get_data
 inet_ntop
 inet_pton
@@ -3538,6 +3540,8 @@ register_shutdown_function
 register_tick_function
 rename
 rename_function
+require
+require_once
 reset
 restore_error_handler
 restore_exception_handler
