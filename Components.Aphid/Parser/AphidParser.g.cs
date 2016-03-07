@@ -1511,7 +1511,20 @@ namespace Components.Aphid.Parser
                             }
                             if (true)
                             {
-                                Match(AphidTokenType.EndOfStatement);
+                                if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                {
+                                    NextToken();
+                                }
+                                else
+                                {
+                                    if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                                == false)
+                                                && ((_currentToken.TokenType == AphidTokenType.None)
+                                                == false)))
+                                    {
+                                        throw new AphidParserException(_currentToken);
+                                    }
+                                }
                             }
                         }
                         else
@@ -1609,7 +1622,20 @@ namespace Components.Aphid.Parser
                                                         }
                                                         if (true)
                                                         {
-                                                            Match(AphidTokenType.EndOfStatement);
+                                                            if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                                            {
+                                                                NextToken();
+                                                            }
+                                                            else
+                                                            {
+                                                                if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                                                            == false)
+                                                                            && ((_currentToken.TokenType == AphidTokenType.None)
+                                                                            == false)))
+                                                                {
+                                                                    throw new AphidParserException(_currentToken);
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1675,7 +1701,20 @@ namespace Components.Aphid.Parser
                             }
                             if (false)
                             {
-                                Match(AphidTokenType.EndOfStatement);
+                                if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                {
+                                    NextToken();
+                                }
+                                else
+                                {
+                                    if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                                == false)
+                                                && ((_currentToken.TokenType == AphidTokenType.None)
+                                                == false)))
+                                    {
+                                        throw new AphidParserException(_currentToken);
+                                    }
+                                }
                             }
                         }
                         else
@@ -1773,7 +1812,20 @@ namespace Components.Aphid.Parser
                                                         }
                                                         if (false)
                                                         {
-                                                            Match(AphidTokenType.EndOfStatement);
+                                                            if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                                            {
+                                                                NextToken();
+                                                            }
+                                                            else
+                                                            {
+                                                                if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                                                            == false)
+                                                                            && ((_currentToken.TokenType == AphidTokenType.None)
+                                                                            == false)))
+                                                                {
+                                                                    throw new AphidParserException(_currentToken);
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }

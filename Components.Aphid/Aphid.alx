@@ -148,7 +148,15 @@ _ParseStatement = macro(@(_requireEos) {
     };
 });
 
-MatchEos = macro(@(_requireEos) { if (_requireEos) EndOfStatement; });
+MatchEos = macro(@(_requireEos) {
+    if (_requireEos) {
+        if (EndOfStatement)
+            NextToken;
+        else if (!RightBrace && !None)
+            Error;
+    }
+});
+
 ParseExpression = @() ParseAssignmentExpression();
 
 ParseAssignmentExpression = ParseBinOpExp(
