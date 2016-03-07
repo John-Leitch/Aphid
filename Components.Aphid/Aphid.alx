@@ -32,6 +32,7 @@ NullExpression = { };
 NumberExpression = { decimal Value, };
 ObjectExpression = { list BinaryOperatorExpression Pairs, opt IdentifierExpression Identifier };
 PartialFunctionExpression = { CallExpression Call };
+PartialOperatorExpression = { AphidTokenType Operator, Operand };
 PatternExpression = { opt list Patterns, Value };
 PatternMatchingExpression = { TestExpression, list PatternExpression Patterns };
 UnaryOperatorExpression = { AphidTokenType Operator, Operand, opt bool IsPostfix };
@@ -692,6 +693,30 @@ ParseFunctionExpression = @() {
             }
 
             exp = FunctionExpression(args, body);
+        }
+
+        MinusOperator,
+        AdditionOperator,
+        MultiplicationOperator,
+        DivisionOperator,
+        ModulusOperator,
+        BinaryAndOperator,
+        BinaryOrOperator,
+        XorOperator,
+        ShiftLeft,
+        ShiftRight,
+        AndOperator,
+        OrOperator,
+        EqualityOperator,
+        NotEqualOperator,
+        NotEqualOperator,
+        LessThanOperator,
+        GreaterThanOperator,
+        LessThanOrEqualOperator,
+        GreaterThanOrEqualOperator,
+        PipelineOperator: {
+            TakeToken(op);
+            exp = PartialOperatorExpression(op, ParseQueryExpression());
         }
 
         LeftBrace: exp = FunctionExpression(args, ParseBlock());

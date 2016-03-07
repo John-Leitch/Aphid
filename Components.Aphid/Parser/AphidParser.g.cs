@@ -54,6 +54,8 @@ namespace Components.Aphid.Parser
 
         PartialFunctionExpression,
 
+        PartialOperatorExpression,
+
         PatternExpression,
 
         PatternMatchingExpression,
@@ -945,6 +947,50 @@ namespace Components.Aphid.Parser
         {
             return new AphidExpression[] {
                     Call};
+        }
+    }
+
+    public partial class PartialOperatorExpression : AphidExpression, IParentNode
+    {
+
+        private AphidTokenType _operator;
+
+        private AphidExpression _operand;
+
+        public PartialOperatorExpression(AphidTokenType @operator, AphidExpression operand)
+        {
+            _operator = @operator;
+            _operand = operand;
+        }
+
+        public AphidTokenType Operator
+        {
+            get
+            {
+                return _operator;
+            }
+        }
+
+        public AphidExpression Operand
+        {
+            get
+            {
+                return _operand;
+            }
+        }
+
+        public override AphidExpressionType Type
+        {
+            get
+            {
+                return AphidExpressionType.PartialOperatorExpression;
+            }
+        }
+
+        public IEnumerable<AphidExpression> GetChildren()
+        {
+            return new AphidExpression[] {
+                    Operand};
         }
     }
 
@@ -2884,13 +2930,41 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                if (((((((((((((((((((((_currentToken.TokenType == AphidTokenType.MinusOperator)
+                            || (_currentToken.TokenType == AphidTokenType.AdditionOperator))
+                            || (_currentToken.TokenType == AphidTokenType.MultiplicationOperator))
+                            || (_currentToken.TokenType == AphidTokenType.DivisionOperator))
+                            || (_currentToken.TokenType == AphidTokenType.ModulusOperator))
+                            || (_currentToken.TokenType == AphidTokenType.BinaryAndOperator))
+                            || (_currentToken.TokenType == AphidTokenType.BinaryOrOperator))
+                            || (_currentToken.TokenType == AphidTokenType.XorOperator))
+                            || (_currentToken.TokenType == AphidTokenType.ShiftLeft))
+                            || (_currentToken.TokenType == AphidTokenType.ShiftRight))
+                            || (_currentToken.TokenType == AphidTokenType.AndOperator))
+                            || (_currentToken.TokenType == AphidTokenType.OrOperator))
+                            || (_currentToken.TokenType == AphidTokenType.EqualityOperator))
+                            || (_currentToken.TokenType == AphidTokenType.NotEqualOperator))
+                            || (_currentToken.TokenType == AphidTokenType.NotEqualOperator))
+                            || (_currentToken.TokenType == AphidTokenType.LessThanOperator))
+                            || (_currentToken.TokenType == AphidTokenType.GreaterThanOperator))
+                            || (_currentToken.TokenType == AphidTokenType.LessThanOrEqualOperator))
+                            || (_currentToken.TokenType == AphidTokenType.GreaterThanOrEqualOperator))
+                            || (_currentToken.TokenType == AphidTokenType.PipelineOperator)))
                 {
-                    exp = new FunctionExpression(args, ParseBlock());
+                    var op = _currentToken.TokenType;
+                    NextToken();
+                    exp = new PartialOperatorExpression(op, ParseQueryExpression());
                 }
                 else
                 {
-                    exp = new PartialFunctionExpression(ParseCallExpression());
+                    if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                    {
+                        exp = new FunctionExpression(args, ParseBlock());
+                    }
+                    else
+                    {
+                        exp = new PartialFunctionExpression(ParseCallExpression());
+                    }
                 }
             }
             return exp;

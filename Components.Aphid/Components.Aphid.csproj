@@ -116,6 +116,7 @@
     <Compile Include="Parser\AphidParserException.cs" />
     <Compile Include="Parser\ParserErrorMessage.cs" />
     <Compile Include="Parser\PartialFunctionExpression.cs" />
+    <Compile Include="Parser\PartialOperatorMutator.cs" />
     <Compile Include="Parser\PipelineToCallMutator.cs" />
     <Compile Include="Parser\StringParser.cs" />
     <Compile Include="Parser\UnaryOperatorExpression.cs" />
