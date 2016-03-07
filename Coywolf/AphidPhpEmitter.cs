@@ -247,7 +247,15 @@ if (!function_exists('__add')) {
 
         protected override void EmitStringExpression(StringExpression expression, bool isStatement = false)
         {
-            base.EmitStringExpression(expression, isStatement);
+            var escaped = StringParser
+                .Parse(expression.Value)
+                .Replace("\\", "\\\\")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\"", "\\\"")
+                .Replace("$", "\\$");
+
+            Append("\"{0}\"", escaped);
         }
 
         protected override void EmitFunctionExpression(FunctionExpression expression, bool isStatement = false)
