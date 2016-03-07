@@ -254,6 +254,40 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.TryExpression:
+                    var tryExp = (TryExpression)expression;
+
+                    expanded.Add(
+                        new TryExpression(
+                            Mutate(tryExp.TryBody),
+                            (IdentifierExpression)Mutate(tryExp.CatchArg).Single(),
+                            Mutate(tryExp.CatchBody),
+                            Mutate(tryExp.FinallyBody)));
+
+                    break;
+
+                case AphidExpressionType.PatternMatchingExpression:
+                    var patternMatchingExp = (PatternMatchingExpression)expression;
+
+                    expanded.Add(
+                        new PatternMatchingExpression(
+                            Mutate(patternMatchingExp.TestExpression).Single(),
+                            patternMatchingExp.Patterns
+                                .Select(x => (PatternExpression)Mutate(x).Single())
+                                .ToList()));
+                    
+                    break;
+
+                case AphidExpressionType.PatternExpression:
+                    var patternExp = (PatternExpression)expression;
+
+                    expanded.Add(
+                        new PatternExpression(
+                            Mutate(patternExp.Value).Single(),
+                            patternExp.Patterns.Select(x => Mutate(x).Single()).ToList()));
+
+                    break;
+
                 default:
                     if (expression is IParentNode)
                     {
