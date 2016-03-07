@@ -15,6 +15,26 @@ first = @(predicate, source) {
     ret null;
 };
 
+skip = @(c, source) {
+    x = []; i = 0;
+    for (y in source) {
+        if (i >= c) array_push(x, y);
+        i++;
+    }
+    ret x;
+};
+
+aggr = @(acc, source) {
+    if (count(source) == 1) ret source[0];
+    else {
+        s = source[0];
+        for (x in source @skip(1)) s = acc(s, x);
+        ret s;
+    }
+};
+
+concat = @(separator, source) source |> @aggr(@(x, y) x + separator + y);
+
 iter = @(action, source) {
     for (x in source) action(x);
 };
