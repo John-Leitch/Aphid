@@ -288,6 +288,16 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.PartialOperatorExpression:
+                    var partialOp = (PartialOperatorExpression)expression;
+
+                    expanded.Add(
+                        new PartialOperatorExpression(
+                            partialOp.Operator,
+                            Mutate(partialOp.Operand).Single()));
+
+                    break;
+
                 default:
                     if (expression is IParentNode)
                     {
