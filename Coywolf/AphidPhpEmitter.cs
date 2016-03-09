@@ -7,14 +7,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Coywolf
 {
     public class AphidPhpEmitter : AphidStringEmitter
     {
-        private AphidExpression _lastStatement;
-
-        private readonly string[] _builtInFunctions = File.ReadAllLines(@"C:\source\Aphid\Coywolf\phpFunctions.txt");
+        private readonly string[] _builtInFunctions = File.ReadAllLines(
+            Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                @"phpFunctions.txt"));
 
         private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
         {
@@ -46,6 +48,7 @@ if (!function_exists('__add')) {
             {
                 new IncludeMutator(),
                 new AphidMacroMutator(),
+                new PartialOperatorMutator(),
                 new PipelineToCallMutator(),
             };
 
