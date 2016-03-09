@@ -43,7 +43,7 @@ namespace Components.Aphid.Compiler
 
         private void WriteHeader()
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            var version = Assembly.GetEntryAssembly().GetName().Version;
             var header = string.Format("{0} {1}", _name, version);
             Cli.WriteHeader(header, "~|Blue~~White~");
             Cli.WriteLine();
