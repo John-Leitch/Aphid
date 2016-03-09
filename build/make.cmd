@@ -1,5 +1,6 @@
 set mode=debug
 set outPath=..\%mode%
+set nunit="c:\Program Files (x86)\NUnit.org\nunit-console\nunit3-console.exe"
 
 mkdir ..\Arch
 
@@ -46,5 +47,9 @@ copy ..\Components.Aphid\Aphid.alx %outPath%\Mantispid
 copy ..\Components.Aphid\Aphid.Lexer.alx %outPath%\Mantispid
 copy ..\Components.Aphid\Aphid.Lexer.Code.alx %outPath%\Mantispid
 copy ..\Components.Aphid\Aphid.Lexer.Tmpl.alx %outPath%\Mantispid
+
+call xbuild ..\Components.Aphid.Tests.Integration\Components.Aphid.Tests.Integration.csproj
+set testAsm=..\Components.Aphid.Tests.Integration\bin\%mode%\Components.Aphid.Tests.Integration.dll
+%nunit% %testAsm% --full --work=%outPath% --out=%outPath%\TestResults.txt --err=%outPath%\TestErrors.txt
 
 powershell .\package.ps1
