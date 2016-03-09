@@ -11,15 +11,20 @@ namespace Mantispid
 {
     public class RuleTypeBuilder
     {
+        private const string _getCollection = "GetCollection";
+
         private IEnumerable<RuleStruct> _ruleTypes;
 
         private RuleStructResolver _resolver;
+
+        private string _helperName;
 
         private string _baseTypeName;
 
         public RuleTypeBuilder(string baseTypeName, IEnumerable<RuleStruct> ruleTypes)
         {
             _baseTypeName = baseTypeName;
+            _helperName = string.Format("{0}Helper", _baseTypeName);
             _resolver = new RuleStructResolver(_ruleTypes = ruleTypes);
         }
 
@@ -28,7 +33,58 @@ namespace Mantispid
             return new CodeTypeDeclarationCollection(
                 _ruleTypes
                     .Select(CreateCodeType)
+                    .Concat(new [] { CreateHelperType() })
                     .ToArray());
+        }
+
+        private CodeTypeDeclaration CreateHelperType()
+        {
+            var type = new CodeTypeDeclaration(_helperName)
+            {
+                Attributes =
+                    MemberAttributes.Public |
+                    MemberAttributes.Abstract |
+                    MemberAttributes.Final,
+            };
+
+            var argName = "collection";
+            var methodTypeName = "System.Collections.Generic.IEnumerable<" + _baseTypeName + ">";
+            var methodType = CodeHelper.TypeRef(methodTypeName);
+            var t = Type.GetType(methodTypeName);
+
+            var method = new CodeMemberMethod()
+            {
+                Name = _getCollection,
+                ReturnType = methodType,
+                Attributes =
+                    MemberAttributes.Public |
+                    MemberAttributes.Static,
+            };
+
+            method.Parameters.Add(new CodeParameterDeclarationExpression(
+                methodType,
+                argName));
+
+            method.Statements.Add(
+                new CodeConditionStatement(
+                    CodeHelper.BinOpExp(
+                        CodeHelper.VarRef(argName),
+                        CodeBinaryOperatorType.ValueEquality,
+                        CodeHelper.Null()),
+                    new CodeStatement[]
+                    {
+                        CodeHelper.Return(new CodeArrayCreateExpression(
+                            CodeHelper.TypeRef(_baseTypeName),
+                            0))
+                    },
+                    new CodeStatement[]
+                    {
+                        CodeHelper.Return(CodeHelper.VarRef(argName))
+                    }));
+            
+            type.Members.Add(method);
+
+            return type;
         }
 
         private CodeTypeDeclaration CreateCodeType(RuleStruct rule)
@@ -179,13 +235,18 @@ namespace Mantispid
             foreach (var child in children.Where(x => x.IsList))
             {
                 hasLists = true;
-                var childRef = CodeHelper.VarRef(child.Name);
+                CodeExpression childRef = CodeHelper.VarRef(child.Name);
 
                 if (childExpression != null)
                 {
                     var target = childExpression is CodeArrayCreateExpression ? 
                         childExpression : 
                         CodeHelper.Invoke(childExpression, "OfType", new[] { _baseTypeName });
+
+                    childRef = CodeHelper.Invoke(
+                        CodeHelper.TypeRefExp(_helperName),
+                        _getCollection,
+                        childRef);
 
                     childExpression = CodeHelper.Invoke(target, "Concat", childRef);
                 }

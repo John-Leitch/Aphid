@@ -173,6 +173,11 @@ namespace AphidCodeGenerator
             return new CodeObjectCreateExpression(createType, parameters);
         }
 
+        public static CodeObjectCreateExpression New(CodeTypeReference createType, params CodeExpression[] parameters)
+        {
+            return new CodeObjectCreateExpression(createType, parameters);
+        }
+
         public static CodeAssignStatement Assign(CodeExpression left, CodeExpression right)
         {
             return new CodeAssignStatement(left, right);
