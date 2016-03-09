@@ -56,6 +56,10 @@
   <ItemGroup>
     <Compile Include="Compiler\AphidStringEmitter.cs" />
     <Compile Include="Compiler\AphidStringEmitter.g.cs" />
+    <Compile Include="External\ConsolePlus\Cli.cs" />
+    <Compile Include="External\ConsolePlus\CliLexerState.cs" />
+    <Compile Include="External\ConsolePlus\CliProgressBar.cs" />
+    <Compile Include="External\ConsolePlus\DumpMode.cs" />
     <Compile Include="Interpreter\AphidFrame.cs" />
     <Compile Include="Interpreter\AphidObjectEqualityComparer.cs" />
     <Compile Include="Interpreter\AphidOperationException.cs" />

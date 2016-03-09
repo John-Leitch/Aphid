@@ -43,10 +43,6 @@
   <ItemGroup>
     <Compile Include="AphidPythonEmitter.cs" />
     <Compile Include="AphidTreeHelper.cs" />
-    <Compile Include="ConsolePlus\Cli.cs" />
-    <Compile Include="ConsolePlus\CliLexerState.cs" />
-    <Compile Include="ConsolePlus\CliProgressBar.cs" />
-    <Compile Include="ConsolePlus\DumpMode.cs" />
     <Compile Include="FunctionDeclarationAttributes.cs" />
     <Compile Include="IdentifierStatementAttributes.cs" />
     <Compile Include="LambdaPositionMutator.cs" />

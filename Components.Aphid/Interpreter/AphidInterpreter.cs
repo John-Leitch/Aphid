@@ -19,6 +19,8 @@ namespace Components.Aphid.Interpreter
 
         private bool _isBreaking = false;
 
+        private bool _createLoader;
+
         private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
         { 
             new AphidFrame("[Entrypoint]", null, null, null, null),
@@ -48,8 +50,9 @@ namespace Components.Aphid.Interpreter
             get { return _currentScope; }
         }
 
-        public AphidInterpreter()
+        public AphidInterpreter(bool createLoader = true)
         {
+            _createLoader = createLoader;
             Init();
 
             _currentScope = new AphidObject();
@@ -63,7 +66,10 @@ namespace Components.Aphid.Interpreter
 
         private void Init()
         {
-            _loader = new AphidLoader(this);
+            if (_createLoader)
+            {
+                _loader = new AphidLoader(this);
+            }
         }
 
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)
@@ -942,7 +948,7 @@ namespace Components.Aphid.Interpreter
         {
             var file = ValueHelper.Unwrap(InterpretExpression(expression.FileExpression)) as string;
 
-            if (file == null)
+            if (_loader == null || file == null)
             {
                 throw new AphidRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
@@ -956,7 +962,7 @@ namespace Components.Aphid.Interpreter
         {
             var library = ValueHelper.Unwrap(InterpretExpression(expression.LibraryExpression)) as string;
 
-            if (library == null)
+            if (_loader == null || library == null)
             {
                 throw new AphidRuntimeException("Cannot load script {0}", expression.LibraryExpression);
             }

@@ -49,7 +49,6 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-
         public void LoadLibrary(Type libraryType, AphidObject scope)
         {
             var methods = libraryType
