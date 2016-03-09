@@ -1,7 +1,7 @@
 Write-Host "Creating archive"
 $mode = 'debug'
 $root = "..\$mode"
-$out = "..\Arch"
+$out = "..\Archive"
 $path = [IO.Path]::GetFullPath("$root\Aphid\Aphid.exe")
 $asm = [Reflection.Assembly]::LoadFile($path)
 $version = $asm.GetName().version

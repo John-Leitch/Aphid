@@ -2,7 +2,7 @@ set mode=debug
 set outPath=..\%mode%
 set nunit="c:\Program Files (x86)\NUnit.org\nunit-console\nunit3-console.exe"
 
-mkdir ..\Arch
+mkdir ..\Archive
 
 del ..\Aphid\bin\%mode%\* /s /q
 del ..\Coywolf\bin\%mode%\* /s /q
