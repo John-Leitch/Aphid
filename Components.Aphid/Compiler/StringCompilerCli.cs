@@ -22,18 +22,21 @@ namespace Components.Aphid.Compiler
 
         private string[] _args;
 
+        private bool _isText;
+
         public StringCompilerCli(
             string name,
             string targetName,
             string extension,
             AphidStringEmitter emitter,
-            string[] args)
+            bool isText)
         {
             _name = name;
             _targetName = targetName;
             _extension = extension;
             _emitter = emitter;
-            _args = args;
+            _isText = isText;
+            _args = Environment.GetCommandLineArgs().Skip(1).ToArray();
         }
 
         private Memoizer<string, string[]> _inputFileMemoizer = new Memoizer<string, string[]>();
@@ -53,7 +56,7 @@ namespace Components.Aphid.Compiler
                 WriteDirections();
                 Environment.Exit(1);
             }
-            else if (_args.Length > 1)
+            else if (_args.Length > 2)
             {
                 Cli.WriteLine("Invalid arguments.");
                 Environment.Exit(2);
@@ -68,6 +71,12 @@ namespace Components.Aphid.Compiler
                 Environment.Exit(3);
             }
 
+            if (_args.Length > 1 && !Directory.Exists(_args[1]))
+            {
+                Cli.WriteLine("Output directory does not exist.");
+                Environment.Exit(4);
+            }
+
             if (hasWildcard)
             {
                 var path = ParseWildcardPath(fullname);
@@ -75,13 +84,13 @@ namespace Components.Aphid.Compiler
                 if (!Directory.Exists(path[0]))
                 {
                     Cli.WriteCriticalErrorMessage("Could not find directory '~Yellow~{0}~R~'.", _args[0]);
-                    Environment.Exit(4);
+                    Environment.Exit(5);
                 }
 
                 if (!GetInputFiles(fullname).Any())
                 {
                     Cli.WriteCriticalErrorMessage("Could not find input files in directory '~Yellow~{0}~R~'.", _args[0]);
-                    Environment.Exit(5);
+                    Environment.Exit(6);
                 }
             }
         }
@@ -105,8 +114,8 @@ namespace Components.Aphid.Compiler
                 "Compiles an Aphid program (~Cyan~*.alx~R~) program into {0} (~Cyan~*.{1}~R~).\r\n",
                 _targetName,
                 _extension);
-
-            Cli.WriteLine("be ~|DarkGray~~White~script file~R~\r\n");
+            var asm = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
+            Cli.WriteLine("{0} ~|DarkGray~~White~script file~R~\r\n", asm);
             Cli.WriteLine("e.g. be ~Cyan~HelloWorld.alx~R~");
         }
 
@@ -136,23 +145,11 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        private string GetOutFilename()
-        {
-            switch (_args.Length)
-            {
-                case 1:
-                    return GetOutFilename(_args[0]);
-                case 2:
-                    return _args[1];
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-
         private string GetOutFilename(string filename)
         {
+            
             return Path.Combine(
-                Path.GetDirectoryName(filename),
+                _args.Length == 1 ? Path.GetDirectoryName(filename) : _args[1],
                 Path.GetFileNameWithoutExtension(filename) + "." + _extension);
         }
 
@@ -162,7 +159,7 @@ namespace Components.Aphid.Compiler
 
             try
             {
-                return AphidParser.Parse(code);
+                return AphidParser.Parse(code, isTextDocument: _isText);
             }
             catch (AphidParserException exception)
             {

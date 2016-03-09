@@ -20,8 +20,8 @@ namespace Boxelder
                 "Boxelder", 
                 "Python", 
                 "py", 
-                new AphidPythonEmitter(), 
-                args)
+                new AphidPythonEmitter(),
+                isText: false)
                 .Compile();
         }        
     }

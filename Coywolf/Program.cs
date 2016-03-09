@@ -15,11 +15,13 @@ namespace Coywolf
     {
         static void Main(string[] args)
         {
-            var code = File.ReadAllText("test.alx");
-            var ast = AphidParser.Parse(code, isTextDocument: true);
-            var emitter = new AphidPhpEmitter();
-            var str = emitter.Compile(ast);
-            File.WriteAllText(@"c:\xampp\htdocs\test.php", str);
+            new StringCompilerCli(
+                "Coywolf",
+                "PHP",
+                "php",
+                new AphidPhpEmitter(),
+                isText: true)
+                .Compile();
         }
     }
 }
