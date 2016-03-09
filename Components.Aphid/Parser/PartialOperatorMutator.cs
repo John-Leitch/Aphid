@@ -13,7 +13,7 @@ namespace Components.Aphid.Parser
 
         private IdentifierExpression GetNextId()
         {
-            return new IdentifierExpression(string.Format("$partial_op_{0}", _id++));
+            return new IdentifierExpression(string.Format("___p_op_{0}", _id++));
         }
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
