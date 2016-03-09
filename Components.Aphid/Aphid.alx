@@ -726,7 +726,8 @@ ParseFunctionExpression = @() {
         GreaterThanOperator,
         LessThanOrEqualOperator,
         GreaterThanOrEqualOperator,
-        PipelineOperator: {
+        PipelineOperator,
+        MemberOperator: {
             TakeToken(op);
             exp = PartialOperatorExpression(op, ParseQueryExpression());
         }

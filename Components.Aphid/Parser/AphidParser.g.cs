@@ -2941,7 +2941,7 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                if (((((((((((((((((((((_currentToken.TokenType == AphidTokenType.MinusOperator)
+                if ((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.MinusOperator)
                             || (_currentToken.TokenType == AphidTokenType.AdditionOperator))
                             || (_currentToken.TokenType == AphidTokenType.MultiplicationOperator))
                             || (_currentToken.TokenType == AphidTokenType.DivisionOperator))
@@ -2960,7 +2960,8 @@ namespace Components.Aphid.Parser
                             || (_currentToken.TokenType == AphidTokenType.GreaterThanOperator))
                             || (_currentToken.TokenType == AphidTokenType.LessThanOrEqualOperator))
                             || (_currentToken.TokenType == AphidTokenType.GreaterThanOrEqualOperator))
-                            || (_currentToken.TokenType == AphidTokenType.PipelineOperator)))
+                            || (_currentToken.TokenType == AphidTokenType.PipelineOperator))
+                            || (_currentToken.TokenType == AphidTokenType.MemberOperator)))
                 {
                     var op = _currentToken.TokenType;
                     NextToken();
