@@ -302,7 +302,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    FunctionExpression}.Concat(Args).ToArray();
+                    FunctionExpression}.Concat(AphidExpressionHelper.GetCollection(Args)).ToArray();
         }
     }
 
@@ -346,7 +346,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Condition}.Concat(Body).ToArray();
+                    Condition}.Concat(AphidExpressionHelper.GetCollection(Body)).ToArray();
         }
     }
 
@@ -479,7 +479,7 @@ namespace Components.Aphid.Parser
         {
             return new AphidExpression[] {
                     Collection,
-                    Element}.Concat(Body).ToArray();
+                    Element}.Concat(AphidExpressionHelper.GetCollection(Body)).ToArray();
         }
     }
 
@@ -547,7 +547,7 @@ namespace Components.Aphid.Parser
             return new AphidExpression[] {
                     Initialization,
                     Condition,
-                    Afterthought}.Concat(Body).ToArray();
+                    Afterthought}.Concat(AphidExpressionHelper.GetCollection(Body)).ToArray();
         }
     }
 
@@ -590,7 +590,7 @@ namespace Components.Aphid.Parser
 
         public IEnumerable<AphidExpression> GetChildren()
         {
-            return Args.OfType<AphidExpression>().Concat(Body).ToArray();
+            return Args.OfType<AphidExpression>().Concat(AphidExpressionHelper.GetCollection(Body)).ToArray();
         }
     }
 
@@ -760,7 +760,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Condition}.Concat(Body).OfType<AphidExpression>().Concat(ElseBody ?? new List<AphidExpression>()).ToArray();
+                    Condition}.Concat(AphidExpressionHelper.GetCollection(Body)).OfType<AphidExpression>().Concat(AphidExpressionHelper.GetCollection(ElseBody)).ToArray();
         }
     }
 
@@ -913,7 +913,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Identifier}.Concat(Pairs).ToArray();
+                    Identifier}.Concat(AphidExpressionHelper.GetCollection(Pairs)).ToArray();
         }
     }
 
@@ -1041,7 +1041,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Value}.Concat(Patterns).ToArray();
+                    Value}.Concat(AphidExpressionHelper.GetCollection(Patterns)).ToArray();
         }
     }
 
@@ -1085,7 +1085,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    TestExpression}.Concat(Patterns).ToArray();
+                    TestExpression}.Concat(AphidExpressionHelper.GetCollection(Patterns)).ToArray();
         }
     }
 
@@ -1210,7 +1210,7 @@ namespace Components.Aphid.Parser
 
         public IEnumerable<AphidExpression> GetChildren()
         {
-            return Cases.OfType<AphidExpression>().Concat(Body).ToArray();
+            return Cases.OfType<AphidExpression>().Concat(AphidExpressionHelper.GetCollection(Body)).ToArray();
         }
     }
 
@@ -1265,7 +1265,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Expression}.Concat(Cases).OfType<AphidExpression>().Concat(DefaultCase).ToArray();
+                    Expression}.Concat(AphidExpressionHelper.GetCollection(Cases)).OfType<AphidExpression>().Concat(AphidExpressionHelper.GetCollection(DefaultCase)).ToArray();
         }
     }
 
@@ -1442,7 +1442,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    CatchArg}.Concat(TryBody).OfType<AphidExpression>().Concat(CatchBody).OfType<AphidExpression>().Concat(FinallyBody).ToArray();
+                    CatchArg}.Concat(AphidExpressionHelper.GetCollection(TryBody)).OfType<AphidExpression>().Concat(AphidExpressionHelper.GetCollection(CatchBody)).OfType<AphidExpression>().Concat(AphidExpressionHelper.GetCollection(FinallyBody)).ToArray();
         }
     }
 
@@ -1486,7 +1486,23 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
-                    Condition}.Concat(Body).ToArray();
+                    Condition}.Concat(AphidExpressionHelper.GetCollection(Body)).ToArray();
+        }
+    }
+
+    public class AphidExpressionHelper
+    {
+
+        public static System.Collections.Generic.IEnumerable<AphidExpression> GetCollection(System.Collections.Generic.IEnumerable<AphidExpression> collection)
+        {
+            if ((collection == null))
+            {
+                return new AphidExpression[0];
+            }
+            else
+            {
+                return collection;
+            }
         }
     }
 
