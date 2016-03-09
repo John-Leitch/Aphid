@@ -38,9 +38,9 @@ namespace Components.Aphid.Parser
                         new UnaryOperatorExpression(
                             AphidTokenType.retKeyword,
                             new BinaryOperatorExpression(
-                                partialOpExp.Operand,
+                                id,
                                 partialOpExp.Operator,
-                                id))
+                                partialOpExp.Operand))
                     })
             };
         }
