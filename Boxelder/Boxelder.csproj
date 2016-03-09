@@ -46,7 +46,6 @@
     <Compile Include="FunctionDeclarationAttributes.cs" />
     <Compile Include="IdentifierStatementAttributes.cs" />
     <Compile Include="LambdaPositionMutator.cs" />
-    <Compile Include="Memoizer.cs" />
     <Compile Include="ObjectStatementAttributes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
