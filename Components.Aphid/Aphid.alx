@@ -176,10 +176,11 @@ ParseAssignmentExpression = ParseBinOpExp(
 
 ParsePipelineExpression = @() {
     operand ParseQueryExpression;
-
+    inPipeline = false;
     while (true) {
         switch (TokenType) {
             PipelineOperator: {
+                inPipeline = true;
                 TakeToken(op);
                 operand = BinaryOperatorExpression(
                     operand, 
@@ -187,13 +188,24 @@ ParsePipelineExpression = @() {
                     ParseQueryExpression());
             }
 
-            functionOperator:
+            functionOperator: {
+                inPipeline = true;
                 operand = BinaryOperatorExpression(
                     operand, 
                     PipelineOperator, 
                     ParseFunctionExpression());
+            }
 
-            default: break;
+            default: {
+                if (inPipeline && Identifier) {
+                    operand = BinaryOperatorExpression(
+                        operand,
+                        PipelineOperator,
+                        ParseExpression());
+                } else {
+                    break;
+                }
+            }
         }        
     }
 

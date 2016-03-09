@@ -1931,12 +1931,14 @@ namespace Components.Aphid.Parser
                 operand.Index = index0015;
                 operand.Length = (_currentToken.Index - index0015);
             }
+            var inPipeline = false;
             for (
             ; true;
             )
             {
                 if ((_currentToken.TokenType == AphidTokenType.PipelineOperator))
                 {
+                    inPipeline = true;
                     var op = _currentToken.TokenType;
                     NextToken();
                     operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseQueryExpression());
@@ -1945,11 +1947,20 @@ namespace Components.Aphid.Parser
                 {
                     if ((_currentToken.TokenType == AphidTokenType.functionOperator))
                     {
+                        inPipeline = true;
                         operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseFunctionExpression());
                     }
                     else
                     {
-                        break;
+                        if ((inPipeline
+                                    && (_currentToken.TokenType == AphidTokenType.Identifier)))
+                        {
+                            operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseExpression());
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
