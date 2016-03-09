@@ -62,7 +62,7 @@ if (!function_exists('__add')) {
 
         protected override void EmitHeader()
         {
-            Append(_header.Replace("{", "{{").Replace("}", "}}"));
+            Append(_header);
 
             base.EmitHeader();
         }
