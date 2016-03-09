@@ -315,7 +315,7 @@ namespace Boxelder
                 throw new NotImplementedException();
             }
 
-            Append("{{");
+            Append("{");
             var isFirst = true;
 
             foreach (var kvp in expression.Pairs)
@@ -337,7 +337,7 @@ namespace Boxelder
                 Emit(kvp.RightOperand);
             }
 
-            Append("}}");
+            Append("}");
         }
 
         protected void EmitObjectStatement(ObjectExpression statement)
