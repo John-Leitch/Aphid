@@ -36,6 +36,7 @@ namespace Boxelder
                 new IncludeMutator(),
                 new AphidMacroMutator(),
                 new PipelineToCallMutator(),
+                new PartialOperatorMutator(),
                 new UnaryExpressionMutator(),
                 new LambdaPositionMutator(),
             };
