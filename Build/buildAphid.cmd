@@ -1,6 +1,8 @@
 set mode=debug
 set outPath=..\%mode%
 
+mkdir ..\Arch
+
 del ..\Aphid\bin\%mode%\* /s /q
 del ..\Coywolf\bin\%mode%\* /s /q
 del ..\Boxelder\bin\%mode%\* /s /q
@@ -44,3 +46,5 @@ copy ..\Components.Aphid\Aphid.alx %outPath%\Mantispid
 copy ..\Components.Aphid\Aphid.Lexer.alx %outPath%\Mantispid
 copy ..\Components.Aphid\Aphid.Lexer.Code.alx %outPath%\Mantispid
 copy ..\Components.Aphid\Aphid.Lexer.Tmpl.alx %outPath%\Mantispid
+
+powershell .\package.ps1
