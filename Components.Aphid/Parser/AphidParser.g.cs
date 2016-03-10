@@ -3543,6 +3543,10 @@ namespace Components.Aphid.Lexer
                                         mode = 1;
                                         return AphidTokenType.GatorCloseOperator;
 
+                                    case '%':
+
+                                        return AphidTokenType.InteropOperator;
+
                                     case '=':
 
                                         return AphidTokenType.ModulusEqualOperator;
@@ -3579,20 +3583,7 @@ namespace Components.Aphid.Lexer
                             return AphidTokenType.ColonOperator;
 
                         case '@':
-                            if (charIndex < lastIndex)
-                            {
-                                currentChar = text[++charIndex];
 
-                                switch (currentChar)
-                                {
-                                    case '@':
-
-                                        return AphidTokenType.InteropOperator;
-
-                                }
-
-                                charIndex--;
-                            }
                             return AphidTokenType.functionOperator;
 
                         case '?':

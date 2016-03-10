@@ -1,5 +1,6 @@
 ﻿using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
+using Components.Aphid.Parser.Fluent;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,7 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidInterpreter
     {
-        private const string _return = "$r";
+        private const string _return = "$r", _imports = "$imports";
 
         private bool _isReturning = false;
 
@@ -83,6 +84,28 @@ namespace Components.Aphid.Interpreter
         private AphidRuntimeException CreateUnaryOperatorException(UnaryOperatorExpression expression)
         {
             return new AphidRuntimeException("Unknown operator {0} in expression {1}.", expression.Operator, expression);
+        }
+
+        public List<string> GetImports()
+        {
+            AphidObject imports = null;
+
+            if (_currentScope.TryResolve(_imports, out imports))
+            {
+                return (List<string>)imports.Value;
+            }
+            else
+            {
+                var list = new List<string>();
+                _currentScope.Add(_imports, new AphidObject(list));
+                
+                return list;
+            }
+        }
+
+        public void AddImport(string name)
+        {
+            GetImports().Add(name);
         }
 
         public AphidObject GetReturnValue()
@@ -673,6 +696,28 @@ namespace Components.Aphid.Interpreter
             throw new AphidRuntimeException("Object is not function: {0}", function);
         }
 
+        private string GetInteropAttribute(AphidExpression expression)
+        {
+            switch (expression.Type)
+            {
+                case AphidExpressionType.IdentifierExpression:
+                    var attr = expression.ToIdentifier().Attributes.SingleOrDefault();
+                
+                    return attr != null ? attr.Identifier : null;
+
+                case AphidExpressionType.BinaryOperatorExpression:
+                    return GetInteropAttribute(
+                        expression.ToBinaryOperator().LeftOperand);
+
+                case AphidExpressionType.CallExpression:
+                    return GetInteropAttribute(
+                        expression.ToCall().FunctionExpression);
+
+                default:
+                    return null;
+            }
+        }
+
         public AphidObject CallStaticInteropFunction(CallExpression callExpression)
         {
             var pathExps = Flatten(callExpression.FunctionExpression);
@@ -687,11 +732,7 @@ namespace Components.Aphid.Interpreter
                 .ToArray();
 
             var pathStr = string.Join(".", path);
-
-            var args = callExpression.Args
-                .Select(InterpretExpression)
-                .Select(ValueHelper.Unwrap)
-                .ToArray();
+            var imports = GetImports();
 
             var type = path
                 .Take(path.Length - 1)
@@ -700,6 +741,14 @@ namespace Components.Aphid.Interpreter
                     Count = i + 1,
                     Path = string.Join(".", path.Take(i + 1))
                 })
+                .SelectMany(x => 
+                    new [] { "" }
+                        .Concat(imports)
+                        .Select(y => new
+                        {
+                            x.Count,
+                            Path = y.Any() ? y + "." + x.Path : x.Path,
+                        }))
                 .Select(x => new
                 {
                     PartCount = x.Count,
@@ -722,12 +771,12 @@ namespace Components.Aphid.Interpreter
             }
 
             var methodName = path.Last();
-            
+
             var methods = type.Type
                 .GetMethods()
                 .Where(x => 
                     x.Name == methodName &&
-                    x.GetParameters().Length == args.Length)
+                    x.GetParameters().Length == callExpression.Args.Count)
                 .ToArray();
 
             if (methods.Length != 1)
@@ -736,6 +785,11 @@ namespace Components.Aphid.Interpreter
                     "More than one method matched interop call '{0}'",
                     pathStr);
             }
+
+            var args = callExpression.Args
+                .Select(InterpretExpression)
+                .Select(ValueHelper.Unwrap)
+                .ToArray();
 
             return ValueHelper.Wrap(methods.Single().Invoke(null, args));
         }
@@ -895,15 +949,39 @@ namespace Components.Aphid.Interpreter
                         return new AphidObject(list.Distinct(_comparer).ToList());
 
                     case AphidTokenType.InteropOperator:
+                        var attr = GetInteropAttribute(expression.Operand);
 
-                        switch (expression.Operand.Type)
+                        switch (attr)
                         {
-                            case AphidExpressionType.CallExpression:
-                                var callExp = (CallExpression)expression.Operand;
-                                return CallStaticInteropFunction(callExp);
+                            case "import":
+                                var path = Flatten(expression.Operand);
+                                
+                                if (!path.All(x => x.Type == AphidExpressionType.IdentifierExpression))
+                                {
+                                    throw new AphidRuntimeException(
+                                        "Invalid import '{0}'",
+                                        path);
+                                }
+
+                                var pathStr = string.Join(
+                                    ".",
+                                    path.Select(x => x.ToIdentifier().Identifier));
+
+                                AddImport(pathStr);
+
+                                return null;                      
 
                             default:
-                                throw new NotImplementedException();
+                                switch (expression.Operand.Type)
+                                {
+                                    case AphidExpressionType.CallExpression:
+                                        var callExp = (CallExpression)expression.Operand;
+                                        return CallStaticInteropFunction(callExp);
+
+                                    default:
+                                        throw new NotImplementedException();
+                                }
+
                         }
 
                     default:
