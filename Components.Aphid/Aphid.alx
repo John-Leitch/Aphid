@@ -298,7 +298,8 @@ ParsePrefixUnaryOperatorExpression = @() {
         IncrementOperator,
         DecrementOperator,
         MultiplicationOperator,
-        ComplementOperator: {
+        ComplementOperator,
+        InteropOperator: {
             TakeToken(t);
                         
             ret UnaryOperatorExpression(t, ParseArrayAccessExpression());

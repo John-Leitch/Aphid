@@ -2271,13 +2271,14 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParsePrefixUnaryOperatorExpression()
         {
-            if ((((((((_currentToken.TokenType == AphidTokenType.AdditionOperator)
+            if (((((((((_currentToken.TokenType == AphidTokenType.AdditionOperator)
                         || (_currentToken.TokenType == AphidTokenType.MinusOperator))
                         || (_currentToken.TokenType == AphidTokenType.NotOperator))
                         || (_currentToken.TokenType == AphidTokenType.IncrementOperator))
                         || (_currentToken.TokenType == AphidTokenType.DecrementOperator))
                         || (_currentToken.TokenType == AphidTokenType.MultiplicationOperator))
-                        || (_currentToken.TokenType == AphidTokenType.ComplementOperator)))
+                        || (_currentToken.TokenType == AphidTokenType.ComplementOperator))
+                        || (_currentToken.TokenType == AphidTokenType.InteropOperator)))
             {
                 var t = _currentToken.TokenType;
                 NextToken();
@@ -3381,6 +3382,7 @@ namespace Components.Aphid.Lexer
         ifKeyword,
         IncrementOperator,
         inKeyword,
+        InteropOperator,
         LeftBrace,
         LeftBracket,
         LeftParenthesis,
@@ -3577,7 +3579,20 @@ namespace Components.Aphid.Lexer
                             return AphidTokenType.ColonOperator;
 
                         case '@':
+                            if (charIndex < lastIndex)
+                            {
+                                currentChar = text[++charIndex];
 
+                                switch (currentChar)
+                                {
+                                    case '@':
+
+                                        return AphidTokenType.InteropOperator;
+
+                                }
+
+                                charIndex--;
+                            }
                             return AphidTokenType.functionOperator;
 
                         case '?':

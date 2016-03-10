@@ -673,6 +673,93 @@ namespace Components.Aphid.Interpreter
             throw new AphidRuntimeException("Object is not function: {0}", function);
         }
 
+        public AphidObject CallStaticInteropFunction(CallExpression callExpression)
+        {
+            var pathExps = Flatten(callExpression.FunctionExpression);
+
+            if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
+            {
+                throw new AphidRuntimeException("Invalid static interop call path.");
+            }
+
+            var path = pathExps
+                .Select(x => ((IdentifierExpression)x).Identifier)
+                .ToArray();
+
+            var pathStr = string.Join(".", path);
+
+            var args = callExpression.Args
+                .Select(InterpretExpression)
+                .Select(ValueHelper.Unwrap)
+                .ToArray();
+
+            var type = path
+                .Take(path.Length - 1)
+                .Select((x, i) => new
+                {
+                    Count = i + 1,
+                    Path = string.Join(".", path.Take(i + 1))
+                })
+                .Select(x => new
+                {
+                    PartCount = x.Count,
+                    Type = Type.GetType(x.Path),
+                })
+                .SingleOrDefault(x => x.Type != null);
+
+            if (type == null)
+            {
+                throw new AphidRuntimeException(
+                    "Could not find type for interop call '{0}'",
+                    pathStr);
+            }
+
+            if (type.PartCount != path.Length - 1)
+            {
+                throw new AphidRuntimeException(
+                    "Could not find method for interop call '{0}'",
+                    pathStr);
+            }
+
+            var methodName = path.Last();
+            
+            var methods = type.Type
+                .GetMethods()
+                .Where(x => 
+                    x.Name == methodName &&
+                    x.GetParameters().Length == args.Length)
+                .ToArray();
+
+            if (methods.Length != 1)
+            {
+                throw new AphidRuntimeException(
+                    "More than one method matched interop call '{0}'",
+                    pathStr);
+            }
+
+            return ValueHelper.Wrap(methods.Single().Invoke(null, args));
+        }
+
+        private AphidExpression[] Flatten(AphidExpression exp)
+        {
+            var expressions = new List<AphidExpression>();
+
+            switch (exp.Type)
+            {
+                case AphidExpressionType.BinaryOperatorExpression:
+                    var binOpExp = (BinaryOperatorExpression)exp;
+                    expressions.AddRange(Flatten(binOpExp.LeftOperand));
+                    expressions.AddRange(Flatten(binOpExp.RightOperand));
+                    break;
+
+                default:
+                    expressions.Add(exp);
+                    break;
+            }
+
+            return expressions.ToArray();
+        }
+
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
             var name = expression.FunctionExpression.Type == AphidExpressionType.IdentifierExpression ?
@@ -806,6 +893,18 @@ namespace Components.Aphid.Interpreter
                         }
 
                         return new AphidObject(list.Distinct(_comparer).ToList());
+
+                    case AphidTokenType.InteropOperator:
+
+                        switch (expression.Operand.Type)
+                        {
+                            case AphidExpressionType.CallExpression:
+                                var callExp = (CallExpression)expression.Operand;
+                                return CallStaticInteropFunction(callExp);
+
+                            default:
+                                throw new NotImplementedException();
+                        }
 
                     default:
                         throw CreateUnaryOperatorException(expression);
