@@ -23,7 +23,7 @@ namespace Components.Aphid.Interpreter
                 args);
         }
 
-        public static AphidInteropMethodInfo Resolve(IEnumerable<MethodInfo> nameMatches, object[] args)
+        public static AphidInteropMethodInfo Resolve(IEnumerable<MethodBase> nameMatches, object[] args)
         {
             var methods = nameMatches
                 .Where(x => x.GetParameters().Length == args.Length)

@@ -796,13 +796,14 @@ namespace Components.Aphid.Interpreter
             return null;
         }
 
-        private Type GetInteropType(string[] path)
+        private Type GetInteropType(string[] path, bool isType = false)
         {
             var pathStr = string.Join(".", path);
             var imports = GetImports();
+            var offset = !isType ? 1 : 0;
 
             var type = path
-                .Take(path.Length - 1)
+                .Take(path.Length - offset)
                 .Select((x, i) => new
                 {
                     Count = i + 1,
@@ -830,7 +831,7 @@ namespace Components.Aphid.Interpreter
                     pathStr);
             }
 
-            if (type.PartCount != path.Length - 1)
+            if (type.PartCount != path.Length - offset)
             {
                 throw new AphidRuntimeException(
                     "Could not find method for interop call '{0}'",
@@ -869,10 +870,7 @@ namespace Components.Aphid.Interpreter
                 .ToArray();
 
             var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
-
-            var convertedArgs = methodInfo.Arguments
-                .Select(x => AphidTypeConverter.Convert(x.TargetType, x.Argument))
-                .ToArray();
+            var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
 
             return ValueHelper.Wrap(methodInfo.Method.Invoke(null, convertedArgs));
         }
@@ -1000,12 +998,9 @@ namespace Components.Aphid.Interpreter
 
             var method = !methodInfo.Method.IsGenericMethod ?
                 methodInfo.Method :
-                methodInfo.Method.MakeGenericMethod(methodInfo.GenericArguments);
+                ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
 
-            var convertedArgs = methodInfo.Arguments
-                .Select(x => AphidTypeConverter.Convert(x.TargetType, x.Argument))
-                .ToArray();
-
+            var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
             var retVal = method.Invoke(interopMembers.Target, convertedArgs);
 
             return ValueHelper.Wrap(retVal);
@@ -1020,6 +1015,31 @@ namespace Components.Aphid.Interpreter
             else
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        private AphidObject InterpretInteropNewExpression(AphidExpression operand)
+        {
+            switch (operand.Type)
+            {
+                case AphidExpressionType.CallExpression:
+                    var call = operand.ToCall();
+                    
+                    var args = call.Args
+                        .Select(InterpretExpression)
+                        .Select(ValueHelper.Unwrap)
+                        .ToArray();
+
+                    var path = FlattenPath(call.FunctionExpression);
+                    var type = GetInteropType(path, isType: true);
+                    var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
+                    var convertedArgs = AphidTypeConverter.Convert(ctor.Arguments);
+                    var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
+                    
+                    return ValueHelper.Wrap(result);
+
+                default:
+                    throw new NotImplementedException();
             }
         }
 
@@ -1112,6 +1132,9 @@ namespace Components.Aphid.Interpreter
                                 path = FlattenAndJoinPath(expression.Operand);
 
                                 return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
+
+                            case "new":
+                                return InterpretInteropNewExpression(expression.Operand);
 
                             case null:
                                 switch (expression.Operand.Type)

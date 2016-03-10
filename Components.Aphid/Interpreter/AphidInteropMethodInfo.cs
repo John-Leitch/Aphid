@@ -9,14 +9,14 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidInteropMethodInfo
     {
-        public MethodInfo Method { get; private set; }
+        public MethodBase Method { get; private set; }
 
         public Type[] GenericArguments { get; private set; }
 
         public AphidInteropMethodArg[] Arguments { get; private set; }        
 
         public AphidInteropMethodInfo(
-            MethodInfo method, 
+            MethodBase method, 
             Type[] genericArguments,
             AphidInteropMethodArg[] arguments)
         {

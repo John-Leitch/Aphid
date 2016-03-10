@@ -35,6 +35,16 @@ namespace Components.Aphid.Interpreter
             typeof(double)
         };
 
+        public static object[] Convert(AphidInteropMethodArg[] args)
+        {
+            return args.Select(Convert).ToArray();
+        }
+
+        public static object Convert(AphidInteropMethodArg arg)
+        {
+            return Convert(arg.TargetType, arg.Argument);
+        }
+
         public static AphidConversionInfo CanConvert(object value, Type targetType)
         {
             var t = value.GetType();
