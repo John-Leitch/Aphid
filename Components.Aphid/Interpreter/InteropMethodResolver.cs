@@ -53,12 +53,12 @@ namespace Components.Aphid.Interpreter
                     x.Args))
                 .ToArray();
 
-            if (methods.Length != 1)
+            if (!methods.Any())
             {
                 throw new AphidRuntimeException("Could not resolve interop method.");
             }
 
-            return methods.Single();
+            return methods.First();
         }
     }
 }

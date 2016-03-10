@@ -254,15 +254,29 @@ namespace Components.Aphid.Interpreter
 
                 if (propInfo != null)
                 {
-                    return ValueHelper.Wrap(propInfo.GetValue(lhs));
+                    
+                    return ValueHelper.Wrap(
+                        !returnRef ? 
+                            propInfo.GetValue(lhs) :
+                            new AphidInteropReference(lhs, propInfo));
                 }
 
                 var fieldInfo = members.First() as FieldInfo;
 
                 if (fieldInfo != null)
                 {
-                    return ValueHelper.Wrap(fieldInfo.GetValue(lhs));
-                }
+                    return ValueHelper.Wrap(
+                        !returnRef ? 
+                        fieldInfo.GetValue(lhs) :
+                        new AphidInteropReference(lhs, fieldInfo));
+                }                
+            }
+
+            if (!members.Any())
+            {
+                throw new AphidRuntimeException(
+                    "Could not find property '{0}'",
+                    expression.RightOperand.ToIdentifier().ToIdentifier());
             }
 
             return ValueHelper.Wrap(new AphidInteropMembers(lhs, members));
@@ -405,7 +419,27 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var objRef = InterpretBinaryOperatorExpression(expression.LeftOperand as BinaryOperatorExpression, true) as AphidRef;
+                var obj = InterpretBinaryOperatorExpression(expression.LeftOperand as BinaryOperatorExpression, true);
+
+                var interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
+
+                if (interopRef != null)
+                {
+                    var v = ValueHelper.Unwrap(value);
+
+                    if (interopRef.Field != null)
+                    {
+                        interopRef.Field.SetValue(interopRef.Object, v);
+                    }
+                    else
+                    {
+                        interopRef.Property.SetValue(interopRef.Object, v);
+                    }
+
+                    return value;
+                }
+
+                var objRef = obj as AphidRef;
 
                 if (objRef.Object == null)
                 {
@@ -870,9 +904,14 @@ namespace Components.Aphid.Interpreter
                 .ToArray();
 
             var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
+            
+            var method = !methodInfo.GenericArguments.Any() ?
+                methodInfo.Method :
+                ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
+
             var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
 
-            return ValueHelper.Wrap(methodInfo.Method.Invoke(null, convertedArgs));
+            return ValueHelper.Wrap(method.Invoke(null, convertedArgs));
         }
 
         private string FlattenAndJoinPath(AphidExpression exp)

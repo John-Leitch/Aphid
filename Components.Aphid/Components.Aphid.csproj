@@ -67,6 +67,7 @@
     <Compile Include="Interpreter\AphidInteropMembers.cs" />
     <Compile Include="Interpreter\AphidInteropMethodArg.cs" />
     <Compile Include="Interpreter\AphidInteropMethodInfo.cs" />
+    <Compile Include="Interpreter\AphidInteropReference.cs" />
     <Compile Include="Interpreter\AphidObjectEqualityComparer.cs" />
     <Compile Include="Interpreter\AphidOperationException.cs" />
     <Compile Include="Interpreter\AphidPropertyAttribute.cs" />

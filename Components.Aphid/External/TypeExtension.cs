@@ -36,7 +36,7 @@ namespace Components
                 type.GetGenericArguments().All(x => x.IsGenericParameter);
         }
 
-        private static Type[] GetComparableType(Type type, Type otherType, out Type[] genericArguments)
+        private static Type[] GetComparableType(Type type, Type otherType, List<Type> genericArguments)
         {
             var deconstruct = 
                 type.IsConstructedGenericType &&
@@ -45,26 +45,34 @@ namespace Components
 
             if (!deconstruct)
             {
-                genericArguments = null;
-
                 return new[] { type, otherType };
             }
             else
             {
-                genericArguments = type.GetGenericArguments();
+                genericArguments.AddRange(type.GetGenericArguments().Where(x => !x.IsGenericParameter));
 
-                return new[] { type.GetGenericTypeDefinition(), otherType.GetGenericTypeDefinition() };
+                return new[] { StripGenericArguments(type), StripGenericArguments(otherType) };
             }
         }
 
-        public static bool Implements(this Type type, Type interfaceType, out Type[] genericArguments)
+        private static Type StripGenericArguments(Type type)
+        {
+            while (type.IsConstructedGenericType && type.GetGenericArguments().Any())
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+
+            return type;
+        }
+
+        public static bool Implements(this Type type, Type interfaceType, List<Type> genericArguments)
         {
             if (!interfaceType.IsInterface)
             {
                 throw new ArgumentException("interfaceType is not an interface.");
             }
 
-            var c = GetComparableType(type, interfaceType, out genericArguments);
+            var c = GetComparableType(type, interfaceType, genericArguments);
 
             type = c[0];
             interfaceType = c[1];
@@ -86,7 +94,7 @@ namespace Components
                 }
                 else
                 {
-                    if (parentInterface.Implements(interfaceType, out genericArguments))
+                    if (parentInterface.Implements(interfaceType, genericArguments))
                     {
                         return true;
                     }
@@ -96,16 +104,14 @@ namespace Components
             return false;
         }
 
-        public static bool IsDerivedFromOrImplements(this Type type, Type baseType, out Type[] genericArguments)
+        public static bool IsDerivedFromOrImplements(this Type type, Type baseType, List<Type> genericArguments)
         {
-            genericArguments = null;
-
-            return baseType.IsInterface ? type.Implements(baseType, out genericArguments) : type.IsDerivedFrom(baseType);
+            return baseType.IsInterface ? type.Implements(baseType, genericArguments) : type.IsDerivedFrom(baseType);
         }
 
-        public static bool IsDerivedFromOrImplements<TBaseType>(this Type type, out Type[] genericArguments)
+        public static bool IsDerivedFromOrImplements<TBaseType>(this Type type, List<Type> genericArguments)
         {
-            return type.IsDerivedFromOrImplements(typeof(TBaseType), out genericArguments);
+            return type.IsDerivedFromOrImplements(typeof(TBaseType), genericArguments);
         }
     }
 }

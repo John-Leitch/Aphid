@@ -48,15 +48,15 @@ namespace Components.Aphid.Interpreter
         public static AphidConversionInfo CanConvert(object value, Type targetType)
         {
             var t = value.GetType();
-            Type[] genericArguments = null;
+            var genericArguments = new List<Type>();
 
             var canConvert =
                 t == targetType ? true :
                 value is decimal ? CanConvertDecimal(targetType) :
-                t.IsDerivedFromOrImplements(targetType, out genericArguments) ? true :
+                t.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
                 false;
 
-            return new AphidConversionInfo(canConvert, genericArguments);
+            return new AphidConversionInfo(canConvert, genericArguments.ToArray());
                 
         }
 
@@ -69,10 +69,8 @@ namespace Components.Aphid.Interpreter
         {
             var t = value.GetType();
 
-            Type[] genericArgs;
-
             if (t == targetType ||
-                t.IsDerivedFromOrImplements(targetType, out genericArgs))
+                t.IsDerivedFromOrImplements(targetType, new List<Type>()))
             {
                 return value;
             }
