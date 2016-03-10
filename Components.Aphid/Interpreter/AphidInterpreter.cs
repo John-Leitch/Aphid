@@ -239,9 +239,72 @@ namespace Components.Aphid.Interpreter
             return new AphidObject(val);
         }
 
+        private AphidObject InterpretMemberInteropExpression(object lhs, BinaryOperatorExpression expression, bool returnRef = false)
+        {
+            if (expression.RightOperand.Type != AphidExpressionType.IdentifierExpression)
+            {
+                throw new AphidRuntimeException("Invalid member interop access.");
+            }
+
+            var members = GetMembers(lhs, expression);
+
+            if (members.Length == 1)
+            {
+                var propInfo = members.First() as PropertyInfo;
+
+                if (propInfo != null)
+                {
+                    return ValueHelper.Wrap(propInfo.GetValue(lhs));
+                }
+
+                var fieldInfo = members.First() as FieldInfo;
+
+                if (fieldInfo != null)
+                {
+                    return ValueHelper.Wrap(fieldInfo.GetValue(lhs));
+                }
+            }
+
+            return ValueHelper.Wrap(new AphidInteropMembers(lhs, members));
+        }
+
+        private MemberInfo[] GetMembers(object target, BinaryOperatorExpression expression)
+        {
+            MemberInfo[] members;
+
+            if (target != null)
+            {
+                var memberName = expression.RightOperand.ToIdentifier().Identifier;
+
+                members = target
+                    .GetType()
+                    .GetMembers()
+                    .Where(x => x.Name == memberName)
+                    .ToArray();
+            }
+            else
+            {
+                var path = FlattenPath(expression);
+                var type = GetInteropType(path);
+                var member = path.Last();
+
+                members = type
+                    .GetMembers(BindingFlags.Static | BindingFlags.Public)
+                    .Where(x => x.Name == member)
+                    .ToArray();
+            }
+
+            return members;
+        }
+
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
+
+            if (!obj.IsAphidType())
+            {
+                return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
+            }
 
             string key;
 
@@ -718,19 +781,8 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public AphidObject CallStaticInteropFunction(CallExpression callExpression)
+        private Type GetInteropType(string[] path)
         {
-            var pathExps = Flatten(callExpression.FunctionExpression);
-
-            if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
-            {
-                throw new AphidRuntimeException("Invalid static interop call path.");
-            }
-
-            var path = pathExps
-                .Select(x => ((IdentifierExpression)x).Identifier)
-                .ToArray();
-
             var pathStr = string.Join(".", path);
             var imports = GetImports();
 
@@ -741,8 +793,8 @@ namespace Components.Aphid.Interpreter
                     Count = i + 1,
                     Path = string.Join(".", path.Take(i + 1))
                 })
-                .SelectMany(x => 
-                    new [] { "" }
+                .SelectMany(x =>
+                    new[] { "" }
                         .Concat(imports)
                         .Select(y => new
                         {
@@ -770,9 +822,19 @@ namespace Components.Aphid.Interpreter
                     pathStr);
             }
 
+            return type.Type;
+        }
+
+        public AphidObject CallStaticInteropFunction(CallExpression callExpression)
+        {
+            var path = FlattenPath(callExpression.FunctionExpression);
+            var pathStr = string.Join(".", path);
+            var imports = GetImports();
+
+            var type = GetInteropType(path);
             var methodName = path.Last();
 
-            var methods = type.Type
+            var methods = type
                 .GetMethods()
                 .Where(x => 
                     x.Name == methodName &&
@@ -792,6 +854,22 @@ namespace Components.Aphid.Interpreter
                 .ToArray();
 
             return ValueHelper.Wrap(methods.Single().Invoke(null, args));
+        }
+
+        private string[] FlattenPath(AphidExpression exp)
+        {
+            var pathExps = Flatten(exp);
+
+            if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
+            {
+                throw new AphidRuntimeException("Invalid static interop call path.");
+            }
+
+            var path = pathExps
+                .Select(x => ((IdentifierExpression)x).Identifier)
+                .ToArray();
+
+            return path;
         }
 
         private AphidExpression[] Flatten(AphidExpression exp)
@@ -827,6 +905,13 @@ namespace Components.Aphid.Interpreter
 
             if (func == null)
             {
+                var interopMembers = funcExp as AphidInteropMembers;
+
+                if (interopMembers != null)
+                {
+                    return InterpretInteropCallExpression(expression, interopMembers);
+                }
+
                 var func2 = funcExp as AphidFunction;
 
                 if (func2 == null)
@@ -871,6 +956,36 @@ namespace Components.Aphid.Interpreter
                 var retVal = ValueHelper.Wrap(func.Invoke(this, args));;
                 _frames.Pop();
                 return retVal;
+            }
+        }
+
+        private AphidObject InterpretInteropCallExpression(
+            CallExpression expression,
+            AphidInteropMembers interopMembers)
+        {
+            var args = expression
+                .Args.Select(InterpretExpression)
+                .Select(ValueHelper.Unwrap)
+                .ToArray();
+
+            var method = interopMembers.Members
+                .OfType<MethodInfo>()
+                .SingleOrDefault(x => x.GetParameters().Length == args.Length);
+
+            var retVal = method.Invoke(interopMembers.Target, args);
+
+            return ValueHelper.Wrap(retVal);
+        }
+
+        private AphidObject WrapInteropValue(object value)
+        {
+            if (AphidObject.IsAphidType(value))
+            {
+                return ValueHelper.Wrap(value);
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -954,18 +1069,8 @@ namespace Components.Aphid.Interpreter
                         switch (attr)
                         {
                             case "import":
-                                var path = Flatten(expression.Operand);
-                                
-                                if (!path.All(x => x.Type == AphidExpressionType.IdentifierExpression))
-                                {
-                                    throw new AphidRuntimeException(
-                                        "Invalid import '{0}'",
-                                        path);
-                                }
-
-                                var pathStr = string.Join(
-                                    ".",
-                                    path.Select(x => x.ToIdentifier().Identifier));
+                                var path = FlattenPath(expression.Operand);
+                                var pathStr = string.Join(".", path);
 
                                 AddImport(pathStr);
 
@@ -978,8 +1083,14 @@ namespace Components.Aphid.Interpreter
                                         var callExp = (CallExpression)expression.Operand;
                                         return CallStaticInteropFunction(callExp);
 
+                                    case AphidExpressionType.BinaryOperatorExpression:
+                                        return InterpretMemberInteropExpression(
+                                            null, 
+                                            expression.Operand.ToBinaryOperator());
+
                                     default:
                                         throw new NotImplementedException();
+                                        
                                 }
 
                         }

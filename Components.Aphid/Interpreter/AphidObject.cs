@@ -296,5 +296,23 @@ namespace Components.Aphid.Interpreter
                 return false;
             }
         }
+
+        public bool IsAphidType()
+        {
+            return IsAphidType(this.Value);
+        }
+
+        public static bool IsAphidType(object obj)
+        {
+            return
+                obj == null ||
+                obj is string ||
+                obj is decimal ||
+                obj is bool ||
+                obj is List<AphidObject> ||
+                obj is AphidObject ||
+                obj is AphidFunction ||
+                obj is AphidInteropFunction;
+        }
     }
 }

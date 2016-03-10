@@ -41,6 +41,8 @@ namespace Components.Aphid.Parser
 
             { AphidTokenType.MemberOperator, "." },
             { AphidTokenType.ColonOperator, ":" },
+
+            { AphidTokenType.PipelineOperator, "|>" },
         };
 
         public override string ToString()
