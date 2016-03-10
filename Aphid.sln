@@ -66,7 +66,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coywolf", "Coywolf\Coywolf.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{8AC2589A-B3C8-461B-8A4E-678A0102942F}"
 	ProjectSection(SolutionItems) = preProject
-		Build\buildAphid.cmd = Build\buildAphid.cmd
+		Build\make.cmd = Build\make.cmd
+		Build\package.alx = Build\package.alx
 	EndProjectSection
 EndProject
 Global

@@ -52,4 +52,4 @@ call xbuild ..\Components.Aphid.Tests.Integration\Components.Aphid.Tests.Integra
 set testAsm=..\Components.Aphid.Tests.Integration\bin\%mode%\Components.Aphid.Tests.Integration.dll
 %nunit% %testAsm% --full --work=%outPath% --out=%outPath%\TestResults.txt --err=%outPath%\TestErrors.txt
 
-powershell .\package.ps1
+%outPath%\Aphid\Aphid.exe .\package.alx
