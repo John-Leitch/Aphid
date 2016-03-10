@@ -62,8 +62,11 @@
     <Compile Include="External\ConsolePlus\CliProgressBar.cs" />
     <Compile Include="External\ConsolePlus\DumpMode.cs" />
     <Compile Include="External\Memoizer.cs" />
+    <Compile Include="External\TypeExtension.cs" />
     <Compile Include="Interpreter\AphidFrame.cs" />
     <Compile Include="Interpreter\AphidInteropMembers.cs" />
+    <Compile Include="Interpreter\AphidInteropMethodArg.cs" />
+    <Compile Include="Interpreter\AphidInteropMethodInfo.cs" />
     <Compile Include="Interpreter\AphidObjectEqualityComparer.cs" />
     <Compile Include="Interpreter\AphidOperationException.cs" />
     <Compile Include="Interpreter\AphidPropertyAttribute.cs" />
@@ -73,7 +76,9 @@
     <Compile Include="Interpreter\AphidRuntimeException.cs" />
     <Compile Include="Interpreter\AphidScriptOptimizer.cs" />
     <Compile Include="Interpreter\AphidType.cs" />
+    <Compile Include="Interpreter\AphidTypeConverter.cs" />
     <Compile Include="Interpreter\IAphidBindable.cs" />
+    <Compile Include="Interpreter\InteropMethodResolver.cs" />
     <Compile Include="Interpreter\InterpreterException.cs" />
     <Compile Include="Interpreter\AphidFunction.cs" />
     <Compile Include="Interpreter\AphidObjectConverter.cs" />

@@ -868,7 +868,13 @@ namespace Components.Aphid.Interpreter
                 .Select(ValueHelper.Unwrap)
                 .ToArray();
 
-            return ValueHelper.Wrap(methods.Single().Invoke(null, args));
+            var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
+
+            var convertedArgs = methodInfo.Arguments
+                .Select(x => AphidTypeConverter.Convert(x.TargetType, x.Argument))
+                .ToArray();
+
+            return ValueHelper.Wrap(methodInfo.Method.Invoke(null, convertedArgs));
         }
 
         private string FlattenAndJoinPath(AphidExpression exp)
@@ -988,11 +994,19 @@ namespace Components.Aphid.Interpreter
                 .Select(ValueHelper.Unwrap)
                 .ToArray();
 
-            var method = interopMembers.Members
-                .OfType<MethodInfo>()
-                .SingleOrDefault(x => x.GetParameters().Length == args.Length);
+            var methodInfo = InteropMethodResolver.Resolve(
+                interopMembers.Members.OfType<MethodInfo>(),
+                args);
 
-            var retVal = method.Invoke(interopMembers.Target, args);
+            var method = !methodInfo.Method.IsGenericMethod ?
+                methodInfo.Method :
+                methodInfo.Method.MakeGenericMethod(methodInfo.GenericArguments);
+
+            var convertedArgs = methodInfo.Arguments
+                .Select(x => AphidTypeConverter.Convert(x.TargetType, x.Argument))
+                .ToArray();
+
+            var retVal = method.Invoke(interopMembers.Target, convertedArgs);
 
             return ValueHelper.Wrap(retVal);
         }
@@ -1238,13 +1252,13 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretForEachExpression(ForEachExpression expression)
         {
             var collection = InterpretExpression(expression.Collection) as AphidObject;
-            var elements = collection.Value as List<AphidObject>;
+            var elements = collection.Value as IEnumerable;
             var elementId = (expression.Element as IdentifierExpression).Identifier;
 
             foreach (var element in elements)
             {
                 EnterChildScope();
-                _currentScope.Add(elementId, element);
+                _currentScope.Add(elementId, ValueHelper.Wrap(element));
                 Interpret(expression.Body, false);
 
                 if (LeaveChildScope(true) || _isBreaking)
