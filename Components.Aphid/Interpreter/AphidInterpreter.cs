@@ -856,6 +856,11 @@ namespace Components.Aphid.Interpreter
             return ValueHelper.Wrap(methods.Single().Invoke(null, args));
         }
 
+        private string FlattenAndJoinPath(AphidExpression exp)
+        {
+            return string.Join(".", FlattenPath(exp));
+        }
+
         private string[] FlattenPath(AphidExpression exp)
         {
             var pathExps = Flatten(exp);
@@ -1069,14 +1074,17 @@ namespace Components.Aphid.Interpreter
                         switch (attr)
                         {
                             case "import":
-                                var path = FlattenPath(expression.Operand);
-                                var pathStr = string.Join(".", path);
-
-                                AddImport(pathStr);
+                                var path = FlattenAndJoinPath(expression.Operand);
+                                AddImport(path);
 
                                 return null;                      
 
-                            default:
+                            case "load":
+                                path = FlattenAndJoinPath(expression.Operand);
+
+                                return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
+
+                            case null:
                                 switch (expression.Operand.Type)
                                 {
                                     case AphidExpressionType.CallExpression:
@@ -1089,9 +1097,11 @@ namespace Components.Aphid.Interpreter
                                             expression.Operand.ToBinaryOperator());
 
                                     default:
-                                        throw new NotImplementedException();
-                                        
+                                        throw new NotImplementedException();                                        
                                 }
+
+                            default:
+                                throw new NotImplementedException();
 
                         }
 
