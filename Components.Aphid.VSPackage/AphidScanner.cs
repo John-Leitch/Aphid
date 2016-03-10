@@ -77,9 +77,10 @@ namespace Components.Aphid.VSPackage
                 case AphidTokenType.whileKeyword:
 
                 case AphidTokenType.functionOperator:
+                case AphidTokenType.InteropOperator:
                 case AphidTokenType.LoadLibraryOperator:
-                case AphidTokenType.LoadScriptOperator:
-                case AphidTokenType.PatternMatchingOperator:                
+                case AphidTokenType.LoadScriptOperator:                
+                case AphidTokenType.PatternMatchingOperator:
 
                     tokenInfo.Type = TokenType.Keyword;
                     tokenInfo.Color = TokenColor.Keyword;
