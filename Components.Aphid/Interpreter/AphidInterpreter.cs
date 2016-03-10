@@ -781,6 +781,21 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+        private Type GetType(string name)
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var t = asm.GetType(name);
+
+                if (t != null)
+                {
+                    return t;
+                }
+            }
+
+            return null;
+        }
+
         private Type GetInteropType(string[] path)
         {
             var pathStr = string.Join(".", path);
@@ -804,7 +819,7 @@ namespace Components.Aphid.Interpreter
                 .Select(x => new
                 {
                     PartCount = x.Count,
-                    Type = Type.GetType(x.Path),
+                    Type = GetType(x.Path),
                 })
                 .SingleOrDefault(x => x.Type != null);
 
