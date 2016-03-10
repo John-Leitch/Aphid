@@ -188,6 +188,14 @@ ParsePipelineExpression = @() {
                     ParseQueryExpression());
             }
 
+            InteropOperator: {
+                inPipeline = true;
+                operand = BinaryOperatorExpression(
+                    operand, 
+                    PipelineOperator, 
+                    ParsePrefixUnaryOperatorExpression());
+            }
+
             functionOperator: {
                 inPipeline = true;
                 operand = BinaryOperatorExpression(

@@ -1961,21 +1961,29 @@ namespace Components.Aphid.Parser
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.functionOperator))
+                    if ((_currentToken.TokenType == AphidTokenType.InteropOperator))
                     {
                         inPipeline = true;
-                        operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseFunctionExpression());
+                        operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParsePrefixUnaryOperatorExpression());
                     }
                     else
                     {
-                        if ((inPipeline
-                                    && (_currentToken.TokenType == AphidTokenType.Identifier)))
+                        if ((_currentToken.TokenType == AphidTokenType.functionOperator))
                         {
-                            operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseExpression());
+                            inPipeline = true;
+                            operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseFunctionExpression());
                         }
                         else
                         {
-                            break;
+                            if ((inPipeline
+                                        && (_currentToken.TokenType == AphidTokenType.Identifier)))
+                            {
+                                operand = new BinaryOperatorExpression(operand, AphidTokenType.PipelineOperator, ParseExpression());
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                 }
