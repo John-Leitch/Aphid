@@ -279,7 +279,7 @@ namespace Components.Aphid.Interpreter
                     expression.RightOperand.ToIdentifier().ToIdentifier());
             }
 
-            return ValueHelper.Wrap(new AphidInteropMembers(lhs, members));
+            return ValueHelper.Wrap(new AphidInteropMember(lhs, members));
         }
 
         private MemberInfo[] GetMembers(object target, BinaryOperatorExpression expression)
@@ -913,11 +913,27 @@ namespace Components.Aphid.Interpreter
 
             if (func == null)
             {
-                var interopMembers = funcExp as AphidInteropMembers;
+                var interopMembers = funcExp as AphidInteropMember;
 
                 if (interopMembers != null)
                 {
                     return InterpretInteropCallExpression(expression, interopMembers);
+                }
+                
+                var interopPartial = funcExp as AphidInteropPartialFunction;
+
+                if (interopPartial != null)
+                {
+                    var curArgs = expression.Args
+                        .Select(InterpretExpression)
+                        .Select(ValueHelper.Unwrap)
+                        .ToArray();
+
+                    return InterpretInteropCallExpression(
+                        interopPartial.Applied
+                            .Concat(curArgs)
+                            .ToArray(),
+                        interopPartial.Member);
                 }
 
                 var func2 = funcExp as AphidFunction;
@@ -969,16 +985,23 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretInteropCallExpression(
             CallExpression expression,
-            AphidInteropMembers interopMembers)
+            AphidInteropMember interopMembers)
         {
             var args = expression
                 .Args.Select(InterpretExpression)
                 .Select(ValueHelper.Unwrap)
                 .ToArray();
 
+            return InterpretInteropCallExpression(args, interopMembers);
+        }
+
+        private AphidObject InterpretInteropCallExpression(
+            object[] arguments,
+            AphidInteropMember interopMembers)
+        {
             var methodInfo = InteropMethodResolver.Resolve(
                 interopMembers.Members.OfType<MethodInfo>(),
-                args);
+                arguments);
 
             var method = !methodInfo.Method.IsGenericMethod ?
                 methodInfo.Method :
@@ -1315,24 +1338,45 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretPartialFunctionExpression(PartialFunctionExpression expression)
         {
             var obj = (AphidObject)InterpretExpression(expression.Call.FunctionExpression);
-            var func = (AphidFunction)obj.Value;
-            var partialArgCount = func.Args.Length - expression.Call.Args.Count();
-            var partialArgs = func.Args.Skip(partialArgCount).ToArray();
-            var partialFunc = new AphidFunction()
-            {
-                Args = partialArgs,
-                Body = new List<AphidExpression> 
-                {
-                    new UnaryOperatorExpression(AphidTokenType.retKeyword,
-                        new CallExpression(
-                            expression.Call.FunctionExpression, 
-                            expression.Call.Args.Concat(
-                            partialArgs.Select(x => new IdentifierExpression(x))).ToList())),
-                },
-                ParentScope = _currentScope,
-            };
 
-            return new AphidObject(partialFunc);
+            var func = obj.Value as AphidFunction;
+            if (func != null)
+            {
+                var partialArgCount = func.Args.Length - expression.Call.Args.Count();
+                var partialArgs = func.Args.Skip(partialArgCount).ToArray();
+                
+                var partialFunc = new AphidFunction()
+                {
+                    Args = partialArgs,
+                    Body = new List<AphidExpression> 
+                    {
+                        new UnaryOperatorExpression(AphidTokenType.retKeyword,
+                            new CallExpression(
+                                expression.Call.FunctionExpression, 
+                                expression.Call.Args.Concat(
+                                partialArgs.Select(x => new IdentifierExpression(x))).ToList())),
+                    },
+                    ParentScope = _currentScope,
+                };
+
+                return new AphidObject(partialFunc);
+            }
+            else
+            {
+                var interopObj = obj.Value as AphidInteropMember;
+
+                if (interopObj == null)
+                {
+                    throw new NotImplementedException();
+                }
+
+                var applied = expression.Call.Args
+                    .Select(InterpretExpression)
+                    .Select(ValueHelper.Unwrap)
+                    .ToArray();
+
+                return new AphidObject(new AphidInteropPartialFunction(interopObj, applied));
+            }
         }
 
         private AphidObject InterpretThisExpression()

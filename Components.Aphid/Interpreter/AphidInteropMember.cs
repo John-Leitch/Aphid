@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidInteropMembers
+    public class AphidInteropMember
     {
         public object Target { get; private set; }
 
         public MemberInfo[] Members { get; private set; }
 
-        public AphidInteropMembers(object target, MemberInfo[] members)
+        public AphidInteropMember(object target, MemberInfo[] members)
         {
             Target = target;
             Members = members;

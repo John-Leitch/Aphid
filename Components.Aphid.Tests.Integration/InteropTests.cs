@@ -135,6 +135,58 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void StaticPartialFuncTest1()
+        {
+            Assert9(@"
+                using System;
+                pow = %%Math.Pow;
+                ret 2 @pow(3);
+            ");
+        }
+
+        [Test]
+        public void StaticPartialFuncTest2()
+        {
+            Assert9(@"
+                using System;
+                pow = %%Math.Pow;
+                ret 2 |> @pow(3);
+            ");
+        }
+
+        [Test]
+        public void StaticPartialFuncTest3()
+        {
+            Assert9(@"
+                using System;
+                pow = %%Math.Pow;
+                ret (@pow(3))(2);
+            ");
+        }
+
+        [Test]
+        public void StaticPartialFuncTest4()
+        {
+            Assert9(@"
+                using System;
+                pow = %%Math.Pow;
+                f = @pow(3);
+                ret f(2); 
+            ");
+        }
+
+        [Test]
+        public void StaticPartialFuncTest5()
+        {
+            Assert9(@"
+                using System;
+                pow = %%Math.Pow;
+                f = @pow(3);
+                ret 2 |> f; 
+            ");
+        }
+
+        [Test]
         public void InstanceTest1()
         {
             Assert9(@"
@@ -205,6 +257,45 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void InstancePartialFuncTest1()
+        {
+            AssertFoo(@"
+                using System;
+                using System.IO;
+
+                s = new MemoryStream();
+                w = new StreamWriter(s);
+                f = @w.Write('f{0}');
+                f('oo');
+                w.Flush();
+                s.Position = 0;
+                r = new StreamReader(s);
+                v = r.ReadToEnd();
+                
+                ret v;
+            ");
+        }
+
+        [Test]
+        public void InstancePartialFuncTest2()
+        {
+            AssertFoo(@"
+                using System;
+                using System.IO;
+
+                s = new MemoryStream();
+                w = new StreamWriter(s);
+                'oo' @w.Write('f{0}');
+                w.Flush();
+                s.Position = 0;
+                r = new StreamReader(s);
+                v = r.ReadToEnd();
+                
+                ret v;
+            ");
+        }
+
+        [Test]
         public void GenericTest1()
         {
             Assert9(@"
@@ -233,8 +324,7 @@ namespace Components.Aphid.Tests.Integration
                 ret [ 'foo', 'bar', 'a', 'b' ] %%Enumerable.First;
             ");
         }
-
-
+        
         [Test]
         public void GenericTest4()
         {
