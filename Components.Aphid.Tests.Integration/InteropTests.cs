@@ -97,12 +97,40 @@ namespace Components.Aphid.Tests.Integration
             ");
         }
 
+        [Test]
         public void StaticRefTest4()
         {
             Assert9(@"
                 using System;
                 math = { sqrt: %%Math.Sqrt };
                 ret 81 |> math.sqrt;
+            ");
+        }
+
+        [Test]
+        public void StaticRefTest5()
+        {
+            Assert9(@"
+                using System;
+                ret 81 %%Math.Sqrt;
+            ");
+        }
+
+        [Test]
+        public void StaticRefTest6()
+        {
+            Assert9(@"
+                using System;
+                ret 81 |> %%Math.Sqrt;
+            ");
+        }
+
+        [Test]
+        public void StaticRefTest7()
+        {
+            Assert9(@"
+                using System;
+                ret (%%Math.Sqrt)(81);
             ");
         }
 
