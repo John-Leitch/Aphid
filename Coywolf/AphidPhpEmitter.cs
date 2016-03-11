@@ -191,16 +191,31 @@ if (!function_exists('__add')) {
 
         protected override void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
         {
-            string value;
+            switch (expression.Operator)
+            {
+                case AphidTokenType.newKeyword:
+                    if (expression.Operand.Type != AphidExpressionType.ObjectExpression)
+                    {
+                        throw new NotImplementedException();
+                    }
 
-            if (!_unaryPrefixOperators.TryGetValue(expression.Operator, out value))
-            {
-                base.EmitUnaryOperatorExpression(expression, isStatement);
-            }
-            else
-            {
-                Append(value);
-                Emit(expression.Operand);
+                    Append("(object)");
+                    Emit(expression.Operand.ToObject());
+                    break;
+
+                default:
+                    string value;
+
+                    if (!_unaryPrefixOperators.TryGetValue(expression.Operator, out value))
+                    {
+                        base.EmitUnaryOperatorExpression(expression, isStatement);
+                    }
+                    else
+                    {
+                        Append(value);
+                        Emit(expression.Operand);
+                    }
+                    break;
             }
         }
 
@@ -418,20 +433,7 @@ if (!function_exists('__add')) {
         {
             if (expression.Identifier != null)
             {
-                if (expression.Identifier.Attributes.Any())
-                {
-                    throw new NotImplementedException();
-                }
-
-                switch (expression.Identifier.Identifier)
-                {
-                    case "new":
-                        Append("(object)");
-                        break;
-
-                    default:
-                        throw new NotImplementedException();
-                }
+                throw new NotImplementedException();
             }
                 
             Append("[");
