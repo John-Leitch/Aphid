@@ -15,8 +15,7 @@
 
                 { regex: ",", type: "Comma" },
                 { regex: ":", type: "ColonOperator" },
-                { regex: "@", type: "functionOperator" },
-                { regex: "%%", type: "InteropOperator" },
+                { regex: "@", type: "functionOperator" },                
                 { regex: "\\?", type: "ConditionalOperator" },
                 { regex: "..", type: "RangeOperator" },
 
@@ -77,7 +76,9 @@
                 { regex: "->", type: "SelectOperator" },                
                 { regex: "-\\?", type: "WhereOperator" },
     
-                { regex: "$", type: "PatternMatchingOperator" },                
+                { regex: "$", type: "PatternMatchingOperator" },
+
+                { regex: "%%", type: "InteropOperator" },
 
                 { regex: ";", type: "EndOfStatement" },
 
@@ -113,6 +114,9 @@
                 "ret",
 
                 "this",
+
+                "new",
+                "using",
 
                 "defined",
                 "delete",

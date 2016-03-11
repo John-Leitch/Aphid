@@ -1101,24 +1101,24 @@ namespace Components.Aphid.Interpreter
 
                         return new AphidObject(list.Distinct(_comparer).ToList());
 
+                    case AphidTokenType.usingKeyword:
+                        var path = FlattenAndJoinPath(expression.Operand);
+                        AddImport(path);
+
+                        return null;  
+
+                    case AphidTokenType.newKeyword:
+                        return InterpretInteropNewExpression(expression.Operand);
+
                     case AphidTokenType.InteropOperator:
                         var attr = GetInteropAttribute(expression.Operand);
 
                         switch (attr)
                         {
-                            case "import":
-                                var path = FlattenAndJoinPath(expression.Operand);
-                                AddImport(path);
-
-                                return null;                      
-
                             case "load":
                                 path = FlattenAndJoinPath(expression.Operand);
 
                                 return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
-
-                            case "new":
-                                return InterpretInteropNewExpression(expression.Operand);
 
                             case null:
                                 switch (expression.Operand.Type)

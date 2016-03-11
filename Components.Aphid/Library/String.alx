@@ -2,7 +2,7 @@
 		chars: @(s) __string.getChars(s),
 		lower: @(s) __string.lower(s),
 		split: @(s, separator) __string.split(s, separator),
-		replace: @(s, old, new) __string.replace(s, old, new),
+		replace: @(s, value, replacement) __string.replace(s, value, replacement),
 		isMatch: @(s, pattern) __string.isMatch(s, pattern),
 		contains: @(s, s2) __string.contains(s, s2),
 		length: @(s) __string.length(s),

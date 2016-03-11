@@ -15,7 +15,7 @@ namespace Components.Aphid.Tests.Integration
         public void StaticTest2()
         {
             Assert9(@"
-                %%import System;
+                using System;
                 ret %%Math.Sqrt(81);
             ");
         }
@@ -52,7 +52,7 @@ namespace Components.Aphid.Tests.Integration
         public void StaticArgTest5()
         {
             AssertFoo(@"
-                %%import System;
+                using System;
                 x=['f','o'];
                 ret %%String.Format('{0}o{1}', x[0], x[1]);
             ");
@@ -71,11 +71,11 @@ namespace Components.Aphid.Tests.Integration
         public void InstanceTest1()
         {
             Assert9(@"
-                %%import System;
-                %%import System.IO;
+                using System;
+                using System.IO;
 
-                s = %%new MemoryStream();
-                w = %%new StreamWriter(s);
+                s = new MemoryStream();
+                w = new StreamWriter(s);
                 w.Write('*********');
                 w.Flush();
                 
@@ -87,11 +87,11 @@ namespace Components.Aphid.Tests.Integration
         public void InstanceTest2()
         {
             Assert9(@"
-                %%import System;
-                %%import System.IO;
+                using System;
+                using System.IO;
 
-                s = %%new MemoryStream();
-                w = %%new StreamWriter(s);
+                s = new MemoryStream();
+                w = new StreamWriter(s);
                 w.Write('****************');
                 w.Flush();
                 s.Position = 9;
@@ -104,10 +104,10 @@ namespace Components.Aphid.Tests.Integration
         public void InstanceTest3()
         {
             Assert9(@"
-                %%import System;
-                %%import System.IO;
+                using System;
+                using System.IO;
 
-                w = %%new StreamWriter(%%new MemoryStream());
+                w = new StreamWriter(new MemoryStream());
                 w.Write('****************');
                 w.Flush();
                 w.BaseStream.Position = 9;
@@ -120,16 +120,16 @@ namespace Components.Aphid.Tests.Integration
         public void InstanceTest4()
         {
             AssertFoo(@"
-                %%import System;
-                %%import System.IO;
+                using System;
+                using System.IO;
 
-                s = %%new MemoryStream();
-                w = %%new StreamWriter(s);
+                s = new MemoryStream();
+                w = new StreamWriter(s);
                 w.Write('foo');
                 w.Flush();
                 %%Console.WriteLine('Stream position: {0}', s.Position);
                 s.Position = 0;
-                r = %%new StreamReader(s);
+                r = new StreamReader(s);
                 v = r.ReadToEnd();
                 %%Console.WriteLine('Value: {0}', v);
 
@@ -141,7 +141,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest1()
         {
             Assert9(@"
-                %%import System.Linq;
+                using System.Linq;
 
                 ret %%Enumerable.Range(0, 9) %%Enumerable.Count;
             ");
@@ -151,7 +151,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest2()
         {
             Assert9(@"
-                %%import System.Linq;
+                using System.Linq;
 
                 ret %%Enumerable.Range(0, 10) %%Enumerable.Last;
             ");
@@ -161,7 +161,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest3()
         {
             AssertFoo(@"
-                %%import System.Linq;
+                using System.Linq;
 
                 ret [ 'foo', 'bar', 'a', 'b' ] %%Enumerable.First;
             ");
@@ -172,7 +172,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest4()
         {
             AssertFoo(@"
-                %%import System.Linq;
+                using System.Linq;
 
                 ret [ 'bar', 'a', 'b', 'foo' ] %%Enumerable.Last;
             ");
@@ -182,7 +182,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest5()
         {
             AssertFoo(@"
-                %%import System.Linq;
+                using System.Linq;
                 
                 ret %%Enumerable.Skip([ 'bar', 'a', 'foo', 'b' ], 2)
                     %%Enumerable.First;
@@ -193,7 +193,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest6()
         {
             AssertFoo(@"
-                %%import System.Linq;
+                using System.Linq;
                 
                 ret %%Enumerable.Take([ 'bar', 'a', 'foo', 'b' ], 3)
                     %%Enumerable.Last;
@@ -204,7 +204,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest7()
         {
             Assert9(@"
-                %%import System.Linq;
+                using System.Linq;
                 
                 ret %%Enumerable.Skip([ 0, 1, 9, 10 ], 2)
                     %%Enumerable.First;
@@ -215,7 +215,7 @@ namespace Components.Aphid.Tests.Integration
         public void GenericTest8()
         {
             Assert9(@"
-                %%import System.Linq;
+                using System.Linq;
                 
                 ret %%Enumerable.Take([ 0, 1, 9, 10 ], 3)
                     %%Enumerable.Last;
