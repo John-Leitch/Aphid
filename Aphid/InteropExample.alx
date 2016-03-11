@@ -1,0 +1,26 @@
+﻿#'Std';
+%%import Components.Aphid.Lexer;
+%%import Components.Aphid.Parser;
+%%import Components.Aphid.Interpreter;
+
+code = 
+    '#"Std";' +
+    'print("hello, world");';
+
+lexer = %%new AphidLexer(code);
+tokens = lexer.GetTokens();
+
+print("Tokens");
+for (x in tokens)
+    print(x);
+
+parser = %%new AphidParser(tokens);
+ast = parser.Parse();
+
+print("\r\nRoot nodes");
+for (node in ast)
+    printf("Type: {0}", node.Type);
+
+print("\r\nInterpreting script");
+intepreter = %%new AphidInterpreter(true);
+intepreter.Interpret(ast, false);
