@@ -427,13 +427,19 @@ namespace Components.Aphid.Interpreter
                 {
                     var v = ValueHelper.Unwrap(value);
 
+                    
+
                     if (interopRef.Field != null)
                     {
-                        interopRef.Field.SetValue(interopRef.Object, v);
+                        interopRef.Field.SetValue(
+                            interopRef.Object,
+                            AphidTypeConverter.Convert(interopRef.Field.FieldType, v));
                     }
                     else
                     {
-                        interopRef.Property.SetValue(interopRef.Object, v);
+                        interopRef.Property.SetValue(
+                            interopRef.Object,
+                            AphidTypeConverter.Convert(interopRef.Property.PropertyType, v));
                     }
 
                     return value;
