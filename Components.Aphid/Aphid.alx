@@ -67,14 +67,14 @@ TakeToken = macro(@(_var) {
 });
 
 SkipThen = macro(@(_retVal) {
-    @() {
+    @{
         NextToken;
         ret _retVal;
     };
 });
 
 ThenSkip = macro(@(_retVal) {
-    @() {
+    @{
         exp = _retVal;
         NextToken;
         ret exp;
@@ -82,7 +82,7 @@ ThenSkip = macro(@(_retVal) {
 });
 
 ParseBinOpExp = macro(@(_parse, _ops) {
-    @() {
+    @{
         operand = _parse();
 
         while (_ops) {
@@ -97,7 +97,7 @@ ParseBinOpExp = macro(@(_parse, _ops) {
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
-root list Parse = @() {
+root list Parse = @{
     expressionSequence;
     NextToken;
     while (!None) expressionSequence += ParseStatement();
@@ -109,7 +109,7 @@ ParseStatement = _ParseStatement(true);
 ParseSingleStatement = _ParseStatement(false);
 
 _ParseStatement = macro(@(_requireEos) {
-    @() {
+    @{
         exp;
     
         // Todo add support for $ op
@@ -174,7 +174,7 @@ ParseAssignmentExpression = ParseBinOpExp(
     ShiftLeftEqualOperator |
     ShiftRightEqualOperator);
 
-ParsePipelineExpression = @() {
+ParsePipelineExpression = @{
     operand ParseQueryExpression;
     inPipeline = false;
     while (true) {
@@ -220,7 +220,7 @@ ParsePipelineExpression = @() {
     ret operand;
 };
 
-ParseQueryExpression = @() {
+ParseQueryExpression = @{
     exp ParseRangeExpression;
 
     while(true) {
@@ -244,7 +244,7 @@ ParseQueryExpression = @() {
 
 ParseRangeExpression = ParseBinOpExp(ParseConditionalExpression, RangeOperator);
 
-ParseConditionalExpression = @() {
+ParseConditionalExpression = @{
     exp ParseLogicalExpression;
 
     if (ConditionalOperator) {
@@ -274,7 +274,7 @@ ParseComparisonExpression = ParseBinOpExp(
     GreaterThanOperator |
     GreaterThanOrEqualOperator);
 
-ParsePostfixUnaryOperationExpression = @() {
+ParsePostfixUnaryOperationExpression = @{
     term = ParseBinaryOrExpression();
 
     switch (TokenType) {
@@ -298,7 +298,7 @@ ParseTermExpression = ParseBinOpExp(
     ParsePrefixUnaryOperatorExpression,
     MultiplicationOperator | DivisionOperator | ModulusOperator);
 
-ParsePrefixUnaryOperatorExpression = @() {
+ParsePrefixUnaryOperatorExpression = @{
     switch (TokenType) {
         AdditionOperator,
         MinusOperator,
@@ -317,7 +317,7 @@ ParsePrefixUnaryOperatorExpression = @() {
     }
 };
 
-ParseArrayAccessExpression = @() {
+ParseArrayAccessExpression = @{
     exp ParseCallExpression;
 
     while (LeftBracket) {
@@ -331,7 +331,7 @@ ParseArrayAccessExpression = @() {
 };
 
 ParseCall = macro(@(_parseFunc) {
-    @() {
+    @{
         function = _parseFunc();
 
         while (LeftParenthesis) {
@@ -368,7 +368,7 @@ ParseCallBody = macro(@(_func) {
 
 ParseCallExpression = ParseCall(ParseMemberExpression);
 
-ParseMemberExpression = @() { 
+ParseMemberExpression = @{ 
     factor ParseFactorCallExpression;
 
     while (MemberOperator) {
@@ -407,9 +407,9 @@ ParseMemberExpression = @() {
 
 ParseFactorCallExpression = ParseCall(ParseFactorExpression);
 ParseStringExpression = Lexeme |> StringExpression |> ThenSkip;
-ParseFactorExpression = @() { };
+ParseFactorExpression = @{ };
 
-IdentifierExpression ParseIdentifierExpression = @() {
+IdentifierExpression ParseIdentifierExpression = @{
     exp = IdentifierExpression(Lexeme);
     NextToken;
 
@@ -430,19 +430,19 @@ IdentifierExpression ParseIdentifierExpression = @() {
     ret exp;
 };
 
-ParseUnaryExpression = @() {
+ParseUnaryExpression = @{
     TakeToken(t);
 
     ret UnaryOperatorExpression(t, ParseExpression());
 };
 
-ParseCondition = @() {
+ParseCondition = @{
     Parens(condition ParseExpression);
     
     ret condition;
 };
 
-ParseIfExpression = @() {
+ParseIfExpression = @{
     NextToken;
     condition ParseCondition;
     body ParseBlock;
@@ -458,7 +458,7 @@ ParseIfExpression = @() {
 };
 
 _ParseBlock = macro(@(_parseStatement) {
-    @() {
+    @{
         statements;
 
         if (LeftBrace) {
@@ -483,7 +483,7 @@ ParseExtendExpression = SkipThen(
 
 // Todo: support empty objects
 
-ParseForExpression = @() {
+ParseForExpression = @{
     NextToken;
     LeftParenthesis;
     initOrElement ParseExpression;
@@ -509,7 +509,7 @@ ParseForExpression = @() {
 
 ParseWhileExpression = SkipThen(WhileExpression(ParseCondition(), ParseBlock()));
 
-ParseDoWhileExpression = @() {
+ParseDoWhileExpression = @{
     NextToken;
     body ParseBlock;
     Prefix(whileKeyword, Parens(condition ParseExpression));
@@ -517,7 +517,7 @@ ParseDoWhileExpression = @() {
     ret DoWhileExpression(condition, body);
 };
 
-list ParseTuple = @() {
+list ParseTuple = @{
     tuple;
 
     while (true) {
@@ -532,7 +532,7 @@ ParseLoadScriptExpression = SkipThen(LoadScriptExpression(ParseExpression()));
 ParseLoadLibraryExpression = SkipThen(LoadLibraryExpression(ParseExpression()));
 
 // Todo: fix now that var decls work
-ParseTryExpression = @() {
+ParseTryExpression = @{
     NextToken;
     tryBody ParseBlock;
     IdentifierExpression catchArg;
@@ -562,7 +562,7 @@ ParseTryExpression = @() {
     ret TryExpression(tryBody, catchArg, catchBody, finallyBody);
 };
 
-ParseSwitchExpression = @() {
+ParseSwitchExpression = @{
     NextToken;
     Parens(exp ParseExpression);
     LeftBrace;
@@ -587,7 +587,7 @@ ParseSwitchExpression = @() {
     ret SwitchExpression(exp, cases, defaultCase);
 };
 
-ObjectExpression ParseObjectExpression = @() {
+ObjectExpression ParseObjectExpression = @{
     NextToken;
     inNode = true;
     childNodes = list BinaryOperatorExpression;
@@ -632,7 +632,7 @@ BinaryOperatorExpression ParseKeyValuePairExpression= @{
         ret BinaryOperatorExpression(id, ColonOperator, exp);
 };
 
-ParseArrayExpression = @() {
+ParseArrayExpression = @{
     NextToken;
     inNode = true;
     childNodes = list AphidExpression;
@@ -671,7 +671,7 @@ ParseNumberExpression = @(){
     ret exp;
 };
 
-ParseFunctionExpression = @() {
+ParseFunctionExpression = @{
     exp;
     body;
     args;
@@ -749,7 +749,7 @@ ParseFunctionExpression = @() {
     ret exp;
 };
 
-ParsePatternMatchingExpression = @() {
+ParsePatternMatchingExpression = @{
     NextToken;
     patterns = list PatternExpression;
     Parens(testExp ParseExpression);
@@ -787,7 +787,7 @@ ParsePatternMatchingExpression = @() {
 };
 
 
-ParseFactorExpression = @() {
+ParseFactorExpression = @{
     exp;
     
     switch (TokenType) {
@@ -865,7 +865,7 @@ ParseFactorExpression = @() {
     ret exp;
 };
 
-ParseTextExpression = @() {
+ParseTextExpression = @{
     t;
     if (Text) {
         t = TextExpression(Lexeme);
@@ -876,7 +876,7 @@ ParseTextExpression = @() {
     ret t;
 };
 
-ParseGatorEmitExpression = @() {
+ParseGatorEmitExpression = @{
     NextToken;
     t = GatorEmitExpression(ParseExpression());
     GatorCloseOperator;
