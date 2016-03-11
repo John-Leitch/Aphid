@@ -80,6 +80,7 @@
     <Compile Include="Interpreter\AphidTypeConverter.cs" />
     <Compile Include="Interpreter\IAphidBindable.cs" />
     <Compile Include="Interpreter\InteropMethodResolver.cs" />
+    <Compile Include="Interpreter\InteropTypeResolver.cs" />
     <Compile Include="Interpreter\InterpreterException.cs" />
     <Compile Include="Interpreter\AphidFunction.cs" />
     <Compile Include="Interpreter\AphidObjectConverter.cs" />

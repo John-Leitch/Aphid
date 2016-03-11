@@ -119,6 +119,10 @@ namespace Components.Aphid.Interpreter
             {
                 return ToFloat(value);
             }
+            else if (targetType == typeof(double))
+            {
+                return ToFloat(value);
+            }
             else if (targetType == typeof(decimal))
             {
                 return value;

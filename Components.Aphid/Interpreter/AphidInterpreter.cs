@@ -299,7 +299,7 @@ namespace Components.Aphid.Interpreter
             else
             {
                 var path = FlattenPath(expression);
-                var type = GetInteropType(path);
+                var type = InteropTypeResolver.ResolveType(GetImports(), path);
                 var member = path.Last();
 
                 members = type
@@ -815,73 +815,13 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private Type GetType(string name)
-        {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var t = asm.GetType(name);
-
-                if (t != null)
-                {
-                    return t;
-                }
-            }
-
-            return null;
-        }
-
-        private Type GetInteropType(string[] path, bool isType = false)
-        {
-            var pathStr = string.Join(".", path);
-            var imports = GetImports();
-            var offset = !isType ? 1 : 0;
-
-            var type = path
-                .Take(path.Length - offset)
-                .Select((x, i) => new
-                {
-                    Count = i + 1,
-                    Path = string.Join(".", path.Take(i + 1))
-                })
-                .SelectMany(x =>
-                    new[] { "" }
-                        .Concat(imports)
-                        .Select(y => new
-                        {
-                            x.Count,
-                            Path = y.Any() ? y + "." + x.Path : x.Path,
-                        }))
-                .Select(x => new
-                {
-                    PartCount = x.Count,
-                    Type = GetType(x.Path),
-                })
-                .SingleOrDefault(x => x.Type != null);
-
-            if (type == null)
-            {
-                throw new AphidRuntimeException(
-                    "Could not find type for interop call '{0}'",
-                    pathStr);
-            }
-
-            if (type.PartCount != path.Length - offset)
-            {
-                throw new AphidRuntimeException(
-                    "Could not find method for interop call '{0}'",
-                    pathStr);
-            }
-
-            return type.Type;
-        }
-
         public AphidObject CallStaticInteropFunction(CallExpression callExpression)
         {
             var path = FlattenPath(callExpression.FunctionExpression);
             var pathStr = string.Join(".", path);
             var imports = GetImports();
 
-            var type = GetInteropType(path);
+            var type = InteropTypeResolver.ResolveType(GetImports(), path);
             var methodName = path.Last();
 
             var args = callExpression.Args
@@ -891,10 +831,23 @@ namespace Components.Aphid.Interpreter
 
             var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
             
-            var method = !methodInfo.GenericArguments.Any() ?
-                methodInfo.Method :
-                ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
+            MethodBase method;
 
+            if (!methodInfo.GenericArguments.Any())
+            {
+                method = methodInfo.Method;
+            }
+            else
+            {
+                var m = (MethodInfo)methodInfo.Method;
+                
+                var genArgs = methodInfo.GenericArguments
+                    .Take(m.GetGenericArguments().Length)
+                    .ToArray();
+
+                method = m.MakeGenericMethod(genArgs);
+            }
+            
             var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
 
             return ValueHelper.Wrap(method.Invoke(null, convertedArgs));
@@ -1056,7 +1009,7 @@ namespace Components.Aphid.Interpreter
                         .ToArray();
 
                     var path = FlattenPath(call.FunctionExpression);
-                    var type = GetInteropType(path, isType: true);
+                    var type = InteropTypeResolver.ResolveType(GetImports(), path, isType: true);
                     var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
                     var convertedArgs = AphidTypeConverter.Convert(ctor.Arguments);
                     var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
