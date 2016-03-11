@@ -884,20 +884,6 @@ namespace Components.Aphid.Interpreter
             var type = GetInteropType(path);
             var methodName = path.Last();
 
-            var methods = type
-                .GetMethods()
-                .Where(x => 
-                    x.Name == methodName &&
-                    x.GetParameters().Length == callExpression.Args.Count)
-                .ToArray();
-
-            if (methods.Length != 1)
-            {
-                throw new AphidRuntimeException(
-                    "More than one method matched interop call '{0}'",
-                    pathStr);
-            }
-
             var args = callExpression.Args
                 .Select(InterpretExpression)
                 .Select(ValueHelper.Unwrap)

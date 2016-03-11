@@ -23,6 +23,7 @@ namespace Components.Aphid.Interpreter
     {
         private static readonly Type[] _decimalTargetTypes = new[]
         {
+            typeof(object),
             typeof(byte),
             typeof(ushort),
             typeof(uint),
