@@ -1,0 +1,11 @@
+﻿#'std';
+using System;
+using System.IO;
+using System.Linq;
+
+_flip = macro(@(f1, f2) { f1 = @(arg1, arg2) f2(arg2, arg1) });
+_flip(take, %%Enumerable.Take);
+_flip(skip, %%Enumerable.Skip);
+_flip(select, %%Enumerable.Select);
+
+for (x in 0..10 @skip(1) @take(4)) print(x);
