@@ -1,25 +1,24 @@
 #'Std';
-
-%%import System;
-%%import System.IO;
-%%import System.IO.Compression;
-%%import System.Reflection;
 %%load System.IO.Compression.FileSystem;
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 
 mode = 'debug';
 root = '..\\' + mode;
 exe = root + '\\Aphid\\Aphid.exe';
 out = '..\\Archive';
 printf('Creating archive');
-version = exe %%Path.GetFullPath %%Assembly.LoadFile @(x) x.GetName().Version;
+version = exe |> Path.GetFullPath |> Assembly.LoadFile @(x) x.GetName().Version;
 printf('Aphid version: {0}', version);
-archive = sprintf('{0}\\Aphid-{1}-{2}.zip', out, version, mode);
+archive = String.Format('{0}\\Aphid-{1}-{2}.zip', out, version, mode);
 
-if (%%File.Exists(archive)) {
+if (File.Exists(archive)) {
     printf('Deleting existing archive: {0}', archive);
-    %%File.Delete(archive);
+    File.Delete(archive);
 }
 
 print('Creating archive');
-%%ZipFile.CreateFromDirectory(root, archive, %%CompressionLevel.Optimal, false);
+ZipFile.CreateFromDirectory(root, archive, CompressionLevel.Optimal, false);
 printf('Archive created: {0}', archive);
