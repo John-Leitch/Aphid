@@ -117,6 +117,7 @@
 
                 "new",
                 "using",
+                "load",
 
                 "defined",
                 "delete",

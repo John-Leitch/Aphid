@@ -309,7 +309,8 @@ ParsePrefixUnaryOperatorExpression = @{
         ComplementOperator,
         InteropOperator,
         usingKeyword,
-        newKeyword: {
+        newKeyword,
+        loadKeyword: {
             TakeToken(t);
                         
             ret UnaryOperatorExpression(t, ParseArrayAccessExpression());

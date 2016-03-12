@@ -1,5 +1,5 @@
 #'Std';
-%%load System.IO.Compression.FileSystem;
+load System.IO.Compression.FileSystem;
 using System;
 using System.IO;
 using System.IO.Compression;

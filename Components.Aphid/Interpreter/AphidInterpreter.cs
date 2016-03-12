@@ -1131,16 +1131,16 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.newKeyword:
                         return InterpretInteropNewExpression(expression.Operand);
 
+                    case AphidTokenType.loadKeyword:
+                        path = FlattenAndJoinPath(expression.Operand);
+
+                        return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
+
                     case AphidTokenType.InteropOperator:
                         var attr = GetInteropAttribute(expression.Operand);
 
                         switch (attr)
                         {
-                            case "load":
-                                path = FlattenAndJoinPath(expression.Operand);
-
-                                return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
-
                             case null:
                                 switch (expression.Operand.Type)
                                 {
