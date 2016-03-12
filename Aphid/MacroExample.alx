@@ -1,10 +1,12 @@
-﻿#'std';
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 
 _flip = macro(@(f1, f2) { f1 = @(arg1, arg2) f2(arg2, arg1) });
-_flip(take, %%Enumerable.Take);
-_flip(skip, %%Enumerable.Skip);
+_flip(take, Enumerable.Take);
+_flip(skip, Enumerable.Skip);
+range = Enumerable.Range;
+join = String.Join;
+writeLine = Console.WriteLine;
 
-for (x in 0..10 @skip(1) @take(4)) print(x);
+range(0, 10) @skip(1) @take(4) @join(', ') @writeLine('Numbers: {0}');

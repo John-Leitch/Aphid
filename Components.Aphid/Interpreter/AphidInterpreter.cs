@@ -315,7 +315,7 @@ namespace Components.Aphid.Interpreter
         {
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
 
-            if (!obj.IsAphidType())
+            if (obj != null && !obj.IsAphidType())
             {
                 return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
             }
@@ -350,9 +350,7 @@ namespace Components.Aphid.Interpreter
 
                 if (obj == null)
                 {
-                    throw new AphidRuntimeException("Undefined member {0} in expression {1}",
-                        expression.LeftOperand,
-                        expression);
+                    return InterpretMemberInteropExpression(null, expression, returnRef);
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
@@ -1253,7 +1251,14 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw new AphidRuntimeException("Array access not supported by {0}.", val);
+                var list = val as IList;                
+
+                if (list == null)
+                {
+                    throw new AphidRuntimeException("Array access not supported by {0}.", val);
+                }
+
+                return ValueHelper.Wrap(list[index]);
             }
         }
 
