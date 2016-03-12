@@ -941,6 +941,7 @@ namespace Components.Aphid.Interpreter
                 PushFrame(expression.FunctionExpression, args);
                 var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
                 PopFrame();
+
                 return retVal;
             }
             else
@@ -973,6 +974,7 @@ namespace Components.Aphid.Interpreter
                 PushFrame(expression.FunctionExpression, args);
                 var retVal = ValueHelper.Wrap(func.Invoke(this, args));;
                 PopFrame();
+
                 return retVal;
             }
         }
@@ -1488,9 +1490,11 @@ namespace Components.Aphid.Interpreter
         {
             LeaveChildScope(true);
             EnterChildScope();
+            
             _currentScope.Add(
                 expression.CatchArg.Identifier,
-                new AphidObject(e.Message));
+                new AphidObject(ExceptionHelper.Unwrap(e).Message));
+
             Interpret(expression.CatchBody, false);
             LeaveChildScope(true);
         }

@@ -1,8 +1,10 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
+using Components.ConsolePlus;
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace Aphid
 {
@@ -38,6 +40,7 @@ namespace Aphid
             }
             catch (AphidParserException exception)
             {
+                Console.WriteLine("Parser exception\r\n");
                 Console.WriteLine(ParserErrorMessage.Create(code, exception));
             }
             catch (AphidRuntimeException exception)
@@ -47,7 +50,10 @@ namespace Aphid
             }
             catch (Exception exception)
             {
-                Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
+                Console.WriteLine(
+                    "Unexpected exception\r\n\r\n{0}\r\n", 
+                    ExceptionHelper.Unwrap(exception).Message);
+
                 DumpStackTrace(interpreter);
             }
         }
@@ -56,15 +62,14 @@ namespace Aphid
         {
             var trace = interpreter.GetStackTrace();
             var i = 0;
+            Cli.WriteSubheader("Stack Trace", "~|Blue~~White~");
 
             foreach (var frame in trace)
             {
-                Console.Write('[');
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write("{0:x4}", i++);
-                Console.ResetColor();
-                Console.WriteLine("] {0}", frame.ToString(true));
+                Cli.WriteLine("[~White~{0:x4}~R~] {1}", i++, frame.ToString(true));
             }
+
+            Cli.WriteLine();
         }
     }
 }
