@@ -79,6 +79,7 @@
     <Compile Include="Interpreter\AphidScriptOptimizer.cs" />
     <Compile Include="Interpreter\AphidType.cs" />
     <Compile Include="Interpreter\AphidTypeConverter.cs" />
+    <Compile Include="Interpreter\ExceptionHelper.cs" />
     <Compile Include="Interpreter\IAphidBindable.cs" />
     <Compile Include="Interpreter\InteropMethodResolver.cs" />
     <Compile Include="Interpreter\InteropTypeResolver.cs" />
