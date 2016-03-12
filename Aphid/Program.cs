@@ -1,7 +1,7 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
-using Components.ConsolePlus;
+using Components.External.ConsolePlus;
 using System;
 using System.IO;
 using System.Reflection;

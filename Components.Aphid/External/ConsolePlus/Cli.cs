@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Components.ConsolePlus
+namespace Components.External.ConsolePlus
 {
     public static class Cli
     {

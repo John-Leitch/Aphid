@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Components
+namespace Components.External
 {
     public class Memoizer<TArg, TResult>
     {
