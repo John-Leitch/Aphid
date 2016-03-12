@@ -47,12 +47,18 @@ namespace Components.Aphid.Interpreter
 
         private string CreateObjectString(object value)
         {
-            
             var aphidObj = value as AphidObject;
 
-            return aphidObj != null ?
-                _serializer.Serialize(aphidObj) :
-                value.ToString();
+            if (aphidObj != null)
+            {
+                return aphidObj.Any() ? 
+                    _serializer.Serialize(aphidObj) : 
+                    aphidObj.Value.ToString();
+            }
+            else
+            {
+                return value.ToString();
+            }
         }
     }
 }
