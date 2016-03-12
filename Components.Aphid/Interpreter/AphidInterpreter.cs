@@ -24,7 +24,7 @@ namespace Components.Aphid.Interpreter
 
         private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
         { 
-            new AphidFrame("[Entrypoint]", null, null, null, null),
+            new AphidFrame("[Entrypoint]"),
         });
 
         private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
@@ -900,10 +900,6 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
-            var name = expression.FunctionExpression.Type == AphidExpressionType.IdentifierExpression ?
-                ((IdentifierExpression)expression.FunctionExpression).Identifier :
-                "[Anonymous]";
-
             var value = InterpretExpression(expression.FunctionExpression);
             object funcExp = ValueHelper.Unwrap(value);
 
@@ -941,10 +937,10 @@ namespace Components.Aphid.Interpreter
                     throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
                 }
 
-                var args = expression.Args.Select(x => ValueHelper.Wrap(InterpretExpression(x))).ToArray();
-                _frames.Push(new AphidFrame(name, func2, args));
-                var retVal = CallFunctionCore(func2, args);
-                _frames.Pop();
+                var args = expression.Args.Select(InterpretExpression).ToArray();
+                PushFrame(expression.FunctionExpression, args);
+                var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
+                PopFrame();
                 return retVal;
             }
             else
@@ -974,11 +970,30 @@ namespace Components.Aphid.Interpreter
                 }
 
                 var args = expression.Args.Select(selector).ToArray();
-                _frames.Push(new AphidFrame(name, func, args));
+                PushFrame(expression.FunctionExpression, args);
                 var retVal = ValueHelper.Wrap(func.Invoke(this, args));;
-                _frames.Pop();
+                PopFrame();
                 return retVal;
             }
+        }
+
+        private void PushFrame(AphidExpression function, IEnumerable<object> args)
+        {
+            var name = function.Type == AphidExpressionType.IdentifierExpression ?
+                ((IdentifierExpression)function).Identifier :
+                "[Anonymous]";
+
+            PushFrame(name, args);
+        }
+
+        private void PushFrame(string name, IEnumerable<object> args)
+        {
+            _frames.Push(new AphidFrame(name, args));
+        }
+
+        private void PopFrame()
+        {
+            _frames.Pop();
         }
 
         private AphidObject InterpretInteropCallExpression(
@@ -1006,7 +1021,13 @@ namespace Components.Aphid.Interpreter
                 ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
 
             var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
+
+            PushFrame(
+                string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name),
+                convertedArgs);
+
             var retVal = method.Invoke(interopMembers.Target, convertedArgs);
+            PopFrame();
 
             return ValueHelper.Wrap(retVal);
         }

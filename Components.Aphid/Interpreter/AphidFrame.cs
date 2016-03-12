@@ -8,73 +8,21 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidFrame
     {
+        private AphidSerializer _serializer = new AphidSerializer();
+
         public string Name { get; set; }
 
-        public AphidFunction Function { get; private set; }
+        public IEnumerable<object> Arguments { get; private set; }
 
-        public bool IsAphid
+        public AphidFrame(string name)
+            : this(name, new object[0])
         {
-            get { return Function != null; }
         }
 
-        public AphidInteropFunction InteropFunction { get; private set; }
-
-        public bool IsInterop
-        {
-            get { return InteropFunction != null; }
-        }
-
-        public bool HasFunction
-        {
-            get { return Function != null || InteropFunction != null; }
-        }
-
-        public IEnumerable<AphidObject> Arguments { get; private set; }
-
-        public IEnumerable<object> UnwrappedArguments { get; private set; }
-
-        public bool IsUnwrapped
-        {
-            get { return UnwrappedArguments != null; }
-        }
-
-        private AphidFrame(string name, IEnumerable<AphidObject> arguments)
+        public AphidFrame(string name, IEnumerable<object> arguments)
         {
             Name = name;
             Arguments = arguments;
-        }
-
-        public AphidFrame(string name, AphidFunction function, IEnumerable<AphidObject> arguments)
-            : this(name, arguments)
-        {
-            Function = function;
-        }
-
-        public AphidFrame(string name, AphidInteropFunction function, IEnumerable<AphidObject> arguments)
-            : this(name, arguments)
-        {
-            InteropFunction = function;
-        }
-
-        public AphidFrame(string name, AphidInteropFunction function, IEnumerable<object> arguments)
-            : this(name, null)
-        {
-            InteropFunction = function;
-            UnwrappedArguments = arguments;
-        }
-
-        public AphidFrame(
-            string name,
-            AphidFunction function,
-            AphidInteropFunction interopFunction,
-            IEnumerable<AphidObject> arguments,
-            IEnumerable<object> unwrappedArguments)
-        {
-            Name = name;
-            Function = function;
-            InteropFunction = interopFunction;
-            Arguments = arguments;
-            UnwrappedArguments = unwrappedArguments;
         }
 
         public override string ToString()
@@ -84,28 +32,27 @@ namespace Components.Aphid.Interpreter
 
         public string ToString(bool showParamNames)
         {
-            return HasFunction ?
-                string.Format("{0}({1})", Name, CreateArgString(showParamNames)) :
-                Name;
+            return string.Format(
+                "{0}({1})",
+                Name,
+                CreateArgString());
         }
 
-        private string CreateArgString(bool showParamNames)
+        private string CreateArgString()
         {
-            var serializer = new AphidSerializer();
-
-            var args = IsUnwrapped ?
-                UnwrappedArguments.Select(x => x.ToString()) : 
-                Arguments.Select(serializer.Serialize);
-            
-            if (showParamNames && IsAphid)
-            {
-                args = args.Select((x, i) => string.Format(
-                    "{0}: {1}", 
-                    Function.Args[i], 
-                    x));
-            }
+            var args = Arguments.Select(CreateObjectString);
 
             return string.Join(", ", args);
+        }
+
+        private string CreateObjectString(object value)
+        {
+            
+            var aphidObj = value as AphidObject;
+
+            return aphidObj != null ?
+                _serializer.Serialize(aphidObj) :
+                value.ToString();
         }
     }
 }
