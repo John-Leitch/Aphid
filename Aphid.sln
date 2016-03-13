@@ -70,9 +70,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{8AC2589A
 		Build\package.alx = Build\package.alx
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinformsSample", "Samples\WinformsSample\WinformsSample.csproj", "{6B3B0475-B3B1-4944-B396-F58342262022}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
 		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
@@ -85,16 +87,16 @@ Global
 		SccAuxPath1 = https://autosectools.visualstudio.com/defaultcollection
 		SccLocalPath1 = Components.Aphid.Tests.Integration
 		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName2 = Mantispid\\Mantispid.csproj
-		SccProjectTopLevelParentUniqueName2 = Aphid.sln
-		SccProjectName2 = Mantispid
+		SccProjectUniqueName2 = Aphid\\Aphid.csproj
+		SccProjectName2 = Aphid
 		SccAuxPath2 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath2 = Mantispid
+		SccLocalPath2 = Aphid
 		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName3 = Aphid\\Aphid.csproj
-		SccProjectName3 = Aphid
+		SccProjectUniqueName3 = Samples\\ObjectSample\\ObjectSample.csproj
+		SccProjectTopLevelParentUniqueName3 = Aphid.sln
+		SccProjectName3 = Samples/ObjectSample
 		SccAuxPath3 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath3 = Aphid
+		SccLocalPath3 = Samples\\ObjectSample
 		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccProjectUniqueName4 = LLex\\LLex.csproj
 		SccProjectName4 = LLex
@@ -106,6 +108,17 @@ Global
 		SccAuxPath5 = https://autosectools.visualstudio.com/defaultcollection
 		SccLocalPath5 = AphidCodeGenerator
 		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName6 = Components.Aphid.VSPackage\\Components.Aphid.VSPackage.csproj
+		SccProjectName6 = Components.Aphid.VSPackage
+		SccAuxPath6 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath6 = Components.Aphid.VSPackage
+		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName7 = Mantispid\\Mantispid.csproj
+		SccProjectTopLevelParentUniqueName7 = Aphid.sln
+		SccProjectName7 = Mantispid
+		SccAuxPath7 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath7 = Mantispid
+		SccProvider7 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -356,6 +369,16 @@ Global
 		{61FFC3B9-5275-41B9-8380-1E370EF67A63}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{61FFC3B9-5275-41B9-8380-1E370EF67A63}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{61FFC3B9-5275-41B9-8380-1E370EF67A63}.Release|Win32.ActiveCfg = Release|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6B3B0475-B3B1-4944-B396-F58342262022}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -370,6 +393,7 @@ Global
 		{99A6C1DC-674F-4CBF-AF72-AE5959A797AC} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{42671D6B-9866-4197-92B5-230FB492BEFE} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{4774E19C-47A1-445E-9B4F-480BBC2518E5} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
+		{6B3B0475-B3B1-4944-B396-F58342262022} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{C29B4B38-86EA-4760-8830-5006CE6868D1} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
