@@ -330,6 +330,8 @@ ParseArrayAccessExpression = @{
         exp = ArrayAccessExpression(exp, key);
     }
 
+    ParseCallBody(exp);
+
     ret exp;
 };
 

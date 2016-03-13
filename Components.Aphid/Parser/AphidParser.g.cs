@@ -2325,6 +2325,23 @@ namespace Components.Aphid.Parser
                 Match(AphidTokenType.RightBracket);
                 exp = new ArrayAccessExpression(exp, key);
             }
+            for (
+            ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+            )
+            {
+                NextToken();
+                if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                {
+                    NextToken();
+                    exp = new CallExpression(exp);
+                }
+                else
+                {
+                    var args = ParseTuple();
+                    Match(AphidTokenType.RightParenthesis);
+                    exp = new CallExpression(exp, args);
+                }
+            }
             return exp;
         }
 
