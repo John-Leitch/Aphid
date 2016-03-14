@@ -77,7 +77,7 @@ namespace Boxelder
                 "{0}# Compiled by Boxelder {1}\r\n# {2}\r\n{0}", 
                 border, 
                 version,
-                "https://github.com/John-Leitch/Aphid/tree/master/Boxelder");
+                "https://github.com/John-Leitch/Aphid/releases");
         }
 
         protected override void EmitNumberExpression(NumberExpression expression, bool isStatement = false)
