@@ -222,7 +222,9 @@ namespace Components.Aphid.Interpreter
                 t == typeof(int) ||
                 t == typeof(uint) ||
                 t == typeof(long) ||
-                t == typeof(ulong))
+                t == typeof(ulong) ||
+                t == typeof(float) ||
+                t == typeof(double))
             {
                 return new AphidObject(Convert.ToDecimal(o));
             }
