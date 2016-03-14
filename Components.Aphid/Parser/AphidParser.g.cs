@@ -2324,22 +2324,83 @@ namespace Components.Aphid.Parser
                 }
                 Match(AphidTokenType.RightBracket);
                 exp = new ArrayAccessExpression(exp, key);
-            }
-            for (
-            ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
-            )
-            {
-                NextToken();
-                if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                for (
+                ; (_currentToken.TokenType == AphidTokenType.MemberOperator);
+                )
                 {
                     NextToken();
-                    exp = new CallExpression(exp);
+                    AphidExpression memberExp = default(AphidExpression);
+                    if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                    {
+                        memberExp = new IdentifierExpression(_currentToken.Lexeme);
+                        NextToken();
+                    }
+                    else
+                    {
+                        if ((_currentToken.TokenType == AphidTokenType.String))
+                        {
+                            var index0026 = _currentToken.Index;
+                            memberExp = ParseStringExpression();
+                            if ((memberExp.Index < 0))
+                            {
+                                memberExp.Index = index0026;
+                                memberExp.Length = (_currentToken.Index - index0026);
+                            }
+                        }
+                        else
+                        {
+                            if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                            {
+                                NextToken();
+                                memberExp = new DynamicMemberExpression(ParseExpression());
+                                Match(AphidTokenType.RightBrace);
+                            }
+                            else
+                            {
+                                throw new AphidParserException(_currentToken);
+                            }
+                        }
+                    }
+                    exp = new BinaryOperatorExpression(exp, AphidTokenType.MemberOperator, memberExp);
+                    for (
+                    ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+                    )
+                    {
+                        NextToken();
+                        if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                        {
+                            NextToken();
+                            exp = new CallExpression(exp);
+                        }
+                        else
+                        {
+                            var args = ParseTuple();
+                            Match(AphidTokenType.RightParenthesis);
+                            exp = new CallExpression(exp, args);
+                        }
+                    }
+                    if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
+                    {
+                        NextToken();
+                        return new UnaryOperatorExpression(AphidTokenType.definedKeyword, exp, true);
+                    }
                 }
-                else
+                for (
+                ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+                )
                 {
-                    var args = ParseTuple();
-                    Match(AphidTokenType.RightParenthesis);
-                    exp = new CallExpression(exp, args);
+                    NextToken();
+                    if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                    {
+                        NextToken();
+                        exp = new CallExpression(exp);
+                    }
+                    else
+                    {
+                        var args = ParseTuple();
+                        Match(AphidTokenType.RightParenthesis);
+                        exp = new CallExpression(exp, args);
+                    }
                 }
             }
             return exp;
@@ -2347,12 +2408,12 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseCallExpression()
         {
-            var index0026 = _currentToken.Index;
+            var index0027 = _currentToken.Index;
             var function = ParseMemberExpression();
             if ((function.Index < 0))
             {
-                function.Index = index0026;
-                function.Length = (_currentToken.Index - index0026);
+                function.Index = index0027;
+                function.Length = (_currentToken.Index - index0027);
             }
             for (
             ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
@@ -2376,34 +2437,34 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseMemberExpression()
         {
-            var index0027 = _currentToken.Index;
+            var index0028 = _currentToken.Index;
             var factor = ParseFactorCallExpression();
             if ((factor.Index < 0))
             {
-                factor.Index = index0027;
-                factor.Length = (_currentToken.Index - index0027);
+                factor.Index = index0028;
+                factor.Length = (_currentToken.Index - index0028);
             }
             for (
             ; (_currentToken.TokenType == AphidTokenType.MemberOperator);
             )
             {
                 NextToken();
-                AphidExpression exp = default(AphidExpression);
+                AphidExpression memberExp = default(AphidExpression);
                 if ((_currentToken.TokenType == AphidTokenType.Identifier))
                 {
-                    exp = new IdentifierExpression(_currentToken.Lexeme);
+                    memberExp = new IdentifierExpression(_currentToken.Lexeme);
                     NextToken();
                 }
                 else
                 {
                     if ((_currentToken.TokenType == AphidTokenType.String))
                     {
-                        var index0028 = _currentToken.Index;
-                        exp = ParseStringExpression();
-                        if ((exp.Index < 0))
+                        var index0029 = _currentToken.Index;
+                        memberExp = ParseStringExpression();
+                        if ((memberExp.Index < 0))
                         {
-                            exp.Index = index0028;
-                            exp.Length = (_currentToken.Index - index0028);
+                            memberExp.Index = index0029;
+                            memberExp.Length = (_currentToken.Index - index0029);
                         }
                     }
                     else
@@ -2411,7 +2472,7 @@ namespace Components.Aphid.Parser
                         if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
                         {
                             NextToken();
-                            exp = new DynamicMemberExpression(ParseExpression());
+                            memberExp = new DynamicMemberExpression(ParseExpression());
                             Match(AphidTokenType.RightBrace);
                         }
                         else
@@ -2420,7 +2481,7 @@ namespace Components.Aphid.Parser
                         }
                     }
                 }
-                factor = new BinaryOperatorExpression(factor, AphidTokenType.MemberOperator, exp);
+                factor = new BinaryOperatorExpression(factor, AphidTokenType.MemberOperator, memberExp);
                 for (
                 ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
                 )
@@ -2449,12 +2510,12 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseFactorCallExpression()
         {
-            var index0029 = _currentToken.Index;
+            var index002A = _currentToken.Index;
             var function = ParseFactorExpression();
             if ((function.Index < 0))
             {
-                function.Index = index0029;
-                function.Length = (_currentToken.Index - index0029);
+                function.Index = index002A;
+                function.Length = (_currentToken.Index - index002A);
             }
             for (
             ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
@@ -2519,12 +2580,12 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseCondition()
         {
             Match(AphidTokenType.LeftParenthesis);
-            var index002A = _currentToken.Index;
+            var index002B = _currentToken.Index;
             var condition = ParseExpression();
             if ((condition.Index < 0))
             {
-                condition.Index = index002A;
-                condition.Length = (_currentToken.Index - index002A);
+                condition.Index = index002B;
+                condition.Length = (_currentToken.Index - index002B);
             }
             Match(AphidTokenType.RightParenthesis);
             return condition;
@@ -2533,12 +2594,12 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseIfExpression()
         {
             NextToken();
-            var index002B = _currentToken.Index;
+            var index002C = _currentToken.Index;
             var condition = ParseCondition();
             if ((condition.Index < 0))
             {
-                condition.Index = index002B;
-                condition.Length = (_currentToken.Index - index002B);
+                condition.Index = index002C;
+                condition.Length = (_currentToken.Index - index002C);
             }
             var body = ParseBlock();
             System.Collections.Generic.List<AphidExpression> elseBody = default(System.Collections.Generic.List<AphidExpression>);
@@ -2604,22 +2665,22 @@ namespace Components.Aphid.Parser
         {
             NextToken();
             Match(AphidTokenType.LeftParenthesis);
-            var index002C = _currentToken.Index;
+            var index002D = _currentToken.Index;
             var initOrElement = ParseExpression();
             if ((initOrElement.Index < 0))
             {
-                initOrElement.Index = index002C;
-                initOrElement.Length = (_currentToken.Index - index002C);
+                initOrElement.Index = index002D;
+                initOrElement.Length = (_currentToken.Index - index002D);
             }
             if ((_currentToken.TokenType == AphidTokenType.inKeyword))
             {
                 NextToken();
-                var index002D = _currentToken.Index;
+                var index002E = _currentToken.Index;
                 var collection = ParseExpression();
                 if ((collection.Index < 0))
                 {
-                    collection.Index = index002D;
-                    collection.Length = (_currentToken.Index - index002D);
+                    collection.Index = index002E;
+                    collection.Length = (_currentToken.Index - index002E);
                 }
                 Match(AphidTokenType.RightParenthesis);
                 var body = ParseBlock();
@@ -2628,20 +2689,20 @@ namespace Components.Aphid.Parser
             else
             {
                 Match(AphidTokenType.EndOfStatement);
-                var index002E = _currentToken.Index;
+                var index002F = _currentToken.Index;
                 var condition = ParseExpression();
                 if ((condition.Index < 0))
                 {
-                    condition.Index = index002E;
-                    condition.Length = (_currentToken.Index - index002E);
+                    condition.Index = index002F;
+                    condition.Length = (_currentToken.Index - index002F);
                 }
                 Match(AphidTokenType.EndOfStatement);
-                var index002F = _currentToken.Index;
+                var index0030 = _currentToken.Index;
                 var afterthought = ParseExpression();
                 if ((afterthought.Index < 0))
                 {
-                    afterthought.Index = index002F;
-                    afterthought.Length = (_currentToken.Index - index002F);
+                    afterthought.Index = index0030;
+                    afterthought.Length = (_currentToken.Index - index0030);
                 }
                 Match(AphidTokenType.RightParenthesis);
                 var body = ParseBlock();
@@ -2661,12 +2722,12 @@ namespace Components.Aphid.Parser
             var body = ParseBlock();
             Match(AphidTokenType.whileKeyword);
             Match(AphidTokenType.LeftParenthesis);
-            var index0030 = _currentToken.Index;
+            var index0031 = _currentToken.Index;
             var condition = ParseExpression();
             if ((condition.Index < 0))
             {
-                condition.Index = index0030;
-                condition.Length = (_currentToken.Index - index0030);
+                condition.Index = index0031;
+                condition.Length = (_currentToken.Index - index0031);
             }
             Match(AphidTokenType.RightParenthesis);
             return new DoWhileExpression(condition, body);
@@ -2714,12 +2775,12 @@ namespace Components.Aphid.Parser
             {
                 NextToken();
                 Match(AphidTokenType.LeftParenthesis);
-                var index0031 = _currentToken.Index;
+                var index0032 = _currentToken.Index;
                 catchArg = ParseIdentifierExpression();
                 if ((catchArg.Index < 0))
                 {
-                    catchArg.Index = index0031;
-                    catchArg.Length = (_currentToken.Index - index0031);
+                    catchArg.Index = index0032;
+                    catchArg.Length = (_currentToken.Index - index0032);
                 }
                 Match(AphidTokenType.RightParenthesis);
                 catchBody = ParseBlock();
@@ -2748,12 +2809,12 @@ namespace Components.Aphid.Parser
         {
             NextToken();
             Match(AphidTokenType.LeftParenthesis);
-            var index0032 = _currentToken.Index;
+            var index0033 = _currentToken.Index;
             var exp = ParseExpression();
             if ((exp.Index < 0))
             {
-                exp.Index = index0032;
-                exp.Length = (_currentToken.Index - index0032);
+                exp.Index = index0033;
+                exp.Length = (_currentToken.Index - index0033);
             }
             Match(AphidTokenType.RightParenthesis);
             Match(AphidTokenType.LeftBrace);
@@ -2835,34 +2896,34 @@ namespace Components.Aphid.Parser
             AphidExpression id = default(AphidExpression);
             if ((_currentToken.TokenType == AphidTokenType.Identifier))
             {
-                var index0033 = _currentToken.Index;
-                id = ParseIdentifierExpression();
-                if ((id.Index < 0))
-                {
-                    id.Index = index0033;
-                    id.Length = (_currentToken.Index - index0033);
-                }
-            }
-            else
-            {
                 var index0034 = _currentToken.Index;
-                id = ParseStringExpression();
+                id = ParseIdentifierExpression();
                 if ((id.Index < 0))
                 {
                     id.Index = index0034;
                     id.Length = (_currentToken.Index - index0034);
                 }
             }
+            else
+            {
+                var index0035 = _currentToken.Index;
+                id = ParseStringExpression();
+                if ((id.Index < 0))
+                {
+                    id.Index = index0035;
+                    id.Length = (_currentToken.Index - index0035);
+                }
+            }
             if (((_currentToken.TokenType == AphidTokenType.ColonOperator)
                         || (_currentToken.TokenType == AphidTokenType.AssignmentOperator)))
             {
                 NextToken();
-                var index0035 = _currentToken.Index;
+                var index0036 = _currentToken.Index;
                 exp = ParseExpression();
                 if ((exp.Index < 0))
                 {
-                    exp.Index = index0035;
-                    exp.Length = (_currentToken.Index - index0035);
+                    exp.Index = index0036;
+                    exp.Length = (_currentToken.Index - index0036);
                 }
             }
             else
@@ -2941,12 +3002,12 @@ namespace Components.Aphid.Parser
                     {
                         if ((_currentToken.TokenType == AphidTokenType.Identifier))
                         {
-                            var index0036 = _currentToken.Index;
+                            var index0037 = _currentToken.Index;
                             var id = ParseIdentifierExpression();
                             if ((id.Index < 0))
                             {
-                                id.Index = index0036;
-                                id.Length = (_currentToken.Index - index0036);
+                                id.Index = index0037;
+                                id.Length = (_currentToken.Index - index0037);
                             }
                             argExp = id;
                             if ((_currentToken.TokenType == AphidTokenType.AssignmentOperator))
@@ -3032,12 +3093,12 @@ namespace Components.Aphid.Parser
             NextToken();
             var patterns = new System.Collections.Generic.List<PatternExpression>();
             Match(AphidTokenType.LeftParenthesis);
-            var index0037 = _currentToken.Index;
+            var index0038 = _currentToken.Index;
             var testExp = ParseExpression();
             if ((testExp.Index < 0))
             {
-                testExp.Index = index0037;
-                testExp.Length = (_currentToken.Index - index0037);
+                testExp.Index = index0038;
+                testExp.Length = (_currentToken.Index - index0038);
             }
             Match(AphidTokenType.RightParenthesis);
             for (
@@ -3063,12 +3124,12 @@ namespace Components.Aphid.Parser
                 if ((_currentToken.TokenType == AphidTokenType.ColonOperator))
                 {
                     NextToken();
-                    var index0038 = _currentToken.Index;
+                    var index0039 = _currentToken.Index;
                     valueExp = ParseExpression();
                     if ((valueExp.Index < 0))
                     {
-                        valueExp.Index = index0038;
-                        valueExp.Length = (_currentToken.Index - index0038);
+                        valueExp.Index = index0039;
+                        valueExp.Length = (_currentToken.Index - index0039);
                     }
                     patterns.Add(new PatternExpression(valueExp, tuple));
                 }
@@ -3097,24 +3158,24 @@ namespace Components.Aphid.Parser
             AphidExpression exp = default(AphidExpression);
             if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
             {
-                var index0039 = _currentToken.Index;
+                var index003A = _currentToken.Index;
                 exp = ParseObjectExpression();
                 if ((exp.Index < 0))
                 {
-                    exp.Index = index0039;
-                    exp.Length = (_currentToken.Index - index0039);
+                    exp.Index = index003A;
+                    exp.Length = (_currentToken.Index - index003A);
                 }
             }
             else
             {
                 if ((_currentToken.TokenType == AphidTokenType.LeftBracket))
                 {
-                    var index003A = _currentToken.Index;
+                    var index003B = _currentToken.Index;
                     exp = ParseArrayExpression();
                     if ((exp.Index < 0))
                     {
-                        exp.Index = index003A;
-                        exp.Length = (_currentToken.Index - index003A);
+                        exp.Index = index003B;
+                        exp.Length = (_currentToken.Index - index003B);
                     }
                 }
                 else
@@ -3122,12 +3183,12 @@ namespace Components.Aphid.Parser
                     if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
                     {
                         NextToken();
-                        var index003B = _currentToken.Index;
+                        var index003C = _currentToken.Index;
                         exp = ParseExpression();
                         if ((exp.Index < 0))
                         {
-                            exp.Index = index003B;
-                            exp.Length = (_currentToken.Index - index003B);
+                            exp.Index = index003C;
+                            exp.Length = (_currentToken.Index - index003C);
                         }
                         Match(AphidTokenType.RightParenthesis);
                     }
@@ -3135,36 +3196,36 @@ namespace Components.Aphid.Parser
                     {
                         if ((_currentToken.TokenType == AphidTokenType.String))
                         {
-                            var index003C = _currentToken.Index;
+                            var index003D = _currentToken.Index;
                             exp = ParseStringExpression();
                             if ((exp.Index < 0))
                             {
-                                exp.Index = index003C;
-                                exp.Length = (_currentToken.Index - index003C);
+                                exp.Index = index003D;
+                                exp.Length = (_currentToken.Index - index003D);
                             }
                         }
                         else
                         {
                             if ((_currentToken.TokenType == AphidTokenType.Number))
                             {
-                                var index003D = _currentToken.Index;
+                                var index003E = _currentToken.Index;
                                 exp = ParseNumberExpression();
                                 if ((exp.Index < 0))
                                 {
-                                    exp.Index = index003D;
-                                    exp.Length = (_currentToken.Index - index003D);
+                                    exp.Index = index003E;
+                                    exp.Length = (_currentToken.Index - index003E);
                                 }
                             }
                             else
                             {
                                 if ((_currentToken.TokenType == AphidTokenType.Identifier))
                                 {
-                                    var index003E = _currentToken.Index;
+                                    var index003F = _currentToken.Index;
                                     var id = ParseIdentifierExpression();
                                     if ((id.Index < 0))
                                     {
-                                        id.Index = index003E;
-                                        id.Length = (_currentToken.Index - index003E);
+                                        id.Index = index003F;
+                                        id.Length = (_currentToken.Index - index003F);
                                     }
                                     if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
                                     {
@@ -3175,12 +3236,12 @@ namespace Components.Aphid.Parser
                                     {
                                         if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
                                         {
-                                            var index003F = _currentToken.Index;
+                                            var index0040 = _currentToken.Index;
                                             var obj = ParseObjectExpression();
                                             if ((obj.Index < 0))
                                             {
-                                                obj.Index = index003F;
-                                                obj.Length = (_currentToken.Index - index003F);
+                                                obj.Index = index0040;
+                                                obj.Length = (_currentToken.Index - index0040);
                                             }
                                             exp = new ObjectExpression(obj.Pairs, id);
                                         }
@@ -3194,12 +3255,12 @@ namespace Components.Aphid.Parser
                                 {
                                     if ((_currentToken.TokenType == AphidTokenType.functionOperator))
                                     {
-                                        var index0040 = _currentToken.Index;
+                                        var index0041 = _currentToken.Index;
                                         exp = ParseFunctionExpression();
                                         if ((exp.Index < 0))
                                         {
-                                            exp.Index = index0040;
-                                            exp.Length = (_currentToken.Index - index0040);
+                                            exp.Index = index0041;
+                                            exp.Length = (_currentToken.Index - index0041);
                                         }
                                     }
                                     else
@@ -3207,12 +3268,12 @@ namespace Components.Aphid.Parser
                                         if (((_currentToken.TokenType == AphidTokenType.retKeyword)
                                                     || (_currentToken.TokenType == AphidTokenType.deleteKeyword)))
                                         {
-                                            var index0041 = _currentToken.Index;
+                                            var index0042 = _currentToken.Index;
                                             exp = ParseUnaryExpression();
                                             if ((exp.Index < 0))
                                             {
-                                                exp.Index = index0041;
-                                                exp.Length = (_currentToken.Index - index0041);
+                                                exp.Index = index0042;
+                                                exp.Length = (_currentToken.Index - index0042);
                                             }
                                         }
                                         else
@@ -3240,24 +3301,24 @@ namespace Components.Aphid.Parser
                                                     {
                                                         if ((_currentToken.TokenType == AphidTokenType.LoadScriptOperator))
                                                         {
-                                                            var index0042 = _currentToken.Index;
+                                                            var index0043 = _currentToken.Index;
                                                             exp = ParseLoadScriptExpression();
                                                             if ((exp.Index < 0))
                                                             {
-                                                                exp.Index = index0042;
-                                                                exp.Length = (_currentToken.Index - index0042);
+                                                                exp.Index = index0043;
+                                                                exp.Length = (_currentToken.Index - index0043);
                                                             }
                                                         }
                                                         else
                                                         {
                                                             if ((_currentToken.TokenType == AphidTokenType.LoadLibraryOperator))
                                                             {
-                                                                var index0043 = _currentToken.Index;
+                                                                var index0044 = _currentToken.Index;
                                                                 exp = ParseLoadLibraryExpression();
                                                                 if ((exp.Index < 0))
                                                                 {
-                                                                    exp.Index = index0043;
-                                                                    exp.Length = (_currentToken.Index - index0043);
+                                                                    exp.Index = index0044;
+                                                                    exp.Length = (_currentToken.Index - index0044);
                                                                 }
                                                             }
                                                             else
@@ -3292,12 +3353,12 @@ namespace Components.Aphid.Parser
                                                                             {
                                                                                 if ((_currentToken.TokenType == AphidTokenType.PatternMatchingOperator))
                                                                                 {
-                                                                                    var index0044 = _currentToken.Index;
+                                                                                    var index0045 = _currentToken.Index;
                                                                                     exp = ParsePatternMatchingExpression();
                                                                                     if ((exp.Index < 0))
                                                                                     {
-                                                                                        exp.Index = index0044;
-                                                                                        exp.Length = (_currentToken.Index - index0044);
+                                                                                        exp.Index = index0045;
+                                                                                        exp.Length = (_currentToken.Index - index0045);
                                                                                     }
                                                                                 }
                                                                                 else

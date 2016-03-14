@@ -328,9 +328,9 @@ ParseArrayAccessExpression = @{
         key ParseExpression;
         RightBracket;
         exp = ArrayAccessExpression(exp, key);
+        ParseMemberBody(exp);
+        ParseCallBody(exp);
     }
-
-    ParseCallBody(exp);
 
     ret exp;
 };
@@ -375,40 +375,42 @@ ParseCallExpression = ParseCall(ParseMemberExpression);
 
 ParseMemberExpression = @{ 
     factor ParseFactorCallExpression;
+    ParseMemberBody(factor);
+    ret factor;
+};
 
+ParseMemberBody = macro(@(_id) {
     while (MemberOperator) {
         NextToken;
-        exp;
+        memberExp;
 
         switch (TokenType) {
             Identifier: {
-                exp = IdentifierExpression(Lexeme);
+                memberExp = IdentifierExpression(Lexeme);
                 NextToken;
             }
 
-            String: exp ParseStringExpression;
+            String: memberExp ParseStringExpression;
 
             LeftBrace: {
                 NextToken;
-                exp = DynamicMemberExpression(ParseExpression());
+                memberExp = DynamicMemberExpression(ParseExpression());
                 RightBrace;
             }
 
             default: Error;
         }
 
-        factor = BinaryOperatorExpression(factor, MemberOperator, exp);
-        ParseCallBody(factor);        
+        _id = BinaryOperatorExpression(_id, MemberOperator, memberExp);
+        ParseCallBody(_id);        
 
         if (definedKeyword) {
             NextToken;
 
-            ret UnaryOperatorExpression(definedKeyword, factor, true);
+            ret UnaryOperatorExpression(definedKeyword, _id, true);
         }
     }
-
-    ret factor;
-};
+});
 
 ParseFactorCallExpression = ParseCall(ParseFactorExpression);
 ParseStringExpression = Lexeme |> StringExpression |> ThenSkip;

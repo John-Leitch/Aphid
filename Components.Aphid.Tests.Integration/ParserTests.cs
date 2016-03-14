@@ -21,5 +21,17 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo("x = [ @()'foo' ]; ret x[0]();");
         }
+
+        [Test]
+        public void TestArrayAccessInstanceCall1()
+        {
+            AssertFoo("x = [ { y: @()'foo' } ]; z = x[0].y; ret z();");
+        }
+
+        [Test]
+        public void TestArrayAccessInstanceCall2()
+        {
+            AssertFoo("x = [ { y: @()'foo' } ]; ret x[0].y();");
+        }
     }
 }
