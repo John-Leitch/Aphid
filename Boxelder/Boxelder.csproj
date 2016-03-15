@@ -49,6 +49,7 @@
     <Compile Include="ObjectStatementAttributes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SwitchToIfMutator.cs" />
     <Compile Include="UnaryExpressionMutator.cs" />
   </ItemGroup>
   <ItemGroup>

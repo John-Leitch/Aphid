@@ -39,6 +39,7 @@ namespace Boxelder
                 new PartialOperatorMutator(),
                 new UnaryExpressionMutator(),
                 new LambdaPositionMutator(),
+                new SwitchToIfMutator(),
             };
 
             foreach (var mutator in mutators)
