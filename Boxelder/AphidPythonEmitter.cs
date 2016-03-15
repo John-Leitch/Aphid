@@ -229,7 +229,7 @@ namespace Boxelder
             Emit(expression.Body);
             Unindent();
 
-            if (expression.ElseBody != null && expression.Body.Any())
+            if (expression.ElseBody != null && expression.ElseBody.Any())
             {
                 AppendTabs();
                 Append("else:\r\n");
