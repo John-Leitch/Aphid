@@ -74,7 +74,7 @@ namespace Boxelder
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             var border = new string('#', 64) + "\r\n";
             Append(
-                "{0}# Compiled by Boxelder {1}\r\n# {2}\r\n{0}", 
+                "{0}# Compiled from Aphid to Python by Boxelder {1}\r\n# {2}\r\n{0}", 
                 border, 
                 version,
                 "https://github.com/John-Leitch/Aphid/releases");
