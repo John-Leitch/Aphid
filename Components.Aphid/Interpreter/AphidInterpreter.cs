@@ -12,7 +12,7 @@ using System.Collections;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidInterpreter
+    public partial class AphidInterpreter
     {
         private const string _return = "$r", _imports = "$imports";
 
@@ -98,7 +98,7 @@ namespace Components.Aphid.Interpreter
             {
                 var list = new List<string>();
                 _currentScope.Add(_imports, new AphidObject(list));
-                
+
                 return list;
             }
         }
@@ -201,7 +201,7 @@ namespace Components.Aphid.Interpreter
             {
                 return new AphidObject((bool)ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)));
             }
-        }        
+        }
 
         private AphidObject InterpretEqualityExpression(BinaryOperatorExpression expression)
         {
@@ -218,18 +218,26 @@ namespace Components.Aphid.Interpreter
             {
                 throw CreateUndefinedMemberException(expression, expression.RightOperand);
             }
-            else if (left.Value != null)
-            {
-                val = left.Value.Equals(right.Value);
-            }
-            else if (right.Value != null)
-            {
-                val = right.Value.Equals(left.Value);                
-            }
             else
             {
-                val = left.Count == 0 && right.Count == 0;
-            }            
+                if (left.Value != null && right.Value != null)
+                {
+                    Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
+                    val = InterpretEqualityExpression(left.Value, leftType, right.Value, rightType);
+                }
+                else if (left.Value != null)
+                {
+                    val = left.Value.Equals(right.Value);
+                }
+                else if (right.Value != null)
+                {
+                    val = right.Value.Equals(left.Value);
+                }
+                else
+                {
+                    val = left.Count == 0 && right.Count == 0;
+                }
+            }
 
             if (expression.Operator == AphidTokenType.NotEqualOperator)
             {
@@ -254,9 +262,9 @@ namespace Components.Aphid.Interpreter
 
                 if (propInfo != null)
                 {
-                    
+
                     return ValueHelper.Wrap(
-                        !returnRef ? 
+                        !returnRef ?
                             propInfo.GetValue(lhs) :
                             new AphidInteropReference(lhs, propInfo));
                 }
@@ -266,10 +274,10 @@ namespace Components.Aphid.Interpreter
                 if (fieldInfo != null)
                 {
                     return ValueHelper.Wrap(
-                        !returnRef ? 
+                        !returnRef ?
                         fieldInfo.GetValue(lhs) :
                         new AphidInteropReference(lhs, fieldInfo));
-                }                
+                }
             }
 
             if (!members.Any())
@@ -425,7 +433,7 @@ namespace Components.Aphid.Interpreter
                 {
                     var v = ValueHelper.Unwrap(value);
 
-                    
+
 
                     if (interopRef.Field != null)
                     {
@@ -511,7 +519,7 @@ namespace Components.Aphid.Interpreter
                     return InterprentOperatorAndAssignmentExpression(OperatorHelper.Subtract, expression);
 
                 case AphidTokenType.MultiplicationEqualOperator:
-                    return InterprentOperatorAndAssignmentExpression(OperatorHelper.Multiply, expression);                
+                    return InterprentOperatorAndAssignmentExpression(OperatorHelper.Multiply, expression);
 
                 case AphidTokenType.DivisionEqualOperator:
                     return InterprentOperatorAndAssignmentExpression(OperatorHelper.Divide, expression);
@@ -674,7 +682,7 @@ namespace Components.Aphid.Interpreter
                     collection = (List<AphidObject>)((AphidObject)InterpretExpression(expression.LeftOperand)).Value;
                     value = ((AphidObject)InterpretExpression(expression.RightOperand)).Value;
                     func = (AphidFunction)((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-                    
+
                     if (func != null)
                     {
                         return new AphidObject(collection.Where(x => (bool)CallFunction(func, x).Value).ToList());
@@ -689,7 +697,7 @@ namespace Components.Aphid.Interpreter
 
                     throw new InvalidOperationException();
 
-                
+
 
                 default:
                     throw new AphidRuntimeException("Unknown operator {0} in expression {1}", expression.Operator, expression);
@@ -803,7 +811,7 @@ namespace Components.Aphid.Interpreter
             {
                 case AphidExpressionType.IdentifierExpression:
                     var attr = expression.ToIdentifier().Attributes.SingleOrDefault();
-                
+
                     return attr != null ? attr.Identifier : null;
 
                 case AphidExpressionType.BinaryOperatorExpression:
@@ -834,7 +842,7 @@ namespace Components.Aphid.Interpreter
                 .ToArray();
 
             var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
-            
+
             MethodBase method;
 
             if (!methodInfo.GenericArguments.Any())
@@ -844,14 +852,14 @@ namespace Components.Aphid.Interpreter
             else
             {
                 var m = (MethodInfo)methodInfo.Method;
-                
+
                 var genArgs = methodInfo.GenericArguments
                     .Take(m.GetGenericArguments().Length)
                     .ToArray();
 
                 method = m.MakeGenericMethod(genArgs);
             }
-            
+
             var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
 
             return ValueHelper.Wrap(method.Invoke(null, convertedArgs));
@@ -913,7 +921,7 @@ namespace Components.Aphid.Interpreter
                 {
                     return InterpretInteropCallExpression(expression, interopMembers);
                 }
-                
+
                 var interopPartial = funcExp as AphidInteropPartialFunction;
 
                 if (interopPartial != null)
@@ -961,8 +969,8 @@ namespace Components.Aphid.Interpreter
                         if (r == null)
                         {
                             throw new AphidRuntimeException(
-                                "Could not find variable {0} in call expression {1}", 
-                                x, 
+                                "Could not find variable {0} in call expression {1}",
+                                x,
                                 expression);
                         }
 
@@ -972,7 +980,7 @@ namespace Components.Aphid.Interpreter
 
                 var args = expression.Args.Select(selector).ToArray();
                 PushFrame(expression.FunctionExpression, args);
-                var retVal = ValueHelper.Wrap(func.Invoke(this, args));;
+                var retVal = ValueHelper.Wrap(func.Invoke(this, args)); ;
                 PopFrame();
 
                 return retVal;
@@ -1052,7 +1060,7 @@ namespace Components.Aphid.Interpreter
             {
                 case AphidExpressionType.CallExpression:
                     var call = operand.ToCall();
-                    
+
                     var args = call.Args
                         .Select(InterpretExpression)
                         .Select(ValueHelper.Unwrap)
@@ -1063,7 +1071,7 @@ namespace Components.Aphid.Interpreter
                     var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
                     var convertedArgs = AphidTypeConverter.Convert(ctor.Arguments);
                     var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
-                    
+
                     return ValueHelper.Wrap(result);
 
                 default:
@@ -1149,7 +1157,7 @@ namespace Components.Aphid.Interpreter
                         var path = FlattenAndJoinPath(expression.Operand);
                         AddImport(path);
 
-                        return null;  
+                        return null;
 
                     case AphidTokenType.newKeyword:
                         return InterpretInteropNewExpression(expression.Operand);
@@ -1173,11 +1181,11 @@ namespace Components.Aphid.Interpreter
 
                                     case AphidExpressionType.BinaryOperatorExpression:
                                         return InterpretMemberInteropExpression(
-                                            null, 
+                                            null,
                                             expression.Operand.ToBinaryOperator());
 
                                     default:
-                                        throw new NotImplementedException();                                        
+                                        throw new NotImplementedException();
                                 }
 
                             default:
@@ -1220,7 +1228,7 @@ namespace Components.Aphid.Interpreter
                             throw new AphidRuntimeException("Unknown ? operand");
                         }
 
-                    
+
                     //var obj = InterpretExpression(
 
                     default:
@@ -1274,7 +1282,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var list = val as IList;                
+                var list = val as IList;
 
                 if (list == null)
                 {
@@ -1372,7 +1380,7 @@ namespace Components.Aphid.Interpreter
             {
                 var partialArgCount = func.Args.Length - expression.Call.Args.Count();
                 var partialArgs = func.Args.Skip(partialArgCount).ToArray();
-                
+
                 var partialFunc = new AphidFunction()
                 {
                     Args = partialArgs,
@@ -1490,7 +1498,7 @@ namespace Components.Aphid.Interpreter
         {
             LeaveChildScope(true);
             EnterChildScope();
-            
+
             _currentScope.Add(
                 expression.CatchArg.Identifier,
                 new AphidObject(ExceptionHelper.Unwrap(e).Message));
@@ -1589,7 +1597,7 @@ namespace Components.Aphid.Interpreter
                 foreach (var c2 in c.Cases)
                 {
                     var caseValue = (AphidObject)InterpretExpression(c2);
-                    
+
                     if (!exp.Value.Equals(caseValue.Value))
                     {
                         continue;
@@ -1767,7 +1775,7 @@ namespace Components.Aphid.Interpreter
 
         public void InterpretFile(string filename, bool isTextDocument = false)
         {
-            _loader.LoadScript(filename, isTextDocument);            
+            _loader.LoadScript(filename, isTextDocument);
         }
 
         public AphidFrame[] GetStackTrace()
