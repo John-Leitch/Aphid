@@ -135,8 +135,10 @@ namespace Components.Aphid.Compiler
         protected virtual void EndExpression(AphidExpression expression) { }
 
         [DebuggerStepThrough]
-        public virtual string Compile(List<AphidExpression> ast)
+        public virtual string Compile(string filename, List<AphidExpression> ast)
         {
+            var buildNumber = new BuildNumberRepository().NextBuildNumber(filename);
+            ast = new BuildConstMutator(buildNumber).Mutate(ast);
             _out.Clear();
             EmitHeader();
             Emit(ast);

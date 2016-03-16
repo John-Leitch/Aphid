@@ -124,8 +124,6 @@ namespace Components.Aphid.Compiler
         {
             Cli.WriteInfoMessage("Parsing '~Cyan~{0}~R~'", filename);
             var ast = ParseCode(filename);
-            var buildNumber = _buildNumberRepo.NextBuildNumber(filename);
-            ast = new BuildConstMutator(buildNumber).Mutate(ast);
             Cli.WriteSuccessMessage("File successfully parsed");
             EmitCode(ast, outFilename);
         }
@@ -178,7 +176,7 @@ namespace Components.Aphid.Compiler
             try
             {
                 Cli.WriteInfoMessage("Compiling to {0}", _targetName);
-                var output = _emitter.Compile(ast);
+                var output = _emitter.Compile(filename, ast);
                 File.WriteAllText(filename, output);
 
                 Cli.WriteSuccessMessage(

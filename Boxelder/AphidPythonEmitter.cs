@@ -29,7 +29,7 @@ namespace Boxelder
 
         private bool _isEndingStatements;
 
-        public override string Compile(List<AphidExpression> ast)
+        public override string Compile(string filename, List<AphidExpression> ast)
         {
             var mutators = new AphidMutator[] 
             {
@@ -47,7 +47,7 @@ namespace Boxelder
                 ast = mutator.MutateRecursively(ast);
             }
 
-            return base.Compile(ast);
+            return base.Compile(filename, ast);
         }
 
         private void AppendStatement(string format, params object[] args)

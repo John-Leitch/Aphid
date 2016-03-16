@@ -42,7 +42,7 @@ if (!function_exists('__add')) {
             return _builtInFunctions.Contains(id);
         }
 
-        public override string Compile(List<AphidExpression> ast)
+        public override string Compile(string filename, List<AphidExpression> ast)
         {
             var mutators = new AphidMutator[] 
             {
@@ -57,7 +57,7 @@ if (!function_exists('__add')) {
                 ast = mutator.MutateRecursively(ast);
             }
 
-            return base.Compile(ast);
+            return base.Compile(filename, ast);
         }
 
         protected override void EmitHeader()
