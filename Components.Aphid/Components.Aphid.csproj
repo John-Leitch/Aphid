@@ -113,6 +113,7 @@
     <Compile Include="Parser\AphidVisitor.cs" />
     <Compile Include="Parser\BinaryNumber.cs" />
     <Compile Include="Parser\BinaryOperatorExpression.cs" />
+    <Compile Include="Parser\BuildConstMutator.cs" />
     <Compile Include="Parser\CallExpression.cs" />
     <Compile Include="Parser\ConstantFoldingMutator.cs" />
     <Compile Include="Parser\AphidParser.g.cs" />
