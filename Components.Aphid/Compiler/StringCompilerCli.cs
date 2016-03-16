@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.Compiler
 {
@@ -24,6 +22,8 @@ namespace Components.Aphid.Compiler
         private string[] _args;
 
         private bool _isText;
+
+        private BuildNumberRepository _buildNumberRepo = new BuildNumberRepository();
 
         public StringCompilerCli(
             string name,
@@ -124,6 +124,8 @@ namespace Components.Aphid.Compiler
         {
             Cli.WriteInfoMessage("Parsing '~Cyan~{0}~R~'", filename);
             var ast = ParseCode(filename);
+            var buildNumber = _buildNumberRepo.NextBuildNumber(filename);
+            ast = new BuildConstMutator(buildNumber).Mutate(ast);
             Cli.WriteSuccessMessage("File successfully parsed");
             EmitCode(ast, outFilename);
         }
