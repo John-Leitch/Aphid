@@ -161,10 +161,11 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject CompareDecimals(BinaryOperatorExpression expression, Func<decimal, decimal, bool> equal)
         {
+            
             return new AphidObject(
                 equal(
-                    (decimal)ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand)),
-                    (decimal)ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
+                    Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))),
+                    Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)))));
         }
 
         private void WriteOut(string text)
