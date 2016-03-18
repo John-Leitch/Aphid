@@ -3,6 +3,7 @@ using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.External.ConsolePlus;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -34,27 +35,34 @@ namespace Aphid
             EnvironmentLibrary.SetEnvArgs(true);
             var interpreter = new AphidInterpreter();
 
-            try
+            if (!Debugger.IsAttached)
+            {
+                try
+                {
+                    interpreter.Interpret(code, isTextDocument);
+                }
+                catch (AphidParserException exception)
+                {
+                    Console.WriteLine("Parser exception\r\n");
+                    Console.WriteLine(ParserErrorMessage.Create(code, exception));
+                }
+                catch (AphidRuntimeException exception)
+                {
+                    Console.WriteLine("Unexpected runtime exception\r\n\r\n{0}\r\n", exception.Message);
+                    DumpStackTrace(interpreter);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(
+                        "Unexpected exception\r\n\r\n{0}\r\n",
+                        ExceptionHelper.Unwrap(exception).Message);
+
+                    DumpStackTrace(interpreter);
+                }
+            }
+            else
             {
                 interpreter.Interpret(code, isTextDocument);
-            }
-            catch (AphidParserException exception)
-            {
-                Console.WriteLine("Parser exception\r\n");
-                Console.WriteLine(ParserErrorMessage.Create(code, exception));
-            }
-            catch (AphidRuntimeException exception)
-            {
-                Console.WriteLine("Unexpected runtime exception\r\n\r\n{0}\r\n", exception.Message);
-                DumpStackTrace(interpreter);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(
-                    "Unexpected exception\r\n\r\n{0}\r\n", 
-                    ExceptionHelper.Unwrap(exception).Message);
-
-                DumpStackTrace(interpreter);
             }
         }
 
