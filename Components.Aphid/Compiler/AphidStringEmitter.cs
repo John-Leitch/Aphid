@@ -36,6 +36,7 @@ namespace Components.Aphid.Compiler
 
             { AphidTokenType.BinaryAndOperator, " & " },
             { AphidTokenType.BinaryOrOperator, " | " },
+            { AphidTokenType.XorOperator,  " ^ " },
             { AphidTokenType.ShiftLeft, " << " },
             { AphidTokenType.ShiftRight, " >> " },
             
