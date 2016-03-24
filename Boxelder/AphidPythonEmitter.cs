@@ -163,13 +163,13 @@ namespace Boxelder
             switch (expression.Operator)
             {
                 case AphidTokenType.ConditionalOperator:
-                    Append("(");
+                    Append("((");
                     Emit(expression.SecondOperand);
                     Append(") if (");
                     Emit(expression.FirstOperand);
                     Append(") else (");
                     Emit(expression.ThirdOperand);
-                    Append(")");
+                    Append("))");
                     break;
 
                 default:
