@@ -3845,16 +3845,6 @@ namespace Components.Aphid.Lexer
 
                                                 return AphidTokenType.Comment;
                                             }
-                                            else if (currentChar == '?')
-                                            {
-                                                state = 1;
-                                            }
-                                            else if (state == 1 && currentChar == '>')
-                                            {
-                                                charIndex -= 2;
-
-                                                return AphidTokenType.Comment;
-                                            }
                                             else
                                             {
                                                 state = 0;
