@@ -117,7 +117,7 @@ namespace Components.Aphid.Compiler
                 _extension);
             var asm = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
             Cli.WriteLine("{0} ~|DarkGray~~White~script file~R~\r\n", asm);
-            Cli.WriteLine("e.g. be ~Cyan~HelloWorld.alx~R~");
+            Cli.WriteLine("e.g. {0} ~Cyan~HelloWorld.alx~R~", asm);
         }
 
         private void ComileFile(string filename, string outFilename)
