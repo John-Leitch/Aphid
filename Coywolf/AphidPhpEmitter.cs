@@ -76,7 +76,7 @@ if (!function_exists('__add')) {
             {
                 Append(GetTabs());
             }
-            
+
             base.BeginStatement(expression);
         }
 
@@ -194,13 +194,38 @@ if (!function_exists('__add')) {
             switch (expression.Operator)
             {
                 case AphidTokenType.newKeyword:
-                    if (expression.Operand.Type != AphidExpressionType.ObjectExpression)
+                    switch (expression.Operand.Type)
                     {
-                        throw new NotImplementedException();
+                        case AphidExpressionType.ObjectExpression:
+                            Append("(object)");
+                            Emit(expression.Operand.ToObject());
+                            break;
+
+                        case AphidExpressionType.CallExpression:
+                            var call = expression.Operand.ToCall();
+
+                            if (call.FunctionExpression.Type != AphidExpressionType.IdentifierExpression)
+                            {
+                                throw new InvalidOperationException("Expected identifier in new expression.");
+                            }
+
+                            var id = call.FunctionExpression.ToIdentifier();
+
+                            if (id.Attributes.Any())
+                            {
+                                throw new InvalidOperationException("Unexpected attributes in new expression.");
+                            }
+
+                            Append("new {0}(", id.Identifier);
+                            EmitTuple(call.Args);
+                            Append(")");
+
+                            break;
+
+                        default:
+                            throw new NotImplementedException();
                     }
 
-                    Append("(object)");
-                    Emit(expression.Operand.ToObject());
                     break;
 
                 default:
@@ -252,7 +277,7 @@ if (!function_exists('__add')) {
 
         protected override void EmitTernaryOperatorExpression(TernaryOperatorExpression expression, bool isStatement = false)
         {
-            Append("((");            
+            Append("((");
             Emit(expression.FirstOperand);
             Append(")");
             Append(" ? ");
@@ -433,9 +458,18 @@ if (!function_exists('__add')) {
         {
             if (expression.Identifier != null)
             {
-                throw new NotImplementedException();
+                if (isStatement)
+                {
+                    EmitClassDeclaration(expression);
+
+                    return;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
-                
+
             Append("[");
             var isFirst = true;
 
@@ -462,6 +496,184 @@ if (!function_exists('__add')) {
             }
 
             Append("]");
+        }
+
+        protected void EmitClassDeclaration(ObjectExpression classDecl)
+        {
+            string[] unparsed;
+
+            var attrs = AphidAttributeParser.Parse<ObjectStatementAttributes>(
+                classDecl.Identifier,
+                out unparsed);
+
+            if (attrs.IsInterface && attrs.IsAbstract)
+            {
+                throw new InvalidOperationException("Interfaces cannot be abstract.");
+            }
+            else if ((attrs.IsInterface && attrs.IsClass) ||
+                (!attrs.IsInterface && !attrs.IsClass))
+            {
+                throw new InvalidOperationException("Type must be interface or class.");
+            }
+
+            if (attrs.IsAbstract)
+            {
+                Append("abstract ");
+            }
+
+            Append(attrs.IsClass ? "class " : "interface ");
+            Append(classDecl.Identifier.Identifier);
+            bool first = true, extend = true;
+
+            foreach (var attr in unparsed)
+            {
+                if (extend)
+                {
+                    if (attr == "impl")
+                    {
+                        extend = false;
+                        first = true;
+                    }
+                    else
+                    {
+                        if (first)
+                        {
+                            Append(" extends ");
+                            first = false;
+                        }
+                        else
+                        {
+                            Append(", ");
+                        }
+
+                        Append(attr);
+                    }
+                }
+                else
+                {
+                    if (first)
+                    {
+                        Append(" implements ");
+                        first = false;
+                    }
+                    else
+                    {
+                        Append(", ");
+                    }
+
+                    Append(attr);
+                }
+            }
+
+
+            Append(" {\r\n");
+            Indent();
+
+            foreach (var member in classDecl.Pairs)
+            {
+                EmitClassMember(classDecl, member);
+            }
+
+            Unindent();
+            Append(GetTabs() + "}");
+        }
+
+        protected void EmitClassMember(
+            ObjectExpression classDecl,
+            BinaryOperatorExpression member)
+        {
+            if (member.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
+            {
+                throw new InvalidOperationException("Expected identifier expression on lhs of class member.");
+            }
+
+            var id = member.LeftOperand.ToIdentifier();
+            var attrs = AphidAttributeParser.Parse<MemberDeclarationAttributes>(id);
+
+            if ((attrs.IsPrivate && attrs.IsProtected) ||
+                (attrs.IsPrivate && attrs.IsPublic) ||
+                (attrs.IsProtected && attrs.IsPrivate) ||
+                (attrs.IsProtected && attrs.IsPublic) ||
+                (attrs.IsPublic && attrs.IsPrivate) ||
+                (attrs.IsPublic && attrs.IsProtected))
+            {
+                throw new InvalidOperationException("Member must be private, protected, or public.");
+            }
+
+            if (!attrs.IsPrivate && !attrs.IsProtected && !attrs.IsPublic)
+            {
+                attrs.IsPrivate = true;
+            }
+
+            if (attrs.IsPrivate && attrs.IsAbstract)
+            {
+                throw new InvalidOperationException("Member cannot be both private and abstract.");
+            }
+
+            var access =
+                attrs.IsPrivate ? "private " :
+                attrs.IsProtected ? "protected " :
+                "public ";
+
+            Append(GetTabs() + access);
+
+            if (attrs.IsAbstract)
+            {
+                Append("abstract ");
+            }
+
+            if (member.RightOperand.Type == AphidExpressionType.FunctionExpression)
+            {
+                attrs.IsFunction = true;
+            }
+
+            if (attrs.IsFunction)
+            {
+                Append("function ");
+            }
+            else
+            {
+                Append("$");
+            }
+
+            Append(id.Identifier);
+
+            var hasInitializer =
+                member.RightOperand.Type != AphidExpressionType.IdentifierExpression ||
+                id.Identifier != member.RightOperand.ToIdentifier().Identifier;
+
+            if (!attrs.IsFunction)
+            {
+                if (hasInitializer)
+                {
+                    Append(" = ");
+                    Emit(member.RightOperand);
+                }
+            }
+            else
+            {
+                if (hasInitializer)
+                {
+                    if (member.RightOperand.Type != AphidExpressionType.FunctionExpression)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    var func = member.RightOperand.ToFunction();
+                    Append("(");
+                    EmitTuple(func.Args);
+                    Append(") {\r\n");
+                    Indent();
+                    Emit(func.Body);
+                    Unindent();
+                    Append(GetTabs() + "}\r\n\r\n");
+                }
+            }
+
+            if (!attrs.IsFunction || !hasInitializer)
+            {
+                Append(";\r\n");
+            }
         }
 
         protected void EmitEchoStatement(CallExpression expression)

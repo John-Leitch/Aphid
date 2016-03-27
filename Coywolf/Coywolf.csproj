@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="AphidPhpEmitter.cs" />
     <Compile Include="DeclarationHelper.cs" />
+    <Compile Include="MemberDeclarationAttributes.cs" />
+    <Compile Include="ObjectStatementAttributes.cs" />
     <Compile Include="Visitors\LocalFinder.cs" />
     <Compile Include="Visitors\PhpUseIdFinder.cs" />
     <Compile Include="Program.cs" />
