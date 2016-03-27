@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Boxelder
 {
-    public class ObjectStatementAttributes
+    public class ClassDeclarationAttributes
     {
         [AphidAttribute("class")]
         public bool IsClass { get; set; }

@@ -349,7 +349,7 @@ namespace Boxelder
             }
 
             string[] otherAttrs;
-            var attrs = AphidAttributeParser.Parse<ObjectStatementAttributes>(statement.Identifier, out otherAttrs);
+            var attrs = AphidAttributeParser.Parse<ClassDeclarationAttributes>(statement.Identifier, out otherAttrs);
 
             if (attrs.IsClass)
             {
@@ -363,7 +363,7 @@ namespace Boxelder
 
         protected void EmitClassStatement(
             ObjectExpression statement,
-            ObjectStatementAttributes attributes,
+            ClassDeclarationAttributes attributes,
             string[] unparsedAttributes)
         {
             if (unparsedAttributes.Length > 1)
