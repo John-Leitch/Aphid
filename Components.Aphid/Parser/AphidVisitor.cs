@@ -21,6 +21,11 @@ namespace Components.Aphid.Parser
 
         private void VisitNode(AphidExpression expression)
         {
+            if (expression == null)
+            {
+                return;
+            }
+
             Visit(expression);
 
             if (!_ignoreChildren)
