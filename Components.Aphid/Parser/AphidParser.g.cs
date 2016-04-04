@@ -2774,15 +2774,18 @@ namespace Components.Aphid.Parser
             if ((_currentToken.TokenType == AphidTokenType.catchKeyword))
             {
                 NextToken();
-                Match(AphidTokenType.LeftParenthesis);
-                var index0032 = _currentToken.Index;
-                catchArg = ParseIdentifierExpression();
-                if ((catchArg.Index < 0))
+                if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
                 {
-                    catchArg.Index = index0032;
-                    catchArg.Length = (_currentToken.Index - index0032);
+                    Match(AphidTokenType.LeftParenthesis);
+                    var index0032 = _currentToken.Index;
+                    catchArg = ParseIdentifierExpression();
+                    if ((catchArg.Index < 0))
+                    {
+                        catchArg.Index = index0032;
+                        catchArg.Length = (_currentToken.Index - index0032);
+                    }
+                    Match(AphidTokenType.RightParenthesis);
                 }
-                Match(AphidTokenType.RightParenthesis);
                 catchBody = ParseBlock();
                 if ((_currentToken.TokenType == AphidTokenType.finallyKeyword))
                 {

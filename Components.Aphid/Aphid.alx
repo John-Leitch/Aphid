@@ -548,7 +548,11 @@ ParseTryExpression = @{
     switch (TokenType) {
         catchKeyword: {
             NextToken;
-            Parens(catchArg ParseIdentifierExpression);
+
+            if (LeftParenthesis) {
+                Parens(catchArg ParseIdentifierExpression);
+            }
+
             catchBody ParseBlock;
 
             if (finallyKeyword) {

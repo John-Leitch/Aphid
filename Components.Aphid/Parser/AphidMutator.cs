@@ -260,7 +260,9 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new TryExpression(
                             Mutate(tryExp.TryBody),
-                            (IdentifierExpression)Mutate(tryExp.CatchArg).Single(),
+                            tryExp.CatchArg != null ? 
+                                (IdentifierExpression)Mutate(tryExp.CatchArg).Single() :
+                                null,
                             Mutate(tryExp.CatchBody),
                             Mutate(tryExp.FinallyBody)));
 

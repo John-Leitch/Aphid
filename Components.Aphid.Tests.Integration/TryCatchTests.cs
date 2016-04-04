@@ -52,5 +52,19 @@ namespace Components.Aphid.Tests.Integration
                 ret 0;                
             ");
         }
+
+        [Test]
+        public void TryCatch4()
+        {
+            Assert9(@"
+                try {
+                    1/0;
+                } catch {
+                    ret 9;
+                }
+
+                ret 0;                
+            ");
+        }
     }
 }

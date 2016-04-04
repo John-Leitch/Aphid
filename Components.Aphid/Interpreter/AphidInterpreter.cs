@@ -1500,9 +1500,12 @@ namespace Components.Aphid.Interpreter
             LeaveChildScope(true);
             EnterChildScope();
 
-            _currentScope.Add(
-                expression.CatchArg.Identifier,
-                new AphidObject(ExceptionHelper.Unwrap(e).Message));
+            if (expression.CatchArg != null)
+            {
+                _currentScope.Add(
+                    expression.CatchArg.Identifier,
+                    new AphidObject(ExceptionHelper.Unwrap(e).Message));
+            }
 
             Interpret(expression.CatchBody, false);
             LeaveChildScope(true);
