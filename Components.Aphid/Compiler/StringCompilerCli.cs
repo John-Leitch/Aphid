@@ -3,6 +3,7 @@ using Components.External;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -125,7 +126,7 @@ namespace Components.Aphid.Compiler
             Cli.WriteInfoMessage("Parsing '~Cyan~{0}~R~'", filename);
             var ast = ParseCode(filename);
             Cli.WriteSuccessMessage("File successfully parsed");
-            EmitCode(ast, outFilename);
+            TryEmitCode(ast, outFilename);
         }
 
         private string[] GetInputFiles(string fullname)
@@ -171,24 +172,36 @@ namespace Components.Aphid.Compiler
             }
         }
 
+        private void TryEmitCode(List<AphidExpression> ast, string filename)
+        {
+            if (!Debugger.IsAttached)
+            {
+                try
+                {
+                    EmitCode(ast, filename);
+                }
+                catch (Exception e)
+                {
+                    Cli.WriteCriticalErrorMessage("Compilation error: ~Yellow~{0}~R~", e.Message);
+                    Environment.Exit(5);
+                }
+            }
+            else
+            {
+                EmitCode(ast, filename);
+            }
+        }
+
         private void EmitCode(List<AphidExpression> ast, string filename)
         {
-            try
-            {
-                Cli.WriteInfoMessage("Compiling to {0}", _targetName);
-                var output = _emitter.Compile(filename, ast);
-                File.WriteAllText(filename, output);
+            Cli.WriteInfoMessage("Compiling to {0}", _targetName);
+            var output = _emitter.Compile(filename, ast);
+            File.WriteAllText(filename, output);
 
-                Cli.WriteSuccessMessage(
-                    "Compilation successful, {0} written to '~Cyan~{1}~R~'",
-                    _targetName,
-                    filename);
-            }
-            catch (Exception e)
-            {
-                Cli.WriteCriticalErrorMessage("Compilation error: ~Yellow~{0}~R~", e.Message);
-                Environment.Exit(5);
-            }
+            Cli.WriteSuccessMessage(
+                "Compilation successful, {0} written to '~Cyan~{1}~R~'",
+                _targetName,
+                filename);
         }
 
         public void Compile()
