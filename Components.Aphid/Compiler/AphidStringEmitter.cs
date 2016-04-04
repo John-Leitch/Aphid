@@ -124,7 +124,16 @@ namespace Components.Aphid.Compiler
             foreach (var stmt in statements)
             {
                 BeginStatement(stmt);
-                Emit(stmt, isStatement: true);
+
+                try
+                {
+                    Emit(stmt, isStatement: true);
+                }
+                catch (NotImplementedException)
+                {
+                    throw new InvalidOperationException(string.Format("{0} is not supported.", stmt.Type));
+                }
+
                 EndStatement(stmt);
             }
 
