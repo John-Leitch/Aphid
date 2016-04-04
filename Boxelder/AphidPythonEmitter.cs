@@ -410,6 +410,29 @@ namespace Boxelder
             AppendLine();
         }
 
+        protected override void EmitTryExpression(TryExpression expression, bool isStatement = false)
+        {
+            if (expression.CatchArg != null)
+            {
+                throw new InvalidOperationException("try/catch exception arg not supported.");
+            }
+
+            Append("try:\r\n");
+            EmitBlock(expression.TryBody);
+
+            if (expression.CatchBody != null)
+            {
+                AppendStatement("except:\r\n");
+                EmitBlock(expression.CatchBody);
+            }
+
+            if (expression.FinallyBody != null)
+            {
+                AppendStatement("finally:\r\n");
+                EmitBlock(expression.FinallyBody);
+            }
+        }
+
         private bool HasAllStringArgs(CallExpression expression)
         {
             return expression.Args.All(x => x.Type == AphidExpressionType.StringExpression);
@@ -452,6 +475,13 @@ namespace Boxelder
             }
 
             Append(ParseStringArgs(statement).Single());
+        }
+
+        protected void EmitBlock(List<AphidExpression> block)
+        {
+            Indent();
+            Emit(block);
+            Unindent();
         }
 
         private IEnumerable<string> ParseStringArgs(CallExpression expression)
