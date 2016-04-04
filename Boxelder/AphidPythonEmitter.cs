@@ -75,8 +75,8 @@ namespace Boxelder
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             var border = new string('#', 64) + "\r\n";
             Append(
-                "{0}# Compiled from Aphid to Python by Boxelder {1}\r\n# {2}\r\n{0}", 
-                border, 
+                "{0}# Compiled from Aphid to Python by Boxelder {1}\r\n# {2}\r\n{0}",
+                border,
                 version,
                 "https://github.com/John-Leitch/Aphid/releases");
         }
@@ -412,17 +412,31 @@ namespace Boxelder
 
         protected override void EmitTryExpression(TryExpression expression, bool isStatement = false)
         {
-            if (expression.CatchArg != null)
-            {
-                throw new InvalidOperationException("try/catch exception arg not supported.");
-            }
-
             Append("try:\r\n");
             EmitBlock(expression.TryBody);
 
             if (expression.CatchBody != null)
             {
-                AppendStatement("except:\r\n");
+                if (expression.CatchArg == null)
+                {
+                    AppendStatement("except:\r\n");
+                }
+                else
+                {
+                    var attrs = string.Join(
+                        ", ",
+                        expression.CatchArg.Attributes.Any() ?
+                        expression.CatchArg.Attributes
+                            .Select(x => x.Identifier)
+                            .ToArray() :
+                        new[] { "BaseException" });
+
+                    AppendStatement(
+                        "except ({0}) as {1}:\r\n",
+                        attrs,
+                        expression.CatchArg.Identifier);
+                }
+
                 EmitBlock(expression.CatchBody);
             }
 
@@ -503,7 +517,7 @@ namespace Boxelder
         protected override string GetUnaryPrefixOperator(AphidTokenType op)
         {
             string value;
-            
+
             return !_unaryPrefixOperators.TryGetValue(op, out value) ?
                 base.GetUnaryPrefixOperator(op) :
                 value;
