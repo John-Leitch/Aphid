@@ -698,11 +698,27 @@ namespace Components.Aphid.Interpreter
 
                     throw new InvalidOperationException();
 
-
+                case AphidTokenType.CompositionOperator:
+                    return InterpretFunctionComposition(expression);
 
                 default:
                     throw new AphidRuntimeException("Unknown operator {0} in expression {1}", expression.Operator, expression);
             }
+        }
+
+        private AphidObject InterpretFunctionComposition(BinaryOperatorExpression composition)
+        {
+            var funcs = new[] { composition.LeftOperand, composition.RightOperand }
+                .Select(x => ValueHelper.Unwrap(InterpretExpression(x)))
+                .ToArray();
+
+            var c = new AphidFunctionComposition(
+                composition.LeftOperand,
+                composition.RightOperand,
+                funcs[0], 
+                funcs[1]);
+
+            return new AphidObject(c);
         }
 
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -909,83 +925,67 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
+            var args = expression.Args.Select(InterpretExpression).ToArray();
             var value = InterpretExpression(expression.FunctionExpression);
             object funcExp = ValueHelper.Unwrap(value);
+            return InterpretCallExpression(expression, funcExp, args);
+        }
 
+        private AphidObject InterpretCallExpression(
+            CallExpression expression, 
+            object funcExp,
+            object[] args)
+        {
             var func = funcExp as AphidInteropFunction;
 
-            if (func == null)
+            if (func != null)
             {
-                var interopMembers = funcExp as AphidInteropMember;
+                var interopArgs = func.UnwrapParameters ?
+                    args.Select(ValueHelper.Unwrap).ToArray() :
+                    args;
 
-                if (interopMembers != null)
-                {
-                    return InterpretInteropCallExpression(expression, interopMembers);
-                }
+                PushFrame(expression.FunctionExpression, interopArgs);
+                var retVal = ValueHelper.Wrap(func.Invoke(this, interopArgs)); ;
+                PopFrame();
 
-                var interopPartial = funcExp as AphidInteropPartialFunction;
+                return retVal;
+            }
 
-                if (interopPartial != null)
-                {
-                    var curArgs = expression.Args
-                        .Select(InterpretExpression)
-                        .Select(ValueHelper.Unwrap)
-                        .ToArray();
+            // Todo: make this use enums rather than slow type casting
+            var interopMembers = funcExp as AphidInteropMember;
 
-                    return InterpretInteropCallExpression(
-                        interopPartial.Applied
-                            .Concat(curArgs)
-                            .ToArray(),
-                        interopPartial.Member);
-                }
+            if (interopMembers != null)
+            {
+                return InterpretInteropCallExpression(
+                    args.Select(ValueHelper.Unwrap).ToArray(), 
+                    interopMembers);
+            }
 
-                var func2 = funcExp as AphidFunction;
+            var interopPartial = funcExp as AphidInteropPartialFunction;
 
-                if (func2 == null)
-                {
-                    throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
-                }
+            if (interopPartial != null)
+            {
+                var curArgs = args.Select(ValueHelper.Unwrap).ToArray();
 
-                var args = expression.Args.Select(InterpretExpression).ToArray();
+                return InterpretInteropCallExpression(
+                    interopPartial.Applied
+                        .Concat(curArgs)
+                        .ToArray(),
+                    interopPartial.Member);
+            }
+
+            var func2 = funcExp as AphidFunction;
+
+            if (func2 != null)
+            {
                 PushFrame(expression.FunctionExpression, args);
                 var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
                 PopFrame();
 
-                return retVal;
+                return retVal;                
             }
-            else
-            {
-                Func<AphidExpression, object> selector;
 
-                if (func.UnwrapParameters)
-                {
-                    selector = x => ValueHelper.Unwrap(InterpretExpression(x));
-                }
-                else
-                {
-                    selector = x =>
-                    {
-                        var r = InterpretExpression(x);
-
-                        if (r == null)
-                        {
-                            throw new AphidRuntimeException(
-                                "Could not find variable {0} in call expression {1}",
-                                x,
-                                expression);
-                        }
-
-                        return r;
-                    };
-                }
-
-                var args = expression.Args.Select(selector).ToArray();
-                PushFrame(expression.FunctionExpression, args);
-                var retVal = ValueHelper.Wrap(func.Invoke(this, args)); ;
-                PopFrame();
-
-                return retVal;
-            }
+            throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
         }
 
         private void PushFrame(AphidExpression function, IEnumerable<object> args)
@@ -1005,18 +1005,6 @@ namespace Components.Aphid.Interpreter
         private void PopFrame()
         {
             _frames.Pop();
-        }
-
-        private AphidObject InterpretInteropCallExpression(
-            CallExpression expression,
-            AphidInteropMember interopMembers)
-        {
-            var args = expression
-                .Args.Select(InterpretExpression)
-                .Select(ValueHelper.Unwrap)
-                .ToArray();
-
-            return InterpretInteropCallExpression(args, interopMembers);
         }
 
         private AphidObject InterpretInteropCallExpression(
