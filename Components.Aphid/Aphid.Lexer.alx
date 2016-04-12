@@ -15,7 +15,8 @@
 
                 { regex: ",", type: "Comma" },
                 { regex: ":", type: "ColonOperator" },
-                { regex: "@", type: "functionOperator" },                
+                { regex: "@", type: "functionOperator" },
+                { regex: "@>", type: "CompositionOperator" },
                 { regex: "\\?", type: "ConditionalOperator" },
                 { regex: "..", type: "RangeOperator" },
 

@@ -242,7 +242,7 @@ ParseQueryExpression = @{
     ret exp;
 };
 
-ParseRangeExpression = ParseBinOpExp(ParseConditionalExpression, RangeOperator);
+ParseRangeExpression = ParseBinOpExp(ParseConditionalExpression, RangeOperator | CompositionOperator);
 
 ParseConditionalExpression = @{
     exp ParseLogicalExpression;
