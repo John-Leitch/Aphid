@@ -45,5 +45,62 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9("add=@(x, y)x+y; addFour=@add(4); ret addFour(5);");
         }
+
+        [Test]
+        public void FunctionCompositionTest()
+        {
+            Assert9(@"
+                square= @(x) x * x;
+                sub7= @(x) x - 7;
+                f = square @> sub7;
+                ret f(4);
+            ");
+        }
+
+        [Test]
+        public void FunctionCompositionTest2()
+        {
+            Assert9(@"
+                square = @(x) x * x;
+                sub7 = @- 7;
+                f = square @> sub7;
+                ret f(4);
+            ");
+        }
+
+        [Test]
+        public void FunctionCompositionTest3()
+        {
+            Assert9(@"
+                square = @(x) x * x;
+                sub8 = @- 8;
+                add1 = @(x) x + 1;
+                f = square @> sub8 @> add1;
+                ret f(4);
+            ");
+        }
+
+        [Test]
+        public void FunctionCompositionTest4()
+        {
+            Assert9(@"
+                square = @(x) x * x;
+                sub8 = @- 8;
+                add1 = @+ 1;
+                f = square @> sub8 @> add1;
+                ret f(4);
+            ");
+        }
+
+        [Test]
+        public void FunctionCompositionTest5()
+        {
+            Assert9(@"
+                square = @(x) x * x;
+                add1 = @+ 1;
+                f = square @> (@- 8) @> add1;
+                ret f(4);
+            ");
+        }
     }
 }
