@@ -102,5 +102,30 @@ namespace Components.Aphid.Tests.Integration
                 ret f(4);
             ");
         }
+
+        [Test]
+        public void ExtensionMethodTest()
+        {
+            Assert9(@"
+                extend number {
+                    square: @(l) l * l
+                }
+
+                x = 3;
+                ret x.square();
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodTest2()
+        {
+            Assert9(@"
+                extend number {
+                    square: @(l) l * l
+                }
+                
+                ret (3).square();
+            ");
+        }
     }
 }
