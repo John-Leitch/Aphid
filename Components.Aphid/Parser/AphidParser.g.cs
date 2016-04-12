@@ -2040,7 +2040,8 @@ namespace Components.Aphid.Parser
                 operand.Length = (_currentToken.Index - index0017);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.RangeOperator);
+            ; ((_currentToken.TokenType == AphidTokenType.RangeOperator)
+                        || (_currentToken.TokenType == AphidTokenType.CompositionOperator));
             )
             {
                 var op = _currentToken.TokenType;
@@ -3446,6 +3447,7 @@ namespace Components.Aphid.Lexer
         Comma,
         Comment,
         ComplementOperator,
+        CompositionOperator,
         ConditionalOperator,
         DecrementOperator,
         defaultKeyword,
@@ -3681,7 +3683,20 @@ namespace Components.Aphid.Lexer
                             return AphidTokenType.ColonOperator;
 
                         case '@':
+                            if (charIndex < lastIndex)
+                            {
+                                currentChar = text[++charIndex];
 
+                                switch (currentChar)
+                                {
+                                    case '>':
+
+                                        return AphidTokenType.CompositionOperator;
+
+                                }
+
+                                charIndex--;
+                            }
                             return AphidTokenType.functionOperator;
 
                         case '?':
