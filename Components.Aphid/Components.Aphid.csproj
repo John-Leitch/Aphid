@@ -67,6 +67,7 @@
     <Compile Include="External\PathHelper.cs" />
     <Compile Include="External\TypeExtension.cs" />
     <Compile Include="Interpreter\AphidFrame.cs" />
+    <Compile Include="Interpreter\AphidFunctionComposition.cs" />
     <Compile Include="Interpreter\AphidInteropMember.cs" />
     <Compile Include="Interpreter\AphidInteropMethodArg.cs" />
     <Compile Include="Interpreter\AphidInteropMethodInfo.cs" />

@@ -928,11 +928,11 @@ namespace Components.Aphid.Interpreter
             var args = expression.Args.Select(InterpretExpression).ToArray();
             var value = InterpretExpression(expression.FunctionExpression);
             object funcExp = ValueHelper.Unwrap(value);
-            return InterpretCallExpression(expression, funcExp, args);
+            return InterpretCallExpression(expression.FunctionExpression, funcExp, args);
         }
 
         private AphidObject InterpretCallExpression(
-            CallExpression expression, 
+            AphidExpression expression, 
             object funcExp,
             object[] args)
         {
@@ -944,7 +944,7 @@ namespace Components.Aphid.Interpreter
                     args.Select(ValueHelper.Unwrap).ToArray() :
                     args;
 
-                PushFrame(expression.FunctionExpression, interopArgs);
+                PushFrame(expression, interopArgs);
                 var retVal = ValueHelper.Wrap(func.Invoke(this, interopArgs)); ;
                 PopFrame();
 
@@ -978,14 +978,29 @@ namespace Components.Aphid.Interpreter
 
             if (func2 != null)
             {
-                PushFrame(expression.FunctionExpression, args);
+                PushFrame(expression, args);
                 var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
                 PopFrame();
 
                 return retVal;                
             }
 
-            throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
+            var composition = funcExp as AphidFunctionComposition;
+
+            if (composition != null)
+            {
+                var retVal = InterpretCallExpression(
+                    composition.LeftExpression,
+                    composition.LeftFunction,
+                    args);
+
+                return InterpretCallExpression(
+                    composition.RightExpression,
+                    composition.RightFunction,
+                    new[] { retVal });
+            }
+
+            throw new AphidRuntimeException("Could not find function {0}", expression);
         }
 
         private void PushFrame(AphidExpression function, IEnumerable<object> args)
