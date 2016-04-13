@@ -74,9 +74,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinformsSample", "Samples\W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacroSample", "Samples\MacroSample\MacroSample.csproj", "{0D3803D9-7C6B-4933-A172-71872EF9F215}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeamlessInteropSample", "Samples\SeamlessInteropSample\SeamlessInteropSample.csproj", "{545B9422-29AA-46AB-8F32-0D0CE810AA74}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 5
+		SccNumberOfProjects = 6
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
 		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
@@ -106,6 +108,12 @@ Global
 		SccAuxPath4 = https://autosectools.visualstudio.com/defaultcollection
 		SccLocalPath4 = Mantispid
 		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName5 = Samples\\InteropFunctionSample\\InteropFunctionSample.csproj
+		SccProjectTopLevelParentUniqueName5 = Aphid.sln
+		SccProjectName5 = Samples/InteropFunctionSample
+		SccAuxPath5 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath5 = Samples\\InteropFunctionSample
+		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -376,6 +384,16 @@ Global
 		{0D3803D9-7C6B-4933-A172-71872EF9F215}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0D3803D9-7C6B-4933-A172-71872EF9F215}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0D3803D9-7C6B-4933-A172-71872EF9F215}.Release|Win32.ActiveCfg = Release|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -392,6 +410,7 @@ Global
 		{4774E19C-47A1-445E-9B4F-480BBC2518E5} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{6B3B0475-B3B1-4944-B396-F58342262022} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{0D3803D9-7C6B-4933-A172-71872EF9F215} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
+		{545B9422-29AA-46AB-8F32-0D0CE810AA74} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{C29B4B38-86EA-4760-8830-5006CE6868D1} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
