@@ -11,6 +11,10 @@ namespace SeamlessInteropSample
             interpreter.Interpret(@"
                 using System;
                 Console.WriteLine('Hello world');
+                print = Console.WriteLine;
+                print('{0}', 'foo');
+                printBar = @Console.WriteLine('{0}bar');
+                printBar('foo');
             ");
         }
     }
