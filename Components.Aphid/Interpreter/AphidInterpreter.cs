@@ -1726,6 +1726,10 @@ namespace Components.Aphid.Interpreter
 
                     return null;
 
+                case AphidExpressionType.GatorOpenExpression:
+                case AphidExpressionType.GatorCloseExpression:
+                    return null;
+
                 case AphidExpressionType.GatorEmitExpression:
                     InterpretGatorEmitExpression((GatorEmitExpression)expression);
 
