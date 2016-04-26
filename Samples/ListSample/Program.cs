@@ -13,7 +13,10 @@ namespace ListSample
         {
             new AphidInterpreter().Interpret(@"
                 #'std';
+                using System;
+                using System.IO;
                 list = [ 10, 20, 'foo' ];
+                list.add('bar');
 
                 printf(
                     'Count: {0}, Contains foo: {1}',
