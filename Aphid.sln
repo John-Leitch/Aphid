@@ -80,9 +80,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeamlessInteropSample2", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeamlessInteropSample3", "Samples\SeamlessInteropSample3\SeamlessInteropSample3.csproj", "{976D9F82-304F-4482-AE02-477204AECCAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexerSample", "Samples\LexerSample\LexerSample.csproj", "{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 7
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
 		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
@@ -90,34 +92,39 @@ Global
 		SccAuxPath0 = https://autosectools.visualstudio.com/defaultcollection
 		SccLocalPath0 = Components.Aphid
 		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName1 = Components.Aphid.Tests.Integration\\Components.Aphid.Tests.Integration.csproj
-		SccProjectName1 = Components.Aphid.Tests.Integration
+		SccProjectUniqueName1 = Aphid\\Aphid.csproj
+		SccProjectName1 = Aphid
 		SccAuxPath1 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath1 = Components.Aphid.Tests.Integration
+		SccLocalPath1 = Aphid
 		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName2 = Aphid\\Aphid.csproj
-		SccProjectName2 = Aphid
+		SccProjectUniqueName2 = Components.Aphid.Tests.Integration\\Components.Aphid.Tests.Integration.csproj
+		SccProjectName2 = Components.Aphid.Tests.Integration
 		SccAuxPath2 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath2 = Aphid
+		SccLocalPath2 = Components.Aphid.Tests.Integration
 		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName3 = Samples\\ObjectSample\\ObjectSample.csproj
+		SccProjectUniqueName3 = Samples\\InteropFunctionSample\\InteropFunctionSample.csproj
 		SccProjectTopLevelParentUniqueName3 = Aphid.sln
-		SccProjectName3 = Samples/ObjectSample
+		SccProjectName3 = Samples/InteropFunctionSample
 		SccAuxPath3 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath3 = Samples\\ObjectSample
+		SccLocalPath3 = Samples\\InteropFunctionSample
 		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName4 = Mantispid\\Mantispid.csproj
+		SccProjectUniqueName4 = Samples\\ObjectSample\\ObjectSample.csproj
 		SccProjectTopLevelParentUniqueName4 = Aphid.sln
-		SccProjectName4 = Mantispid
+		SccProjectName4 = Samples/ObjectSample
 		SccAuxPath4 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath4 = Mantispid
+		SccLocalPath4 = Samples\\ObjectSample
 		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName5 = Samples\\InteropFunctionSample\\InteropFunctionSample.csproj
+		SccProjectUniqueName5 = Mantispid\\Mantispid.csproj
 		SccProjectTopLevelParentUniqueName5 = Aphid.sln
-		SccProjectName5 = Samples/InteropFunctionSample
+		SccProjectName5 = Mantispid
 		SccAuxPath5 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath5 = Samples\\InteropFunctionSample
+		SccLocalPath5 = Mantispid
 		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName6 = LLex\\LLex.csproj
+		SccProjectName6 = LLex
+		SccAuxPath6 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath6 = LLex
+		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -418,6 +425,16 @@ Global
 		{976D9F82-304F-4482-AE02-477204AECCAA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{976D9F82-304F-4482-AE02-477204AECCAA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{976D9F82-304F-4482-AE02-477204AECCAA}.Release|Win32.ActiveCfg = Release|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -437,6 +454,7 @@ Global
 		{545B9422-29AA-46AB-8F32-0D0CE810AA74} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{B5B6C411-E117-47AE-ACAA-D4A56E753B65} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{976D9F82-304F-4482-AE02-477204AECCAA} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
+		{DC904CFB-653D-41DD-99DE-EFCA3F73CEB3} = {BE8BD61C-9E83-4A67-90DB-ED4D9F70DB92}
 		{5404CE66-6322-49B2-8D42-CB06EBBAC715} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{C29B4B38-86EA-4760-8830-5006CE6868D1} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
