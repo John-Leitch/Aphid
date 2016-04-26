@@ -1,9 +1,4 @@
 ﻿using Components.Aphid.Interpreter;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ListSample
 {
@@ -13,8 +8,6 @@ namespace ListSample
         {
             new AphidInterpreter().Interpret(@"
                 #'std';
-                using System;
-                using System.IO;
                 list = [ 10, 20, 'foo' ];
                 list.add('bar');
 
