@@ -172,7 +172,7 @@ namespace Components.Aphid.Interpreter
                     Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)))));
         }
 
-        private void WriteOut(string text)
+        public void WriteOut(string text)
         {
             if (_out != null)
             {
