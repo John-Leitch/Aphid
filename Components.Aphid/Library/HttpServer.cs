@@ -103,10 +103,10 @@ namespace Components.Aphid.Library
             var localPath = GetLocalPath(context.Request.Url);
             var code = File.ReadAllText(localPath);
 
-            return _encoding.GetBytes(InterpretAphid(code, context));
+            return _encoding.GetBytes(InterpretAphid(localPath, code, context));
         }
 
-        private string InterpretAphid(string code, HttpListenerContext context)
+        private string InterpretAphid(string codeFile, string code, HttpListenerContext context)
         {
             var interpreter = new AphidInterpreter()
             {
@@ -115,6 +115,7 @@ namespace Components.Aphid.Library
 
             interpreter.CurrentScope.Add("context", new AphidObject(context));
             interpreter.CurrentScope.Add("query", CreateQueryObject(context));
+            interpreter.Loader.SearchPaths.Add(Path.GetDirectoryName(codeFile));
 
             using (interpreter.Out = new StringWriter())
             {
