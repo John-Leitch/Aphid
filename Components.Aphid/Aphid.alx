@@ -158,7 +158,7 @@ MatchEos = macro(@(_requireEos) {
     }
 });
 
-ParseExpression = @() ParseAssignmentExpression();
+root ParseExpression = @() ParseAssignmentExpression();
 
 ParseAssignmentExpression = ParseBinOpExp(
     ParsePipelineExpression, 

@@ -1903,7 +1903,7 @@ namespace Components.Aphid.Parser
             return exp;
         }
 
-        private AphidExpression ParseExpression()
+        public AphidExpression ParseExpression()
         {
             return ParseAssignmentExpression();
         }
