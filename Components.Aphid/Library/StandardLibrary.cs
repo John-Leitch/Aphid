@@ -78,7 +78,9 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("print", PassInterpreter = true)]
         private static void Print(AphidInterpreter interpreter, object message)
         {
-            interpreter.WriteOut(message != null ? message.ToString() : null);
+            interpreter.WriteOut(message != null ?
+                message.ToString() + Environment.NewLine :
+                Environment.NewLine);
         }
 
         [AphidInteropFunction("printf", PassInterpreter = true)]
@@ -87,7 +89,8 @@ namespace Components.Aphid.Library
             string format, 
             params object[] args)
         {
-            interpreter.WriteOut(string.Format(format, args));
+            var s = string.Format(format + Environment.NewLine, args);
+            interpreter.WriteOut(s);
         }
 
         [AphidInteropFunction("sprintf")]
