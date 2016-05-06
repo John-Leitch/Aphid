@@ -37,6 +37,10 @@ namespace Components.Aphid.Interpreter
             set { _out = value; }
         }
 
+        public Func<string, string> OutFilter { get; set; }
+
+        public Func<string, string> GatorEmitFilter { get; set; }
+
         private AphidLoader _loader;
 
         public AphidLoader Loader
@@ -172,6 +176,11 @@ namespace Components.Aphid.Interpreter
         {
             if (_out != null)
             {
+                if (OutFilter != null)
+                {
+                    text = OutFilter(text);
+                }
+
                 _out.Write(text);
             }
         }
@@ -1577,6 +1586,12 @@ namespace Components.Aphid.Interpreter
             }
 
             var result = ValueHelper.Unwrap(obj).ToString();
+
+            if (GatorEmitFilter != null)
+            {
+                result = GatorEmitFilter(result);
+            }
+
             WriteOut(result);
         }
 
