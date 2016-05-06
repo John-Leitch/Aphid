@@ -47,6 +47,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -99,6 +100,7 @@
     <Compile Include="Lexer\TokenHelper.cs" />
     <Compile Include="Library\AphidByteConverter.cs" />
     <Compile Include="Library\AphidSerializer.cs" />
+    <Compile Include="Library\HttpServer.cs" />
     <Compile Include="Library\UdpLibrary.cs" />
     <Compile Include="Library\StreamLibrary.cs" />
     <Compile Include="Library\TcpLibrary.cs" />
