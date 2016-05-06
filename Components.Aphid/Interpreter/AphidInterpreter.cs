@@ -1428,6 +1428,27 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+        private AphidObject InterpretPartialOperatorExpression(PartialOperatorExpression expression)
+        {
+            var name = "$po";
+
+            var func = new AphidFunction()
+            {
+                Args = new[] { name },
+                Body = new List<AphidExpression> 
+                {
+                    new UnaryOperatorExpression(
+                        AphidTokenType.retKeyword,
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(name),
+                            expression.Operator,
+                            expression.Operand))
+                },
+            };
+
+            return new AphidObject(func);
+        }
+
         private AphidObject InterpretThisExpression()
         {
             return _currentScope;
@@ -1749,6 +1770,11 @@ namespace Components.Aphid.Interpreter
                     InterpretGatorEmitExpression((GatorEmitExpression)expression);
 
                     return null;
+
+                case AphidExpressionType.PartialOperatorExpression:
+                    var partialOpExp = (PartialOperatorExpression)expression;
+                    
+                    return InterpretPartialOperatorExpression(partialOpExp);
 
                 default:
                     throw new AphidRuntimeException("Unexpected expression {0}", expression);
