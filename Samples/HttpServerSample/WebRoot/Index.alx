@@ -1,0 +1,33 @@
+﻿<%
+    #'std';
+    fib = @(n) n < 2 ? n : fib(n - 1) + fib(n - 2);
+%>
+<html>
+<head>
+    <title>Fibonacci Numbers</title>
+</head>
+    <body>
+        <form method="get">
+            <label for="x">Numbers: </label>
+            <input name="x" value="<%= query.x defined ? query.x : '' %>" />
+            <input type="submit" />
+        </form>
+        <% if (query.x defined) {
+            %> Printing <%= query.x %> fibonacci numbers<br /> <%
+            
+            try {
+                x = num(query.x);
+
+                if (x > 20) {
+                    %> Error: cannot create more than 20 numbers. <%
+                } else {                        
+                    (0..x)->fib->@(x) {
+                        %><%= x %><br /> <%
+                    };
+                }
+            } catch(e) {
+                %> Error: <%= e %> <%
+            }
+        } %>
+    </body>
+</html>
