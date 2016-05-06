@@ -21,6 +21,8 @@ namespace Components.Aphid.Library
 
         private Encoding _encoding = Encoding.GetEncoding(1252);
 
+        private AphidSessionManager _sessionManager = new AphidSessionManager();
+
         public HttpServer(string[] prefixes, string webRoot)
         {
             _prefixes = prefixes;
@@ -100,13 +102,18 @@ namespace Components.Aphid.Library
 
         byte[] CreateResponse(HttpListenerContext context)
         {
+            var session = GetSession(context);
             var localPath = GetLocalPath(context.Request.Url);
             var code = File.ReadAllText(localPath);
 
-            return _encoding.GetBytes(InterpretAphid(localPath, code, context));
+            return _encoding.GetBytes(InterpretAphid(localPath, code, context, session));
         }
 
-        private string InterpretAphid(string codeFile, string code, HttpListenerContext context)
+        private string InterpretAphid(
+            string codeFile,
+            string code,
+            HttpListenerContext context,
+            AphidObject session)
         {
             var interpreter = new AphidInterpreter()
             {
@@ -115,6 +122,7 @@ namespace Components.Aphid.Library
 
             interpreter.CurrentScope.Add("context", new AphidObject(context));
             interpreter.CurrentScope.Add("query", CreateQueryObject(context));
+            interpreter.CurrentScope.Add("session", session);
             interpreter.Loader.SearchPaths.Add(Path.GetDirectoryName(codeFile));
 
             using (interpreter.Out = new StringWriter())
@@ -178,7 +186,7 @@ namespace Components.Aphid.Library
             return p;
         }
 
-        void WriteResponse(HttpListenerContext context, byte[] response)
+        private void WriteResponse(HttpListenerContext context, byte[] response)
         {
             var r = context.Response;
 
@@ -192,6 +200,21 @@ namespace Components.Aphid.Library
             Cli.WriteQueryMessage(
                 "Client ~Green~{0}~R~ disconnected",
                 context.Request.RemoteEndPoint.Address);
+        }
+
+        private AphidObject GetSession(HttpListenerContext context)
+        {
+            var cookie = _sessionManager.GetCookie(context);
+            var session = _sessionManager.GetSession(cookie.Value);
+
+            if (cookie == null || session == null)
+            {
+                cookie = _sessionManager.CreateCookie();
+                context.Response.SetCookie(cookie);
+                session = _sessionManager.CreateSession(cookie.Value);
+            }
+
+            return session;
         }
     }
 }
