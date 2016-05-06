@@ -1,10 +1,10 @@
-#'Std';
 load System.IO.Compression.FileSystem;
 using System;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 
+printf = Console.WriteLine;
 mode = 'debug';
 root = '..\\' + mode;
 exe = root + '\\Aphid\\Aphid.exe';
@@ -19,6 +19,6 @@ if (File.Exists(archive)) {
     File.Delete(archive);
 }
 
-print('Creating archive');
+printf('Creating archive');
 ZipFile.CreateFromDirectory(root, archive, CompressionLevel.Optimal, false);
 printf('Archive created: {0}', archive);
