@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UI\AphidCli.cs" />
     <Compile Include="Compiler\AphidStringEmitter.cs" />
     <Compile Include="Compiler\AphidStringEmitter.g.cs" />
     <Compile Include="Compiler\BuildNumber.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Interpreter\AphidObject.g.cs" />
     <Compile Include="Interpreter\AphidPropertyInfo.cs" />
     <Compile Include="Interpreter\AphidPropertyValuePair.cs" />
+    <Compile Include="UI\AphidRepl.cs" />
     <Compile Include="Interpreter\AphidRuntimeException.cs" />
     <Compile Include="Interpreter\AphidScriptOptimizer.cs" />
     <Compile Include="Interpreter\AphidType.cs" />

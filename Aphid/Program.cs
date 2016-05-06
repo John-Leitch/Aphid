@@ -1,11 +1,15 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.External.ConsolePlus;
 using System;
+using System.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
+using Components.Aphid.UI;
 
 namespace Aphid
 {
@@ -19,9 +23,9 @@ namespace Aphid
 
         static void Main(string[] args)
         {
-            if (args.Length < 1)
+            if (args.Length == 0)
             {
-                DisplayDirections();
+                RunRepl();
             }
             else if (!File.Exists(args[0]))
             {
@@ -49,7 +53,7 @@ namespace Aphid
                 catch (AphidRuntimeException exception)
                 {
                     Console.WriteLine("Unexpected runtime exception\r\n\r\n{0}\r\n", exception.Message);
-                    DumpStackTrace(interpreter);
+                    AphidCli.DumpStackTrace(interpreter);
                 }
                 catch (Exception exception)
                 {
@@ -57,7 +61,7 @@ namespace Aphid
                         "Unexpected exception\r\n\r\n{0}\r\n",
                         ExceptionHelper.Unwrap(exception).Message);
 
-                    DumpStackTrace(interpreter);
+                    AphidCli.DumpStackTrace(interpreter);
                 }
             }
             else
@@ -66,18 +70,15 @@ namespace Aphid
             }
         }
 
-        static void DumpStackTrace(AphidInterpreter interpreter)
+        static void RunRepl()
         {
-            var trace = interpreter.GetStackTrace();
-            var i = 0;
-            Cli.WriteSubheader("Stack Trace", "~|Blue~~White~");
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
 
-            foreach (var frame in trace)
-            {
-                Cli.WriteLine("[~White~{0:x4}~R~] {1}", i++, frame.ToString(true));
-            }
+            Cli.WriteHeader(
+                string.Format("Aphid Programming Language {0}", version),
+                "~White~~|Blue~");
 
-            Cli.WriteLine();
+            new AphidRepl().Run();
         }
     }
 }
