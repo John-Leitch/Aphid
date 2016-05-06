@@ -15,6 +15,11 @@ namespace Components.Aphid.Parser
 
         private AphidToken _currentToken;
 
+        public AphidToken CurrentToken
+        {
+            get { return _currentToken; }
+        }
+
         public bool UseImplicitReturns { get; set; }
 
         public AphidParser(List<AphidToken> tokens)
