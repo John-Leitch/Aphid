@@ -1,15 +1,12 @@
 ﻿using Components.Aphid.Interpreter;
-using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
+using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System;
-using System.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Collections.Generic;
-using Components.Aphid.UI;
 
 namespace Aphid
 {
