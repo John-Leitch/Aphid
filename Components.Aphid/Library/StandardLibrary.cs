@@ -75,16 +75,19 @@ namespace Components.Aphid.Library
             }
         }
 
-        [AphidInteropFunction("print")]
-        private static void Print(object message)
+        [AphidInteropFunction("print", PassInterpreter = true)]
+        private static void Print(AphidInterpreter interpreter, object message)
         {
-            Console.WriteLine(message != null ? message.ToString() : null);
+            interpreter.WriteOut(message != null ? message.ToString() : null);
         }
 
-        [AphidInteropFunction("printf")]
-        private static void PrintF(string format, params object[] args)
+        [AphidInteropFunction("printf", PassInterpreter = true)]
+        private static void PrintFormatted(
+            AphidInterpreter interpreter, 
+            string format, 
+            params object[] args)
         {
-            Console.WriteLine(format, args);
+            interpreter.WriteOut(string.Format(format, args));
         }
 
         [AphidInteropFunction("sprintf")]
