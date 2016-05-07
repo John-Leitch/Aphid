@@ -15,6 +15,8 @@ namespace Components.Aphid.Library
 {
     public class HttpServer
     {
+        private const string _formUrlEncoded = "application/x-www-form-urlencoded";
+
         private string[] _prefixes;
 
         private string _webRoot;
@@ -120,9 +122,27 @@ namespace Components.Aphid.Library
                 GatorEmitFilter = WebUtility.HtmlEncode,
             };
 
+            string body = "";
+
+            if (context.Request.ContentLength64 > 0)
+            {
+                using (var reader = new StreamReader(context.Request.InputStream))
+                {
+                    body = reader.ReadToEnd();
+                }
+            }
+
             interpreter.CurrentScope.Add("context", new AphidObject(context));
             interpreter.CurrentScope.Add("query", CreateQueryObject(context));
             interpreter.CurrentScope.Add("session", session);
+            interpreter.CurrentScope.Add("body", new AphidObject(body));
+            
+            interpreter.CurrentScope.Add(
+                "post",
+                context.Request.ContentType == _formUrlEncoded ?
+                    CreateQueryObject(body) :
+                    new AphidObject());
+
             interpreter.Loader.SearchPaths.Add(Path.GetDirectoryName(codeFile));
 
             using (interpreter.Out = new StringWriter())
@@ -136,7 +156,12 @@ namespace Components.Aphid.Library
 
         private AphidObject CreateQueryObject(HttpListenerContext context)
         {
-            var s = HttpUtility.ParseQueryString(context.Request.Url.Query);
+            return CreateQueryObject(context.Request.Url.Query);
+        }
+
+        private AphidObject CreateQueryObject(string query)
+        {
+            var s = HttpUtility.ParseQueryString(query);
 
             var table = s.Keys
                 .OfType<string>()
