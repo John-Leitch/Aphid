@@ -1,6 +1,11 @@
 ﻿<%
     #'std';
     fib = @(n) n < 2 ? n : fib(n - 1) + fib(n - 2);
+    
+    if (query.x defined)
+        session.x = query.x;
+    else if (session.x defined)
+        query.x = session.x;
 %>
 <html>
 <head>
@@ -21,9 +26,9 @@
                 if (x > 20) {
                     %> Error: cannot create more than 20 numbers. <%
                 } else {                        
-                    (0..x)->fib->@(x) {
-                        %><%= x %><br /> <%
-                    };
+                    (0..x)->fib->@(x) { %>
+                        <%= x %><br />
+                    <% };
                 }
             } catch(e) {
                 %> Error: <%= e %> <%
