@@ -205,7 +205,12 @@ namespace Components.Aphid.Library
         private AphidObject GetSession(HttpListenerContext context)
         {
             var cookie = _sessionManager.GetCookie(context);
-            var session = _sessionManager.GetSession(cookie.Value);
+            AphidObject session = null;
+
+            if (cookie != null)
+            {
+                session = _sessionManager.GetSession(cookie.Value);
+            }
 
             if (cookie == null || session == null)
             {
