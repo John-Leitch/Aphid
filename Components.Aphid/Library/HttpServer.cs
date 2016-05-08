@@ -25,6 +25,8 @@ namespace Components.Aphid.Library
 
         private AphidSessionManager _sessionManager = new AphidSessionManager();
 
+        private AphidObject _globals = new AphidObject();
+
         public HttpServer(string[] prefixes, string webRoot)
         {
             _prefixes = prefixes;
@@ -136,10 +138,12 @@ namespace Components.Aphid.Library
             interpreter.CurrentScope.Add("query", CreateQueryObject(context));
             interpreter.CurrentScope.Add("session", session);
             interpreter.CurrentScope.Add("body", new AphidObject(body));
+            interpreter.CurrentScope.Add("globals", _globals);
             
             interpreter.CurrentScope.Add(
                 "post",
-                context.Request.ContentType == _formUrlEncoded ?
+                context.Request.ContentType != null &&
+                context.Request.ContentType.StartsWith(_formUrlEncoded) ?
                     CreateQueryObject(body) :
                     new AphidObject());
 
