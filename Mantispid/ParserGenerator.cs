@@ -190,7 +190,9 @@ namespace Mantispid
 
             if (!tokenTypeEnum.Success)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(string.Format(
+                    "[Parser Generation] Could not find token type: {0}",
+                    _config.TokenType));
             }
 
             _tokenTypes = tokenTypeEnum.Groups[2].Value
