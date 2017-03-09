@@ -317,7 +317,7 @@ namespace AphidUI.Internal
                 case AphidTokenType.tryKeyword:
                 case AphidTokenType.whileKeyword:
 
-                case AphidTokenType.functionOperator:
+                case AphidTokenType.FunctionOperator:
                 case AphidTokenType.LoadLibraryOperator:
                 case AphidTokenType.LoadScriptOperator:
                 case AphidTokenType.PatternMatchingOperator:

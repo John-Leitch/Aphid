@@ -55,6 +55,8 @@ namespace Components.Aphid.Interpreter
             get { return _currentScope; }
         }
 
+        private Dictionary<AphidTokenType, AphidFunction> _binaryOperatorTable = new Dictionary<AphidTokenType, AphidFunction>();
+
         public AphidInterpreter(bool createLoader = true)
         {
             _createLoader = createLoader;
@@ -710,9 +712,20 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CompositionOperator:
                     return InterpretFunctionComposition(expression);
 
+                case AphidTokenType.CustomOperator0:
+                    return InterpretCustomBinaryOperator(expression);
+
                 default:
                     throw new AphidRuntimeException("Unknown operator {0} in expression {1}", expression.Operator, expression);
             }
+        }
+
+        private AphidObject InterpretBinaryOperatorBodyExpression(BinaryOperatorBodyExpression expression)
+        {
+            var func = InterpretFunctionExpression(expression.Function);
+            _binaryOperatorTable[expression.Operator] = func.GetFunction();
+            
+            return func;
         }
 
         private AphidObject InterpretFunctionComposition(BinaryOperatorExpression composition)
@@ -728,6 +741,26 @@ namespace Components.Aphid.Interpreter
                 funcs[1]);
 
             return new AphidObject(c);
+        }
+
+        private AphidObject InterpretCustomBinaryOperator(BinaryOperatorExpression expression)
+        {
+            AphidFunction func;
+
+            if (!_binaryOperatorTable.TryGetValue(expression.Operator, out func))
+            {
+                throw new AphidRuntimeException(
+                    "Custom binary operator '{0}' not defined.",
+                    expression.Operator);
+            }
+
+            return CallFunction(
+                func,
+                new[]
+                {
+                    InterpretExpression(expression.LeftOperand),
+                    InterpretExpression(expression.RightOperand)
+                });
         }
 
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -1674,6 +1707,9 @@ namespace Components.Aphid.Interpreter
             {
                 case AphidExpressionType.BinaryOperatorExpression:
                     return InterpretBinaryOperatorExpression((BinaryOperatorExpression)expression);
+
+                case AphidExpressionType.BinaryOperatorBodyExpression:
+                    return InterpretBinaryOperatorBodyExpression((BinaryOperatorBodyExpression)expression);
 
                 case AphidExpressionType.ObjectExpression:
                     return InterpretObjectExpression((ObjectExpression)expression);

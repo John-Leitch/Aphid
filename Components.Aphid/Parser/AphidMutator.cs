@@ -102,6 +102,17 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.BinaryOperatorBodyExpression:
+                    var binOpBody = (BinaryOperatorBodyExpression)expression;
+                    
+                    expanded.Add(new BinaryOperatorBodyExpression(
+                        binOpBody.Operator,
+                        (FunctionExpression)Mutate(binOpBody.Function).Single()));
+
+                    //binOpBody.function
+
+                    break;
+
                 case AphidExpressionType.SwitchExpression:
                     var switchExp = (SwitchExpression)expression;
 

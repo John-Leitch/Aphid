@@ -12,6 +12,7 @@ parser AphidParser;
 ArrayAccessExpression = { ArrayExpression, KeyExpression };
 ArrayExpression = { list Elements };
 BinaryOperatorExpression = { LeftOperand, AphidTokenType Operator, RightOperand };
+BinaryOperatorBodyExpression = { AphidTokenType Operator, FunctionExpression Function };
 BooleanExpression = { bool Value };
 BreakExpression = { };
 CallExpression = { FunctionExpression, opt list Args };
@@ -196,7 +197,7 @@ ParsePipelineExpression = @{
                     ParsePrefixUnaryOperatorExpression());
             }
 
-            functionOperator: {
+            FunctionOperator: {
                 inPipeline = true;
                 operand = BinaryOperatorExpression(
                     operand, 
@@ -242,7 +243,9 @@ ParseQueryExpression = @{
     ret exp;
 };
 
-ParseRangeExpression = ParseBinOpExp(ParseConditionalExpression, RangeOperator | CompositionOperator);
+ParseRangeExpression = ParseBinOpExp(
+    ParseConditionalExpression,
+    RangeOperator | CompositionOperator | CustomOperator0);
 
 ParseConditionalExpression = @{
     exp ParseLogicalExpression;
@@ -681,6 +684,46 @@ ParseNumberExpression = @(){
     ret exp;
 };
 
+FunctionExpression ParseFunctionDeclaration = @{
+    argExp;
+    args;    
+    body;
+    NextToken;
+
+    if (!RightParenthesis) {
+        while (true) {
+            if (Identifier) {
+                id ParseIdentifierExpression;
+                argExp = id;
+
+                if (AssignmentOperator) {
+                    TakeToken(op);
+                    argExp = BinaryOperatorExpression(id, op, ParseExpression());
+                }
+
+                args += argExp;
+
+                if (Comma) NextToken;
+                else break;
+            } else {
+                Error;
+            }
+        }
+    }
+
+    RightParenthesis;
+    isSingleLine = TokenType != LeftBrace;
+    block = ParseSingleBlock();
+
+    if (isSingleLine && UseImplicitReturns) {
+        body += UnaryOperatorExpression(retKeyword, block[0]);
+    } else {
+        body = block;
+    }
+
+    ret FunctionExpression(args, body);
+};
+
 ParseFunctionExpression = @{
     exp;
     body;
@@ -689,42 +732,9 @@ ParseFunctionExpression = @{
     NextToken;
 
     switch (TokenType) {
-        LeftParenthesis: {
-            NextToken;
+        LeftParenthesis: exp = ParseFunctionDeclaration();
 
-            if (!RightParenthesis) {
-                while (true) {
-                    if (Identifier) {
-                        id ParseIdentifierExpression;
-                        argExp = id;
-
-                        if (AssignmentOperator) {
-                            TakeToken(op);
-                            argExp = BinaryOperatorExpression(id, op, ParseExpression());
-                        }
-
-                        args += argExp;
-
-                        if (Comma) NextToken;
-                        else break;
-                    } else {
-                        Error;
-                    }
-                }
-            }
-
-            RightParenthesis;
-            isSingleLine = TokenType != LeftBrace;
-            block = ParseSingleBlock();
-
-            if (isSingleLine && UseImplicitReturns) {
-                body += UnaryOperatorExpression(retKeyword, block[0]);
-            } else {
-                body = block;
-            }
-
-            exp = FunctionExpression(args, body);
-        }
+        LeftBrace: exp = FunctionExpression(args, ParseBlock());
 
         MinusOperator,
         AdditionOperator,
@@ -751,7 +761,10 @@ ParseFunctionExpression = @{
             exp = PartialOperatorExpression(op, ParseQueryExpression());
         }
 
-        LeftBrace: exp = FunctionExpression(args, ParseBlock());
+        CustomOperator0: {
+            TakeToken(op);
+            exp = BinaryOperatorBodyExpression(op, ParseFunctionDeclaration());
+        }
 
         default: exp = PartialFunctionExpression(ParseCallExpression());
     }
@@ -827,7 +840,7 @@ ParseFactorExpression = @{
             }
         }
 
-        functionOperator: exp ParseFunctionExpression;
+        FunctionOperator: exp ParseFunctionExpression;
         retKeyword, deleteKeyword: exp ParseUnaryExpression;
 
         trueKeyword: {

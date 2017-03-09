@@ -15,7 +15,7 @@
 
                 { regex: ",", type: "Comma" },
                 { regex: ":", type: "ColonOperator" },
-                { regex: "@", type: "functionOperator" },
+                { regex: "@", type: "FunctionOperator" },
                 { regex: "@>", type: "CompositionOperator" },
                 { regex: "\\?", type: "ConditionalOperator" },
                 { regex: "..", type: "RangeOperator" },
@@ -80,6 +80,8 @@
                 { regex: "$", type: "PatternMatchingOperator" },
 
                 { regex: "%%", type: "InteropOperator" },
+
+                { regex: "~~", type: "CustomOperator0" },
 
                 { regex: ";", type: "EndOfStatement" },
 
