@@ -116,6 +116,18 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void FunctionCompositionTest6()
+        {
+            Assert9(@"ret ((@(x) x * x) @> @- 7)(4); ");
+        }
+
+        [Test]
+        public void FunctionCompositionTest7()
+        {
+            Assert9(@"ret ((@(x) x * x) @> (@-8) @> (@+1))(4);");
+        }
+
+        [Test]
         public void ExtensionMethodTest()
         {
             Assert9(@"
