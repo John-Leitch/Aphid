@@ -13,6 +13,7 @@ namespace ILWeave
         public ReferenceReplacementRewriter(IMetadataHost host, ILocalScopeProvider localScopeProvider, ISourceLocationProvider sourceLocationProvider)
             : base(host, localScopeProvider, sourceLocationProvider)
         {
+            
         }
 
         protected override void EmitOperation(IOperation operation)
