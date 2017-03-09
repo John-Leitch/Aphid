@@ -1133,6 +1133,12 @@ namespace Components.Aphid.Interpreter
 
                         return ValueHelper.Wrap((decimal)val * -1);
 
+                    case AphidTokenType.ComplementOperator:
+                        val = InterpretAndUnwrap(expression.Operand);
+                        ValueHelper.AssertNumber(val, "unary operator '~'");
+                        
+                        return ValueHelper.Wrap((decimal)~Convert.ToUInt64(val));
+
                     case AphidTokenType.retKeyword:
                         SetReturnValue(ValueHelper.Wrap(InterpretExpression(expression.Operand)));
                         _isReturning = true;
@@ -1779,6 +1785,11 @@ namespace Components.Aphid.Interpreter
                 default:
                     throw new AphidRuntimeException("Unexpected expression {0}", expression);
             }
+        }
+
+        public object InterpretAndUnwrap(AphidExpression expression)
+        {
+            return ValueHelper.Unwrap(InterpretExpression(expression));
         }
 
         public void Interpret(List<AphidExpression> expressions, bool resetIsReturning = true)
