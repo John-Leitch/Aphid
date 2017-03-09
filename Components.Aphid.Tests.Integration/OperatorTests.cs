@@ -223,6 +223,24 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void OnesComplementTest()
+        {
+            Assert9("ret ~18446744073709551606;");
+        }
+
+        [Test]
+        public void OnesComplementTest2()
+        {
+            Assert9("ret ~(18446744073709530566 + 0x5230);");
+        }
+
+        [Test]
+        public void OnesComplementTest3()
+        {
+            Assert9("ret ~(18446744069973623047 + 0xdeadbeef);");
+        }
+
+        [Test]
         public void SelectOperatorTest()
         {
             AssertExp9(@"([ '1', '2', '9']->(@(x) num(x)))[2]");
