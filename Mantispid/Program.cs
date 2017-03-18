@@ -34,6 +34,7 @@ namespace Mantispid
                 Environment.Exit(2);
             }
 
+            // Todo fix critical bug where include dates are not checked
             var scriptInfo = new FileInfo(args[0]);
             var outputInfo = new FileInfo(args[1]);
 
