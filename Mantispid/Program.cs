@@ -38,16 +38,16 @@ namespace Mantispid
             var scriptInfo = new FileInfo(args[0]);
             var outputInfo = new FileInfo(args[1]);
 
-            if (scriptInfo.LastWriteTimeUtc < outputInfo.LastWriteTimeUtc)
-            {
-                Console.WriteLine("C# output update to date, not regenerating");
-                Environment.Exit(0);
-            }
+            //if (scriptInfo.LastWriteTimeUtc < outputInfo.LastWriteTimeUtc)
+            //{
+            //    Console.WriteLine("C# output update to date, not regenerating");
+            //    Environment.Exit(0);
+            //}
 
             string code = "";
             
-            try
-            {
+            //try
+            //{
                 var dir = Path.GetDirectoryName(Path.GetFullPath(args[0]));
                 code = File.ReadAllText(args[0]);
                 Console.WriteLine("Parsing input file");
@@ -61,23 +61,23 @@ namespace Mantispid
                 var s = parserGenerator.Generate(ast);
                 File.WriteAllText(args[1], s);
                 Console.WriteLine("Parser written to '{0}'", args[1]);
-            }
-            catch (AphidParserException exception)
-            {
-                Console.WriteLine(ParserErrorMessage.Create(code, exception));
-            }
-            catch (Exception exception)
-            {
-                if (Debugger.IsAttached)
-                {
-                    throw;
-                }
-                else
-                {
-                    Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
-                    Environment.Exit(3);
-                }
-            }
+            //}
+            //catch (AphidParserException exception)
+            //{
+            //    Console.WriteLine(ParserErrorMessage.Create(code, exception));
+            //}
+            //catch (Exception exception)
+            //{
+            //    if (Debugger.IsAttached)
+            //    {
+            //        throw;
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
+            //        Environment.Exit(3);
+            //    }
+            //}
         }
     }
 }

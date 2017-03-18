@@ -4,7 +4,71 @@ base AphidExpression;
 node AphidNodeType;
 parser AphidParser;
 
-#'Aphid.Lexer';
+
+
+Lexer({
+    init: @() {
+        #'Aphid.Tmpl';
+        #'Aphid.Code';
+        #'Aphid.Tokens';
+    },
+    name: "Components.Aphid.Lexer.Aphid",
+    modes: [ 
+        {
+            mode: "Aphid",
+            tokens: tokens,
+            keywords: [
+                "true",
+                "false",
+                "null",
+
+                "if",
+                "else",
+                "switch",
+                "default",
+                "while",
+                "do",
+                "for",
+                "in",
+
+                "break",
+
+                "ret",
+
+                "this",
+
+                "new",
+                "using",
+                "load",
+
+                "defined",
+                "delete",
+                "extend",
+
+                "try",
+                "catch",
+                "finally",
+            ],
+            keywordDefault: getKeywordHelper('Identifier'),
+            keywordTail: getKeywordHelper('{Keyword}')            
+        },
+        {
+            mode: "Text",
+            tokens: [
+                { regex: '<%', type: 'GatorOpenOperator', newMode: "Aphid" },
+                { regex: '<%=', type: 'GatorEmitOperator', newMode: "Aphid" },
+                { regex: '<', code: textCode },
+                { code: textCode },
+            ]
+        },
+    ],
+    ignore: [ 
+        //"GatorOpenOperator",
+        //"GatorCloseOperator",
+        "WhiteSpace",
+        "Comment" 
+    ]
+});
 
 ////////////////////////////////////////////////////////////////
 // Types
@@ -27,6 +91,7 @@ GatorCloseExpression = { };
 GatorEmitExpression = { Expression };
 IdentifierExpression = { string Identifier, opt list IdentifierExpression Attributes };
 IfExpression = { Condition, list Body, list ElseBody };
+ImplicitArgumentExpression = { AphidTokenType Operator };
 LoadLibraryExpression = { LibraryExpression };
 LoadScriptExpression = { FileExpression };
 NullExpression = { };
@@ -841,6 +906,12 @@ ParseFactorExpression = @{
         }
 
         FunctionOperator: exp ParseFunctionExpression;
+
+        ImplicitArgumentOperator: {
+            TakeToken(op);
+            exp = ImplicitArgumentExpression(op);
+        }
+
         retKeyword, deleteKeyword: exp ParseUnaryExpression;
 
         trueKeyword: {

@@ -14,7 +14,9 @@ namespace Components.Aphid.Interpreter
 {
     public partial class AphidInterpreter
     {
-        private const string _return = "$r", _imports = "$imports";
+        private const string _return = "$r",
+            _imports = "$imports",
+            _implicitArg = "$_";
 
         private bool _isReturning = false;
 
@@ -815,13 +817,18 @@ namespace Components.Aphid.Interpreter
 
             foreach (var arg in parms)
             {
+                if (i == 0)
+                {
+                    functionScope.Add(_implicitArg, arg);
+                }
+
                 if (function.Args.Length == i)
                 {
                     break;
                 }
 
-                functionScope.Add(function.Args[i++], arg);
-            }
+                functionScope.Add(function.Args[i++], arg);                
+            }            
 
             var lastScope = _currentScope;
             _currentScope = functionScope;
@@ -968,6 +975,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
             var args = expression.Args.Select(InterpretExpression).ToArray();
+
             var value = InterpretExpression(expression.FunctionExpression);
             object funcExp = ValueHelper.Unwrap(value);
             return InterpretCallExpression(expression.FunctionExpression, funcExp, args);
@@ -1043,6 +1051,11 @@ namespace Components.Aphid.Interpreter
             }
 
             throw new AphidRuntimeException("Could not find function {0}", expression);
+        }
+
+        private AphidObject InterpretImplicitArgumentExpression(AphidExpression expression)
+        {
+            return _currentScope[_implicitArg];
         }
 
         private void PushFrame(AphidExpression function, IEnumerable<object> args)
@@ -1817,6 +1830,9 @@ namespace Components.Aphid.Interpreter
                     var partialOpExp = (PartialOperatorExpression)expression;
                     
                     return InterpretPartialOperatorExpression(partialOpExp);
+
+                case AphidExpressionType.ImplicitArgumentExpression:
+                    return InterpretImplicitArgumentExpression((ImplicitArgumentExpression)expression);
 
                 default:
                     throw new AphidRuntimeException("Unexpected expression {0}", expression);
