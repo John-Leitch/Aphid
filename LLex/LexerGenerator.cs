@@ -59,7 +59,17 @@ namespace LLex
             {
                 var groupState = new LexerState();
                 groupState.State = group.Key;
-                var returnToken = group.SingleOrDefault(x => x.Lexeme.Length - 1 == groupIndex);
+                var returnTokens = group.Where(x => x.Lexeme.Length - 1 == groupIndex).ToArray();
+
+                if (returnTokens.Length > 1)
+                {
+                    Console.WriteLine(
+                        "Invalid token declared {0} times: {1}",
+                        returnTokens.Length,
+                        returnTokens[0].Lexeme);
+                }
+
+                var returnToken = returnTokens.FirstOrDefault();
 
                 if (returnToken != null && returnToken.Lexeme != null)
                 {
