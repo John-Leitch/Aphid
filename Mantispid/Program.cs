@@ -34,6 +34,15 @@ namespace Mantispid
                 Environment.Exit(2);
             }
 
+            var scriptInfo = new FileInfo(args[0]);
+            var outputInfo = new FileInfo(args[1]);
+
+            if (scriptInfo.LastWriteTimeUtc < outputInfo.LastWriteTimeUtc)
+            {
+                Console.WriteLine("C# output update to date, not regenerating");
+                Environment.Exit(0);
+            }
+
             string code = "";
             
             try
