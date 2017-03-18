@@ -94,9 +94,45 @@ tokens = [
 ];
 
 Console.WriteLine('Adding custom operators');
-//(0..4).select(@ (x){
-    //Console.WriteLine('foo {0}', x);
-//});
 
-tokens.add({ regex: "~=", type: "CustomOperator1" });
-tokens.add({ regex: "~!", type: "CustomOperator2" });
+tokenChars = [ 
+    '`', '~', /*'!', '@', '#', '$',*/ '%', '^',
+    /*'&',*/ '*', /*'-', '_',*/ '=', '+', ':', '<',
+    '>', '/', '?'
+];
+
+using System.Text.RegularExpressions;
+
+usedTokens = tokens
+    .where(@() $_.regex defined)    
+    .select(@() $_.regex);
+
+Console.WriteLine('Built in tokens:');    
+usedTokens.select(@{ Console.WriteLine('  {0}', $_); });
+
+Console.WriteLine('\r\nCustom tokens:');
+
+extend string {
+    e: @(s, value) s.replace(value, '\\' + value),
+}
+
+regexEscape = @() $_.e('+').e('*').e('|').e('?').e('(').e(')').e('[').e(']');
+
+customTokenNumber = 0;
+
+addToken = @(t) {
+    if (!usedTokens.contains(t)) {
+        Console.WriteLine('  {0}', t);
+        tokens.add({ regex: t, type: "CustomOperator" + str(customTokenNumber++) });
+    }
+};
+
+for (x in tokenChars) {
+    for (y in tokenChars) {
+        addToken(x + y |> regexEscape);
+    }
+
+    addToken(x |> regexEscape);
+}
+
+

@@ -4,8 +4,6 @@ base AphidExpression;
 node AphidNodeType;
 parser AphidParser;
 
-
-
 Lexer({
     init: @() {
         #'Aphid.Tmpl';
@@ -310,7 +308,134 @@ ParseQueryExpression = @{
 
 ParseRangeExpression = ParseBinOpExp(
     ParseConditionalExpression,
-    RangeOperator | CompositionOperator | CustomOperator0);
+    RangeOperator
+    | CompositionOperator
+    | CustomOperator0
+    | CustomOperator1
+    | CustomOperator10
+    | CustomOperator100
+    | CustomOperator101
+    | CustomOperator102
+    | CustomOperator103
+    | CustomOperator104
+    | CustomOperator105
+    | CustomOperator106
+    | CustomOperator107
+    | CustomOperator108
+    | CustomOperator109
+    | CustomOperator11
+    | CustomOperator110
+    | CustomOperator111
+    | CustomOperator112
+    | CustomOperator113
+    | CustomOperator114
+    | CustomOperator115
+    | CustomOperator116
+    | CustomOperator117
+    | CustomOperator118
+    | CustomOperator119
+    | CustomOperator12
+    | CustomOperator120
+    | CustomOperator121
+    | CustomOperator122
+    | CustomOperator123
+    | CustomOperator124
+    | CustomOperator125
+    | CustomOperator13
+    | CustomOperator14
+    | CustomOperator15
+    | CustomOperator16
+    | CustomOperator17
+    | CustomOperator18
+    | CustomOperator19
+    | CustomOperator2
+    | CustomOperator20
+    | CustomOperator21
+    | CustomOperator22
+    | CustomOperator23
+    | CustomOperator24
+    | CustomOperator25
+    | CustomOperator26
+    | CustomOperator27
+    | CustomOperator28
+    | CustomOperator29
+    | CustomOperator3
+    | CustomOperator30
+    | CustomOperator31
+    | CustomOperator32
+    | CustomOperator33
+    | CustomOperator34
+    | CustomOperator35
+    | CustomOperator36
+    | CustomOperator37
+    | CustomOperator38
+    | CustomOperator39
+    | CustomOperator4
+    | CustomOperator40
+    | CustomOperator41
+    | CustomOperator42
+    | CustomOperator43
+    | CustomOperator44
+    | CustomOperator45
+    | CustomOperator46
+    | CustomOperator47
+    | CustomOperator48
+    | CustomOperator49
+    | CustomOperator5
+    | CustomOperator50
+    | CustomOperator51
+    | CustomOperator52
+    | CustomOperator53
+    | CustomOperator54
+    | CustomOperator55
+    | CustomOperator56
+    | CustomOperator57
+    | CustomOperator58
+    | CustomOperator59
+    | CustomOperator6
+    | CustomOperator60
+    | CustomOperator61
+    | CustomOperator62
+    | CustomOperator63
+    | CustomOperator64
+    | CustomOperator65
+    | CustomOperator66
+    | CustomOperator67
+    | CustomOperator68
+    | CustomOperator69
+    | CustomOperator7
+    | CustomOperator70
+    | CustomOperator71
+    | CustomOperator72
+    | CustomOperator73
+    | CustomOperator74
+    | CustomOperator75
+    | CustomOperator76
+    | CustomOperator77
+    | CustomOperator78
+    | CustomOperator79
+    | CustomOperator8
+    | CustomOperator80
+    | CustomOperator81
+    | CustomOperator82
+    | CustomOperator83
+    | CustomOperator84
+    | CustomOperator85
+    | CustomOperator86
+    | CustomOperator87
+    | CustomOperator88
+    | CustomOperator89
+    | CustomOperator9
+    | CustomOperator90
+    | CustomOperator91
+    | CustomOperator92
+    | CustomOperator93
+    | CustomOperator94
+    | CustomOperator95
+    | CustomOperator96
+    | CustomOperator97
+    | CustomOperator98
+    | CustomOperator99);
 
 ParseConditionalExpression = @{
     exp ParseLogicalExpression;
@@ -821,12 +946,138 @@ ParseFunctionExpression = @{
         LessThanOrEqualOperator,
         GreaterThanOrEqualOperator,
         PipelineOperator,
+
         MemberOperator: {
             TakeToken(op);
             exp = PartialOperatorExpression(op, ParseQueryExpression());
         }
 
-        CustomOperator0: {
+        CustomOperator0,
+        CustomOperator1,
+        CustomOperator10,
+        CustomOperator100,
+        CustomOperator101,
+        CustomOperator102,
+        CustomOperator103,
+        CustomOperator104,
+        CustomOperator105,
+        CustomOperator106,
+        CustomOperator107,
+        CustomOperator108,
+        CustomOperator109,
+        CustomOperator11,
+        CustomOperator110,
+        CustomOperator111,
+        CustomOperator112,
+        CustomOperator113,
+        CustomOperator114,
+        CustomOperator115,
+        CustomOperator116,
+        CustomOperator117,
+        CustomOperator118,
+        CustomOperator119,
+        CustomOperator12,
+        CustomOperator120,
+        CustomOperator121,
+        CustomOperator122,
+        CustomOperator123,
+        CustomOperator124,
+        CustomOperator125,
+        CustomOperator13,
+        CustomOperator14,
+        CustomOperator15,
+        CustomOperator16,
+        CustomOperator17,
+        CustomOperator18,
+        CustomOperator19,
+        CustomOperator2,
+        CustomOperator20,
+        CustomOperator21,
+        CustomOperator22,
+        CustomOperator23,
+        CustomOperator24,
+        CustomOperator25,
+        CustomOperator26,
+        CustomOperator27,
+        CustomOperator28,
+        CustomOperator29,
+        CustomOperator3,
+        CustomOperator30,
+        CustomOperator31,
+        CustomOperator32,
+        CustomOperator33,
+        CustomOperator34,
+        CustomOperator35,
+        CustomOperator36,
+        CustomOperator37,
+        CustomOperator38,
+        CustomOperator39,
+        CustomOperator4,
+        CustomOperator40,
+        CustomOperator41,
+        CustomOperator42,
+        CustomOperator43,
+        CustomOperator44,
+        CustomOperator45,
+        CustomOperator46,
+        CustomOperator47,
+        CustomOperator48,
+        CustomOperator49,
+        CustomOperator5,
+        CustomOperator50,
+        CustomOperator51,
+        CustomOperator52,
+        CustomOperator53,
+        CustomOperator54,
+        CustomOperator55,
+        CustomOperator56,
+        CustomOperator57,
+        CustomOperator58,
+        CustomOperator59,
+        CustomOperator6,
+        CustomOperator60,
+        CustomOperator61,
+        CustomOperator62,
+        CustomOperator63,
+        CustomOperator64,
+        CustomOperator65,
+        CustomOperator66,
+        CustomOperator67,
+        CustomOperator68,
+        CustomOperator69,
+        CustomOperator7,
+        CustomOperator70,
+        CustomOperator71,
+        CustomOperator72,
+        CustomOperator73,
+        CustomOperator74,
+        CustomOperator75,
+        CustomOperator76,
+        CustomOperator77,
+        CustomOperator78,
+        CustomOperator79,
+        CustomOperator8,
+        CustomOperator80,
+        CustomOperator81,
+        CustomOperator82,
+        CustomOperator83,
+        CustomOperator84,
+        CustomOperator85,
+        CustomOperator86,
+        CustomOperator87,
+        CustomOperator88,
+        CustomOperator89,
+        CustomOperator9,
+        CustomOperator90,
+        CustomOperator91,
+        CustomOperator92,
+        CustomOperator93,
+        CustomOperator94,
+        CustomOperator95,
+        CustomOperator96,
+        CustomOperator97,
+        CustomOperator98,
+        CustomOperator99: {
             TakeToken(op);
             exp = BinaryOperatorBodyExpression(op, ParseFunctionDeclaration());
         }
