@@ -1456,6 +1456,8 @@ namespace Components.Aphid.Interpreter
             var index = Convert.ToInt32(ValueHelper.Unwrap(InterpretExpression(expression.KeyExpression)));
             var array = val as List<AphidObject>;
             string str;
+            IList list;
+            IEnumerable enumerable;
 
             if (array != null)
             {
@@ -1470,16 +1472,27 @@ namespace Components.Aphid.Interpreter
             {
                 return new AphidObject(str[index].ToString());
             }
-            else
+            else if ((list = val as IList) != null)
             {
-                var list = val as IList;
+                return ValueHelper.Wrap(list[index]);
+            }
+            else if ((enumerable = val as IEnumerable) != null)
+            {
+                var i = 0;
 
-                if (list == null)
+                foreach (var o in enumerable)
                 {
-                    throw new AphidRuntimeException("Array access not supported by {0}.", val);
+                    if (i++ == index)
+                    {
+                        return new AphidObject(o);
+                    }
                 }
 
-                return ValueHelper.Wrap(list[index]);
+                throw new AphidRuntimeException("Index out of range: {0}.", index);
+            }
+            else
+            {
+                throw new AphidRuntimeException("Array access not supported by {0}.", val);
             }
         }
 
