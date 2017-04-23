@@ -16,7 +16,8 @@ namespace Components.Aphid.Interpreter
     {
         private const string _return = "$r",
             _imports = "$imports",
-            _implicitArg = "$_";
+            _implicitArg = "$_",
+            _implicitArgs = "$args";
 
         private bool _isReturning = false;
 
@@ -939,8 +940,10 @@ namespace Components.Aphid.Interpreter
         {
             var functionScope = new AphidObject(null, function.ParentScope);
             var i = 0;
+            var argList = parms.ToList();
+            functionScope[_implicitArgs] = new AphidObject(argList);
 
-            foreach (var arg in parms)
+            foreach (var arg in argList)
             {
                 if (i == 0)
                 {
@@ -953,7 +956,7 @@ namespace Components.Aphid.Interpreter
                 }
 
                 functionScope.Add(function.Args[i++], arg);                
-            }            
+            }
 
             var lastScope = _currentScope;
             _currentScope = functionScope;
@@ -1181,6 +1184,18 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretImplicitArgumentExpression(AphidExpression expression)
         {
             return _currentScope[_implicitArg];
+        }
+
+        private AphidObject InterpretImplicitArgumentsExpression(AphidExpression expression)
+        {
+            AphidObject args;
+
+            if (!_currentScope.TryResolve(_implicitArgs, out args))
+            {
+                throw new AphidRuntimeException("$args cannot be used outside of function.");
+            }
+
+            return args;
         }
 
         private void PushFrame(AphidExpression function, IEnumerable<object> args)
@@ -1971,6 +1986,9 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.ImplicitArgumentExpression:
                     return InterpretImplicitArgumentExpression((ImplicitArgumentExpression)expression);
+
+                case AphidExpressionType.ImplicitArgumentsExpression:
+                    return InterpretImplicitArgumentsExpression((ImplicitArgumentsExpression)expression);
 
                 default:
                     throw new AphidRuntimeException("Unexpected expression {0}", expression);
