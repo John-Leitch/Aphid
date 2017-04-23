@@ -291,6 +291,26 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void CustomOperatorTest()
         {
+            AssertTrue(@"
+                using System.Text.RegularExpressions;
+                @~? (text, pattern) Regex.IsMatch(text, pattern);
+                ret 'Hello foo world' ~? 'foo';
+            ");
+        }
+
+        [Test]
+        public void CustomOperatorTest1()
+        {
+            AssertFalse(@"
+                using System.Text.RegularExpressions;
+                @~? (text, pattern) Regex.IsMatch(text, pattern);
+                ret 'Hello foo world' ~? 'foo2';
+            ");
+        }
+
+        [Test]
+        public void CustomOperatorTest2()
+        {
             AssertFoo(@"
                 using System.Text.RegularExpressions;
                 @~~ (text, pattern) Regex.Matches(text, pattern);
