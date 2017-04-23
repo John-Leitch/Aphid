@@ -287,5 +287,15 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertExpEquals(3, "([ 1, 1, 1, 2, 2, 2, 3, 3, 3 ]!?).count()");
         }
+
+        [Test]
+        public void CustomOperatorTest()
+        {
+            AssertFoo(@"
+                using System.Text.RegularExpressions;
+                @~~ (text, pattern) Regex.Matches(text, pattern);
+                ret ('Hello foo world' ~~ 'foo')[0].Value;
+            ");
+        }
     }
 }
