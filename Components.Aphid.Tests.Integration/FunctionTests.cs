@@ -151,5 +151,81 @@ namespace Components.Aphid.Tests.Integration
                 ret (3).square();
             ");
         }
+
+        [Test]
+        public void ImplicitArgumentTest()
+        {
+            Assert9(@"
+                square = @{ ret $_ * $_ };
+                
+                ret 3 |> square;
+            ");
+        }
+
+        [Test]
+        public void ImplicitArgumentTest2()
+        {
+            Assert9(@"
+                square = @() $_ * $_;
+                
+                ret 3 |> square;
+            ");
+        }
+
+        [Test]
+        public void ImplicitArgumentTest3()
+        {
+            Assert9(@"ret 3 |> @() $_ * $_;");
+        }
+
+        [Test]
+        public void ImplicitArgumentsTest()
+        {
+            Assert9(@"
+                foo = @{ ret $args[0]; };
+                
+                ret foo(9, 0, 0, 0);
+            ");
+        }
+
+        [Test]
+        public void ImplicitArgumentsTest2()
+        {
+            Assert9(@"
+                foo = @{ ret $args[2]; };
+                
+                ret foo(0, 0, 9, 0);
+            ");
+        }
+
+        [Test]
+        public void ImplicitArgumentsTest3()
+        {
+            AssertFoo(@"
+                foo = @{ ret $args[2]; };
+                
+                ret foo(0, 0, 'foo', 0);
+            ");
+        }
+
+        [Test]
+        public void ImplicitArgumentsTest4()
+        {
+            Assert9(@"
+                foo = @() $args[0];
+                
+                ret foo(9, 0, 0, 0);
+            ");
+        }
+
+        [Test]
+        public void ImplicitArgumentsTest5()
+        {
+            Assert9(@"
+                foo = @() $args[2];
+                
+                ret foo(0, 0, 9, 0);
+            ");
+        }
     }
 }
