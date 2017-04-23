@@ -46,6 +46,8 @@ namespace Components.Aphid.Parser
 
         ImplicitArgumentExpression,
 
+        ImplicitArgumentsExpression,
+
         LoadLibraryExpression,
 
         LoadScriptExpression,
@@ -835,6 +837,33 @@ namespace Components.Aphid.Parser
             get
             {
                 return AphidExpressionType.ImplicitArgumentExpression;
+            }
+        }
+    }
+
+    public partial class ImplicitArgumentsExpression : AphidExpression
+    {
+
+        private AphidTokenType _operator;
+
+        public ImplicitArgumentsExpression(AphidTokenType @operator)
+        {
+            _operator = @operator;
+        }
+
+        public AphidTokenType Operator
+        {
+            get
+            {
+                return _operator;
+            }
+        }
+
+        public override AphidExpressionType Type
+        {
+            get
+            {
+                return AphidExpressionType.ImplicitArgumentsExpression;
             }
         }
     }
@@ -3730,105 +3759,114 @@ namespace Components.Aphid.Parser
                                         }
                                         else
                                         {
-                                            if (((_currentToken.TokenType == AphidTokenType.retKeyword)
-                                                        || (_currentToken.TokenType == AphidTokenType.deleteKeyword)))
+                                            if ((_currentToken.TokenType == AphidTokenType.ImplicitArgumentsOperator))
                                             {
-                                                var index0043 = _currentToken.Index;
-                                                exp = ParseUnaryExpression();
-                                                if ((exp.Index < 0))
-                                                {
-                                                    exp.Index = index0043;
-                                                    exp.Length = (_currentToken.Index - index0043);
-                                                }
+                                                var op = _currentToken.TokenType;
+                                                NextToken();
+                                                exp = new ImplicitArgumentsExpression(op);
                                             }
                                             else
                                             {
-                                                if ((_currentToken.TokenType == AphidTokenType.trueKeyword))
+                                                if (((_currentToken.TokenType == AphidTokenType.retKeyword)
+                                                            || (_currentToken.TokenType == AphidTokenType.deleteKeyword)))
                                                 {
-                                                    exp = new BooleanExpression(true);
-                                                    NextToken();
+                                                    var index0043 = _currentToken.Index;
+                                                    exp = ParseUnaryExpression();
+                                                    if ((exp.Index < 0))
+                                                    {
+                                                        exp.Index = index0043;
+                                                        exp.Length = (_currentToken.Index - index0043);
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    if ((_currentToken.TokenType == AphidTokenType.falseKeyword))
+                                                    if ((_currentToken.TokenType == AphidTokenType.trueKeyword))
                                                     {
-                                                        exp = new BooleanExpression(false);
+                                                        exp = new BooleanExpression(true);
                                                         NextToken();
                                                     }
                                                     else
                                                     {
-                                                        if ((_currentToken.TokenType == AphidTokenType.thisKeyword))
+                                                        if ((_currentToken.TokenType == AphidTokenType.falseKeyword))
                                                         {
-                                                            exp = new ThisExpression();
+                                                            exp = new BooleanExpression(false);
                                                             NextToken();
                                                         }
                                                         else
                                                         {
-                                                            if ((_currentToken.TokenType == AphidTokenType.LoadScriptOperator))
+                                                            if ((_currentToken.TokenType == AphidTokenType.thisKeyword))
                                                             {
-                                                                var index0044 = _currentToken.Index;
-                                                                exp = ParseLoadScriptExpression();
-                                                                if ((exp.Index < 0))
-                                                                {
-                                                                    exp.Index = index0044;
-                                                                    exp.Length = (_currentToken.Index - index0044);
-                                                                }
+                                                                exp = new ThisExpression();
+                                                                NextToken();
                                                             }
                                                             else
                                                             {
-                                                                if ((_currentToken.TokenType == AphidTokenType.LoadLibraryOperator))
+                                                                if ((_currentToken.TokenType == AphidTokenType.LoadScriptOperator))
                                                                 {
-                                                                    var index0045 = _currentToken.Index;
-                                                                    exp = ParseLoadLibraryExpression();
+                                                                    var index0044 = _currentToken.Index;
+                                                                    exp = ParseLoadScriptExpression();
                                                                     if ((exp.Index < 0))
                                                                     {
-                                                                        exp.Index = index0045;
-                                                                        exp.Length = (_currentToken.Index - index0045);
+                                                                        exp.Index = index0044;
+                                                                        exp.Length = (_currentToken.Index - index0044);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    if ((_currentToken.TokenType == AphidTokenType.nullKeyword))
+                                                                    if ((_currentToken.TokenType == AphidTokenType.LoadLibraryOperator))
                                                                     {
-                                                                        exp = new NullExpression();
-                                                                        NextToken();
+                                                                        var index0045 = _currentToken.Index;
+                                                                        exp = ParseLoadLibraryExpression();
+                                                                        if ((exp.Index < 0))
+                                                                        {
+                                                                            exp.Index = index0045;
+                                                                            exp.Length = (_currentToken.Index - index0045);
+                                                                        }
                                                                     }
                                                                     else
                                                                     {
-                                                                        if ((_currentToken.TokenType == AphidTokenType.breakKeyword))
+                                                                        if ((_currentToken.TokenType == AphidTokenType.nullKeyword))
                                                                         {
-                                                                            exp = new BreakExpression();
+                                                                            exp = new NullExpression();
                                                                             NextToken();
                                                                         }
                                                                         else
                                                                         {
-                                                                            if ((_currentToken.TokenType == AphidTokenType.HexNumber))
+                                                                            if ((_currentToken.TokenType == AphidTokenType.breakKeyword))
                                                                             {
-                                                                                exp = new NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
+                                                                                exp = new BreakExpression();
                                                                                 NextToken();
                                                                             }
                                                                             else
                                                                             {
-                                                                                if ((_currentToken.TokenType == AphidTokenType.BinaryNumber))
+                                                                                if ((_currentToken.TokenType == AphidTokenType.HexNumber))
                                                                                 {
-                                                                                    exp = new NumberExpression(BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+                                                                                    exp = new NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
                                                                                     NextToken();
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    if ((_currentToken.TokenType == AphidTokenType.PatternMatchingOperator))
+                                                                                    if ((_currentToken.TokenType == AphidTokenType.BinaryNumber))
                                                                                     {
-                                                                                        var index0046 = _currentToken.Index;
-                                                                                        exp = ParsePatternMatchingExpression();
-                                                                                        if ((exp.Index < 0))
-                                                                                        {
-                                                                                            exp.Index = index0046;
-                                                                                            exp.Length = (_currentToken.Index - index0046);
-                                                                                        }
+                                                                                        exp = new NumberExpression(BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+                                                                                        NextToken();
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        throw new AphidParserException(_currentToken);
+                                                                                        if ((_currentToken.TokenType == AphidTokenType.PatternMatchingOperator))
+                                                                                        {
+                                                                                            var index0046 = _currentToken.Index;
+                                                                                            exp = ParsePatternMatchingExpression();
+                                                                                            if ((exp.Index < 0))
+                                                                                            {
+                                                                                                exp.Index = index0046;
+                                                                                                exp.Length = (_currentToken.Index - index0046);
+                                                                                            }
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            throw new AphidParserException(_currentToken);
+                                                                                        }
                                                                                     }
                                                                                 }
                                                                             }
@@ -4115,6 +4153,7 @@ namespace Components.Aphid.Lexer
         Identifier,
         ifKeyword,
         ImplicitArgumentOperator,
+        ImplicitArgumentsOperator,
         IncrementOperator,
         inKeyword,
         InteropOperator,
@@ -5332,6 +5371,52 @@ namespace Components.Aphid.Lexer
                                     case '_':
 
                                         return AphidTokenType.ImplicitArgumentOperator;
+
+                                    case 'a':
+                                        if (charIndex < lastIndex)
+                                        {
+                                            currentChar = text[++charIndex];
+
+                                            switch (currentChar)
+                                            {
+                                                case 'r':
+                                                    if (charIndex < lastIndex)
+                                                    {
+                                                        currentChar = text[++charIndex];
+
+                                                        switch (currentChar)
+                                                        {
+                                                            case 'g':
+                                                                if (charIndex < lastIndex)
+                                                                {
+                                                                    currentChar = text[++charIndex];
+
+                                                                    switch (currentChar)
+                                                                    {
+                                                                        case 's':
+
+                                                                            return AphidTokenType.ImplicitArgumentsOperator;
+
+                                                                    }
+
+                                                                    charIndex--;
+                                                                }
+
+                                                                break;
+
+                                                        }
+
+                                                        charIndex--;
+                                                    }
+
+                                                    break;
+
+                                            }
+
+                                            charIndex--;
+                                        }
+
+                                        break;
 
                                 }
 
