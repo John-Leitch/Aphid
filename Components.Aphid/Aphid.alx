@@ -90,6 +90,7 @@ GatorEmitExpression = { Expression };
 IdentifierExpression = { string Identifier, opt list IdentifierExpression Attributes };
 IfExpression = { Condition, list Body, list ElseBody };
 ImplicitArgumentExpression = { AphidTokenType Operator };
+ImplicitArgumentsExpression = { AphidTokenType Operator };
 LoadLibraryExpression = { LibraryExpression };
 LoadScriptExpression = { FileExpression };
 NullExpression = { };
@@ -1265,6 +1266,11 @@ ParseFactorExpression = @{
         ImplicitArgumentOperator: {
             TakeToken(op);
             exp = ImplicitArgumentExpression(op);
+        }
+
+        ImplicitArgumentsOperator: {
+            TakeToken(op);
+            exp = ImplicitArgumentsExpression(op);
         }
 
         retKeyword, deleteKeyword: exp ParseUnaryExpression;
