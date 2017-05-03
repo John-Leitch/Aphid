@@ -871,24 +871,47 @@ namespace Components.Aphid.Interpreter
             return new AphidObject(c);
         }
 
+        private AphidObject InterpretCustomUnaryOperator(UnaryOperatorExpression expression)
+        {
+            return CallCustomOperatorFunction(
+                expression.Operator,
+                "unary",
+                new[] { InterpretExpression(expression.Operand) });
+        }
+
         private AphidObject InterpretCustomBinaryOperator(BinaryOperatorExpression expression)
         {
-            AphidFunction func;
-
-            if (!_binaryOperatorTable.TryGetValue(expression.Operator, out func))
-            {
-                throw new AphidRuntimeException(
-                    "Custom binary operator '{0}' not defined.",
-                    expression.Operator);
-            }
-
-            return CallFunction(
-                func,
+            return CallCustomOperatorFunction(
+                expression.Operator,
+                "binary",
                 new[]
                 {
                     InterpretExpression(expression.LeftOperand),
                     InterpretExpression(expression.RightOperand)
                 });
+        }
+
+        private AphidObject CallCustomOperatorFunction(
+            AphidTokenType op,
+            string name,
+            object[] args)
+        {
+            return CallFunction(GetCustomOperatorFunction(op, name), args);
+        }
+
+        private AphidFunction GetCustomOperatorFunction(AphidTokenType op, string name)
+        {
+            AphidFunction func;
+
+            if (!_binaryOperatorTable.TryGetValue(op, out func))
+            {
+                throw new AphidRuntimeException(
+                    "Custom {0} operator '{1}' not defined.",
+                    func,
+                    op);
+            }
+
+            return func;
         }
 
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -1397,6 +1420,134 @@ namespace Components.Aphid.Interpreter
                                 throw new NotImplementedException();
 
                         }
+
+                    case AphidTokenType.CustomOperator0:
+                    case AphidTokenType.CustomOperator1:
+                    case AphidTokenType.CustomOperator10:
+                    case AphidTokenType.CustomOperator100:
+                    case AphidTokenType.CustomOperator101:
+                    case AphidTokenType.CustomOperator102:
+                    case AphidTokenType.CustomOperator103:
+                    case AphidTokenType.CustomOperator104:
+                    case AphidTokenType.CustomOperator105:
+                    case AphidTokenType.CustomOperator106:
+                    case AphidTokenType.CustomOperator107:
+                    case AphidTokenType.CustomOperator108:
+                    case AphidTokenType.CustomOperator109:
+                    case AphidTokenType.CustomOperator11:
+                    case AphidTokenType.CustomOperator110:
+                    case AphidTokenType.CustomOperator111:
+                    case AphidTokenType.CustomOperator112:
+                    case AphidTokenType.CustomOperator113:
+                    case AphidTokenType.CustomOperator114:
+                    case AphidTokenType.CustomOperator115:
+                    case AphidTokenType.CustomOperator116:
+                    case AphidTokenType.CustomOperator117:
+                    case AphidTokenType.CustomOperator118:
+                    case AphidTokenType.CustomOperator119:
+                    case AphidTokenType.CustomOperator12:
+                    case AphidTokenType.CustomOperator120:
+                    case AphidTokenType.CustomOperator121:
+                    case AphidTokenType.CustomOperator122:
+                    case AphidTokenType.CustomOperator123:
+                    case AphidTokenType.CustomOperator124:
+                    case AphidTokenType.CustomOperator125:
+                    case AphidTokenType.CustomOperator13:
+                    case AphidTokenType.CustomOperator14:
+                    case AphidTokenType.CustomOperator15:
+                    case AphidTokenType.CustomOperator16:
+                    case AphidTokenType.CustomOperator17:
+                    case AphidTokenType.CustomOperator18:
+                    case AphidTokenType.CustomOperator19:
+                    case AphidTokenType.CustomOperator2:
+                    case AphidTokenType.CustomOperator20:
+                    case AphidTokenType.CustomOperator21:
+                    case AphidTokenType.CustomOperator22:
+                    case AphidTokenType.CustomOperator23:
+                    case AphidTokenType.CustomOperator24:
+                    case AphidTokenType.CustomOperator25:
+                    case AphidTokenType.CustomOperator26:
+                    case AphidTokenType.CustomOperator27:
+                    case AphidTokenType.CustomOperator28:
+                    case AphidTokenType.CustomOperator29:
+                    case AphidTokenType.CustomOperator3:
+                    case AphidTokenType.CustomOperator30:
+                    case AphidTokenType.CustomOperator31:
+                    case AphidTokenType.CustomOperator32:
+                    case AphidTokenType.CustomOperator33:
+                    case AphidTokenType.CustomOperator34:
+                    case AphidTokenType.CustomOperator35:
+                    case AphidTokenType.CustomOperator36:
+                    case AphidTokenType.CustomOperator37:
+                    case AphidTokenType.CustomOperator38:
+                    case AphidTokenType.CustomOperator39:
+                    case AphidTokenType.CustomOperator4:
+                    case AphidTokenType.CustomOperator40:
+                    case AphidTokenType.CustomOperator41:
+                    case AphidTokenType.CustomOperator42:
+                    case AphidTokenType.CustomOperator43:
+                    case AphidTokenType.CustomOperator44:
+                    case AphidTokenType.CustomOperator45:
+                    case AphidTokenType.CustomOperator46:
+                    case AphidTokenType.CustomOperator47:
+                    case AphidTokenType.CustomOperator48:
+                    case AphidTokenType.CustomOperator49:
+                    case AphidTokenType.CustomOperator5:
+                    case AphidTokenType.CustomOperator50:
+                    case AphidTokenType.CustomOperator51:
+                    case AphidTokenType.CustomOperator52:
+                    case AphidTokenType.CustomOperator53:
+                    case AphidTokenType.CustomOperator54:
+                    case AphidTokenType.CustomOperator55:
+                    case AphidTokenType.CustomOperator56:
+                    case AphidTokenType.CustomOperator57:
+                    case AphidTokenType.CustomOperator58:
+                    case AphidTokenType.CustomOperator59:
+                    case AphidTokenType.CustomOperator6:
+                    case AphidTokenType.CustomOperator60:
+                    case AphidTokenType.CustomOperator61:
+                    case AphidTokenType.CustomOperator62:
+                    case AphidTokenType.CustomOperator63:
+                    case AphidTokenType.CustomOperator64:
+                    case AphidTokenType.CustomOperator65:
+                    case AphidTokenType.CustomOperator66:
+                    case AphidTokenType.CustomOperator67:
+                    case AphidTokenType.CustomOperator68:
+                    case AphidTokenType.CustomOperator69:
+                    case AphidTokenType.CustomOperator7:
+                    case AphidTokenType.CustomOperator70:
+                    case AphidTokenType.CustomOperator71:
+                    case AphidTokenType.CustomOperator72:
+                    case AphidTokenType.CustomOperator73:
+                    case AphidTokenType.CustomOperator74:
+                    case AphidTokenType.CustomOperator75:
+                    case AphidTokenType.CustomOperator76:
+                    case AphidTokenType.CustomOperator77:
+                    case AphidTokenType.CustomOperator78:
+                    case AphidTokenType.CustomOperator79:
+                    case AphidTokenType.CustomOperator8:
+                    case AphidTokenType.CustomOperator80:
+                    case AphidTokenType.CustomOperator81:
+                    case AphidTokenType.CustomOperator82:
+                    case AphidTokenType.CustomOperator83:
+                    case AphidTokenType.CustomOperator84:
+                    case AphidTokenType.CustomOperator85:
+                    case AphidTokenType.CustomOperator86:
+                    case AphidTokenType.CustomOperator87:
+                    case AphidTokenType.CustomOperator88:
+                    case AphidTokenType.CustomOperator89:
+                    case AphidTokenType.CustomOperator9:
+                    case AphidTokenType.CustomOperator90:
+                    case AphidTokenType.CustomOperator91:
+                    case AphidTokenType.CustomOperator92:
+                    case AphidTokenType.CustomOperator93:
+                    case AphidTokenType.CustomOperator94:
+                    case AphidTokenType.CustomOperator95:
+                    case AphidTokenType.CustomOperator96:
+                    case AphidTokenType.CustomOperator97:
+                    case AphidTokenType.CustomOperator98:
+                    case AphidTokenType.CustomOperator99:
+                        return InterpretCustomUnaryOperator(expression);
 
                     default:
                         throw CreateUnaryOperatorException(expression);
