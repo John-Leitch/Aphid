@@ -1891,9 +1891,9 @@ namespace Components.Aphid.Interpreter
 
             if (expression.CatchArg != null)
             {
-                _currentScope.Add(
-                    expression.CatchArg.Identifier,
-                    new AphidObject(ExceptionHelper.Unwrap(e).Message));
+                var ex = new AphidObject(ExceptionHelper.Unwrap(e).Message);
+                ex.Add("stack", new AphidObject(ExceptionHelper.StackTrace(GetStackTrace())));
+                _currentScope.Add(expression.CatchArg.Identifier, ex);
             }
 
             Interpret(expression.CatchBody, false);

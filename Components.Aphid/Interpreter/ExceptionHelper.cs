@@ -25,5 +25,17 @@ namespace Components.Aphid.Interpreter
                 }
             }
         }
+
+        public static string StackTrace(AphidFrame[] frames)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var f in frames)
+            {
+                sb.AppendLine(f.ToString());
+            }
+
+            return sb.ToString();
+        }
     }
 }
