@@ -289,7 +289,51 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void CustomOperatorTest()
+        public void CustomUnaryOperatorTest()
+        {
+            Assert9(@"
+                @:% (x) { ret x * x; };
+                ret :% 3;
+            ");
+            
+        }
+
+        [Test]
+        public void CustomUnaryOperatorTest2()
+        {
+            AssertFoo(@"
+                @:% (x) { ret x + 'oo'; };
+                ret :% 'f';
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorTest3()
+        {
+            Assert9(@"
+                @:% (x) x * x;
+                ret :% 3;
+            ");
+
+        }
+
+        [Test]
+        public void CustomUnaryOperatorTest4()
+        {
+            Assert9(@"
+                @^^ (x) x * x;
+                ret ^^ 3;
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorTest5()
+        {
+            Assert9("@^^(x)x*x;ret^^3;");
+        }
+
+        [Test]
+        public void CustomBinaryOperatorTest()
         {
             AssertTrue(@"
                 using System.Text.RegularExpressions;
@@ -299,7 +343,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void CustomOperatorTest1()
+        public void CustomBinaryOperatorTest1()
         {
             AssertFalse(@"
                 using System.Text.RegularExpressions;
@@ -309,7 +353,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void CustomOperatorTest2()
+        public void CustomBinaryOperatorTest2()
         {
             AssertFoo(@"
                 using System.Text.RegularExpressions;
