@@ -53,10 +53,16 @@ namespace Components.Aphid.Parser
                 })
                 .ToDictionary(x => x.Name.Identifier, x => x.Value);
 
-            var bodyMutator = new AphidMacroBodyMutator(argTable);
+            var bodyMutator = CreateBodyMutator(argTable);
             var mutatedBody = bodyMutator.Mutate(macro.Declaration.Body);
 
             return mutatedBody;
+        }
+
+        protected virtual AphidMacroBodyMutator CreateBodyMutator(
+            Dictionary<string, AphidExpression> argTable)
+        {
+            return new AphidMacroBodyMutator(argTable);
         }
     }
 }
