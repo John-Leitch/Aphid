@@ -36,7 +36,7 @@ namespace Components.Aphid.Parser
                 expectedToken);
         }
 
-        public AphidParserException(string format, params string[] args)
+        public AphidParserException(string format, params object[] args)
         {
             _message = string.Format(format, args);
         }
