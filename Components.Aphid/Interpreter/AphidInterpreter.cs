@@ -2192,6 +2192,7 @@ namespace Components.Aphid.Interpreter
             var parser = new AphidParser(lexer.GetTokens());
             var ast = new PartialOperatorMutator().MutateRecursively(parser.Parse());
             ast = new AphidMacroMutator().MutateRecursively(ast);
+            ast = new AphidIdDirectiveMutator().MutateRecursively(ast);
             Interpret(ast);
         }
 
