@@ -7,7 +7,7 @@ namespace Components.Aphid.Parser
 {
     public class AphidMacroBodyMutator : AphidMutator
     {
-        private Dictionary<string, AphidExpression> _arguments;
+        protected Dictionary<string, AphidExpression> _arguments;
 
         public AphidMacroBodyMutator(Dictionary<string, AphidExpression> arguments)
         {
