@@ -382,7 +382,7 @@ namespace Components.Aphid.Interpreter
 
                     if (!_currentScope.TryResolve(extKey, out val))
                     {
-                        throw new AphidRuntimeException("Undefined member {0} in expression {1}", key, expression);
+                        return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
                     }
 
                     var function = ((AphidFunction)val.Value).Clone();
