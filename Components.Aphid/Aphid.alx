@@ -81,7 +81,7 @@ CallExpression = { FunctionExpression, opt list Args };
 DoWhileExpression = { Condition, list Body };
 DynamicMemberExpression = { MemberExpression };
 ExtendExpression = { string ExtendType, ObjectExpression Object };
-ForEachExpression = { Collection, Element, list Body };
+ForEachExpression = { Collection, list Body, opt Element };
 ForExpression = { Initialization, Condition, Afterthought, list Body };
 FunctionExpression = { list Args, list Body };
 GatorOpenExpression = { };
@@ -203,6 +203,21 @@ _ParseStatement = macro(@(_requireEos) {
                     while (Comma) {
                         NextToken;
                         exp = BinaryOperatorExpression(exp, Comma, ParseExpression());
+                    }
+                }
+
+                switch (TokenType) {
+                    forKeyword: {
+                        NextToken;
+                        IdentifierExpression id;
+                        
+                        if (LeftParenthesis) {
+                            NextToken;
+                            id = ParseIdentifierExpression();
+                            Match(RightParenthesis);
+                        }
+
+                        exp = ForEachExpression(exp, ParseSingleBlock(), id);
                     }
                 }
 
@@ -924,7 +939,12 @@ ParseForExpression = @{
         RightParenthesis;
         body ParseBlock;
 
-        ret ForEachExpression(collection, initOrElement, body);
+        ret ForEachExpression(collection, body, initOrElement);
+    } else if (RightParenthesis) {
+        RightParenthesis;
+        body ParseBlock;
+
+        ret ForEachExpression(initOrElement, body, null);
     } else {
         EndOfStatement;
         condition ParseExpression;
