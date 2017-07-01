@@ -970,7 +970,7 @@ namespace Components.Aphid.Interpreter
             {
                 if (i == 0)
                 {
-                    functionScope.Add(_implicitArg, arg);
+                    SetImplicitArg(functionScope, arg);
                 }
 
                 if (function.Args.Length == i)
@@ -988,6 +988,16 @@ namespace Components.Aphid.Interpreter
             _currentScope = lastScope;
 
             return retVal;
+        }
+
+        private void SetImplicitArg(AphidObject arg)
+        {
+            SetImplicitArg(_currentScope, arg);
+        }
+
+        private void SetImplicitArg(AphidObject scope, AphidObject arg)
+        {
+            scope[_implicitArg] = arg;
         }
 
         private AphidObject CallInteropFunction(AphidInteropFunction func, params AphidObject[] objArgs)
@@ -1664,6 +1674,7 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretForExpression(ForExpression expression)
         {
+            //foo
             EnterChildScope();
             var init = InterpretExpression(expression.Initialization);
 
@@ -1693,7 +1704,9 @@ namespace Components.Aphid.Interpreter
             foreach (var element in elements)
             {
                 EnterChildScope();
-                _currentScope.Add(elementId, ValueHelper.Wrap(element));
+                var obj = ValueHelper.Wrap(element);
+                SetImplicitArg(obj);
+                _currentScope.Add(elementId, obj);
                 Interpret(expression.Body, false);
 
                 if (LeaveChildScope(true) || _isBreaking)
