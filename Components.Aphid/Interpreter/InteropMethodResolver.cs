@@ -55,7 +55,13 @@ namespace Components.Aphid.Interpreter
 
             if (!methods.Any())
             {
-                throw new AphidRuntimeException("Could not resolve interop method.");
+                var msg = !nameMatches.Any() ? 
+                    "Could not resolve interop method." :
+                    string.Format(
+                        "Call did not match interop signature. Methods found:\r\n{0}",
+                        string.Join("\r\n", nameMatches));
+
+                throw new AphidRuntimeException(msg);
             }
 
             return methods.First();
