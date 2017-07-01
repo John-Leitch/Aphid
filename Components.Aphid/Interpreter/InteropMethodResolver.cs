@@ -55,16 +55,42 @@ namespace Components.Aphid.Interpreter
 
             if (!methods.Any())
             {
+                
                 var msg = !nameMatches.Any() ? 
                     "Could not resolve interop method." :
                     string.Format(
                         "Call did not match interop signature. Methods found:\r\n{0}",
-                        string.Join("\r\n", nameMatches));
+                        string.Join("\r\n", nameMatches.Select(GetMethodDescription)));
 
                 throw new AphidRuntimeException(msg);
             }
 
             return methods.First();
+        }
+
+        public static string GetMethodDescription(MethodBase method)
+        {
+            var sb = new StringBuilder();
+            MethodInfo info;
+
+            if ((info = method as MethodInfo) != null)
+            {
+                sb.AppendFormat(
+                    "{0} ",
+                    info.ReturnType.Name);
+            }
+
+            sb.AppendFormat(
+                "{0}({1})",
+                method.Name,
+                string.Join(", ", method.GetParameters().Select(GetParamDescription)));
+
+            return sb.ToString();
+        }
+
+        private static string GetParamDescription(ParameterInfo parameter)
+        {
+            return string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
         }
     }
 }
