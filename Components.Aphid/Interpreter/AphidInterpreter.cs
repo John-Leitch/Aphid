@@ -1699,14 +1699,22 @@ namespace Components.Aphid.Interpreter
         {
             var collection = InterpretExpression(expression.Collection) as AphidObject;
             var elements = collection.Value as IEnumerable;
-            var elementId = (expression.Element as IdentifierExpression).Identifier;
+            
+            var elementId = expression.Element != null ? 
+                (expression.Element as IdentifierExpression).Identifier :
+                null;
 
             foreach (var element in elements)
             {
                 EnterChildScope();
                 var obj = ValueHelper.Wrap(element);
                 SetImplicitArg(obj);
-                _currentScope.Add(elementId, obj);
+
+                if (elementId != null)
+                {
+                    _currentScope.Add(elementId, obj);
+                }
+
                 Interpret(expression.Body, false);
 
                 if (LeaveChildScope(true) || _isBreaking)

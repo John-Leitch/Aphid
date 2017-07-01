@@ -40,6 +40,18 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void ForEachTest3()
+        {
+            AssertFoo("c=['f','o','o']; s=''; for(x in c)s = s + $_; ret s;");
+        }
+
+        [Test]
+        public void ForEachTest4()
+        {
+            AssertFoo("c=['f','o','o']; s=''; for(c)s = s + $_; ret s;");
+        }
+
+        [Test]
         public void WhileTest()
         {
             Assert9("x = 0; while (x < 9) x++; ret x;");

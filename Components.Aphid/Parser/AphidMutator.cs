@@ -154,8 +154,10 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new ForEachExpression(
                             Mutate(forEachExp.Collection).Single(),
-                            Mutate(forEachExp.Element).Single(),
-                            Mutate(forEachExp.Body)));
+                            Mutate(forEachExp.Body),
+                            forEachExp.Element != null ? 
+                                Mutate(forEachExp.Element).Single() : 
+                                null));
 
                     break;
 

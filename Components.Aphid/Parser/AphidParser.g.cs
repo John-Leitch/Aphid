@@ -482,15 +482,15 @@ namespace Components.Aphid.Parser
 
         private AphidExpression _collection;
 
-        private AphidExpression _element;
-
         private System.Collections.Generic.List<AphidExpression> _body;
 
-        public ForEachExpression(AphidExpression collection, AphidExpression element, System.Collections.Generic.List<AphidExpression> body)
+        private AphidExpression _element;
+
+        public ForEachExpression(AphidExpression collection, System.Collections.Generic.List<AphidExpression> body, [System.Runtime.InteropServices.OptionalAttribute()] AphidExpression element)
         {
             _collection = collection;
-            _element = element;
             _body = body;
+            _element = element;
         }
 
         public AphidExpression Collection
@@ -501,19 +501,19 @@ namespace Components.Aphid.Parser
             }
         }
 
-        public AphidExpression Element
-        {
-            get
-            {
-                return _element;
-            }
-        }
-
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
             {
                 return _body;
+            }
+        }
+
+        public AphidExpression Element
+        {
+            get
+            {
+                return _element;
             }
         }
 
@@ -3145,29 +3145,38 @@ namespace Components.Aphid.Parser
                 }
                 Match(AphidTokenType.RightParenthesis);
                 var body = ParseBlock();
-                return new ForEachExpression(collection, initOrElement, body);
+                return new ForEachExpression(collection, body, initOrElement);
             }
             else
             {
-                Match(AphidTokenType.EndOfStatement);
-                var index002F = _currentToken.Index;
-                var condition = ParseExpression();
-                if ((condition.Index < 0))
+                if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
                 {
-                    condition.Index = index002F;
-                    condition.Length = (_currentToken.Index - index002F);
+                    Match(AphidTokenType.RightParenthesis);
+                    var body = ParseBlock();
+                    return new ForEachExpression(initOrElement, body, null);
                 }
-                Match(AphidTokenType.EndOfStatement);
-                var index0030 = _currentToken.Index;
-                var afterthought = ParseExpression();
-                if ((afterthought.Index < 0))
+                else
                 {
-                    afterthought.Index = index0030;
-                    afterthought.Length = (_currentToken.Index - index0030);
+                    Match(AphidTokenType.EndOfStatement);
+                    var index002F = _currentToken.Index;
+                    var condition = ParseExpression();
+                    if ((condition.Index < 0))
+                    {
+                        condition.Index = index002F;
+                        condition.Length = (_currentToken.Index - index002F);
+                    }
+                    Match(AphidTokenType.EndOfStatement);
+                    var index0030 = _currentToken.Index;
+                    var afterthought = ParseExpression();
+                    if ((afterthought.Index < 0))
+                    {
+                        afterthought.Index = index0030;
+                        afterthought.Length = (_currentToken.Index - index0030);
+                    }
+                    Match(AphidTokenType.RightParenthesis);
+                    var body = ParseBlock();
+                    return new ForExpression(initOrElement, condition, afterthought, body);
                 }
-                Match(AphidTokenType.RightParenthesis);
-                var body = ParseBlock();
-                return new ForExpression(initOrElement, condition, afterthought, body);
             }
         }
 
