@@ -1,24 +1,44 @@
-load System.IO.Compression.FileSystem;
-using System;
-using System.IO;
-using System.IO.Compression;
-using System.Reflection;
+#'package.base';
 
-printf = Console.WriteLine;
-mode = 'debug';
-root = '..\\' + mode;
-exe = root + '\\Aphid\\Aphid.exe';
-out = '..\\Archive';
-printf('Creating archive');
-version = exe |> Path.GetFullPath |> Assembly.LoadFile @(x) x.GetName().Version;
-printf('Aphid version: {0}', version);
-archive = String.Format('{0}\\Aphid-{1}-{2}.zip', out, version, mode);
+l = @() [
+    string.Format('Components.Aphid\\Library\\{0}.alx', $_),
+    string.Format('Library\\{0}.alx', $_)
+];
 
-if (File.Exists(archive)) {
-    printf('Deleting existing archive: {0}', archive);
-    File.Delete(archive);
-}
+s = @() string.Format('Aphid\\{0}', $_);
 
-printf('Creating archive');
-ZipFile.CreateFromDirectory(root, archive, CompressionLevel.Optimal, false);
-printf('Archive created: {0}', archive);
+////////////////////////////////////////////////////////////////
+package({
+    name: 'Aphid',
+    config: 'Debug',
+    root: '..',
+    mainModule: 'Aphid\\bin\\{config}\\Aphid.exe',
+    files: [
+        'Components.Aphid\\bin\\{config}\\Components.Aphid.dll',
+        'AphidUI\\bin\\{config}\\AphidUI.exe',
+        l('Conversion'),
+        l('Dbg'),
+        l('Env'),
+        l('IO'),
+        l('List'),
+        l('Query'),
+        l('Reflection'),
+        l('Std'),
+        l('String'),
+        l('Tcp'),
+        l('Threading'),
+        l('Udp'),
+        s('ConditionalOperatorExample.alx'),
+        s('FibonacciExample.alx'),
+        s('FunctionExample.alx'),
+        s('HelloWorld.alx'),
+        s('InteropExample.alx'),
+        s('LambdaExample.alx'),
+        s('MacroExample.alx'),
+        s('PartialFunctionExample.alx'),
+        s('PatternMatchingExample.alx'),
+        s('PipeliningExample.alx'),
+        s('TcpExample.alx'),
+        s('TextDocumentExample.alxt'),
+    ]
+});

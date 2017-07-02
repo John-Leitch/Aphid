@@ -1,0 +1,96 @@
+load System.IO.Compression.FileSystem;
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Reflection;
+
+println = Console.WriteLine;
+
+////////////////////////////////////////////////////////////////
+init = @{
+    initReleasePath();
+};
+
+id;
+releasePath;
+
+initReleasePath = @{
+    id = Guid.NewGuid().ToString();
+    releasePath = getReleasePath();
+
+    if (!Directory.Exists(releasePath)) {
+        println('Creating {0}', releasePath);
+        Directory.CreateDirectory(releasePath);
+    }
+};
+
+getReleasePath = @() Path.Combine(release.root, 'release', id);
+toPath = @() $_.Replace('{config}', release.config) @Path.Combine(release.root);
+getVersion = @() $_ |> Assembly.LoadFrom @(a) a.GetName().Version;
+
+getArchive = @()
+    string.Format(
+        '{0}-{1}-{2}.zip',
+        $_.name,
+        $_.mainModule |> toPath |> getVersion,
+        $_.config)
+    @Path.Combine($_.root, 'release');
+
+copyFile = @{
+    start = @{
+        p = $_ |> toPath;
+
+        if (!File.Exists(p)) {
+            println('Could not find {0}', p);
+            Environment.Exit(0xbad01);
+        }
+
+        println('Copying {0}', p);
+
+        ret p;
+    };
+
+    if ($_.GetType().Name == 'String') {
+        p = $_ |> start;
+        $_ |> Path.GetFileName @Path.Combine(releasePath) @File.Copy(p);
+    } else {
+        p = $_[0] |> start;
+        dst = $_[1] @Path.Combine(releasePath);
+        dstDir = dst |> Path.GetDirectoryName;
+        
+        if (!Directory.Exists(dstDir))
+        {
+            println('Creating dir {0}', dstDir);
+            Directory.CreateDirectory(dstDir);
+        }
+        
+        dst @File.Copy(p)
+    }
+};
+
+release;
+
+package = @{
+    release = $_;
+    init();
+    println('Packaging {0}', release.name);
+    copyFile(release.mainModule);
+    release.files for copyFile($_);
+    zip = release |> getArchive;
+    println('Creating zip {0}', zip);
+
+    if (File.Exists(zip)) {
+        println('Zip already exists, deleting');
+        File.Delete(zip);
+    }
+
+    ZipFile.CreateFromDirectory(releasePath, zip, CompressionLevel.Optimal, false);
+    println('Done');
+    //Console.ReadKey();
+    cleanup();
+    Environment.Exit(0);
+};
+
+cleanup = @{
+    Directory.Delete(releasePath, true);
+};
