@@ -52,6 +52,48 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void ForEachTest5()
+        {
+            Assert9(@"
+                a = 0;
+                b = 0;
+
+                for(x in 0..100) {
+                    if (x > 3) continue;
+                    a = x;
+                }
+
+                for(x in 0..100) {
+                    if (x > 6) continue;
+                    b = x;
+                }
+
+                ret a + b;
+            ");
+        }
+
+        [Test]
+        public void ForEachTest6()
+        {
+            Assert9(@"
+                a = 0;
+                b = 0;
+
+                for(x in 0..100) {
+                    if (x > 3) break;
+                    a = x;
+                }
+
+                for(x in 0..100) {
+                    if (x > 6) break;
+                    b = x;
+                }
+
+                ret a + b;
+            ");
+        }
+
+        [Test]
         public void WhileTest()
         {
             Assert9("x = 0; while (x < 9) x++; ret x;");
