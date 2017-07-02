@@ -1874,6 +1874,7 @@ namespace Components.Aphid.Interpreter
             {
                 EnterChildScope();
                 Interpret(expression.Body, false);
+                _isContinuing = false;
 
                 if (LeaveChildScope(true) || _isBreaking)
                 {
@@ -1889,6 +1890,7 @@ namespace Components.Aphid.Interpreter
             {
                 EnterChildScope();
                 Interpret(expression.Body, false);
+                _isContinuing = false;
 
                 if (LeaveChildScope(true) || _isBreaking)
                 {
