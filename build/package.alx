@@ -15,6 +15,9 @@ package({
     mainModule: 'Aphid\\bin\\{config}\\Aphid.exe',
     files: [
         'Components.Aphid\\bin\\{config}\\Components.Aphid.dll',
+        'AphidHdl\\bin\\{config}\\av.exe',
+        'Coywolf\\bin\\{config}\\cw.exe',
+        'Boxelder\\bin\\{config}\\be.exe',
         'AphidUI\\bin\\{config}\\AphidUI.exe',
         l('Conversion'),
         l('Dbg'),
