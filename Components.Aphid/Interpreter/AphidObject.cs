@@ -266,6 +266,20 @@ namespace Components.Aphid.Interpreter
             return ConvertFrom(typeof(T), o);
         }
 
+        public AphidObject Resolve(string key, string errorMessage = null)
+        {
+            AphidObject obj;
+
+            if (!TryResolve(key, out obj))
+            {
+                throw new AphidRuntimeException(
+                    errorMessage ?? 
+                    string.Format("Could not resolve {0}.", key));
+            }
+
+            return obj;
+        }
+
         public bool TryResolve(string key, out AphidObject value)
         {
             if (TryGetValue(key, out value))

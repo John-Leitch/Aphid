@@ -14,16 +14,13 @@ namespace Components.Aphid.Interpreter
 {
     public partial class AphidInterpreter
     {
-        private const string _return = "$r",
+        private const string 
+            _return = "$r",
             _imports = "$imports",
             _implicitArg = "$_",
             _implicitArgs = "$args";
 
-        private bool _isReturning = false;
-
-        private bool _isBreaking = false;
-
-        private bool _createLoader;
+        private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
 
         private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
         { 
@@ -1216,19 +1213,14 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretImplicitArgumentExpression(AphidExpression expression)
         {
-            return _currentScope[_implicitArg];
+            return _currentScope.Resolve(_implicitArg);
         }
 
         private AphidObject InterpretImplicitArgumentsExpression(AphidExpression expression)
         {
-            AphidObject args;
-
-            if (!_currentScope.TryResolve(_implicitArgs, out args))
-            {
-                throw new AphidRuntimeException("$args cannot be used outside of function.");
-            }
-
-            return args;
+            return _currentScope.Resolve(
+                _implicitArgs,
+                "$args cannot be used outside of function.");
         }
 
         private void PushFrame(AphidExpression function, IEnumerable<object> args)
@@ -1674,15 +1666,16 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretForExpression(ForExpression expression)
         {
-            //foo
             EnterChildScope();
             var init = InterpretExpression(expression.Initialization);
 
             while ((bool)(InterpretExpression(expression.Condition) as AphidObject).Value)
             {
                 EnterChildScope();
-                Interpret(expression.Body, false);
+                Interpret(expression.Body, resetIsReturning: false);
                 InterpretExpression(expression.Afterthought);
+                _isContinuing = false;
+
                 if (LeaveChildScope(true) || _isBreaking)
                 {
                     _isBreaking = false;
@@ -1716,6 +1709,7 @@ namespace Components.Aphid.Interpreter
                 }
 
                 Interpret(expression.Body, false);
+                _isContinuing = false;
 
                 if (LeaveChildScope(true) || _isBreaking)
                 {
@@ -1752,6 +1746,12 @@ namespace Components.Aphid.Interpreter
 
             _loader.LoadLibrary(library, _currentScope);
 
+            return null;
+        }
+
+        private AphidObject InterpretContinueExpression()
+        {
+            _isContinuing = true;
             return null;
         }
 
@@ -2097,6 +2097,9 @@ namespace Components.Aphid.Interpreter
                 case AphidExpressionType.NullExpression:
                     return new AphidObject(null);
 
+                case AphidExpressionType.ContinueExpression:
+                    return InterpretContinueExpression();
+
                 case AphidExpressionType.BreakExpression:
                     return InterpretBreakExpression();
 
@@ -2185,7 +2188,7 @@ namespace Components.Aphid.Interpreter
                     InterpretExpression(expression);
                 }
 
-                if (_isBreaking)
+                if (_isBreaking || _isContinuing)
                 {
                     break;
                 }

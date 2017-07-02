@@ -29,6 +29,7 @@ Lexer({
                 "for",
                 "in",
 
+                "continue",
                 "break",
 
                 "ret",
@@ -78,6 +79,7 @@ BinaryOperatorBodyExpression = { AphidTokenType Operator, FunctionExpression Fun
 BooleanExpression = { bool Value };
 BreakExpression = { };
 CallExpression = { FunctionExpression, opt list Args };
+ContinueExpression = { };
 DoWhileExpression = { Condition, list Body };
 DynamicMemberExpression = { MemberExpression };
 ExtendExpression = { string ExtendType, ObjectExpression Object };
@@ -1483,23 +1485,15 @@ ParseFactorExpression = @{
             NextToken;
         }
 
-        thisKeyword: {
-            exp = ThisExpression();
-            NextToken;
-        }
+        thisKeyword: _keywordExp(ThisExpression);
 
         LoadScriptOperator: exp ParseLoadScriptExpression;
         LoadLibraryOperator: exp ParseLoadLibraryExpression;
         
-        nullKeyword: {
-            exp = NullExpression();
-            NextToken;
-        }
-
-        breakKeyword: {
-            exp = BreakExpression();
-            NextToken;
-        }
+        nullKeyword: _keywordExp(NullExpression);
+        
+        continueKeyword: _keywordExp(ContinueExpression);
+        breakKeyword: _keywordExp(BreakExpression);
 
         HexNumber: {
             exp = NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
@@ -1517,6 +1511,11 @@ ParseFactorExpression = @{
 
     ret exp;
 };
+
+_keywordExp = macro(@(x){
+    exp = x();
+    NextToken;
+});
 
 ParseTextExpression = @{
     t;

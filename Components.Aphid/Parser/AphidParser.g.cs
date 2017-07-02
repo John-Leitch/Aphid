@@ -22,6 +22,8 @@ namespace Components.Aphid.Parser
 
         CallExpression,
 
+        ContinueExpression,
+
         DoWhileExpression,
 
         DynamicMemberExpression,
@@ -353,6 +355,22 @@ namespace Components.Aphid.Parser
         {
             return new AphidExpression[] {
                     FunctionExpression}.Concat(AphidExpressionHelper.GetCollection(Args)).ToArray();
+        }
+    }
+
+    public partial class ContinueExpression : AphidExpression
+    {
+
+        public ContinueExpression()
+        {
+        }
+
+        public override AphidExpressionType Type
+        {
+            get
+            {
+                return AphidExpressionType.ContinueExpression;
+            }
         }
     }
 
@@ -4055,40 +4073,48 @@ namespace Components.Aphid.Parser
                                                                         }
                                                                         else
                                                                         {
-                                                                            if ((_currentToken.TokenType == AphidTokenType.breakKeyword))
+                                                                            if ((_currentToken.TokenType == AphidTokenType.continueKeyword))
                                                                             {
-                                                                                exp = new BreakExpression();
+                                                                                exp = new ContinueExpression();
                                                                                 NextToken();
                                                                             }
                                                                             else
                                                                             {
-                                                                                if ((_currentToken.TokenType == AphidTokenType.HexNumber))
+                                                                                if ((_currentToken.TokenType == AphidTokenType.breakKeyword))
                                                                                 {
-                                                                                    exp = new NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
+                                                                                    exp = new BreakExpression();
                                                                                     NextToken();
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    if ((_currentToken.TokenType == AphidTokenType.BinaryNumber))
+                                                                                    if ((_currentToken.TokenType == AphidTokenType.HexNumber))
                                                                                     {
-                                                                                        exp = new NumberExpression(BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+                                                                                        exp = new NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
                                                                                         NextToken();
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        if ((_currentToken.TokenType == AphidTokenType.PatternMatchingOperator))
+                                                                                        if ((_currentToken.TokenType == AphidTokenType.BinaryNumber))
                                                                                         {
-                                                                                            var index0048 = _currentToken.Index;
-                                                                                            exp = ParsePatternMatchingExpression();
-                                                                                            if ((exp.Index < 0))
-                                                                                            {
-                                                                                                exp.Index = index0048;
-                                                                                                exp.Length = (_currentToken.Index - index0048);
-                                                                                            }
+                                                                                            exp = new NumberExpression(BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+                                                                                            NextToken();
                                                                                         }
                                                                                         else
                                                                                         {
-                                                                                            throw new AphidParserException(_currentToken);
+                                                                                            if ((_currentToken.TokenType == AphidTokenType.PatternMatchingOperator))
+                                                                                            {
+                                                                                                var index0048 = _currentToken.Index;
+                                                                                                exp = ParsePatternMatchingExpression();
+                                                                                                if ((exp.Index < 0))
+                                                                                                {
+                                                                                                    exp.Index = index0048;
+                                                                                                    exp.Length = (_currentToken.Index - index0048);
+                                                                                                }
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                throw new AphidParserException(_currentToken);
+                                                                                            }
                                                                                         }
                                                                                     }
                                                                                 }
@@ -4172,6 +4198,7 @@ namespace Components.Aphid.Lexer
         ComplementOperator,
         CompositionOperator,
         ConditionalOperator,
+        continueKeyword,
         CustomOperator0,
         CustomOperator1,
         CustomOperator10,
@@ -4463,6 +4490,7 @@ namespace Components.Aphid.Lexer
                 TokenType == AphidTokenType.doKeyword ||
                 TokenType == AphidTokenType.forKeyword ||
                 TokenType == AphidTokenType.inKeyword ||
+                TokenType == AphidTokenType.continueKeyword ||
                 TokenType == AphidTokenType.breakKeyword ||
                 TokenType == AphidTokenType.retKeyword ||
                 TokenType == AphidTokenType.thisKeyword ||
@@ -9190,6 +9218,600 @@ namespace Components.Aphid.Lexer
 
                             break;
 
+                        case 'c':
+                            if (charIndex < lastIndex)
+                            {
+                                currentChar = text[++charIndex];
+
+                                switch (currentChar)
+                                {
+                                    case 'o':
+                                        if (charIndex < lastIndex)
+                                        {
+                                            currentChar = text[++charIndex];
+
+                                            switch (currentChar)
+                                            {
+                                                case 'n':
+                                                    if (charIndex < lastIndex)
+                                                    {
+                                                        currentChar = text[++charIndex];
+
+                                                        switch (currentChar)
+                                                        {
+                                                            case 't':
+                                                                if (charIndex < lastIndex)
+                                                                {
+                                                                    currentChar = text[++charIndex];
+
+                                                                    switch (currentChar)
+                                                                    {
+                                                                        case 'i':
+                                                                            if (charIndex < lastIndex)
+                                                                            {
+                                                                                currentChar = text[++charIndex];
+
+                                                                                switch (currentChar)
+                                                                                {
+                                                                                    case 'n':
+                                                                                        if (charIndex < lastIndex)
+                                                                                        {
+                                                                                            currentChar = text[++charIndex];
+
+                                                                                            switch (currentChar)
+                                                                                            {
+                                                                                                case 'u':
+                                                                                                    if (charIndex < lastIndex)
+                                                                                                    {
+                                                                                                        currentChar = text[++charIndex];
+
+                                                                                                        switch (currentChar)
+                                                                                                        {
+                                                                                                            case 'e':
+
+
+                                                                                                                if (!NextChar())
+                                                                                                                {
+                                                                                                                    return AphidTokenType.continueKeyword;
+                                                                                                                }
+
+                                                                                                                state = 0;
+
+                                                                                                                do
+                                                                                                                {
+                                                                                                                    if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                                                                        (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                                                                        (currentChar >= '0' && currentChar <= '9') ||
+                                                                                                                        currentChar == '_' ||
+                                                                                                                        (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                                                                    {
+                                                                                                                        state = 1;
+                                                                                                                    }
+                                                                                                                    else if (state == 1)
+                                                                                                                    {
+                                                                                                                        charIndex--;
+
+                                                                                                                        return AphidTokenType.Identifier;
+                                                                                                                    }
+                                                                                                                    else
+                                                                                                                    {
+                                                                                                                        charIndex--;
+
+                                                                                                                        return AphidTokenType.continueKeyword;
+                                                                                                                    }
+                                                                                                                }
+                                                                                                                while (NextChar());
+
+                                                                                                                if (state == 1)
+                                                                                                                {
+                                                                                                                    return AphidTokenType.Identifier;
+                                                                                                                }
+
+                                                                                                                break;
+
+                                                                                                        }
+
+                                                                                                        charIndex--;
+                                                                                                    }
+
+                                                                                                    if (!NextChar())
+                                                                                                    {
+                                                                                                        return AphidTokenType.Identifier;
+                                                                                                    }
+
+                                                                                                    state = 0;
+
+                                                                                                    do
+                                                                                                    {
+                                                                                                        if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                                                            (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                                                            (currentChar >= '0' && currentChar <= '9') ||
+                                                                                                            currentChar == '_' ||
+                                                                                                            (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                                                        {
+                                                                                                            state = 1;
+                                                                                                        }
+                                                                                                        else if (state == 1)
+                                                                                                        {
+                                                                                                            charIndex--;
+
+                                                                                                            return AphidTokenType.Identifier;
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            charIndex--;
+
+                                                                                                            return AphidTokenType.Identifier;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    while (NextChar());
+
+                                                                                                    if (state == 1)
+                                                                                                    {
+                                                                                                        return AphidTokenType.Identifier;
+                                                                                                    }
+
+                                                                                                    break;
+
+                                                                                            }
+
+                                                                                            charIndex--;
+                                                                                        }
+
+                                                                                        if (!NextChar())
+                                                                                        {
+                                                                                            return AphidTokenType.Identifier;
+                                                                                        }
+
+                                                                                        state = 0;
+
+                                                                                        do
+                                                                                        {
+                                                                                            if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                                                (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                                                (currentChar >= '0' && currentChar <= '9') ||
+                                                                                                currentChar == '_' ||
+                                                                                                (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                                            {
+                                                                                                state = 1;
+                                                                                            }
+                                                                                            else if (state == 1)
+                                                                                            {
+                                                                                                charIndex--;
+
+                                                                                                return AphidTokenType.Identifier;
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                charIndex--;
+
+                                                                                                return AphidTokenType.Identifier;
+                                                                                            }
+                                                                                        }
+                                                                                        while (NextChar());
+
+                                                                                        if (state == 1)
+                                                                                        {
+                                                                                            return AphidTokenType.Identifier;
+                                                                                        }
+
+                                                                                        break;
+
+                                                                                }
+
+                                                                                charIndex--;
+                                                                            }
+
+                                                                            if (!NextChar())
+                                                                            {
+                                                                                return AphidTokenType.Identifier;
+                                                                            }
+
+                                                                            state = 0;
+
+                                                                            do
+                                                                            {
+                                                                                if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                                    (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                                    (currentChar >= '0' && currentChar <= '9') ||
+                                                                                    currentChar == '_' ||
+                                                                                    (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                                {
+                                                                                    state = 1;
+                                                                                }
+                                                                                else if (state == 1)
+                                                                                {
+                                                                                    charIndex--;
+
+                                                                                    return AphidTokenType.Identifier;
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    charIndex--;
+
+                                                                                    return AphidTokenType.Identifier;
+                                                                                }
+                                                                            }
+                                                                            while (NextChar());
+
+                                                                            if (state == 1)
+                                                                            {
+                                                                                return AphidTokenType.Identifier;
+                                                                            }
+
+                                                                            break;
+
+                                                                    }
+
+                                                                    charIndex--;
+                                                                }
+
+                                                                if (!NextChar())
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
+                                                                state = 0;
+
+                                                                do
+                                                                {
+                                                                    if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                        (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                        (currentChar >= '0' && currentChar <= '9') ||
+                                                                        currentChar == '_' ||
+                                                                        (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                    {
+                                                                        state = 1;
+                                                                    }
+                                                                    else if (state == 1)
+                                                                    {
+                                                                        charIndex--;
+
+                                                                        return AphidTokenType.Identifier;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        charIndex--;
+
+                                                                        return AphidTokenType.Identifier;
+                                                                    }
+                                                                }
+                                                                while (NextChar());
+
+                                                                if (state == 1)
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
+                                                                break;
+
+                                                        }
+
+                                                        charIndex--;
+                                                    }
+
+                                                    if (!NextChar())
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
+                                                    state = 0;
+
+                                                    do
+                                                    {
+                                                        if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                            (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                            (currentChar >= '0' && currentChar <= '9') ||
+                                                            currentChar == '_' ||
+                                                            (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                        {
+                                                            state = 1;
+                                                        }
+                                                        else if (state == 1)
+                                                        {
+                                                            charIndex--;
+
+                                                            return AphidTokenType.Identifier;
+                                                        }
+                                                        else
+                                                        {
+                                                            charIndex--;
+
+                                                            return AphidTokenType.Identifier;
+                                                        }
+                                                    }
+                                                    while (NextChar());
+
+                                                    if (state == 1)
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
+                                                    break;
+
+                                            }
+
+                                            charIndex--;
+                                        }
+
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
+                                        state = 0;
+
+                                        do
+                                        {
+                                            if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                (currentChar >= '0' && currentChar <= '9') ||
+                                                currentChar == '_' ||
+                                                (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                            {
+                                                state = 1;
+                                            }
+                                            else if (state == 1)
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.Identifier;
+                                            }
+                                            else
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.Identifier;
+                                            }
+                                        }
+                                        while (NextChar());
+
+                                        if (state == 1)
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
+                                        break;
+
+                                    case 'a':
+                                        if (charIndex < lastIndex)
+                                        {
+                                            currentChar = text[++charIndex];
+
+                                            switch (currentChar)
+                                            {
+                                                case 't':
+                                                    if (charIndex < lastIndex)
+                                                    {
+                                                        currentChar = text[++charIndex];
+
+                                                        switch (currentChar)
+                                                        {
+                                                            case 'c':
+                                                                if (charIndex < lastIndex)
+                                                                {
+                                                                    currentChar = text[++charIndex];
+
+                                                                    switch (currentChar)
+                                                                    {
+                                                                        case 'h':
+
+
+                                                                            if (!NextChar())
+                                                                            {
+                                                                                return AphidTokenType.catchKeyword;
+                                                                            }
+
+                                                                            state = 0;
+
+                                                                            do
+                                                                            {
+                                                                                if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                                    (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                                    (currentChar >= '0' && currentChar <= '9') ||
+                                                                                    currentChar == '_' ||
+                                                                                    (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                                {
+                                                                                    state = 1;
+                                                                                }
+                                                                                else if (state == 1)
+                                                                                {
+                                                                                    charIndex--;
+
+                                                                                    return AphidTokenType.Identifier;
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    charIndex--;
+
+                                                                                    return AphidTokenType.catchKeyword;
+                                                                                }
+                                                                            }
+                                                                            while (NextChar());
+
+                                                                            if (state == 1)
+                                                                            {
+                                                                                return AphidTokenType.Identifier;
+                                                                            }
+
+                                                                            break;
+
+                                                                    }
+
+                                                                    charIndex--;
+                                                                }
+
+                                                                if (!NextChar())
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
+                                                                state = 0;
+
+                                                                do
+                                                                {
+                                                                    if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                                        (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                                        (currentChar >= '0' && currentChar <= '9') ||
+                                                                        currentChar == '_' ||
+                                                                        (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                                    {
+                                                                        state = 1;
+                                                                    }
+                                                                    else if (state == 1)
+                                                                    {
+                                                                        charIndex--;
+
+                                                                        return AphidTokenType.Identifier;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        charIndex--;
+
+                                                                        return AphidTokenType.Identifier;
+                                                                    }
+                                                                }
+                                                                while (NextChar());
+
+                                                                if (state == 1)
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
+                                                                break;
+
+                                                        }
+
+                                                        charIndex--;
+                                                    }
+
+                                                    if (!NextChar())
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
+                                                    state = 0;
+
+                                                    do
+                                                    {
+                                                        if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                            (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                            (currentChar >= '0' && currentChar <= '9') ||
+                                                            currentChar == '_' ||
+                                                            (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                                        {
+                                                            state = 1;
+                                                        }
+                                                        else if (state == 1)
+                                                        {
+                                                            charIndex--;
+
+                                                            return AphidTokenType.Identifier;
+                                                        }
+                                                        else
+                                                        {
+                                                            charIndex--;
+
+                                                            return AphidTokenType.Identifier;
+                                                        }
+                                                    }
+                                                    while (NextChar());
+
+                                                    if (state == 1)
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
+                                                    break;
+
+                                            }
+
+                                            charIndex--;
+                                        }
+
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
+                                        state = 0;
+
+                                        do
+                                        {
+                                            if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                                (currentChar >= 'A' && currentChar <= 'Z') ||
+                                                (currentChar >= '0' && currentChar <= '9') ||
+                                                currentChar == '_' ||
+                                                (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                            {
+                                                state = 1;
+                                            }
+                                            else if (state == 1)
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.Identifier;
+                                            }
+                                            else
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.Identifier;
+                                            }
+                                        }
+                                        while (NextChar());
+
+                                        if (state == 1)
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
+                                        break;
+
+                                }
+
+                                charIndex--;
+                            }
+
+                            if (!NextChar())
+                            {
+                                return AphidTokenType.Identifier;
+                            }
+
+                            state = 0;
+
+                            do
+                            {
+                                if (((currentChar >= 'a' && currentChar <= 'z') ||
+                                    (currentChar >= 'A' && currentChar <= 'Z') ||
+                                    (currentChar >= '0' && currentChar <= '9') ||
+                                    currentChar == '_' ||
+                                    (currentChar >= '\u007f' && currentChar <= '\uffff')))
+                                {
+                                    state = 1;
+                                }
+                                else if (state == 1)
+                                {
+                                    charIndex--;
+
+                                    return AphidTokenType.Identifier;
+                                }
+                                else
+                                {
+                                    charIndex--;
+
+                                    return AphidTokenType.Identifier;
+                                }
+                            }
+                            while (NextChar());
+
+                            if (state == 1)
+                            {
+                                return AphidTokenType.Identifier;
+                            }
+
+                            break;
+
                         case 'b':
                             if (charIndex < lastIndex)
                             {
@@ -9878,252 +10500,6 @@ namespace Components.Aphid.Lexer
                                                                         charIndex--;
 
                                                                         return AphidTokenType.loadKeyword;
-                                                                    }
-                                                                }
-                                                                while (NextChar());
-
-                                                                if (state == 1)
-                                                                {
-                                                                    return AphidTokenType.Identifier;
-                                                                }
-
-                                                                break;
-
-                                                        }
-
-                                                        charIndex--;
-                                                    }
-
-                                                    if (!NextChar())
-                                                    {
-                                                        return AphidTokenType.Identifier;
-                                                    }
-
-                                                    state = 0;
-
-                                                    do
-                                                    {
-                                                        if (((currentChar >= 'a' && currentChar <= 'z') ||
-                                                            (currentChar >= 'A' && currentChar <= 'Z') ||
-                                                            (currentChar >= '0' && currentChar <= '9') ||
-                                                            currentChar == '_' ||
-                                                            (currentChar >= '\u007f' && currentChar <= '\uffff')))
-                                                        {
-                                                            state = 1;
-                                                        }
-                                                        else if (state == 1)
-                                                        {
-                                                            charIndex--;
-
-                                                            return AphidTokenType.Identifier;
-                                                        }
-                                                        else
-                                                        {
-                                                            charIndex--;
-
-                                                            return AphidTokenType.Identifier;
-                                                        }
-                                                    }
-                                                    while (NextChar());
-
-                                                    if (state == 1)
-                                                    {
-                                                        return AphidTokenType.Identifier;
-                                                    }
-
-                                                    break;
-
-                                            }
-
-                                            charIndex--;
-                                        }
-
-                                        if (!NextChar())
-                                        {
-                                            return AphidTokenType.Identifier;
-                                        }
-
-                                        state = 0;
-
-                                        do
-                                        {
-                                            if (((currentChar >= 'a' && currentChar <= 'z') ||
-                                                (currentChar >= 'A' && currentChar <= 'Z') ||
-                                                (currentChar >= '0' && currentChar <= '9') ||
-                                                currentChar == '_' ||
-                                                (currentChar >= '\u007f' && currentChar <= '\uffff')))
-                                            {
-                                                state = 1;
-                                            }
-                                            else if (state == 1)
-                                            {
-                                                charIndex--;
-
-                                                return AphidTokenType.Identifier;
-                                            }
-                                            else
-                                            {
-                                                charIndex--;
-
-                                                return AphidTokenType.Identifier;
-                                            }
-                                        }
-                                        while (NextChar());
-
-                                        if (state == 1)
-                                        {
-                                            return AphidTokenType.Identifier;
-                                        }
-
-                                        break;
-
-                                }
-
-                                charIndex--;
-                            }
-
-                            if (!NextChar())
-                            {
-                                return AphidTokenType.Identifier;
-                            }
-
-                            state = 0;
-
-                            do
-                            {
-                                if (((currentChar >= 'a' && currentChar <= 'z') ||
-                                    (currentChar >= 'A' && currentChar <= 'Z') ||
-                                    (currentChar >= '0' && currentChar <= '9') ||
-                                    currentChar == '_' ||
-                                    (currentChar >= '\u007f' && currentChar <= '\uffff')))
-                                {
-                                    state = 1;
-                                }
-                                else if (state == 1)
-                                {
-                                    charIndex--;
-
-                                    return AphidTokenType.Identifier;
-                                }
-                                else
-                                {
-                                    charIndex--;
-
-                                    return AphidTokenType.Identifier;
-                                }
-                            }
-                            while (NextChar());
-
-                            if (state == 1)
-                            {
-                                return AphidTokenType.Identifier;
-                            }
-
-                            break;
-
-                        case 'c':
-                            if (charIndex < lastIndex)
-                            {
-                                currentChar = text[++charIndex];
-
-                                switch (currentChar)
-                                {
-                                    case 'a':
-                                        if (charIndex < lastIndex)
-                                        {
-                                            currentChar = text[++charIndex];
-
-                                            switch (currentChar)
-                                            {
-                                                case 't':
-                                                    if (charIndex < lastIndex)
-                                                    {
-                                                        currentChar = text[++charIndex];
-
-                                                        switch (currentChar)
-                                                        {
-                                                            case 'c':
-                                                                if (charIndex < lastIndex)
-                                                                {
-                                                                    currentChar = text[++charIndex];
-
-                                                                    switch (currentChar)
-                                                                    {
-                                                                        case 'h':
-
-
-                                                                            if (!NextChar())
-                                                                            {
-                                                                                return AphidTokenType.catchKeyword;
-                                                                            }
-
-                                                                            state = 0;
-
-                                                                            do
-                                                                            {
-                                                                                if (((currentChar >= 'a' && currentChar <= 'z') ||
-                                                                                    (currentChar >= 'A' && currentChar <= 'Z') ||
-                                                                                    (currentChar >= '0' && currentChar <= '9') ||
-                                                                                    currentChar == '_' ||
-                                                                                    (currentChar >= '\u007f' && currentChar <= '\uffff')))
-                                                                                {
-                                                                                    state = 1;
-                                                                                }
-                                                                                else if (state == 1)
-                                                                                {
-                                                                                    charIndex--;
-
-                                                                                    return AphidTokenType.Identifier;
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    charIndex--;
-
-                                                                                    return AphidTokenType.catchKeyword;
-                                                                                }
-                                                                            }
-                                                                            while (NextChar());
-
-                                                                            if (state == 1)
-                                                                            {
-                                                                                return AphidTokenType.Identifier;
-                                                                            }
-
-                                                                            break;
-
-                                                                    }
-
-                                                                    charIndex--;
-                                                                }
-
-                                                                if (!NextChar())
-                                                                {
-                                                                    return AphidTokenType.Identifier;
-                                                                }
-
-                                                                state = 0;
-
-                                                                do
-                                                                {
-                                                                    if (((currentChar >= 'a' && currentChar <= 'z') ||
-                                                                        (currentChar >= 'A' && currentChar <= 'Z') ||
-                                                                        (currentChar >= '0' && currentChar <= '9') ||
-                                                                        currentChar == '_' ||
-                                                                        (currentChar >= '\u007f' && currentChar <= '\uffff')))
-                                                                    {
-                                                                        state = 1;
-                                                                    }
-                                                                    else if (state == 1)
-                                                                    {
-                                                                        charIndex--;
-
-                                                                        return AphidTokenType.Identifier;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        charIndex--;
-
-                                                                        return AphidTokenType.Identifier;
                                                                     }
                                                                 }
                                                                 while (NextChar());
