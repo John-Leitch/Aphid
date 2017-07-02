@@ -57,6 +57,7 @@ namespace Components.Aphid.VSPackage
 
                 case AphidTokenType.breakKeyword:
                 case AphidTokenType.catchKeyword:
+                case AphidTokenType.continueKeyword:
                 case AphidTokenType.defaultKeyword:
                 case AphidTokenType.definedKeyword:
                 case AphidTokenType.deleteKeyword:
@@ -68,15 +69,21 @@ namespace Components.Aphid.VSPackage
                 case AphidTokenType.forKeyword:
                 case AphidTokenType.ifKeyword:
                 case AphidTokenType.inKeyword:
+                case AphidTokenType.loadKeyword:
+                case AphidTokenType.newKeyword:
                 case AphidTokenType.nullKeyword:
                 case AphidTokenType.retKeyword:
                 case AphidTokenType.switchKeyword:
                 case AphidTokenType.thisKeyword:
                 case AphidTokenType.trueKeyword:
                 case AphidTokenType.tryKeyword:
+                case AphidTokenType.usingKeyword:
                 case AphidTokenType.whileKeyword:
 
-                case AphidTokenType.functionOperator:
+                case AphidTokenType.ImplicitArgumentOperator:
+                case AphidTokenType.ImplicitArgumentsOperator:
+
+                case AphidTokenType.FunctionOperator:
                 case AphidTokenType.InteropOperator:
                 case AphidTokenType.LoadLibraryOperator:
                 case AphidTokenType.LoadScriptOperator:                
