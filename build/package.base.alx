@@ -6,7 +6,6 @@ using System.Reflection;
 
 println = Console.WriteLine;
 
-////////////////////////////////////////////////////////////////
 init = @{
     initReleasePath();
 };
@@ -85,9 +84,9 @@ package = @{
     }
 
     ZipFile.CreateFromDirectory(releasePath, zip, CompressionLevel.Optimal, false);
-    println('Done');
-    //Console.ReadKey();
+    println('Cleaning up');
     cleanup();
+    println('Done');
     Environment.Exit(0);
 };
 
