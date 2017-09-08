@@ -1,5 +1,6 @@
 ﻿using Components.External;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,13 +50,18 @@ namespace Components.Aphid.Interpreter
 
         public static AphidConversionInfo CanConvert(object value, Type targetType)
         {
-            var t = value.GetType();
+            var valueType = value.GetType();
             var genericArguments = new List<Type>();
 
+            // Todo:
+            // Add weighting to prioritize exact type matches vs polymorphism e.g.
+            // Match string with string over char[].
+
             var canConvert =
-                t == targetType ? true :
+                valueType == targetType ? true :
                 value is decimal ? CanConvertDecimal(targetType) :
-                t.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
+                valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
+                targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
                 false;
 
             return new AphidConversionInfo(canConvert, genericArguments.ToArray());
@@ -65,6 +71,37 @@ namespace Components.Aphid.Interpreter
         public static bool CanConvertDecimal(Type targetType)
         {
             return _decimalTargetTypes.Contains(targetType);
+        }
+
+        public static bool CanConvertArray(object value, Type valueType, Type targetType)
+        {
+            var valueCollection = value as IEnumerable;
+
+            if (valueCollection == null)
+            {
+                return false;
+            }
+
+            var valueArray = valueCollection.OfType<object>().ToArray();
+
+            if (valueArray.Length == 0)
+            {
+                return true;
+            }
+
+            var valueElementTypes = valueArray.Select(x => x.GetType()).Distinct().ToArray();
+            var targetElementType = targetType.GetElementType();
+
+            if (valueElementTypes.Length == 1)
+            {
+                return valueElementTypes[0] == targetElementType ||
+                    valueElementTypes[0].IsDerivedFromOrImplements(targetElementType, new List<Type>());
+            }
+            //Enumerable.ElementAt(value, 0);
+
+            
+
+            return false;
         }
 
         public static object Convert(Type targetType, object value)
@@ -79,6 +116,14 @@ namespace Components.Aphid.Interpreter
             else if (t == typeof(decimal))
             {
                 return Convert(targetType, (decimal)value);
+            }
+            else if (t.IsArray)
+            {
+                return Convert(targetType, (Array)value);
+            }
+            else if (t == typeof(string) && targetType == typeof(char[]))
+            {
+                return ((string)value).ToCharArray();
             }
             else
             {
@@ -132,6 +177,14 @@ namespace Components.Aphid.Interpreter
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public static object Convert(Type targetType, Array value)
+        {
+            var dst = Array.CreateInstance(targetType.GetElementType(), value.Length);
+            value.CopyTo(dst, 0);
+
+            return dst;
         }
 
         public static byte ToByte(decimal value)
