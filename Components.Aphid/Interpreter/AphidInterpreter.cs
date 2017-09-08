@@ -1165,7 +1165,7 @@ namespace Components.Aphid.Interpreter
             if (interopMembers != null)
             {
                 return InterpretInteropCallExpression(
-                    args.Select(ValueHelper.Unwrap).ToArray(), 
+                    args.Select(ValueHelper.DeepUnwrap).ToArray(), 
                     interopMembers);
             }
 
@@ -1173,7 +1173,7 @@ namespace Components.Aphid.Interpreter
 
             if (interopPartial != null)
             {
-                var curArgs = args.Select(ValueHelper.Unwrap).ToArray();
+                var curArgs = args.Select(ValueHelper.DeepUnwrap).ToArray();
 
                 return InterpretInteropCallExpression(
                     interopPartial.Applied
@@ -1287,7 +1287,7 @@ namespace Components.Aphid.Interpreter
 
                     var args = call.Args
                         .Select(InterpretExpression)
-                        .Select(ValueHelper.Unwrap)
+                        .Select(ValueHelper.DeepUnwrap)
                         .ToArray();
 
                     var path = FlattenPath(call.FunctionExpression);

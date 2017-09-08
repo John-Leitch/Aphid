@@ -31,6 +31,25 @@ namespace Components.Aphid.Interpreter
             return (aphidObj = obj as AphidObject) != null ? aphidObj : new AphidObject(obj);
         }
 
+        public static object DeepUnwrap(object obj)
+        {
+            AphidObject aphidObj;
+            List<AphidObject> list;
+
+            if ((aphidObj = obj as AphidObject) == null)
+            {
+                return obj;
+            }
+            else if ((list = aphidObj.Value as List<AphidObject>) != null)
+            {
+                return list.Select(DeepUnwrap).ToArray();
+            }
+            else
+            {
+                return aphidObj.Value;
+            }
+        }
+
         public static void AssertString(object value, string operation)
         {
             AssertValue<string>(value, operation);
