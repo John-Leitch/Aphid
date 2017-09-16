@@ -57,7 +57,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                return new AphidObject((decimal)x.Value % (decimal)y.Value);
+                return new AphidObject(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
             }
         }
 
@@ -129,7 +129,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                return new AphidObject(((decimal)x.Value) - (decimal)y.Value);
+                return new AphidObject(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
             }
         }
 
@@ -169,7 +169,11 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    throw new AphidRuntimeException("Could not multiply type");
+                    // Todo: check if values are numeric and convert, otherwise
+                    // throw the following exception.
+                    // throw new AphidRuntimeException("Could not multiply type");
+
+                    return new AphidObject(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));                    
                 }
 
                 return new AphidObject(val);
