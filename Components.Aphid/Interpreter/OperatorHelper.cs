@@ -184,7 +184,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                return new AphidObject(((decimal)x.Value) / (decimal)y.Value);
+                return new AphidObject(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
             }
         }
 
