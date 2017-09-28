@@ -1,29 +1,16 @@
-﻿using Component.AphidUI;
-//using AphidCodeGenerator;
+﻿//using AphidCodeGenerator;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
-using System.Xml.Serialization;
 
 namespace AphidUI.ViewModels
 {
