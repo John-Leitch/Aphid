@@ -281,6 +281,12 @@ namespace AphidUI.ViewModels
 
                 return;
             }
+            catch (Exception ex)
+            {
+                InvokeDispatcher(() => _codeViewer.AppendException(Code, "Internal parser exception (please report)", ex));
+
+                return;
+            }
 
             if (ast.Count != 1)
             {
@@ -318,6 +324,11 @@ namespace AphidUI.ViewModels
                     _codeViewer.AppendParserException(Code, ex));
 
                 return;
+            }
+            catch (Exception ex)
+            {
+                InvokeDispatcher(() =>
+                    _codeViewer.AppendException(Code, ".NET Runtime error", ex));
             }
 
             var retVal = _interpreter.GetReturnValue();
@@ -363,6 +374,12 @@ namespace AphidUI.ViewModels
             {
                 InvokeDispatcher(() =>
                     _codeViewer.AppendParserException(Code, ex));
+
+                return;
+            }
+            catch (Exception ex)
+            {
+                InvokeDispatcher(() => _codeViewer.AppendException(Code, "Internal parser exception (please report)", ex));
 
                 return;
             }
