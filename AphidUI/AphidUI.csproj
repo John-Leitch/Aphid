@@ -41,6 +41,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -68,6 +69,7 @@
     <Compile Include="CodeTextBox.xaml.cs">
       <DependentUpon>CodeTextBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\DynamicDataClassExtractor.cs" />
     <Compile Include="DebugHelper.cs" />
     <Compile Include="Internal\CodeCanvas.xaml.cs">
       <DependentUpon>CodeCanvas.xaml</DependentUpon>
@@ -144,11 +146,16 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AphidCodeGenerator\AphidCodeGenerator.csproj">
+      <Project>{637f363d-3006-47de-9a4d-bde2a8bd3a6c}</Project>
+      <Name>AphidCodeGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>echo "Starting ILWeave"

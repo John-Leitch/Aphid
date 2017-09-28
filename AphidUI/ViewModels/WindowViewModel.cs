@@ -1,11 +1,19 @@
-﻿using Components.Aphid.Interpreter;
+﻿using Component.AphidUI;
+//using AphidCodeGenerator;
+using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +23,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Xml.Serialization;
 
 namespace AphidUI.ViewModels
 {
@@ -23,6 +32,8 @@ namespace AphidUI.ViewModels
         public const string NoValue = "Expression has been evaluated and has no value";
 
         private const string IsReplName = "isRepl", ViewModelName = "$replViewModel";
+
+        private Lazy<string[]> _configProperties;
 
         private CodeViewer _codeViewer;
 
@@ -46,6 +57,19 @@ namespace AphidUI.ViewModels
 
         private Thread _interpreterThread;
 
+        private Thread _autoSaveThread;
+
+        private object _autoSaveSync = new object();
+
+        private int _autoSaveTimer = 250;
+
+        private AutoResetEvent _autoSaveEvent = new AutoResetEvent(false);
+
+        private bool _shouldSave = false;
+
+        [PropertyChanged]
+        public bool IsControlInitialized { get; set; }
+
         private bool _isExecuting;
 
         [PropertyChanged]
@@ -61,7 +85,7 @@ namespace AphidUI.ViewModels
             }
         }
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public string Code { get; set; }
 
         [PropertyChanged]
@@ -69,7 +93,7 @@ namespace AphidUI.ViewModels
 
         private bool _isMultiLine;
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public bool IsMultiLine
         {
             get { return _isMultiLine; }
@@ -81,19 +105,19 @@ namespace AphidUI.ViewModels
             }
         }
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public Visibility ExpressionVisibility { get; set; }
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public Visibility StatementsVisibility { get; set; }
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public Visibility RunVisibility { get; set; }
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public Visibility StopVisibility { get; set; }
 
-        [PropertyChanged]
+        [PropertyChanged, Setting]
         public Visibility LineOptionVisibility { get; set; }
 
         [PropertyChanged]
@@ -115,6 +139,21 @@ namespace AphidUI.ViewModels
 
         public AphidReplViewModel(CodeViewer outputTextBox)
         {
+            _configProperties = new Lazy<string[]>(() => GetType()
+                .GetMembers()
+                .Where(x => x.GetCustomAttributes(typeof(SettingAttribute), true).Any())
+                .Select(x => x.Name)
+                .ToArray());
+
+            //var type = new DynamicDataClassExtractor<AphidReplViewModel, SettingAttribute>().InstantiatePopulated(this, "AphidUIConfig");
+            //using (var s = new MemoryStream())
+            //{
+            //    var serializer = new XmlSerializer(type.GetType());
+            //    serializer.Serialize(s, type);
+            //    s.Position = 0;
+            //    var type2= serializer.Deserialize(s);
+            //}
+
             Code = "";
             Status = "Ready";
             IsMultiLine = false;
@@ -124,6 +163,85 @@ namespace AphidUI.ViewModels
             _codeViewer.Document.Blocks.Clear();
             _expressions.CollectionChanged += Expressions_CollectionChanged;
             InitInterpreter();
+            PropertyChanged += AphidReplViewModel_PropertyChanged;
+        }
+
+        void AphidReplViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            
+
+            //type2.Members
+            //    .Add(new CodeMemberProperty { Attributes = MemberAttributes.Public });
+
+            //var asm = AppDomain.CurrentDomain.DefineDynamicAssembly(
+            //    new AssemblyName("DynamicConfig"),
+            //    AssemblyBuilderAccess.Run);
+
+            //var module = asm.DefineDynamicModule("DynamicConfig");
+
+            //var type = module.DefineType(
+            //    "AphidUISettings",
+            //    TypeAttributes.Public | TypeAttributes.Class);
+
+            //type.DefineDefaultConstructor(MethodAttributes.Public);
+
+            //table.Select(x => type.DefineProperty(x.Key, PropertyAttributes. x.PropertyType))
+            //type.DefineProperty(
+
+
+            if (IsControlInitialized && _configProperties.Value.Contains(e.PropertyName))
+            {
+                lock (_autoSaveSync)
+                {
+                    _shouldSave = true;
+                }
+
+                _autoSaveEvent.Set();
+
+                if (_autoSaveThread == null)
+                {
+                    _autoSaveThread = new Thread(AutoSave) { IsBackground = true };
+                    _autoSaveThread.Start();
+                }
+            }
+        }
+
+        private void AutoSave()
+        {
+            while (true)
+            {
+                _autoSaveEvent.WaitOne();
+
+                lock (_autoSaveSync)
+                {
+                    if (!_shouldSave)
+                    {
+                        continue;
+                    }
+
+                    _shouldSave = false;
+                }
+
+                Thread.Sleep(_autoSaveTimer);
+
+
+                var root = new AphidObject();
+
+                //foreach (var nvp in table)
+                //{
+                //    root.Add(nvp.Key, new AphidObject(nvp.Value));
+                //}
+
+
+
+
+
+
+
+                //var reuslt = new AphidSerializer().Serialize(root);
+
+
+            }
         }
 
         private void Expressions_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -237,7 +355,7 @@ namespace AphidUI.ViewModels
 
         private void LoadLibrary()
         {
-            _interpreter.Loader.LoadLibrary<AphidReplViewModel>(_interpreter.CurrentScope);            
+            _interpreter.Loader.LoadLibrary<AphidReplViewModel>(_interpreter.CurrentScope);
         }
 
         private void AddIsRepl()
@@ -487,6 +605,12 @@ namespace AphidUI.ViewModels
             catch (AphidParserException e)
             {
                 InvokeDispatcher(() => vm.Value = "Parser exception: " + e.Message);
+
+                return;
+            }
+            catch (Exception e)
+            {
+                InvokeDispatcher(() => vm.Value = ".NET runtime exception: " + e.Message);
 
                 return;
             }

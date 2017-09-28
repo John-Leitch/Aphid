@@ -65,7 +65,6 @@ namespace AphidUI
         {
             InitializeComponent();
             LayoutRoot.DataContext = _viewModel = new AphidReplViewModel(OutputTextBox2);
-            _viewModel.PropertyChanged += vm_PropertyChanged;
             LineOptionsVisible = true;
             KeyDown += MainWindow_KeyDown;
             ExpressionTextBox.PreviewKeyDown += InputTextBox_KeyDown;
@@ -73,6 +72,8 @@ namespace AphidUI
             StopMenuItem.Click += (o, e) => _viewModel.Stop();            
             ClearMenuItem.Click += (o, e) => _viewModel.ClearConsole();
             ResetMenuItem.Click += (o, e) => _viewModel.Reset();
+            _viewModel.IsControlInitialized = true;
+            _viewModel.PropertyChanged += vm_PropertyChanged;
         }
 
         private void ExecutionCallback()
