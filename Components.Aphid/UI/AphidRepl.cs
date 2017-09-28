@@ -5,6 +5,7 @@ using Components.Aphid.Parser;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,48 +14,62 @@ namespace Components.Aphid.UI
 {
     public class AphidRepl
     {
+        private AphidInterpreter _interpreter;
+
         public void Run()
         {
-            var interpreter = new AphidInterpreter();
+            _interpreter = new AphidInterpreter();
 
             while (true)
             {
                 Console.Write(">>> ");
                 var code = Console.ReadLine();
 
-                try
+                if (!Debugger.IsAttached)
                 {
-                    var lexer = new AphidLexer(code);
-                    var tokens = lexer.GetTokens();
-                    var parser = new AphidParser(tokens);
-                    parser.NextToken();
-
-                    var exp = new UnaryOperatorExpression(
-                        AphidTokenType.retKeyword,
-                        parser.ParseExpression());
-
-                    if (parser.NextToken())
+                    try
                     {
-                        throw new AphidParserException(parser.CurrentToken);
+                        RunCode(code);
                     }
-
-                    interpreter.InterpretExpression(exp);
-                    var value = interpreter.GetReturnValue();
-
-                    if (value != null && (value.Value != null || value.Any()))
+                    catch (AphidParserException e)
                     {
-                        Console.WriteLine(new AphidSerializer().Serialize(value));
+                        Cli.WriteErrorMessage("Syntax error:\r\n{0}", e.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Cli.WriteErrorMessage("Runtime error:\r\n{0}", e.Message);
+                        AphidCli.DumpStackTrace(_interpreter);
                     }
                 }
-                catch (AphidParserException e)
+                else
                 {
-                    Cli.WriteErrorMessage("Syntax error:\r\n{0}", e.Message);
+                    RunCode(code);
                 }
-                catch (Exception e)
-                {
-                    Cli.WriteErrorMessage("Runtime error:\r\n{0}", e.Message);
-                    AphidCli.DumpStackTrace(interpreter);
-                }
+            }
+        }
+
+        private void RunCode(string code)
+        {
+            var lexer = new AphidLexer(code);
+            var tokens = lexer.GetTokens();
+            var parser = new AphidParser(tokens);
+            parser.NextToken();
+
+            var exp = new UnaryOperatorExpression(
+                AphidTokenType.retKeyword,
+                parser.ParseExpression());
+
+            if (parser.NextToken())
+            {
+                throw new AphidParserException(parser.CurrentToken);
+            }
+
+            _interpreter.InterpretExpression(exp);
+            var value = _interpreter.GetReturnValue();
+
+            if (value != null && (value.Value != null || value.Any()))
+            {
+                Console.WriteLine(new AphidSerializer().Serialize(value));
             }
         }
     }
