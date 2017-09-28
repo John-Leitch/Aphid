@@ -620,99 +620,65 @@ namespace Components.Aphid.Interpreter
                         InterpretExpression(expression.RightOperand) as AphidObject);
 
                 case AphidTokenType.SelectOperator:
-                    var collection = (List<AphidObject>)((AphidObject)InterpretExpression(expression.LeftOperand)).Value;
-                    var value = ((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-                    var func = value as AphidFunction;
-
-                    if (func != null)
-                    {
-                        return new AphidObject(collection.Select(x => CallFunction(func, x)).ToList());
-                    }
-
-                    var func2 = value as AphidInteropFunction;
-
-                    if (func2 != null)
-                    {
-                        return new AphidObject(collection.Select(x => CallInteropFunction(func2, x)).ToList());
-                    }
-
-                    throw new InvalidOperationException();
+                    var func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    
+                    return ((IEnumerable<object>)ValueHelper
+                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .Select(x => ValueHelper.Wrap(
+                            InterpretCallExpression(
+                                expression.RightOperand,
+                                func,
+                                new[] { x })))
+                        .ToList();
 
                 case AphidTokenType.SelectManyOperator:
-                    collection = (List<AphidObject>)((AphidObject)InterpretExpression(expression.LeftOperand)).Value;
-                    value = ((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-                    func = value as AphidFunction;
+                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    
+                    return ((IEnumerable<object>)ValueHelper
+                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .SelectMany(x =>
+                            (IEnumerable<object>)(ValueHelper.Unwrap(
+                                InterpretCallExpression(
+                                    expression.RightOperand,
+                                    func,
+                                    new[] { x }))))
+                        .Select(ValueHelper.Wrap)
+                        .ToList();
 
-                    if (func != null)
-                    {
-                        return new AphidObject(collection.SelectMany(x => (List<AphidObject>)CallFunction(func, x).Value).ToList());
-                    }
-
-                    func2 = value as AphidInteropFunction;
-
-                    if (func2 != null)
-                    {
-                        return new AphidObject(collection.SelectMany(x => (List<AphidObject>)CallInteropFunction(func2, x).Value).ToList());
-                    }
-
-                    throw new InvalidOperationException();
-
+                    
                 case AphidTokenType.AggregateOperator:
-                    collection = (List<AphidObject>)((AphidObject)InterpretExpression(expression.LeftOperand)).Value;
-                    value = ((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-                    func = value as AphidFunction;
-
-                    if (func != null)
-                    {
-                        return collection.Aggregate((x, y) => CallFunction(func, x, y));
-                    }
-
-                    func2 = value as AphidInteropFunction;
-
-                    if (func2 != null)
-                    {
-                        return collection.Aggregate((x, y) => CallInteropFunction(func2, x, y));
-                    }
-
-                    throw new InvalidOperationException();
+                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    
+                    return ((IEnumerable<object>)ValueHelper
+                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .Aggregate((x, y) => ValueHelper.Wrap(
+                            InterpretCallExpression(
+                                expression.RightOperand,
+                                func,
+                                new[] { x, y })));
 
                 case AphidTokenType.AnyOperator:
-                    collection = (List<AphidObject>)((AphidObject)InterpretExpression(expression.LeftOperand)).Value;
-                    value = ((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-                    func = (AphidFunction)((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-
-                    if (func != null)
-                    {
-                        return new AphidObject(collection.Any(x => (bool)CallFunction(func, x).Value));
-                    }
-
-                    func2 = value as AphidInteropFunction;
-
-                    if (func2 != null)
-                    {
-                        return new AphidObject(collection.Any(x => (bool)CallInteropFunction(func2, x).Value));
-                    }
-
-                    throw new InvalidOperationException();
+                   func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    
+                    return ((IEnumerable<object>)ValueHelper
+                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .Any(x => (bool)ValueHelper.Unwrap(
+                            InterpretCallExpression(
+                                expression.RightOperand,
+                                func,
+                                new[] { x })));
 
                 case AphidTokenType.WhereOperator:
-                    collection = (List<AphidObject>)((AphidObject)InterpretExpression(expression.LeftOperand)).Value;
-                    value = ((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-                    func = (AphidFunction)((AphidObject)InterpretExpression(expression.RightOperand)).Value;
-
-                    if (func != null)
-                    {
-                        return new AphidObject(collection.Where(x => (bool)CallFunction(func, x).Value).ToList());
-                    }
-
-                    func2 = value as AphidInteropFunction;
-
-                    if (func2 != null)
-                    {
-                        return new AphidObject(collection.Where(x => (bool)CallInteropFunction(func2, x).Value).ToList());
-                    }
-
-                    throw new InvalidOperationException();
+                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    
+                    return ((IEnumerable<object>)ValueHelper
+                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .Where(x => (bool)ValueHelper.Unwrap(
+                            InterpretCallExpression(
+                                expression.RightOperand,
+                                func,
+                                new[] { x })))
+                        .ToList();
 
                 case AphidTokenType.CompositionOperator:
                     return InterpretFunctionComposition(expression);
@@ -1378,15 +1344,18 @@ namespace Components.Aphid.Interpreter
                         return obj;
 
                     case AphidTokenType.DistinctOperator:
-                        obj = ((AphidObject)InterpretExpression(expression.Operand));
-                        var list = obj.Value as List<AphidObject>;
+                        var opExp = InterpretExpression(expression.Operand);
+                        var list = ((IEnumerable<object>)ValueHelper.Unwrap(opExp));
+                        
+                        var result = list
+                            .Select(ValueHelper.Unwrap)
+                            .Distinct()
+                            .Select(ValueHelper.Wrap) // To maintain backwards compat with Aphid
+                            .ToList();                // list extension such as __list.count().
 
-                        if (list == null)
-                        {
-                            throw CreateUnaryOperatorException(expression);
-                        }
+                        return ValueHelper.Wrap(result);
 
-                        return new AphidObject(list.Distinct(_comparer).ToList());
+                        //return new AphidObject(list.Distinct(_comparer).ToList());
 
                     case AphidTokenType.usingKeyword:
                         var path = FlattenAndJoinPath(expression.Operand);
