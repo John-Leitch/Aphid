@@ -111,7 +111,12 @@ namespace Components.Aphid.Interpreter
 
         public void AddImport(string name)
         {
-            GetImports().Add(name);
+            var imports = GetImports();
+            
+            if (!imports.Contains(name))
+            {
+                imports.Add(name);
+            }
         }
 
         public AphidObject GetReturnValue()
