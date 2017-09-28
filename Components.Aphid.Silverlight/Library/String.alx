@@ -1,0 +1,17 @@
+﻿extend string {
+		chars: @(s) __string.getChars(s),
+		lower: @(s) __string.lower(s),
+		split: @(s, separator) __string.split(s, separator),
+		replace: @(s, value, replacement) __string.replace(s, value, replacement),
+		isMatch: @(s, pattern) __string.isMatch(s, pattern),
+		contains: @(s, s2) __string.contains(s, s2),
+		length: @(s) __string.length(s),
+		remove: @(s, index) __string.remove(s, index),
+		
+		substring: @(s, index, length) length defined ? 
+			__string.substring(s, index, length) : 
+			__string.substring(s, index, null),
+		
+		startsWith: @(s, value) __string.startsWith(s, value),
+		endsWith: @(s, value) __string.endsWith(s, value),
+}

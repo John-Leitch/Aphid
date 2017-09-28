@@ -1,0 +1,1536 @@
+﻿namespace Components.Aphid;
+token AphidTokenType;
+base AphidExpression;
+node AphidNodeType;
+parser AphidParser;
+
+Lexer({
+    init: @() {
+        #'Aphid.Tmpl';
+        #'Aphid.Code';
+        #'Aphid.Tokens';
+    },
+    name: "Components.Aphid.Lexer.Aphid",
+    modes: [ 
+        {
+            mode: "Aphid",
+            tokens: tokens,
+            keywords: [
+                "true",
+                "false",
+                "null",
+
+                "if",
+                "else",
+                "switch",
+                "default",
+                "while",
+                "do",
+                "for",
+                "in",
+
+                "continue",
+                "break",
+
+                "ret",
+
+                "this",
+
+                "new",
+                "using",
+                "load",
+
+                "defined",
+                "delete",
+                "extend",
+
+                "try",
+                "catch",
+                "finally",
+            ],
+            keywordDefault: getKeywordHelper('Identifier'),
+            keywordTail: getKeywordHelper('{Keyword}')            
+        },
+        {
+            mode: "Text",
+            tokens: [
+                { regex: '<%', type: 'GatorOpenOperator', newMode: "Aphid" },
+                { regex: '<%=', type: 'GatorEmitOperator', newMode: "Aphid" },
+                { regex: '<', code: textCode },
+                { code: textCode },
+            ]
+        },
+    ],
+    ignore: [ 
+        //"GatorOpenOperator",
+        //"GatorCloseOperator",
+        "WhiteSpace",
+        "Comment" 
+    ]
+});
+
+////////////////////////////////////////////////////////////////
+// Types
+////////////////////////////////////////////////////////////////
+ArrayAccessExpression = { ArrayExpression, KeyExpression };
+ArrayExpression = { list Elements };
+BinaryOperatorExpression = { LeftOperand, AphidTokenType Operator, RightOperand };
+BinaryOperatorBodyExpression = { AphidTokenType Operator, FunctionExpression Function };
+BooleanExpression = { bool Value };
+BreakExpression = { };
+CallExpression = { FunctionExpression, opt list Args };
+ContinueExpression = { };
+DoWhileExpression = { Condition, list Body };
+DynamicMemberExpression = { MemberExpression };
+ExtendExpression = { string ExtendType, ObjectExpression Object };
+ForEachExpression = { Collection, list Body, opt Element };
+ForExpression = { Initialization, Condition, Afterthought, list Body };
+FunctionExpression = { list Args, list Body };
+GatorOpenExpression = { };
+GatorCloseExpression = { };
+GatorEmitExpression = { Expression };
+IdentifierExpression = { string Identifier, opt list IdentifierExpression Attributes };
+IfExpression = { Condition, list Body, list ElseBody };
+ImplicitArgumentExpression = { AphidTokenType Operator };
+ImplicitArgumentsExpression = { AphidTokenType Operator };
+LoadLibraryExpression = { LibraryExpression };
+LoadScriptExpression = { FileExpression };
+NullExpression = { };
+NumberExpression = { decimal Value, };
+ObjectExpression = { list BinaryOperatorExpression Pairs, opt IdentifierExpression Identifier };
+PartialFunctionExpression = { CallExpression Call };
+PartialOperatorExpression = { AphidTokenType Operator, Operand };
+PatternExpression = { opt list Patterns, Value };
+PatternMatchingExpression = { TestExpression, list PatternExpression Patterns };
+UnaryOperatorExpression = { AphidTokenType Operator, Operand, opt bool IsPostfix };
+StringExpression = { string Value };
+SwitchCase = { list Cases, list Body };
+SwitchExpression = { Expression, list SwitchCase Cases, list DefaultCase };
+TernaryOperatorExpression = { AphidTokenType Operator, FirstOperand, SecondOperand, ThirdOperand };
+TextExpression = { string Text };
+ThisExpression = { };
+TryExpression = { list TryBody, IdentifierExpression CatchArg, list CatchBody, list FinallyBody };
+WhileExpression = { Condition, list Body };
+
+////////////////////////////////////////////////////////////////
+// Macros
+////////////////////////////////////////////////////////////////
+Delim = macro(@(_left, _value, _right) {
+    Match(_left);
+    _value;
+    Match(_right);
+});
+
+Parens = macro(@(_value) { Delim(LeftParenthesis, _value, RightParenthesis); });
+
+Prefix = macro(@(_token, _value) {
+    Match(_token);
+    _value;
+});
+
+TakeToken = macro(@(_var) {
+    _var = TokenType;
+    NextToken;
+});
+
+SkipThen = macro(@(_retVal) {
+    @{
+        NextToken;
+        ret _retVal;
+    };
+});
+
+ThenSkip = macro(@(_retVal) {
+    @{
+        exp = _retVal;
+        NextToken;
+        ret exp;
+    };
+});
+
+ParseBinOpExp = macro(@(_parse, _ops) {
+    @{
+        operand = _parse();
+
+        while (_ops) {
+            TakeToken(op);
+            operand = BinaryOperatorExpression(operand, op, _parse());
+        }
+
+        ret operand;
+    };
+});
+
+////////////////////////////////////////////////////////////////
+// Functions
+////////////////////////////////////////////////////////////////
+root list Parse = @{
+    expressionSequence;
+    NextToken;
+    while (!None) expressionSequence += ParseStatement();
+
+    ret expressionSequence;
+};
+
+ParseStatement = _ParseStatement(true);
+ParseSingleStatement = _ParseStatement(false);
+
+_ParseStatement = macro(@(_requireEos) {
+    @{
+        exp;
+    
+        // Todo add support for $ op
+        switch (TokenType) {
+            ifKeyword: exp ParseIfExpression;
+            forKeyword: exp ParseForExpression;
+            whileKeyword: exp ParseWhileExpression;
+            
+            doKeyword: { 
+                exp ParseDoWhileExpression;
+                MatchEos(_requireEos);
+            }
+
+            extendKeyword: exp ParseExtendExpression;
+            tryKeyword: exp ParseTryExpression;
+            switchKeyword: exp ParseSwitchExpression;
+            Text: exp ParseTextExpression;
+            GatorOpenOperator: { exp = GatorOpenExpression(); NextToken; }
+            GatorCloseOperator: { exp = GatorCloseExpression(); NextToken; }
+            GatorEmitOperator: exp ParseGatorEmitExpression;
+            
+            default:  {
+                exp ParseExpression;
+
+                if (_requireEos) {
+                    while (Comma) {
+                        NextToken;
+                        exp = BinaryOperatorExpression(exp, Comma, ParseExpression());
+                    }
+                }
+
+                switch (TokenType) {
+                    forKeyword: {
+                        NextToken;
+                        IdentifierExpression id;
+                        
+                        if (LeftParenthesis) {
+                            NextToken;
+                            id = ParseIdentifierExpression();
+                            Match(RightParenthesis);
+                        }
+
+                        exp = ForEachExpression(exp, ParseSingleBlock(), id);
+                    }
+                }
+
+                MatchEos(_requireEos);
+            }
+        }
+
+        ret exp;
+    };
+});
+
+MatchEos = macro(@(_requireEos) {
+    if (_requireEos) {
+        if (EndOfStatement)
+            NextToken;
+        else if (!RightBrace && !None)
+            Error;
+    }
+});
+
+root ParseExpression = @() ParseAssignmentExpression();
+
+ParseAssignmentExpression = ParseBinOpExp(
+    ParsePipelineExpression, 
+    AssignmentOperator |
+    PlusEqualOperator |
+    MinusEqualOperator |
+    MultiplicationEqualOperator |
+    DivisionEqualOperator |
+    ModulusEqualOperator |
+    BinaryAndEqualOperator |
+    OrEqualOperator |
+    XorEqualOperator |
+    ShiftLeftEqualOperator |
+    ShiftRightEqualOperator);
+
+ParsePipelineExpression = @{
+    operand ParseQueryExpression;
+    inPipeline = false;
+    while (true) {
+        switch (TokenType) {
+            PipelineOperator: {
+                inPipeline = true;
+                TakeToken(op);
+                operand = BinaryOperatorExpression(
+                    operand, 
+                    PipelineOperator, 
+                    ParseQueryExpression());
+            }
+
+            InteropOperator: {
+                inPipeline = true;
+                operand = BinaryOperatorExpression(
+                    operand, 
+                    PipelineOperator, 
+                    ParsePrefixUnaryOperatorExpression());
+            }
+
+            FunctionOperator: {
+                inPipeline = true;
+                operand = BinaryOperatorExpression(
+                    operand, 
+                    PipelineOperator, 
+                    ParseFunctionExpression());
+            }
+
+            default: {
+                if (inPipeline && Identifier) {
+                    operand = BinaryOperatorExpression(
+                        operand,
+                        PipelineOperator,
+                        ParseExpression());
+                } else {
+                    break;
+                }
+            }
+        }        
+    }
+
+    ret operand;
+};
+
+ParseQueryExpression = @{
+    exp ParseRangeExpression;
+
+    while(true) {
+        switch (TokenType) {
+            AggregateOperator, AnyOperator, SelectManyOperator, SelectOperator, WhereOperator: {
+                TakeToken(t);
+                exp = BinaryOperatorExpression(exp, t, ParseRangeExpression());
+            }
+
+            DistinctOperator: {
+                exp = UnaryOperatorExpression(TokenType, exp);
+                NextToken;
+            }
+
+            default: break;
+        }
+    }
+
+    ret exp;
+};
+
+ParseRangeExpression = ParseBinOpExp(
+    ParseConditionalExpression,
+    RangeOperator
+    | CompositionOperator
+    | CustomOperator0
+    | CustomOperator1
+    | CustomOperator2
+    | CustomOperator3
+    | CustomOperator4
+    | CustomOperator5
+    | CustomOperator6
+    | CustomOperator7
+    | CustomOperator8
+    | CustomOperator9
+    | CustomOperator10
+    | CustomOperator11
+    | CustomOperator12
+    | CustomOperator13
+    | CustomOperator14
+    | CustomOperator15
+    | CustomOperator16
+    | CustomOperator17
+    | CustomOperator18
+    | CustomOperator19
+    | CustomOperator20
+    | CustomOperator21
+    | CustomOperator22
+    | CustomOperator23
+    | CustomOperator24
+    | CustomOperator25
+    | CustomOperator26
+    | CustomOperator27
+    | CustomOperator28
+    | CustomOperator29
+    | CustomOperator30
+    | CustomOperator31
+    | CustomOperator32
+    | CustomOperator33
+    | CustomOperator34
+    | CustomOperator35
+    | CustomOperator36
+    | CustomOperator37
+    | CustomOperator38
+    | CustomOperator39
+    | CustomOperator40
+    | CustomOperator41
+    | CustomOperator42
+    | CustomOperator43
+    | CustomOperator44
+    | CustomOperator45
+    | CustomOperator46
+    | CustomOperator47
+    | CustomOperator48
+    | CustomOperator49
+    | CustomOperator50
+    | CustomOperator51
+    | CustomOperator52
+    | CustomOperator53
+    | CustomOperator54
+    | CustomOperator55
+    | CustomOperator56
+    | CustomOperator57
+    | CustomOperator58
+    | CustomOperator59
+    | CustomOperator60
+    | CustomOperator61
+    | CustomOperator62
+    | CustomOperator63
+    | CustomOperator64
+    | CustomOperator65
+    | CustomOperator66
+    | CustomOperator67
+    | CustomOperator68
+    | CustomOperator69
+    | CustomOperator70
+    | CustomOperator71
+    | CustomOperator72
+    | CustomOperator73
+    | CustomOperator74
+    | CustomOperator75
+    | CustomOperator76
+    | CustomOperator77
+    | CustomOperator78
+    | CustomOperator79
+    | CustomOperator80
+    | CustomOperator81
+    | CustomOperator82
+    | CustomOperator83
+    | CustomOperator84
+    | CustomOperator85
+    | CustomOperator86
+    | CustomOperator87
+    | CustomOperator88
+    | CustomOperator89
+    | CustomOperator90
+    | CustomOperator91
+    | CustomOperator92
+    | CustomOperator93
+    | CustomOperator94
+    | CustomOperator95
+    | CustomOperator96
+    | CustomOperator97
+    | CustomOperator98
+    | CustomOperator99
+    | CustomOperator100
+    | CustomOperator101
+    | CustomOperator102
+    | CustomOperator103
+    | CustomOperator104
+    | CustomOperator105
+    | CustomOperator106
+    | CustomOperator107
+    | CustomOperator108
+    | CustomOperator109
+    | CustomOperator110
+    | CustomOperator111
+    | CustomOperator112
+    | CustomOperator113
+    | CustomOperator114
+    | CustomOperator115
+    | CustomOperator116
+    | CustomOperator117
+    | CustomOperator118
+    | CustomOperator119
+    | CustomOperator120
+    | CustomOperator121
+    | CustomOperator122
+    | CustomOperator123
+    | CustomOperator124
+    | CustomOperator125
+    | CustomOperator126
+    | CustomOperator127
+    | CustomOperator128
+    | CustomOperator129
+    | CustomOperator130
+    | CustomOperator131
+    | CustomOperator132
+    | CustomOperator133
+    | CustomOperator134
+    | CustomOperator135
+    | CustomOperator136
+    | CustomOperator137
+    | CustomOperator138
+    | CustomOperator139
+    | CustomOperator140
+    | CustomOperator141
+    | CustomOperator142
+    | CustomOperator143
+    | CustomOperator144
+    | CustomOperator145
+    | CustomOperator146
+    | CustomOperator147
+    | CustomOperator148
+    | CustomOperator149
+    | CustomOperator150
+    | CustomOperator151
+    | CustomOperator152
+    | CustomOperator153
+    | CustomOperator154
+    | CustomOperator155
+    | CustomOperator156
+    | CustomOperator157
+    | CustomOperator158
+    | CustomOperator159
+    | CustomOperator160
+    | CustomOperator161
+    | CustomOperator162
+    | CustomOperator163
+    | CustomOperator164
+    | CustomOperator165
+    | CustomOperator166
+    | CustomOperator167
+    | CustomOperator168
+    | CustomOperator169
+    | CustomOperator170
+    | CustomOperator171
+    | CustomOperator172
+    | CustomOperator173
+    | CustomOperator174
+    | CustomOperator175
+    | CustomOperator176
+    | CustomOperator177);
+
+ParseConditionalExpression = @{
+    exp ParseLogicalExpression;
+
+    if (ConditionalOperator) {
+        NextToken;
+        trueExpression ParseExpression;
+        ColonOperator;
+        falseExpression ParseExpression;
+
+        ret TernaryOperatorExpression(
+            ConditionalOperator,
+            exp,
+            trueExpression,
+            falseExpression);
+    } else {
+        ret exp;
+    }
+};
+
+ParseLogicalExpression = ParseBinOpExp(ParseComparisonExpression, AndOperator | OrOperator);
+
+ParseComparisonExpression = ParseBinOpExp(
+    ParsePostfixUnaryOperationExpression, 
+    EqualityOperator |
+    NotEqualOperator | 
+    LessThanOperator |
+    LessThanOrEqualOperator |
+    GreaterThanOperator |
+    GreaterThanOrEqualOperator);
+
+ParsePostfixUnaryOperationExpression = @{
+    term = ParseBinaryOrExpression();
+
+    switch (TokenType) {
+        IncrementOperator, DecrementOperator: {
+            TakeToken(op);
+
+            ret UnaryOperatorExpression(op, term, true);
+        }
+
+        default: ret term;
+    }
+};
+
+ParseBinaryOrExpression = ParseBinOpExp(ParseXorExpression, BinaryOrOperator);
+ParseXorExpression = ParseBinOpExp(ParseBinaryAndExpression, XorOperator);
+ParseBinaryAndExpression = ParseBinOpExp(ParseShiftExpression, BinaryAndOperator);
+ParseShiftExpression = ParseBinOpExp(ParseAdditionExpression, ShiftLeft | ShiftRight);
+ParseAdditionExpression = ParseBinOpExp(ParseTermExpression, AdditionOperator | MinusOperator);
+
+ParseTermExpression = ParseBinOpExp(
+    ParsePrefixUnaryOperatorExpression,
+    MultiplicationOperator | DivisionOperator | ModulusOperator);
+
+ParsePrefixUnaryOperatorExpression = @{
+    switch (TokenType) {
+        AdditionOperator,
+        MinusOperator,
+        NotOperator,
+        IncrementOperator,
+        DecrementOperator,
+        MultiplicationOperator,
+        ComplementOperator,
+        InteropOperator,
+        usingKeyword,
+        newKeyword,
+        loadKeyword,
+        CustomOperator0,
+        CustomOperator1,
+        CustomOperator2,
+        CustomOperator3,
+        CustomOperator4,
+        CustomOperator5,
+        CustomOperator6,
+        CustomOperator7,
+        CustomOperator8,
+        CustomOperator9,
+        CustomOperator10,
+        CustomOperator11,
+        CustomOperator12,
+        CustomOperator13,
+        CustomOperator14,
+        CustomOperator15,
+        CustomOperator16,
+        CustomOperator17,
+        CustomOperator18,
+        CustomOperator19,
+        CustomOperator20,
+        CustomOperator21,
+        CustomOperator22,
+        CustomOperator23,
+        CustomOperator24,
+        CustomOperator25,
+        CustomOperator26,
+        CustomOperator27,
+        CustomOperator28,
+        CustomOperator29,
+        CustomOperator30,
+        CustomOperator31,
+        CustomOperator32,
+        CustomOperator33,
+        CustomOperator34,
+        CustomOperator35,
+        CustomOperator36,
+        CustomOperator37,
+        CustomOperator38,
+        CustomOperator39,
+        CustomOperator40,
+        CustomOperator41,
+        CustomOperator42,
+        CustomOperator43,
+        CustomOperator44,
+        CustomOperator45,
+        CustomOperator46,
+        CustomOperator47,
+        CustomOperator48,
+        CustomOperator49,
+        CustomOperator50,
+        CustomOperator51,
+        CustomOperator52,
+        CustomOperator53,
+        CustomOperator54,
+        CustomOperator55,
+        CustomOperator56,
+        CustomOperator57,
+        CustomOperator58,
+        CustomOperator59,
+        CustomOperator60,
+        CustomOperator61,
+        CustomOperator62,
+        CustomOperator63,
+        CustomOperator64,
+        CustomOperator65,
+        CustomOperator66,
+        CustomOperator67,
+        CustomOperator68,
+        CustomOperator69,
+        CustomOperator70,
+        CustomOperator71,
+        CustomOperator72,
+        CustomOperator73,
+        CustomOperator74,
+        CustomOperator75,
+        CustomOperator76,
+        CustomOperator77,
+        CustomOperator78,
+        CustomOperator79,
+        CustomOperator80,
+        CustomOperator81,
+        CustomOperator82,
+        CustomOperator83,
+        CustomOperator84,
+        CustomOperator85,
+        CustomOperator86,
+        CustomOperator87,
+        CustomOperator88,
+        CustomOperator89,
+        CustomOperator90,
+        CustomOperator91,
+        CustomOperator92,
+        CustomOperator93,
+        CustomOperator94,
+        CustomOperator95,
+        CustomOperator96,
+        CustomOperator97,
+        CustomOperator98,
+        CustomOperator99,
+        CustomOperator100,
+        CustomOperator101,
+        CustomOperator102,
+        CustomOperator103,
+        CustomOperator104,
+        CustomOperator105,
+        CustomOperator106,
+        CustomOperator107,
+        CustomOperator108,
+        CustomOperator109,
+        CustomOperator110,
+        CustomOperator111,
+        CustomOperator112,
+        CustomOperator113,
+        CustomOperator114,
+        CustomOperator115,
+        CustomOperator116,
+        CustomOperator117,
+        CustomOperator118,
+        CustomOperator119,
+        CustomOperator120,
+        CustomOperator121,
+        CustomOperator122,
+        CustomOperator123,
+        CustomOperator124,
+        CustomOperator125,
+        CustomOperator126,
+        CustomOperator127,
+        CustomOperator128,
+        CustomOperator129,
+        CustomOperator130,
+        CustomOperator131,
+        CustomOperator132,
+        CustomOperator133,
+        CustomOperator134,
+        CustomOperator135,
+        CustomOperator136,
+        CustomOperator137,
+        CustomOperator138,
+        CustomOperator139,
+        CustomOperator140,
+        CustomOperator141,
+        CustomOperator142,
+        CustomOperator143,
+        CustomOperator144,
+        CustomOperator145,
+        CustomOperator146,
+        CustomOperator147,
+        CustomOperator148,
+        CustomOperator149,
+        CustomOperator150,
+        CustomOperator151,
+        CustomOperator152,
+        CustomOperator153,
+        CustomOperator154,
+        CustomOperator155,
+        CustomOperator156,
+        CustomOperator157,
+        CustomOperator158,
+        CustomOperator159,
+        CustomOperator160,
+        CustomOperator161,
+        CustomOperator162,
+        CustomOperator163,
+        CustomOperator164,
+        CustomOperator165,
+        CustomOperator166,
+        CustomOperator167,
+        CustomOperator168,
+        CustomOperator169,
+        CustomOperator170,
+        CustomOperator171,
+        CustomOperator172,
+        CustomOperator173,
+        CustomOperator174,
+        CustomOperator175,
+        CustomOperator176,
+        CustomOperator177: {
+            TakeToken(t);
+                        
+            ret UnaryOperatorExpression(t, ParseArrayAccessExpression());
+        }
+
+        default: ret ParseArrayAccessExpression();
+    }
+};
+
+ParseArrayAccessExpression = @{
+    exp ParseCallExpression;
+
+    while (LeftBracket) {
+        NextToken;
+        key ParseExpression;
+        RightBracket;
+        exp = ArrayAccessExpression(exp, key);
+        ParseMemberBody(exp);
+        ParseCallBody(exp);
+    }
+
+    ret exp;
+};
+
+ParseCall = macro(@(_parseFunc) {
+    @{
+        function = _parseFunc();
+
+        while (LeftParenthesis) {
+            NextToken;
+        
+            if (RightParenthesis) {
+                NextToken;
+                function = CallExpression(function);
+            } else {
+                args ParseTuple;
+                RightParenthesis;
+                function = CallExpression(function, args);
+            }
+        }
+
+        ret function;
+    };
+});
+
+ParseCallBody = macro(@(_func) {
+    while (LeftParenthesis) {
+        NextToken;
+        
+        if (RightParenthesis) {
+            NextToken;
+            _func = CallExpression(_func);
+        } else {
+            args = ParseTuple();
+            RightParenthesis;
+            _func = CallExpression(_func, args);
+        }
+    }
+});
+
+ParseCallExpression = ParseCall(ParseMemberExpression);
+
+ParseMemberExpression = @{ 
+    factor ParseFactorCallExpression;
+    ParseMemberBody(factor);
+    ret factor;
+};
+
+ParseMemberBody = macro(@(_id) {
+    while (MemberOperator) {
+        NextToken;
+        memberExp;
+
+        switch (TokenType) {
+            Identifier: {
+                memberExp = IdentifierExpression(Lexeme);
+                NextToken;
+            }
+
+            String: memberExp ParseStringExpression;
+
+            LeftBrace: {
+                NextToken;
+                memberExp = DynamicMemberExpression(ParseExpression());
+                RightBrace;
+            }
+
+            default: Error;
+        }
+
+        _id = BinaryOperatorExpression(_id, MemberOperator, memberExp);
+        ParseCallBody(_id);        
+
+        if (definedKeyword) {
+            NextToken;
+
+            ret UnaryOperatorExpression(definedKeyword, _id, true);
+        }
+    }
+});
+
+ParseFactorCallExpression = ParseCall(ParseFactorExpression);
+ParseStringExpression = Lexeme |> StringExpression |> ThenSkip;
+
+IdentifierExpression ParseIdentifierExpression = @{
+    exp = IdentifierExpression(Lexeme);
+    NextToken;
+
+    if (Identifier) {
+        id = exp;
+        // Add support for [] instead of 'list IdentifierExpression', infer type
+        attrs = list IdentifierExpression;
+
+        do {
+            attrs += id;
+            id = IdentifierExpression(Lexeme);
+            NextToken;
+        } while (Identifier);
+
+        exp = IdentifierExpression(id.Identifier, attrs);
+    }    
+
+    ret exp;
+};
+
+ParseUnaryExpression = @{
+    TakeToken(t);
+
+    ret UnaryOperatorExpression(t, ParseExpression());
+};
+
+ParseCondition = @{
+    Parens(condition ParseExpression);
+    
+    ret condition;
+};
+
+ParseIfExpression = @{
+    NextToken;
+    condition ParseCondition;
+    body ParseBlock;
+    list elseBody;
+
+    if (elseKeyword)
+    {
+        NextToken;
+        elseBody ParseBlock;
+    }
+
+    ret IfExpression(condition, body, elseBody);
+};
+
+_ParseBlock = macro(@(_parseStatement) {
+    @{
+        statements;
+
+        if (LeftBrace) {
+            NextToken;
+            while (!RightBrace) statements += ParseStatement();
+            NextToken;
+        } else {
+            statements += _parseStatement();
+        }
+
+        ret statements;
+    };
+});
+
+list ParseBlock = _ParseBlock(ParseStatement);
+list ParseSingleBlock = _ParseBlock(ParseSingleStatement);
+
+// Todo: infer return type and cast if necessary.
+// Todo: Extend expression should probably accept IdExp to support attributes
+ParseExtendExpression = SkipThen(
+    ExtendExpression(ParseIdentifierExpression().Identifier, ParseObjectExpression()));
+
+// Todo: support empty objects
+
+ParseForExpression = @{
+    NextToken;
+    LeftParenthesis;
+    initOrElement ParseExpression;
+
+    if (inKeyword) {
+        NextToken;
+        collection ParseExpression;
+        RightParenthesis;
+        body ParseBlock;
+
+        ret ForEachExpression(collection, body, initOrElement);
+    } else if (RightParenthesis) {
+        RightParenthesis;
+        body ParseBlock;
+
+        ret ForEachExpression(initOrElement, body, null);
+    } else {
+        EndOfStatement;
+        condition ParseExpression;
+        EndOfStatement;
+        afterthought ParseExpression;
+        RightParenthesis;
+        body ParseBlock;
+
+        ret ForExpression(initOrElement, condition, afterthought, body);
+    }
+};
+
+ParseWhileExpression = SkipThen(WhileExpression(ParseCondition(), ParseBlock()));
+
+ParseDoWhileExpression = @{
+    NextToken;
+    body ParseBlock;
+    Prefix(whileKeyword, Parens(condition ParseExpression));
+
+    ret DoWhileExpression(condition, body);
+};
+
+list ParseTuple = @{
+    tuple;
+
+    while (true) {
+        tuple += ParseExpression();
+
+        if (Comma) NextToken;
+        else ret tuple;
+    }
+};
+
+ParseLoadScriptExpression = SkipThen(LoadScriptExpression(ParseExpression()));
+ParseLoadLibraryExpression = SkipThen(LoadLibraryExpression(ParseExpression()));
+
+// Todo: fix now that var decls work
+ParseTryExpression = @{
+    NextToken;
+    tryBody ParseBlock;
+    IdentifierExpression catchArg;
+    list catchBody;           
+    list finallyBody;
+
+    switch (TokenType) {
+        catchKeyword: {
+            NextToken;
+
+            if (LeftParenthesis) {
+                Parens(catchArg ParseIdentifierExpression);
+            }
+
+            catchBody ParseBlock;
+
+            if (finallyKeyword) {
+                NextToken;
+                finallyBody ParseBlock;
+            }
+        }
+
+        finallyKeyword: {
+            NextToken;
+            finallyBody ParseBlock;
+        }
+
+        default: Error;
+    }
+
+    ret TryExpression(tryBody, catchArg, catchBody, finallyBody);
+};
+
+ParseSwitchExpression = @{
+    NextToken;
+    Parens(exp ParseExpression);
+    LeftBrace;
+    cases = list SwitchCase;
+    list defaultCase;
+
+    while (!RightBrace) {
+        if (!defaultKeyword) {
+            caseTuple ParseTuple;
+            ColonOperator;
+            block ParseBlock;
+            cases += SwitchCase(caseTuple, block);
+        } else {
+            NextToken;
+            ColonOperator;
+            defaultCase ParseBlock;
+        }
+    }
+
+    NextToken;
+
+    ret SwitchExpression(exp, cases, defaultCase);
+};
+
+ObjectExpression ParseObjectExpression = @{
+    NextToken;
+    inNode = true;
+    childNodes = list BinaryOperatorExpression;
+
+    while (inNode) {
+        switch (TokenType) {
+            Identifier, String: {
+                childNodes += ParseKeyValuePairExpression();
+                switch (TokenType) {
+                    Comma: NextToken;
+                    RightBrace: {
+                        NextToken;
+                        inNode = false;
+                    }
+                    default: Error;
+                }
+            }
+            RightBrace: {
+                NextToken;
+                inNode = false;
+            }
+            default: Error;
+        }
+    }
+
+    ret ObjectExpression(childNodes);
+};
+
+BinaryOperatorExpression ParseKeyValuePairExpression= @{
+        exp;
+        id;
+        if (Identifier) id = ParseIdentifierExpression();
+        else id = ParseStringExpression();
+
+        if (ColonOperator || AssignmentOperator) {
+            NextToken;
+            exp ParseExpression;
+        } else {
+            exp = id;
+        }
+
+        ret BinaryOperatorExpression(id, ColonOperator, exp);
+};
+
+ParseArrayExpression = @{
+    NextToken;
+    inNode = true;
+    childNodes = list AphidExpression;
+
+    if (!RightBracket) {
+        while (inNode) {
+            childNodes += ParseExpression();
+
+            switch (TokenType) {
+                Comma: {
+                    NextToken;
+
+                    if (RightBracket) {
+                        NextToken;
+                        inNode = false;
+                    }
+                }
+                RightBracket: {
+                    NextToken;
+                    inNode = false;
+                }
+                default: Error;
+            }
+        }
+    } else {
+        NextToken;
+    }
+
+    ret ArrayExpression(childNodes);
+};
+
+ParseNumberExpression = @(){
+    exp = NumberExpression(decimal.Parse(Lexeme));
+    NextToken;
+    
+    ret exp;
+};
+
+FunctionExpression ParseFunctionDeclaration = @{
+    argExp;
+    args;    
+    body;
+    NextToken;
+
+    if (!RightParenthesis) {
+        while (true) {
+            if (Identifier) {
+                id ParseIdentifierExpression;
+                argExp = id;
+
+                if (AssignmentOperator) {
+                    TakeToken(op);
+                    argExp = BinaryOperatorExpression(id, op, ParseExpression());
+                }
+
+                args += argExp;
+
+                if (Comma) NextToken;
+                else break;
+            } else {
+                Error;
+            }
+        }
+    }
+
+    RightParenthesis;
+    isSingleLine = TokenType != LeftBrace;
+    block = ParseSingleBlock();
+
+    if (isSingleLine && UseImplicitReturns) {
+        body += UnaryOperatorExpression(retKeyword, block[0]);
+    } else {
+        body = block;
+    }
+
+    ret FunctionExpression(args, body);
+};
+
+ParseFunctionExpression = @{
+    exp;
+    body;
+    args;
+    argExp;
+    NextToken;
+
+    switch (TokenType) {
+        LeftParenthesis: exp = ParseFunctionDeclaration();
+
+        LeftBrace: exp = FunctionExpression(args, ParseBlock());
+
+        MinusOperator,
+        AdditionOperator,
+        MultiplicationOperator,
+        DivisionOperator,
+        ModulusOperator,
+        BinaryAndOperator,
+        BinaryOrOperator,
+        XorOperator,
+        ShiftLeft,
+        ShiftRight,
+        AndOperator,
+        OrOperator,
+        EqualityOperator,
+        NotEqualOperator,
+        NotEqualOperator,
+        LessThanOperator,
+        GreaterThanOperator,
+        LessThanOrEqualOperator,
+        GreaterThanOrEqualOperator,
+        PipelineOperator,
+
+        MemberOperator: {
+            TakeToken(op);
+            exp = PartialOperatorExpression(op, ParseQueryExpression());
+        }
+
+        CustomOperator0,
+        CustomOperator1,
+        CustomOperator2,
+        CustomOperator3,
+        CustomOperator4,
+        CustomOperator5,
+        CustomOperator6,
+        CustomOperator7,
+        CustomOperator8,
+        CustomOperator9,
+        CustomOperator10,
+        CustomOperator11,
+        CustomOperator12,
+        CustomOperator13,
+        CustomOperator14,
+        CustomOperator15,
+        CustomOperator16,
+        CustomOperator17,
+        CustomOperator18,
+        CustomOperator19,
+        CustomOperator20,
+        CustomOperator21,
+        CustomOperator22,
+        CustomOperator23,
+        CustomOperator24,
+        CustomOperator25,
+        CustomOperator26,
+        CustomOperator27,
+        CustomOperator28,
+        CustomOperator29,
+        CustomOperator30,
+        CustomOperator31,
+        CustomOperator32,
+        CustomOperator33,
+        CustomOperator34,
+        CustomOperator35,
+        CustomOperator36,
+        CustomOperator37,
+        CustomOperator38,
+        CustomOperator39,
+        CustomOperator40,
+        CustomOperator41,
+        CustomOperator42,
+        CustomOperator43,
+        CustomOperator44,
+        CustomOperator45,
+        CustomOperator46,
+        CustomOperator47,
+        CustomOperator48,
+        CustomOperator49,
+        CustomOperator50,
+        CustomOperator51,
+        CustomOperator52,
+        CustomOperator53,
+        CustomOperator54,
+        CustomOperator55,
+        CustomOperator56,
+        CustomOperator57,
+        CustomOperator58,
+        CustomOperator59,
+        CustomOperator60,
+        CustomOperator61,
+        CustomOperator62,
+        CustomOperator63,
+        CustomOperator64,
+        CustomOperator65,
+        CustomOperator66,
+        CustomOperator67,
+        CustomOperator68,
+        CustomOperator69,
+        CustomOperator70,
+        CustomOperator71,
+        CustomOperator72,
+        CustomOperator73,
+        CustomOperator74,
+        CustomOperator75,
+        CustomOperator76,
+        CustomOperator77,
+        CustomOperator78,
+        CustomOperator79,
+        CustomOperator80,
+        CustomOperator81,
+        CustomOperator82,
+        CustomOperator83,
+        CustomOperator84,
+        CustomOperator85,
+        CustomOperator86,
+        CustomOperator87,
+        CustomOperator88,
+        CustomOperator89,
+        CustomOperator90,
+        CustomOperator91,
+        CustomOperator92,
+        CustomOperator93,
+        CustomOperator94,
+        CustomOperator95,
+        CustomOperator96,
+        CustomOperator97,
+        CustomOperator98,
+        CustomOperator99,
+        CustomOperator100,
+        CustomOperator101,
+        CustomOperator102,
+        CustomOperator103,
+        CustomOperator104,
+        CustomOperator105,
+        CustomOperator106,
+        CustomOperator107,
+        CustomOperator108,
+        CustomOperator109,
+        CustomOperator110,
+        CustomOperator111,
+        CustomOperator112,
+        CustomOperator113,
+        CustomOperator114,
+        CustomOperator115,
+        CustomOperator116,
+        CustomOperator117,
+        CustomOperator118,
+        CustomOperator119,
+        CustomOperator120,
+        CustomOperator121,
+        CustomOperator122,
+        CustomOperator123,
+        CustomOperator124,
+        CustomOperator125,
+        CustomOperator126,
+        CustomOperator127,
+        CustomOperator128,
+        CustomOperator129,
+        CustomOperator130,
+        CustomOperator131,
+        CustomOperator132,
+        CustomOperator133,
+        CustomOperator134,
+        CustomOperator135,
+        CustomOperator136,
+        CustomOperator137,
+        CustomOperator138,
+        CustomOperator139,
+        CustomOperator140,
+        CustomOperator141,
+        CustomOperator142,
+        CustomOperator143,
+        CustomOperator144,
+        CustomOperator145,
+        CustomOperator146,
+        CustomOperator147,
+        CustomOperator148,
+        CustomOperator149,
+        CustomOperator150,
+        CustomOperator151,
+        CustomOperator152,
+        CustomOperator153,
+        CustomOperator154,
+        CustomOperator155,
+        CustomOperator156,
+        CustomOperator157,
+        CustomOperator158,
+        CustomOperator159,
+        CustomOperator160,
+        CustomOperator161,
+        CustomOperator162,
+        CustomOperator163,
+        CustomOperator164,
+        CustomOperator165,
+        CustomOperator166,
+        CustomOperator167,
+        CustomOperator168,
+        CustomOperator169,
+        CustomOperator170,
+        CustomOperator171,
+        CustomOperator172,
+        CustomOperator173,
+        CustomOperator174,
+        CustomOperator175,
+        CustomOperator176,
+        CustomOperator177: {
+            TakeToken(op);
+            exp = BinaryOperatorBodyExpression(op, ParseFunctionDeclaration());
+        }
+
+        default: exp = PartialFunctionExpression(ParseCallExpression());
+    }
+
+    ret exp;
+};
+
+ParsePatternMatchingExpression = @{
+    NextToken;
+    patterns = list PatternExpression;
+    Parens(testExp ParseExpression);
+
+    while (true) {
+        tuple;
+
+        while (true) {
+            // Todo: add list support for varName funcName syntax
+            tuple += ParseExpression();
+
+            if (Comma) NextToken;
+            else break;
+        }
+
+        valueExp;
+
+        if (ColonOperator) {
+            NextToken;
+            valueExp ParseExpression;
+            // Todo: support opt with overloaded ctors so these args can
+            // be reversed.
+            patterns += PatternExpression(valueExp, tuple);
+        } else {
+            if (tuple.Count != 1) Error;
+
+            patterns += PatternExpression(tuple[0]);
+        }
+
+        if (Comma) NextToken;
+        else break;
+    }
+    
+    ret PatternMatchingExpression(testExp, patterns);
+};
+
+
+ParseFactorExpression = @{
+    exp;
+    
+    switch (TokenType) {
+        LeftBrace: exp ParseObjectExpression;
+        LeftBracket: exp ParseArrayExpression;
+
+        LeftParenthesis: {
+            NextToken;
+            exp ParseExpression;
+            RightParenthesis;
+        }
+
+        String: exp ParseStringExpression;
+        Number: exp ParseNumberExpression;
+
+        Identifier: {
+            id ParseIdentifierExpression;
+
+            if (definedKeyword) {
+                NextToken;
+                exp = UnaryOperatorExpression(definedKeyword, id, true);
+            } else if (LeftBrace) {
+                obj = ParseObjectExpression();
+                exp = ObjectExpression(obj.Pairs, id);
+            } else {
+                exp = id;
+            }
+        }
+
+        FunctionOperator: exp ParseFunctionExpression;
+
+        ImplicitArgumentOperator: {
+            TakeToken(op);
+            exp = ImplicitArgumentExpression(op);
+        }
+
+        ImplicitArgumentsOperator: {
+            TakeToken(op);
+            exp = ImplicitArgumentsExpression(op);
+        }
+
+        retKeyword, deleteKeyword: exp ParseUnaryExpression;
+
+        trueKeyword: {
+            exp = BooleanExpression(true);
+            NextToken;
+        }
+
+        falseKeyword: {
+            exp = BooleanExpression(false);
+            NextToken;
+        }
+
+        thisKeyword: _keywordExp(ThisExpression);
+
+        LoadScriptOperator: exp ParseLoadScriptExpression;
+        LoadLibraryOperator: exp ParseLoadLibraryExpression;
+        
+        nullKeyword: _keywordExp(NullExpression);
+        
+        continueKeyword: _keywordExp(ContinueExpression);
+        breakKeyword: _keywordExp(BreakExpression);
+
+        HexNumber: {
+            exp = NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
+            NextToken;
+        }
+
+        BinaryNumber: {
+            exp = NumberExpression(BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+            NextToken;
+        }
+
+        PatternMatchingOperator: exp ParsePatternMatchingExpression;
+        default: Error;
+    }
+
+    ret exp;
+};
+
+_keywordExp = macro(@(x){
+    exp = x();
+    NextToken;
+});
+
+ParseTextExpression = @{
+    t;
+    if (Text) {
+        t = TextExpression(Lexeme);
+        NextToken;
+    }
+    else t = TextExpression('');
+    
+    ret t;
+};
+
+ParseGatorEmitExpression = @{
+    NextToken;
+    t = GatorEmitExpression(ParseExpression());
+    GatorCloseOperator;
+    ret t;
+};
