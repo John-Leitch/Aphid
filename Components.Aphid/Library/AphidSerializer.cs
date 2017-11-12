@@ -11,6 +11,8 @@ namespace Components.Aphid.Library
 {
     public class AphidSerializer
     {
+        private List<object> _traversed;
+
         public bool IgnoreFunctions { get; set; }
 
         public AphidSerializer()
@@ -29,7 +31,31 @@ namespace Components.Aphid.Library
             {
                 s.Append("null");
             }
-            else if (obj.Value != null)
+
+            var circular = false;
+
+            Action<object> checkGraph = x =>
+            {
+                if (_traversed.Contains(x))
+                {
+                    s.Append("'`Circular Reference`'");
+                    circular = true;
+                }
+                else
+                {
+                    _traversed.Add(x);
+                }
+            };
+
+            checkGraph(obj);
+            checkGraph(obj.Value);
+
+            if (circular)
+            {
+                return;
+            }
+
+            if (obj.Value != null)
             {
                 if (obj.Value is bool ||
                     obj.Value is decimal)
@@ -93,6 +119,7 @@ namespace Components.Aphid.Library
 
         public string Serialize(AphidObject o)
         {
+            _traversed = new List<object>();
             var sb = new StringBuilder();
             ObjToString(o, sb, 0);
 
