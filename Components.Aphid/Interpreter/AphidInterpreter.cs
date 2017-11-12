@@ -14,7 +14,7 @@ namespace Components.Aphid.Interpreter
 {
     public partial class AphidInterpreter
     {
-        private const string 
+        private const string
             _return = "$r",
             _imports = "$imports",
             _implicitArg = "$_",
@@ -112,7 +112,7 @@ namespace Components.Aphid.Interpreter
         public void AddImport(string name)
         {
             var imports = GetImports();
-            
+
             if (!imports.Contains(name))
             {
                 imports.Add(name);
@@ -172,7 +172,7 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject CompareDecimals(BinaryOperatorExpression expression, Func<decimal, decimal, bool> equal)
         {
-            
+
             return new AphidObject(
                 equal(
                     Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))),
@@ -462,7 +462,9 @@ namespace Components.Aphid.Interpreter
                     {
                         interopRef.Property.SetValue(
                             interopRef.Object,
-                            AphidTypeConverter.Convert(interopRef.Property.PropertyType, v));
+                            v != null ? 
+                                AphidTypeConverter.Convert(interopRef.Property.PropertyType, v) :
+                                null);
                     }
 
                     return value;
@@ -621,7 +623,7 @@ namespace Components.Aphid.Interpreter
 
                 case AphidTokenType.SelectOperator:
                     var func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
-                    
+
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Select(x => ValueHelper.Wrap(
@@ -633,7 +635,7 @@ namespace Components.Aphid.Interpreter
 
                 case AphidTokenType.SelectManyOperator:
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
-                    
+
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .SelectMany(x =>
@@ -645,10 +647,10 @@ namespace Components.Aphid.Interpreter
                         .Select(ValueHelper.Wrap)
                         .ToList();
 
-                    
+
                 case AphidTokenType.AggregateOperator:
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
-                    
+
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Aggregate((x, y) => ValueHelper.Wrap(
@@ -658,8 +660,8 @@ namespace Components.Aphid.Interpreter
                                 new[] { x, y })));
 
                 case AphidTokenType.AnyOperator:
-                   func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
-                    
+                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Any(x => (bool)ValueHelper.Unwrap(
@@ -670,7 +672,7 @@ namespace Components.Aphid.Interpreter
 
                 case AphidTokenType.WhereOperator:
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
-                    
+
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Where(x => (bool)ValueHelper.Unwrap(
@@ -820,7 +822,7 @@ namespace Components.Aphid.Interpreter
         {
             var func = InterpretFunctionExpression(expression.Function);
             _binaryOperatorTable[expression.Operator] = func.GetFunction();
-            
+
             return func;
         }
 
@@ -833,7 +835,7 @@ namespace Components.Aphid.Interpreter
             var c = new AphidFunctionComposition(
                 composition.LeftOperand,
                 composition.RightOperand,
-                funcs[0], 
+                funcs[0],
                 funcs[1]);
 
             return new AphidObject(c);
@@ -946,7 +948,7 @@ namespace Components.Aphid.Interpreter
                     break;
                 }
 
-                functionScope.Add(function.Args[i++], arg);                
+                functionScope.Add(function.Args[i++], arg);
             }
 
             var lastScope = _currentScope;
@@ -1111,7 +1113,7 @@ namespace Components.Aphid.Interpreter
         }
 
         private AphidObject InterpretCallExpression(
-            AphidExpression expression, 
+            AphidExpression expression,
             object funcExp,
             object[] args)
         {
@@ -1136,7 +1138,7 @@ namespace Components.Aphid.Interpreter
             if (interopMembers != null)
             {
                 return InterpretInteropCallExpression(
-                    args.Select(ValueHelper.DeepUnwrap).ToArray(), 
+                    args.Select(ValueHelper.DeepUnwrap).ToArray(),
                     interopMembers);
             }
 
@@ -1161,7 +1163,7 @@ namespace Components.Aphid.Interpreter
                 var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
                 PopFrame();
 
-                return retVal;                
+                return retVal;
             }
 
             var composition = funcExp as AphidFunctionComposition;
@@ -1318,7 +1320,7 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.ComplementOperator:
                         val = InterpretAndUnwrap(expression.Operand);
                         ValueHelper.AssertNumber(val, "unary operator '~'");
-                        
+
                         return ValueHelper.Wrap((decimal)~Convert.ToUInt64(val));
 
                     case AphidTokenType.retKeyword:
@@ -1346,7 +1348,7 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.DistinctOperator:
                         var opExp = InterpretExpression(expression.Operand);
                         var list = ((IEnumerable<object>)ValueHelper.Unwrap(opExp));
-                        
+
                         var result = list
                             .Select(ValueHelper.Unwrap)
                             .Distinct()
@@ -1355,7 +1357,7 @@ namespace Components.Aphid.Interpreter
 
                         return ValueHelper.Wrap(result);
 
-                        //return new AphidObject(list.Distinct(_comparer).ToList());
+                    //return new AphidObject(list.Distinct(_comparer).ToList());
 
                     case AphidTokenType.usingKeyword:
                         var path = FlattenAndJoinPath(expression.Operand);
@@ -1367,9 +1369,27 @@ namespace Components.Aphid.Interpreter
                         return InterpretInteropNewExpression(expression.Operand);
 
                     case AphidTokenType.loadKeyword:
-                        path = FlattenAndJoinPath(expression.Operand);
+                        Assembly asm;
 
-                        return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
+                        switch (expression.Operand.Type)
+                        {
+                            case AphidExpressionType.IdentifierExpression:
+                            case AphidExpressionType.BinaryOperatorExpression:
+                                path = FlattenAndJoinPath(expression.Operand);
+                                asm = Assembly.LoadWithPartialName(path);
+                                break;
+
+                            case AphidExpressionType.StringExpression:
+                                path = StringParser.Parse(((StringExpression)expression.Operand).Value);
+                                asm = Assembly.LoadFile(path);
+                                break;
+
+                            default:
+                                throw new AphidRuntimeException("Invalid operand used with load keyword.");
+                                
+                        }
+
+                        return ValueHelper.Wrap(asm);
 
                     case AphidTokenType.InteropOperator:
                         var attr = GetInteropAttribute(expression.Operand);
@@ -1666,8 +1686,8 @@ namespace Components.Aphid.Interpreter
         {
             var collection = InterpretExpression(expression.Collection) as AphidObject;
             var elements = collection.Value as IEnumerable;
-            
-            var elementId = expression.Element != null ? 
+
+            var elementId = expression.Element != null ?
                 (expression.Element as IdentifierExpression).Identifier :
                 null;
 
@@ -2132,7 +2152,7 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.PartialOperatorExpression:
                     var partialOpExp = (PartialOperatorExpression)expression;
-                    
+
                     return InterpretPartialOperatorExpression(partialOpExp);
 
                 case AphidExpressionType.ImplicitArgumentExpression:
