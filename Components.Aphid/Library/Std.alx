@@ -3,6 +3,7 @@
 #'List';
 #'Conversion';
 
+using System;
 print = Console.WriteLine;
 
 is = @(name, target) target.GetType().GetInterface(name) != null;
