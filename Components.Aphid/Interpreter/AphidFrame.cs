@@ -47,6 +47,11 @@ namespace Components.Aphid.Interpreter
 
         private string CreateObjectString(object value)
         {
+            if (value == null)
+            {
+                return "null";
+            }
+
             var aphidObj = value as AphidObject;
 
             if (aphidObj != null)
