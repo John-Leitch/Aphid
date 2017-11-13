@@ -44,6 +44,8 @@ namespace Components.Aphid.Interpreter
                         .ToArray()
                 })
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))
+                .OrderBy(x => x.Args.Count(y => y.TargetType == typeof(object)))
+                //.ThenByDescending(x => x.Args.Count(y => y.TargetType == typeof(object[])))
                 .Select(x => new AphidInteropMethodInfo(
                     x.Method,
                     x.ConversionInfo

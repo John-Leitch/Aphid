@@ -55,7 +55,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
     <Compile Include="Library\AphidSessionManager.cs" />
+    <Compile Include="Parser\AphidAttributeScanner.cs" />
     <Compile Include="Parser\AphidIdDirectiveMutator.cs" />
     <Compile Include="UI\AphidCli.cs" />
     <Compile Include="Compiler\AphidStringEmitter.cs" />

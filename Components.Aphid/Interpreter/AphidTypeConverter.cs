@@ -59,7 +59,7 @@ namespace Components.Aphid.Interpreter
 
             var canConvert =
                 valueType == targetType ? true :
-                value is decimal ? CanConvertDecimal(targetType) :
+                value is decimal ? CanConvertDecimal((decimal)value, targetType) :
                 valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
                 targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
                 false;
@@ -68,13 +68,59 @@ namespace Components.Aphid.Interpreter
                 
         }
 
-        public static bool CanConvertDecimal(Type targetType)
+        public static bool CanConvertDecimal(decimal value, Type targetType)
         {
+            if (targetType == typeof(byte) && (value < byte.MinValue || byte.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(ushort) && (value < ushort.MinValue || ushort.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(uint) && (value < uint.MinValue || uint.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(ulong) && (value < ulong.MinValue || ulong.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(sbyte) && (value < sbyte.MinValue || sbyte.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(short) && (value < short.MinValue || short.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(int) && (value < int.MinValue || int.MaxValue < value))
+            {
+                return false;
+            }
+            else if (targetType == typeof(long) && (value < long.MinValue || long.MaxValue < value))
+            {
+                return false;
+            }
+            //else if (targetType == typeof(float) && (value < float.MinValue || float.MaxValue < value))
+            //{
+            //    return false;
+            //}
+            //else if (targetType == typeof(double) && (value < double.MinValue || double.MaxValue < value))
+            //{
+            //    return false;
+            //}
+
             return _decimalTargetTypes.Contains(targetType);
         }
 
         public static bool CanConvertArray(object value, Type valueType, Type targetType)
         {
+            if (valueType == typeof(string) && targetType != typeof(char[]))
+            {
+                return false;
+            }
+
             var valueCollection = value as IEnumerable;
 
             if (valueCollection == null)
@@ -97,9 +143,6 @@ namespace Components.Aphid.Interpreter
                 return valueElementTypes[0] == targetElementType ||
                     valueElementTypes[0].IsDerivedFromOrImplements(targetElementType, new List<Type>());
             }
-            //Enumerable.ElementAt(value, 0);
-
-            
 
             return false;
         }

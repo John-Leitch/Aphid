@@ -29,6 +29,8 @@ namespace Components.Aphid.Interpreter
 
         private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
 
+        private AphidAssemblyBuilder _asmBuilder = new AphidAssemblyBuilder();
+
         private TextWriter _out = Console.Out;
 
         public TextWriter Out
@@ -886,16 +888,35 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
         {
-            var obj = new AphidObject();
-
-            foreach (var kvp in expression.Pairs)
+            if (expression.Identifier == null ||
+                expression.Identifier.Attributes == null ||
+                !expression.Identifier.Attributes.Any() ||
+                expression.Identifier.Attributes[0].Identifier != "class")
             {
-                var id = (kvp.LeftOperand as IdentifierExpression).Identifier;
-                var value = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
-                obj.Add(id, value);
-            }
+                var obj = new AphidObject();
 
-            return obj;
+                foreach (var kvp in expression.Pairs)
+                {
+                    var id = (kvp.LeftOperand as IdentifierExpression).Identifier;
+                    var value = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
+                    obj.Add(id, value);
+                }
+
+                return obj;
+            }
+            else
+            {
+                //if (!expression.IsStatement())
+                //{
+                //    throw new AphidRuntimeException(
+                //        "Class declaration '{0}' must be statement.",
+                //        expression.Identifier.Identifier);
+                //}
+
+                var t = _asmBuilder.CreateType(expression, GetImports());
+
+                return new AphidObject(t); ;
+            }
         }
 
         private AphidObject InterpretIdentifierExpression(IdentifierExpression expression)
