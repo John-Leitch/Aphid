@@ -1,0 +1,43 @@
+﻿using System;
+using Components.Aphid.Lexer;
+using Components.Aphid.Parser;
+using Components.Aphid.Interpreter;
+
+ast = {
+    nodeIs: @(type, node) node.Type == type,
+    isId: @(node) node @ast.nodeIs(
+        AphidExpressionType.IdentifierExpression),
+    
+    attrs: @(node) {
+        if (!(node |> ast.isId))
+        {
+            print('ast.attrs expects id node');
+            
+            ret null;
+        }
+
+        ret node.Attributes->@.Identifier;
+    },
+
+    depth: 0,
+    indent: @() ' ' * ast.depth * 2,
+    walk: @(visit, node, context) {
+        c = context defined ? context : {};
+        c.isRoot = ast.depth == 0;
+        c.isBlock = node @is('IEnumerable');
+        c.hasChildren = node @has('GetChildren');
+        c.isHandled = false;
+        visit(node, c);
+        next = @(node) ast.walk(visit, node, c);
+
+        if (c.isHandled) ret null;
+        
+        if (c.isBlock) {
+            ast.depth++;
+            node->next;
+            ast.depth--;
+        } else if (c.hasChildren) {  
+            node.GetChildren() |> next;
+        }
+    }
+};

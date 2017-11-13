@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Library;
+using Components.Aphid.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,20 @@ namespace Components.Aphid.Interpreter
     {
         private AphidSerializer _serializer = new AphidSerializer();
 
+        public AphidExpression Expression { get; set; }
+
         public string Name { get; set; }
 
         public IEnumerable<object> Arguments { get; private set; }
 
-        public AphidFrame(string name)
-            : this(name, new object[0])
+        public AphidFrame(AphidExpression expression, string name)
+            : this(expression, name, new object[0])
         {
         }
 
-        public AphidFrame(string name, IEnumerable<object> arguments)
+        public AphidFrame(AphidExpression expression, string name, IEnumerable<object> arguments)
         {
+            Expression = expression;
             Name = name;
             Arguments = arguments;
         }

@@ -3,3 +3,39 @@
 #'List';
 #'Conversion';
 
+print = Console.WriteLine;
+
+is = @(name, target) target.GetType().GetInterface(name) != null;
+has = @(name, target)
+    target.GetType().GetMethod(name) != null ||
+    target.GetType().GetProperty(name) != null;
+_dump = macro(@(m) { @() $_.GetType().m()->print });
+dumpMembers = _dump(GetMembers);
+dumpProps = _dump(GetProperties);
+dumpMethods = _dump(GetMethods);
+
+parseFunc = @(code) {
+    using Components.Aphid.Parser;
+    f = @{ };
+    f.Body.Clear();
+    AphidParser.Parse(code, false)->f.Body.Add;
+    
+    ret f;
+};
+
+evalBlock = @(code) parsefunc(code)();
+evalExp = @(code) parsefunc('ret ' + code)();
+
+getEnum = @(name) ('ret ' + name + '.GetType() |> Enum.GetValues' |> parseFunc)();
+getFullNames = @(name) this.{'$imports'}->@+('.' + name);
+
+_callExp = macro(@(i){ this.{'$frames'}[i].Expression });
+getCall = @() _callExp(1);
+getArgs = @() _callExp(1).Args;
+getArg = @(i) _callExp(1).Args[i];
+getIdArg = @(i) _callExp(1).Args[i].Identifier;
+
+typeof = @(name){
+    t = (getIdArg(0) |> getFullNames)->Type.GetType-?@!= null;
+    ret t.Count == 1 ? t[0] : null;
+};

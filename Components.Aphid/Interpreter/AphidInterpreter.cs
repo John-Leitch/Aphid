@@ -18,13 +18,14 @@ namespace Components.Aphid.Interpreter
             _return = "$r",
             _imports = "$imports",
             _implicitArg = "$_",
-            _implicitArgs = "$args";
+            _implicitArgs = "$args",
+            _framesKey = "$frames";
 
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
 
         private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
         { 
-            new AphidFrame("[Entrypoint]"),
+            new AphidFrame(null, "[Entrypoint]"),
         });
 
         private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
@@ -62,15 +63,14 @@ namespace Components.Aphid.Interpreter
         public AphidInterpreter(bool createLoader = true)
         {
             _createLoader = createLoader;
-            Init();
-
             _currentScope = new AphidObject();
+            Init();            
         }
 
         public AphidInterpreter(AphidObject currentScope)
         {
-            Init();
             _currentScope = currentScope;
+            Init();
         }
 
         private void Init()
@@ -79,6 +79,8 @@ namespace Components.Aphid.Interpreter
             {
                 _loader = new AphidLoader(this);
             }
+
+            _currentScope.Add(_framesKey, new AphidObject(_frames));
         }
 
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)
@@ -629,7 +631,8 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Select(x => ValueHelper.Wrap(
-                            InterpretCallExpression(
+                            InterpretFunctionExpression(
+                                expression,
                                 expression.RightOperand,
                                 func,
                                 new[] { x })))
@@ -642,7 +645,8 @@ namespace Components.Aphid.Interpreter
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .SelectMany(x =>
                             (IEnumerable<object>)(ValueHelper.Unwrap(
-                                InterpretCallExpression(
+                                InterpretFunctionExpression(
+                                    expression,
                                     expression.RightOperand,
                                     func,
                                     new[] { x }))))
@@ -656,7 +660,8 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Aggregate((x, y) => ValueHelper.Wrap(
-                            InterpretCallExpression(
+                            InterpretFunctionExpression(
+                                expression,
                                 expression.RightOperand,
                                 func,
                                 new[] { x, y })));
@@ -667,7 +672,8 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Any(x => (bool)ValueHelper.Unwrap(
-                            InterpretCallExpression(
+                            InterpretFunctionExpression(
+                                expression,
                                 expression.RightOperand,
                                 func,
                                 new[] { x })));
@@ -678,7 +684,8 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .Unwrap(InterpretExpression(expression.LeftOperand)))
                         .Where(x => (bool)ValueHelper.Unwrap(
-                            InterpretCallExpression(
+                            InterpretFunctionExpression(
+                                expression,
                                 expression.RightOperand,
                                 func,
                                 new[] { x })))
@@ -1130,10 +1137,11 @@ namespace Components.Aphid.Interpreter
 
             var value = InterpretExpression(expression.FunctionExpression);
             object funcExp = ValueHelper.Unwrap(value);
-            return InterpretCallExpression(expression.FunctionExpression, funcExp, args);
+            return InterpretFunctionExpression(expression, expression.FunctionExpression, funcExp, args);
         }
 
-        private AphidObject InterpretCallExpression(
+        private AphidObject InterpretFunctionExpression(
+            AphidExpression callExpression,
             AphidExpression expression,
             object funcExp,
             object[] args)
@@ -1146,7 +1154,7 @@ namespace Components.Aphid.Interpreter
                     args.Select(ValueHelper.Unwrap).ToArray() :
                     args;
 
-                PushFrame(expression, interopArgs);
+                PushFrame(callExpression, expression, interopArgs);
                 var retVal = ValueHelper.Wrap(func.Invoke(this, interopArgs)); ;
                 PopFrame();
 
@@ -1159,6 +1167,8 @@ namespace Components.Aphid.Interpreter
             if (interopMembers != null)
             {
                 return InterpretInteropCallExpression(
+                    callExpression,
+                    expression,
                     args.Select(ValueHelper.DeepUnwrap).ToArray(),
                     interopMembers);
             }
@@ -1170,6 +1180,8 @@ namespace Components.Aphid.Interpreter
                 var curArgs = args.Select(ValueHelper.DeepUnwrap).ToArray();
 
                 return InterpretInteropCallExpression(
+                    callExpression,
+                    expression,
                     interopPartial.Applied
                         .Concat(curArgs)
                         .ToArray(),
@@ -1180,7 +1192,7 @@ namespace Components.Aphid.Interpreter
 
             if (func2 != null)
             {
-                PushFrame(expression, args);
+                PushFrame(callExpression, expression, args);
                 var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
                 PopFrame();
 
@@ -1191,12 +1203,14 @@ namespace Components.Aphid.Interpreter
 
             if (composition != null)
             {
-                var retVal = InterpretCallExpression(
+                var retVal = InterpretFunctionExpression(
+                    callExpression,
                     composition.LeftExpression,
                     composition.LeftFunction,
                     args);
 
-                return InterpretCallExpression(
+                return InterpretFunctionExpression(
+                    callExpression,
                     composition.RightExpression,
                     composition.RightFunction,
                     new[] { retVal });
@@ -1217,18 +1231,21 @@ namespace Components.Aphid.Interpreter
                 "$args cannot be used outside of function.");
         }
 
-        private void PushFrame(AphidExpression function, IEnumerable<object> args)
+        private void PushFrame(
+            AphidExpression callExpression,
+            AphidExpression functionExpression,
+            IEnumerable<object> args)
         {
-            var name = function.Type == AphidExpressionType.IdentifierExpression ?
-                ((IdentifierExpression)function).Identifier :
+            var name = functionExpression.Type == AphidExpressionType.IdentifierExpression ?
+                ((IdentifierExpression)functionExpression).Identifier :
                 "[Anonymous]";
 
-            PushFrame(name, args);
+            PushFrame(callExpression, name, args);
         }
 
-        private void PushFrame(string name, IEnumerable<object> args)
+        private void PushFrame(AphidExpression callExpression, string name, IEnumerable<object> args)
         {
-            _frames.Push(new AphidFrame(name, args));
+            _frames.Push(new AphidFrame(callExpression, name, args));
         }
 
         private void PopFrame()
@@ -1237,6 +1254,8 @@ namespace Components.Aphid.Interpreter
         }
 
         private AphidObject InterpretInteropCallExpression(
+            AphidExpression callExpression,
+            AphidExpression expression,
             object[] arguments,
             AphidInteropMember interopMembers)
         {
@@ -1251,6 +1270,7 @@ namespace Components.Aphid.Interpreter
             var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
 
             PushFrame(
+                callExpression,
                 string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name),
                 convertedArgs);
 
