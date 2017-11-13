@@ -30,6 +30,8 @@ namespace Components.Aphid.Tests.Integration
                 includes += "#'Reflection'; ";
             }
 
+            includes += "using System; ";
+
             return includes + script;
         }
 
