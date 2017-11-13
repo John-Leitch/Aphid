@@ -62,6 +62,9 @@
     <None Include="InteropExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestLoop.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TextDocumentExample.alxt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

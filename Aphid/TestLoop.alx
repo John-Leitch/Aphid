@@ -1,0 +1,42 @@
+﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Diagnostics;
+#'Std';
+#'Query';
+aq.empty = @(l) l.Count == 0;
+print = Console.WriteLine;
+args = Environment.GetCommandLineArgs() @aq.skip(2);
+
+
+
+if (args |> aq.empty) {
+    print('Aphid Test.alx [script] [directory]');
+    Environment.Exit(1);
+} else if (args.Count != 2) {
+    print('Invalid args');
+    Environment.Exit(2);
+}
+
+args for print($_);
+
+w = new FileSystemWatcher();
+_n = macro(@(f) { NotifyFilters.f });
+w.NotifyFilter = _n(LastWrite);
+w.Filter = "*";
+w.Path = args[1];
+w.EnableRaisingEvents = true;
+print('Waiting for change');
+
+exe = Assembly.GetEntryAssembly().Location;
+while (true) {
+    
+    si = new ProcessStartInfo(exe, args[0]);
+    si.UseShellExecute = false;
+    Process.Start(si).WaitForExit();
+
+    w.WaitForChanged(WatcherChangeTypes.All).Name @print("'{0}' changed");
+    
+}
+
+print('Done');
