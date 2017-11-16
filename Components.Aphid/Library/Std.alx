@@ -15,19 +15,23 @@ dumpMembers = _dump(GetMembers);
 dumpProps = _dump(GetProperties);
 dumpMethods = _dump(GetMethods);
 
+using Components.Aphid.Parser;
+
+parse = @(code) AphidParser.Parse(code, false);
+parseExp = @(exp) parse(exp)[0];
+
 parseFunc = @(code) {
-    using Components.Aphid.Parser;
     f = @{ };
     f.Body.Clear();
-    AphidParser.Parse(code, false)->f.Body.Add;
+    (code |> parse)->f.Body.Add;
     
     ret f;
 };
 
-evalBlock = @(code) parsefunc(code)();
-evalExp = @(code) parsefunc('ret ' + code)();
+evalBlock = @(code) parseFunc(code)();
+evalExp = @(code) parseFunc('ret ' + code)();
 
-getEnum = @(name) ('ret ' + name + '.GetType() |> Enum.GetValues' |> parseFunc)();
+getEnums = @(name) 0 |> getIdArg |> typeof |> Enum.GetValues;
 getFullNames = @(name) this.{'$imports'}->@+('.' + name);
 
 _callExp = macro(@(i){ this.{'$frames'}[i].Expression });
@@ -37,6 +41,7 @@ getArg = @(i) _callExp(1).Args[i];
 getIdArg = @(i) _callExp(1).Args[i].Identifier;
 
 typeof = @(name){
-    t = (getIdArg(0) |> getFullNames)->Type.GetType-?@!= null;
+    n = name == null ? getIdArg(0) : name;
+    t = (n |> getFullNames)->Type.GetType-?@!= null;
     ret t.Count == 1 ? t[0] : null;
 };
