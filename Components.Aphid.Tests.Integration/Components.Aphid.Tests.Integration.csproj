@@ -49,6 +49,7 @@
     <Compile Include="AphidObjectTests.cs" />
     <Compile Include="AphidTests.cs" />
     <Compile Include="AssignmentTests.cs" />
+    <Compile Include="ClassTests.cs" />
     <Compile Include="TypeCoercionTests.cs" />
     <Compile Include="StatementModifierTests.cs" />
     <Compile Include="IdDirectiveTests.cs" />
