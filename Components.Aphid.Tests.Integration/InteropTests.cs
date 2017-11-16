@@ -63,7 +63,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo(@"
                 x=['f','o'];
-                ret %%string.Format('{0}o{1}', x[0], x[1]);
+                ret string.Format('{0}o{1}', x[0], x[1]);
             ");
         }
 
@@ -72,7 +72,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                sqrt = %%Math.Sqrt;
+                sqrt = Math.Sqrt;
                 ret sqrt(81);
             ");
         }
@@ -82,7 +82,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                sqrt = %%Math.Sqrt;
+                sqrt = Math.Sqrt;
                 ret 81 |> sqrt;
             ");
         }
@@ -92,7 +92,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                math = { sqrt: %%Math.Sqrt };
+                math = { sqrt: Math.Sqrt };
                 ret math.sqrt(81);
             ");
         }
@@ -102,7 +102,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                math = { sqrt: %%Math.Sqrt };
+                math = { sqrt: Math.Sqrt };
                 ret 81 |> math.sqrt;
             ");
         }
@@ -121,7 +121,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                ret 81 |> %%Math.Sqrt;
+                ret 81 |> Math.Sqrt;
             ");
         }
 
@@ -130,7 +130,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                ret (%%Math.Sqrt)(81);
+                ret (Math.Sqrt)(81);
             ");
         }
 
@@ -139,7 +139,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = %%Math.Pow;
+                pow = Math.Pow;
                 ret 2 @pow(3);
             ");
         }
@@ -149,7 +149,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = %%Math.Pow;
+                pow = Math.Pow;
                 ret 2 |> @pow(3);
             ");
         }
@@ -159,7 +159,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = %%Math.Pow;
+                pow = Math.Pow;
                 ret (@pow(3))(2);
             ");
         }
@@ -169,7 +169,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = %%Math.Pow;
+                pow = Math.Pow;
                 f = @pow(3);
                 ret f(2); 
             ");
@@ -180,7 +180,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = %%Math.Pow;
+                pow = Math.Pow;
                 f = @pow(3);
                 ret 2 |> f; 
             ");
@@ -246,11 +246,11 @@ namespace Components.Aphid.Tests.Integration
                 w = new StreamWriter(s);
                 w.Write('foo');
                 w.Flush();
-                %%Console.WriteLine('Stream position: {0}', s.Position);
+                Console.WriteLine('Stream position: {0}', s.Position);
                 s.Position = 0;
                 r = new StreamReader(s);
                 v = r.ReadToEnd();
-                %%Console.WriteLine('Value: {0}', v);
+                Console.WriteLine('Value: {0}', v);
 
                 ret v;
             ");
@@ -301,7 +301,7 @@ namespace Components.Aphid.Tests.Integration
             Assert9(@"
                 using System.Linq;
 
-                ret %%Enumerable.Range(0, 9) %%Enumerable.Count;
+                ret Enumerable.Range(0, 9) |> Enumerable.Count;
             ");
         }
 
@@ -311,7 +311,7 @@ namespace Components.Aphid.Tests.Integration
             Assert9(@"
                 using System.Linq;
 
-                ret %%Enumerable.Range(0, 10) %%Enumerable.Last;
+                ret Enumerable.Range(0, 10) |> Enumerable.Last;
             ");
         }
 
@@ -321,7 +321,7 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo(@"
                 using System.Linq;
 
-                ret [ 'foo', 'bar', 'a', 'b' ] %%Enumerable.First;
+                ret [ 'foo', 'bar', 'a', 'b' ] |> Enumerable.First;
             ");
         }
         
@@ -331,7 +331,7 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo(@"
                 using System.Linq;
 
-                ret [ 'bar', 'a', 'b', 'foo' ] %%Enumerable.Last;
+                ret [ 'bar', 'a', 'b', 'foo' ] |> Enumerable.Last;
             ");
         }
 
@@ -341,8 +341,8 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo(@"
                 using System.Linq;
                 
-                ret %%Enumerable.Skip([ 'bar', 'a', 'foo', 'b' ], 2)
-                    %%Enumerable.First;
+                ret Enumerable.Skip([ 'bar', 'a', 'foo', 'b' ], 2)
+                    |> Enumerable.First;
             ");
         }
 
@@ -352,8 +352,8 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo(@"
                 using System.Linq;
                 
-                ret %%Enumerable.Take([ 'bar', 'a', 'foo', 'b' ], 3)
-                    %%Enumerable.Last;
+                ret Enumerable.Take([ 'bar', 'a', 'foo', 'b' ], 3)
+                    |> Enumerable.Last;
             ");
         }
 
@@ -363,8 +363,8 @@ namespace Components.Aphid.Tests.Integration
             Assert9(@"
                 using System.Linq;
                 
-                ret %%Enumerable.Skip([ 0, 1, 9, 10 ], 2)
-                    %%Enumerable.First;
+                ret Enumerable.Skip([ 0, 1, 9, 10 ], 2)
+                    |> Enumerable.First;
             ");
         }
 
@@ -374,8 +374,8 @@ namespace Components.Aphid.Tests.Integration
             Assert9(@"
                 using System.Linq;
                 
-                ret %%Enumerable.Take([ 0, 1, 9, 10 ], 3)
-                    %%Enumerable.Last;
+                ret Enumerable.Take([ 0, 1, 9, 10 ], 3)
+                    |> Enumerable.Last;
             ");
         }
     }
