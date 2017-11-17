@@ -80,7 +80,10 @@ namespace Components.Aphid.Interpreter
                 _loader = new AphidLoader(this);
             }
 
-            _currentScope.Add(_framesKey, new AphidObject(_frames));
+            if (!_currentScope.ContainsKey(_framesKey))
+            {
+                _currentScope.Add(_framesKey, new AphidObject(_frames));
+            }
         }
 
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)
