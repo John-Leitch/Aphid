@@ -8,42 +8,36 @@ print = Console.WriteLine;
 cls = Console.Clear;
 exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
+fatal = @{
+    f = $args[0];
+    a = $args @aq.skip(1);
+    print('Fatal error: ' + f, a);
+    Environment.Exit(0);
+};
+
 is = @(name, target) target.GetType().GetInterface(name) != null;
+
 has = @(name, target)
     target.GetType().GetMethod(name) != null ||
     target.GetType().GetProperty(name) != null;
-_dump = macro(@(m) { @() $_.GetType().m()->print });
-dumpMembers = _dump(GetMembers);
-dumpProps = _dump(GetProperties);
-dumpMethods = _dump(GetMethods);
 
-using Components.Aphid.Parser;
 
-parse = @(code) AphidParser.Parse(code, false);
-parseExp = @(exp) parse(exp)[0];
+_get = macro(@(m) { $_.GetType().m() });
 
-parseFunc = @(code) {
-    f = @{ };
-    f.Body.Clear();
-    (code |> parse)->f.Body.Add;
-    
-    ret f;
-};
+_dump = macro(@(m) {
+    id(get, m) = @() _get(id(Get, m));
+    id(dump, m) = @() ($_ |> id(get, m))->print
+});
 
-evalBlock = @(code) parseFunc(code)();
-evalExp = @(code) parseFunc('ret ' + code)();
+_dump(Members);
+_dump(Properties);
+_dump(Methods);
 
-getEnums = @(name) 0 |> getIdArg |> typeof |> Enum.GetValues;
-getFullNames = @(name) this.{'$imports'}->@+('.' + name);
+_alias = macro(@(n, n2) {
+    id(get, n) = id(get, n2);
+    id(dump, n) = id(dump, n2);
+});
 
-_callExp = macro(@(i){ this.{'$frames'}[i].Expression });
-getCall = @() _callExp(1);
-getArgs = @() _callExp(1).Args;
-getArg = @(i) _callExp(1).Args[i];
-getIdArg = @(i) _callExp(1).Args[i].Identifier;
+_alias(Props, Properties);
+_alias(Funcs, Methods);
 
-typeof = @(name){
-    n = name == null ? getIdArg(0) : name;
-    t = (n |> getFullNames)->Type.GetType-?@!= null;
-    ret t.Count == 1 ? t[0] : null;
-};

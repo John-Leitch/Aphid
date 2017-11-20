@@ -3,7 +3,17 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Interpreter;
 
+_op = macro(@(op){ @{ op; } });
+_ad = macro(@(op){ @{ code.indent = op * code.tab; } });
+
 ast = {
+    op: @() $_.Operator,
+    isOp: @(op, node) node.Operator == op,
+    isRet: @() $_.Type == nodeType.unOp && ast.isOp(token.return, $_),
+    lhs: @(node) node.LeftOperand,
+    rhs: @(node) node.RightOperand,
+    attr: @(node) node.Attributes[0],
+
     nodeIs: @(type, node) node.Type == type,
     isId: @(node) node @ast.nodeIs(
         AphidExpressionType.IdentifierExpression),
@@ -40,4 +50,23 @@ ast = {
             node.GetChildren() |> next;
         }
     }
+};
+
+nodeType = { };
+
+@{
+    id Identifier;
+    unOp UnaryOperator;
+    binOp BinaryOperator;
+    str String;
+    call Call;
+}.Body->@{
+    nodeType.{$_.Attributes[0]} = 
+        $_
+        @String.Format('AphidExpressionType.{0}Expression')
+        evalExp
+};
+
+token = {
+    return: AphidTokenType.retKeyword
 };
