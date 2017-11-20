@@ -1,0 +1,87 @@
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+#'Threading';
+
+utf8 = new UTF8Encoding();
+
+_client = macro(@(client){
+    {
+        socket: client,
+        stream: client.GetStream(),
+        
+        
+        read: @{
+            reader = new BinaryReader(client.GetStream());
+            len = reader.ReadUInt32();
+            print('{0} bytes received', len);
+            buf = len |> Convert.ToInt32 |> reader.ReadBytes |> utf8.GetString;
+            ret new AphidObject(buf);
+        },
+
+        write: @(b) {
+            writer = new BinaryWriter(client.GetStream());
+            b.Length |> Convert.ToUInt32 |> writer.Write;
+            b |> utf8.GetBytes |> writer.Write;
+        },
+    }
+});
+
+_isAlive = macro(@(client) { client.Connected });
+
+remote = {
+    port: 0x5230,
+
+    listen: @{
+        print('Creating listener on port {0}', remote.port);
+
+        ctx = {
+            listener: new TcpListener(remote.port),
+            clients: [],
+        };
+        
+        print('Starting listener');
+        l = ctx.listener;
+        l.Start();
+
+        ctx.listenThread = thread(@{
+            while (true) {
+                print('Waiting for client');
+                c = l.AcceptTcpClient();                
+                print('Client connected');
+                n = _client(c);
+
+                n.thread = thread(@{
+                    print('Client thread');
+                    buffer = n.read();
+                    print('Buffer: {0}', buffer);
+                    { result: buffer |> eval } |> serialize |> n.write;
+                });
+
+                ctx.clients.add(n);
+            }            
+        });
+
+        ret ctx;
+    },
+
+    connect: @(server){
+        print('Connecting to remote session {0}', server);
+        c = new TcpClient();
+        c.Connect(server, 0x5230);        
+        client = _client(c);
+
+        client.eval = @(exp) {
+            client.write(exp);
+            buf = client.read();
+            print('Server response: {0}', buf);
+            ret buf |> deserialize;
+        };
+
+        print('Connected to remote session');
+
+        ret client;
+    },
+};
