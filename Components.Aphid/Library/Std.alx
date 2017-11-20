@@ -5,6 +5,8 @@
 
 using System;
 print = Console.WriteLine;
+cls = Console.Clear;
+exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
 is = @(name, target) target.GetType().GetInterface(name) != null;
 has = @(name, target)
