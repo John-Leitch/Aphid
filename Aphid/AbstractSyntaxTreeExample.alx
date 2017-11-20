@@ -1,0 +1,30 @@
+﻿#'Std';
+#'Dynamic';
+#'Ast';
+
+someFunc = @{
+    using System;
+    using System.IO;
+
+    // A child function
+    someChildFunc = @(foo, bar) {
+        print('Hello world');
+    };
+
+    // A custom binary operator
+    using System.Text.RegularExpressions;
+    @~? (x, y) y @Regex.IsMatch(x);
+
+    // Custom operator usage
+    'well hello world' ~? 'he[a-z]+' |> print;
+};
+
+// Dump someFunc AST
+someFunc.Body @ast.walk(@(node, context) {
+    if (context.isRoot) {
+        print('Root');
+    } else if (!context.isBlock) {
+        (node |> getProps) -> (@.Name) +> (@+ ', ' + $args[1])
+        @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
+    }
+});
