@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Library.Net.Http;
 using Components.External.ConsolePlus;
 using System;
 using System.IO;
@@ -11,7 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 
-namespace Components.Aphid.Library
+namespace Components.Aphid.Library.Net
 {
     public class HttpServer
     {

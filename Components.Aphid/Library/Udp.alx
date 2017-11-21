@@ -2,7 +2,7 @@
 udp;
 
 @(){
-	##'Components.Aphid.Library.UdpLibrary';
+	##'Components.Aphid.Library.Net.UdpLibrary';
 	##'Components.Aphid.Library.StreamLibrary';	
 	udp = {
 		create: @() {

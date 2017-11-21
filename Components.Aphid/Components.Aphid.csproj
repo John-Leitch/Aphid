@@ -56,7 +56,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
-    <Compile Include="Library\AphidSessionManager.cs" />
+    <Compile Include="Library\Net\Http\AphidRequest.cs" />
+    <Compile Include="Library\Net\Http\AphidSessionManager.cs" />
+    <Compile Include="Library\Net\Http\AphidUpload.cs" />
+    <Compile Include="Library\Net\Datagram.cs" />
+    <Compile Include="Library\Net\Http\HttpLibrary.cs" />
+    <Compile Include="Library\Net\Http\ChunkedTransferEncoding.cs" />
+    <Compile Include="Library\Net\Http\ContentDisposition.cs" />
+    <Compile Include="Library\Net\Http\FieldValuePair.cs" />
+    <Compile Include="Library\Net\Http\FormData.cs" />
+    <Compile Include="Library\Net\Http\FormUrlEncoder.cs" />
+    <Compile Include="Library\Net\Http\HttpClient.cs" />
+    <Compile Include="Library\Net\Http\HttpConnection.cs" />
+    <Compile Include="Library\Net\Http\HttpField.cs" />
+    <Compile Include="Library\Net\Http\HttpMessagePart.cs" />
+    <Compile Include="Library\Net\Http\HttpMethod.cs" />
+    <Compile Include="Library\Net\Http\HttpRequest.cs" />
+    <Compile Include="Library\Net\Http\HttpResponse.cs" />
+    <Compile Include="Library\Net\Http\HttpUpload.cs" />
+    <Compile Include="Library\Net\Http\HttpVersion.cs" />
+    <Compile Include="Library\Net\Http\MimeType.cs" />
     <Compile Include="Parser\AphidAttributeScanner.cs" />
     <Compile Include="Parser\AphidIdDirectiveMutator.cs" />
     <Compile Include="UI\AphidCli.cs" />
@@ -106,10 +125,10 @@
     <Compile Include="Lexer\TokenHelper.cs" />
     <Compile Include="Library\AphidByteConverter.cs" />
     <Compile Include="Library\AphidSerializer.cs" />
-    <Compile Include="Library\HttpServer.cs" />
-    <Compile Include="Library\UdpLibrary.cs" />
+    <Compile Include="Library\Net\Http\HttpServer.cs" />
+    <Compile Include="Library\Net\UdpLibrary.cs" />
     <Compile Include="Library\StreamLibrary.cs" />
-    <Compile Include="Library\TcpLibrary.cs" />
+    <Compile Include="Library\Net\TcpLibrary.cs" />
     <Compile Include="Library\DebugLibrary.cs" />
     <Compile Include="Library\EnvironmentLibrary.cs" />
     <Compile Include="Library\ExecOptions.cs" />
@@ -168,7 +187,10 @@
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Ast.alx">
+    <None Include="Library\Sandbox.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Remoting.alx">

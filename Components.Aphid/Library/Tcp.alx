@@ -1,7 +1,7 @@
 ﻿tcp;
 
 @(){
-	##'Components.Aphid.Library.TcpLibrary';
+	##'Components.Aphid.Library.Net.TcpLibrary';
 	##'Components.Aphid.Library.StreamLibrary';	
 	tcp = {
 		connect: @(host, port) {

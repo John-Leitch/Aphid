@@ -1,10 +1,66 @@
 ﻿using System;
 using Components.Aphid.Lexer;
-using Components.Aphid.Parser;
 using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
 
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
+
+getBlock = @() this.{'$parent'}.{'$block'};
+
+parse = @(code) AphidParser.Parse(code, false);
+parseExp = @(exp) parse(exp)[0];
+
+parseFunc = @(code) {
+    f = @{ };
+    f.Body.Clear();
+    (code |> parse)->f.Body.Add;
+    
+    ret f;
+};
+
+evalBlock = @(code) parseFunc(code)();
+evalExp = @(code) parseFunc('ret ' + code)();
+
+evalNode = @(node) {
+    templateFunc = @{ };
+    (ast.isRet($_) ? $_ : ast.makeRet($_)) |> templateFunc.Body.Add;
+    r = templateFunc();
+    templateFunc.Body.Clear();
+
+    ret r;
+};
+
+evalAst = @(ast) {
+    templateFunc = @{ };
+    ast->templateFunc.Body.Add;
+    r = templateFunc();
+    templateFunc.Body.Clear();
+
+    ret r;
+};
+
+_callExp = macro(@(i){ this.{'$frames'}[i].Expression });
+getCall = @() _callExp(1);
+getArgs = @() _callExp(1).Args;
+getArg = @(i) _callExp(1).Args[i];
+getIdArg = @(i) _callExp(1).Args[i].Identifier;
+idString = @() getArg(0);
+
+makeFluent = @(obj) {
+    n = getIdArg(0);
+    (obj |> reflection.members)
+    -> (@() obj.{$_})
+    -? (@has('Body'))
+    -> (@{
+        using System.Linq;
+        if (($_.Body.Count) == 0 ||
+            ($_.Body |> Enumerable.Last |> ast.isRet @== false))
+            'ret ' + n  |> parseExp |> $_.Body.Add;
+    });
+
+    ret obj;
+};
 
 ast = {
     op: @() $_.Operator,
@@ -31,6 +87,7 @@ ast = {
 
     depth: 0,
     indent: @() ' ' * ast.depth * 2,
+
     walk: @(visit, node, context) {
         c = context defined ? context : {};
         c.isRoot = ast.depth == 0;
@@ -49,7 +106,9 @@ ast = {
         } else if (c.hasChildren) {  
             node.GetChildren() |> next;
         }
-    }
+    },
+
+    makeRet = @(node) new UnaryOperatorExpression(token.return, node, false),
 };
 
 nodeType = { };

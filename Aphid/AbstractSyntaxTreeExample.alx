@@ -1,6 +1,5 @@
 ﻿#'Std';
-#'Dynamic';
-#'Ast';
+#'Meta';
 
 someFunc = @{
     using System;

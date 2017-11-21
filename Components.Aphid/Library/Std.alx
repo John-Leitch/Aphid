@@ -1,9 +1,19 @@
-﻿##'Components.Aphid.Library.StandardLibrary';
+﻿using System;
+##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
 #'Conversion';
 
-using System;
+byte = Convert.ToByte;
+uint = Convert.ToUInt32;
+ulong = Convert.ToUInt64;
+sbyte = Convert.ToSByte;
+int = Convert.ToInt32;
+long = Convert.ToInt64;
+float = Convert.ToSingle;
+double = Convert.ToDouble;
+decimal = Convert.ToDecimal;
+
 print = Console.WriteLine;
 cls = Console.Clear;
 exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
@@ -41,3 +51,15 @@ _alias = macro(@(n, n2) {
 _alias(Props, Properties);
 _alias(Funcs, Methods);
 
+getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
+getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
+
+getEnums = @(name) 0 |> getIdArg |> typeof |> Enum.GetValues;
+
+getFullNames = @(name) this.{'$imports'}->@+('.' + name);
+
+typeof = @(name){
+    n = name == null ? getIdArg(0) : name;
+    t = (n |> getFullNames)->Type.GetType-?@!= null;
+    ret t.Count == 1 ? t[0] : null;
+};

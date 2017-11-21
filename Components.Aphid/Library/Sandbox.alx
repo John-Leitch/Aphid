@@ -1,0 +1,61 @@
+﻿#'Std';
+#'Query';
+#'Meta';
+using System.IO;
+using System.Reflection;
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+
+sandbox = {};
+sandbox.exec = @(userScript) {
+    sandboxRoot = Assembly.GetExecutingAssembly().Location |> Path.GetDirectoryName;
+    sandboxRoot = 'c:\\temp\\untrusted';
+    sandboxDir = Path.Combine(sandboxRoot, 'Sandbox', Guid.NewGuid().ToString());
+    getSandboxPath = @() $args |> Path.Combine @Path.Combine(sandboxDir);    
+    sandboxExe = 'Aphid.exe' |> getSandboxPath;
+    
+    aq.concat(
+        [ 'Aphid.exe', 'Components.Aphid.dll', userScript ]->getEntryPath,
+        [ 'Library' ]->getEntryPath-<Directory.GetFiles)
+    ->(@() [ $_, $_.Substring(getEntryDir().Length + 1) |> getSandboxPath ])
+    ->(@(x) {
+        x[1] |> Path.GetDirectoryName |> Directory.CreateDirectory;
+        File.Copy(x[0], x[1]);
+    });
+
+    ps = new PermissionSet(PermissionState.None);
+
+    [ 
+        new SecurityPermission(SecurityPermissionFlag.Execution),
+        new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess),
+        new FileIOPermission(FileIOPermissionAccess.AllAccess, sandboxDir),
+        new EnvironmentPermission(PermissionState.Unrestricted),
+        new UIPermission(PermissionState.Unrestricted),
+    ]->ps.AddPermission;
+
+    ads = new AppDomainSetup();
+    ads.ApplicationBase = sandboxDir;
+
+    ad = AppDomain.CreateDomain(
+        'Sandbox',
+        new Evidence([ new Zone(SecurityZone.Internet) ], []),
+        ads,
+        ps,
+        []);
+
+    oldCwd = Directory.GetCurrentDirectory();
+    sandboxDir |> Directory.SetCurrentDirectory;
+    ad.ExecuteAssembly(sandboxExe, [ userScript ]);
+    ad |> AppDomain.Unload;
+    oldCwd |> Directory.SetCurrentDirectory;
+    Directory.Delete(sandboxDir, true);
+};
+
+sandbox.eval = @(code) {
+    tmp = Guid.NewGuid().ToString() @String.Format("Sandboxed_{0}.alx");
+    tmpFull = tmp |> getEntryPath;
+    File.WriteAllText(tmpFull, code);    
+    tmp |> sandbox.exec;
+    File.Delete(tmpFull);
+};

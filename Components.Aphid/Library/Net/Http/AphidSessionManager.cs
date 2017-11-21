@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Library
+namespace Components.Aphid.Library.Net.Http
 {
     public class AphidSessionManager
     {

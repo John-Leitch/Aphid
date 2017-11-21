@@ -23,7 +23,23 @@
     },
 
     first: @(predicate, list) {
-        for (x in list) if (predicate(x)) ret x;
+        if ($args.Count == 2) {
+            for (x in list) if (predicate(x)) ret x;
+        } else {
+            for (x in predicate) ret x;
+        }
+    },
+
+    last: @(predicate, list) {
+        last = null;
+
+        if ($args.Count == 2) {
+            for (x in list) if (predicate(x)) last = x;
+        } else {
+            for (x in predicate) last = x;
+        }
+
+        ret last;
     },
 
     distinct: @(list) {
