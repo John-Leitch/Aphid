@@ -19,7 +19,9 @@ namespace Components.Aphid.Interpreter
             _imports = "$imports",
             _implicitArg = "$_",
             _implicitArgs = "$args",
-            _framesKey = "$frames";
+            _framesKey = "$frames",
+            _block = "$block",
+            _scope = "$scope";
 
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
 
@@ -64,12 +66,21 @@ namespace Components.Aphid.Interpreter
         {
             _createLoader = createLoader;
             _currentScope = new AphidObject();
+            _currentScope.Add(_scope, _currentScope);
             Init();            
         }
 
         public AphidInterpreter(AphidObject currentScope)
         {
             _currentScope = currentScope;
+
+            AphidObject scope;
+
+            if (!_currentScope.TryGetValue(_scope, out scope))
+            {
+                _currentScope.Add(_scope, _currentScope);
+            }
+
             Init();
         }
 
@@ -146,6 +157,7 @@ namespace Components.Aphid.Interpreter
         public void EnterChildScope()
         {
             _currentScope = new AphidObject(null, _currentScope);
+            _currentScope.Add(_scope, _currentScope);
         }
 
         public bool LeaveChildScope(bool bubbleReturnValue = false)
@@ -963,6 +975,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject CallFunctionCore(AphidFunction function, IEnumerable<AphidObject> parms)
         {
             var functionScope = new AphidObject(null, function.ParentScope);
+            functionScope.Add(_scope, functionScope);
             var i = 0;
             var argList = parms.ToList();
             functionScope[_implicitArgs] = new AphidObject(argList);
@@ -2217,6 +2230,17 @@ namespace Components.Aphid.Interpreter
 
         public void Interpret(List<AphidExpression> expressions, bool resetIsReturning = true)
         {
+            AphidObject document;
+
+            if (!_currentScope.TryGetValue(_block, out document))
+            {
+                _currentScope.Add(_block, new AphidObject(expressions));
+            }
+            else
+            {
+                document.Value = expressions;
+            }
+
             foreach (var expression in expressions)
             {
                 if (expression is IdentifierExpression)
