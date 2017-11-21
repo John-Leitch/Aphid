@@ -21,7 +21,8 @@ namespace Components.Aphid.Interpreter
             _implicitArgs = "$args",
             _framesKey = "$frames",
             _block = "$block",
-            _scope = "$scope";
+            _scope = "$scope",
+            _parent = "$parent";
 
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
 
@@ -67,6 +68,7 @@ namespace Components.Aphid.Interpreter
             _createLoader = createLoader;
             _currentScope = new AphidObject();
             _currentScope.Add(_scope, _currentScope);
+            _currentScope.Add(_parent, _currentScope.Parent);
             Init();            
         }
 
@@ -79,6 +81,7 @@ namespace Components.Aphid.Interpreter
             if (!_currentScope.TryGetValue(_scope, out scope))
             {
                 _currentScope.Add(_scope, _currentScope);
+                _currentScope.Add(_parent, _currentScope.Parent);
             }
 
             Init();
@@ -158,6 +161,7 @@ namespace Components.Aphid.Interpreter
         {
             _currentScope = new AphidObject(null, _currentScope);
             _currentScope.Add(_scope, _currentScope);
+            _currentScope.Add(_parent, _currentScope.Parent);
         }
 
         public bool LeaveChildScope(bool bubbleReturnValue = false)
@@ -974,7 +978,11 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject CallFunctionCore(AphidFunction function, IEnumerable<AphidObject> parms)
         {
-            var functionScope = new AphidObject(null, function.ParentScope);
+            var functionScope = new AphidObject(null, function.ParentScope)
+            {
+                { _parent, function.ParentScope }
+            };
+
             functionScope.Add(_scope, functionScope);
             var i = 0;
             var argList = parms.ToList();
@@ -2235,10 +2243,6 @@ namespace Components.Aphid.Interpreter
             if (!_currentScope.TryGetValue(_block, out document))
             {
                 _currentScope.Add(_block, new AphidObject(expressions));
-            }
-            else
-            {
-                document.Value = expressions;
             }
 
             foreach (var expression in expressions)
