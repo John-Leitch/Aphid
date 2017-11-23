@@ -42,3 +42,10 @@ createProgram = @(asmName, ilCallback) {
     ilCallback |> asm.createEntryPoint;
     asmName |> asm.save;
 };
+
+importOpcodes = @()
+    (OpCodes |> typeof)
+        .GetFields()
+        ->(@.Name)
+        ->(@(n) this.{'$parent'}.{'$parent'}.{n} =
+            n @String.Format('OpCodes.{0}') |> evalExp);
