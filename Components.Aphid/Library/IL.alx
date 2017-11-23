@@ -1,0 +1,44 @@
+﻿#'Std';
+#'Meta';
+using System.Reflection;
+using System.Reflection.Emit;
+
+createAsm = @(name) {
+    asm = AppDomain.CurrentDomain
+        .DefineDynamicAssembly(
+            new AssemblyName(name),
+            AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
+
+    module = name |> asm.DefineDynamicModule;
+
+    ret {
+        asm,
+        module,
+        setEntryPoint: asm.SetEntryPoint,
+        createEntryPoint: @(ilCallback) {
+            type = module.DefineType(
+                'Program',
+                TypeAttributes.Class | TypeAttributes.Public);
+
+            method = type.DefineMethod(
+                'Main',
+                MethodAttributes.HideBySig |
+                    MethodAttributes.Public |
+                    MethodAttributes.Static,
+                typeof(Void),
+                [ typeof(String).MakeArrayType() ]);
+
+            method.GetILGenerator() |> ilCallback;
+            type.CreateType();
+            method |> asm.SetEntryPoint;
+        },
+        save: asm.Save,
+        
+    };
+};
+
+createProgram = @(asmName, ilCallback) {
+    asm = asmName |> createAsm;
+    ilCallback |> asm.createEntryPoint;
+    asmName |> asm.save;
+};

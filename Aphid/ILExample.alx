@@ -1,0 +1,30 @@
+﻿#'Std';
+#'Meta';
+#'IL';
+using System.IO;
+using System.Diagnostics;
+cls();
+
+print('Creating module');
+asmName = 'foo.exe';
+
+if (asmName |> File.Exists) {
+    print('Removing old assembly');
+    asmName |> File.Delete;
+}
+
+@{
+    $_.Emit(OpCodes.Ldstr, 'hello world');
+
+    $_.Emit(
+        OpCodes.Call, 
+        typeof(Console).GetMethod('WriteLine', [ typeof(String) ]));
+
+    $_.Emit(OpCodes.Ret);
+}
+@createProgram(asmName);
+
+print('Starting process');
+si = new ProcessStartInfo(asmName);
+si.UseShellExecute = false;
+si |> Process.Start @() $_.WaitForExit();
