@@ -16,17 +16,21 @@ if (args.Count >= 1) {
     }
 }
 
-usage = 'MakeExe [script name] [exe name]';
+usage = 'MakeExe [script name] {exe name}';
 
 if (args.Count == 0) {
     print(usage);
     exit(0);
-} else if (args.Count != 2) {
+} else if (args.Count != 1 && args.Count != 2) {
     fatal('Invalid arguments, expected {0}', usage);
 }
 
 script = args[0];
-asmName = args[1];
+
+asmName = args.Count == 2 ?
+    args[1] :
+    Path.ChangeExtension(args[0], 'exe');
+
 print('Creating module {0} for {1}', asmName, script);
 aphid = AphidInterpreter |> typeof;
 asmType = Assembly |> typeof;
