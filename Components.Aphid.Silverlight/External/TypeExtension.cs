@@ -118,8 +118,10 @@ namespace Components.External
         public static bool IsDerivedFromOrImplements(this Type type, Type baseType, List<Type> genericArguments)
         {
             return
-                (baseType.IsInterface && type.GetInterfaces().Contains(baseType)) ||
-                (type.BaseType == baseType);
+                type == baseType ||
+                type.BaseType == baseType ||
+                baseType.IsInterface && type.GetInterfaces().Contains(baseType) ||
+                baseType.IsDerivedFromOrImplements(type.BaseType, new List<Type>());
         }
 
         public static bool IsDerivedFromOrImplements<TBaseType>(this Type type, List<Type> genericArguments)

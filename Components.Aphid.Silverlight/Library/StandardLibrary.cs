@@ -41,13 +41,11 @@ namespace Components.Aphid.Library
             return Encoding.GetBytes(value).Select(x => new AphidObject((decimal)x)).ToList();
         }
 
-#if !SILVERLIGHT
         [AphidInteropFunction("ascii.getString")]
         public static string GetBytes(List<AphidObject> bytes)
         {
-            return Encoding.GetString(bytes.Select(x => (byte)(decimal)x.Value).ToArray());
+            return Encoding.GetString(bytes.Select(x => (byte)(decimal)x.Value).ToArray(), 0, bytes.Count);
         }
-#endif
 
         [AphidInteropFunction("eval", PassInterpreter = true)]
         private static object Eval(AphidInterpreter interpreter, string code)
@@ -63,7 +61,7 @@ namespace Components.Aphid.Library
         public static string GetObjectType(object obj)
         {
             var n = obj.GetType().Name;
-            
+
             switch (n)
             {
                 case "List`1":
@@ -87,8 +85,8 @@ namespace Components.Aphid.Library
 
         [AphidInteropFunction("printf", PassInterpreter = true)]
         private static void PrintFormatted(
-            AphidInterpreter interpreter, 
-            string format, 
+            AphidInterpreter interpreter,
+            string format,
             params object[] args)
         {
             var s = string.Format(format + Environment.NewLine, args);
@@ -210,8 +208,8 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("__list.contains")]
         private static bool ListContains(List<AphidObject> list, object value)
         {
-            var s = list.Any (x => x.Value.Equals(value));
-            return  s;
+            var s = list.Any(x => x.Value.Equals(value));
+            return s;
         }
 
         [AphidInteropFunction("__list.insert", UnwrapParameters = false)]
@@ -227,8 +225,8 @@ namespace Components.Aphid.Library
         }
 
         private static List<AphidObject> ListOrder(
-            AphidInterpreter interpreter, 
-            AphidObject items, 
+            AphidInterpreter interpreter,
+            AphidObject items,
             AphidObject keySelector,
             Func<IEnumerable<AphidObject>, Func<AphidObject, object>, IOrderedEnumerable<AphidObject>> action)
         {
@@ -241,7 +239,7 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("__list.orderBy", PassInterpreter = true, UnwrapParameters = false)]
         private static List<AphidObject> ListOrderBy(AphidInterpreter interpreter, AphidObject items, AphidObject keySelector)
         {
-            return ListOrder(interpreter, items, keySelector, Enumerable.OrderBy);            
+            return ListOrder(interpreter, items, keySelector, Enumerable.OrderBy);
         }
 
         [AphidInteropFunction("__list.orderByDescending", PassInterpreter = true, UnwrapParameters = false)]
@@ -272,7 +270,7 @@ namespace Components.Aphid.Library
         private static string StringSubstring(AphidObject str, AphidObject index, AphidObject length)
         {
             var str2 = (string)str.Value;
-            return length == null || length.Value == null ? 
+            return length == null || length.Value == null ?
                 str2.Substring((int)(decimal)index.Value) :
                 str2.Substring((int)(decimal)index.Value, (int)(decimal)length.Value);
         }
@@ -293,7 +291,7 @@ namespace Components.Aphid.Library
         private static string StringTrim(string str)
         {
             return str.Trim();
-        }        
+        }
 
         [AphidInteropFunction("__string.split")]
         private static List<AphidObject> StringSplit(string str, object separator)

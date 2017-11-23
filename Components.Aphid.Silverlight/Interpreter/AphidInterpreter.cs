@@ -384,7 +384,7 @@ namespace Components.Aphid.Interpreter
 
                     if (!_currentScope.TryResolve(extKey, out val))
                     {
-                        return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
+                        return InterpretMemberInteropExpression(obj.Value ?? obj, expression, returnRef);
                     }
 
                     var function = ((AphidFunction)val.Value).Clone();
@@ -1367,12 +1367,19 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.newKeyword:
                         return InterpretInteropNewExpression(expression.Operand);
 
-#if !SILVERLIGHT
+
                     case AphidTokenType.loadKeyword:
                         path = FlattenAndJoinPath(expression.Operand);
-
+#if !SILVERLIGHT
                         return ValueHelper.Wrap(Assembly.LoadWithPartialName(path));
+#else
+                        var fullname = string.Format(
+                            "{0}, Version=5.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+                            path);
+
+                        return ValueHelper.Wrap(Assembly.Load(fullname));
 #endif
+
 
                     case AphidTokenType.InteropOperator:
                         var attr = GetInteropAttribute(expression.Operand);
