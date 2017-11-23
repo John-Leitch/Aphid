@@ -40,6 +40,12 @@ evalAst = @(ast) {
     ret r;
 };
 
+loadFile = @(asmFile) asmFile
+    |> Path.GetFullPath
+    @() $_.Replace('\\', '\\\\')
+    @String.Format('load "{0}"')
+    |> evalExp;
+
 _callExp = macro(@(i){ this.{'$frames'}[i].Expression });
 getCall = @() _callExp(1);
 getArgs = @() _callExp(1).Args;
