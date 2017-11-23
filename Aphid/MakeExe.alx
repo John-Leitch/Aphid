@@ -1,0 +1,56 @@
+﻿#'IL';
+#'Query';
+using Components.Aphid.Interpreter;
+using System.IO;
+using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
+
+args = Environment.GetCommandLineArgs() @aq.select(@() $_);
+
+if (args.Count >= 1) {
+    if (Path.GetFileName(args[0]).ToLower() == 'aphid.exe') {
+        args = args @aq.skip(2);
+    } else {
+        args = args @aq.skip(1);
+    }
+}
+
+usage = 'MakeExe [script name] [exe name]';
+
+if (args.Count == 0) {
+    print(usage);
+    exit(0);
+} else if (args.Count != 2) {
+    fatal('Invalid arguments, expected {0}', usage);
+}
+
+script = args[0];
+asmName = args[1];
+print('Creating module {0} for {1}', asmName, script);
+aphid = AphidInterpreter |> typeof;
+asmType = Assembly |> typeof;
+pathType = Path |> typeof;
+
+pathCombine = pathType.GetMethod(
+    'Combine',
+    [ typeof(String), typeof(String) ]);
+
+importOpcodes();
+
+@{
+    e = $_.Emit;
+    e(Ldc_I4_1);
+    e(Newobj, [ Boolean |> typeof ] |> aphid.GetConstructor);
+    e(Call, asmType.GetMethod('GetExecutingAssembly'));
+    e(Callvirt, asmType.GetMethod('get_Location'));
+    e(Call, pathType.GetMethod('GetDirectoryName'));
+    e(Ldstr, script);
+    e(Call, pathCombine);
+    e(Ldc_I4_0);
+    e(Call, 'InterpretFile' |> aphid.GetMethod);
+    e(Ret);
+}
+@createProgram(asmName);
+
+print('Done');
