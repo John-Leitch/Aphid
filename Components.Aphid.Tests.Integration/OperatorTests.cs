@@ -79,6 +79,12 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void BinaryOrTest2()
+        {
+            Assert9("ret 8 | 1;");
+        }
+
+        [Test]
         public void BinaryXorTest()
         {
             Assert9("ret 32 ^ 41;");

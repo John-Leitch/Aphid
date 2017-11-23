@@ -63,13 +63,25 @@ namespace Components.Aphid.Interpreter
 
         public static AphidObject BinaryOr(AphidObject x, AphidObject y)
         {
+            Type t;
+
             if (x == null || y == null)
             {
                 throw new AphidOperationException("binary or");
             }
-            else
+            else if (!(t = x.Value.GetType()).IsEnum)
             {
                 return new AphidObject((decimal)((long)(decimal)x.Value | (long)(decimal)y.Value));
+            }
+            else
+            {
+                var underlyingType = Enum.GetUnderlyingType(t);
+                
+                var o = Enum.ToObject(
+                    t,
+                    Convert.ToUInt64(x.Value) | Convert.ToUInt64(y.Value));
+
+                return new AphidObject(o);
             }
         }
 
