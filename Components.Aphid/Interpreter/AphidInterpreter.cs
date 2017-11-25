@@ -460,8 +460,54 @@ namespace Components.Aphid.Interpreter
             }
             else if ((arrayAccessExp = expression.LeftOperand as ArrayAccessExpression) != null)
             {
-                var obj = InterpretArrayAccessExpression(arrayAccessExp);
-                obj.Value = ValueHelper.Unwrap(value);
+                var targetObj = InterpretExpression(arrayAccessExp.ArrayExpression);
+                var targetObjUnwrapped = ValueHelper.Unwrap(targetObj);
+
+                var keyObj = ValueHelper.Unwrap(
+                    InterpretExpression(arrayAccessExp.KeyExpression));
+
+                Array targetArray;
+                List<AphidObject> targetAphidList;
+                
+                if ((targetArray = targetObjUnwrapped as Array) != null)
+                {
+                    targetArray.SetValue(
+                        Convert.ChangeType(
+                            ValueHelper.Unwrap(value),
+                            targetArray.GetType().GetElementType()),
+                        Convert.ToInt32(keyObj));
+                }
+                else if ((targetAphidList = targetObjUnwrapped as List<AphidObject>) != null)
+                {
+                    targetAphidList[Convert.ToInt32(keyObj)] = ValueHelper.Wrap(value);
+                }
+                else
+                {
+                    var targetType = targetObjUnwrapped.GetType();
+
+                    if (targetType
+                        .GetInterfaces()
+                        .Any(x => x.GetGenericTypeDefinition() == typeof(IList<>)))
+                    {
+                        var index = targetType
+                            .GetProperties()
+                            .Select(x => new { Property = x, Params = x.GetIndexParameters() })
+                            .Single(x =>
+                                x.Params.Length == 1 &&
+                                x.Params.First().ParameterType == typeof(int));
+
+                        index.Property.SetValue(
+                            targetObjUnwrapped,
+                            Convert.ChangeType(
+                                ValueHelper.Unwrap(value),
+                                index.Property.PropertyType),
+                            new object[] { Convert.ToInt32(keyObj) });
+                    }
+                    else
+                    {
+                        throw new AphidRuntimeException("Could not set value by index.");
+                    }
+                }
             }
             else
             {
@@ -472,8 +518,6 @@ namespace Components.Aphid.Interpreter
                 if (interopRef != null)
                 {
                     var v = ValueHelper.Unwrap(value);
-
-
 
                     if (interopRef.Field != null)
                     {
