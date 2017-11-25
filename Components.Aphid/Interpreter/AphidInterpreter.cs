@@ -427,6 +427,7 @@ namespace Components.Aphid.Interpreter
             var value2 = value as AphidObject;
             var idExp = expression.LeftOperand as IdentifierExpression;
             ArrayAccessExpression arrayAccessExp;
+
             if (idExp != null)
             {
                 var id = idExp.Identifier;
@@ -479,7 +480,12 @@ namespace Components.Aphid.Interpreter
                 }
                 else if ((targetAphidList = targetObjUnwrapped as List<AphidObject>) != null)
                 {
-                    targetAphidList[Convert.ToInt32(keyObj)] = ValueHelper.Wrap(value);
+                    if (value2.Count == 0 && value2.Value != null)
+                    {
+                        value = value2 = new AphidObject(value2.Value);
+                    }
+
+                    targetAphidList[Convert.ToInt32(keyObj)] = value2;
                 }
                 else
                 {
