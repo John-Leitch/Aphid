@@ -24,6 +24,8 @@ namespace ILWeave
 
             using (var host = new PeReader.DefaultHost())
             {
+                Console.WriteLine(string.Format("Loading module {0}", args[0]));
+
                 var module = host.LoadUnitFrom(args[0]) as IModule;
 
                 if (module == null || module is Dummy)
@@ -33,7 +35,7 @@ namespace ILWeave
                     return 1;
                 }
 
-                module = new MetadataDeepCopier(host).Copy(module);
+                //module = new MetadataDeepCopier(host).Copy(module);
                 PdbReader pdbReader = null;
                 var pdbFile = Path.ChangeExtension(module.Location, "pdb");
 
