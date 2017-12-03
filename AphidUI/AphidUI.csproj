@@ -162,7 +162,7 @@
 "..\..\..\ILWeave\bin\$(ConfigurationName)\ILWeave.exe" "$(TargetPath)"
 :: Build ILWeave in release mode update the build event like so
 :: for better perf:
-::"..\..\..\ILWeave\bin\Release\ILWeave.exe" "$(TargetPath)"
+"..\..\..\ILWeave\bin\Release\ILWeave.exe" "$(TargetPath)"
 echo "IL Weave done"
 </PostBuildEvent>
   </PropertyGroup>

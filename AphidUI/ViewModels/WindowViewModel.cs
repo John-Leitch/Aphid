@@ -312,7 +312,7 @@ namespace AphidUI.ViewModels
             foreach (var v in _interpreter.CurrentScope.Select(x => new VariableViewModel()
             {
                 Name = x.Key,
-                Value = x.Value.Value,
+                Value = x.Value != null ? x.Value.Value : null,
             }))
             {
                 InvokeDispatcher(() => Variables.Add(v));

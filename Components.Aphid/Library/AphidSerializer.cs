@@ -30,6 +30,8 @@ namespace Components.Aphid.Library
             if (obj == null)
             {
                 s.Append("null");
+                
+                return;
             }
 
             var circular = false;
