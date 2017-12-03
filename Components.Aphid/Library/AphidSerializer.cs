@@ -38,6 +38,11 @@ namespace Components.Aphid.Library
 
             Action<object> checkGraph = x =>
             {
+                if (x == null)
+                {
+                    return;
+                }
+
                 if (_traversed.Contains(x))
                 {
                     s.Append("'`Circular Reference`'");
