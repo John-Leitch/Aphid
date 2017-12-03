@@ -35,7 +35,7 @@ namespace ILWeave
                     return 1;
                 }
 
-                //module = new MetadataDeepCopier(host).Copy(module);
+                module = new MetadataDeepCopier(host).Copy(module);
                 PdbReader pdbReader = null;
                 var pdbFile = Path.ChangeExtension(module.Location, "pdb");
 
