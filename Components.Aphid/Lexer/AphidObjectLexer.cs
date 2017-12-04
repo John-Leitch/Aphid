@@ -1015,7 +1015,7 @@ namespace Components.Aphid.Lexer
                                     state = 1;
                                 else if (state == 1 && currentChar == '.')
                                     state = 2;
-                                else if (state == 2 || state == 3 && currentChar > 47 && currentChar < 58)
+                                else if ((state == 2 || state == 3) && currentChar > 47 && currentChar < 58)
                                     state = 3;
                                 else if ((state == 1 || state == 3) && (currentChar == 'E' || currentChar == 'e'))
                                 {
@@ -1051,6 +1051,12 @@ namespace Components.Aphid.Lexer
 
                                     return AphidTokenType.Number;
                                 }
+                                else if (state == 2)
+                                {
+                                    charIndex -= 2;
+
+                                    return AphidTokenType.Number;
+                                }
                                 else
                                 {
                                     break;
@@ -1058,10 +1064,9 @@ namespace Components.Aphid.Lexer
                             }
                             while (NextChar());
 
-
+                            if (state == 1 || state == 3 || state == 5) { return AphidTokenType.Number; }
 
                             break;
-
                     }
 
                     return AphidTokenType.Unknown;
