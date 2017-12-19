@@ -1,4 +1,4 @@
-﻿#'Query';
+﻿#'BoxelderQuery';
 
 items = 
     range(0, 100)

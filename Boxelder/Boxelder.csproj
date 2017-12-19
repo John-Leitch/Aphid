@@ -57,7 +57,7 @@
     <None Include="HelloWorld.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Query.alx">
+    <None Include="Library\BoxelderQuery.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
