@@ -551,9 +551,14 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (objRef.Object.ContainsKey(objRef.Name))
                 {
-                    objRef.Object[objRef.Name].Value = ValueHelper.IsComplexAphidObject(value) ?
-                        value :
-                        ValueHelper.Unwrap(value);
+                    if (ValueHelper.IsComplexAphidObject(value))
+                    {
+                        objRef.Object[objRef.Name] = (AphidObject)value;
+                    }
+                    else
+                    {
+                        objRef.Object[objRef.Name].Value = ValueHelper.Unwrap(value);
+                    }
                 }
                 else
                 {
