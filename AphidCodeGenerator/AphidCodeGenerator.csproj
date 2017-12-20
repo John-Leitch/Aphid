@@ -46,7 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidBinaryOperatorExpressionRule.cs" />
-    <Compile Include="AphidLexerGenerator.cs" />
     <Compile Include="AphidObjectGenerator.cs" />
     <Compile Include="AphidParserGenerator.cs" />
     <Compile Include="AphidParserRules.cs" />
@@ -54,7 +53,6 @@
     <Compile Include="CodeHelper.cs" />
     <Compile Include="CodeMemberMethodExtension.cs" />
     <Compile Include="CodeMethodReferenceExpressionExtension.cs" />
-    <Compile Include="AphidObjectLexerGenerator.cs" />
     <Compile Include="CSharpHelper.cs" />
     <Compile Include="IAphidCodeObject.cs" />
     <Compile Include="IEnumerableExtension.cs" />
@@ -67,12 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="AphidObject.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ParserRules.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">

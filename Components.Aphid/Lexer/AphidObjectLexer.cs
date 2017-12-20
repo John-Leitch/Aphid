@@ -5,13 +5,14 @@
 //------------------------------------------------------------------------------
 
 #pragma warning disable 0162
-using System;
-using System.Collections.Generic;
 
 namespace Components.Aphid.Lexer
 {
+    using System;
+    using System.Collections.Generic;
+
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("llex", "1")]
-    public class AphidObjectLexer
+    public partial class AphidObjectLexer
     {
         private string text = "";
 
@@ -98,6 +99,10 @@ namespace Components.Aphid.Lexer
 
                             return AphidTokenType.RightBrace;
 
+                        case '.':
+
+                            return AphidTokenType.MemberOperator;
+
                         case '-':
 
                             return AphidTokenType.MinusOperator;
@@ -126,16 +131,6 @@ namespace Components.Aphid.Lexer
                                             if (currentChar == '\r' || currentChar == '\n')
                                             {
                                                 charIndex--;
-
-                                                return AphidTokenType.Comment;
-                                            }
-                                            else if (currentChar == '?')
-                                            {
-                                                state = 1;
-                                            }
-                                            else if (state == 1 && currentChar == '>')
-                                            {
-                                                charIndex -= 2;
 
                                                 return AphidTokenType.Comment;
                                             }
@@ -334,7 +329,11 @@ namespace Components.Aphid.Lexer
                                     case 'x':
 
 
-                                        currentChar = text[++charIndex];
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Unknown;
+                                        }
+
                                         state = 0;
 
                                         do
@@ -359,6 +358,41 @@ namespace Components.Aphid.Lexer
                                         }
                                         while (NextChar());
 
+                                        return AphidTokenType.HexNumber;
+
+                                        break;
+
+                                    case 'b':
+
+
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Unknown;
+                                        }
+
+                                        state = 0;
+
+                                        do
+                                        {
+                                            if ((state == 0 || state == 1) && (currentChar == '0' || currentChar == '1'))
+                                                state = 1;
+                                            else if (state == 1)
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.BinaryNumber;
+                                            }
+                                            else
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.Unknown;
+                                            }
+                                        }
+                                        while (NextChar());
+
+                                        return AphidTokenType.BinaryNumber;
+
                                         break;
 
                                 }
@@ -366,7 +400,8 @@ namespace Components.Aphid.Lexer
                                 charIndex--;
                             }
 
-                            state = 0;
+                            NextChar();
+                            state = 1;
 
                             do
                             {
@@ -374,7 +409,7 @@ namespace Components.Aphid.Lexer
                                     state = 1;
                                 else if (state == 1 && currentChar == '.')
                                     state = 2;
-                                else if (state == 2 || state == 3 && currentChar > 47 && currentChar < 58)
+                                else if ((state == 2 || state == 3) && currentChar > 47 && currentChar < 58)
                                     state = 3;
                                 else if ((state == 1 || state == 3) && (currentChar == 'E' || currentChar == 'e'))
                                 {
@@ -407,6 +442,12 @@ namespace Components.Aphid.Lexer
                                 else if (state == 1 || state == 3 || state == 5)
                                 {
                                     charIndex--;
+
+                                    return AphidTokenType.Number;
+                                }
+                                else if (state == 2)
+                                {
+                                    charIndex -= 2;
 
                                     return AphidTokenType.Number;
                                 }
@@ -479,7 +520,11 @@ namespace Components.Aphid.Lexer
                                                             case 'e':
 
 
-                                                                NextChar();
+                                                                if (!NextChar())
+                                                                {
+                                                                    return AphidTokenType.trueKeyword;
+                                                                }
+
                                                                 state = 0;
 
                                                                 do
@@ -507,6 +552,11 @@ namespace Components.Aphid.Lexer
                                                                 }
                                                                 while (NextChar());
 
+                                                                if (state == 1)
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
                                                                 break;
 
                                                         }
@@ -514,7 +564,11 @@ namespace Components.Aphid.Lexer
                                                         charIndex--;
                                                     }
 
-                                                    NextChar();
+                                                    if (!NextChar())
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
                                                     state = 0;
 
                                                     do
@@ -542,6 +596,11 @@ namespace Components.Aphid.Lexer
                                                     }
                                                     while (NextChar());
 
+                                                    if (state == 1)
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
                                                     break;
 
                                             }
@@ -549,7 +608,11 @@ namespace Components.Aphid.Lexer
                                             charIndex--;
                                         }
 
-                                        NextChar();
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
                                         state = 0;
 
                                         do
@@ -577,6 +640,11 @@ namespace Components.Aphid.Lexer
                                         }
                                         while (NextChar());
 
+                                        if (state == 1)
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
                                         break;
 
                                 }
@@ -584,7 +652,11 @@ namespace Components.Aphid.Lexer
                                 charIndex--;
                             }
 
-                            NextChar();
+                            if (!NextChar())
+                            {
+                                return AphidTokenType.Identifier;
+                            }
+
                             state = 0;
 
                             do
@@ -611,6 +683,11 @@ namespace Components.Aphid.Lexer
                                 }
                             }
                             while (NextChar());
+
+                            if (state == 1)
+                            {
+                                return AphidTokenType.Identifier;
+                            }
 
                             break;
 
@@ -645,7 +722,11 @@ namespace Components.Aphid.Lexer
                                                                         case 'e':
 
 
-                                                                            NextChar();
+                                                                            if (!NextChar())
+                                                                            {
+                                                                                return AphidTokenType.falseKeyword;
+                                                                            }
+
                                                                             state = 0;
 
                                                                             do
@@ -673,6 +754,11 @@ namespace Components.Aphid.Lexer
                                                                             }
                                                                             while (NextChar());
 
+                                                                            if (state == 1)
+                                                                            {
+                                                                                return AphidTokenType.Identifier;
+                                                                            }
+
                                                                             break;
 
                                                                     }
@@ -680,7 +766,11 @@ namespace Components.Aphid.Lexer
                                                                     charIndex--;
                                                                 }
 
-                                                                NextChar();
+                                                                if (!NextChar())
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
                                                                 state = 0;
 
                                                                 do
@@ -708,6 +798,11 @@ namespace Components.Aphid.Lexer
                                                                 }
                                                                 while (NextChar());
 
+                                                                if (state == 1)
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
                                                                 break;
 
                                                         }
@@ -715,7 +810,11 @@ namespace Components.Aphid.Lexer
                                                         charIndex--;
                                                     }
 
-                                                    NextChar();
+                                                    if (!NextChar())
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
                                                     state = 0;
 
                                                     do
@@ -743,6 +842,11 @@ namespace Components.Aphid.Lexer
                                                     }
                                                     while (NextChar());
 
+                                                    if (state == 1)
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
                                                     break;
 
                                             }
@@ -750,7 +854,11 @@ namespace Components.Aphid.Lexer
                                             charIndex--;
                                         }
 
-                                        NextChar();
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
                                         state = 0;
 
                                         do
@@ -778,6 +886,11 @@ namespace Components.Aphid.Lexer
                                         }
                                         while (NextChar());
 
+                                        if (state == 1)
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
                                         break;
 
                                 }
@@ -785,7 +898,11 @@ namespace Components.Aphid.Lexer
                                 charIndex--;
                             }
 
-                            NextChar();
+                            if (!NextChar())
+                            {
+                                return AphidTokenType.Identifier;
+                            }
+
                             state = 0;
 
                             do
@@ -812,6 +929,11 @@ namespace Components.Aphid.Lexer
                                 }
                             }
                             while (NextChar());
+
+                            if (state == 1)
+                            {
+                                return AphidTokenType.Identifier;
+                            }
 
                             break;
 
@@ -839,7 +961,11 @@ namespace Components.Aphid.Lexer
                                                             case 'l':
 
 
-                                                                NextChar();
+                                                                if (!NextChar())
+                                                                {
+                                                                    return AphidTokenType.nullKeyword;
+                                                                }
+
                                                                 state = 0;
 
                                                                 do
@@ -867,6 +993,11 @@ namespace Components.Aphid.Lexer
                                                                 }
                                                                 while (NextChar());
 
+                                                                if (state == 1)
+                                                                {
+                                                                    return AphidTokenType.Identifier;
+                                                                }
+
                                                                 break;
 
                                                         }
@@ -874,7 +1005,11 @@ namespace Components.Aphid.Lexer
                                                         charIndex--;
                                                     }
 
-                                                    NextChar();
+                                                    if (!NextChar())
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
                                                     state = 0;
 
                                                     do
@@ -902,6 +1037,11 @@ namespace Components.Aphid.Lexer
                                                     }
                                                     while (NextChar());
 
+                                                    if (state == 1)
+                                                    {
+                                                        return AphidTokenType.Identifier;
+                                                    }
+
                                                     break;
 
                                             }
@@ -909,7 +1049,11 @@ namespace Components.Aphid.Lexer
                                             charIndex--;
                                         }
 
-                                        NextChar();
+                                        if (!NextChar())
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
                                         state = 0;
 
                                         do
@@ -937,6 +1081,11 @@ namespace Components.Aphid.Lexer
                                         }
                                         while (NextChar());
 
+                                        if (state == 1)
+                                        {
+                                            return AphidTokenType.Identifier;
+                                        }
+
                                         break;
 
                                 }
@@ -944,7 +1093,11 @@ namespace Components.Aphid.Lexer
                                 charIndex--;
                             }
 
-                            NextChar();
+                            if (!NextChar())
+                            {
+                                return AphidTokenType.Identifier;
+                            }
+
                             state = 0;
 
                             do
@@ -971,6 +1124,11 @@ namespace Components.Aphid.Lexer
                                 }
                             }
                             while (NextChar());
+
+                            if (state == 1)
+                            {
+                                return AphidTokenType.Identifier;
+                            }
 
                             break;
 
@@ -1005,6 +1163,11 @@ namespace Components.Aphid.Lexer
                                 }
                             }
                             while (NextChar());
+
+                            if (state == 1 || state == 2) // EOF Id
+                            {
+                                return AphidTokenType.Identifier;
+                            }
 
 
                             state = 0;
@@ -1067,6 +1230,7 @@ namespace Components.Aphid.Lexer
                             if (state == 1 || state == 3 || state == 5) { return AphidTokenType.Number; }
 
                             break;
+
                     }
 
                     return AphidTokenType.Unknown;
