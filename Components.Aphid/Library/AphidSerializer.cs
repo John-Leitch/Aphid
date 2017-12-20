@@ -62,7 +62,7 @@ namespace Components.Aphid.Library
                         string.Join(
                             ".",
                             _currentPath
-                                .Select(y => !y.Contains("$") ? y : string.Format("{{'{0}'}}", y))
+                                .Select(y => !ShouldQuote(y) ? y : string.Format("{{'{0}'}}", y))
                                 .Reverse()));
                     _traversed.Add(x);
                 }
@@ -132,7 +132,7 @@ namespace Components.Aphid.Library
                     }
 
                     s.AppendFormat(
-                        !kvp.Key.Contains("$") ? "{0}{1}: " : "{0}'{1}':",
+                        !ShouldQuote(kvp.Key) ? "{0}{1}: " : "{0}'{1}':",
                         new string(' ', (indent + 1) * 4),
                         kvp.Key);
 
@@ -166,6 +166,7 @@ namespace Components.Aphid.Library
 
             var ast = new AphidObjectThisKeywordMutator().Mutate(
                 new AphidParser(tokens).Parse());
+
             if (ast.Count != 1)
             {
                 throw new AphidRuntimeException("Invalid Aphid object string: {0}", obj);
@@ -184,6 +185,25 @@ namespace Components.Aphid.Library
             objInterpreter.Interpret(ast);
 
             return objInterpreter.CurrentScope[_root];
+        }
+
+        private bool ShouldQuote(string key)
+        {
+            if (key.Contains('$'))
+            {
+                return true;
+            }
+
+            try
+            {
+                var t = new AphidObjectLexer(key).GetTokens();
+
+                return t.Count != 1 || t[0].TokenType != AphidTokenType.Identifier;
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         private class AphidObjectThisKeywordMutator : AphidMutator
