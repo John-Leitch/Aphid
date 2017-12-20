@@ -136,5 +136,29 @@ namespace Components.Aphid.Tests.Integration
                 "(0..0x100)->@() $_ * 2",
                 "ret o.Count == 0x100 && o[0x2] == 0x4");
         }
+
+        [Test]
+        public void TestBoolSerialization()
+        {
+            AssertTrueDeserialization("{ x: true }", "ret o.x");
+        }
+
+        [Test]
+        public void TestBoolSerialization2()
+        {
+            AssertTrueDeserialization("{ x: false }", "ret !o.x");
+        }
+
+        [Test]
+        public void TestBoolSerialization3()
+        {
+            AssertTrueDeserialization("{ foo: { x: true } }", "ret o.foo.x");
+        }
+
+        [Test]
+        public void TestBoolSerialization4()
+        {
+            AssertTrueDeserialization("{ foo: { x: false } }", "ret !o.foo.x");
+        }
     }
 }
