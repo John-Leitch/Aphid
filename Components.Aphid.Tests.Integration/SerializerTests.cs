@@ -160,5 +160,65 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertTrueDeserialization("{ foo: { x: false } }", "ret !o.foo.x");
         }
+
+        [Test]
+        public void TestCircularSerialization()
+        {
+            AssertTrueDeserialization(
+                "@{ a = { isActive: false }; a.self = a; ret a }()",
+                "ret !o.self.isActive");
+        }
+
+        [Test]
+        public void TestCircularSerialization2()
+        {
+            AssertTrueDeserialization(
+                "@{ a = { isActive: false }; a.self = a; ret a }()",
+                "ret !o.self.self.self.self.self.self.self.isActive");
+        }
+
+        [Test]
+        public void TestCircularSerialization3()
+        {
+            Assert9Deserialization(
+                @"@{
+                    a = { position: { x: 10, y: 9 }, context: { objectModel: { } } };
+                    a.context.objectModel.selfPosition = a.position;
+                    ret a;
+                }()",
+                "ret o.context.objectModel.selfPosition.y");
+        }
+
+        [Test]
+        public void TestCircularSerialization4()
+        {
+            Assert9Deserialization(
+                @"@{
+                    a = { x: 10, y: 20 };
+                    a.window = { title: 'Test Window', resizable: false };
+                    a.context = { datasource: [ 1, 2, 3, 4, 9 ], metadata = { ref: a, bar: {} } };
+                    a.context.list = [ 5, 6, a ];
+                    a.context.metadata.foo = a.context;
+                    a.context.metadata.bar.w = a.context.datasource;
+                    ret a;
+                }()",
+                "ret o.context.metadata.bar.w[4]");
+        }
+
+        [Test, Ignore]
+        public void TestCircularSerialization5()
+        {
+            Assert9Deserialization(
+                @"@{
+                    a = { x: 10, y: 20 };
+                    a.window = { title: 'Test Window', resizable: false };
+                    a.context = { datasource: [ 1, 2, 3, 4, 9 ], metadata = { ref: a, bar: {} } };
+                    a.context.list = [ 5, 6, a ];
+                    a.context.metadata.foo = a.context;
+                    a.context.metadata.bar.w = a.context.datasource;
+                    ret a;
+                }()",
+                "ret o.context.list[2].context.metadata.bar.w[4]");
+        }
     }
 }
