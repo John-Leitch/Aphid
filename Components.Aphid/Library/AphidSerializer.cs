@@ -1,6 +1,7 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
+using Components.Aphid.Parser.Fluent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,11 @@ namespace Components.Aphid.Library
 {
     public class AphidSerializer
     {
+        private const string _root = "obj";
+
         private List<object> _traversed;
 
-        private Dictionary<object, string> _traversedPaths = new Dictionary<object,string>();
+        private Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
 
         private Stack<string> _currentPath = new Stack<string>();
 
@@ -34,7 +37,7 @@ namespace Components.Aphid.Library
             if (obj == null)
             {
                 s.Append("null");
-                
+
                 return;
             }
 
@@ -117,8 +120,8 @@ namespace Components.Aphid.Library
                 s.Append("{\r\n");
 
                 foreach (var kvp in obj)
-                { 
-                    if (IgnoreFunctions && 
+                {
+                    if (IgnoreFunctions &&
                         kvp.Value != null &&
                         (kvp.Value.Value is AphidFunction ||
                         kvp.Value.Value is AphidInteropFunction))
@@ -158,17 +161,127 @@ namespace Components.Aphid.Library
             var lexer = new AphidObjectLexer(obj);
             var tokens = lexer.GetTokens();
             tokens.Add(new AphidToken(AphidTokenType.EndOfStatement, null, 0));
-            var ast = new AphidParser(tokens).Parse();
 
+            var ast = new AphidObjectThisKeywordMutator().Mutate(
+                new AphidParser(tokens).Parse());
             if (ast.Count != 1)
             {
                 throw new AphidRuntimeException("Invalid Aphid object string: {0}", obj);
             }
 
-            ast[0] = new UnaryOperatorExpression(AphidTokenType.retKeyword, ast[0]);
+            ast[0] = new BinaryOperatorExpression(
+                new IdentifierExpression(_root),
+                AphidTokenType.AssignmentOperator,
+                ast[0]);
+
+            ast.AddRange(
+                new AphidObjectReferenceVisitor()
+                    .FindReferenceAssignments(ast));
+
             var objInterpreter = new AphidInterpreter();
             objInterpreter.Interpret(ast);
-            return objInterpreter.GetReturnValue();
+
+            return objInterpreter.CurrentScope[_root];
+        }
+
+        private class AphidObjectThisKeywordMutator : AphidMutator
+        {
+            protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
+            {
+                if (expression.Type != AphidExpressionType.ThisExpression &&
+                    (expression.Type != AphidExpressionType.IdentifierExpression ||
+                        expression.ToIdentifier().Identifier != "this"))
+                {
+                    hasChanged = false;
+
+                    return null;
+                }
+
+                hasChanged = true;
+
+                return new List<AphidExpression> { new IdentifierExpression(_root) };
+            }
+        }
+
+        private class AphidObjectReferenceVisitor : AphidVisitor
+        {
+            private BinaryOperatorExpression _member;
+
+            private Stack<AphidExpression> _currentPath;
+
+            private List<BinaryOperatorExpression> _refAssignments;
+
+            public IEnumerable<BinaryOperatorExpression> FindReferenceAssignments(List<AphidExpression> ast)
+            {
+                Visit(ast);
+
+                return _refAssignments.ToArray();
+            }
+
+            protected override void Visit(AphidExpression expression)
+            {
+                if (_member == null ||
+                    _member != expression ||
+                    (_member.RightOperand.Type != AphidExpressionType.IdentifierExpression &&
+                    _member.RightOperand.Type != AphidExpressionType.BinaryOperatorExpression))
+                {
+                    return;
+                }
+
+                AphidExpression lhs = null;
+
+                foreach (var x in _currentPath.Reverse())
+                {
+                    if (lhs != null)
+                    {
+                        lhs = new BinaryOperatorExpression(lhs, AphidTokenType.MemberOperator, x);
+                    }
+                    else
+                    {
+                        lhs = x;
+                    }
+                }
+
+                _refAssignments.Add(
+                    new BinaryOperatorExpression(
+                        lhs,
+                        AphidTokenType.AssignmentOperator,
+                        _member.RightOperand));
+            }
+
+            protected override void BeginVisit(List<AphidExpression> ast)
+            {
+                _currentPath = new Stack<AphidExpression>(
+                    new[] { new IdentifierExpression(_root) });
+
+                _refAssignments = new List<BinaryOperatorExpression>();
+            }
+
+            protected override void BeginVisitNode(AphidExpression expression)
+            {
+                if (IsMember(expression))
+                {
+                    _member = expression.ToBinaryOperator();
+                    _currentPath.Push(_member.LeftOperand);
+                }
+            }
+
+            protected override void EndVisitNode(AphidExpression expression)
+            {
+                if (IsMember(expression))
+                {
+                    _currentPath.Pop();
+                    _member = null;
+                }
+            }
+
+            private bool IsMember(AphidExpression expression)
+            {
+                return expression != null &&
+                    expression.Type == AphidExpressionType.BinaryOperatorExpression &&
+                    Ancestors.Count >= 1 &&
+                    Ancestors.Peek().Type == AphidExpressionType.ObjectExpression;
+            }
         }
     }
 }
