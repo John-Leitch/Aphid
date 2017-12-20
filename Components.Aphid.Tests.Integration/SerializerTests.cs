@@ -133,7 +133,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestListSerialization8()
         {
             Assert9Deserialization(
-                "(0..0x100)->@() $_ * 2",
+                "(0..0x100)->@* 2",
                 "ret o.Count == 0x100 && o[0x2] == 0x4");
         }
 
@@ -219,6 +219,46 @@ namespace Components.Aphid.Tests.Integration
                     ret a;
                 }()",
                 "ret o.context.list[2].context.metadata.bar.w[4]");
+        }
+
+        [Test]
+        public void TestDynamicMemberCircularSerialization()
+        {
+            AssertTrueDeserialization(
+                "@{ a = { isActive: false }; a.{'$self'} = a; ret a }()",
+                "ret !o.{'$self'}.isActive");
+        }
+
+        [Test]
+        public void TestDynamicMemberCircularSerialization2()
+        {
+            AssertFalseDeserialization(
+                "@{ a = { isActive: true }; a.{'$self'} = a; ret a }()",
+                "ret !o.{'$self'}.{'$self'}.{'$self'}.{'$self'}.{'$self'}.{'$self'}.isActive");
+        }
+
+        [Test]
+        public void TestDynamicMemberCircularSerialization3()
+        {
+            AssertTrueDeserialization(
+                @"@{
+                    a = { isActive: true, '$internal': { } };
+                    a.{'$internal'}.{'$self'} = a;
+                    ret a;
+                }()",
+                "ret o.{'$internal'}.{'$self'}.isActive");
+        }
+
+        [Test]
+        public void TestDynamicMemberCircularSerialization4()
+        {
+            AssertTrueDeserialization(
+                @"@{
+                    a = { isActive: true, '~!@': { } };
+                    a.{'~!@'}.{'$self'} = a;
+                    ret a;
+                }()",
+                "ret o.{'~!@'}.{'$self'}.isActive");
         }
     }
 }
