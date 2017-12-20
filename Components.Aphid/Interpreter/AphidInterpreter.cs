@@ -979,24 +979,13 @@ namespace Components.Aphid.Interpreter
 
                 foreach (var kvp in expression.Pairs)
                 {
-                    string objectKey;
+                    var objectKey = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ? 
+                        kvp.LeftOperand.ToIdentifier().Identifier :
+                        ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
 
-                    if (kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
-                    {
-                        objectKey = kvp.LeftOperand.ToIdentifier().Identifier;
-                    }
-                    else if (kvp.LeftOperand.Type == AphidExpressionType.StringExpression)
-                    {
-                        var k = InterpretExpression(kvp.LeftOperand);
-                        objectKey = (string)((AphidObject)k).Value;
-                    }
-                    else
-                    {
-                        throw new AphidRuntimeException("Invalid object key.");
-                    }
-
-                    var value = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
-                    obj.Add(objectKey, value);
+                    obj.Add(
+                        objectKey, 
+                        ValueHelper.Wrap(InterpretExpression(kvp.RightOperand)));
                 }
 
                 return obj;
