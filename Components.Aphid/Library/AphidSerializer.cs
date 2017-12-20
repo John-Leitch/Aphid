@@ -81,8 +81,11 @@ namespace Components.Aphid.Library
 
             if (obj.Value != null)
             {
-                if (obj.Value is bool ||
-                    obj.Value is decimal)
+                if (obj.Value is bool)
+                {
+                    s.Append(obj.Value.ToString().ToLower());
+                }
+                else if (obj.Value is decimal)
                 {
                     s.Append(obj.Value);
                 }
@@ -124,7 +127,7 @@ namespace Components.Aphid.Library
                     }
 
                     s.AppendFormat(
-                        "{0}{1}: ",
+                        !kvp.Key.Contains("$") ? "{0}{1}: " : "{0}'{1}':",
                         new string(' ', (indent + 1) * 4),
                         kvp.Key);
 
