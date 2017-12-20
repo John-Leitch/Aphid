@@ -104,23 +104,17 @@ namespace Components.Aphid.Library
 
                     s.AppendFormat("{0}]", new string(' ', indent * 4));
                 }
-                //else if (obj.Value is AphidFunction ||
-                //    obj.Value is AphidInteropFunction)
                 else
                 {
                     s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
                 }
-                //else
-                //{
-                //    throw new InvalidOperationException();
-                //}
             }
             else
             {
                 s.Append("{\r\n");
 
                 foreach (var kvp in obj)
-                {
+                { 
                     if (IgnoreFunctions && 
                         kvp.Value != null &&
                         (kvp.Value.Value is AphidFunction ||
