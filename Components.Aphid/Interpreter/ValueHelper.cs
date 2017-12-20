@@ -106,6 +106,13 @@ namespace Components.Aphid.Interpreter
         {
             return value != null ? _typeName[value.GetType()] : "null";
         }
+
+        public static bool IsComplexAphidObject(object obj)
+        {
+            var ao = obj as AphidObject;
+
+            return ao != null && ao.Value == null;
+        }
     }
 
     public static class ValueHelper<TExpected>
