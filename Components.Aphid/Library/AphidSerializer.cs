@@ -13,6 +13,10 @@ namespace Components.Aphid.Library
     {
         private List<object> _traversed;
 
+        private Dictionary<object, string> _traversedPaths = new Dictionary<object,string>();
+
+        private Stack<string> _currentPath = new Stack<string>();
+
         public bool IgnoreFunctions { get; set; }
 
         public AphidSerializer()
@@ -45,16 +49,29 @@ namespace Components.Aphid.Library
 
                 if (_traversed.Contains(x))
                 {
-                    s.Append("'`Circular Reference`'");
+                    s.Append(_traversedPaths[x]);
                     circular = true;
                 }
                 else
                 {
+                    _traversedPaths.Add(
+                        x,
+                        string.Join(
+                            ".",
+                            _currentPath
+                                .Select(y => !y.Contains("$") ? y : string.Format("{{'{0}'}}", y))
+                                .Reverse()));
                     _traversed.Add(x);
                 }
             };
 
             checkGraph(obj);
+
+            if (circular)
+            {
+                return;
+            }
+
             checkGraph(obj.Value);
 
             if (circular)
@@ -105,6 +122,7 @@ namespace Components.Aphid.Library
                 foreach (var kvp in obj)
                 {
                     if (IgnoreFunctions && 
+                        kvp.Value != null &&
                         (kvp.Value.Value is AphidFunction ||
                         kvp.Value.Value is AphidInteropFunction))
                     {
@@ -116,7 +134,9 @@ namespace Components.Aphid.Library
                         new string(' ', (indent + 1) * 4),
                         kvp.Key);
 
+                    _currentPath.Push(kvp.Key);
                     ObjToString(kvp.Value, s, indent + 1);
+                    _currentPath.Pop();
                     s.Append(",\r\n");
                 }
 
@@ -126,6 +146,9 @@ namespace Components.Aphid.Library
 
         public string Serialize(AphidObject o)
         {
+            _traversedPaths.Clear();
+            _currentPath.Clear();
+            _currentPath.Push("this");
             _traversed = new List<object>();
             var sb = new StringBuilder();
             ObjToString(o, sb, 0);
