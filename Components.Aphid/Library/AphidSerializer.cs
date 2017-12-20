@@ -112,6 +112,8 @@ namespace Components.Aphid.Library
                 }
                 else
                 {
+                    if (obj.Value.GetType().Name.Contains("AphidObj"))
+                        Console.WriteLine();
                     s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
                 }
             }
@@ -207,6 +209,8 @@ namespace Components.Aphid.Library
         {
             private ObjectExpression _object;
 
+            private ArrayExpression _array;
+
             private BinaryOperatorExpression _member;
 
             private Stack<AphidExpression> _currentPath;
@@ -222,14 +226,14 @@ namespace Components.Aphid.Library
 
             protected override void Visit(AphidExpression expression)
             {
-                if (_member == null ||
-                    _member != expression ||
-                    (_member.RightOperand.Type != AphidExpressionType.IdentifierExpression &&
-                    _member.RightOperand.Type != AphidExpressionType.BinaryOperatorExpression))
+                if (_member != null &&_member == expression && IsRef(_member.RightOperand))
                 {
-                    return;
+                    AddMemberReference(expression);
                 }
+            }
 
+            private void AddMemberReference(AphidExpression expression)
+            {
                 AphidExpression lhs = null;
 
                 foreach (var x in _currentPath.Reverse())
@@ -253,13 +257,13 @@ namespace Components.Aphid.Library
 
                 var i = _object.Pairs.IndexOf(_member);
                 _object.Pairs.RemoveAt(i);
-                
+
                 _object.Pairs.Insert(
                     i,
                     new BinaryOperatorExpression(
                         _member.LeftOperand,
                         _member.Operator,
-                        AphidParser.Parse("{}").First()));
+                        AphidParser.Parse("null").First()));
             }
 
             protected override void BeginVisit(List<AphidExpression> ast)
@@ -278,6 +282,10 @@ namespace Components.Aphid.Library
                     _member = expression.ToBinaryOperator();
                     _currentPath.Push(_member.LeftOperand);
                 }
+                else if (IsArray(expression))
+                {
+                    _array = expression.ToArray();
+                }
             }
 
             protected override void EndVisitNode(AphidExpression expression)
@@ -288,6 +296,10 @@ namespace Components.Aphid.Library
                     _member = null;
                     _object = null;
                 }
+                else if (IsArray(expression))
+                {
+                    _array = null;
+                }
             }
 
             private bool IsMember(AphidExpression expression)
@@ -296,6 +308,17 @@ namespace Components.Aphid.Library
                     expression.Type == AphidExpressionType.BinaryOperatorExpression &&
                     Ancestors.Count >= 1 &&
                     Ancestors.Peek().Type == AphidExpressionType.ObjectExpression;
+            }
+
+            private bool IsArray(AphidExpression expression)
+            {
+                return expression != null && expression.Type == AphidExpressionType.ArrayExpression;
+            }
+
+            private bool IsRef(AphidExpression expression)
+            {
+                return expression.Type == AphidExpressionType.IdentifierExpression ||
+                    expression.Type == AphidExpressionType.BinaryOperatorExpression;
             }
         }
     }
