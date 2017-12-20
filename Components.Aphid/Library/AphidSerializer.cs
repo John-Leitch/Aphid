@@ -205,6 +205,8 @@ namespace Components.Aphid.Library
 
         private class AphidObjectReferenceVisitor : AphidVisitor
         {
+            private ObjectExpression _object;
+
             private BinaryOperatorExpression _member;
 
             private Stack<AphidExpression> _currentPath;
@@ -247,6 +249,17 @@ namespace Components.Aphid.Library
                         lhs,
                         AphidTokenType.AssignmentOperator,
                         _member.RightOperand));
+
+
+                var i = _object.Pairs.IndexOf(_member);
+                _object.Pairs.RemoveAt(i);
+                
+                _object.Pairs.Insert(
+                    i,
+                    new BinaryOperatorExpression(
+                        _member.LeftOperand,
+                        _member.Operator,
+                        AphidParser.Parse("{}").First()));
             }
 
             protected override void BeginVisit(List<AphidExpression> ast)
@@ -261,6 +274,7 @@ namespace Components.Aphid.Library
             {
                 if (IsMember(expression))
                 {
+                    _object = Ancestors.Peek().ToObject();
                     _member = expression.ToBinaryOperator();
                     _currentPath.Push(_member.LeftOperand);
                 }
@@ -272,6 +286,7 @@ namespace Components.Aphid.Library
                 {
                     _currentPath.Pop();
                     _member = null;
+                    _object = null;
                 }
             }
 
