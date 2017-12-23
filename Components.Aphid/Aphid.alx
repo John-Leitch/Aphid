@@ -258,7 +258,7 @@ ParseAssignmentExpression = ParseBinOpExp(
     ShiftRightEqualOperator);
 
 ParsePipelineExpression = @{
-    operand ParseQueryExpression;
+    operand ParseRangeExpression;
     inPipeline = false;
     while (true) {
         switch (TokenType) {
@@ -268,7 +268,7 @@ ParsePipelineExpression = @{
                 operand = BinaryOperatorExpression(
                     operand, 
                     PipelineOperator, 
-                    ParseQueryExpression());
+                    ParseRangeExpression());
             }
 
             InteropOperator: {
@@ -287,6 +287,18 @@ ParsePipelineExpression = @{
                     ParseFunctionExpression());
             }
 
+            AggregateOperator, AnyOperator, SelectManyOperator, SelectOperator, WhereOperator: {
+                inPipeline = true;
+                TakeToken(t);
+                operand = BinaryOperatorExpression(operand, t, ParseRangeExpression());
+            }
+
+            DistinctOperator: {
+                inPipeline = true;
+                operand = UnaryOperatorExpression(TokenType, operand);
+                NextToken;
+            }
+
             default: {
                 if (inPipeline && Identifier) {
                     operand = BinaryOperatorExpression(
@@ -301,28 +313,6 @@ ParsePipelineExpression = @{
     }
 
     ret operand;
-};
-
-ParseQueryExpression = @{
-    exp ParseRangeExpression;
-
-    while(true) {
-        switch (TokenType) {
-            AggregateOperator, AnyOperator, SelectManyOperator, SelectOperator, WhereOperator: {
-                TakeToken(t);
-                exp = BinaryOperatorExpression(exp, t, ParseRangeExpression());
-            }
-
-            DistinctOperator: {
-                exp = UnaryOperatorExpression(TokenType, exp);
-                NextToken;
-            }
-
-            default: break;
-        }
-    }
-
-    ret exp;
 };
 
 ParseRangeExpression = ParseBinOpExp(
@@ -1203,7 +1193,7 @@ ParseFunctionExpression = @{
 
         MemberOperator: {
             TakeToken(op);
-            exp = PartialOperatorExpression(op, ParseQueryExpression());
+            exp = PartialOperatorExpression(op, ParseRangeExpression());
         }
 
         CustomOperator0,
