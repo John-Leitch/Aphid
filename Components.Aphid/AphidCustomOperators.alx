@@ -1,0 +1,53 @@
+﻿#'Std';
+#'Meta';
+using Components.Aphid.Lexer;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+//cls();
+
+customOps = AphidTokenType
+    |> getEnums
+    -? @(x) x.ToString().Contains('CustomOperator');
+
+getCases = @(indent) customOps
+    ->(@String.Format('{0}case AphidTokenType.{1}:\r\n', indent))
+    +>(@(x, y) x + y);
+
+cases = getCases(' ' * 16);
+
+dir = Environment.GetCommandLineArgs()[1]
+    |> Path.GetFullPath
+    |> Path.GetDirectoryName;
+
+csFile = Path.Combine(dir, 'Interpreter', 'AphidInterpreter.cs');
+cs = csFile |> File.ReadAllText;
+matches = @Regex.Matches(cs);
+
+ends = '#endregion' |> matches;
+
+ranges = [];
+
+'(( |\t)+)#region Custom Operator Cases' |> matches
+ for {
+    o = {
+        indent: $_.Groups[1].Value,
+        start: $_.Index,
+        end: cs.IndexOf('#endregion', $_.Index)
+    };
+    ranges.add(o);
+};
+
+ranges.Reverse();
+
+ranges->@() cs = cs
+    .Remove($_.start, $_.end - $_.start)
+    .Insert(
+        $_.start,
+        $_.indent + '#region Custom Operator Cases\r\n' +
+        ($_.indent |> getCases) + 
+        $_.indent);
+
+cs @File.WriteAllText(csFile);

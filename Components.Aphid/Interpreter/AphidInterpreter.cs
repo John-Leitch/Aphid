@@ -769,6 +769,7 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CompositionOperator:
                     return InterpretFunctionComposition(expression);
 
+                #region Custom Operator Cases
                 case AphidTokenType.CustomOperator0:
                 case AphidTokenType.CustomOperator1:
                 case AphidTokenType.CustomOperator10:
@@ -800,11 +801,63 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CustomOperator123:
                 case AphidTokenType.CustomOperator124:
                 case AphidTokenType.CustomOperator125:
+                case AphidTokenType.CustomOperator126:
+                case AphidTokenType.CustomOperator127:
+                case AphidTokenType.CustomOperator128:
+                case AphidTokenType.CustomOperator129:
                 case AphidTokenType.CustomOperator13:
+                case AphidTokenType.CustomOperator130:
+                case AphidTokenType.CustomOperator131:
+                case AphidTokenType.CustomOperator132:
+                case AphidTokenType.CustomOperator133:
+                case AphidTokenType.CustomOperator134:
+                case AphidTokenType.CustomOperator135:
+                case AphidTokenType.CustomOperator136:
+                case AphidTokenType.CustomOperator137:
+                case AphidTokenType.CustomOperator138:
+                case AphidTokenType.CustomOperator139:
                 case AphidTokenType.CustomOperator14:
+                case AphidTokenType.CustomOperator140:
+                case AphidTokenType.CustomOperator141:
+                case AphidTokenType.CustomOperator142:
+                case AphidTokenType.CustomOperator143:
+                case AphidTokenType.CustomOperator144:
+                case AphidTokenType.CustomOperator145:
+                case AphidTokenType.CustomOperator146:
+                case AphidTokenType.CustomOperator147:
+                case AphidTokenType.CustomOperator148:
+                case AphidTokenType.CustomOperator149:
                 case AphidTokenType.CustomOperator15:
+                case AphidTokenType.CustomOperator150:
+                case AphidTokenType.CustomOperator151:
+                case AphidTokenType.CustomOperator152:
+                case AphidTokenType.CustomOperator153:
+                case AphidTokenType.CustomOperator154:
+                case AphidTokenType.CustomOperator155:
+                case AphidTokenType.CustomOperator156:
+                case AphidTokenType.CustomOperator157:
+                case AphidTokenType.CustomOperator158:
+                case AphidTokenType.CustomOperator159:
                 case AphidTokenType.CustomOperator16:
+                case AphidTokenType.CustomOperator160:
+                case AphidTokenType.CustomOperator161:
+                case AphidTokenType.CustomOperator162:
+                case AphidTokenType.CustomOperator163:
+                case AphidTokenType.CustomOperator164:
+                case AphidTokenType.CustomOperator165:
+                case AphidTokenType.CustomOperator166:
+                case AphidTokenType.CustomOperator167:
+                case AphidTokenType.CustomOperator168:
+                case AphidTokenType.CustomOperator169:
                 case AphidTokenType.CustomOperator17:
+                case AphidTokenType.CustomOperator170:
+                case AphidTokenType.CustomOperator171:
+                case AphidTokenType.CustomOperator172:
+                case AphidTokenType.CustomOperator173:
+                case AphidTokenType.CustomOperator174:
+                case AphidTokenType.CustomOperator175:
+                case AphidTokenType.CustomOperator176:
+                case AphidTokenType.CustomOperator177:
                 case AphidTokenType.CustomOperator18:
                 case AphidTokenType.CustomOperator19:
                 case AphidTokenType.CustomOperator2:
@@ -895,6 +948,7 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CustomOperator97:
                 case AphidTokenType.CustomOperator98:
                 case AphidTokenType.CustomOperator99:
+                #endregion
                     return InterpretCustomBinaryOperator(expression);
 
                 default:
@@ -1542,6 +1596,7 @@ namespace Components.Aphid.Interpreter
 
                         }
 
+                    #region Custom Operator Cases
                     case AphidTokenType.CustomOperator0:
                     case AphidTokenType.CustomOperator1:
                     case AphidTokenType.CustomOperator10:
@@ -1573,11 +1628,63 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.CustomOperator123:
                     case AphidTokenType.CustomOperator124:
                     case AphidTokenType.CustomOperator125:
+                    case AphidTokenType.CustomOperator126:
+                    case AphidTokenType.CustomOperator127:
+                    case AphidTokenType.CustomOperator128:
+                    case AphidTokenType.CustomOperator129:
                     case AphidTokenType.CustomOperator13:
+                    case AphidTokenType.CustomOperator130:
+                    case AphidTokenType.CustomOperator131:
+                    case AphidTokenType.CustomOperator132:
+                    case AphidTokenType.CustomOperator133:
+                    case AphidTokenType.CustomOperator134:
+                    case AphidTokenType.CustomOperator135:
+                    case AphidTokenType.CustomOperator136:
+                    case AphidTokenType.CustomOperator137:
+                    case AphidTokenType.CustomOperator138:
+                    case AphidTokenType.CustomOperator139:
                     case AphidTokenType.CustomOperator14:
+                    case AphidTokenType.CustomOperator140:
+                    case AphidTokenType.CustomOperator141:
+                    case AphidTokenType.CustomOperator142:
+                    case AphidTokenType.CustomOperator143:
+                    case AphidTokenType.CustomOperator144:
+                    case AphidTokenType.CustomOperator145:
+                    case AphidTokenType.CustomOperator146:
+                    case AphidTokenType.CustomOperator147:
+                    case AphidTokenType.CustomOperator148:
+                    case AphidTokenType.CustomOperator149:
                     case AphidTokenType.CustomOperator15:
+                    case AphidTokenType.CustomOperator150:
+                    case AphidTokenType.CustomOperator151:
+                    case AphidTokenType.CustomOperator152:
+                    case AphidTokenType.CustomOperator153:
+                    case AphidTokenType.CustomOperator154:
+                    case AphidTokenType.CustomOperator155:
+                    case AphidTokenType.CustomOperator156:
+                    case AphidTokenType.CustomOperator157:
+                    case AphidTokenType.CustomOperator158:
+                    case AphidTokenType.CustomOperator159:
                     case AphidTokenType.CustomOperator16:
+                    case AphidTokenType.CustomOperator160:
+                    case AphidTokenType.CustomOperator161:
+                    case AphidTokenType.CustomOperator162:
+                    case AphidTokenType.CustomOperator163:
+                    case AphidTokenType.CustomOperator164:
+                    case AphidTokenType.CustomOperator165:
+                    case AphidTokenType.CustomOperator166:
+                    case AphidTokenType.CustomOperator167:
+                    case AphidTokenType.CustomOperator168:
+                    case AphidTokenType.CustomOperator169:
                     case AphidTokenType.CustomOperator17:
+                    case AphidTokenType.CustomOperator170:
+                    case AphidTokenType.CustomOperator171:
+                    case AphidTokenType.CustomOperator172:
+                    case AphidTokenType.CustomOperator173:
+                    case AphidTokenType.CustomOperator174:
+                    case AphidTokenType.CustomOperator175:
+                    case AphidTokenType.CustomOperator176:
+                    case AphidTokenType.CustomOperator177:
                     case AphidTokenType.CustomOperator18:
                     case AphidTokenType.CustomOperator19:
                     case AphidTokenType.CustomOperator2:
@@ -1668,6 +1775,7 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.CustomOperator97:
                     case AphidTokenType.CustomOperator98:
                     case AphidTokenType.CustomOperator99:
+                    #endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:

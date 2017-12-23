@@ -185,6 +185,7 @@
     <None Include="Aphid.Tmpl.alx" />
     <None Include="AphidObject.alx" />
     <None Include="App.config" />
+    <None Include="AphidCustomOperators.alx" />
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
