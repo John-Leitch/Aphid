@@ -704,7 +704,7 @@ namespace Components.Aphid.Interpreter
                     var func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
 
                     return ((IEnumerable<object>)ValueHelper
-                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Select(x => ValueHelper.Wrap(
                             InterpretFunctionExpression(
                                 expression,
@@ -717,7 +717,7 @@ namespace Components.Aphid.Interpreter
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
 
                     return ((IEnumerable<object>)ValueHelper
-                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .SelectMany(x =>
                             (IEnumerable<object>)(ValueHelper.Unwrap(
                                 InterpretFunctionExpression(
@@ -733,7 +733,7 @@ namespace Components.Aphid.Interpreter
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
 
                     return ((IEnumerable<object>)ValueHelper
-                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Aggregate((x, y) => ValueHelper.Wrap(
                             InterpretFunctionExpression(
                                 expression,
@@ -745,7 +745,7 @@ namespace Components.Aphid.Interpreter
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
 
                     return ((IEnumerable<object>)ValueHelper
-                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Any(x => (bool)ValueHelper.Unwrap(
                             InterpretFunctionExpression(
                                 expression,
@@ -757,7 +757,7 @@ namespace Components.Aphid.Interpreter
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
 
                     return ((IEnumerable<object>)ValueHelper
-                        .Unwrap(InterpretExpression(expression.LeftOperand)))
+                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Where(x => (bool)ValueHelper.Unwrap(
                             InterpretFunctionExpression(
                                 expression,
@@ -1472,7 +1472,7 @@ namespace Components.Aphid.Interpreter
 
                     case AphidTokenType.DistinctOperator:
                         var opExp = InterpretExpression(expression.Operand);
-                        var list = ((IEnumerable<object>)ValueHelper.Unwrap(opExp));
+                        var list = ((IEnumerable<object>)ValueHelper.UnwrapAndBoxCollection(opExp));
 
                         var result = list
                             .Select(ValueHelper.Unwrap)
