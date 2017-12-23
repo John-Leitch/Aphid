@@ -1,6 +1,4 @@
-﻿#'Std';
-
-keywordHelperTmpl = "
+﻿keywordHelperTmpl = "
     if (!NextChar())
 	{{
 		return AphidTokenType.{0};

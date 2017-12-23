@@ -6,6 +6,7 @@ parser AphidParser;
 
 Lexer({
     init: @() {
+        #'Std';
         #'Aphid.Tmpl';
         #'Aphid.Code';
         #'Aphid.Tokens';

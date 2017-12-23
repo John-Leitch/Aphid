@@ -1,6 +1,4 @@
-﻿#'Std';
-
-idCode = "
+﻿idCode = "
     state = 0;
 
     do
