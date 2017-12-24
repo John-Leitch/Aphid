@@ -45,10 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AphidBinaryOperatorExpressionRule.cs" />
     <Compile Include="AphidObjectGenerator.cs" />
-    <Compile Include="AphidParserGenerator.cs" />
-    <Compile Include="AphidParserRules.cs" />
     <Compile Include="CodeExpressionExtension.cs" />
     <Compile Include="CodeHelper.cs" />
     <Compile Include="CodeMemberMethodExtension.cs" />
