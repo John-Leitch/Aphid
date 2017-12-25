@@ -510,11 +510,6 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                if (expression.LeftOperand.ToString().Contains("obj . f"))
-                {
-                    Console.Write("");
-                }
-
                 var obj = InterpretBinaryOperatorExpression(expression.LeftOperand as BinaryOperatorExpression, true);                
                 var interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
 
@@ -566,6 +561,11 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
+                        if (func != null)
+                        {
+                            func.ParentScope = objRef.Object;
+                        }
+
                         objRef.Object[objRef.Name].Value = ValueHelper.Unwrap(value);
                     }
                 }
