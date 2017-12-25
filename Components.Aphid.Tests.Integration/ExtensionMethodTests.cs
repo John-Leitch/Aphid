@@ -34,5 +34,115 @@ namespace Components.Aphid.Tests.Integration
                 ret (3).square();
             ");
         }
+
+        [Test]
+        public void ExtensionMethodNumberTest()
+        {
+            Assert9("extend number{g:@(x)x}ret(9).g()");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest2()
+        {
+            Assert9("extend number{g:@(x)$_}ret(9).g()");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest3()
+        {
+            Assert9("extend number{g:@(x)$args[0]}ret(9).g()");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest4()
+        {
+            Assert9("extend number{g:@(x,y)x+y}ret(8).g(1)");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest5()
+        {
+            Assert9("extend number{g:@(x,y)$_+y}ret(8).g(1)");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest6()
+        {
+            Assert9("extend number{g:@(x,y)$args[0]+y}ret(8).g(1)");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest7()
+        {
+            Assert9("extend number{g:@(x,y)$_+$args[1]}ret(8).g(1)");
+        }
+
+        [Test]
+        public void ExtensionMethodNumberTest8()
+        {
+            Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknown()
+        {
+            Assert9("extend unknown{g:@(x)9}ret 1.GetType().g()");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknown2()
+        {
+            Assert9("extend unknown{g:@(x)9}ret 1.Equals.g()");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknown3()
+        {
+            Assert9("extend unknown{g:@()9}ret 1.GetType().g()");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknown4()
+        {
+            Assert9("extend unknown{g:@()9}ret 1.Equals.g()");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknownSecondArg()
+        {
+            Assert9("extend unknown{g:@(x, y)y}ret 1.Equals.g(9)");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknownImplicitArg()
+        {
+            AssertTrue(@"
+                extend unknown{g:@(x)$_.ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                ret 1.Equals.g(2)");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknownImplicitArg2()
+        {
+            AssertTrue(@"
+                extend unknown{g:@(x)$_.ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                ret 1.Equals.g()");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknownImplicitArg3()
+        {
+            AssertTrue(@"
+                extend unknown{g:@()$_.ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                ret 1.Equals.g()");
+        }
+
+        [Test]
+        public void ExtensionMethodTestUnknownImplicitArgArray()
+        {
+            AssertTrue(@"
+                extend unknown{g:@()$args[0].ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                ret 1.Equals.g()");
+        }
     }
 }

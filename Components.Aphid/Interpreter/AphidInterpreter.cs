@@ -14,16 +14,6 @@ namespace Components.Aphid.Interpreter
 {
     public partial class AphidInterpreter
     {
-        private const string
-            _return = "$r",
-            _imports = "$imports",
-            _implicitArg = "$_",
-            _implicitArgs = "$args",
-            _framesKey = "$frames",
-            _block = "$block",
-            _scope = "$scope",
-            _parent = "$parent";
-
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
 
         private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
@@ -67,8 +57,8 @@ namespace Components.Aphid.Interpreter
         {
             _createLoader = createLoader;
             _currentScope = new AphidObject();
-            _currentScope.Add(_scope, _currentScope);
-            _currentScope.Add(_parent, _currentScope.Parent);
+            _currentScope.Add(AphidName.Scope, _currentScope);
+            _currentScope.Add(AphidName.Parent, _currentScope.Parent);
             Init();            
         }
 
@@ -78,10 +68,10 @@ namespace Components.Aphid.Interpreter
 
             AphidObject scope;
 
-            if (!_currentScope.TryGetValue(_scope, out scope))
+            if (!_currentScope.TryGetValue(AphidName.Scope, out scope))
             {
-                _currentScope.Add(_scope, _currentScope);
-                _currentScope.Add(_parent, _currentScope.Parent);
+                _currentScope.Add(AphidName.Scope, _currentScope);
+                _currentScope.Add(AphidName.Parent, _currentScope.Parent);
             }
 
             Init();
@@ -94,9 +84,9 @@ namespace Components.Aphid.Interpreter
                 _loader = new AphidLoader(this);
             }
 
-            if (!_currentScope.ContainsKey(_framesKey))
+            if (!_currentScope.ContainsKey(AphidName.FramesKey))
             {
-                _currentScope.Add(_framesKey, new AphidObject(_frames));
+                _currentScope.Add(AphidName.FramesKey, new AphidObject(_frames));
             }
         }
 
@@ -117,14 +107,14 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject imports = null;
 
-            if (_currentScope.TryResolve(_imports, out imports))
+            if (_currentScope.TryResolve(AphidName.Imports, out imports))
             {
                 return (List<string>)imports.Value;
             }
             else
             {
                 var list = new List<string>();
-                _currentScope.Add(_imports, new AphidObject(list));
+                _currentScope.Add(AphidName.Imports, new AphidObject(list));
 
                 return list;
             }
@@ -144,9 +134,9 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject retVal = null;
 
-            if (_currentScope.TryResolve(_return, out retVal))
+            if (_currentScope.TryResolve(AphidName.Return, out retVal))
             {
-                _currentScope.Remove(_return);
+                _currentScope.Remove(AphidName.Return);
             }
 
             return retVal;
@@ -154,14 +144,14 @@ namespace Components.Aphid.Interpreter
 
         private void SetReturnValue(AphidObject obj)
         {
-            _currentScope.Add(_return, obj);
+            _currentScope.Add(AphidName.Return, obj);
         }
 
         public void EnterChildScope()
         {
             _currentScope = new AphidObject(null, _currentScope);
-            _currentScope.Add(_scope, _currentScope);
-            _currentScope.Add(_parent, _currentScope.Parent);
+            _currentScope.Add(AphidName.Scope, _currentScope);
+            _currentScope.Add(AphidName.Parent, _currentScope.Parent);
         }
 
         public bool LeaveChildScope(bool bubbleReturnValue = false)
@@ -1094,19 +1084,36 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject CallFunctionCore(AphidFunction function, IEnumerable<AphidObject> parms)
         {
+            AphidObject isExtensionObject;
+            
+            bool isExtension;
+            AphidObject extensionArg;
+
+            if (function.ParentScope != null &&
+                function.ParentScope.TryGetValue(AphidName.Extension, out isExtensionObject) &&
+                (bool)isExtensionObject.Value)
+            {
+                isExtension = true;
+                function.ParentScope.TryGetValue(AphidName.ImplicitArg, out extensionArg);
+            }
+            else
+            {
+                isExtension = false;
+                extensionArg = null;
+            }
+
             var functionScope = new AphidObject(null, function.ParentScope)
             {
-                { _parent, function.ParentScope }
+                { AphidName.Parent, function.ParentScope }
             };
 
-            functionScope.Add(_scope, functionScope);
+            functionScope.Add(AphidName.Scope, functionScope);
             var i = 0;
             var argList = parms.ToList();
-            functionScope[_implicitArgs] = new AphidObject(argList);
 
             foreach (var arg in argList)
             {
-                if (i == 0)
+                if (!isExtension && i == 0)
                 {
                     SetImplicitArg(functionScope, arg);
                 }
@@ -1118,6 +1125,14 @@ namespace Components.Aphid.Interpreter
 
                 functionScope.Add(function.Args[i++], arg);
             }
+
+            if (isExtension)
+            {
+                argList.Insert(0, extensionArg);
+                functionScope[AphidName.ImplicitArg] = extensionArg;
+            }
+
+            functionScope[AphidName.ImplicitArgs] = new AphidObject(argList);
 
             var lastScope = _currentScope;
             _currentScope = functionScope;
@@ -1135,7 +1150,7 @@ namespace Components.Aphid.Interpreter
 
         private void SetImplicitArg(AphidObject scope, AphidObject arg)
         {
-            scope[_implicitArg] = arg;
+            scope[AphidName.ImplicitArg] = arg;
         }
 
         private AphidObject CallInteropFunction(AphidInteropFunction func, params AphidObject[] objArgs)
@@ -1361,13 +1376,13 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretImplicitArgumentExpression(AphidExpression expression)
         {
-            return _currentScope.Resolve(_implicitArg);
+            return _currentScope.Resolve(AphidName.ImplicitArg);
         }
 
         private AphidObject InterpretImplicitArgumentsExpression(AphidExpression expression)
         {
             return _currentScope.Resolve(
-                _implicitArgs,
+                AphidName.ImplicitArgs,
                 "$args cannot be used outside of function.");
         }
 
@@ -2410,9 +2425,9 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject document;
 
-            if (!_currentScope.TryGetValue(_block, out document))
+            if (!_currentScope.TryGetValue(AphidName.Block, out document))
             {
-                _currentScope.Add(_block, new AphidObject(expressions));
+                _currentScope.Add(AphidName.Block, new AphidObject(expressions));
             }
 
             foreach (var expression in expressions)

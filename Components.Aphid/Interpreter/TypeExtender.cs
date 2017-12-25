@@ -148,8 +148,14 @@ namespace Components.Aphid.Interpreter
 
             var function = ((AphidFunction)val.Value).Clone();
             function.ParentScope = new AphidObject { Parent = scope };
-            function.ParentScope.Add(function.Args[0], obj);
-            function.Args = function.Args.Skip(1).ToArray();
+            function.ParentScope.Add(AphidName.ImplicitArg, obj);
+            function.ParentScope.Add(AphidName.Extension, new AphidObject(true));
+
+            if (function.Args.Any())
+            {
+                function.ParentScope.Add(function.Args[0], obj);
+                function.Args = function.Args.Skip(1).ToArray();
+            }
 
             return new AphidObject(function);
         }

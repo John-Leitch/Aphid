@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
+    <Compile Include="Interpreter\AphidName.cs" />
     <Compile Include="Library\Net\Http\AphidRequest.cs" />
     <Compile Include="Library\Net\Http\AphidSessionManager.cs" />
     <Compile Include="Library\Net\Http\AphidUpload.cs" />
