@@ -9,4 +9,4 @@ range = Enumerable.Range;
 join = String.Join;
 writeLine = Console.WriteLine;
 
-range(0, 10) @skip(1) @take(4) @join(', ') @writeLine('Numbers: {0}');
+range(0, 10) @skip(1) @take(4) -> @writeLine('Number: {0}');
