@@ -296,6 +296,13 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+        public bool IsDefined(string key)
+        {
+            AphidObject v;
+
+            return TryResolve(key, out v);
+        }
+
         public bool IsAphidType()
         {
             return IsAphidType(this.Value);

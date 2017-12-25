@@ -1867,12 +1867,12 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.definedKeyword:
                         if (expression.Operand is IdentifierExpression)
                         {
-                            return ValueHelper.Wrap(InterpretIdentifierExpression(expression.Operand as IdentifierExpression) != null);
+                            return new AphidObject(_currentScope.IsDefined(expression.Operand.ToIdentifier().Identifier));
                         }
                         else if (expression.Operand is BinaryOperatorExpression)
                         {
                             var objRef = InterpretBinaryOperatorExpression(expression.Operand as BinaryOperatorExpression, true) as AphidRef;
-                            return new AphidObject(objRef.Object.ContainsKey(objRef.Name));
+                            return new AphidObject(objRef.Object.IsDefined(objRef.Name));
                         }
                         else
                         {
