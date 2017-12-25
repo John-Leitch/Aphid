@@ -18,7 +18,7 @@ namespace Components.Aphid.Interpreter
 
         private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
         { 
-            new AphidFrame(null, "[Entrypoint]"),
+            new AphidFrame(null, new Lazy<string>(() => "[Entrypoint]")),
         });
 
         private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
@@ -1391,14 +1391,32 @@ namespace Components.Aphid.Interpreter
             AphidExpression functionExpression,
             IEnumerable<object> args)
         {
-            var name = functionExpression.Type == AphidExpressionType.IdentifierExpression ?
-                ((IdentifierExpression)functionExpression).Identifier :
-                "[Anonymous]";
+            var name = new Lazy<string>(() =>
+            {
+                switch (functionExpression.Type)
+                {
+                    case AphidExpressionType.IdentifierExpression:
+                        return ((IdentifierExpression)functionExpression).Identifier;
+
+                    case AphidExpressionType.BinaryOperatorExpression:
+                        var operands = Flatten(functionExpression);
+
+                        return operands.All(x => x.Type == AphidExpressionType.IdentifierExpression) ?
+                            FlattenAndJoinPath(functionExpression) :
+                            "[Anonymous]";
+
+                    default:
+                        return "[Anonymous]";
+                }
+            });
 
             PushFrame(callExpression, name, args);
         }
 
-        private void PushFrame(AphidExpression callExpression, string name, IEnumerable<object> args)
+        private void PushFrame(
+            AphidExpression callExpression,
+            Lazy<string> name,
+            IEnumerable<object> args)
         {
             _frames.Push(new AphidFrame(callExpression, name, args));
         }
@@ -1426,7 +1444,8 @@ namespace Components.Aphid.Interpreter
 
             PushFrame(
                 callExpression,
-                string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name),
+                new Lazy<string>(() =>
+                    string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name)),
                 convertedArgs);
 
             var retVal = method.Invoke(interopMembers.Target, convertedArgs);

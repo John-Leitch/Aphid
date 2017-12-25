@@ -11,21 +11,26 @@ namespace Components.Aphid.Interpreter
     {
         private AphidSerializer _serializer = new AphidSerializer();
 
+        private Lazy<string> _name;
+
         public AphidExpression Expression { get; set; }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return _name != null ? _name.Value : null; }
+        }
 
         public IEnumerable<object> Arguments { get; private set; }
 
-        public AphidFrame(AphidExpression expression, string name)
+        public AphidFrame(AphidExpression expression, Lazy<string> name)
             : this(expression, name, new object[0])
         {
         }
 
-        public AphidFrame(AphidExpression expression, string name, IEnumerable<object> arguments)
+        public AphidFrame(AphidExpression expression, Lazy<string> name, IEnumerable<object> arguments)
         {
             Expression = expression;
-            Name = name;
+            _name = name;
             Arguments = arguments;
         }
 
