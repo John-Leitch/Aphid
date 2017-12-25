@@ -1312,10 +1312,16 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
-            var args = expression.Args.Select(InterpretExpression).ToArray();
-
             var value = InterpretExpression(expression.FunctionExpression);
-            object funcExp = ValueHelper.Unwrap(value);
+            var funcExp = ValueHelper.Unwrap(value);
+
+            if (funcExp == null)
+            {
+                throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
+            }
+
+            var args = expression.Args.Select(InterpretExpression).ToArray();
+            
             return InterpretFunctionExpression(expression, expression.FunctionExpression, funcExp, args);
         }
 
