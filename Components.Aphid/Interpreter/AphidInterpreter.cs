@@ -1021,7 +1021,8 @@ namespace Components.Aphid.Interpreter
                 !expression.Identifier.Attributes.Any() ||
                 expression.Identifier.Attributes[0].Identifier != "class")
             {
-                var obj = new AphidObject();
+                var obj = new AphidObject(null, _currentScope);
+                _currentScope = obj;
 
                 foreach (var kvp in expression.Pairs)
                 {
@@ -1029,10 +1030,11 @@ namespace Components.Aphid.Interpreter
                         kvp.LeftOperand.ToIdentifier().Identifier :
                         ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
 
-                    obj.Add(
-                        objectKey, 
-                        ValueHelper.Wrap(InterpretExpression(kvp.RightOperand)));
+                    var objectValue = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
+                    obj.Add(objectKey, objectValue);
                 }
+
+                _currentScope = _currentScope.Parent;
 
                 return obj;
             }
