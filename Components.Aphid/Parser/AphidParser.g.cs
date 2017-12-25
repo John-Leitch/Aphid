@@ -454,17 +454,17 @@ namespace Components.Aphid.Parser
     public partial class ExtendExpression : AphidExpression, IParentNode
     {
 
-        private string _extendType;
+        private IdentifierExpression _extendType;
 
         private ObjectExpression _object;
 
-        public ExtendExpression(string extendType, ObjectExpression @object)
+        public ExtendExpression(IdentifierExpression extendType, ObjectExpression @object)
         {
             _extendType = extendType;
             _object = @object;
         }
 
-        public string ExtendType
+        public IdentifierExpression ExtendType
         {
             get
             {
@@ -491,6 +491,7 @@ namespace Components.Aphid.Parser
         public IEnumerable<AphidExpression> GetChildren()
         {
             return new AphidExpression[] {
+                    ExtendType,
                     Object};
         }
     }
@@ -3157,7 +3158,7 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseExtendExpression()
         {
             NextToken();
-            return new ExtendExpression(ParseIdentifierExpression().Identifier, ParseObjectExpression());
+            return new ExtendExpression(ParseIdentifierExpression(), ParseObjectExpression());
         }
 
         private AphidExpression ParseForExpression()

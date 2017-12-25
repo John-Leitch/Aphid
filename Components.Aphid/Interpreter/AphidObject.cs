@@ -63,26 +63,9 @@ namespace Components.Aphid.Interpreter
 
         public string GetValueType()
         {
-            if (Value != null)
-            {
-                switch (Value.GetType().Name)
-                {
-                    case "List`1":
-                        return AphidType.List;
-                    case "Decimal":
-                        return AphidType.Number;
-                    case "String":
-                        return AphidType.String;
-                    case "Boolean":
-                        return AphidType.Boolean;
-                    default:
-                        return AphidType.Unknown;
-                }
-            }
-            else
-            {
-                return AphidType.Null;
-            }
+            return Value != null ? 
+                AphidAlias.Resolve(Value.GetType()) ?? AphidType.Unknown :
+                AphidType.Null;
         }
 
         private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj)

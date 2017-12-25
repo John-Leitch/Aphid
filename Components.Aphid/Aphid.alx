@@ -83,7 +83,7 @@ CallExpression = { FunctionExpression, opt list Args };
 ContinueExpression = { };
 DoWhileExpression = { Condition, list Body };
 DynamicMemberExpression = { MemberExpression };
-ExtendExpression = { string ExtendType, ObjectExpression Object };
+ExtendExpression = { IdentifierExpression ExtendType, ObjectExpression Object };
 ForEachExpression = { Collection, list Body, opt Element };
 ForExpression = { Initialization, Condition, Afterthought, list Body };
 FunctionExpression = { list Args, list Body };
@@ -917,7 +917,7 @@ list ParseSingleBlock = _ParseBlock(ParseSingleStatement);
 // Todo: infer return type and cast if necessary.
 // Todo: Extend expression should probably accept IdExp to support attributes
 ParseExtendExpression = SkipThen(
-    ExtendExpression(ParseIdentifierExpression().Identifier, ParseObjectExpression()));
+    ExtendExpression(ParseIdentifierExpression(), ParseObjectExpression()));
 
 // Todo: support empty objects
 

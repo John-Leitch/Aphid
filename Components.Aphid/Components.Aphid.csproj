@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
     <Compile Include="Library\Net\Http\AphidRequest.cs" />
     <Compile Include="Library\Net\Http\AphidSessionManager.cs" />

@@ -362,13 +362,23 @@ namespace Components.Aphid.Interpreter
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
+            string key;
 
             if (obj != null && !obj.IsAphidType())
             {
+                if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
+                {
+                    key = expression.RightOperand.ToIdentifier().Identifier;
+                    var extension = TypeExtender.TryResolve(_currentScope, obj, key, false);
+
+                    if (extension != null)
+                    {
+                        return extension;
+                    }
+                }
+
                 return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
             }
-
-            string key;
 
             if (expression.RightOperand is IdentifierExpression)
             {
