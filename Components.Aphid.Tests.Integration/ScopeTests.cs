@@ -215,6 +215,24 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void ReassignScopeTest()
+        {
+            Assert9("y=11;o={f:null,y:9};o.f=@()this.y;ret o.f()");
+        }
+
+        [Test]
+        public void ReassignScopeTest2()
+        {
+            Assert9("y=11;o={f:null,y:9};o.f=null;o.f=@()this.y;ret o.f()");
+        }
+
+        [Test]
+        public void ReassignScopeTest3()
+        {
+            Assert9("y=11;o={o2:{},y:9};o.o2.f=null;o.o2.f=@()this.y;ret o.o2.f()");
+        }
+
+        [Test]
         public void VariableDeclarationTest()
         {
             AssertTrue("x; ret x defined;");
