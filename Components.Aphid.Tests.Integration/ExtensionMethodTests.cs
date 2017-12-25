@@ -144,5 +144,104 @@ namespace Components.Aphid.Tests.Integration
                 extend unknown{g:@()$args[0].ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
                 ret 1.Equals.g()");
         }
+
+        [Test]
+        public void ExtensionMethodInteropTest()
+        {
+            Assert9(@"
+                using Components.Aphid.Parser;
+                extend FunctionExpression {isFunc: @(o)9}
+                ret @{@{ }}.Body[0].isFunc();
+            ");
+        }
+
+        public void ExtensionMethodInteropTest(
+            string targetType,
+            string paramDecl = "o", 
+            string paramRef = "o")
+        {
+            AssertTrue(@"
+                #'Std';
+                #'Meta';
+                using Components.Aphid.Parser;
+                using System;
+                extend " + targetType + @" {" + 
+                    @"isFunc: @(" + paramDecl + @")" + paramRef + @".GetType()" + 
+                        @"==(FunctionExpression|>typeof)}
+                ret @{@{ }}.Body[0].isFunc();
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest()
+        {
+            ExtensionMethodInteropTest("FunctionExpression");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest2()
+        {
+            ExtensionMethodInteropTest("AphidExpression");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest3()
+        {
+            ExtensionMethodInteropTest("AphidNode");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest4()
+        {
+            ExtensionMethodInteropTest("Object");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest5()
+        {
+            ExtensionMethodInteropTest("FunctionExpression", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest6()
+        {
+            ExtensionMethodInteropTest("AphidExpression", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest7()
+        {
+            ExtensionMethodInteropTest("AphidNode", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest8()
+        {
+            ExtensionMethodInteropTest("Object", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest9()
+        {
+            ExtensionMethodInteropTest("FunctionExpression", "", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest10()
+        {
+            ExtensionMethodInteropTest("AphidExpression", "", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest11()
+        {
+            ExtensionMethodInteropTest("AphidNode", "", paramRef: "$_");
+        }
+
+        [Test]
+        public void ExtensionMethodInteropInheritanceTest12()
+        {
+            ExtensionMethodInteropTest("Object", "", paramRef: "$_");
+        }
     }
 }
