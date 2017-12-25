@@ -59,36 +59,6 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void ScopeTest()
-        {
-            AssertFalse("test=@(){x='foo'; ret x;}; test(); ret x defined;");
-        }
-
-        [Test]
-        public void ScopeTest2()
-        {
-            AssertFalse("test=@()x='foo'; test(); ret x defined;");
-        }
-
-        [Test]
-        public void ScopeTest3()
-        {
-            AssertTrue("x='foo'; ret x defined;");
-        }
-
-        [Test]
-        public void ScopeTest4()
-        {
-            AssertFalse("if (true) { x = 1; } ret x defined;");
-        }
-
-        [Test]
-        public void ScopeTest5()
-        {
-            AssertTrue("x = 0; if (true) { x = 1; } ret x defined;");
-        }
-
-        [Test]
         public void ScopeTest6()
         {
             Assert9("x={y:0}; if (true) { x.y = 9; } ret x.y;");
@@ -230,12 +200,6 @@ namespace Components.Aphid.Tests.Integration
         public void ReassignScopeTest3()
         {
             Assert9("y=11;o={o2:{},y:9};o.o2.f=null;o.o2.f=@()this.y;ret o.o2.f()");
-        }
-
-        [Test]
-        public void VariableDeclarationTest()
-        {
-            AssertTrue("x; ret x defined;");
         }
     }
 }
