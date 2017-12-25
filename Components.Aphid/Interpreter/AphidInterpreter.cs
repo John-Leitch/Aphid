@@ -59,7 +59,7 @@ namespace Components.Aphid.Interpreter
             _currentScope = new AphidObject();
             _currentScope.Add(AphidName.Scope, _currentScope);
             _currentScope.Add(AphidName.Parent, _currentScope.Parent);
-            Init();            
+            Init();
         }
 
         public AphidInterpreter(AphidObject currentScope)
@@ -416,44 +416,32 @@ namespace Components.Aphid.Interpreter
         private object InterpetAssignmentExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var value = InterpretExpression(expression.RightOperand);
-            var func = ValueHelper.Unwrap(value) as AphidFunction;
-            var value2 = value as AphidObject;
-            var idExp = expression.LeftOperand as IdentifierExpression;
-            ArrayAccessExpression arrayAccessExp;
+            var value2 = ValueHelper.Wrap(value);
+            AphidFunction func;
 
-            if (idExp != null)
+
+            if (expression.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
             {
+                var idExp = expression.LeftOperand.ToIdentifier();
                 var id = idExp.Identifier;
+
                 var destObj = InterpretIdentifierExpression(idExp);
 
                 if (destObj == null)
                 {
-                    destObj = new AphidObject();
-
-                    _currentScope.Add(id, destObj);
+                    _currentScope.Add(id, value2);
                 }
                 else
                 {
-                    destObj.Clear();
+                    var parent = _currentScope.TryResolveParent(id);
+                    parent[id] = value2;
                 }
 
-                if (value2 != null)
-                {
-                    destObj.Value = value2.Value;
-                    destObj.Parent = value2.Parent;
-
-                    foreach (var x in value2)
-                    {
-                        destObj.Add(x.Key, x.Value);
-                    }
-                }
-                else
-                {
-                    destObj.Value = value;
-                }
+                return value2;
             }
-            else if ((arrayAccessExp = expression.LeftOperand as ArrayAccessExpression) != null)
+            else if (expression.LeftOperand.Type == AphidExpressionType.ArrayAccessExpression)
             {
+                var arrayAccessExp = (ArrayAccessExpression)expression.LeftOperand;
                 var targetObj = InterpretExpression(arrayAccessExp.ArrayExpression);
                 var targetObjUnwrapped = ValueHelper.Unwrap(targetObj);
 
@@ -462,7 +450,7 @@ namespace Components.Aphid.Interpreter
 
                 Array targetArray;
                 List<AphidObject> targetAphidList;
-                
+
                 if ((targetArray = targetObjUnwrapped as Array) != null)
                 {
                     targetArray.SetValue(
@@ -508,9 +496,12 @@ namespace Components.Aphid.Interpreter
                     }
                 }
             }
-            else
+            else if (expression.LeftOperand.Type == AphidExpressionType.BinaryOperatorExpression)
             {
-                var obj = InterpretBinaryOperatorExpression(expression.LeftOperand as BinaryOperatorExpression, true);                
+                var obj = InterpretBinaryOperatorExpression(
+                    (BinaryOperatorExpression)expression.LeftOperand,
+                    true);
+
                 var interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
 
                 if (interopRef != null)
@@ -527,12 +518,12 @@ namespace Components.Aphid.Interpreter
                     {
                         interopRef.Property.SetValue(
                             interopRef.Object,
-                            v != null ? 
+                            v != null ?
                                 AphidTypeConverter.Convert(interopRef.Property.PropertyType, v) :
                                 null);
                     }
 
-                    if (func != null && interopRef.Object is AphidObject)
+                    if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
                     {
                         func.ParentScope = (AphidObject)interopRef.Object;
                     }
@@ -552,7 +543,9 @@ namespace Components.Aphid.Interpreter
                     {
                         var v = (AphidObject)value;
 
-                        if (func != null)
+                        func = ValueHelper.Unwrap(value) as AphidFunction;
+
+                        if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
                         {
                             func.ParentScope = v;
                         }
@@ -561,7 +554,7 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        if (func != null)
+                        if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
                         {
                             func.ParentScope = objRef.Object;
                         }
@@ -571,13 +564,19 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    if (func != null)
+                    objRef.Object.Add(objRef.Name, ValueHelper.Wrap(value));
+
+                    if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
                     {
                         func.ParentScope = objRef.Object;
                     }
-
-                    objRef.Object.Add(objRef.Name, ValueHelper.Wrap(value));
                 }
+            }
+            else
+            {
+                throw new AphidRuntimeException(
+                    "Invalid left hand side of assignment expression: {0}",
+                    expression);
             }
 
             return value;
@@ -715,10 +714,12 @@ namespace Components.Aphid.Interpreter
                         InterpretExpression(expression.RightOperand) as AphidObject);
 
                 case AphidTokenType.SelectOperator:
-                    var func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    var collection = InterpretExpression(expression.LeftOperand);
+                    var funcObj = InterpretExpression(expression.RightOperand);
+                    var func = ValueHelper.Unwrap(funcObj);
 
                     return ((IEnumerable<object>)ValueHelper
-                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
+                        .UnwrapAndBoxCollection(collection))
                         .Select(x => ValueHelper.Wrap(
                             InterpretFunctionExpression(
                                 expression,
@@ -1048,7 +1049,7 @@ namespace Components.Aphid.Interpreter
 
                 foreach (var kvp in expression.Pairs)
                 {
-                    var objectKey = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ? 
+                    var objectKey = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
                         kvp.LeftOperand.ToIdentifier().Identifier :
                         ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
 
@@ -1109,7 +1110,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject CallFunctionCore(AphidFunction function, IEnumerable<AphidObject> parms)
         {
             AphidObject isExtensionObject;
-            
+
             bool isExtension;
             AphidObject extensionArg;
 
@@ -1321,7 +1322,7 @@ namespace Components.Aphid.Interpreter
             }
 
             var args = expression.Args.Select(InterpretExpression).ToArray();
-            
+
             return InterpretFunctionExpression(expression, expression.FunctionExpression, funcExp, args);
         }
 
@@ -1631,7 +1632,7 @@ namespace Components.Aphid.Interpreter
 
                             default:
                                 throw new AphidRuntimeException("Invalid operand used with load keyword.");
-                                
+
                         }
 
                         return ValueHelper.Wrap(asm);
@@ -1865,6 +1866,8 @@ namespace Components.Aphid.Interpreter
                         return new AphidObject(v);
 
                     case AphidTokenType.definedKeyword:
+
+
                         if (expression.Operand is IdentifierExpression)
                         {
                             return new AphidObject(_currentScope.IsDefined(expression.Operand.ToIdentifier().Identifier));
@@ -1872,6 +1875,7 @@ namespace Components.Aphid.Interpreter
                         else if (expression.Operand is BinaryOperatorExpression)
                         {
                             var objRef = InterpretBinaryOperatorExpression(expression.Operand as BinaryOperatorExpression, true) as AphidRef;
+
                             return new AphidObject(objRef.Object.IsDefined(objRef.Name));
                         }
                         else
