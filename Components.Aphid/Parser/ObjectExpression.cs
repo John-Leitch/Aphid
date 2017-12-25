@@ -12,10 +12,7 @@ namespace Components.Aphid.Parser
         {
             return string.Format(
                 "{{ {0} }}",
-                Pairs
-                    .DefaultIfEmpty()
-                    .Select(x => x.ToString())
-                    .Aggregate((x, y) => x + ", " + y));
+                string.Join(", ", Pairs.Select(x => x.ToString())));
         }
     }
 }
