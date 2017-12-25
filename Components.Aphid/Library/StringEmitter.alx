@@ -1,7 +1,13 @@
 ﻿#'Meta';
-
+#'Query';
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
+using System;
+using System.Text;
+
+_printNode = macro(@{
+    $_ @_e.print('Node: {0} -> {1}', this.{'$frames'}[1].Name)
+});
 
 opStr = {
     unaryPrefix = {
@@ -64,13 +70,6 @@ opStr = {
         get: @(token) opStr.binary.{token},
     }
 };
-_printNode = macro(@{
-    $_ @_e.print('Node: {0} -> {1}', this.{'$frames'}[1].Name)
-});
-
-#'Query';
-using System;
-using System.Text;
 
 stringEmitter =  {
     depth: 0,
