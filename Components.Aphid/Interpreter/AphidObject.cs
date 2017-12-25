@@ -296,6 +296,24 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+        public AphidObject TryResolveParent(string key)
+        {
+            AphidObject value;
+
+            if (TryGetValue(key, out value))
+            {
+                return this;
+            }
+            else if (Parent != null)
+            {
+                return Parent.TryResolveParent(key);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public bool IsDefined(string key)
         {
             AphidObject v;
