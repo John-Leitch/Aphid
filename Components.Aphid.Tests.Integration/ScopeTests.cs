@@ -161,6 +161,24 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void ObjectMemberScopeTest12()
+        {
+            Assert9("y=8;o={x:1,o2:{o:{o2:{f:@()this.x+this.y}}}};ret o.o2.o.o2.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest13()
+        {
+            Assert9("y=8;o={x:1,o2:{o:{o2:{f:@()this.x+this.y}}}};ret this.o.o2.o.o2.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest14()
+        {
+            Assert9("y=11;o={x:1,o2:{o:{o2:{f:@(y)this.x+this.y}}}};ret this.o.o2.o.o2.f(8)");
+        }
+
+        [Test]
         public void VariableDeclarationTest()
         {
             AssertTrue("x; ret x defined;");
