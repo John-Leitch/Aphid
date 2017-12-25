@@ -179,6 +179,42 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void AssignScopeTest()
+        {
+            Assert9("y=9;f=@()9;ret f()");
+        }
+
+        [Test]
+        public void AssignScopeTest2()
+        {
+            Assert9("y=11;o={y:9};o.f=@()9;ret o.f()");
+        }
+
+        [Test]
+        public void AssignScopeTest3()
+        {
+            Assert9("y=11;o={y:9};o.f=@()y;ret o.f()");
+        }
+
+        [Test]
+        public void AssignScopeTest4()
+        {
+            Assert9("y=11;o={y:9};o.f=@()this.y;ret o.f()");
+        }
+
+        [Test]
+        public void AssignScopeTest5()
+        {
+            Assert9("y=11;o={o2:{y:9}};o.o2.f=@()this.y;ret o.o2.f()");
+        }
+
+        [Test]
+        public void AssignScopeTest6()
+        {
+            Assert9("y=11;o={o2:{},y:9};o.o2.f=@()this.y;ret o.o2.f()");
+        }
+
+        [Test]
         public void VariableDeclarationTest()
         {
             AssertTrue("x; ret x defined;");

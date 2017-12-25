@@ -416,6 +416,7 @@ namespace Components.Aphid.Interpreter
         private object InterpetAssignmentExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var value = InterpretExpression(expression.RightOperand);
+            var func = ValueHelper.Unwrap(value) as AphidFunction;
             var value2 = value as AphidObject;
             var idExp = expression.LeftOperand as IdentifierExpression;
             ArrayAccessExpression arrayAccessExp;
@@ -509,8 +510,12 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var obj = InterpretBinaryOperatorExpression(expression.LeftOperand as BinaryOperatorExpression, true);
+                if (expression.LeftOperand.ToString().Contains("obj . f"))
+                {
+                    Console.Write("");
+                }
 
+                var obj = InterpretBinaryOperatorExpression(expression.LeftOperand as BinaryOperatorExpression, true);                
                 var interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
 
                 if (interopRef != null)
@@ -532,6 +537,11 @@ namespace Components.Aphid.Interpreter
                                 null);
                     }
 
+                    if (func != null && interopRef.Object is AphidObject)
+                    {
+                        func.ParentScope = (AphidObject)interopRef.Object;
+                    }
+
                     return value;
                 }
 
@@ -545,7 +555,14 @@ namespace Components.Aphid.Interpreter
                 {
                     if (ValueHelper.IsComplexAphidObject(value))
                     {
-                        objRef.Object[objRef.Name] = (AphidObject)value;
+                        var v = (AphidObject)value;
+
+                        if (func != null)
+                        {
+                            func.ParentScope = v;
+                        }
+
+                        objRef.Object[objRef.Name] = v;
                     }
                     else
                     {
@@ -554,6 +571,11 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
+                    if (func != null)
+                    {
+                        func.ParentScope = objRef.Object;
+                    }
+
                     objRef.Object.Add(objRef.Name, ValueHelper.Wrap(value));
                 }
             }
