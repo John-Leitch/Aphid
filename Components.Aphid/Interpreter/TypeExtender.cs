@@ -13,6 +13,22 @@ namespace Components.Aphid.Interpreter
             return string.Format("$ext.{0}.{1}", type, nameStr);
         }
 
+        public static string[] FanInteropName(AphidObject obj)
+        {
+            var names = new List<string>();
+            var t = obj.Value.GetType();
+
+            do
+            {
+                names.Add(GetInteropName(t));
+                t = t.BaseType;
+            } while (t != null);
+
+            names.Add(AphidType.Unknown);
+
+            return names.ToArray();
+        }
+
         public static string GetInteropName(AphidObject obj)
         {
             return GetInteropName(obj.Value.GetType());
@@ -91,8 +107,6 @@ namespace Components.Aphid.Interpreter
                     }
 
                     type = GetInteropName(interopType);
-
-                    Console.Write("");
                 }
 
                 var key = GetName(type, nameStr);
@@ -119,17 +133,15 @@ namespace Components.Aphid.Interpreter
             string key,
             bool isAphidType)
         {
-            var t = isAphidType ?
-                obj.GetValueType() :
-                GetInteropName(obj);
+            var classHierarchy = isAphidType ?
+                new[] { obj.GetValueType() }:
+                FanInteropName(obj);
 
-            string extKey = TypeExtender.GetName(t, key),
-                unknownKey = TypeExtender.GetName(AphidType.Unknown, key);
+            AphidObject val = null;
 
-            AphidObject val;
-
-            if (!scope.TryResolve(extKey, out val) &&
-                !scope.TryResolve(unknownKey, out val))
+            if (classHierarchy
+                    .Select(x => TypeExtender.GetName(x, key))
+                    .FirstOrDefault(x => scope.TryResolve(x, out val)) == null)
             {
                 return null;
             }
@@ -138,7 +150,7 @@ namespace Components.Aphid.Interpreter
             function.ParentScope = new AphidObject { Parent = scope };
             function.ParentScope.Add(function.Args[0], obj);
             function.Args = function.Args.Skip(1).ToArray();
-            
+
             return new AphidObject(function);
         }
     }
