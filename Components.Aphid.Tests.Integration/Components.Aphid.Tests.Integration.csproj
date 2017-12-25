@@ -50,6 +50,7 @@
     <Compile Include="AphidTests.cs" />
     <Compile Include="AssignmentTests.cs" />
     <Compile Include="ClassTests.cs" />
+    <Compile Include="ExtensionMethodTests.cs" />
     <Compile Include="CustomOperatorTests.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="IndexTests.cs" />

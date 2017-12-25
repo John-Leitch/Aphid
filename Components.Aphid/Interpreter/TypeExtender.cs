@@ -29,5 +29,24 @@ namespace Components.Aphid.Interpreter
                 }
             }
         }
+
+        public static AphidObject TryResolve(AphidObject scope, AphidObject obj, string key)
+        {
+            var t = obj.GetValueType();
+            var extKey = TypeExtender.GetName(t, key);
+            AphidObject val;
+
+            if (!scope.TryResolve(extKey, out val))
+            {
+                return null;
+            }
+
+            var function = ((AphidFunction)val.Value).Clone();
+            function.ParentScope = new AphidObject { Parent = scope };
+            function.ParentScope.Add(function.Args[0], obj);
+            function.Args = function.Args.Skip(1).ToArray();
+            
+            return new AphidObject(function);
+        }
     }
 }

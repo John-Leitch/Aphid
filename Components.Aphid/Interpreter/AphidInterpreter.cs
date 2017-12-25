@@ -402,19 +402,11 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
-                    var t = obj.GetValueType();
-                    var extKey = TypeExtender.GetName(t, key);
+                    val = TypeExtender.TryResolve(_currentScope, obj, key);
 
-                    if (!_currentScope.TryResolve(extKey, out val))
-                    {
-                        return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
-                    }
-
-                    var function = ((AphidFunction)val.Value).Clone();
-                    function.ParentScope = new AphidObject { Parent = _currentScope };
-                    function.ParentScope.Add(function.Args[0], obj);
-                    function.Args = function.Args.Skip(1).ToArray();
-                    val = new AphidObject(function);
+                    return val == null ?
+                        InterpretMemberInteropExpression(obj.Value, expression, returnRef) :
+                        val;
                 }
 
                 return val;
