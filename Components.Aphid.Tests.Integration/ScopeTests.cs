@@ -95,6 +95,72 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void ObjectMemberScopeTest()
+        {
+            Assert9("x=1;o={x:9,f:@()x};ret o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest2()
+        {
+            Assert9("x=1;o={x:9,o2:{f:@()x}};ret o.o2.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest3()
+        {
+            Assert9("x=1;o={x:9,o2:{o3:{f:@()x}}};ret o.o2.o3.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest4()
+        {
+            Assert9("x=1;o={x:9,o:{o:{f:@()x}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest5()
+        {
+            Assert9("x=1;o={x:9,o:{o:{f:@()this.x}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest6()
+        {
+            Assert9("y=9;o={x:1,o:{o:{f:@()y}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest7()
+        {
+            Assert9("y=9;o={x:1,o:{o:{f:@()this.y}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest8()
+        {
+            Assert9("y=8;o={x:1,o:{o:{f:@()x+y}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest9()
+        {
+            Assert9("y=8;o={x:1,o:{o:{f:@()this.x+y}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest10()
+        {
+            Assert9("y=8;o={x:1,o:{o:{f:@()x+this.y}}};ret o.o.o.f()");
+        }
+
+        [Test]
+        public void ObjectMemberScopeTest11()
+        {
+            Assert9("y=8;o={x:1,o:{o:{f:@()this.x+this.y}}};ret o.o.o.f()");
+        }
+
+        [Test]
         public void VariableDeclarationTest()
         {
             AssertTrue("x; ret x defined;");
