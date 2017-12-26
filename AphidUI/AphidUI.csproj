@@ -85,6 +85,7 @@
     <Compile Include="PropertyChangedAttribute.cs" />
     <Compile Include="TextCell.cs" />
     <Compile Include="TextCellType.cs" />
+    <Compile Include="ViewModels\ViewModels.g.cs" />
     <Compile Include="ViewModels\ExpressionViewModel.cs" />
     <Compile Include="ViewModels\VariableViewModel.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
@@ -158,8 +159,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>echo "Starting ILWeave"
-"..\..\..\ILWeave\bin\$(ConfigurationName)\ILWeave.exe" "$(TargetPath)"
+    <PostBuildEvent>:: echo "Starting ILWeave"
+:: "..\..\..\ILWeave\bin\$(ConfigurationName)\ILWeave.exe" "$(TargetPath)"
 :: Build ILWeave in release mode update the build event like so
 :: for better perf:
 "..\..\..\ILWeave\bin\Release\ILWeave.exe" "$(TargetPath)"

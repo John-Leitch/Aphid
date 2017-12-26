@@ -2,7 +2,7 @@
 
 namespace AphidUI.ViewModels
 {
-    public class ExpressionViewModel : ViewModel
+    public partial class ExpressionViewModel : ViewModel
     {
         public event EventHandler ExpressionChanged;
 
@@ -20,14 +20,6 @@ namespace AphidUI.ViewModels
                     ExpressionChanged(this, new EventArgs());
                 }
             }
-        }
-
-        private object _value;
-
-        public object Value
-        {
-            get { return _value; }
-            set { SetProperty(ref _value, value); }
         }
     }
 }

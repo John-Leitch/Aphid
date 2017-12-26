@@ -14,7 +14,7 @@ using System.Windows.Documents;
 
 namespace AphidUI.ViewModels
 {
-    public class AphidReplViewModel : ViewModel
+    public partial class AphidReplViewModel : ViewModel
     {
         public const string NoValue = "Expression has been evaluated and has no value";
 
@@ -53,62 +53,6 @@ namespace AphidUI.ViewModels
         private AutoResetEvent _autoSaveEvent = new AutoResetEvent(false);
 
         private bool _shouldSave = false;
-
-        [PropertyChanged]
-        public bool IsControlInitialized { get; set; }
-
-        private bool _isExecuting;
-
-        [PropertyChanged]
-        public bool IsExecuting
-        {
-            get { return _isExecuting; }
-            set
-            {
-                _isExecuting = value;
-
-                RunVisibility = value ? Visibility.Collapsed : Visibility.Visible;
-                StopVisibility = value ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        [PropertyChanged, Setting]
-        public string Code { get; set; }
-
-        [PropertyChanged]
-        public string Output { get; set; }
-
-        private bool _isMultiLine;
-
-        [PropertyChanged, Setting]
-        public bool IsMultiLine
-        {
-            get { return _isMultiLine; }
-            set
-            {
-                _isMultiLine = value;
-                ExpressionVisibility = value ? Visibility.Collapsed : Visibility.Visible;
-                StatementsVisibility = value ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        [PropertyChanged, Setting]
-        public Visibility ExpressionVisibility { get; set; }
-
-        [PropertyChanged, Setting]
-        public Visibility StatementsVisibility { get; set; }
-
-        [PropertyChanged, Setting]
-        public Visibility RunVisibility { get; set; }
-
-        [PropertyChanged, Setting]
-        public Visibility StopVisibility { get; set; }
-
-        [PropertyChanged, Setting]
-        public Visibility LineOptionVisibility { get; set; }
-
-        [PropertyChanged]
-        public string Status { get; set; }
 
         private ObservableCollection<VariableViewModel> _variables = new ObservableCollection<VariableViewModel>();
 
