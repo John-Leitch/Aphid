@@ -42,11 +42,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidHdl", "AphidHdl\AphidHdl.csproj", "{C29B4B38-86EA-4760-8830-5006CE6868D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidUI", "AphidUI\AphidUI.csproj", "{B828964B-52F1-4EA5-9AB3-26D698DB8325}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A0FAE839-87CE-4A92-8955-5B21787D951D} = {A0FAE839-87CE-4A92-8955-5B21787D951D}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILWeave", "ILWeave\ILWeave.csproj", "{A0FAE839-87CE-4A92-8955-5B21787D951D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F373793E-8B71-478F-9D95-DB8169F74E78}"
 	ProjectSection(SolutionItems) = preProject
@@ -90,35 +85,50 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.Silverligh
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 5
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
-		SccProjectUniqueName0 = ILWeave\\ILWeave.csproj
-		SccProjectName0 = ILWeave
+		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
+		SccProjectName0 = Components.Aphid
 		SccAuxPath0 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath0 = ILWeave
+		SccLocalPath0 = Components.Aphid
 		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName1 = Components.Aphid\\Components.Aphid.csproj
-		SccProjectName1 = Components.Aphid
+		SccProjectUniqueName1 = Aphid\\Aphid.csproj
+		SccProjectName1 = Aphid
 		SccAuxPath1 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath1 = Components.Aphid
+		SccLocalPath1 = Aphid
 		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName2 = Aphid\\Aphid.csproj
-		SccProjectName2 = Aphid
+		SccProjectUniqueName2 = Components.Aphid.Tests.Integration\\Components.Aphid.Tests.Integration.csproj
+		SccProjectName2 = Components.Aphid.Tests.Integration
 		SccAuxPath2 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath2 = Aphid
+		SccLocalPath2 = Components.Aphid.Tests.Integration
 		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName3 = Components.Aphid.Tests.Integration\\Components.Aphid.Tests.Integration.csproj
-		SccProjectName3 = Components.Aphid.Tests.Integration
+		SccProjectUniqueName3 = Mantispid\\Mantispid.csproj
+		SccProjectTopLevelParentUniqueName3 = Aphid.sln
+		SccProjectName3 = Mantispid
 		SccAuxPath3 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath3 = Components.Aphid.Tests.Integration
+		SccLocalPath3 = Mantispid
 		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName4 = Mantispid\\Mantispid.csproj
-		SccProjectTopLevelParentUniqueName4 = Aphid.sln
-		SccProjectName4 = Mantispid
+		SccProjectUniqueName4 = AphidUI\\AphidUI.csproj
+		SccProjectName4 = AphidUI
 		SccAuxPath4 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath4 = Mantispid
+		SccLocalPath4 = AphidUI
 		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName5 = AphidCodeGenerator\\AphidCodeGenerator.csproj
+		SccProjectName5 = AphidCodeGenerator
+		SccAuxPath5 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath5 = AphidCodeGenerator
+		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName6 = LLex\\LLex.csproj
+		SccProjectName6 = LLex
+		SccAuxPath6 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath6 = LLex
+		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName7 = AphidPerformanceTest\\AphidPerformanceTest.csproj
+		SccProjectName7 = AphidPerformanceTest
+		SccAuxPath7 = https://autosectools.visualstudio.com/defaultcollection
+		SccLocalPath7 = AphidPerformanceTest
+		SccProvider7 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -319,16 +329,6 @@ Global
 		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.Release|Win32.ActiveCfg = Release|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A0FAE839-87CE-4A92-8955-5B21787D951D}.Release|Win32.ActiveCfg = Release|Any CPU
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

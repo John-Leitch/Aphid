@@ -82,7 +82,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PropertyChangedAttribute.cs" />
     <Compile Include="TextCell.cs" />
     <Compile Include="TextCellType.cs" />
     <Compile Include="ViewModels\ViewModels.g.cs" />
@@ -159,13 +158,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>:: echo "Starting ILWeave"
-:: "..\..\..\ILWeave\bin\$(ConfigurationName)\ILWeave.exe" "$(TargetPath)"
-:: Build ILWeave in release mode update the build event like so
-:: for better perf:
-"..\..\..\ILWeave\bin\Release\ILWeave.exe" "$(TargetPath)"
-echo "IL Weave done"
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
