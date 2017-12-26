@@ -1,0 +1,31 @@
+﻿@{
+    using System.Windows;
+
+    AphidUI.ViewModels;    
+
+    hide ? Visibility.Collapsed : Visibility.Visible;
+    show ? Visibility.Visible : Visibility.Collapsed;
+
+    class AphidReplViewModel {
+        bool IsControlInitialized,
+            IsExecuting,
+                hide RunVisibility,
+                show StopVisibility, 
+            IsMultiLine,
+                hide ExpressionVisibility,
+                show StatementsVisibility,
+
+        string Code,
+            Output,
+            Status,
+
+        Visibility ExpressionVisibility,
+            StatementsVisibility,
+            RunVisibility,
+            StopVisibility,
+            LineOptionVisibility,
+    };
+
+    class VariableViewModel { string Name, object Value };
+    class ExpressionViewModel { object Value };
+}.Body |> e.emit;

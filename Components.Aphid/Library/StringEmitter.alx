@@ -11,6 +11,7 @@ _printNode = macro(@{
 
 opStr = {
     unaryPrefix = {
+        usingKeyword: 'using ',
         retKeyword: 'ret ',
         NotOperator: "!",
         MinusOperator: "-",
@@ -134,7 +135,7 @@ strEmitter =  {
         
         [ 'begin', 'emit', 'end' ]->@{
             n = $_ + expression.Type;
-            
+            //n @print('Looking for {0}');
             if (this.{n} defined) {
                 this.{n}(expression, isStatement);
             }
