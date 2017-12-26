@@ -1,4 +1,4 @@
-﻿#'Meta';
+﻿//#'Meta';
 #'Query';
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
@@ -71,7 +71,7 @@ opStr = {
     }
 };
 
-stringEmitter =  {
+strEmitter =  {
     depth: 0,
     margin: @() depth * '    ',
     indent: @() depth++,
@@ -83,6 +83,17 @@ stringEmitter =  {
             text.Append(t);
         else
             text.AppendFormat(t, $args @aq.skip(1))
+    },
+
+    appendLine: @(t, args) {
+        append(margin());
+
+        if ($args.Count == 1)
+            text.Append(t);
+        else
+            text.AppendFormat(t, $args @aq.skip(1));
+
+        append('\r\n');
     },
     
     //print: @(msg, args) {
@@ -114,15 +125,16 @@ stringEmitter =  {
         emitExpression(statement, true);
         endStatement(statement);
     },
-
+    
     beginExpression: @(expression) { },
     endExpression: @(expression) { },
 
     emitExpression: @(expression, isStatement) {
         expression |> beginExpression;
-            
+        
         [ 'begin', 'emit', 'end' ]->@{
             n = $_ + expression.Type;
+            
             if (this.{n} defined) {
                 this.{n}(expression, isStatement);
             }
@@ -142,14 +154,14 @@ stringEmitter =  {
     },
 
     emitBinaryOperatorExpression: @(expression, isStatement) {
-        if (!isStatement)
+        if (isStatement == null || !isStatement)
             append("(");
 
         emitExpression(expression.LeftOperand, false);
         expression.Operator |> opStr.binary.get |> append;
         emitExpression(expression.RightOperand, false);
 
-        if (!isStatement)
+        if (isStatement == null || !isStatement)
             append(")");
     },
 
@@ -207,4 +219,6 @@ stringEmitter =  {
             append(suffix);
         }
     },
+
+    //emitObjectExpression: null,
 };
