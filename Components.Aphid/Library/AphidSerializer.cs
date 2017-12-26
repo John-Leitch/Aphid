@@ -45,12 +45,11 @@ namespace Components.Aphid.Library
 
             Action<object> checkGraph = x =>
             {
-                if (x == null)
+                if (x == null || !ValueHelper.IsComplexAphidObject(x))
                 {
                     return;
                 }
-
-                if (_traversed.Contains(x))
+                else if (_traversed.Contains(x))
                 {
                     s.Append(_traversedPaths[x]);
                     circular = true;

@@ -64,9 +64,6 @@ namespace Components.Aphid.Tests.Integration
             AssertFooDeserialization("{ vec: { x: 'foo' } }", "ret o.vec.x");
         }
 
-        /// <summary>
-        /// Todo: fix AphidObjectLexer.
-        /// </summary>
         [Test]
         public void TestNumberSerialization()
         {
@@ -219,6 +216,64 @@ namespace Components.Aphid.Tests.Integration
                     ret a;
                 }()",
                 "ret o.context.list[2].context.metadata.bar.w[4]");
+        }
+
+        public void TestCircularSerializationPrimitives<T>(T value, bool isNested)
+        {
+            AssertExpFalse(
+                string.Format(
+                    !isNested ? 
+                        "{{x:{0},y:{0}}}|>serialize@()$_.Contains('this')" :
+                        "{{x:{0},y:{{z:{0}}}}}|>serialize@()$_.Contains('this')",
+                    value));
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives()
+        {
+            TestCircularSerializationPrimitives(10, isNested: false);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives2()
+        {
+            TestCircularSerializationPrimitives(10.10, isNested: false);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives3()
+        {
+            TestCircularSerializationPrimitives(true, isNested: false);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives4()
+        {
+            TestCircularSerializationPrimitives("'foo'", isNested: false);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives5()
+        {
+            TestCircularSerializationPrimitives(10, isNested: true);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives6()
+        {
+            TestCircularSerializationPrimitives(10.10, isNested: true);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives7()
+        {
+            TestCircularSerializationPrimitives(true, isNested: true);
+        }
+
+        [Test]
+        public void TestCircularSerializationPrimitives8()
+        {
+            TestCircularSerializationPrimitives("'foo'", isNested: true);
         }
 
         [Test]
