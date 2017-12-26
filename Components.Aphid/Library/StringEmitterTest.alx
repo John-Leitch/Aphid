@@ -93,7 +93,7 @@ e.emitProperty = @(p) {
 
     if (p.RightOperand.Type != AphidExpressionType.IdentifierExpression) {
         append(' = ');
-        p.emitExpression(p.RightOperand);
+        emitExpression(p.RightOperand);
     }
 
     append(';\r\n\r\n');
@@ -204,22 +204,30 @@ getLexer = @(stream) {
     ret l;
 };
 
+lastAttrTree = null;
+
 parseAttributes = @(grammar, exp) {
+    if (exp.Attributes.Count == 0)
+        ret lastAttrTree;
+
     print('='*40);
     print('= Attributes');
     print('='*40);
+
     lexer = exp.Attributes->@.Identifier |> getLexer;
     
-    tree = {
+    attrTree = {
         access = lexer.oneOrNone(['private', 'public'], 'public'),
         type = lexer.take(),
         silent = lexer.match('silent'),
         success = lexer.eos,
     };
 
-    tree |> serialize |> print;
+    lastAttrTree = attrTree;
 
-    ret tree;
+    attrTree |> serialize |> print;
+
+    ret attrTree;
 };
 
 
@@ -228,15 +236,18 @@ parseAttributes = @(grammar, exp) {
 
     class AphidReplViewModel {
         bool IsControlInitialized,
-        bool IsExecuting,
+            IsExecuting: 10,
+            IsMultiLine,
+
         string Code,
-        string Output,
-        bool IsMultiLine,
+            Output,
+            Status,
+
         Visibility ExpressionVisibility,
-        Visibility StatementsVisibility,
-        Visibility RunVisibility,
-        Visibility StopVisibility,
-        Visibility LineOptionVisibility,
+            StatementsVisibility,
+            RunVisibility,
+            StopVisibility,
+            LineOptionVisibility,
     };
 
     Components.ViewModels;
