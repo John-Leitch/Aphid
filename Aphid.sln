@@ -43,11 +43,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidHdl", "AphidHdl\AphidH
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidUI", "AphidUI\AphidUI.csproj", "{B828964B-52F1-4EA5-9AB3-26D698DB8325}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F373793E-8B71-478F-9D95-DB8169F74E78}"
-	ProjectSection(SolutionItems) = preProject
-		Todo.txt = Todo.txt
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boxelder", "Boxelder\Boxelder.csproj", "{CEFC631B-3F81-4BA7-84EF-74655CAC704F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coywolf", "Coywolf\Coywolf.csproj", "{61FFC3B9-5275-41B9-8380-1E370EF67A63}"
@@ -85,7 +80,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.Silverligh
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 8
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
 		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
@@ -103,32 +98,11 @@ Global
 		SccAuxPath2 = https://autosectools.visualstudio.com/defaultcollection
 		SccLocalPath2 = Components.Aphid.Tests.Integration
 		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName3 = Mantispid\\Mantispid.csproj
-		SccProjectTopLevelParentUniqueName3 = Aphid.sln
-		SccProjectName3 = Mantispid
+		SccProjectUniqueName3 = AphidUI\\AphidUI.csproj
+		SccProjectName3 = AphidUI
 		SccAuxPath3 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath3 = Mantispid
+		SccLocalPath3 = AphidUI
 		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName4 = AphidUI\\AphidUI.csproj
-		SccProjectName4 = AphidUI
-		SccAuxPath4 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath4 = AphidUI
-		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName5 = AphidCodeGenerator\\AphidCodeGenerator.csproj
-		SccProjectName5 = AphidCodeGenerator
-		SccAuxPath5 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath5 = AphidCodeGenerator
-		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName6 = LLex\\LLex.csproj
-		SccProjectName6 = LLex
-		SccAuxPath6 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath6 = LLex
-		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName7 = AphidPerformanceTest\\AphidPerformanceTest.csproj
-		SccProjectName7 = AphidPerformanceTest
-		SccAuxPath7 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath7 = AphidPerformanceTest
-		SccProvider7 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

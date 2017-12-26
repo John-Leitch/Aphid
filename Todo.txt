@@ -1,2 +1,0 @@
-Support operators as functions
-Add operator partial application
