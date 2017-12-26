@@ -46,7 +46,7 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo("x = 'foo'; y = [ 0 ]; y[0] = x; x = 'bar'; ret y[0];");
         }
 
-        [Test, Ignore]
+        [Test]
         public void ListElementSetTest4()
         {
             AssertFoo("x = 'foo'; y = [ x ]; x = 'bar'; ret y[0];");
