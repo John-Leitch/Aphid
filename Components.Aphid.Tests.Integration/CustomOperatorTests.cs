@@ -106,6 +106,16 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void CustomUnaryOperatorScopeTest5()
         {
+            AssertFoo(@"
+                @:% (x) { ret 'f' + x; };
+                foo = @{ @:% (x) x + 'o'; ret :% $_ };
+                ret (:% 'o') |> foo;
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorScopeTest6()
+        {
             AssertFalse(@"
                 @:% (x) x * x * x;
                 try { :% 3; ret false } catch { ret true }
@@ -113,7 +123,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void CustomUnaryOperatorScopeTest6()
+        public void CustomUnaryOperatorScopeTest7()
         {
             AssertTrue(@"
                 foo = @{ @:% (x) x * x * x };
