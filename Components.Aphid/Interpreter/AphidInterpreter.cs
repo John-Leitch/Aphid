@@ -21,57 +21,53 @@ namespace Components.Aphid.Interpreter
             new AphidFrame(null, new Lazy<string>(() => "[Entrypoint]")),
         });
 
-        private AphidObjectEqualityComparer _comparer = new AphidObjectEqualityComparer();
-
         private AphidAssemblyBuilder _asmBuilder = new AphidAssemblyBuilder();
 
-        private TextWriter _out = Console.Out;
+        private Dictionary<AphidTokenType, AphidFunction> _customOperatorTable = new Dictionary<AphidTokenType, AphidFunction>();
 
-        public TextWriter Out
-        {
-            get { return _out; }
-            set { _out = value; }
-        }
+        public TextWriter Out { get; set; }
 
         public Func<string, string> OutFilter { get; set; }
 
         public Func<string, string> GatorEmitFilter { get; set; }
 
-        private AphidLoader _loader;
+        public AphidLoader Loader { get; private set; }
 
-        public AphidLoader Loader
+        public AphidObject CurrentScope { get; private set; }        
+
+        public AphidInterpreter()
+            : this(true)
         {
-            get { return _loader; }
         }
 
-        private AphidObject _currentScope;
-
-        public AphidObject CurrentScope
-        {
-            get { return _currentScope; }
-        }
-
-        private Dictionary<AphidTokenType, AphidFunction> _binaryOperatorTable = new Dictionary<AphidTokenType, AphidFunction>();
-
-        public AphidInterpreter(bool createLoader = true)
+        public AphidInterpreter(bool createLoader)
         {
             _createLoader = createLoader;
-            _currentScope = new AphidObject();
-            _currentScope.Add(AphidName.Scope, _currentScope);
-            _currentScope.Add(AphidName.Parent, _currentScope.Parent);
+            CurrentScope = new AphidObject();
+            CurrentScope.Add(AphidName.Scope, CurrentScope);
+            CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
             Init();
         }
 
         public AphidInterpreter(AphidObject currentScope)
         {
-            _currentScope = currentScope;
+            CurrentScope = currentScope;
+            AphidObject obj;
 
-            AphidObject scope;
-
-            if (!_currentScope.TryGetValue(AphidName.Scope, out scope))
+            foreach (var kvp in new Dictionary<string, AphidObject>
             {
-                _currentScope.Add(AphidName.Scope, _currentScope);
-                _currentScope.Add(AphidName.Parent, _currentScope.Parent);
+                { AphidName.Scope, currentScope },
+                { AphidName.Parent, currentScope.Parent },
+            })
+            {
+                if (!CurrentScope.TryGetValue(kvp.Key, out obj))
+                {
+                    CurrentScope.Add(kvp.Key, kvp.Value);
+                }
+                else
+                {
+                    CurrentScope[kvp.Key] = kvp.Value;
+                }
             }
 
             Init();
@@ -79,14 +75,16 @@ namespace Components.Aphid.Interpreter
 
         private void Init()
         {
+            Out = Console.Out;
+
             if (_createLoader)
             {
-                _loader = new AphidLoader(this);
+                Loader = new AphidLoader(this);
             }
 
-            if (!_currentScope.ContainsKey(AphidName.FramesKey))
+            if (!CurrentScope.ContainsKey(AphidName.FramesKey))
             {
-                _currentScope.Add(AphidName.FramesKey, new AphidObject(_frames));
+                CurrentScope.Add(AphidName.FramesKey, new AphidObject(_frames));
             }
         }
 
@@ -107,14 +105,14 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject imports = null;
 
-            if (_currentScope.TryResolve(AphidName.Imports, out imports))
+            if (CurrentScope.TryResolve(AphidName.Imports, out imports))
             {
                 return (List<string>)imports.Value;
             }
             else
             {
                 var list = new List<string>();
-                _currentScope.Add(AphidName.Imports, new AphidObject(list));
+                CurrentScope.Add(AphidName.Imports, new AphidObject(list));
 
                 return list;
             }
@@ -133,21 +131,21 @@ namespace Components.Aphid.Interpreter
         public AphidObject GetReturnValue()
         {
             AphidObject retVal = null;
-            _currentScope.TryResolve(AphidName.Return, out retVal);
+            CurrentScope.TryResolve(AphidName.Return, out retVal);
 
             return retVal;
         }
 
         private void SetReturnValue(AphidObject obj)
         {
-            _currentScope.Add(AphidName.Return, obj);
+            CurrentScope.Add(AphidName.Return, obj);
         }
 
         public void EnterChildScope()
         {
-            _currentScope = new AphidObject(null, _currentScope);
-            _currentScope.Add(AphidName.Scope, _currentScope);
-            _currentScope.Add(AphidName.Parent, _currentScope.Parent);
+            CurrentScope = new AphidObject(null, CurrentScope);
+            CurrentScope.Add(AphidName.Scope, CurrentScope);
+            CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
         }
 
         public bool LeaveChildScope(bool bubbleReturnValue = false)
@@ -155,7 +153,7 @@ namespace Components.Aphid.Interpreter
             if (bubbleReturnValue)
             {
                 var ret = GetReturnValue();
-                _currentScope = _currentScope.Parent;
+                CurrentScope = CurrentScope.Parent;
 
                 if (ret != null)
                 {
@@ -166,7 +164,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                _currentScope = _currentScope.Parent;
+                CurrentScope = CurrentScope.Parent;
             }
 
             return false;
@@ -190,14 +188,14 @@ namespace Components.Aphid.Interpreter
 
         public void WriteOut(string text)
         {
-            if (_out != null)
+            if (Out != null)
             {
                 if (OutFilter != null)
                 {
                     text = OutFilter(text);
                 }
 
-                _out.Write(text);
+                Out.Write(text);
             }
         }
 
@@ -355,7 +353,7 @@ namespace Components.Aphid.Interpreter
                 if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
                 {
                     key = expression.RightOperand.ToIdentifier().Identifier;
-                    var extension = TypeExtender.TryResolve(_currentScope, obj, key, false);
+                    var extension = TypeExtender.TryResolve(CurrentScope, obj, key, false);
 
                     if (extension != null)
                     {
@@ -398,7 +396,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
-                    val = TypeExtender.TryResolve(_currentScope, obj, key);
+                    val = TypeExtender.TryResolve(CurrentScope, obj, key);
 
                     return val == null ?
                         InterpretMemberInteropExpression(obj.Value, expression, returnRef) :
@@ -425,11 +423,11 @@ namespace Components.Aphid.Interpreter
 
                 if (destObj == null)
                 {
-                    _currentScope.Add(id, value2);
+                    CurrentScope.Add(id, value2);
                 }
                 else
                 {
-                    var parent = _currentScope.TryResolveParent(id);
+                    var parent = CurrentScope.TryResolveParent(id);
                     parent[id] = value2;
                 }
 
@@ -970,7 +968,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretBinaryOperatorBodyExpression(BinaryOperatorBodyExpression expression)
         {
             var func = InterpretFunctionExpression(expression.Function);
-            _binaryOperatorTable[expression.Operator] = func.GetFunction();
+            _customOperatorTable[expression.Operator] = func.GetFunction();
 
             return func;
         }
@@ -1022,7 +1020,7 @@ namespace Components.Aphid.Interpreter
         {
             AphidFunction func;
 
-            if (!_binaryOperatorTable.TryGetValue(op, out func))
+            if (!_customOperatorTable.TryGetValue(op, out func))
             {
                 throw new AphidRuntimeException(
                     "Custom {0} operator '{1}' not defined.",
@@ -1040,8 +1038,8 @@ namespace Components.Aphid.Interpreter
                 !expression.Identifier.Attributes.Any() ||
                 expression.Identifier.Attributes[0].Identifier != "class")
             {
-                var obj = new AphidObject(null, _currentScope);
-                _currentScope = obj;
+                var obj = new AphidObject(null, CurrentScope);
+                CurrentScope = obj;
 
                 foreach (var kvp in expression.Pairs)
                 {
@@ -1053,7 +1051,7 @@ namespace Components.Aphid.Interpreter
                     obj.Add(objectKey, objectValue);
                 }
 
-                _currentScope = _currentScope.Parent;
+                CurrentScope = CurrentScope.Parent;
 
                 return obj;
             }
@@ -1076,7 +1074,7 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject obj;
 
-            if (_currentScope.TryResolve(expression.Identifier, out obj))
+            if (CurrentScope.TryResolve(expression.Identifier, out obj))
             {
                 return obj;
             }
@@ -1155,18 +1153,18 @@ namespace Components.Aphid.Interpreter
 
             functionScope[AphidName.ImplicitArgs] = new AphidObject(argList);
 
-            var lastScope = _currentScope;
-            _currentScope = functionScope;
+            var lastScope = CurrentScope;
+            CurrentScope = functionScope;
             Interpret(function.Body);
             var retVal = GetReturnValue();
-            _currentScope = lastScope;
+            CurrentScope = lastScope;
 
             return retVal;
         }
 
         private void SetImplicitArg(AphidObject arg)
         {
-            SetImplicitArg(_currentScope, arg);
+            SetImplicitArg(CurrentScope, arg);
         }
 
         private void SetImplicitArg(AphidObject scope, AphidObject arg)
@@ -1403,12 +1401,12 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretImplicitArgumentExpression(AphidExpression expression)
         {
-            return _currentScope.Resolve(AphidName.ImplicitArg);
+            return CurrentScope.Resolve(AphidName.ImplicitArg);
         }
 
         private AphidObject InterpretImplicitArgumentsExpression(AphidExpression expression)
         {
-            return _currentScope.Resolve(
+            return CurrentScope.Resolve(
                 AphidName.ImplicitArgs,
                 "$args cannot be used outside of function.");
         }
@@ -1527,7 +1525,7 @@ namespace Components.Aphid.Interpreter
                     .ToArray(),
 
                 Body = expression.Body,
-                ParentScope = _currentScope,
+                ParentScope = CurrentScope,
             });
         }
 
@@ -1572,7 +1570,7 @@ namespace Components.Aphid.Interpreter
 
                     case AphidTokenType.deleteKeyword:
                         var operand = ((IdentifierExpression)expression.Operand).Identifier;
-                        return new AphidObject(_currentScope.TryResolveAndRemove(operand));
+                        return new AphidObject(CurrentScope.TryResolveAndRemove(operand));
 
                     case AphidTokenType.NotOperator:
                         return new AphidObject(!(bool)ValueHelper.Unwrap(InterpretExpression(expression.Operand) as AphidObject));
@@ -1866,7 +1864,7 @@ namespace Components.Aphid.Interpreter
 
                         if (expression.Operand is IdentifierExpression)
                         {
-                            return new AphidObject(_currentScope.IsDefined(expression.Operand.ToIdentifier().Identifier));
+                            return new AphidObject(CurrentScope.IsDefined(expression.Operand.ToIdentifier().Identifier));
                         }
                         else if (expression.Operand is BinaryOperatorExpression)
                         {
@@ -1998,7 +1996,7 @@ namespace Components.Aphid.Interpreter
 
                 if (elementId != null)
                 {
-                    _currentScope.Add(elementId, obj);
+                    CurrentScope.Add(elementId, obj);
                 }
 
                 Interpret(expression.Body, false);
@@ -2018,12 +2016,12 @@ namespace Components.Aphid.Interpreter
         {
             var file = ValueHelper.Unwrap(InterpretExpression(expression.FileExpression)) as string;
 
-            if (_loader == null || file == null)
+            if (Loader == null || file == null)
             {
                 throw new AphidRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
 
-            _loader.LoadScript(file);
+            Loader.LoadScript(file);
 
             return null;
         }
@@ -2032,12 +2030,12 @@ namespace Components.Aphid.Interpreter
         {
             var library = ValueHelper.Unwrap(InterpretExpression(expression.LibraryExpression)) as string;
 
-            if (_loader == null || library == null)
+            if (Loader == null || library == null)
             {
                 throw new AphidRuntimeException("Cannot load script {0}", expression.LibraryExpression);
             }
 
-            _loader.LoadLibrary(library, _currentScope);
+            Loader.LoadLibrary(library, CurrentScope);
 
             return null;
         }
@@ -2075,7 +2073,7 @@ namespace Components.Aphid.Interpreter
                                 expression.Call.Args.Concat(
                                 partialArgs.Select(x => new IdentifierExpression(x))).ToList())),
                     },
-                    ParentScope = _currentScope,
+                    ParentScope = CurrentScope,
                 };
 
                 return new AphidObject(partialFunc);
@@ -2121,7 +2119,7 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretThisExpression()
         {
-            return _currentScope;
+            return CurrentScope;
         }
 
         private AphidObject InterpretPatternMatchingExpression(PatternMatchingExpression expression)
@@ -2209,7 +2207,7 @@ namespace Components.Aphid.Interpreter
             {
                 var ex = new AphidObject(ExceptionHelper.Unwrap(e).Message);
                 ex.Add("stack", new AphidObject(ExceptionHelper.StackTrace(GetStackTrace())));
-                _currentScope.Add(expression.CatchArg.Identifier, ex);
+                CurrentScope.Add(expression.CatchArg.Identifier, ex);
             }
 
             Interpret(expression.CatchBody, false);
@@ -2474,16 +2472,16 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject document;
 
-            if (!_currentScope.TryGetValue(AphidName.Block, out document))
+            if (!CurrentScope.TryGetValue(AphidName.Block, out document))
             {
-                _currentScope.Add(AphidName.Block, new AphidObject(expressions));
+                CurrentScope.Add(AphidName.Block, new AphidObject(expressions));
             }
 
             foreach (var expression in expressions)
             {
                 if (expression is IdentifierExpression)
                 {
-                    _currentScope.Add((expression as IdentifierExpression).Identifier, new AphidObject());
+                    CurrentScope.Add((expression as IdentifierExpression).Identifier, new AphidObject());
                 }
                 else
                 {
@@ -2524,7 +2522,7 @@ namespace Components.Aphid.Interpreter
 
         public void InterpretFile(string filename, bool isTextDocument = false)
         {
-            _loader.LoadScript(filename, isTextDocument);
+            Loader.LoadScript(filename, isTextDocument);
         }
 
         public AphidFrame[] GetStackTrace()
@@ -2534,19 +2532,22 @@ namespace Components.Aphid.Interpreter
 
         public void RestoreScope()
         {
-            while (_currentScope != null && _currentScope.Parent != null)
+            while (CurrentScope != null && CurrentScope.Parent != null)
             {
-                _currentScope = _currentScope.Parent;
+                CurrentScope = CurrentScope.Parent;
             }
 
+            // Todo: Add test cases to cover try/catch influence
             _isReturning = false;
+            _isContinuing = false;
+            _isBreaking = false;
             _frames.Clear();
 
             foreach (var k in new[] { AphidName.Return, AphidName.Block })
             {
-                if (_currentScope.ContainsKey(k))
+                if (CurrentScope.ContainsKey(k))
                 {
-                    _currentScope.Remove(k);
+                    CurrentScope.Remove(k);
                 }
             }
         }
