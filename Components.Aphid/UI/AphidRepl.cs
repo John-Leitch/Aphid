@@ -45,6 +45,8 @@ namespace Components.Aphid.UI
                 {
                     RunCode(code);
                 }
+
+                _interpreter.RestoreScope();
             }
         }
 

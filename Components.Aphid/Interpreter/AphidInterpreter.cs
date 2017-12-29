@@ -133,11 +133,7 @@ namespace Components.Aphid.Interpreter
         public AphidObject GetReturnValue()
         {
             AphidObject retVal = null;
-
-            if (_currentScope.TryResolve(AphidName.Return, out retVal))
-            {
-                _currentScope.Remove(AphidName.Return);
-            }
+            _currentScope.TryResolve(AphidName.Return, out retVal);
 
             return retVal;
         }
@@ -2534,6 +2530,25 @@ namespace Components.Aphid.Interpreter
         public AphidFrame[] GetStackTrace()
         {
             return _frames.ToArray();
+        }
+
+        public void RestoreScope()
+        {
+            while (_currentScope != null && _currentScope.Parent != null)
+            {
+                _currentScope = _currentScope.Parent;
+            }
+
+            _isReturning = false;
+            _frames.Clear();
+
+            foreach (var k in new[] { AphidName.Return, AphidName.Block })
+            {
+                if (_currentScope.ContainsKey(k))
+                {
+                    _currentScope.Remove(k);
+                }
+            }
         }
     }
 }
