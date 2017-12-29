@@ -63,6 +63,66 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void CustomUnaryOperatorScopeTest()
+        {
+            Assert9(@"
+                @:% (x) { ret x * x; };
+                foo = @{ @:% (x) x * x * x };
+                foo();
+                ret :% 3;
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorScopeTest2()
+        {
+            Assert9(@"
+                foo = @{ @:% (x) x * x * x };
+                foo();
+                @:% (x) { ret x * x; };
+                ret :% 3;
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorScopeTest3()
+        {
+            Assert9(@"
+                @:% (x) { ret x * x * x; };
+                foo = @{ @:% (x) x * x; ret :% 3 };
+                ret foo();
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorScopeTest4()
+        {
+            Assert9(@"
+                foo = @{ @:% (x) x * x; ret :% 3 };
+                ret foo();
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorScopeTest5()
+        {
+            AssertFalse(@"
+                @:% (x) x * x * x;
+                try { :% 3; ret false } catch { ret true }
+            ");
+        }
+
+        [Test]
+        public void CustomUnaryOperatorScopeTest6()
+        {
+            AssertTrue(@"
+                foo = @{ @:% (x) x * x * x };
+                foo();
+                try { :% 3; ret false } catch { ret true }
+            ");
+        }
+
+        [Test]
         public void CustomBinaryOperatorTest()
         {
             AssertTrue(@"

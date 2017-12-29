@@ -23,8 +23,6 @@ namespace Components.Aphid.Interpreter
 
         private AphidAssemblyBuilder _asmBuilder = new AphidAssemblyBuilder();
 
-        private Dictionary<AphidTokenType, AphidFunction> _customOperatorTable = new Dictionary<AphidTokenType, AphidFunction>();
-
         public TextWriter Out { get; set; }
 
         public Func<string, string> OutFilter { get; set; }
@@ -967,10 +965,23 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject InterpretBinaryOperatorBodyExpression(BinaryOperatorBodyExpression expression)
         {
+            var key = GetCustomOperatorKey(expression.Operator);
             var func = InterpretFunctionExpression(expression.Function);
-            _customOperatorTable[expression.Operator] = func.GetFunction();
+            
+            AphidObject obj;
 
-            return func;
+            if (CurrentScope.TryGetValue(key, out obj))
+            {
+                obj.Value = func.GetFunction();
+                
+                return obj;
+            }
+            else
+            {
+                CurrentScope.Add(key, func);
+                
+                return func;
+            }
         }
 
         private AphidObject InterpretFunctionComposition(BinaryOperatorExpression composition)
@@ -1018,17 +1029,29 @@ namespace Components.Aphid.Interpreter
 
         private AphidFunction GetCustomOperatorFunction(AphidTokenType op, string name)
         {
-            AphidFunction func;
+            AphidObject obj;
 
-            if (!_customOperatorTable.TryGetValue(op, out func))
+            if (!CurrentScope.TryResolve(GetCustomOperatorKey(op), out obj))
+            {
+                throw new AphidRuntimeException("Custom operator '{0}' not defined.", op);
+            }
+
+            var func = obj.GetFunction();
+
+            if (func == null)
             {
                 throw new AphidRuntimeException(
-                    "Custom {0} operator '{1}' not defined.",
-                    func,
-                    op);
+                    "Custom operator '{0}' should be function, was '{1}'.",
+                    op,
+                    obj.GetValueType());
             }
 
             return func;
+        }
+
+        private string GetCustomOperatorKey(AphidTokenType op)
+        {
+            return string.Format("$customOperator.{0}.body", op);
         }
 
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
