@@ -63,5 +63,17 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo("#'Std'; a = 'foo'; ret a.chars().aggregate(@(x, y)x + y);");
         }
+
+        [Test]
+        public void ListInsertTest()
+        {
+            AssertFoo("#'Std'; a = [ 'bar' ]; a.insert(0, 'foo'); ret a[0]");
+        }
+
+        [Test]
+        public void ListInsertTest2()
+        {
+            AssertFoo("#'Std'; a = [ 'bar' ]; a.insert(1, 'foo'); ret a[1]");
+        }
     }
 }

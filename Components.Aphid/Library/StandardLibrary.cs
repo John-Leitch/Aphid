@@ -208,14 +208,14 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("__list.contains")]
         private static bool ListContains(List<AphidObject> list, object value)
         {
-            var s = list.Any (x => x.Value.Equals(value));
-            return  s;
+            var s = list.Any(x => x.Value.Equals(value));
+            return s;
         }
 
         [AphidInteropFunction("__list.insert", UnwrapParameters = false)]
         private static void ListAdd(AphidObject list, AphidObject index, AphidObject value)
         {
-            ((List<AphidObject>)list.Value).Insert((int)index.Value, value);
+            ((List<AphidObject>)list.Value).Insert((int)(decimal)index.Value, value);
         }
 
         [AphidInteropFunction("__list.count")]
