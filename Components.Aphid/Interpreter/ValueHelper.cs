@@ -37,6 +37,10 @@ namespace Components.Aphid.Interpreter
             AphidObject aphidObj;
             List<AphidObject> list;
 
+            if ((list = obj as List<AphidObject>) != null)
+            {
+                return list.Select(DeepUnwrap).ToArray();
+            }
             if ((aphidObj = obj as AphidObject) == null)
             {
                 return obj;
