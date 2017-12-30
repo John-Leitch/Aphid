@@ -15,9 +15,7 @@
                 hide ExpressionVisibility,
                 show StatementsVisibility,
 
-        string Code,
-            Output,
-            Status,
+        string Code, Output, Status,
 
         Visibility ExpressionVisibility,
             StatementsVisibility,
@@ -27,5 +25,7 @@
     };
 
     class VariableViewModel { string Name, object Value };
+    
     class ExpressionViewModel { object Value };
+
 }.Body |> e.emit;

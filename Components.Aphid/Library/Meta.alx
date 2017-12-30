@@ -8,6 +8,9 @@ _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 
 getBlock = @() this.{'$parent'}.{'$block'};
 
+tokenize = @(text) (new AphidLexer(text)).GetTokens();
+getToken = @(text) tokenize(text)[0].TokenType;
+
 parse = @(code) AphidParser.Parse(code, false);
 parseExp = @(exp) parse(exp)[0];
 
@@ -135,3 +138,36 @@ nodeType = { };
 token = {
     return: AphidTokenType.retKeyword
 };
+
+extend AphidExpression {
+    is: @(x, type) x.Type == evalExp('AphidExpressionType.' + getIdArg(0) + 'Expression'),
+    isCall: @(x) x.is(Call),
+    isId: @(x) x.is(Identifier),
+    isUnOp: @(x) x.is(UnaryOperator),
+    isBinOp: @(x) x.is(BinaryOperator),
+
+    isOp: @(x, op) (x.isUnOp() || x.isBinOp()) && x.op() == op,
+
+    isParent: @(x) x.GetType().GetMethod('GetChildren') != null,
+    
+    oneAttr: @(x, a) x.attrs().Count == 1 && x.attr(0).id() == getIdArg(0),
+    firstAttr: @(x, a) x.attrs().Count >= 1 && x.attr(0).id() == getIdArg(0),
+    noAttrs: @(x) x.attrs().Count == 0,
+    
+    id: @(x) x.Identifier,
+    func: @(x) x.FunctionExpression,
+    args: @(x) x.Args,
+    op: @(x) x.Operator,
+
+    attr: @(x, i) x.attrs().Count >= 1 + i ? x.attrs()[i] : null,
+    attrs: @(x) x.isId() ? x.Attributes : null,
+    attrIds: @(x) x.attrs()->@(y)y.id(),
+    body: @(x, i) !x.is(Function) || x.Body.Count <= i ? x : x.Body[i],    
+    hasHeader: @(x, h) getArg(0).matchId(x.body(0)),
+
+    matchId: @(x, y)
+        x.isId() &&
+        y.isId() &&
+        x.id() == y.id() &&
+        Enumerable.SequenceEqual(x.attrIds(), y.attrIds())
+}

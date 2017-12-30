@@ -1,0 +1,21 @@
+@{
+    As VBA;
+
+    Debug.Print('Starting');
+
+    Sub GreetUser(name);
+        MsgBox("Hello " & name & "!");
+    End Sub;
+    
+    Sub TestGreet();
+        Debug.Print('Test sub called');
+        Name = InputBox('Enter Name', DefaultResponse:='John');
+
+        If Not Name = vbNullString Then;
+            GreetUser(Name);
+        End If;
+    End Sub;
+
+    Debug.Print('Calling test sub');
+    TestGreet();
+};
