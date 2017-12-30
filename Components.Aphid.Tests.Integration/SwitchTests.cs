@@ -81,5 +81,145 @@ namespace Components.Aphid.Tests.Integration
                 ret 0;
             ");
         }
+
+        [Test]
+        public void SwitchArgsCountTest()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count) {
+                        1, 3: ret 9;
+                        2: ret 7;
+                        default: ret 0;
+                    }
+                }(1)
+            ");
+        }
+
+        [Test]
+        public void SwitchArgsCountTest2()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count) {
+                        1, 3: ret 9;
+                        2: ret 7;
+                        default: ret 0;
+                    }
+                }(1, 2, 3)
+            ");
+        }
+
+        [Test]
+        public void SwitchArgsCountTest3()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count) {
+                        1, 3: ret 0;
+                        2: ret 9;
+                        default: ret 0;
+                    }
+                }(1, 2)
+            ");
+        }
+
+        [Test]
+        public void SwitchArgsCountTest4()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count) {
+                        1, 3: ret 0;
+                        2: ret 1;
+                        default: ret 9;
+                    }
+                }()
+            ");
+        }
+
+        [Test]
+        public void SwitchArgsCountTest5()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count) {
+                        1, 3: ret 0;
+                        2: ret 1;
+                        default: ret 9;
+                    }
+                }(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+            ");
+        }
+
+        [Test]
+        public void SwitchStringTest()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count.ToString()) {
+                        '1', '3': ret 9;
+                        2: ret 1;
+                        default: ret 0;
+                    }
+                }(1, 2, 3)
+            ");
+        }
+
+        [Test]
+        public void SwitchStringTest2()
+        {
+            AssertExp9(@"
+                @{
+                    switch ($args.Count.ToString()) {
+                        '1', 3.ToString(): ret 9;
+                        2: ret 1;
+                        default: ret 0;
+                    }
+                }(1, 2, 3)
+            ");
+        }
+
+        [Test]
+        public void SwitchFalseTest()
+        {
+            AssertExpFalse(@"
+                @{
+                    switch ($args.Count) {
+                        1, 3: ret 9;
+                        2: ret 1;
+                        default: ret 0;
+                    }
+                }(1, 2) == 9
+            ");
+        }
+
+        [Test]
+        public void SwitchFalseTest2()
+        {
+            AssertExpFalse(@"
+                @{
+                    switch ($args.Count.ToString()) {
+                        '1', '3': ret 0;
+                        2: ret 1;
+                        default: ret 9;
+                    }
+                }(1) == 9
+            ");
+        }
+
+        [Test]
+        public void SwitchFalseTest3()
+        {
+            AssertExpFalse(@"
+                @{
+                    switch ($args.Count.ToString()) {
+                        '1', 3.ToString(): ret 9;
+                        2: ret 1;
+                        default: ret 0;
+                    }
+                }() == 9
+            ");
+        }
     }
 }

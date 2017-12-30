@@ -2341,7 +2341,11 @@ namespace Components.Aphid.Interpreter
                 {
                     var caseValue = (AphidObject)InterpretExpression(c2);
 
-                    if (!exp.Value.Equals(caseValue.Value))
+                    if (!InterpretEqualityExpression(
+                        exp.Value,
+                        exp.Value.GetType(),
+                        caseValue.Value,
+                        caseValue.Value.GetType()))
                     {
                         continue;
                     }
