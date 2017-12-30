@@ -2502,9 +2502,15 @@ namespace Components.Aphid.Interpreter
 
             foreach (var expression in expressions)
             {
-                if (expression is IdentifierExpression)
+                if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
-                    CurrentScope.Add((expression as IdentifierExpression).Identifier, new AphidObject());
+                    AphidObject obj;
+
+                    var id = expression.ToIdentifier().Identifier;
+                    if (!CurrentScope.TryResolve(id, out obj))
+                    {
+                        CurrentScope.Add(id, new AphidObject());
+                    }
                 }
                 else
                 {
