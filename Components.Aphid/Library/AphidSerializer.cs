@@ -111,8 +111,6 @@ namespace Components.Aphid.Library
                 }
                 else
                 {
-                    if (obj.Value.GetType().Name.Contains("AphidObj"))
-                        Console.WriteLine();
                     s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
                 }
             }
