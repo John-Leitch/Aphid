@@ -1481,12 +1481,19 @@ namespace Components.Aphid.Interpreter
             AphidInteropMember interopMembers)
         {
             var methodInfo = InteropMethodResolver.Resolve(
-                interopMembers.Members.OfType<MethodInfo>(),
+                interopMembers.Members.OfType<MethodInfo>().ToArray(),
                 arguments);
 
-            var method = !methodInfo.Method.IsGenericMethod ?
-                methodInfo.Method :
-                ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
+            MethodBase method;
+
+            if (!methodInfo.Method.IsGenericMethod)
+            {
+                method = methodInfo.Method;
+            }
+            else
+            {
+                method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
+            }
 
             var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
 
@@ -2112,7 +2119,7 @@ namespace Components.Aphid.Interpreter
 
                 var applied = expression.Call.Args
                     .Select(InterpretExpression)
-                    .Select(ValueHelper.Unwrap)
+                    .Select(ValueHelper.DeepUnwrap)
                     .ToArray();
 
                 return new AphidObject(new AphidInteropPartialFunction(interopObj, applied));

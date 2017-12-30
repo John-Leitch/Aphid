@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,7 +49,10 @@ namespace Components.Aphid.Interpreter
             return Convert(arg.TargetType, arg.Argument);
         }
 
-        public static AphidConversionInfo CanConvert(object value, Type targetType)
+        public static AphidConversionInfo CanConvert(
+            MethodBase method,
+            object value,
+            Type targetType)
         {
             var valueType = value.GetType();
             var genericArguments = new List<Type>();

@@ -19,11 +19,12 @@ namespace Components.Aphid.Interpreter
             return Resolve(
                 targetType
                     .GetMethods()
-                    .Where(x => x.Name == methodName && x.GetParameters().Length == args.Length),
+                    .Where(x => x.Name == methodName && x.GetParameters().Length == args.Length)
+                    .ToArray(),
                 args);
         }
 
-        public static AphidInteropMethodInfo Resolve(IEnumerable<MethodBase> nameMatches, object[] args)
+        public static AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
         {
             var methods = nameMatches
                 .Where(x => x.GetParameters().Length == args.Length)
@@ -40,7 +41,7 @@ namespace Components.Aphid.Interpreter
                     x.Method,
                     x.Args,
                     ConversionInfo = x.Args
-                        .Select(y =>  AphidTypeConverter.CanConvert(y.Argument, y.TargetType))
+                        .Select(y =>  AphidTypeConverter.CanConvert(x.Method, y.Argument, y.TargetType))
                         .ToArray()
                 })
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))
@@ -51,6 +52,7 @@ namespace Components.Aphid.Interpreter
                     x.ConversionInfo
                         .Where(y => y.GenericArguments != null)
                         .SelectMany(y => y.GenericArguments)
+                        .Distinct()
                         .ToArray(),
                     x.Args))
                 .ToArray();
