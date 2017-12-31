@@ -12,8 +12,6 @@ namespace Components.Aphid.Tests.Integration
     {
         protected override bool LoadStd { get { return true; } }
 
-        protected override bool LoadReflection { get { return true; } }
-
         [Test]
         public void ThisTest1()
         {

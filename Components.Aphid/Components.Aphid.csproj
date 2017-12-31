@@ -134,7 +134,6 @@
     <Compile Include="Library\DebugLibrary.cs" />
     <Compile Include="Library\EnvironmentLibrary.cs" />
     <Compile Include="Library\ExecOptions.cs" />
-    <Compile Include="Library\ReflectionLibrary.cs" />
     <Compile Include="Library\ThreadingLibrary.cs" />
     <Compile Include="Parser\AphidAttributeAttribute.cs" />
     <Compile Include="Parser\AphidAttributeParser.cs" />
@@ -213,9 +212,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Dbg.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Library\Reflection.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Env.alx">

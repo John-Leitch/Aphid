@@ -350,6 +350,12 @@ namespace Components.Aphid.Library
         {
             _ignoreCase = ignoreCase;
         }
+
+        [AphidInteropFunction("keys", UnwrapParameters = false)]
+        public static List<AphidObject> Keys(AphidObject obj)
+        {
+            return obj.Select(x => new AphidObject(x.Key)).ToList();
+        }
     }
 }
 

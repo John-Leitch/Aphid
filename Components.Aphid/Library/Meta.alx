@@ -58,7 +58,7 @@ idString = @() getArg(0);
 
 makeFluent = @(obj) {
     n = getIdArg(0);
-    (obj |> reflection.members)
+    (obj |> keys)
     -> (@() obj.{$_})
     -? (@has('Body'))
     -> (@{

@@ -14,8 +14,6 @@ namespace Components.Aphid.Tests.Integration
     {
         protected virtual bool LoadStd { get { return false; } }
 
-        protected virtual bool LoadReflection { get { return false; } }
-
         protected virtual string PrefixScript(string script)
         {
             var includes = "";
@@ -23,11 +21,6 @@ namespace Components.Aphid.Tests.Integration
             if (LoadStd)
             {
                 includes += "#'Std'; ";
-            }
-
-            if (LoadReflection)
-            {
-                includes += "#'Reflection'; ";
             }
 
             includes += "using System; ";

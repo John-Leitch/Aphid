@@ -1,0 +1,450 @@
+﻿#'Std';
+#'Meta';
+#'Query';
+
+@{
+    As VBS;
+
+    Debug.Print('[#] Starting');
+    
+    Sub GreetUser(Name);
+        MsgBox("Hello " & Name & "!");
+    End Sub;
+
+    Sub LogAdminActivity();
+        Debug.Print('[#] Log activity 1');
+        LogAdminActivity2();
+    End Sub;
+
+    Sub LogAdminActivity2();
+        Debug.Print('[#] Log activity 2');
+    End Sub;
+    
+    Sub TestGreet();
+        Name = InputBox('Enter Name', DefaultResponse:='John');
+        Debug.Print('[?] Validate user input');
+
+        If Not Name = vbNullString Then;
+            GreetUser(Name);
+        End If;
+        
+        Debug.Print('[?] Check if user {0} is admin', Name);
+        Admin = "John";
+
+        If Name = Admin Then;
+            Debug.Print('[+] User is admin');
+            LogAdminActivity();
+        Else;
+            Debug.Print('[-] User is not admin');
+        End If;
+    End Sub;    
+
+    TestGreet();
+
+    ExpectedDepth = 0;
+    Debug.Print('[?] Assert depth is {0}', ExpectedDepth);
+    
+    If Depth = ExpectedDepth Then;
+        Debug.Print('[+] Depth is expected value');
+    End If;
+
+    Debug.Print('[#] Done');
+};
+
+extend AphidExpression {
+    isVbs: @(x) x.hasHeader(As VBS),
+    isSubStart: @(x) x.isCall() && x.func().isId() && x.func().oneAttr(Sub),
+    getSubName: @(x) x.func().id(),
+    isSubEnd: @(x) x.isId() && x.oneAttr(End) && x.id() == 'Sub',
+}
+
+vbNullString = "";
+
+load System.Windows.Forms;
+using System.Windows.Forms;
+MsgBox = MessageBox.Show;
+
+load Microsoft.VisualBasic;
+using Microsoft.VisualBasic;
+
+InputBox = Interaction.InputBox;
+
+Depth = 0;
+Indent = @() (++Depth) * '';
+Unindent = @() (Depth--) * '';
+Margin = @() Depth * '    ';
+
+using System;
+using Components.External.ConsolePlus;
+Debug = {
+    Print: @() {
+        switch ($args.Count) {
+            0: Cli.WriteLine();
+            1: Cli.WriteLine(Margin() + $_, []);
+            default: Cli.WriteLine(Margin() + $_, $args @aq.skip(1));
+        }
+    }
+};
+
+root = this.{'$scope'};
+vbsContext = { sub: null, nodes: [], };
+
+evalVbsBlocks = @{
+    getVbsBlocks() 
+        -> @(b) [
+            replaceAndOperators,
+            replaceNamedArguments,
+            replaceIf,
+            parseVbsBlock
+        ] 
+        -> @()$_(b);
+    
+    print('Done parsing, evaluating VB\r\n');    
+    [
+        
+        instrumentBlocks,
+        evalAst 
+    ]->@() vbsContext.nodes |> $_;
+};
+
+getVbsBlocks = @() this.{'$parent'}.{'$block'}-?@(x) x.isVbs();
+
+replaceIf = @(block){
+    head('Replace if');
+
+    
+    op = getToken('=');
+    lastStatement = null;
+
+    ifContext = {
+        inIf: false,
+        inElse: false,
+        depth: 0,
+        negate: false,
+        condition: null,
+        ifBody: null,
+        elseBody: null,
+        nested: false,
+        nodes: [],
+    };
+
+    ifContext |> dump;
+    this |> dump;
+    // ifContext |> serialize |> print;
+    
+    block @ast.walk(@(node, context) {
+        if (context.isBlock && ifContext.depth > 0) {
+            print('-'*80);
+            node |> dumpProps;exit(0);
+        }
+
+        if (context.isRoot || context.isBlock) {
+            ret null;
+        }
+
+        addNode = @(n){
+            if (ifContext.inIf || ifContext.inElse) {
+                fatal('Cannot add in if');
+            }
+
+            ifContext.nodes.add(n);
+            context.isHandled = true;
+        };
+
+        addBodyNode = @(n) {
+            if (!ifContext.inIf && !ifContext.inElse) {
+                fatal('Cannot add outside if');
+            }
+
+            if (!ifContext.inElse) {
+                n @print('~|White~~Blue~[If]~R~ {0}');
+                ifContext.ifBody.add(n);
+            } else {
+                n @print('[Else] {0}');
+                ifContext.elseBody.add(n);
+            }
+            
+            context.isHandled = true;
+        };        
+
+        if (node.isBinOp() &&
+            node.isOp(op) &&
+            node.LeftOperand.isId() &&
+            node.LeftOperand.firstAttr(If) &&
+            node.RightOperand.id() == 'Then') {
+            
+            if (!ifContext.inIf) {
+                print('[+] Beginning If');
+                ifContext.inIf = true;
+                ifContext.ifBody = [];
+                ifContext.elseBody = [];
+                attrs = node.LeftOperand.attrIds();
+                attrs.Reverse();            
+                stack = new Stack(attrs);
+                stack.Pop();
+
+                switch (stack.Count) {
+                    0: {}
+                    1: {
+                        p = stack.Pop();
+
+                        if (p == 'Not') {
+                            ifContext.negate = true;
+                        } else {
+                            fatal('Invalid If modifier: {0}', p);
+                        }
+                    }                
+                    default: {
+                        fatal('Too many If modifiers');
+                    }
+                }
+
+                node.LeftOperand.attrs().Clear();
+                
+                ifContext.condition = new BinaryOperatorExpression(
+                    node.LeftOperand,
+                    getToken(!ifContext.negate ? '==' : '!='),
+                    node.RightOperand.attrs()[0]);
+
+                context.isHandled = true;
+            } else {
+                ifContext.depth++;
+                ifContext.nested = true;
+                addBodyNode(node);
+                fatal('Nesting not currently supported');                
+            }
+        } else if (node.isId() && node.noAttrs() && node.id() == 'Else') {
+            if (!ifContext.inIf || ifContext.inElse) {
+                fatal('Unexpected Else');
+            }
+
+            print('[+] Else');
+
+            ifContext.inElse = true;
+            context.isHandled = true;
+        } else if (node.isId() && node.oneAttr(End) && node.id() == 'If') {
+            if (!ifContext.inIf) {
+                fatal('Unexpected End If');
+            }
+
+            if (ifContext.depth == 0) {
+                print('[+] End If');                        
+                t = parse('if(0){}else{}')[0];
+                ifContext.ifBody->t.Body.Add;
+                ifContext.elseBody->t.ElseBody.Add;
+                
+                ifExp = new IfExpression(
+                    ifContext.condition,
+                    t.Body,
+                    t.ElseBody);
+
+                ifContext.inIf = false;
+                ifContext.inElse = false;
+                ifContext.depth = 0;
+                ifContext.negate = false;
+                ifContext.condition = null;
+                ifContext.ifBody = null;     
+                ifContext.elseBody = null;                
+                addNode(ifExp);
+            } else {
+                print('[i] Nested');
+                ifContext.depth--;
+                addBodyNode(node);
+            }
+        } else if (ifContext.inIf){
+            node @print('[B] Node: {0}');
+            addBodyNode(node);
+        } else {
+            node @print('[N] Node: {0}');
+            addNode(node);
+        }
+    });
+
+    
+
+    block.Body.Clear();
+    ifContext.nodes->block.Body.Add;
+};
+
+replaceAndOperators = @{
+    print('[R] Replacing & operators');
+
+    $_.Body @ast.walk(@(node, context) {
+        if (!context.isRoot &&
+            !context.isBlock) {
+        }
+
+        if (!context.isRoot &&
+            !context.isBlock &&
+            node.is(BinaryOperator) &&
+            node.Operator == AphidTokenType.BinaryAndOperator) {
+            
+            @print('[+] Replacing & operator in expression {0}', node);
+            using System.Reflection;
+            
+            node
+                .GetType()
+                .GetField('_operator', BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(node, AphidTokenType.AdditionOperator);
+        }
+    })
+};
+
+replaceNamedArguments = @{
+    
+    using System.Collections;            
+    op = getToken(':=');
+    
+    $_.Body @ast.walk(@(node, context) {
+        if (!context.isRoot &&
+            !context.isBlock &&
+            node.is(Call) &&
+            node.func().isId() &&
+            node.func().id() == 'InputBox') {
+
+            argObj = {
+                Prompt: parseExp("''"),
+                Title: parseExp("''"),
+                DefaultResponse: parseExp("''"),
+                XPos: parseExp("-1"),
+                YPos: parseExp("-1")
+            };
+
+            params = argObj |> keys;
+            params.Reverse();
+            stack = new Stack(params);
+
+            node.args()->@{                
+                if ($_.isId()) {
+                    argObj.{stack.Pop()} = $_.ToString();
+                } else if ($_.isBinOp()) {
+                    if ($_.Operator != op) {
+                        fatal('Unexpected operator: {0}', $_.Operator);
+                    }
+
+                    argObj.{$_.LeftOperand} = $_.RightOperand;                    
+                } else {
+                    argObj.{stack.Pop()} = $_;
+                }
+            };
+
+            node.args().Clear();
+            argObj |> keys ->@{ node.args().Add(argObj.{$_}); };
+            
+            context.isHandled = true;
+        }
+    })
+};
+
+parseVbsBlock = @{
+    inHeader = true;
+    $_.Body @ast.walk(@(node, context) {
+        if (context.isRoot || context.isBlock) {
+            ret null;
+        } else if (inHeader) {
+            inHeader = false;
+            context.isHandled = true;
+
+            ret null;
+        } else if (node.isSubStart())  {
+            if (vbsContext.sub != null) {
+                fatal('Unexpected Sub, already in {0}', vbsContext.sub);
+            }
+
+            vbsContext.sub = node.getSubName();
+            print('Parsing Sub: {0}', vbsContext.sub);
+            
+            print('Validating Sub arguments');
+            badParams = node.Args-?@() !$_.isId();
+
+            if (badParams.Count != 0) {
+                fatal('Expected identifiers for Sub params');
+            }            
+            
+            vbsContext.subBody = [];
+            vbsContext.subArgs = node.Args;
+            root.{vbsContext.sub} = null;
+            context.isHandled = true;
+        } else if (vbsContext.sub != null && !node.isSubEnd()) {
+            vbsContext.subBody.add(node);
+            context.isHandled = true;
+        } else if (node.isSubEnd()) {
+            if (vbsContext.sub == null) {
+                fatal('Unexpected End Sub');
+            } 
+
+            funcDecl = vbsContext.sub @String.Format('{0} = @(){{}}') |> parseExp;
+            vbsContext.subArgs->funcDecl.RightOperand.Args.Add;
+            vbsContext.subBody->funcDecl.RightOperand.Body.Add;
+            vbsContext.nodes.add(funcDecl);            
+            
+            print('Ending sub: {0}', vbsContext.sub);
+            vbsContext.sub = null;
+            context.isHandled = true;
+        } else {
+            vbsContext.nodes.add(node);
+            context.isHandled = true;
+        }
+    })
+};
+
+instrumentBlocks = @{
+    lastId = null;
+    $_ @ast.walk(@(node, context) {
+        if (context.isRoot || context.isBlock) {
+            ret null;
+        } else if (node.isId()) {
+            lastId = node.id();
+        } else if (node.is(Function) &&
+            lastId != 'Margin' &&
+            lastId != 'Indent' &&
+            lastId != 'Unindent') {
+            lastId @print('Instrumenting {0}');
+            node.Body.Insert(
+                0,
+                parse(
+                    lastId @String.Format(
+                        "Debug.Print('[~Cyan~>~R~] Entering ~Cyan~{0} Sub~R~')"))[0]);
+
+            node.Body.Insert(1, parseExp('Indent()'));
+
+            node.Body.Add(
+                parse(
+                    lastId @String.Format(
+                        "Debug.Print(Unindent() + '[~Cyan~<~R~] Exiting ~Cyan~{0} Sub~R~')"))[0]);
+            
+        } else if (node.is(If)) {
+            n = node.Condition.LeftOperand.id();
+            
+            node.Body.Insert(
+                0,
+                parse(
+                    n @String.Format(
+                        "Debug.Print('[~Cyan~>~R~] Entering ~Cyan~If {0} Body~R~')"))[0]);
+
+            node.Body.Insert(1, parseExp('Indent()'));
+
+            node.Body.Add(
+                parse(
+                    n @String.Format(
+                        "Debug.Print(Unindent() + '[~Cyan~<~R~] Exiting ~Cyan~If {0} Body~R~')"))[0]);
+
+            if (node.ElseBody.Count > 0) {
+                node.ElseBody.Insert(
+                    0,
+                    parse(
+                        n @String.Format(
+                            "Debug.Print('[~Cyan~>~R~] Entering ~Cyan~Else {0} Body~R~')"))[0]);
+
+                node.ElseBody.Insert(1, parseExp('Indent()'));
+
+                node.ElseBody.Add(
+                    parse(
+                        n @String.Format(
+                            "Debug.Print(Unindent() + '[~Cyan~<~R~] Exiting ~Cyan~Else {0} Body~R~')"))[0]);
+            }
+        }
+    })
+};
+
+evalVbsBlocks();

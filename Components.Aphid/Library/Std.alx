@@ -14,8 +14,65 @@ float = Convert.ToSingle;
 double = Convert.ToDouble;
 decimal = Convert.ToDecimal;
 
-print = Console.WriteLine;
+format = String.Format;
+//_t = @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]);
+_t = @{};
+
+using Components.External.ConsolePlus;
+print = @(fmt, arg0) {
+    if ($args.Count >= 1 && fmt == null) {
+        1 + 1;
+        _null Cli.WriteLine('null', []);
+    } else if ($args.Count > 1 && isCollection(fmt)) {
+        _t('formatted collection');
+        args = $args @aq.skip(1);
+        for (x in fmt) {
+            Cli.WriteLine(x.ToString(), args);
+        }
+    } else {
+        switch ($args.Count) {
+            0: {
+                _t('blank line');
+                Cli.WriteLine();
+            }
+            1: {
+                if (isObject(fmt)) {
+                    _t('serialized object');
+                    Cli.WriteLine(fmt |> serialize |> Cli.Escape, []);
+                } else if (isCollection(fmt)) {                    
+                    _t('collection');
+                    fmt->@() Cli.WriteLine($_.ToString(), []);
+                } else {
+                    _t('scalar');
+                    Cli.WriteLine(fmt.ToString(), []);
+                }
+            }
+            2: {
+                if (arg0 |> isCollection) {
+                    _t('formatted collection');
+                    Cli.WriteLine(
+                        fmt.ToString(),
+                        arg0->@()$_.ToString());
+                } else {
+                    _t('single format arg');
+                    
+                    Cli.WriteLine(fmt.ToString(), [ arg0 ]);
+                }
+            }
+            default: {
+                _t('variadic formatted');
+                args = $args @aq.skip(1);
+                Cli.WriteLine(fmt.ToString(), args);
+            }
+        }
+    }
+};
+
+
 cls = Console.Clear;
+head = @(msg){ Cli.WriteHeader($_, '~|Blue~~White~') };
+header = head;
+dump = serialize @> Console.WriteLine;
 exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
 fatal = @{
@@ -62,4 +119,31 @@ typeof = @(name){
     n = name == null ? getIdArg(0) : name;
     t = (n |> getFullNames)->Type.GetType-?@!= null;
     ret t.Count == 1 ? t[0] : null;
+};
+
+using System.Linq;
+isObject = keys @> Enumerable.Any;
+
+isCollection = @(x)
+    x != null &&
+    !isObject(x) &&
+    x.GetType() != typeof(String) &&
+    x.GetType().GetInterface('IEnumerable') != null;
+
+mix = @(src, dst) {
+	for (m in keys(src)) {
+		dst.{m} = src.{m};
+		mix(src.{m}, dst.{m});
+	}
+};
+
+getMember = @(obj, path) {	
+	val = obj;
+	parts = path.split('.');
+
+	for (p in parts) {		
+		val = val.{p};
+	}
+
+	ret val;
 };
