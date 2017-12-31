@@ -18,6 +18,9 @@ format = String.Format;
 //_t = @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]);
 _t = @{};
 
+using System.Linq;
+skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
+
 using Components.External.ConsolePlus;
 print = @(fmt, arg0) {
     if ($args.Count >= 1 && fmt == null) {
@@ -25,7 +28,7 @@ print = @(fmt, arg0) {
         _null Cli.WriteLine('null', []);
     } else if ($args.Count > 1 && isCollection(fmt)) {
         _t('formatted collection');
-        args = $args @aq.skip(1);
+        args = $args |> skip;
         for (x in fmt) {
             Cli.WriteLine(x.ToString(), args);
         }
@@ -61,7 +64,7 @@ print = @(fmt, arg0) {
             }
             default: {
                 _t('variadic formatted');
-                args = $args @aq.skip(1);
+                args = $args |> skip;
                 Cli.WriteLine(fmt.ToString(), args);
             }
         }
@@ -77,7 +80,7 @@ exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
 fatal = @{
     f = $args[0];
-    a = $args @aq.skip(1);
+    a = $args |> skip;
     print('Fatal error: ' + f, a);
     Environment.Exit(0);
 };
