@@ -292,7 +292,6 @@ namespace Components.Aphid.Interpreter
 
                 if (propInfo != null)
                 {
-
                     return ValueHelper.Wrap(
                         !returnRef ?
                             propInfo.GetValue(lhs) :
@@ -1306,7 +1305,7 @@ namespace Components.Aphid.Interpreter
 
             if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
             {
-                throw new AphidRuntimeException("Invalid static interop call path.");
+                throw new AphidRuntimeException("Invalid static interop call path '{0}'", exp);
             }
 
             var path = pathExps

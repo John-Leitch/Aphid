@@ -67,7 +67,8 @@ namespace Components.Aphid.Interpreter
             {
                 return aphidObj.Any() ? 
                     _serializer.Serialize(aphidObj) : 
-                    aphidObj.Value.ToString();
+                    aphidObj.Value != null ? aphidObj.Value.ToString() : 
+                    "null";
             }
             else
             {
