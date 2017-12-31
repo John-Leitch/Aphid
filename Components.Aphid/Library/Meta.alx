@@ -6,8 +6,6 @@ using Components.Aphid.Parser;
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 
-getBlock = @() this.{'$parent'}.{'$block'};
-
 tokenize = @(text) (new AphidLexer(text)).GetTokens();
 getToken = @(text) tokenize(text)[0].TokenType;
 
@@ -42,19 +40,6 @@ evalAst = @(ast) {
 
     ret r;
 };
-
-loadFile = @(asmFile) asmFile
-    |> Path.GetFullPath
-    @() $_.Replace('\\', '\\\\')
-    @String.Format('load "{0}"')
-    |> evalExp;
-
-_callExp = macro(@(i){ this.{'$frames'}[i].Expression });
-getCall = @() _callExp(1);
-getArgs = @() _callExp(1).Args;
-getArg = @(i) _callExp(1).Args[i];
-getIdArg = @(i) _callExp(1).Args[i].Identifier;
-idString = @() getArg(0);
 
 makeFluent = @(obj) {
     n = getIdArg(0);

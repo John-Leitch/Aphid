@@ -1,8 +1,3 @@
 ﻿#'Std';
-foo = [];
-foo.add({ test: 10 });
-foo.add('foo');
-foo.insert(0, 10);
-foo.insert(0, { x: 10, y: 20 });
-foo |> serialize |> print;
+
 print('Hello, world');

@@ -14,6 +14,14 @@ float = Convert.ToSingle;
 double = Convert.ToDouble;
 decimal = Convert.ToDecimal;
 
+getBlock = @() this.{'$parent'}.{'$block'};
+_callExp = macro(@(i){ this.{'$frames'}[i].Expression });
+getCall = @() _callExp(1);
+getArgs = @() _callExp(1).Args;
+getArg = @(i) _callExp(1).Args[i];
+getIdArg = @(i) _callExp(1).Args[i].Identifier;
+idString = @() getArg(0);
+
 format = String.Format;
 //_t = @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]);
 _t = @{};
@@ -23,6 +31,8 @@ skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
 
 using Components.External.ConsolePlus;
 print = @(fmt, arg0) {
+    _s = @() isObject($_) ? $_ : $_.ToString();
+
     if ($args.Count >= 1 && fmt == null) {
         1 + 1;
         _null Cli.WriteLine('null', []);
@@ -30,7 +40,7 @@ print = @(fmt, arg0) {
         _t('formatted collection');
         args = $args |> skip;
         for (x in fmt) {
-            Cli.WriteLine(x.ToString(), args);
+            Cli.WriteLine(_s(x), args);
         }
     } else {
         switch ($args.Count) {
@@ -44,28 +54,25 @@ print = @(fmt, arg0) {
                     Cli.WriteLine(fmt |> serialize |> Cli.Escape, []);
                 } else if (isCollection(fmt)) {                    
                     _t('collection');
-                    fmt->@() Cli.WriteLine($_.ToString(), []);
+                    fmt->@() Cli.WriteLine(_s($_) |> Cli.Escape, []);
                 } else {
                     _t('scalar');
-                    Cli.WriteLine(fmt.ToString(), []);
+                    Cli.WriteLine(_s(fmt) |> Cli.Escape, []);
                 }
             }
             2: {
                 if (arg0 |> isCollection) {
                     _t('formatted collection');
-                    Cli.WriteLine(
-                        fmt.ToString(),
-                        arg0->@()$_.ToString());
+                    Cli.WriteLine(_s(fmt), arg0->@()_s($_));
                 } else {
                     _t('single format arg');
-                    
-                    Cli.WriteLine(fmt.ToString(), [ arg0 ]);
+                    Cli.WriteLine(_s(fmt), [ arg0 ]);
                 }
             }
             default: {
                 _t('variadic formatted');
                 args = $args |> skip;
-                Cli.WriteLine(fmt.ToString(), args);
+                Cli.WriteLine(_s(fmt), args);
             }
         }
     }
@@ -150,3 +157,9 @@ getMember = @(obj, path) {
 
 	ret val;
 };
+
+loadFile = @(asmFile) asmFile
+    |> Path.GetFullPath
+    @() $_.Replace('\\', '\\\\')
+    @String.Format('load "{0}"')
+    |> evalExp;

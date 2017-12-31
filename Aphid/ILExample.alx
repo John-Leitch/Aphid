@@ -3,7 +3,6 @@
 #'IL';
 using System.IO;
 using System.Diagnostics;
-cls();
 
 print('Creating module');
 asmName = 'foo.exe';

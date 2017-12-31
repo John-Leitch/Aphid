@@ -128,8 +128,16 @@ namespace Components.Aphid.Interpreter
 
         public AphidObject GetReturnValue()
         {
+            return GetReturnValue(false);
+        }
+
+        private AphidObject GetReturnValue(bool remove)
+        {
             AphidObject retVal = null;
-            CurrentScope.TryResolve(AphidName.Return, out retVal);
+            if (remove && CurrentScope.TryResolve(AphidName.Return, out retVal))
+            {
+                CurrentScope.Remove(AphidName.Return);
+            }
 
             return retVal;
         }
@@ -150,7 +158,7 @@ namespace Components.Aphid.Interpreter
         {
             if (bubbleReturnValue)
             {
-                var ret = GetReturnValue();
+                var ret = GetReturnValue(true);
                 CurrentScope = CurrentScope.Parent;
 
                 if (ret != null)
@@ -1179,7 +1187,7 @@ namespace Components.Aphid.Interpreter
             var lastScope = CurrentScope;
             CurrentScope = functionScope;
             Interpret(function.Body);
-            var retVal = GetReturnValue();
+            var retVal = GetReturnValue(true);
             CurrentScope = lastScope;
 
             return retVal;

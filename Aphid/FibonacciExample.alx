@@ -1,45 +1,4 @@
 ﻿#'Std';
-x = 0xdeadbeef;
+
 fib = @(n) n < 2 ? n : fib(n - 1) + fib(n - 2);
 0..9->fib->print;
-
-using System;
-using System.IO;
-
-s = new MemoryStream();
-
-y = 10 + 20;
-x = null;
-x = true;
-
-// Comment
-/// Comment2
-
-/* Multiline
-comment
-foo
-bar */
-
-[ "foo", "bar" ];
-widget = {
-    name: "foo",
-    position: { x: 10.0, y: 20.5 },
-    show: @() { /* do stuff */ }
-};
-
-@foo();
-print("test2");
-foo = @{
-    print("test");
-    @foo();
-};
-
-extend string { toUpper:@(s) s.ToUpper() }
-@bar(0);
-x = "hel\x20lo\"footest";
-x = 'world';
-if (this.foo defined) {
-    this.foo @print('Hello world: {0}');
-    0x0..0x10-?(@()$_&1==0)->@*$_->print;
-    delete this.foo;
-}
