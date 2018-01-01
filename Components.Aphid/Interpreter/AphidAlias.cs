@@ -33,6 +33,11 @@ namespace Components.Aphid.Interpreter
                 case AphidType.Boolean:
                     return AphidType.Boolean;
 
+
+                case "AphidObject":
+                case AphidType.Object:
+                    return AphidType.Object;
+
                 case AphidType.Unknown:
                     return AphidType.Unknown;
 

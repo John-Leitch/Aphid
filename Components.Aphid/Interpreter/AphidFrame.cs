@@ -36,23 +36,40 @@ namespace Components.Aphid.Interpreter
 
         public override string ToString()
         {
-            return ToString(false);
+            return ToString(true);
         }
 
-        public string ToString(bool showParamNames)
+        public string ToString(bool showParams)
         {
-            return string.Format(
-                "{0}({1})",
-                Name,
-                CreateArgString());
+            return showParams ?
+                string.Format("{0}({1})", Name, CreateParamTupleString()) :
+                Name;
+        }
+
+        private string CreateParamTupleString()
+        {
+            // Todo: get param names
+            return string.Join(", ", Arguments.Select((x, i) => GetArgumentType(x)));
+        }
+        
+        private string GetArgumentType(object argument)
+        {
+            if (argument == null)
+            {
+                return AphidType.Null;
+            }
+
+            var t = argument.GetType();
+            var n = AphidAlias.Resolve(t);
+
+            return n != null && n != AphidType.Unknown ? n : t.FullName;
         }
 
         private string CreateArgString()
         {
-            var args = Arguments.Select(CreateObjectString);
-
-            return string.Join(", ", args);
+            return string.Join(", ", Arguments.Select(CreateObjectString));
         }
+
 
         private string CreateObjectString(object value)
         {
@@ -65,9 +82,9 @@ namespace Components.Aphid.Interpreter
 
             if (aphidObj != null)
             {
-                return aphidObj.Any() ? 
-                    _serializer.Serialize(aphidObj) : 
-                    aphidObj.Value != null ? aphidObj.Value.ToString() : 
+                return aphidObj.Any() ?
+                    _serializer.Serialize(aphidObj) :
+                    aphidObj.Value != null ? aphidObj.Value.ToString() :
                     "null";
             }
             else
