@@ -78,7 +78,6 @@ print = @(fmt, arg0) {
     }
 };
 
-
 cls = Console.Clear;
 head = @(msg){ Cli.WriteHeader($_, '~|Blue~~White~') };
 header = head;
@@ -137,7 +136,7 @@ isObject = keys @> Enumerable.Any;
 isCollection = @(x)
     x != null &&
     !isObject(x) &&
-    x.GetType() != typeof(String) &&
+    x.GetType() != typeof('String') &&
     x.GetType().GetInterface('IEnumerable') != null;
 
 mix = @(src, dst) {
