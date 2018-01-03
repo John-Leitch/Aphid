@@ -59,6 +59,10 @@ makeFluent = @(obj) {
     ret obj;
 };
 
+using System.Collections;
+
+class VisitorFrame { node, context };
+
 ast = {
     op: @() $_.Operator,
     isOp: @(op, node) node.Operator == op,
@@ -86,22 +90,49 @@ ast = {
     indent: @() ' ' * ast.depth * 2,
 
     walk: @(visit, node, context) {
-        c = context defined ? context : {};
+        c = null;
+
+        if (context defined) {
+            c = context;
+        } else {
+            c = { stack: new Stack()};
+            
+            c.push = @(n) {
+                if (n != null) {
+                    f = new VisitorFrame();
+                    f.node = n;
+                    f.context = f;
+                    c.stack.Push(f);
+                }
+            };
+
+            c.pop = @() c.stack.Pop();            
+        }
+
+        context = c;
+
         c.isRoot = ast.depth == 0;
         c.isBlock = node @is('IEnumerable');
         c.hasChildren = node @has('GetChildren');
         c.isHandled = false;
+        c.push(node);        
         visit(node, c);
+        c.pop();
         next = @(node) {
-            if (node != null)
+            if (node != null) {
+                c.push(node);
                 ast.walk(visit, node, c);
+                c.pop();
+            }
         };
 
         if (c.isHandled) ret null;
         
         if (c.isBlock) {
             ast.depth++;
+            c.push(node);
             node->next;
+            c.pop();
             ast.depth--;
         } else if (c.hasChildren) {  
             node.GetChildren() |> next;
@@ -169,3 +200,60 @@ extend AphidExpression {
         x.id() == y.id() &&
         Enumerable.SequenceEqual(x.attrIds(), y.attrIds())
 }
+
+getLexer = @(stream) {
+    l = {
+        index: -1,
+        token: null,
+        count: stream.Count,
+        eos: false,
+        stream,
+
+        oneOrNone: @(set, def) {
+            for (x in set) {
+                print('[?] Checking for {0}', x);
+                if (x |> match) {
+                    ret $_;
+                }
+            }
+
+            ret def;
+        },
+
+        match: @(t) {
+            if (token == t) {
+                //print('[+] token matched');
+                next();
+                ret true;
+            } else {
+                //print('[-] token not matched');
+                ret false;
+            }
+        },
+        
+        take: @() {
+            t = token;
+            if (!eos) next();
+
+            ret t;
+        },
+
+        next: @{
+            if (index < count) index++;
+
+            if (index != count) {
+                token = stream[index];
+                //print('[+] Next token: {0}', token);
+            } else {
+                token = null;
+                eos = true;
+            }
+
+            ret token;
+        }
+    };
+
+    l.next();
+
+    ret l;
+};

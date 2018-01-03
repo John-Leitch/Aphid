@@ -84,6 +84,11 @@ header = head;
 dump = serialize @> Console.WriteLine;
 exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
+dumpe = @{ 
+    $_ |> dump;
+    exit(0);
+};
+
 fatal = @{
     f = $args[0];
     a = $args |> skip;
