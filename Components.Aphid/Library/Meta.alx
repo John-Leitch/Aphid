@@ -3,6 +3,9 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
 
+frames = @() this.{'$frames'};
+frame = @(i) this.{'$frames'}[i];
+
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 
@@ -89,7 +92,10 @@ ast = {
         c.hasChildren = node @has('GetChildren');
         c.isHandled = false;
         visit(node, c);
-        next = @(node) ast.walk(visit, node, c);
+        next = @(node) {
+            if (node != null)
+                ast.walk(visit, node, c);
+        };
 
         if (c.isHandled) ret null;
         
@@ -124,6 +130,10 @@ token = {
     return: AphidTokenType.retKeyword
 };
 
+extend AphidFrame {
+    exp: @(x) x.Expression,
+}
+
 extend AphidExpression {
     is: @(x, type) x.Type == evalExp('AphidExpressionType.' + getIdArg(0) + 'Expression'),
     isCall: @(x) x.is(Call),
@@ -139,7 +149,10 @@ extend AphidExpression {
     firstAttr: @(x, a) x.attrs().Count >= 1 && x.attr(0).id() == getIdArg(0),
     noAttrs: @(x) x.attrs().Count == 0,
     
+    exp: @(x) x.Expression,
     id: @(x) x.Identifier,
+    lhs: @(x) x.LeftOperand,
+    rhs: @(x) x.RightOperand,
     func: @(x) x.FunctionExpression,
     args: @(x) x.Args,
     op: @(x) x.Operator,
