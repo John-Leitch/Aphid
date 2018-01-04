@@ -1,8 +1,8 @@
-﻿using System;
-##'Components.Aphid.Library.StandardLibrary';
+﻿##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
 #'Conversion';
+using System;
 
 byte = Convert.ToByte;
 uint = Convert.ToUInt32;
@@ -81,7 +81,12 @@ print = @(fmt, arg0) {
 cls = Console.Clear;
 head = @(msg){ Cli.WriteHeader($_, '~|Blue~~White~') };
 header = head;
-dump = serialize @> Console.WriteLine;
+
+dump = @(o){
+    !isObject(o) && toJson defined ? toJson(o) : serialize(o)
+    |> Console.WriteLine;
+};
+
 exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
 dumpe = @{ 
@@ -167,3 +172,11 @@ loadFile = @(asmFile) asmFile
     @() $_.Replace('\\', '\\\\')
     @String.Format('load "{0}"')
     |> evalExp;
+
+extend string {
+    removeAt: @(x, substring)
+        substring
+        |> x.IndexOf
+        |> x.Remove,
+    dec: @(x) x |> Decimal.Parse,
+}

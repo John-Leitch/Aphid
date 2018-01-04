@@ -1,0 +1,48 @@
+﻿#'Std';
+#'Json.Tmpl';
+#'Json.Code';
+
+ret 
+{
+    name: "Components.Json.Json",
+    modes:
+    [ 
+        {
+            mode: "Json",
+            tokens: 
+            [
+                { regex: ",", type: "Comma" },
+                { regex: ":", type: "ColonOperator" },
+                
+                { regex: "\\(", type: "LeftParenthesis" },
+                { regex: "\\)", type: "RightParenthesis" },
+                { regex: "\\[", type: "LeftBracket" },
+                { regex: "\\]", type: "RightBracket" },
+                { regex: "{", type: "LeftBrace" },
+                { regex: "}", type: "RightBrace" },
+
+                { regex: "-", type: "MinusOperator" },
+                
+                { regex: "\\r|\\n|\\t|\\v|\\s", type: "WhiteSpace" },
+                { code: idCode },
+                { regex: "0", code: getNumber('return JsonTokenType.Number;') },
+                { regex: "0x", code: zeroXCode },
+                { code: getNumber() },
+                getString('"'),
+                getString("'"),
+                { regex: "//", code: singleLineCommentCode },
+                { regex: "/\\*", code: commentCode }
+            ],
+            keywords: 
+            [
+                "true",
+                "false",
+                "null",
+            ],
+            keywordDefault: getKeywordHelper('Identifier'),
+            keywordTail: getKeywordHelper('{Keyword}')            
+        }
+    ],
+    //ignore: [ "WhiteSpace", "Comment" ]    
+};
+

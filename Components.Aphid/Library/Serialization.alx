@@ -1,0 +1,80 @@
+﻿//load "c:\\source\\SpringPeeper\\SpringPeeper\\Newtonsoft.Json.dll";
+load Components;
+load Components.Cypress;
+load System.Runtime.Serialization;
+load System.Xml.Linq;
+
+toJson;
+useNewtonsoftJson;
+toXml;
+toDataContract;
+toJsonDataContract;
+dumpJson;
+dumpXml;
+dumpDataContract;
+dumpJsonDataContract;
+
+@{
+    using Components;
+    using Components.Json;
+    using System;
+    using System.Reflection;
+    using System.Xml.Linq;
+
+    ////////////////////////////////////////////////////////////////
+    // Todo: add to std
+    toJson = JsonSerializer.Serialize;
+
+    useNewtonsoftJson = @(assemblyPath) {
+        if (assemblyPath defined) {
+            loadFile(assemblyPath);
+        } else {
+            load Newtonsoft.Json;
+        }
+
+        toJson = @{
+            using Newtonsoft.Json;
+            s = new JsonSerializerSettings();
+            s.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            s.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            s.Formatting = Formatting.Indented;
+            p = s.GetType().GetProperty('MaxDepth');
+            
+            p.SetValue(
+                s,
+                Activator.CreateInstance(
+                    p.PropertyType,
+                    [ Convert.ChangeType(1, typeof(Int32)) ]));
+
+            ret @() JsonConvert.SerializeObject($_, s);
+        }();
+    };
+
+    toXml = @(o)
+        XmlObject.SerializeToString.Members[0]
+            .MakeGenericMethod([ o.GetType() ])
+            .Invoke(new Object(), [ o ]);
+
+    _tdc = macro(@(id, name) {
+        id = @(o) {
+            using System.Runtime.Serialization;
+            using System.Runtime.Serialization.Json;
+            s = new MemoryStream();
+            serializer = new name(o.GetType());
+            serializer.WriteObject(s, o);
+            s.Position = 0;
+            // s.Length |> print;
+            r = s.GetBuffer() |> Encoding.UTF8.GetString;
+            s.Dispose();
+            ret r;
+        };
+    });
+
+    _tdc(toDataContract, DataContractSerializer);
+    _tdc(toJsonDataContract, DataContractJsonSerializer);
+
+    dumpJson = toJson @> Console.WriteLine;
+    dumpXml = toXml @> Console.WriteLine;
+    dumpDataContract = toDataContract @> Console.WriteLine;
+    dumpJsonDataContract = toJsonDataContract @> Console.WriteLine;
+}()

@@ -1,0 +1,24 @@
+using System;
+using System.IO;
+using System.Reflection;
+cls = Console.Clear;
+print = Console.WriteLine;
+lib = @() Path.Combine($_, 'Library');
+
+cls();
+srcDir = Directory.GetCurrentDirectory() |> lib;
+dstDir = Assembly.GetExecutingAssembly().Location |> Path.GetDirectoryName |> lib;
+files = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories);
+//files.Length @print('Found {0} files');
+files->@{
+    dst = Path.Combine(dstDir, Path.GetFileName($_));
+    //print('Copying {0} to {1}', $_, dst);
+    File.Copy($_, dst, true);
+};
+
+#'Std';
+#'Meta';
+#'Serialization';
+'hello world' |> toJson |> print;
+this |> dump;
+print('foo2');

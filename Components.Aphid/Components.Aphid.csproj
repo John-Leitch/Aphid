@@ -25,7 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>True</Externalconsole>
@@ -48,6 +48,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" Condition="!$(DefineConstants.Contains('NO_JSON'))" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,6 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="External\Json\JsonFormatter.cs" />
+    <Compile Include="External\Json\JsonLexer.cs" />
+    <Compile Include="External\Json\JsonSerializer.cs" />
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
     <Compile Include="Interpreter\AphidName.cs" />
@@ -187,9 +191,13 @@
     <None Include="AphidObject.alx" />
     <None Include="App.config" />
     <None Include="AphidCustomOperators.alx" />
+    <None Include="External\Json\Json.alx" />
+    <None Include="External\Json\Json.Code.alx" />
+    <None Include="External\Json\Json.Tmpl.alx" />
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\Serialization.alx" />
     <None Include="Library\StringEmitter.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -235,10 +243,13 @@
     <None Include="Library\Std.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestScratch.cmd" />
+    <None Include="Scratch.alx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs</PreBuildEvent>
+    <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs
+::$(ProjectDir)..\Llex\bin\$(ConfigurationName)\llex.exe $(ProjectDir)\External\Json\json.alx $(ProjectDir)\External\Json\JsonLexer..cs</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

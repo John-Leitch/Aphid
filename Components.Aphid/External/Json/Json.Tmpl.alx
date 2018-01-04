@@ -1,0 +1,127 @@
+﻿keywordHelperTmpl = "
+    NextChar();    
+    state = 0;
+
+    do
+    {{
+        if (((currentChar >= 'a' && currentChar <= 'z') ||
+            (currentChar >= 'A' && currentChar <= 'Z') ||
+            (currentChar >= '0' && currentChar <= '9') ||
+            currentChar == '_' ||
+            (currentChar >= '\\u007f' && currentChar <= '\\uffff')))
+        {{
+            state = 1;
+        }}
+        else if (state == 1)
+        {{
+            charIndex--;
+
+            return JsonTokenType.Identifier;
+        }}
+        else
+        {{  
+            charIndex--;
+
+            return JsonTokenType.{0};
+        }}
+    }}
+    while (NextChar());
+";
+
+getKeywordHelper = @(type) sprintf(keywordHelperTmpl, type);
+
+stringTmpl = "
+    {0} escaped = false;
+
+    while (NextChar())
+    {{
+        if (!escaped && currentChar == '{1}')
+            return JsonTokenType.String;
+
+        escaped = !escaped && currentChar == '\\\\';
+    }}
+
+    return JsonTokenType.String;
+";
+
+firstStr = true;
+
+getString = @(delim) {
+    regex;
+    escapedDelim;
+    escapedType;
+
+    if (delim == '"') {
+        regex = '"';
+        escapedDelim = '"';        
+    } else {
+        regex = "'";
+        escapedDelim = "\\'";
+    }    
+
+    if (firstStr)
+    {
+        firstStr = false;
+        escapedType = 'bool';
+    }
+
+    ret { regex: regex, code: sprintf(stringTmpl, escapedType, escapedDelim) };
+};
+
+
+numberTmpl = "
+    state = 0;
+
+    do
+    {{    
+        if ((state == 0 || state == 1) && currentChar > 47 && currentChar < 58)
+            state = 1;
+        else if (state == 1 && currentChar == '.')
+            state = 2;
+        else if (state == 2 || state == 3 && currentChar > 47 && currentChar < 58)
+            state = 3;
+        else if ((state == 1 || state == 3) && (currentChar == 'E' || currentChar == 'e'))
+        {{
+            state = 4;
+        }}
+        else if (state == 4 && (currentChar == '-' || currentChar == '+'))
+        {{
+            state = 6;
+        }}
+        else if (state == 4 && currentChar > 47 && currentChar < 58)
+        {{
+            state = 5;
+        }}
+        else if (state == 5 && currentChar > 47 && currentChar < 58)
+        {{
+            continue;
+        }}
+        else if (state == 6)
+        {{
+            if (currentChar > 47 && currentChar < 58)
+            {{
+                state = 5;
+                continue;
+            }}
+            else
+            {{
+                return JsonTokenType.Unknown;
+            }}
+        }}
+        else if (state == 1 || state == 3 || state == 5)
+        {{
+            charIndex--;
+
+            return JsonTokenType.Number;
+        }}
+        else
+        {{  
+            break;
+        }}
+    }}
+    while (NextChar());
+
+    {0}
+";
+
+getNumber = @(tail) sprintf(numberTmpl, tail);
