@@ -197,6 +197,9 @@
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\Web.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Serialization.alx" />
     <None Include="Library\StringEmitter.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
