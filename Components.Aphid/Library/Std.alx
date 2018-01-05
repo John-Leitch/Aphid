@@ -57,7 +57,7 @@ print = @(fmt, arg0) {
                     fmt->@() Cli.WriteLine(_s($_) |> Cli.Escape, []);
                 } else {
                     _t('scalar');
-                    Cli.WriteLine(_s(fmt) |> Cli.Escape, []);
+                    Cli.WriteLine(_s(fmt), []);
                 }
             }
             2: {

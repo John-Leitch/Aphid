@@ -139,7 +139,11 @@ ast = {
         }
     },
 
-    makeRet = @(node) new UnaryOperatorExpression(token.return, node, false),
+    unOp: @(operator, operand, postfix) new UnaryOperatorExpression(operator, operand, false),
+    preUnOp: @(operator, operand) unOp(operator, operand, false),
+    makeRet: @(operand) preUnOp(token.return, operand),
+    return: makeRet,
+    // binOp: 
 };
 
 nodeType = { };
