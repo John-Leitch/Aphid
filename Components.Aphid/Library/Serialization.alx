@@ -1,7 +1,4 @@
-﻿//load "c:\\source\\SpringPeeper\\SpringPeeper\\Newtonsoft.Json.dll";
-load Components;
-load Components.Cypress;
-load System.Runtime.Serialization;
+﻿load System.Runtime.Serialization;
 load System.Xml.Linq;
 
 toJson;
