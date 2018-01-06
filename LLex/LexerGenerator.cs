@@ -28,9 +28,13 @@ namespace LLex
         private void SetNone(LexerState state, bool ancestralExitState)
         {
             if (ancestralExitState && state.Token == "Unknown")
+            {
                 state.Token = "None";
+            }
             else if (state.Token != "Unknown" && state.Token != "None")
+            {
                 ancestralExitState = true;
+            }
 
             foreach (var child in state.Children)
             {
