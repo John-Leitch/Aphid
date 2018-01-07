@@ -49,6 +49,7 @@ namespace Components.Aphid.Parser
 
         private List<AphidExpression> Mutate(AphidExpression expression)
         {
+            int index = expression.Index, length = expression.Length;
             bool hasChanged;
             var mutated = MutateCore(expression, out hasChanged);            
 
@@ -324,6 +325,19 @@ namespace Components.Aphid.Parser
                     }
 
                     break;
+            }
+
+            foreach (var e in expanded)
+            {
+#if DEBUG
+                if ((e.Index != -1 && e.Index != index) ||
+                    (e.Length != -1 && e.Length != length))
+                {
+                    throw new InvalidOperationException("Unexpected mutator index/length.");
+                }
+#endif
+                e.Index = index;
+                e.Length = length;
             }
 
             return expanded;

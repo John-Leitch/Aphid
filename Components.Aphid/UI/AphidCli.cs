@@ -22,6 +22,26 @@ namespace Components.Aphid.UI
             }
 
             Cli.WriteLine();
+
+            var statement = interpreter.CurrentStatement;
+
+            if (statement == null)
+            {
+                return;
+            }
+
+            Cli.WriteLine(
+                "Faulting statement: ~Yellow~{0}~R~",
+                statement.Code != null ? 
+                    statement.Code.Substring(statement.Index, statement.Length) :
+                    statement.ToString());
+
+            var file = interpreter.GetScriptFilename();
+
+            if (file != null)
+            {
+                Cli.WriteLine("Script: ~Yellow~{0}~R~", file);
+            }
         }
     }
 }

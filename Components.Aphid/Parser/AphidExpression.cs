@@ -19,6 +19,8 @@ namespace Components.Aphid.Parser
             get { return _length; }
             set { _length = value; }
         }
+
+        public string Code { get; set; }
     }
 }
 

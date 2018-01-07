@@ -31,7 +31,9 @@ namespace Components.Aphid.Interpreter
 
         public AphidLoader Loader { get; private set; }
 
-        public AphidObject CurrentScope { get; private set; }        
+        public AphidObject CurrentScope { get; private set; }
+
+        public AphidExpression CurrentStatement { get; private set; }
 
         public AphidInterpreter()
             : this(true)
@@ -160,6 +162,15 @@ namespace Components.Aphid.Interpreter
                 CurrentScope.Remove(AphidName.Script);
                 CurrentScope.Add(AphidName.Script, obj);
             }
+        }
+
+        public string GetScriptFilename()
+        {
+            AphidObject scriptObj;
+            
+            return CurrentScope.TryResolve(AphidName.Script, out scriptObj) ?
+                scriptObj.GetString() :
+                null;
         }
 
         public void EnterChildScope()
@@ -2536,6 +2547,8 @@ namespace Components.Aphid.Interpreter
 
             foreach (var expression in expressions)
             {
+                CurrentStatement = expression;
+
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
                     AphidObject obj;
@@ -2585,6 +2598,12 @@ namespace Components.Aphid.Interpreter
             var ast = new PartialOperatorMutator().MutateRecursively(parser.Parse());
             ast = new AphidMacroMutator().MutateRecursively(ast);
             ast = new AphidIdDirectiveMutator().MutateRecursively(ast);
+
+            foreach (var n in ast)
+            {
+                n.Code = code;
+            }
+
             Interpret(ast);
         }
 
@@ -2620,12 +2639,13 @@ namespace Components.Aphid.Interpreter
             }
 
             // Todo: Add test cases to cover try/catch influence
+            CurrentStatement = null;
             _isReturning = false;
             _isContinuing = false;
             _isBreaking = false;
             _frames.Clear();
 
-            foreach (var k in new[] { AphidName.Return, AphidName.Block })
+            foreach (var k in new[] { AphidName.Return, AphidName.Block, AphidName.Script })
             {
                 if (CurrentScope.ContainsKey(k))
                 {
