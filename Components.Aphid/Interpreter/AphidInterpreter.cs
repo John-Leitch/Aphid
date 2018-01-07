@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using System.Threading;
 
 namespace Components.Aphid.Interpreter
 {
@@ -22,6 +23,14 @@ namespace Components.Aphid.Interpreter
         });
 
         private AphidAssemblyBuilder _asmBuilder = new AphidAssemblyBuilder();
+
+        private ManualResetEvent _breakpointReset;
+
+        private bool _isSingleStepping;
+
+        private AutoResetEvent _singleStepReset;
+
+        public Action<AphidExpression> HandleExecutionBreak { get; set; }
 
         public TextWriter Out { get; set; }
 
@@ -2420,7 +2429,8 @@ namespace Components.Aphid.Interpreter
 
         private object InterpretExpression(AphidExpression expression)
         {
-#if DEBUG
+            HandleDebugging(expression);
+#if STRICT_INDEX
             if (expression.Index == -1 || expression.Length == -1)
             {
                 throw new InvalidOperationException("Invalid index/length.");
@@ -2582,6 +2592,8 @@ namespace Components.Aphid.Interpreter
 
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
+                    HandleDebugging(expression);
+
                     AphidObject obj;
 
                     var id = expression.ToIdentifier().Identifier;
@@ -2688,6 +2700,77 @@ namespace Components.Aphid.Interpreter
                 {
                     CurrentScope.Remove(k);
                 }
+            }
+        }
+
+        private void HandleDebugging(AphidExpression expression)
+        {
+            if (_isSingleStepping)
+            {
+                BreakExecution(expression);
+            }
+
+            if (expression.HasBreakpoint)
+            {
+                using (_breakpointReset = new ManualResetEvent(false))
+                {
+
+                    if (HandleExecutionBreak != null)
+                    {
+                        BreakExecution(expression);
+                    }
+
+                    _breakpointReset.WaitOne();
+                }
+                
+                _breakpointReset = null;
+            }
+
+            if (_singleStepReset != null)
+            {
+                _singleStepReset.WaitOne();
+
+                if (!_isSingleStepping)
+                {
+                    _singleStepReset.Dispose();
+                    _singleStepReset = null;
+                }
+            }
+        }
+
+        private void BreakExecution(AphidExpression expression)
+        {
+            new Thread(() => HandleExecutionBreak(expression)) { IsBackground = true }
+                .Start();
+        }
+
+        public void Continue()
+        {
+            _breakpointReset.Set();
+
+            if (_isSingleStepping)
+            {
+                _isSingleStepping = false;
+                _singleStepReset.Set();
+            }
+        }
+
+        public void SingleStep()
+        {
+            _isSingleStepping = true;
+
+            if (_singleStepReset == null)
+            {
+                _singleStepReset = new AutoResetEvent(true);
+            }
+            else
+            {
+                _singleStepReset.Set();
+            }
+
+            if (_breakpointReset != null)
+            {
+                _breakpointReset.Set();
             }
         }
     }
