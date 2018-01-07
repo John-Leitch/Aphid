@@ -14,8 +14,7 @@ print("Tokens");
 for (x in tokens)
     print(x);
 
-parser = new AphidParser(tokens);
-ast = parser.Parse();
+ast = AphidParser.Parse(tokens, code);
 
 print("\r\nStatements");
 for (node in ast)
@@ -23,4 +22,4 @@ for (node in ast)
 
 print("\r\nInterpreting script");
 intepreter = new AphidInterpreter(true);
-intepreter.Interpret(ast, false);
+intepreter.Interpret(ast);

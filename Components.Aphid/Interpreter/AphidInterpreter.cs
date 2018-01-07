@@ -730,7 +730,11 @@ namespace Components.Aphid.Interpreter
                         InterpretExpression(expression.RightOperand) as AphidObject);
 
                 case AphidTokenType.PipelineOperator:
-                    return InterpretCallExpression(new CallExpression(expression.RightOperand, expression.LeftOperand));
+                    return InterpretCallExpression(
+                        (CallExpression)new CallExpression(
+                            expression.RightOperand,
+                            expression.LeftOperand)
+                                .WithPositionFrom(expression));
 
                 case AphidTokenType.RangeOperator:
                     return OperatorHelper.Range(
@@ -2132,8 +2136,13 @@ namespace Components.Aphid.Interpreter
                         new UnaryOperatorExpression(AphidTokenType.retKeyword,
                             new CallExpression(
                                 expression.Call.FunctionExpression, 
-                                expression.Call.Args.Concat(
-                                partialArgs.Select(x => new IdentifierExpression(x))).ToList())),
+                                expression.Call.Args
+                                    .Concat(partialArgs
+                                        .Select((x, i) => (IdentifierExpression)new IdentifierExpression(x)
+                                        .WithPositionFrom(expression.Call.Args[i])))
+                                    .ToList())
+                                .WithPositionFrom(expression.Call))
+                            .WithPositionFrom(expression.Call),
                     },
                     ParentScope = CurrentScope,
                 };
@@ -2170,9 +2179,12 @@ namespace Components.Aphid.Interpreter
                     new UnaryOperatorExpression(
                         AphidTokenType.retKeyword,
                         new BinaryOperatorExpression(
-                            new IdentifierExpression(name),
+                            new IdentifierExpression(name)
+                                .WithPositionFrom(expression),
                             expression.Operator,
-                            expression.Operand))
+                            expression.Operand)
+                            .WithPositionFrom(expression))
+                        .WithPositionFrom(expression)
                 },
             };
 
@@ -2400,8 +2412,21 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public object InterpretExpression(AphidExpression expression)
+        public object Interpret(AphidExpression expression)
         {
+            SetAstCode(new List<AphidExpression> { expression });
+            return InterpretExpression(expression);
+        }
+
+        private object InterpretExpression(AphidExpression expression)
+        {
+#if DEBUG
+            if (expression.Index == -1 || expression.Length == -1)
+            {
+                throw new InvalidOperationException("Invalid index/length.");
+            }
+#endif
+
             switch (expression.Type)
             {
                 case AphidExpressionType.BinaryOperatorExpression:
@@ -2531,12 +2556,18 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public object InterpretAndUnwrap(AphidExpression expression)
+        private object InterpretAndUnwrap(AphidExpression expression)
         {
             return ValueHelper.Unwrap(InterpretExpression(expression));
         }
 
-        public void Interpret(List<AphidExpression> expressions, bool resetIsReturning = true)
+        public void Interpret(List<AphidExpression> expressions)
+        {
+            SetAstCode(expressions);
+            Interpret(expressions, resetIsReturning: true);
+        }
+
+        private void Interpret(List<AphidExpression> expressions, bool resetIsReturning = true)
         {
             AphidObject document;
 
@@ -2587,24 +2618,13 @@ namespace Components.Aphid.Interpreter
 
         public void Interpret(string code, bool isTextDocument)
         {
-            var lexer = new AphidLexer(code);
+            var ast = AphidParser.Parse(code, isTextDocument);
+            SetAstCode(ast);
+            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
 
-            if (isTextDocument)
-            {
-                lexer.SetTextMode();
-            }
-
-            var parser = new AphidParser(lexer.GetTokens());
-            var ast = new PartialOperatorMutator().MutateRecursively(parser.Parse());
-            ast = new AphidMacroMutator().MutateRecursively(ast);
-            ast = new AphidIdDirectiveMutator().MutateRecursively(ast);
-
-            foreach (var n in ast)
-            {
-                n.Code = code;
-            }
-
-            Interpret(ast);
+            Interpret(mutatedAst);
         }
 
         public void InterpretFile(string filename)
@@ -2631,7 +2651,18 @@ namespace Components.Aphid.Interpreter
             return _frames.ToArray();
         }
 
-        public void RestoreScope()
+        private void SetAstCode(List<AphidExpression> ast)
+        {
+            if (CurrentScope.ContainsKey(AphidName.Code))
+            {
+                CurrentScope.Remove(AphidName.Code);
+            }
+
+            var node = ast.FirstOrDefault(x => x.Code != null);
+            CurrentScope.Add(AphidName.Code, new AphidObject(node != null ? node.Code : null));
+        }
+
+        public void ResetState()
         {
             while (CurrentScope != null && CurrentScope.Parent != null)
             {
@@ -2645,7 +2676,13 @@ namespace Components.Aphid.Interpreter
             _isBreaking = false;
             _frames.Clear();
 
-            foreach (var k in new[] { AphidName.Return, AphidName.Block, AphidName.Script })
+            foreach (var k in new[]
+            {
+                AphidName.Return,
+                AphidName.Block,
+                AphidName.Script,
+                AphidName.Code
+            })
             {
                 if (CurrentScope.ContainsKey(k))
                 {

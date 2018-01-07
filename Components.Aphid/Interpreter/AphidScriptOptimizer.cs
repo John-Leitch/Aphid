@@ -19,8 +19,7 @@ namespace Components.Aphid.Interpreter
 
         public List<AphidExpression> Optimize(string script)
         {
-            var tokens = new AphidLexer(script).GetTokens();
-            var ast = new AphidParser(tokens).Parse();
+            var ast = AphidParser.Parse(script, isTextDocument: false);
 
             return Optimize(ast);            
         }

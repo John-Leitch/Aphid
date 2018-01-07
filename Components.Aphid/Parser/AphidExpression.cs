@@ -21,6 +21,27 @@ namespace Components.Aphid.Parser
         }
 
         public string Code { get; set; }
+
+        public override string ToString()
+        {
+            if (Code != null && Index != -1 && Length != -1)
+            {
+                return Code.Substring(Index, Length);
+            }
+            else
+            {
+                return base.ToString();
+            }
+        }
+
+        public AphidExpression WithPositionFrom(AphidExpression expression)
+        {
+            Index = expression.Index;
+            Length = expression.Length;
+            Code = expression.Code;
+
+            return this;
+        }
     }
 }
 

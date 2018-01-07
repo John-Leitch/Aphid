@@ -64,7 +64,7 @@ namespace Mantispid
 
                 Console.WriteLine("Generating parser");
                 var parserGenerator = new ParserGenerator();
-                var s = parserGenerator.Generate(ast);
+                var s = parserGenerator.Generate(ast, code);
                 File.WriteAllText(args[1], s);
                 Console.WriteLine("Parser written to '{0}'", args[1]);
             //}

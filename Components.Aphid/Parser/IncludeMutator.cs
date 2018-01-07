@@ -66,9 +66,11 @@ namespace Components.Aphid.Parser
             {
                 throw new AphidRuntimeException("Could not find script '{0}'.", scriptExp.Value);
             }
-
-            var tokens = new AphidLexer(File.ReadAllText(script)).GetTokens();
-            return new AphidParser(tokens) { UseImplicitReturns = UseImplicitReturns }.Parse();
+            
+            var code = File.ReadAllText(script);
+            return AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
+            //var tokens = new AphidLexer().GetTokens();
+            //return new AphidParser(tokens) { UseImplicitReturns = UseImplicitReturns }.Parse();
         }
     }
 }

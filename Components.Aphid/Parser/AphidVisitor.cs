@@ -13,6 +13,11 @@ namespace Components.Aphid.Parser
             _ignoreChildren = true;
         }
 
+        public void VisitExpression(AphidExpression node)
+        {
+            Visit(new List<AphidExpression> { node });
+        }
+
         public void Visit(List<AphidExpression> ast)
         {
             Ancestors = new Stack<AphidExpression>();

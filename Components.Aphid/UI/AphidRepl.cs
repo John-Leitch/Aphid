@@ -46,7 +46,7 @@ namespace Components.Aphid.UI
                     RunCode(code);
                 }
 
-                _interpreter.RestoreScope();
+                _interpreter.ResetState();
             }
         }
 
@@ -54,19 +54,10 @@ namespace Components.Aphid.UI
         {
             var lexer = new AphidLexer(code);
             var tokens = lexer.GetTokens();
-            var parser = new AphidParser(tokens);
-            parser.NextToken();
-
-            var exp = new UnaryOperatorExpression(
-                AphidTokenType.retKeyword,
-                parser.ParseExpression());
-
-            if (parser.NextToken())
-            {
-                throw new AphidParserException(parser.CurrentToken);
-            }
-
-            _interpreter.InterpretExpression(exp);
+            var exp = AphidParser.ParseExpression(tokens, code);
+            var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
+            new AphidCodeVisitor(code).VisitExpression(retExp);
+            _interpreter.Interpret(retExp);
             var value = _interpreter.GetReturnValue();
 
             if (value != null && (value.Value != null || value.Any()))

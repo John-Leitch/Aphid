@@ -310,19 +310,22 @@ namespace AphidUI.ViewModels
             }
 
             AddHistoricalCode();
-
-            var tokens = new AphidLexer(Code + " ").GetTokens();
+            var code = Code + " ";
+            var tokens = new AphidLexer(code).GetTokens();
 
             if (!tokens.Any(x => x.TokenType == AphidTokenType.EndOfStatement))
             {
-                tokens.Add(new AphidToken(AphidTokenType.EndOfStatement, "", 0));
+                code += "\r\n;";
+                tokens = new AphidLexer(code).GetTokens();
+                //tokens.Add(new AphidToken(AphidTokenType.EndOfStatement, "", 0));
+                //code += ";";
             }
 
             List<Components.Aphid.Parser.AphidExpression> ast = null;
 
             try
             {
-                ast = new AphidParser(tokens).Parse();
+                ast = AphidParser.Parse(tokens, code);
             }
             catch (AphidParserException ex)
             {
@@ -349,15 +352,20 @@ namespace AphidUI.ViewModels
                 unary.Operator != AphidTokenType.retKeyword)
             {
                 ast.Clear();
-                ast.Add(new UnaryOperatorExpression(
+
+                var retExp = new UnaryOperatorExpression(
                     AphidTokenType.retKeyword,
-                    exp));
+                    exp);
+
+                retExp.Code = exp.Code;
+                retExp.Index = exp.Index;
+                retExp.Length = exp.Length;
+                ast.Add(retExp);
             }
-
-
 
             try
             {
+                _interpreter.ResetState();
                 _interpreter.Interpret(ast);
             }
             catch (AphidRuntimeException ex)
@@ -411,13 +419,11 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            var tokens = new AphidLexer(Code).GetTokens();
-
             List<Components.Aphid.Parser.AphidExpression> ast = null;
 
             try
             {
-                ast = new AphidParser(tokens).Parse();
+                ast = AphidParser.Parse(Code);
             }
             catch (AphidParserException ex)
             {
@@ -435,6 +441,7 @@ namespace AphidUI.ViewModels
 
             try
             {
+                _interpreter.ResetState();
                 _interpreter.Interpret(ast);
             }
             catch (AphidRuntimeException ex)
@@ -525,6 +532,7 @@ namespace AphidUI.ViewModels
         {
             try
             {
+                _interpreter.ResetState();
                 _interpreter.Interpret("ret " + vm.Expression + ";");
             }
             catch (AphidRuntimeException e)

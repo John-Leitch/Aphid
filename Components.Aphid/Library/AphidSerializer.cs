@@ -159,10 +159,12 @@ namespace Components.Aphid.Library
         {
             var lexer = new AphidObjectLexer(obj);
             var tokens = lexer.GetTokens();
-            tokens.Add(new AphidToken(AphidTokenType.EndOfStatement, null, 0));
 
             var ast = new AphidObjectThisKeywordMutator().Mutate(
-                new AphidParser(tokens).Parse());
+                new List<AphidExpression>
+                {
+                    AphidParser.ParseExpression(tokens, obj)
+                });
 
             if (ast.Count != 1)
             {
@@ -170,13 +172,15 @@ namespace Components.Aphid.Library
             }
 
             ast[0] = new BinaryOperatorExpression(
-                new IdentifierExpression(_root),
+                new IdentifierExpression(_root).WithPositionFrom(ast[0]),
                 AphidTokenType.AssignmentOperator,
                 ast[0]);
 
             ast.AddRange(
                 new AphidObjectReferenceVisitor()
                     .FindReferenceAssignments(ast));
+
+            new AphidCodeVisitor(obj).Visit(ast);
 
             var objInterpreter = new AphidInterpreter();
             objInterpreter.Interpret(ast);
@@ -257,7 +261,8 @@ namespace Components.Aphid.Library
                 {
                     if (lhs != null)
                     {
-                        lhs = new BinaryOperatorExpression(lhs, AphidTokenType.MemberOperator, x);
+                        lhs = new BinaryOperatorExpression(lhs, AphidTokenType.MemberOperator, x)
+                            .WithPositionFrom(x);
                     }
                     else
                     {

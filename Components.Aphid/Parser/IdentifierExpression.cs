@@ -9,7 +9,7 @@ namespace Components.Aphid.Parser
     {
         public override string ToString()
         {
-            return Identifier;
+            return Code == null ? Identifier : base.ToString();
         }
     }
 }

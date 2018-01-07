@@ -4,7 +4,7 @@
     using System.IO;
     using System.Reflection;
 
-    cls();
+    // cls();
     _print = print;
     _print = @{};
     scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;

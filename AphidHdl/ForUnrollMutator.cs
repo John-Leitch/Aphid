@@ -45,9 +45,10 @@ namespace AphidHdl
             var key = "$condition";
 
             var condition = new BinaryOperatorExpression(
-                new IdentifierExpression(key),
+                new IdentifierExpression(key).WithPositionFrom(forExp.Condition),
                 AphidTokenType.AssignmentOperator,
-                forExp.Condition);
+                forExp.Condition)
+                    .WithPositionFrom(forExp.Condition);
                 
             bool conditionResult;
             var unrolled = new List<AphidExpression>();
@@ -71,6 +72,7 @@ namespace AphidHdl
                     x => new List<AphidExpression> { new NumberExpression(value) });
 
                 unrolled.AddRange(replaceMutator.MutateRecursively(forExp.Body));
+                
                 interpreter.Interpret(new List<AphidExpression> { forExp.Afterthought });
             }
 

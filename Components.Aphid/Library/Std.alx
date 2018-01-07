@@ -101,7 +101,10 @@ fatal = @{
     Environment.Exit(0);
 };
 
-is = @(name, target) target.GetType().GetInterface(name) != null;
+is = @(name, target)
+    target.GetType().GetInterface(name) != null || 
+    target.GetType().FullName == name ||
+    target.GetType().Name == name;
 
 has = @(name, target)
     target.GetType().GetMethod(name) != null ||

@@ -12,7 +12,7 @@ _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 tokenize = @(text) (new AphidLexer(text)).GetTokens();
 getToken = @(text) tokenize(text)[0].TokenType;
 
-parse = @(code) AphidParser.Parse(code, false);
+parse = @(code) AphidParser.Parse(code);
 parseExp = @(exp) parse(exp)[0];
 
 parseFunc = @(code) {
@@ -156,7 +156,7 @@ nodeType = { };
     call Call;
 }.Body->@{
     nodeType.{$_.Attributes[0]} = 
-        $_
+        $_.Identifier
         @String.Format('AphidExpressionType.{0}Expression')
         evalExp
 };

@@ -7,9 +7,16 @@ namespace Components.Aphid.Parser
 {
     public abstract class AphidMutator
     {
+        protected Stack<AphidExpression> Ancestors { get; private set; }
+
         public bool HasMutated { get; private set; }
 
         protected bool IsStatement { get; private set; }
+
+        public AphidMutator()
+        {
+            Ancestors = new Stack<AphidExpression>();
+        }
 
         protected abstract List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged);
 
@@ -28,6 +35,15 @@ namespace Components.Aphid.Parser
         }
 
         public List<AphidExpression> Mutate(List<AphidExpression> ast)
+        {
+            CheckAncestorStack();
+            var mutatedAst = MutateInternal(ast);
+            CheckAncestorStack();
+
+            return mutatedAst;
+        }
+
+        private List<AphidExpression> MutateInternal(List<AphidExpression> ast)
         {
             if (ast == null)
             {
@@ -49,14 +65,17 @@ namespace Components.Aphid.Parser
 
         private List<AphidExpression> Mutate(AphidExpression expression)
         {
-            int index = expression.Index, length = expression.Length;
+            Ancestors.Push(expression);
+            var code = expression.Code;
             bool hasChanged;
             var mutated = MutateCore(expression, out hasChanged);            
 
             if (hasChanged)
             {
                 HasMutated = true;
-                return mutated.SelectMany(Mutate).ToList();
+                var recursivelyMutated = mutated.SelectMany(Mutate).ToList();
+                Ancestors.Pop();
+                return recursivelyMutated;
             }
 
             IsStatement = false;
@@ -122,9 +141,9 @@ namespace Components.Aphid.Parser
                         switchExp.Cases
                             .Select(x => new SwitchCase(
                                 x.Cases.Select(MutateSingle).ToList(),
-                                Mutate(x.Body)))
+                                MutateInternal(x.Body)))
                             .ToList(),
-                        Mutate(switchExp.DefaultCase)));
+                        MutateInternal(switchExp.DefaultCase)));
 
                     break;
 
@@ -133,8 +152,8 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(new IfExpression(
                         Mutate(ifExp.Condition).Single(),
-                        Mutate(ifExp.Body),
-                        Mutate(ifExp.ElseBody)));
+                        MutateInternal(ifExp.Body),
+                        MutateInternal(ifExp.ElseBody)));
 
                     break;
 
@@ -145,7 +164,7 @@ namespace Components.Aphid.Parser
                         Mutate(forExp.Initialization).Single(),
                         Mutate(forExp.Condition).Single(),
                         Mutate(forExp.Afterthought).Single(),
-                        Mutate(forExp.Body)));
+                        MutateInternal(forExp.Body)));
 
                     break;
 
@@ -155,7 +174,7 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new ForEachExpression(
                             Mutate(forEachExp.Collection).Single(),
-                            Mutate(forEachExp.Body),
+                            MutateInternal(forEachExp.Body),
                             forEachExp.Element != null ? 
                                 Mutate(forEachExp.Element).Single() : 
                                 null));
@@ -164,12 +183,12 @@ namespace Components.Aphid.Parser
 
                 case AphidExpressionType.WhileExpression:
                     var cfExp = (WhileExpression)expression;
-                    expanded.Add(new WhileExpression(Mutate(cfExp.Condition).Single(), Mutate(cfExp.Body)));
+                    expanded.Add(new WhileExpression(Mutate(cfExp.Condition).Single(), MutateInternal(cfExp.Body)));
                     break;
 
                 case AphidExpressionType.DoWhileExpression:
                     var dwExp = (DoWhileExpression)expression;
-                    expanded.Add(new DoWhileExpression(Mutate(dwExp.Condition).Single(), Mutate(dwExp.Body)));
+                    expanded.Add(new DoWhileExpression(Mutate(dwExp.Condition).Single(), MutateInternal(dwExp.Body)));
                     break;
 
                 case AphidExpressionType.LoadScriptExpression:
@@ -187,7 +206,7 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(new FunctionExpression(
                         funcExp.Args.Select(x => Mutate(x).Single()).ToList(),
-                        Mutate(funcExp.Body)));
+                        MutateInternal(funcExp.Body)));
 
                     break;
 
@@ -273,12 +292,12 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new TryExpression(
-                            Mutate(tryExp.TryBody),
+                            MutateInternal(tryExp.TryBody),
                             tryExp.CatchArg != null ? 
                                 (IdentifierExpression)Mutate(tryExp.CatchArg).Single() :
                                 null,
-                            Mutate(tryExp.CatchBody),
-                            Mutate(tryExp.FinallyBody)));
+                            MutateInternal(tryExp.CatchBody),
+                            MutateInternal(tryExp.FinallyBody)));
 
                     break;
 
@@ -327,19 +346,26 @@ namespace Components.Aphid.Parser
                     break;
             }
 
-            foreach (var e in expanded)
+            var a = FindIndexedAncestor();
+
+            if (a != null)
             {
-#if DEBUG
-                if ((e.Index != -1 && e.Index != index) ||
-                    (e.Length != -1 && e.Length != length))
+                foreach (var e in expanded)
                 {
-                    throw new InvalidOperationException("Unexpected mutator index/length.");
-                }
+#if DEBUG
+                    if ((e.Index != -1 && e.Index != a.Index) ||
+                        (e.Length != -1 && e.Length != a.Length))
+                    {
+                        throw new InvalidOperationException("Unexpected mutator index/length.");
+                    }
 #endif
-                e.Index = index;
-                e.Length = length;
+                    e.Index = a.Index;
+                    e.Length = a.Length;
+                    e.Code = code;
+                }
             }
 
+            Ancestors.Pop();
             return expanded;
         }
 
@@ -353,7 +379,7 @@ namespace Components.Aphid.Parser
             {
                 Reset();
                 BeginRecursiveMutationPass(ast);
-                ast = Mutate(ast);
+                ast = MutateInternal(ast);
                 EndRecursiveMutationPass(ast);
                 if (HasMutated)
                 {
@@ -369,6 +395,19 @@ namespace Components.Aphid.Parser
         public virtual void Reset()
         {
             HasMutated = false;
+        }
+
+        private AphidExpression FindIndexedAncestor()
+        {
+            return Ancestors.FirstOrDefault(x => x.Index != -1 && x.Length != -1);
+        }
+
+        private void CheckAncestorStack()
+        {
+            if (Ancestors.Any())
+            {
+                throw new InvalidOperationException("Mutator Ancestor stack unbalanced.");
+            }
         }
     }
 }

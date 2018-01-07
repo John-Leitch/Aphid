@@ -62,10 +62,10 @@ namespace Mantispid
                 .ToArray();
         }
 
-        public string Generate(List<AphidExpression> nodes)
+        public string Generate(List<AphidExpression> nodes, string code)
         {
             ParseDirectives(nodes);
-            var lexer = GenerateLexer(nodes);
+            var lexer = GenerateLexer(nodes, code);
             ParseRuleStructs(nodes);
             nodes = new PlusEqualMutator().MutateRecursively(nodes);
             var rules = GetRules(nodes);
@@ -140,7 +140,7 @@ namespace Mantispid
             return new IndexTrackingMutator(nonListIds).Mutate(nodes);
         }
 
-        private string GenerateLexer(List<AphidExpression> nodes)
+        private string GenerateLexer(List<AphidExpression> nodes, string code)
         {
             var lexerCall = nodes.SingleOrDefault(x =>
                 x.Type == AphidExpressionType.CallExpression &&
@@ -178,7 +178,8 @@ namespace Mantispid
                 ast.AddRange(initFunc.Body);
             }
 
-            ast.Add(new UnaryOperatorExpression(AphidTokenType.retKeyword, lexerObj));
+            ast.Add(new UnaryOperatorExpression(AphidTokenType.retKeyword, lexerObj)
+                .WithPositionFrom(lexerObj));
 
             var interpreter = new AphidInterpreter();
             interpreter.Interpret(ast);

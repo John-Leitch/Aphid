@@ -42,7 +42,7 @@ namespace Components.Aphid.Parser
             }
         }
 
-        [System.Diagnostics.DebuggerStepThrough]
+        //[System.Diagnostics.DebuggerStepThrough]
         public bool NextToken()
         {
             _tokenIndex++;
@@ -54,12 +54,57 @@ namespace Components.Aphid.Parser
             }
             else
             {
+                var i = _currentToken.Index + _currentToken.Lexeme.Length;
                 _currentToken = default(AphidToken);
+                _currentToken.Index = i;
                 return false;
             }
         }
 
-        public static List<AphidExpression> Parse(string code, bool isTextDocument = false)
+        public static List<AphidExpression> Parse(List<AphidToken> tokens, string code)
+        {
+            return Parse(tokens, code, useImplicitReturns: true);
+        }
+
+        public static List<AphidExpression> Parse(
+            List<AphidToken> tokens,
+            string code,
+            bool useImplicitReturns = true)
+        {
+            var parser = new AphidParser(tokens)
+            {
+                UseImplicitReturns = useImplicitReturns
+            };
+
+            var ast = parser.Parse();
+            new AphidCodeVisitor(code).Visit(ast);
+
+            return ast;
+        }
+
+        public static AphidExpression ParseExpression(List<AphidToken> tokens, string code)
+        {
+            var ast = AphidParser.Parse(tokens, code);
+
+            if (ast.Count != 1)
+            {
+                throw new AphidParserException(
+                    "Expected end of expression, found: {0}",
+                    code.Substring(ast[1].Index));
+            }
+
+            return ast[0];
+        }
+
+        public static List<AphidExpression> Parse(string code)
+        {
+            return Parse(code, useImplicitReturns: true);
+        }
+
+        public static List<AphidExpression> Parse(
+            string code,
+            bool isTextDocument = false,
+            bool useImplicitReturns = true)
         {
             var lexer = new AphidLexer(code);
 
@@ -68,7 +113,10 @@ namespace Components.Aphid.Parser
                 lexer.SetTextMode();
             }
 
-            return new AphidParser(lexer.GetTokens()).Parse();
+            return Parse(
+                lexer.GetTokens(),
+                code,
+                useImplicitReturns: useImplicitReturns);
         }
     }
 }

@@ -22,10 +22,7 @@ namespace AphidHdl
 
             try
             {
-                var lexer = new AphidLexer(code);
-                var tokens = lexer.GetTokens();
-                var parser = new AphidParser(tokens) { UseImplicitReturns = false };
-                ast = parser.Parse();
+                ast = AphidParser.Parse(code, useImplicitReturns: false);
             }
             catch (AphidParserException e)
             {
