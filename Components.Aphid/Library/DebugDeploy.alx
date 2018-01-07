@@ -1,0 +1,38 @@
+﻿@{
+    #'std';
+    using System;
+    using System.IO;
+    using System.Reflection;
+
+    cls();
+    _print = print;
+    _print = @{};
+    scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;
+    dir = scriptDir;
+    dir @_print('Script dir: ~Green~{0}~R~');
+    libDir;
+
+    do
+    {
+        stdFile = Path.Combine(dir.FullName, 'Components.Aphid', 'Library', 'Std.alx');
+        stdFile |> @_print('Checking dir: ~Cyan~{0}~R~');
+        if (File.Exists(stdFile)) {
+            libDir = Path.GetDirectoryName(stdFile);
+        }
+
+    } while ((dir = dir.Parent) != null);
+
+    if (libDir == null) {
+        _print('~Yellow~Could not find library dir~R~');
+        exit(0);
+    }
+
+    _print('Found lib dir: ~Green~{0}~R~', libDir);
+    _print('[~Green~+~R~] Updating standard headers');
+
+    Directory.GetFiles(libDir, '*.alx')->@ (src){
+        dst = Path.Combine(scriptDir.FullName, 'Library', src |> Path.GetFileName);
+        _print('Copying ~Cyan~{0}~R~ to ~Cyan~{1}~R~', src, dst);
+        File.Copy(src, dst, true);
+    };
+}();
