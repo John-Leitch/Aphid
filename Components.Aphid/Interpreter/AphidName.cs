@@ -17,6 +17,7 @@ namespace Components.Aphid.Interpreter
             Block = "$block",
             Scope = "$scope",
             Parent = "$parent",
-            Extension = "$isExt";
+            Extension = "$isExt",
+            Script = "$script";
     }
 }

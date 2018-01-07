@@ -147,6 +147,21 @@ namespace Components.Aphid.Interpreter
             CurrentScope.Add(AphidName.Return, obj);
         }
 
+        public void SetScriptFilename(string filename)
+        {
+            var obj = new AphidObject(filename);
+
+            if (!CurrentScope.ContainsKey(AphidName.Script))
+            {
+                CurrentScope.Add(AphidName.Script, obj);
+            }
+            else
+            {
+                CurrentScope.Remove(AphidName.Script);
+                CurrentScope.Add(AphidName.Script, obj);
+            }
+        }
+
         public void EnterChildScope()
         {
             CurrentScope = new AphidObject(null, CurrentScope);
@@ -2241,7 +2256,9 @@ namespace Components.Aphid.Interpreter
 
             if (expression.CatchArg != null)
             {
-                var ex = new AphidObject(ExceptionHelper.Unwrap(e).Message);
+                var ex = new AphidObject();
+                ex.Add("message", new AphidObject(ExceptionHelper.Unwrap(e).Message));
+                ex.Add("exception", new AphidObject(e));
                 ex.Add("stack", new AphidObject(ExceptionHelper.StackTrace(GetStackTrace())));
                 CurrentScope.Add(expression.CatchArg.Identifier, ex);
             }
@@ -2568,6 +2585,7 @@ namespace Components.Aphid.Interpreter
 
         public void InterpretFile(string filename, bool isTextDocument = false)
         {
+            SetScriptFilename(filename);
             Loader.LoadScript(filename, isTextDocument);
         }
 
