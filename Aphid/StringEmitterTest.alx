@@ -172,10 +172,10 @@ e.emitProperty = @(p) {
     a = lhs.Attributes;
 
     if (a.Count == 1) {
-        //a[0] @print('[?] Checking for bool converter "{0}"');
+        a[0] @print('[?] Checking for bool converter "{0}"');
 
-        if (boolConverterNames.contains(a[0].ToString())) {
-            //a[0] @print('[+] Bool converter found with name "{0}"');
+        if (boolConverterNames.contains(a[0].Identifier)) {
+            a[0] @print('[+] Bool converter found with name "{0}"');
             
             onChangeStatements.add({
                 func: lastOnChangeName,
