@@ -1,28 +1,108 @@
 <html>
-    <textarea id="input" style="width:400px; height:400px;">{
+    <head>
+        <title>llex JSON Lexical Analyzer Demo</title>
+        <style>
+                #input {
+                    width: 400px;
+                    height: 250px;
+                    font-family: 'Lucida Console'
+                }
+        
+                #output {
+                    width: 400px;
+                    height: 250px;
+                }
+        
+                #htmlOutput {
+                    padding: 4px;
+                    border-style: solid;
+                    border-width: 1px;
+                    font-family: 'Lucida Console';
+                    font-weight: 600;
+                    font-size: 80%;
+                }
+            </style>
+    </head>
+    <body>
+        <h1>llex JSON Lexical Analyzer Demo</h1>
+        <textarea id="input">// Edit this
+{
     "foo": {
-        "x": 10,
-        "y": 20
+        "name": null,
+        "x": 10, // A comment
+        "y": 20,
+        /****************
+            Multiline
+             comment
+        ****************/
+        "isFoo": true
     }
 }
-    </textarea>
-    <textarea id="output" style="width:400px; height:400px;"></textarea>
-    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
-    <script src="JsonLexer.js"></script>
-    <script>
-        update = function() {
-            s = '';
-            var lexer = new Components.Json.JsonLexer($('#input').val());
-            var tokens = lexer.GetTokens();
-            
-            for (var x in tokens) {
-                s += tokens[x].ToString() + '\r\n';
-            }
+        </textarea>
+        <textarea id="output" readonly></textarea>
+        <div id="htmlOutput"</div>
+        <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+        <script src="JsonLexer.js"></script>
+        <script>
+            var type = Components.Json.JsonTokenType;
 
-            $('#output').text(s);
-        };
+            var update = function() {
+                var s = '';
+                var html = '';
+                var lexer = new Components.Json.JsonLexer($('#input').val());
+                var tokens = lexer.GetAllTokens();
+                
+                for (var x in tokens) {
+                    var token = tokens[x];
+                    if (token.TokenType != type.WhiteSpace) {
+                        s += token.ToString() + '\r\n';
+                    }
 
-        $('#input').keyup(update);
-        update();
-    </script>
+                    html += formatToken(token);
+                }
+
+                $('#output').text(s);
+                $('#htmlOutput').html(html);
+            };
+
+            var formatToken = function(token) {
+                var color = getColor(token);
+                var html = token
+                    .Lexeme
+                    .replace(/\r\n/g, '<br/>')
+                    .replace(/\r/g, '<br/>')
+                    .replace(/\n/g, '<br/>')
+                    .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+                    .replace(/ /g, '&nbsp;');
+
+                console.log('%s, %s', html, color);
+
+                return color == null ? 
+                    html :
+                    '<span style="color: ' + color + '">' + html + '</span>';
+            };
+
+            var getColor = function(token) {
+                switch (token.TokenType) {
+                    case type.String:
+                        return 'rgb(193,21,21)';
+                    case type.Number:
+                        return 'rgb(44,143,193)';
+                    case type.trueKeyword:
+                    case type.falseKeyword:
+                    case type.nullKeyword:
+                        return 'rgb(0,0,255)';
+                    case type.Comment:
+                        return 'rgb(0,128,0)';
+                    case type.Unknown:
+                        return 'rgb(255,0,0)';
+                    default:
+                        return null;
+                }
+            };
+
+            $('#input').keyup(update);
+            update();
+        </script>
+    </body>
 </html>

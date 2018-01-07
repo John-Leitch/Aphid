@@ -999,3 +999,21 @@ Components.Json.JsonLexer.prototype.GetTokens = function() {
 
     return tokens;
 };
+
+Components.Json.JsonLexer.prototype.GetAllTokens = function() {
+    var tokenType;
+    var lastIndex = -1;
+    var tokens = [];
+    this.charIndex = -1;
+
+    while ((tokenType = this.GetToken()) != Components.Json.JsonTokenType.EndOfFile)
+    {
+        var index = lastIndex + 1;        
+        var lexeme = this.Text.substring(index, this.charIndex + 1);
+        tokens.push(new Components.Json.JsonToken(tokenType, lexeme, index));
+        
+        lastIndex = this.charIndex;
+    }
+
+    return tokens;
+};
