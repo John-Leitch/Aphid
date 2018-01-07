@@ -2567,7 +2567,12 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public void Interpret(string code, bool isTextDocument = false)
+        public void Interpret(string code)
+        {
+            Interpret(code, false);
+        }
+
+        public void Interpret(string code, bool isTextDocument)
         {
             var lexer = new AphidLexer(code);
 
@@ -2583,10 +2588,23 @@ namespace Components.Aphid.Interpreter
             Interpret(ast);
         }
 
-        public void InterpretFile(string filename, bool isTextDocument = false)
+        public void InterpretFile(string filename)
         {
-            SetScriptFilename(filename);
-            Loader.LoadScript(filename, isTextDocument);
+            InterpretFile(filename, false);
+        }
+
+        public void InterpretFile(string filename, bool isTextDocument)
+        {
+            var fullFilename = Loader.FindScriptFile(filename);
+
+            if (fullFilename == null)
+            {
+                throw new AphidRuntimeException("Cannot find script {0}", filename);
+            }
+
+            SetScriptFilename(fullFilename);
+            var code = File.ReadAllText(filename);
+            Interpret(code, isTextDocument);
         }
 
         public AphidFrame[] GetStackTrace()

@@ -35,6 +35,7 @@ namespace Aphid
             var code = File.ReadAllText(args[0]);
             EnvironmentLibrary.SetEnvArgs(true);
             var interpreter = new AphidInterpreter();
+            interpreter.SetScriptFilename(Path.GetFullPath(args[0]));
 
             if (!Debugger.IsAttached)
             {
