@@ -1,0 +1,144 @@
+﻿#'Std';
+#'Query';
+cls();
+print('Starting\r\n');
+
+f = @ () format($args[0], $args @aq.skip(1));
+
+code = {
+    depth: 0,
+    ascend: @() depth--,
+    descend: @() depth++,
+    generateMargin: @() '    ' * depth,
+    indent: @(value) f('{0}{1}', generateMargin(), value),
+
+    generateNamespaceBegin: @(name) f(
+        '{0}namespace {1}\r\n{2}',
+        generateMargin(),
+        name,
+        generateBlockBegin()),
+
+    generateNamespaceEnd: @() generateBlockEnd(),
+
+    generateClassBegin: @(attributes, name) f(
+        '{0}{1}class {2}\r\n{3}',
+        generateMargin(),
+        generateAttributes(attributes),
+        name,
+        generateBlockBegin()),
+
+    generateClassEnd: @() generateBlockEnd(),
+
+    generateMethodBegin: @(attributes, returnType, name, paramSet) f(
+        '{0}{1}{2} {3}({4})\r\n{5}',
+        generateMargin(),
+        generateAttributes(attributes),
+        returnType,
+        name,
+        generateParamSet(paramSet),
+        generateBlockBegin()),
+
+    generateMethodEnd: @() generateBlockEnd(),
+
+    generateBlockBegin: @() {
+        b = indent('{\r\n');
+        descend();
+        ret b;
+    },
+
+    generateBlockEnd: @() {
+        ascend();
+        ret indent('}\r\n');
+    },
+
+    generateAttributes: @(attributes) {
+        attrs = '';
+
+        d = macro(@(p, v) {
+            if (attributes.p defined && attributes.p) {
+                attrs += v + ' ';
+            }
+        });
+
+        d2 = macro(@(p, v, v2) {
+            if (attributes.p defined && attributes.p) {
+                attrs += v + ' ';
+            } else {
+                attrs += v2 + ' ';
+            }
+        });
+
+        d2(private, 'private', 'public');
+        d(static, 'static');
+        d(partial, 'partial');
+
+        ret attrs;
+    },
+
+    generateParamSet: @(paramArray) {
+        paramSet = '';
+        paramArray for paramSet += paramSet == '' ? $_ : ', ' + $_;
+        ret paramSet;
+    },
+
+    generateStmt: @(generateBody) f(
+        '{0}{1}{2}',
+        generateStmtBegin(),
+        generateBody(),
+        generateStmtEnd()),
+        
+    generateStmtBegin: @() generateMargin(),
+    generateStmtEnd: @() ';\r\n',    
+
+    generateTrue: @() 'true',
+    generateFalse: @() 'false',
+    generateChar: @f("'{0}'"),
+    generateString: @f('"{0}"'),    
+    generateEquals: @(lhs, rhs) f('({0} == {1})', lhs, rhs),
+    generateNotEquals: @(lhs, rhs) f('({0} != {1})', lhs, rhs),
+
+    generateIfStmtBegin: @(condition) format(
+        '{0}if({1})\r\n{2}',
+        generateMargin(),
+        condition,
+        generateBlockBegin()),
+
+    generateIfStmtEnd: generateBlockEnd,
+    
+    generateCase: @(exp) indent(f('case {0}:\r\n', c)),
+    generateDefaultCase: indent('default:\r\n'),
+    generateBreakStmt: @() indent('break;\r\n'),
+    generateReturnStmt: @(exp) indent(f('return {0};', exp)),
+    generateAssignStmt: @(lhs, rhs) indent(f('{0} = {1};', lhs, rhs)),
+};
+
+//exit(0);
+
+c = '';
+c += code.generateNamespaceBegin('Components.Lexer');
+c += code.generateClassBegin({ partial: true }, 'TestLexer');
+c += code.generateMethodBegin({}, 'List<TestToken>', 'GetTokens', [ 'string text', 'foo bar' ]);
+c += code.generateStmt(@() 'Console.WriteLine("foo")');
+c += code.generateMethodEnd();
+c += code.generateClassEnd();
+c += code.generateNamespaceEnd();
+
+c |> Console.WriteLine;
+exit(0);
+
+code.generateIfStmt(
+    code.generateTrue,
+    @() code.generateStmt(@() 'Console.WriteLine("foo")'))
+    |> Console.WriteLine;
+
+ret {
+    name: 'CSharp',
+    code,
+    templates: {
+        lexerTemplate: 'LexicalAnalyzerTemplate.cs',
+        addTokenTemplate: 'AddTokenTemplate.cs',
+        caseTemplate: 'CaseTemplate.cs',
+        rootStateTemplate: 'RootStateTemplate.cs',
+        stateTemplate: 'StateTemplate.cs',
+    }
+}

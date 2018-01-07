@@ -1,0 +1,28 @@
+<html>
+    <textarea id="input" style="width:400px; height:400px;">{
+    "foo": {
+        "x": 10,
+        "y": 20
+    }
+}
+    </textarea>
+    <textarea id="output" style="width:400px; height:400px;"></textarea>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script src="JsonLexer.js"></script>
+    <script>
+        update = function() {
+            s = '';
+            var lexer = new Components.Json.JsonLexer($('#input').val());
+            var tokens = lexer.GetTokens();
+            
+            for (var x in tokens) {
+                s += tokens[x].ToString() + '\r\n';
+            }
+
+            $('#output').text(s);
+        };
+
+        $('#input').keyup(update);
+        update();
+    </script>
+</html>
