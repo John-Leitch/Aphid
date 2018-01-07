@@ -85,6 +85,12 @@ namespace Components.External.ConsolePlus
             WriteCore(format, false, arg);
         }
 
+        [DebuggerStepThrough]
+        public static void Write(string message)
+        {
+            WriteCore(message, false, null);
+        }
+
         /// <summary>
         /// Writes a format string and a new line to the console.
         /// </summary>
@@ -94,6 +100,12 @@ namespace Components.External.ConsolePlus
         public static void WriteLine(string format, params object[] arg)
         {
             WriteCore(format, true, arg);
+        }
+
+        [DebuggerStepThrough]
+        public static void WriteLine(string message)
+        {
+            WriteCore(message, true, null);
         }
 
         [DebuggerStepThrough]
@@ -279,22 +291,22 @@ namespace Components.External.ConsolePlus
         /// <summary>
         /// The core console write function.
         /// </summary>
-        /// <param name="format">The format string.</param>
+        /// <param name="formatOrMsg">The format string.</param>
         /// <param name="newLine">Determines whether to print the message with a new line or not.</param>
         /// <param name="arg">The arguments.</param>
         [DebuggerStepThrough]
-        private static void WriteCore(string format, bool newLine, params object[] arg)
+        private static void WriteCore(string formatOrMsg, bool newLine, params object[] arg)
         {
             lock (_syncObject)
             {
-                format = string.Format(format, arg);
+                var msg = arg != null ? string.Format(formatOrMsg, arg) : formatOrMsg;
                 var state = CliLexerState.ReadingText;
 
                 var buffer = new StringBuilder();
 
-                for (int i = 0; i < format.Length; i++)
+                for (int i = 0; i < msg.Length; i++)
                 {
-                    var c = format[i];
+                    var c = msg[i];
 
                     if (state == CliLexerState.ReadingText)
                     {

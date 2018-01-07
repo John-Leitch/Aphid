@@ -51,13 +51,13 @@ print = @(fmt, arg0) {
             1: {
                 if (isObject(fmt)) {
                     _t('serialized object');
-                    Cli.WriteLine(fmt |> serialize |> Cli.Escape, []);
+                    Cli.WriteLine(fmt |> serialize);
                 } else if (isCollection(fmt)) {                    
                     _t('collection');
-                    fmt->@() Cli.WriteLine(_s($_) |> Cli.Escape, []);
+                    fmt->@() Cli.WriteLine(_s($_));
                 } else {
                     _t('scalar');
-                    Cli.WriteLine(_s(fmt), []);
+                    Cli.WriteLine(_s(fmt));
                 }
             }
             2: {
