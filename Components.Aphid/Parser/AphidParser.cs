@@ -71,13 +71,22 @@ namespace Components.Aphid.Parser
             string code,
             bool useImplicitReturns = true)
         {
+            return Parse(tokens, code, null, useImplicitReturns);
+        }
+
+        public static List<AphidExpression> Parse(
+            List<AphidToken> tokens,
+            string code,
+            string filename,
+            bool useImplicitReturns = true)
+        {
             var parser = new AphidParser(tokens)
             {
                 UseImplicitReturns = useImplicitReturns
             };
 
             var ast = parser.Parse();
-            new AphidCodeVisitor(code).Visit(ast);
+            new AphidCodeVisitor(code, filename).Visit(ast);
 
             return ast;
         }
@@ -111,6 +120,15 @@ namespace Components.Aphid.Parser
             bool isTextDocument = false,
             bool useImplicitReturns = true)
         {
+            return Parse(code, null, isTextDocument, useImplicitReturns);
+        }
+
+        public static List<AphidExpression> Parse(
+            string code,
+            string filename,
+            bool isTextDocument = false,
+            bool useImplicitReturns = true)
+        {
             var lexer = new AphidLexer(code);
 
             if (isTextDocument)
@@ -121,6 +139,7 @@ namespace Components.Aphid.Parser
             return Parse(
                 lexer.GetTokens(),
                 code,
+                filename,
                 useImplicitReturns: useImplicitReturns);
         }
     }

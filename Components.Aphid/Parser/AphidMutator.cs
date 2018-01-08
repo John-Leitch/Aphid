@@ -365,6 +365,16 @@ namespace Components.Aphid.Parser
                 }
             }
 
+            a = FindAssociatedFile();
+
+            if (a != null)
+            {
+                foreach (var e in expanded)
+                {
+                    e.Filename = a.Filename;
+                }
+            }
+
             Ancestors.Pop();
             return expanded;
         }
@@ -400,6 +410,11 @@ namespace Components.Aphid.Parser
         private AphidExpression FindIndexedAncestor()
         {
             return Ancestors.FirstOrDefault(x => x.Index != -1 && x.Length != -1);
+        }
+
+        private AphidExpression FindAssociatedFile()
+        {
+            return Ancestors.FirstOrDefault(x => x.Filename != null);
         }
 
         private void CheckAncestorStack()

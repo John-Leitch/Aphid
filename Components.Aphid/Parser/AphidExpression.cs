@@ -22,6 +22,8 @@ namespace Components.Aphid.Parser
 
         public string Code { get; set; }
 
+        public string Filename { get; set; }
+
         public bool HasBreakpoint { get; set; }
 
         public override string ToString()

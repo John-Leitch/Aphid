@@ -7,9 +7,17 @@ namespace Components.Aphid.Parser
     {
         private string _code;
 
+        private string _filename;
+
         public AphidCodeVisitor(string code)
+            : this(code, null)
+        {
+        }
+
+        public AphidCodeVisitor(string code, string filename)
         {
             _code = code;
+            _filename = filename;
         }
 
         protected override void EndVisit(List<AphidExpression> ast)
@@ -29,6 +37,11 @@ namespace Components.Aphid.Parser
                             node.Code = next.Code;
                         }
 
+                        if (node.Filename == null && next.Filename != null)
+                        {
+                            node.Filename = next.Filename;
+                        }
+
                         node.Index = 0;
                         node.Length = next.Index;
                     }
@@ -39,6 +52,11 @@ namespace Components.Aphid.Parser
                             node.Code = prev.Code;
                         }
 
+                        if (node.Filename == null && prev.Filename != null)
+                        {
+                            node.Filename = prev.Filename;
+                        }
+
                         node.Index = prev.Index + prev.Length;
                         node.Length = node.Code.Length - node.Index;
                     }
@@ -47,6 +65,11 @@ namespace Components.Aphid.Parser
                         if (node.Code == null)
                         {
                             node.Code = prev.Code;
+                        }
+
+                        if (node.Filename == null && prev.Filename != null)
+                        {
+                            node.Filename = prev.Filename;
                         }
 
                         node.Index = prev.Index + prev.Length;
@@ -63,6 +86,11 @@ namespace Components.Aphid.Parser
 
         protected override void Visit(AphidExpression expression)
         {
+            if (_filename != null && expression.Filename == null)
+            {
+                expression.Filename = _filename;
+            }
+
             if (expression.Index == -1)
             {
                 var a = Ancestors.FirstOrDefault(x => x.Index != -1);
