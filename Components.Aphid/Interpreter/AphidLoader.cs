@@ -104,7 +104,6 @@ namespace Components.Aphid.Interpreter
 
         public string FindScriptFile(string appDir, string scriptFile)
         {
-
             Func<string, string>[] extensionStrategies = new Func<string, string>[]
             {
                 x => x + ".alx",
@@ -163,7 +162,12 @@ namespace Components.Aphid.Interpreter
                     }
                 }
 
-                _interpreter.Interpret(File.ReadAllText(f), isTextDocument);
+                var ast = AphidParser.Parse(File.ReadAllText(f), f, isTextDocument);
+                var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+                mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+
+                _interpreter.Interpret(mutatedAst);
             }
             else
             {
