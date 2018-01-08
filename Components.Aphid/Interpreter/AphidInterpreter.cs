@@ -178,10 +178,17 @@ namespace Components.Aphid.Interpreter
         public string GetScriptFilename()
         {
             AphidObject scriptObj;
-            
-            return CurrentScope.TryResolve(AphidName.Script, out scriptObj) ?
-                scriptObj.GetString() :
-                null;
+
+            if (CurrentScope != null)
+            {
+                return CurrentScope.TryResolve(AphidName.Script, out scriptObj) ?
+                    scriptObj != null ? scriptObj.GetString() : null :
+                    null;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void EnterChildScope()
