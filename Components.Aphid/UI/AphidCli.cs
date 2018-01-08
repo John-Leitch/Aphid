@@ -14,7 +14,15 @@ namespace Components.Aphid.UI
         {
             var trace = interpreter.GetStackTrace();
             var i = 0;
-            Cli.WriteSubheader("Stack Trace", "~|Blue~~White~");
+
+            if (!Console.IsOutputRedirected)
+            {
+                Cli.WriteSubheader("Stack Trace", "~|Blue~~White~");
+            }
+            else
+            {
+                Cli.WriteErrorMessage("Stack Trace");
+            }
 
             foreach (var frame in trace)
             {
