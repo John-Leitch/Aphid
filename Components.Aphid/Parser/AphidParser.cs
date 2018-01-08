@@ -1,6 +1,7 @@
 using Components.Aphid.Lexer;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,7 +87,11 @@ namespace Components.Aphid.Parser
             };
 
             var ast = parser.Parse();
-            new AphidCodeVisitor(code, filename).Visit(ast);
+
+            new AphidCodeVisitor(
+                code,
+                filename != null ? Path.GetFullPath(filename) : null)
+                .Visit(ast);
 
             return ast;
         }
