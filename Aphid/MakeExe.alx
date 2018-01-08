@@ -37,10 +37,12 @@ print('Creating module {0} for {1}', asmName, script);
 aphid = AphidInterpreter |> typeof;
 asmType = Assembly |> typeof;
 pathType = Path |> typeof;
+boolType = Boolean |> typeof;
+strType = String |> typeof;
 
 pathCombine = pathType.GetMethod(
     'Combine',
-    [ typeof(String), typeof(String) ]);
+    [ strType, strType ]);
 
 importOpcodes();
 
@@ -54,7 +56,7 @@ importOpcodes();
     e(Ldstr, script);
     e(Call, pathCombine);
     e(Ldc_I4_0);
-    e(Call, 'InterpretFile' |> aphid.GetMethod);
+    e(Call, aphid.GetMethod('InterpretFile', [ strType, boolType ]));
     e(Ret);
 }
 @createProgram(asmName);
