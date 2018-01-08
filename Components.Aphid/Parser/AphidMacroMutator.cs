@@ -15,6 +15,13 @@ namespace Components.Aphid.Parser
 
             foreach (var m in macros)
             {
+                if (_macros.ContainsKey(m.Name))
+                {
+                    throw new AphidParserException(
+                        "Macro with name '{0}' already exists.",
+                        m.Name);
+                }
+
                 _macros.Add(m.Name, m);
             }
 
