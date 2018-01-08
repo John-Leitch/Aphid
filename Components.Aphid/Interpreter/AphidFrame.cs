@@ -13,6 +13,8 @@ namespace Components.Aphid.Interpreter
 
         private Lazy<string> _name;
 
+        public AphidObject Scope { get; set; }
+
         public AphidExpression Expression { get; set; }
 
         public string Name
@@ -22,13 +24,21 @@ namespace Components.Aphid.Interpreter
 
         public IEnumerable<object> Arguments { get; private set; }
 
-        public AphidFrame(AphidExpression expression, Lazy<string> name)
-            : this(expression, name, new object[0])
+        public AphidFrame(
+            AphidObject scope,
+            AphidExpression expression,
+            Lazy<string> name)
+            : this(scope, expression, name, new object[0])
         {
         }
 
-        public AphidFrame(AphidExpression expression, Lazy<string> name, IEnumerable<object> arguments)
+        public AphidFrame(
+            AphidObject scope,
+            AphidExpression expression,
+            Lazy<string> name,
+            IEnumerable<object> arguments)
         {
+            Scope = scope;
             Expression = expression;
             _name = name;
             Arguments = arguments;

@@ -17,10 +17,7 @@ namespace Components.Aphid.Interpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
 
-        private Stack<AphidFrame> _frames = new Stack<AphidFrame>(new[] 
-        { 
-            new AphidFrame(null, new Lazy<string>(() => "[Entrypoint]")),
-        });
+        private Stack<AphidFrame> _frames;
 
         private AphidAssemblyBuilder _asmBuilder = new AphidAssemblyBuilder();
 
@@ -85,6 +82,11 @@ namespace Components.Aphid.Interpreter
         private void Init()
         {
             Out = Console.Out;
+
+            _frames = new Stack<AphidFrame>(new[] 
+            { 
+                new AphidFrame(CurrentScope, null, new Lazy<string>(() => "[Entrypoint]")),
+            });
 
             if (_createLoader)
             {
@@ -1511,7 +1513,7 @@ namespace Components.Aphid.Interpreter
             Lazy<string> name,
             IEnumerable<object> args)
         {
-            _frames.Push(new AphidFrame(callExpression, name, args));
+            _frames.Push(new AphidFrame(CurrentScope, callExpression, name, args));
         }
 
         private void PopFrame()

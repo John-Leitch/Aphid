@@ -1,0 +1,31 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "extensionHost",
+			"request": "launch",
+			"name": "Extension",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}"
+			],
+			"stopOnEntry": false,
+			"outFiles": [
+				"${workspaceRoot}/out/**/*.js"
+			]
+		},
+		{
+			"type": "aphid",
+			"request": "launch",
+			"name": "Server",
+			"program": "${workspaceRoot}/bin/Debug/aphid-debug.exe",
+			"args": [ "--server=4711" ]
+		}
+	],
+	"compounds": [
+		{
+			"name": "Extension + Server",
+			"configurations": [ "Extension", "Server" ]
+		}
+	]
+}

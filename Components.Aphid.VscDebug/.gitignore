@@ -1,0 +1,15 @@
+/out/
+/extension/
+/upload/
+/bin/
+/node_modules/
+/packages/
+/obj/
+/mono-debug-*/
+*.vsix
+*.zip
+*.exe
+*.exe.mdb
+mono-debug.userprefs
+npm-debug.log
+.vs/mono-debug/v15/.suo

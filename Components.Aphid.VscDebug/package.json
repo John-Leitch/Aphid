@@ -1,0 +1,207 @@
+{
+	"name": "aphid-debug",
+	"displayName": "Aphid Debug",
+	"version": "0.0.1",
+	"publisher": "ast",
+	"description": "Visual Studio Code debugger extension for Aphid",
+	"icon": "images/mono-debug-icon.png",
+	"categories": [
+		"Debuggers"
+	],
+	"author": {
+		"name": "Microsoft Corporation"
+	},
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"prepublish": "make build",
+		"vscode:prepublish": "make build",
+		"compile": "make build",
+		"watch": "tsc -w -p ./src/typescript",
+		"test": "make tests; mocha --timeout 10000 -u tdd ./out/tests",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"engines": {
+		"vscode": "^1.8.0",
+		"node": "^6.3.0"
+	},
+	"dependencies": {
+		"vscode-debugprotocol": "^1.20.0",
+		"vscode-nls": "^2.0.2"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-mono-debug.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Microsoft/vscode-mono-debug/issues"
+	},
+	"devDependencies": {
+		"@types/es6-collections": "^0.5.29",
+		"@types/es6-promise": "0.0.32",
+		"@types/mocha": "^2.2.32",
+		"@types/node": "^6.0.39",
+		"mocha": "^2.4.5",
+		"typescript": "^2.0.3",
+		"vscode-debugadapter-testsupport": "^1.20.0",
+		"vsce": "^1.20.0",
+		"vscode": "^1.0.3",
+		"vscode-nls-dev": "^2.0.1"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onCommand:extension.aphid-debug.configureExceptions",
+		"onCommand:extension.aphid-debug.startSession"
+	],
+	"contributes": {
+
+		"configuration": {
+			"type": "object",
+			"title": "%configuration.title%",
+			"properties": {
+				"aphid-debug.exceptionOptions": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string",
+						"enum": [ "never", "always", "unhandled" ],
+						"enumDescriptions": [
+							"%breakMode.never%",
+							"%breakMode.always%",
+							"%breakMode.unhandled%"
+						],
+						"description": "%configuration.exceptionOptions.description2%",
+						"default": "never"
+					},
+					"description": "%configuration.exceptionOptions.description%",
+					"default": {
+						"System.Exception": "never",
+						"System.SystemException": "never",
+						"System.ArithmeticException": "never",
+						"System.ArrayTypeMismatchException": "never",
+						"System.DivideByZeroException": "never",
+						"System.IndexOutOfRangeException": "never",
+						"System.InvalidCastException": "never",
+						"System.NullReferenceException": "never",
+						"System.OutOfMemoryException": "never",
+						"System.OverflowException": "never",
+						"System.StackOverflowException": "never",
+						"System.TypeInitializationException": "never"
+					}
+				}
+			}
+		},
+
+		"commands": [
+			{
+				"command": "extension.aphid-debug.configureExceptions",
+				"title": "%configure.exceptions.command%",
+				"category": "Debug"
+			}
+		],
+		"breakpoints": [
+			{
+				"language": "aphid"
+			}
+		],
+		"debuggers": [{
+			"type": "aphid",
+			"label": "Aphid",
+			"program": "./bin/Debug/aphid-debug.exe",
+			"osx": {
+				"runtime": "aphid"
+			},
+			"linux": {
+				"runtime": "aphid"
+			},
+			"aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
+
+			"startSessionCommand": "extension.aphid-debug.startSession",
+
+			"initialConfigurations": [
+				{
+					"name": "%aphid.launch.config.name%",
+					"type": "aphid",
+					"request": "launch",
+					"program": "${workspaceRoot}/program.exe",
+					"cwd": "${workspaceRoot}"
+				},
+				{
+					"name": "%aphid.attach.config.name%",
+					"type": "aphid",
+					"request": "attach",
+					"address": "localhost",
+					"port": 55555
+				}
+			],
+			"configurationAttributes": {
+				"launch": {
+					"required": ["program"],
+					"properties": {
+						"program": {
+							"type": "string",
+							"description": "%aphid.launch.program.description%"
+						},
+						"args": {
+							"type": "array",
+							"description": "%aphid.launch.args.description%",
+							"items": { "type": "string" },
+							"default": []
+						},
+						"cwd": {
+							"type": "string",
+							"description": "%aphid.launch.cwd.description%",
+							"default": "."
+						},
+						"runtimeExecutable": {
+							"type": ["string", "null"],
+							"description": "%aphid.launch.runtimeExecutable.description%",
+							"default": null
+						},
+						"runtimeArgs": {
+							"type": "array",
+							"description": "%aphid.launch.runtimeArgs.description%",
+							"items": { "type": "string" },
+							"default": []
+						},
+						"env": {
+							"type": "object",
+							"description": "%aphid.launch.env.description%",
+							"default": {}
+						},
+						"externalConsole": {
+							"type": "boolean",
+							"deprecationMessage": "%aphid.launch.externalConsole.deprecationMessage%",
+							"default": true
+						},
+						"console": {
+							"type": "string",
+							"enum": [ "internalConsole", "integratedTerminal", "externalTerminal" ],
+							"enumDescriptions": [
+								"%aphid.launch.console.internalConsole.description%",
+								"%aphid.launch.console.integratedTerminal.description%",
+								"%aphid.launch.console.externalTerminal.description%"
+							],
+							"description": "%aphid.launch.console.description%",
+							"default": "internalConsole"
+						}
+					}
+				},
+				"attach": {
+					"required": ["port"],
+					"properties": {
+						"port": {
+							"type": "number",
+							"description": "%aphid.attach.port.description%",
+							"default": 55555
+						},
+						"address": {
+							"type": "string",
+							"description": "%aphid.attach.address.description%",
+							"default": "undefined"
+						}
+					}
+				}
+			}
+		}]
+	}
+}

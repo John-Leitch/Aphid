@@ -59,6 +59,7 @@
     <Compile Include="External\Json\JsonFormatter.cs" />
     <Compile Include="External\Json\JsonLexer.cs" />
     <Compile Include="External\Json\JsonSerializer.cs" />
+    <Compile Include="External\StringTree.cs" />
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
     <Compile Include="Interpreter\AphidName.cs" />

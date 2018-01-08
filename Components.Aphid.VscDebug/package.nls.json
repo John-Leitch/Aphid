@@ -1,0 +1,33 @@
+{
+	"aphid.label": "Aphid",
+
+	"configure.exceptions.command": "Configure Exceptions",
+
+	"configuration.title": "Aphid Debug",
+	"configuration.exceptionOptions.description": "Configure when exceptions should break (never, always, unhandled). Add more as needed.",
+	"configuration.exceptionOptions.description2": "When should this thrown exception break?",
+
+	"configure.exceptions": "Configure Exceptions",
+	"breakMode.never": "never breaks",
+	"breakMode.always": "breaks when exception handled or unhandled",
+	"breakMode.unhandled": "breaks when exception unhandled",
+
+
+	"aphid.launch.config.name": "Launch",
+	"aphid.attach.config.name": "Attach",
+
+	"aphid.launch.program.description": "Absolute path to the program.",
+	"aphid.launch.args.description": "Command line arguments passed to the program.",
+	"aphid.launch.cwd.description": "Absolute path to the working directory of the program being debugged.",
+	"aphid.launch.runtimeExecutable.description": "Absolute path to the runtime executable to be used. Default is the runtime executable on the PATH.",
+	"aphid.launch.runtimeArgs.description": "Optional arguments passed to the runtime executable.",
+	"aphid.launch.env.description": "Environment variables passed to the program.",
+	"aphid.launch.externalConsole.deprecationMessage": "Attribute 'externalConsole' is deprecated, use 'console' instead.",
+	"aphid.launch.console.description": "Where to launch the debug target.",
+		"aphid.launch.console.internalConsole.description": "VS Code Debug Console (which doesn't support to read input from a program)",
+		"aphid.launch.console.integratedTerminal.description": "VS Code's integrated terminal",
+		"aphid.launch.console.externalTerminal.description": "external terminal that can be configured via user settings",
+
+	"aphid.attach.port.description": "Debug port to attach to.",
+	"aphid.attach.address.description": "TCP/IP address. Default is \"localhost\"."
+}

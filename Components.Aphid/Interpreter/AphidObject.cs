@@ -326,6 +326,19 @@ namespace Components.Aphid.Interpreter
             return IsAphidType(this.Value);
         }
 
+        public AphidObject[] FlattenScope()
+        {
+            var scope = this;
+            var scopes = new List<AphidObject> { this };
+
+            while ((scope = scope.Parent) != null)
+            {
+                scopes.Add(scope);
+            }
+
+            return scopes.ToArray();
+        }
+
         public static bool IsAphidType(object obj)
         {
             return
