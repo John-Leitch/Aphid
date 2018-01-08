@@ -2740,8 +2740,11 @@ namespace Components.Aphid.Interpreter
 
         private void BreakExecution(AphidExpression expression)
         {
-            new Thread(() => HandleExecutionBreak(expression)) { IsBackground = true }
-                .Start();
+            if (HandleExecutionBreak != null)
+            {
+                new Thread(() => HandleExecutionBreak(expression)) { IsBackground = true }
+                    .Start();
+            }
         }
 
         public void Continue()
@@ -2772,6 +2775,11 @@ namespace Components.Aphid.Interpreter
             {
                 _breakpointReset.Set();
             }
+        }
+
+        public void Pause()
+        {
+            SingleStep();
         }
     }
 }

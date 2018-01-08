@@ -82,6 +82,11 @@ namespace Components.Aphid.Parser
             return ast;
         }
 
+        public static AphidExpression ParseExpression(string code)
+        {
+            return ParseExpression(new AphidLexer(code).GetTokens(), code);
+        }
+
         public static AphidExpression ParseExpression(List<AphidToken> tokens, string code)
         {
             var ast = AphidParser.Parse(tokens, code);
