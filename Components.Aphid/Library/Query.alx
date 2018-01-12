@@ -83,6 +83,20 @@
         }
         ret x;
     },
+
+    takeWhile: @(predicate, list) {
+    x = [];
+
+    list for {
+        if (predicate($_)) {
+            x.add($_);
+        } else {
+            break;
+        }
+    };
+
+    ret x;
+},
     
     aggr: @(acc, list) {
         if (list.count() == 1) ret list[0];
