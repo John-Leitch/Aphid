@@ -143,6 +143,17 @@ typeof = @(name){
     ret t.Count == 1 ? t[0] : null;
 };
 
+map = @(mapping, obj) {
+    m = {};
+
+    mapping |> keys for {
+        k = mapping.{$_};
+        m.{$_} = obj.{k} defined ? obj.{k} : null;
+    };
+
+    ret m;
+};
+
 using System.Linq;
 isObject = keys @> Enumerable.Any;
 
