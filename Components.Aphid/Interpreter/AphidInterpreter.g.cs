@@ -575,6 +575,18 @@ namespace Components.Aphid.Interpreter
                     return left.Equals(right);
                 }
             }
+            else if (leftType == typeof(char) && rightType == typeof(string))
+            {
+                var str = (string)right;
+
+                return str.Length == 1 && (char)left == str[0];
+            }
+            else if (leftType == typeof(string) && rightType == typeof(char))
+            {
+                var str = (string)left;
+
+                return str.Length == 1 && str[0] == (char)right;
+            }
             else
             {
                 return left.Equals(right);
