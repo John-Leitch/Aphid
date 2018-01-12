@@ -17,6 +17,9 @@ using Components.Aphid.Lexer;
 using Components.Json;
 using VSCodeDebug.src;
 using System.Collections;
+using Components.Aphid.UI;
+using Components.External.ConsolePlus;
+using System.Reflection;
 
 namespace VSCodeDebug
 {
@@ -67,6 +70,7 @@ namespace VSCodeDebug
 			_variableHandles = new Handles<KeyValuePair<string, AphidObject>[]>();
 			_frameHandles = new Handles<StackFrame>();
 			_seenThreads = new Dictionary<int, Thread>();
+            _interpreter.CurrentScope.Add("$debugger", new AphidObject(this));
             _interpreter.HandleExecutionBreak = HandleBreak;
 
 			//_debuggerSessionOptions = new DebuggerSessionOptions {
@@ -251,16 +255,31 @@ namespace VSCodeDebug
 
             //var w = new StringWriter(sb);
             var w = new ConsoleTextWriter();
-            w.DataReceived += (o, e) => SendOutput("stdout", e.Data);
-            Console.SetOut(w);
+            //w.DataReceived += (o, e) => SendOutput("stdout", e.Data);
+            //Console.SetOut(w);
             //_interpreter.Out = new StreamWriter(s);
             //Console.SetOut(_interpreter.Out);
             //Console.IsOutputRedirected = true;
             //Console.
+
             
+
             _script = programPath;
             _code = File.ReadAllText(programPath);
-            _ast = AphidParser.Parse(_code);
+
+            try
+            {
+                _ast = AphidParser.Parse(_code);
+            }
+            catch (AphidParserException e)
+            {
+                SendErrorResponse(
+                    response,
+                    0x523000,
+                    ParserErrorMessage.Create(_code, e));
+
+                return;
+            }
             //_interpreter.Interpret(_ast);
 
             const string host = "127.0.0.1";
@@ -271,6 +290,17 @@ namespace VSCodeDebug
             {
                 Connect(IPAddress.Parse(host), port);
             }
+
+            var termArgs = new
+            {
+                kind = "external",
+                title = "Aphid Debug Console",
+                cwd = workingDirectory,
+                args = programPath,
+                //env = environmentVariables
+            };
+
+            var resp = await SendRequest("runInTerminal", termArgs);
 
             SendResponse(response);
             return;
@@ -662,7 +692,7 @@ namespace VSCodeDebug
                 //}
             }
 
-            Program.Log("Merged scope keys: {0}", string.Join(", ", mergedScope.Keys));
+            //Program.Log("Merged scope keys: {0}", string.Join(", ", mergedScope.Keys));
 
             
             //scopes.Add(new Scope("locals", _variableHandles.Create(aphidScopes)));
@@ -828,7 +858,17 @@ namespace VSCodeDebug
                         _threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
                         reset.Set();
                         SendEvent(new ThreadEvent("started", _threadId));
-                        _interpreter.Interpret(_ast);
+
+                        try
+                        {
+                            _interpreter.Interpret(_ast);
+                        }
+                        catch (Exception e)
+                        {
+                            Cli.WriteErrorMessage("Exception: {0}", e.Message);
+                            AphidCli.DumpStackTrace(_interpreter);
+                        }
+
                         SendEvent(new ThreadEvent("exited", _threadId));
                     }).Start();
                     _isRunning = true;
@@ -1076,11 +1116,13 @@ namespace VSCodeDebug
                                 .GetProperties()
                                 .Select((x, i) => new KeyValuePair<string, AphidObject>(
                                     x.Name,
-                                    ValueHelper.Wrap(x.GetValue(v.Value.Value))))
+                                    ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
                                 .ToArray()));
                     }
                 }
             }
+
+            
             //else if (v.Value.Value.GetType() == typeof(List<AphidObject>))
             //{
             //    return new Variable(
@@ -1185,7 +1227,20 @@ namespace VSCodeDebug
    //                 CreateVariableHandles(v));
 		}
 
-		private bool HasMonoExtension(string path)
+        private object TryGetValue(PropertyInfo property, object target)
+        {
+            try
+            {
+                return property.GetValue(target);
+            }
+            catch (Exception e)
+            {
+                Program.Log(e.ToString());
+                return e.Message.ToString();
+            } 
+        }
+
+        private bool HasMonoExtension(string path)
 		{
 			foreach (var e in MONO_EXTENSIONS) {
 				if (path.EndsWith(e)) {

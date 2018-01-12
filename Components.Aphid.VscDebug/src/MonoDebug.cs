@@ -141,10 +141,17 @@ namespace VSCodeDebug
 		}
 
         private static int LogId = 0;
+
+        public static bool EnableLogging = false;
 		
 		public static void Log(string format, params object[] data)
 		{
-			try
+            if (!EnableLogging)
+            {
+                return;
+            }
+
+            try
 			{
                 
 
@@ -153,14 +160,11 @@ namespace VSCodeDebug
                     var stackTrace = new StackTrace();
                     var fullStack = stackTrace.GetFrames().Select(x => x.ToString()).Aggregate((x, y) => x + "\r\n" + y);
                     //fullStack = "";
-                    Console.Error.Write(
+                    Console.Error.WriteLine(
                         string.Format("[{0:x4}, {1:x8}]", LogId++, System.Threading.Thread.CurrentThread.ManagedThreadId) +
-                        format +
-                        //"\n\n" + fullStack +
-                        "\n"
-                        ,
+                        format,
                         data);
-                    Console.Error.WriteLine(" \n");
+                    //Console.Error.WriteLine(" \n");
                 }
 
                 if (LOG_FILE_PATH != null)
