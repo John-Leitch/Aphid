@@ -2317,6 +2317,8 @@ namespace Components.Aphid.Interpreter
 
         private void InterpretTryExpression(TryExpression expression)
         {
+            var frameCount = _frames.Count;
+
             if (expression.FinallyBody == null)
             {
                 try
@@ -2353,6 +2355,11 @@ namespace Components.Aphid.Interpreter
                 {
                     InterpretFinallyBlock(expression);
                 }
+            }
+
+            while (_frames.Count > frameCount)
+            {
+                PopFrame();
             }
         }
 
