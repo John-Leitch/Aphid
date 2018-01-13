@@ -97,6 +97,16 @@ namespace Components.Aphid.Interpreter
             {
                 CurrentScope.Add(AphidName.FramesKey, new AphidObject(_frames));
             }
+
+            if (!CurrentScope.ContainsKey(AphidName.AsmBuilder))
+            {
+                CurrentScope.Add(AphidName.AsmBuilder, new AphidObject(_asmBuilder));
+            }
+
+            if (!CurrentScope.ContainsKey(AphidName.Interpreter))
+            {
+                CurrentScope.Add(AphidName.Interpreter, new AphidObject(this));
+            }
         }
 
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)

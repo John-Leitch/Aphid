@@ -19,6 +19,8 @@ namespace Components.Aphid.Interpreter
             Parent = "$parent",
             Extension = "$isExt",
             Script = "$script",
-            Code = "$code";
+            AsmBuilder = "$asm",
+            Code = "$code",
+            Interpreter = "$aphid";
     }
 }

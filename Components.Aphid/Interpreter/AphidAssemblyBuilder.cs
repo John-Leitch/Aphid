@@ -20,11 +20,13 @@ namespace Components.Aphid.Interpreter
             InProperty,
         }
 
+        private Lazy<ModuleBuilder> _moduleBuilder;
+
+        private List<string> _types = new List<string>();
+
         public string AssemblyName { get; private set; }
 
-        public string AssemblyFilename { get; private set; }
-
-        private Lazy<ModuleBuilder> _moduleBuilder;
+        public string AssemblyFilename { get; private set; }        
 
         public AphidAssemblyBuilder()
             : this(string.Format("AphidModule_{0}", Guid.NewGuid()))
@@ -51,8 +53,7 @@ namespace Components.Aphid.Interpreter
 
         public Type CreateType(ObjectExpression type, IEnumerable<string> imports)
         {
-            if (type.Identifier == null ||
-                !type.Identifier.Attributes.Any())
+            if (type.Identifier == null || !type.Identifier.Attributes.Any())
             {
                 throw new InvalidOperationException("ObjectExpression has no type class attributes.");
             }
@@ -128,7 +129,10 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return typeBuilder.CreateType();
+            var t = typeBuilder.CreateType();
+            _types.Add(t.FullName);
+
+            return t;
         }
 
         private void AddProperty(
@@ -237,6 +241,16 @@ namespace Components.Aphid.Interpreter
             }
 
             return t;
+        }
+
+        public string[] GetTypeNames()
+        {
+            return _types.ToArray();
+        }
+
+        public bool IsTypeDefined(string typeName)
+        {
+            return _types.Contains(typeName);
         }
     }
 }

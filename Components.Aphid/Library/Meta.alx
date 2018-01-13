@@ -61,7 +61,9 @@ makeFluent = @(obj) {
 
 using System.Collections;
 
-class VisitorFrame { node, context };
+if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
+    class VisitorFrame { node, context };
+}
 
 ast = {
     op: @() $_.Operator,
