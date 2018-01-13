@@ -2109,7 +2109,9 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw new AphidRuntimeException("Array access not supported by {0}.", val);
+                throw new AphidRuntimeException(
+                    "Array access not supported by {0}.",
+                    expression.ArrayExpression);
             }
         }
 
