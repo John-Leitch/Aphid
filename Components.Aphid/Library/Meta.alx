@@ -216,7 +216,7 @@ nodeType = { };
     str String;
     call Call;
 }.Body->@{
-    nodeType.{$_.Attributes[0]} = 
+    nodeType.{$_.Attributes[0].Identifier} = 
         $_.Identifier
         @String.Format('AphidExpressionType.{0}Expression')
         evalExp
