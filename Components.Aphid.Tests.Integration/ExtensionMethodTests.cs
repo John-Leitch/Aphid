@@ -243,5 +243,64 @@ namespace Components.Aphid.Tests.Integration
         {
             ExtensionMethodInteropTest("Object", "", paramRef: "$_");
         }
+
+        [Test]
+        public void DynamicExtensionMethodTest()
+        {
+            AssertFoo(@"
+                using System;
+                extend string {
+                    dynamic handle: @(s, funcName) funcName,
+                }
+
+                ret 'abc'.foo();
+            ");
+        }
+
+        [Test]
+        public void DynamicExtensionMethodTest2()
+        {
+            AssertFoo(@"
+                using System;
+                extend string {
+                    dynamic handle: @(s, funcName) funcName + 'oo',
+                }
+
+                ret 'abc'.f();
+            ");
+        }
+
+        [Test]
+        public void DynamicExtensionMethodTest3()
+        {
+            AssertFoo(@"
+                using System;
+                extend string {
+                    dynamic handle: @(s, funcName) s + funcName * 2,
+                }
+
+                ret 'f'.o();
+            ");
+        }
+
+        [Test]
+        public void DynamicExtensionMethodInheritance()
+        {
+            Assert9(@"
+                using Components.Aphid.Parser;
+                extend FunctionExpression {dynamic isFunc: @(o)9}
+                ret @{@{ }}.Body[0].aaa();
+            ");
+        }
+
+        [Test]
+        public void DynamicExtensionMethodInheritance2()
+        {
+            Assert9(@"
+                using Components.Aphid.Parser;
+                extend AphidExpression {dynamic isFunc: @(o)9}
+                ret @{@{ }}.Body[0].aaa();
+            ");
+        }
     }
 }

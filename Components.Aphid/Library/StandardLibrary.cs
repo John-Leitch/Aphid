@@ -20,7 +20,7 @@ namespace Components.Aphid.Library
         {
             var typeStr = (string)type.Value;
 
-            TypeExtender.Extend(interpreter, (string)type.Value, extensions);
+            TypeExtender.Extend(interpreter, (string)type.Value, extensions, null);
         }
 
         [AphidInteropFunction("serialize", UnwrapParameters = false)]

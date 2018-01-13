@@ -320,7 +320,11 @@ namespace Components.Aphid.Interpreter
             return new AphidObject(val);
         }
 
-        private AphidObject InterpretMemberInteropExpression(object lhs, BinaryOperatorExpression expression, bool returnRef = false)
+        private AphidObject InterpretMemberInteropExpression(
+            object lhs,
+            BinaryOperatorExpression expression,
+            bool returnRef = false,
+            Func<AphidObject> dynamicHandler = null)
         {
             if (expression.RightOperand.Type != AphidExpressionType.IdentifierExpression)
             {
@@ -354,9 +358,16 @@ namespace Components.Aphid.Interpreter
 
             if (!members.Any())
             {
-                throw new AphidRuntimeException(
-                    "Could not find property '{0}'",
-                    expression.RightOperand.ToIdentifier().ToIdentifier());
+                if (dynamicHandler == null)
+                {
+                    throw new AphidRuntimeException(
+                        "Could not find property '{0}'",
+                        expression.RightOperand.ToIdentifier().ToIdentifier());
+                }
+                else
+                {
+                    return dynamicHandler();
+                }
             }
 
             return ValueHelper.Wrap(new AphidInteropMember(lhs, members));
@@ -398,18 +409,38 @@ namespace Components.Aphid.Interpreter
 
             if (obj != null && !obj.IsAphidType())
             {
+                Func<AphidObject> dynamicHandler = null;
+
                 if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
                 {
                     key = expression.RightOperand.ToIdentifier().Identifier;
-                    var extension = TypeExtender.TryResolve(CurrentScope, obj, key, false);
+                    var extension = TypeExtender.TryResolve(
+                        CurrentScope,
+                        obj,
+                        key,
+                        isAphidType: false,
+                        isDynamic: false);
 
                     if (extension != null)
                     {
                         return extension;
                     }
+
+                    dynamicHandler = () => TypeExtender.TryResolve(
+                        CurrentScope,
+                        obj,
+                        key,
+                        isAphidType: false,
+                        isDynamic: true);
                 }
 
-                return InterpretMemberInteropExpression(obj.Value, expression, returnRef);
+                
+
+                return InterpretMemberInteropExpression(
+                    obj.Value,
+                    expression,
+                    returnRef,
+                    dynamicHandler);
             }
 
             if (expression.RightOperand is IdentifierExpression)
@@ -444,10 +475,24 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
-                    val = TypeExtender.TryResolve(CurrentScope, obj, key);
+                    val = TypeExtender.TryResolve(
+                        CurrentScope,
+                        obj,
+                        key,
+                        isAphidType: true,
+                        isDynamic: false);
 
                     return val == null ?
-                        InterpretMemberInteropExpression(obj.Value, expression, returnRef) :
+                        InterpretMemberInteropExpression(
+                            obj.Value,
+                            expression,
+                            returnRef,
+                            () => TypeExtender.TryResolve(
+                                CurrentScope,
+                                obj,
+                                key,
+                                isAphidType: true,
+                                isDynamic: true)) :
                         val;
                 }
 
@@ -2248,7 +2293,23 @@ namespace Components.Aphid.Interpreter
         private void InterpretExtendExpression(ExtendExpression expression)
         {
             var obj = InterpretObjectExpression(expression.Object);
-            TypeExtender.Extend(this, expression.ExtendType, obj);
+
+            var dynamic = expression.Object.Pairs
+                .Where(x =>
+                    x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
+                    x.LeftOperand
+                        .ToIdentifier()
+                        .Attributes
+                        .Any(y => y.Identifier == "dynamic"))
+                .Select(x => x.LeftOperand.ToIdentifier().Identifier)
+                .ToArray();
+
+            if (dynamic.Length > 1)
+            {
+                throw new AphidRuntimeException("Only one extension can be marked as dynamic.");
+            }
+
+            TypeExtender.Extend(this, expression.ExtendType, obj, dynamic.SingleOrDefault());
         }
 
         private void InterpretWhileExpression(WhileExpression expression)
