@@ -429,7 +429,8 @@ namespace Components.Aphid.Interpreter
                         obj,
                         key,
                         isAphidType: false,
-                        isDynamic: false);
+                        isDynamic: false,
+                        returnRef: returnRef);
 
                     if (extension != null)
                     {
@@ -441,7 +442,8 @@ namespace Components.Aphid.Interpreter
                         obj,
                         key,
                         isAphidType: false,
-                        isDynamic: true);
+                        isDynamic: true,
+                        returnRef: returnRef);
                 }
 
                 
@@ -490,7 +492,8 @@ namespace Components.Aphid.Interpreter
                         obj,
                         key,
                         isAphidType: true,
-                        isDynamic: false);
+                        isDynamic: false,
+                        returnRef: returnRef);
 
                     return val == null ?
                         InterpretMemberInteropExpression(
@@ -502,7 +505,8 @@ namespace Components.Aphid.Interpreter
                                 obj,
                                 key,
                                 isAphidType: true,
-                                isDynamic: true)) :
+                                isDynamic: true,
+                                returnRef: returnRef)) :
                         val;
                 }
 
@@ -628,7 +632,7 @@ namespace Components.Aphid.Interpreter
                     return value;
                 }
 
-                var objRef = obj as AphidRef;
+                var objRef = ValueHelper.Unwrap(obj) as AphidRef;
 
                 if (objRef.Object == null)
                 {

@@ -166,7 +166,8 @@ namespace Components.Aphid.Interpreter
             AphidObject obj,
             string key,
             bool isAphidType,
-            bool isDynamic)
+            bool isDynamic,
+            bool returnRef)
         {
             var classHierarchy = isAphidType ?
                 new[] { obj.GetValueType() } :
@@ -199,31 +200,43 @@ namespace Components.Aphid.Interpreter
             //    return null;
             //}
 
-            var function = ((AphidFunction)val.Value).Clone();
-            function.ParentScope = new AphidObject { Parent = scope };
-            function.ParentScope.Add(AphidName.ImplicitArg, obj);
-            function.ParentScope.Add(AphidName.Extension, new AphidObject(true));
+            AphidObject result;
+            var func = val.Value as AphidFunction;
 
-            if (function.Args.Any())
+            if (func != null)
             {
-                function.ParentScope.Add(function.Args[0], obj);
+                var function = func.Clone();
+                function.ParentScope = new AphidObject { Parent = scope };
+                function.ParentScope.Add(AphidName.ImplicitArg, obj);
+                function.ParentScope.Add(AphidName.Extension, new AphidObject(true));
 
-                int skip;
-
-                if (isDynamic && function.Args.Length >= 2)
+                if (function.Args.Any())
                 {
-                    function.ParentScope.Add(function.Args[1], new AphidObject(key));
-                    skip = 2;
-                }
-                else
-                {
-                    skip = 1;
+                    function.ParentScope.Add(function.Args[0], obj);
+
+                    int skip;
+
+                    if (isDynamic && function.Args.Length >= 2)
+                    {
+                        function.ParentScope.Add(function.Args[1], new AphidObject(key));
+                        skip = 2;
+                    }
+                    else
+                    {
+                        skip = 1;
+                    }
+
+                    function.Args = function.Args.Skip(skip).ToArray();
                 }
 
-                function.Args = function.Args.Skip(skip).ToArray();
+                result = new AphidObject(function);
+            }
+            else
+            {
+                result = !returnRef ? val[key] : val;
             }
 
-            return new AphidObject(function);
+            return !returnRef ? result : new AphidObject(new AphidRef() { Name = key, Object = result });
         }
     }
 }
