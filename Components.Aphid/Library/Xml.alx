@@ -1,61 +1,93 @@
-﻿extendXDoc = @{ 
+﻿p = this.{'$scope'};
+
+@{
+    #'Std';
+    #'Query';
+    #'Meta';
     load System.Xml.Linq;
-    using System.Linq;
     using System.Xml.Linq;
 
-    xnCall = macro(@(target) { name |> XName.Get |> target });
+    extendXElement = @{ 
+        xnCall = macro(@(target) { name |> XName.Get |> target });
 
-    _parse = macro(@(type){
-        @(element, name)
-            name defined ?
-                element.element(name).Value |> type.Parse :
-                element.Value |> type.Parse
-    });
+        _parse = macro(@(type){
+            @(element, name)
+                name defined ?
+                    element.element(name).Value |> type.Parse :
+                    element.Value |> type.Parse
+        });
 
-    _l = macro(@(x) { x |> Enumerable.ToList });
+        _l = macro(@(x) { x |> Enumerable.ToList });
 
-    extend XElement {
-        descendants: @(element, name)
-            _l(name defined ? xnCall(element.Descendants) : element.Descendants()),
+        extend XElement {
+            descendants: @(element, name)
+                _l(name defined ? xnCall(element.Descendants) : element.Descendants()),
 
-        descendant: @(element, name) element.descendants(name) |> Enumerable.Single,
+            descendant: @(element, name) element.descendants(name) |> Enumerable.Single,
 
-        elements: @(element, name)
-            _l(name defined ? xnCall(element.Elements) : element.Elements()),
+            elements: @(element, name)
+                _l(name defined ? xnCall(element.Elements) : element.Elements()),
 
-        element: @(element, name) xnCall(element.Element),
+            element: @(element, name) xnCall(element.Element),
+            val: @(element, name) name defined ? element.element(name).Value : element.Value,
+            dec: _parse(Decimal),
+            int: _parse(Int32),
+            date: _parse(DateTime),
 
-        val: @(element, name) name defined ? element.element(name).Value : element.Value,
-        dec: _parse(Decimal),
-        int: _parse(Int32),
-        date: _parse(DateTime),
+            attr: @(element, name) xnCall(element.Attribute) != null ?
+                xnCall(element.Attribute).Value :
+                null,
 
-        attr: @(element, name) xnCall(element.Attribute) != null ?
-            xnCall(element.Attribute).Value :
-            null,
+            dynamic dispatch: @(element, action) {
+                e = element;
+                [ e.attr, e.element, e.descendant ] for {
+                    a = $_(action);
 
-        dynamic dispatch: @(element, action) {
-            e = element;
-            [ e.attr, e.element, e.descendant ] for {
-                a = $_(action);
+                    if (a != null) {
+                        ret a;
+                    }
+                };
 
-                if (a != null) {
-                    ret a;
-                }
-            };
-
-            ret null;
+                ret null;
+            }
         }
-    }
-    
-    extend XDocument {
 
-    }
+        extend list XElement {
+            map: @(elements, selector) elements->selector,
+        }
 
-    extend list XElement {
-        map: @(elements, selector) elements->selector,
-    }
+        extend XDocument {  }
 
-    p = this.{'$parent'};
-    this |> keys -?(@(k)k.StartsWith('$ext'))->@() p.{$_} = this.{$_};
-};
+        _p = print;
+        _p = @{};
+
+        this |> keys -?(@(k)k.StartsWith('$ext')) ->@(k){
+            $_ @_p('Importing extension method ~Magenta~{0}~R~');
+            p.{$_} = this.{$_};
+        };
+    };
+
+    initXml = @{
+        xdExtend = (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XDocument)));
+        (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XElement))).obj().pairs()->@(p){
+            ext = p.lhs().id();
+            // ext @print('Adding XDocument extension {0}');
+            argList = ast.block();
+            p.rhs().args() @aq.skip(1)->argList.Add;
+            funcBody = ast.block();
+            funcBody.Add(
+                ast.return(
+                    ast.call(
+                        ast.member(
+                            ast.member(p.rhs().args()[0], ast.id('Root')),
+                            ast.id(ext)),
+                        argList)));
+
+            new FunctionExpression(p.rhs().args(), funcBody)
+                @ast.pair(ast.id(ext)) |> xdExtend.obj().pairs().Add;
+        };
+    };
+
+    initXml();
+    extendXElement();
+}();

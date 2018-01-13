@@ -110,11 +110,13 @@ ast = {
             c = { stack: new Stack()};
             
             c.push = @(n) {
-                if (n != null) {
+                if (n defined && n != null) {
+                    // print('Pushing {0}', [ n.ToString() ] );
                     f = new VisitorFrame();
                     f.node = n;
                     f.context = f;
                     c.stack.Push(f);
+                    // Console.WriteLine('Pushed');
                 }
             };
 
@@ -151,11 +153,58 @@ ast = {
         }
     },
 
+    walkNodes: @(visit, node) {
+        node @ast.walk(@(node, context) {
+            if (!context.isRoot && !context.isBlock) {
+                visit(node, context);
+            }
+        });
+    },
+
+    id: @(name, attrs) $args.Count == 2 ?
+        (new IdentifierExpression(name, attrs)) :
+        (new IdentifierExpression(name, expList('IdentifierExpression'))),
+
     unOp: @(operator, operand, postfix) new UnaryOperatorExpression(operator, operand, false),
     preUnOp: @(operator, operand) unOp(operator, operand, false),
+    binOp: @(lhs, operator, rhs) new BinaryOperatorExpression(lhs, operator, rhs),
+    member: @(lhs, rhs) binOp(lhs, getToken('.'), rhs),
+    pair: @(lhs, rhs) binOp(lhs, getToken(':'), rhs),
+    call: @(target, args) new CallExpression(target, args),
     makeRet: @(operand) preUnOp(token.return, operand),
     return: makeRet,
-    // binOp: 
+    
+    expList: @(type) []
+        .GetType()
+        .GetGenericTypeDefinition()
+        .MakeGenericType([
+            type 
+            @String.Format('Components.Aphid.Parser.{0}')
+            |> Type.GetType
+        ])
+        |> Activator.CreateInstance,
+
+    block: @expList('AphidExpression'),
+
+    first: @(predicate, rootNode) {
+        match = null;
+        rootNode @ast.walk(@(node, context){
+            if (match != null) {
+                context.isHandled = true;
+                ret null;
+            } else if (predicate(node, context)) {
+                match = node;
+                context.isHandled = true;
+                ret null;
+            }
+        });
+
+        ret match;
+    },
+
+    firstNode: @(predicate, rootNode)
+        rootNode @ast.first(@(n, c)
+            !c.isBlock && !c.isRoot && predicate(n, c))
 };
 
 nodeType = { };
@@ -206,6 +255,7 @@ extend AphidExpression {
     args: @(x) x.Args,
     op: @(x) x.Operator,
     obj: @(x) x.Object,
+    pairs: @(x) x.Pairs,
     extType: @(x) exp.is(Extend) ? x.ExtendType.id() : null,
 
     attr: @(x, i) x.attrs().Count >= 1 + i ? x.attrs()[i] : null,
@@ -218,7 +268,13 @@ extend AphidExpression {
         x.isId() &&
         y.isId() &&
         x.id() == y.id() &&
-        Enumerable.SequenceEqual(x.attrIds(), y.attrIds())
+        Enumerable.SequenceEqual(x.attrIds(), y.attrIds()),
+
+    member: @(lhs, rhs) ast.member(lhs, rhs).WithPositionFrom(lhs),
+    property: @(lhs, name) lhs
+        .member(ast.id(name).WithPositionFrom(lhs))
+        .WithPositionFrom(lhs),
+    call: @(target, args) ast.call(target, args).WithPositionFrom(target),
 }
 
 getLexer = @(stream) {
@@ -276,4 +332,41 @@ getLexer = @(stream) {
     l.next();
 
     ret l;
+};
+
+
+dumpAst = @(node) {
+    node @ast.walk(@(node, context) {
+        if (context.isRoot) {
+            print('Root');
+        } else if (!context.isBlock) {
+            (node |> getProps) -> (@.Name) +> (@+ ', ' + $args[1])
+            @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
+            // node |> toJson |> print;
+        }
+    });
+};
+
+dumpAstJson = @(node){
+    #'Std';
+    #'Serialization';
+    node @ast.walk(@(node, context) {
+        if (context != null &&
+            !context.isBlock &&
+            !context.isRoot &&
+            node != null) {
+            if (node @has('Code')) {
+                node.Code = null;
+            }
+
+            if (node @has('Index')) {
+                node.Index = -1;
+            }
+        }
+    });
+
+    node |> toJson |> print;
+    ret null;
+
+    
 };
