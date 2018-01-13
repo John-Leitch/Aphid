@@ -14,11 +14,14 @@ namespace Components.Aphid.UI
 {
     public class AphidRepl
     {
-        private AphidInterpreter _interpreter;
+        public AphidInterpreter Interpreter { get; set; }
 
         public void Run()
         {
-            _interpreter = new AphidInterpreter();
+            if (Interpreter == null)
+            {
+                Interpreter = new AphidInterpreter();
+            }
 
             while (true)
             {
@@ -38,7 +41,7 @@ namespace Components.Aphid.UI
                     catch (Exception e)
                     {
                         Cli.WriteErrorMessage("Runtime error:\r\n{0}", e.Message);
-                        AphidCli.DumpStackTrace(_interpreter);
+                        AphidCli.DumpStackTrace(Interpreter);
                     }
                 }
                 else
@@ -46,7 +49,7 @@ namespace Components.Aphid.UI
                     RunCode(code);
                 }
 
-                _interpreter.ResetState();
+                Interpreter.ResetState();
             }
         }
 
@@ -57,8 +60,8 @@ namespace Components.Aphid.UI
             var exp = AphidParser.ParseExpression(tokens, code);
             var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
             new AphidCodeVisitor(code).VisitExpression(retExp);
-            _interpreter.Interpret(retExp);
-            var value = _interpreter.GetReturnValue();
+            Interpreter.Interpret(retExp);
+            var value = Interpreter.GetReturnValue();
 
             if (value != null && (value.Value != null || value.Any()))
             {
