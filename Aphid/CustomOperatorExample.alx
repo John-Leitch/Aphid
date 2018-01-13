@@ -1,0 +1,18 @@
+﻿#'std';
+#'meta';
+
+@?. (lhs, rhs) lhs != null ? lhs.{this.{'$frames'}[depth].exp().rhs().id()} : null;
+
+foo = {
+    bar: {
+        x: 10
+    }
+};
+
+foo?.bar?.x |> print;
+
+foo.bar = null;
+foo?.bar?.x |> print;
+
+foo = null;
+foo?.bar?.x |> print;
