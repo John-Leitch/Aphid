@@ -1143,7 +1143,7 @@ namespace Components.Aphid.Interpreter
             var funcName = GetCustomOperatorFunction(op, name);
             var funcExp = CurrentScope.Resolve(GetCustomOperatorExpressionKey(op));
             PushFrame(customOperatorExpression, (AphidExpression)funcExp.Value, args);
-            var n = _frames.First().Name;
+            //var n = _frames.First().Name;
             var result = CallFunction(funcName, args);
             PopFrame();
 
@@ -1569,7 +1569,6 @@ namespace Components.Aphid.Interpreter
         {
             var name = new Lazy<string>(() =>
             {
-                return functionExpression.ToString();
                 switch (functionExpression.Type)
                 {
                     case AphidExpressionType.IdentifierExpression:
@@ -1580,10 +1579,10 @@ namespace Components.Aphid.Interpreter
 
                         return operands.All(x => x.Type == AphidExpressionType.IdentifierExpression) ?
                             FlattenAndJoinPath(functionExpression) :
-                            "[Anonymous]";
+                            functionExpression.ToString();
 
                     default:
-                        return "[Anonymous]";
+                        return functionExpression.ToString();
                 }
             });
 
