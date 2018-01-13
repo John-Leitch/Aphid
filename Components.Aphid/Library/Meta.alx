@@ -3,6 +3,16 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
 
+@`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier;
+
+@\ (lhs, rhs) {
+    s = this.{'$frames'}[0].Scope;
+    args = s.{'$args'};
+    i = s.argIndex defined ? s.argIndex++ : s.argIndex = 1;
+    ret args.Count < i ? lhs : lhs && rhs;
+    
+};
+
 frames = @() this.{'$frames'};
 frame = @(i) this.{'$frames'}[i];
 
@@ -177,6 +187,8 @@ extend AphidExpression {
     isId: @(x) x.is(Identifier),
     isUnOp: @(x) x.is(UnaryOperator),
     isBinOp: @(x) x.is(BinaryOperator),
+    isObj: @(x) x.is(Object),
+    isExt: @(exp, type) exp.is(Extend) \ exp.extType() == (1`0),
 
     isOp: @(x, op) (x.isUnOp() || x.isBinOp()) && x.op() == op,
 
@@ -193,6 +205,8 @@ extend AphidExpression {
     func: @(x) x.FunctionExpression,
     args: @(x) x.Args,
     op: @(x) x.Operator,
+    obj: @(x) x.Object,
+    extType: @(x) exp.is(Extend) ? x.ExtendType.id() : null,
 
     attr: @(x, i) x.attrs().Count >= 1 + i ? x.attrs()[i] : null,
     attrs: @(x) x.isId() ? x.Attributes : null,
