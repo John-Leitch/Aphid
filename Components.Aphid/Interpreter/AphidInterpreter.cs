@@ -1075,19 +1075,23 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretBinaryOperatorBodyExpression(BinaryOperatorBodyExpression expression)
         {
             var key = GetCustomOperatorKey(expression.Operator);
+            var key2 = GetCustomOperatorExpressionKey(expression.Operator);
             var func = InterpretFunctionExpression(expression.Function);
             
-            AphidObject obj;
+            AphidObject obj, obj2;
 
             if (CurrentScope.TryGetValue(key, out obj))
             {
                 obj.Value = func.GetFunction();
+                CurrentScope.TryGetValue(key2, out obj2);
+                obj2.Value = expression;
                 
                 return obj;
             }
             else
             {
                 CurrentScope.Add(key, func);
+                CurrentScope.Add(key2, new AphidObject(expression));
                 
                 return func;
             }
@@ -1111,6 +1115,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretCustomUnaryOperator(UnaryOperatorExpression expression)
         {
             return CallCustomOperatorFunction(
+                expression,
                 expression.Operator,
                 "unary",
                 new[] { InterpretExpression(expression.Operand) });
@@ -1119,6 +1124,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretCustomBinaryOperator(BinaryOperatorExpression expression)
         {
             return CallCustomOperatorFunction(
+                expression,
                 expression.Operator,
                 "binary",
                 new[]
@@ -1129,11 +1135,19 @@ namespace Components.Aphid.Interpreter
         }
 
         private AphidObject CallCustomOperatorFunction(
+            AphidExpression customOperatorExpression,
             AphidTokenType op,
             string name,
             object[] args)
         {
-            return CallFunction(GetCustomOperatorFunction(op, name), args);
+            var funcName = GetCustomOperatorFunction(op, name);
+            var funcExp = CurrentScope.Resolve(GetCustomOperatorExpressionKey(op));
+            PushFrame(customOperatorExpression, (AphidExpression)funcExp.Value, args);
+            var n = _frames.First().Name;
+            var result = CallFunction(funcName, args);
+            PopFrame();
+
+            return result;
         }
 
         private AphidFunction GetCustomOperatorFunction(AphidTokenType op, string name)
@@ -1161,6 +1175,11 @@ namespace Components.Aphid.Interpreter
         private string GetCustomOperatorKey(AphidTokenType op)
         {
             return string.Format("$customOperator.{0}.body", op);
+        }
+
+        private string GetCustomOperatorExpressionKey(AphidTokenType op)
+        {
+            return string.Format("$customOperator.{0}.expression", op);
         }
 
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -1550,6 +1569,7 @@ namespace Components.Aphid.Interpreter
         {
             var name = new Lazy<string>(() =>
             {
+                return functionExpression.ToString();
                 switch (functionExpression.Type)
                 {
                     case AphidExpressionType.IdentifierExpression:

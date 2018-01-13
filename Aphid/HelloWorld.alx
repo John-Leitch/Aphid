@@ -1,3 +1,25 @@
-﻿#'Std';
+﻿//#'Std';
+//#'Meta';
+//
+//using System.IO;
+//using System.Linq;
+//
 
-print('Hello, world');
+using System;
+extend string {
+    removeAt: @(s, char) char |> s.IndexOf |> s.Remove,
+    dynamic handle: @(s, funcName) {
+        funcName @Console.WriteLine('{0} called');
+    }
+}
+
+
+'foo bar'.removeAt(' ') |> Console.WriteLine;
+'foo adfsas '.unknown('test');
+
+//'c:\\temp\\test.csv' |> File.ReadAllLines ->(@(l) l |> Enumerable.ToList);
+////'foo' |> Enumerable.ToList;
+//
+//evalExp('10') |> print;
+//
+//print('Hello, world');

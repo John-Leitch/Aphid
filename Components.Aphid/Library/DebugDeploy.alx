@@ -6,9 +6,12 @@
 
     // cls();
     _print = print;
-    _print = @{};
+    //_print = @{};
     scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;
     dir = scriptDir;
+
+    if (aphidSource defined) dir = new DirectoryInfo(aphidSource);
+
     dir @_print('Script dir: ~Green~{0}~R~');
     libDir;
 

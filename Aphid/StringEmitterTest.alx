@@ -1,9 +1,9 @@
 ﻿#'Std';
-cls();
 #'StringEmitter';
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 
+cls();
 e = strEmitter;
 e.inNamespace = false;
 e.inClass = false;
@@ -15,6 +15,7 @@ e.classAspects = {
 
 e.propertyAspects = {
     public: true,
+    silent: false,
 };
 
 e.boolConverter = {};
@@ -140,8 +141,8 @@ e.emitObjectExpression = @(object, isStatement) {
         
         onChangeStatements-?(@(s) s.func == m.func)->@(s){
             c = boolConverter.{s.converter};
-            s |> serialize |> print;
-            c |> serialize |> print;
+            // s |> serialize |> print;
+            // c |> serialize |> print;
 
             append(margin());
             append('{0} = {1} ? ', s.dst, s.condition);
@@ -158,7 +159,7 @@ e.emitObjectExpression = @(object, isStatement) {
         //exit(0);
     };
     endClass(object, isStatement);
-    onChangeStatements |> serialize |> print;
+    // onChangeStatements |> serialize |> print;
 };
 
 e.endClass = @{
@@ -230,19 +231,8 @@ e.emitProperty = @(p) {
     appendLine(onChangeName + '();');
     //appendLine('');
     
-    if (!attrs.silent) {
-        
+    if (!e.propertyAspects.silent && !attrs.silent) {
         appendLine('InvokePropertyChanged("' + name + '");');
-
-        //appendLine('');
-        //appendLine('if (PropertyChanged != null)');
-        //appendLine('{');
-        //indent();
-        //appendLine('PropertyChanged(' + 
-            //'this, ' + 
-            //'new PropertyChangedEventArgs("' + name + '"))');
-        //unindent();
-        //appendLine('}');
     }
 
     unindent();
@@ -347,7 +337,7 @@ parseAttributes = @(exp) {
 #'AphidUI';
 
 print();
-e.text |> print;
+//e.text |> print;
 
 using System.IO;
 e.text.ToString() @File.WriteAllText('C:\\source\\Aphid\\AphidUI\\ViewModels\\ViewModels.g.cs');
