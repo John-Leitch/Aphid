@@ -1,0 +1,24 @@
+﻿#'Meta';
+#'Std';
+cls();
+
+testPerf = macro(@(testName, customOp) {
+    @{
+        testName @print('~|Blue~~White~Running {0} test~R~');
+        customOp;
+        using System.Diagnostics;
+        sw = new Stopwatch();
+        sw.Start();
+        1..10000 for {(1`0).ToString()};    
+        sw.Stop();
+        sw.ElapsedTicks @print('Test completed in ~Cyan~{0:n0}~R~ ticks\r\n');
+    }(foo, bar);
+});
+
+testPerf(
+    'Custom operator extension method test',
+    @`(depth, num) this.{'$frames'}[depth].exp().args()[num].id());
+
+testPerf(
+    'Custom operator direct property access test',
+    @`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier);
