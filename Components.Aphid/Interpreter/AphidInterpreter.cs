@@ -481,7 +481,7 @@ namespace Components.Aphid.Interpreter
             {
                 AphidObject val;
 
-                if (obj == null)
+                if (obj == null|| (obj.Count == 0 && obj.Value == null))
                 {
                     return InterpretMemberInteropExpression(null, expression, returnRef);
                 }
@@ -1430,7 +1430,7 @@ namespace Components.Aphid.Interpreter
 
             if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
             {
-                throw new AphidRuntimeException("Invalid static interop call path '{0}'", exp);
+                throw new AphidRuntimeException("Invalid interop call path '{0}'", exp);
             }
 
             var path = pathExps
