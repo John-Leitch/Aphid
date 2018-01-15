@@ -175,11 +175,6 @@ namespace Components.Aphid.Interpreter
 
             AphidObject val = null;
 
-            if (key == "isFunc")
-            {
-                Console.WriteLine();
-            }
-
             var selector = isDynamic ?
                 (Func<string, string>)(x => TypeExtender.GetName(x)) :
                 (Func<string, string>)(x => TypeExtender.GetName(x, key));
@@ -190,15 +185,6 @@ namespace Components.Aphid.Interpreter
             {
                 return null;
             }
-
-
-            //{
-            //    if (classHierarchy
-            //        .Select(x => TypeExtender.GetName(x))
-            //        .FirstOrDefault(x => scope.TryResolve(x, out val)) == null)
-
-            //    return null;
-            //}
 
             AphidObject result;
             var func = val.Value as AphidFunction;
