@@ -232,6 +232,7 @@ extend AphidFrame {
 
 extend AphidExpression {
     is: @(x, type) x.Type == evalExp('AphidExpressionType.' + getIdArg(0) + 'Expression'),
+    isScript: @(x) x.is(LoadScript),
     isCall: @(x) x.is(Call),
     isId: @(x) x.is(Identifier),
     isUnOp: @(x) x.is(UnaryOperator),
