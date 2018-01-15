@@ -58,6 +58,13 @@ namespace Components.External.ConsolePlus
 
         static Cli()
         {
+            if (!Environment.UserInteractive)
+            {
+                _write = x => { };
+                _writeLine = x => { };
+                return;
+            }
+
             try
             {
                 SetLengths(Console.BufferWidth);

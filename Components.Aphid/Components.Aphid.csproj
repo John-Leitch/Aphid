@@ -56,10 +56,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="External\ArgLexer.cs" />
+    <Compile Include="External\ConsolePlus\CliApplication.cs" />
+    <Compile Include="External\ConsolePlus\CliArgAttribute.cs" />
+    <Compile Include="External\ConsolePlus\CliArgProperty.cs" />
+    <Compile Include="External\ConsolePlus\CliArgReader.cs" />
+    <Compile Include="External\ConsolePlus\CliArgWriter.cs" />
+    <Compile Include="External\ConsolePlus\CommandString.cs" />
+    <Compile Include="External\ConsolePlus\InteractiveConsole.cs" />
     <Compile Include="External\Json\JsonFormatter.cs" />
     <Compile Include="External\Json\JsonLexer.cs" />
     <Compile Include="External\Json\JsonSerializer.cs" />
     <Compile Include="External\StringTree.cs" />
+    <Compile Include="External\XmlObject.cs" />
+    <Compile Include="External\XmlSerializerExtension.cs" />
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
     <Compile Include="Interpreter\AphidName.cs" />
