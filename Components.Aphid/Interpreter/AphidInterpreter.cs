@@ -483,6 +483,11 @@ namespace Components.Aphid.Interpreter
 
                 if (obj == null|| (obj.Count == 0 && obj.Value == null))
                 {
+                    if (expression.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
+                    {
+                        throw new AphidRuntimeException("Null reference exception: {0}", expression);
+                    }
+
                     return InterpretMemberInteropExpression(null, expression, returnRef);
                 }
                 else if (!obj.TryResolve(key, out val))
