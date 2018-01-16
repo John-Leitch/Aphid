@@ -76,7 +76,7 @@ remote = {
         client.eval = @(exp) {
             client.write(exp);
             buf = client.read();
-            print('Server response: {0}', buf);
+            print('Server response: {0}', buf.Replace('~', '~~'));
             ret buf |> deserialize;
         };
 
