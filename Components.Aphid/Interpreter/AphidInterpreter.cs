@@ -57,6 +57,7 @@ namespace Components.Aphid.Interpreter
 
         public AphidInterpreter(AphidObject currentScope)
         {
+            _createLoader = true;
             CurrentScope = currentScope;
             AphidObject obj;
 
