@@ -96,6 +96,7 @@
     <Compile Include="Parser\AphidAttributeScanner.cs" />
     <Compile Include="Parser\AphidIdDirectiveMutator.cs" />
     <Compile Include="Parser\AphidCodeVisitor.cs" />
+    <Compile Include="Parser\ScriptMutator.cs" />
     <Compile Include="UI\AphidCli.cs" />
     <Compile Include="Compiler\AphidStringEmitter.cs" />
     <Compile Include="Compiler\AphidStringEmitter.g.cs" />
