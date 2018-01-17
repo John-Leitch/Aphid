@@ -8,7 +8,12 @@ namespace Components.Aphid.Interpreter
 {
     public static class TypeExtender
     {
-        public static string GetName(string type)
+        public static string GetCtorName(string type)
+        {
+            return GetName(type, "$ctor");
+        }
+
+        public static string GetDynamicName(string type)
         {
             return GetName(type, null);
         }
@@ -79,6 +84,7 @@ namespace Components.Aphid.Interpreter
             AphidInterpreter interpreter,
             IdentifierExpression type,
             AphidObject extensions,
+            string ctorHandler,
             string dynamicHandler)
         {
             Extend(
@@ -86,6 +92,7 @@ namespace Components.Aphid.Interpreter
                 type.Identifier,
                 type.Attributes.Select(x => x.Identifier).ToArray(),
                 extensions,
+                ctorHandler,
                 dynamicHandler);
         }
 
@@ -93,9 +100,10 @@ namespace Components.Aphid.Interpreter
             AphidInterpreter interpreter,
             string type,
             AphidObject extensions,
+            string ctorHandler,
             string dynamicHandler)
         {
-            Extend(interpreter, type, new string[0], extensions, dynamicHandler);
+            Extend(interpreter, type, new string[0], extensions, ctorHandler, dynamicHandler);
         }
 
         public static void Extend(
@@ -103,6 +111,7 @@ namespace Components.Aphid.Interpreter
             string type,
             string[] attributes,
             AphidObject extensions,
+            string ctorHandler,
             string dynamicHandler)
         {
             foreach (var extension in extensions)
@@ -126,9 +135,17 @@ namespace Components.Aphid.Interpreter
                     type = GetInteropName(interopType);
                 }
 
-                var keys = nameStr != dynamicHandler ?
-                    new[] { GetName(type, nameStr) } :
-                    new[] { GetName(type, nameStr), GetName(type) };
+                var keys = new List<string> { GetName(type, nameStr) };
+
+                if (nameStr == dynamicHandler)
+                {
+                    keys.Add(GetDynamicName(type));
+                }
+
+                if (nameStr == ctorHandler)
+                {
+                    keys.Add(GetCtorName(type));
+                }
 
                 foreach (var key in keys)
                 {
@@ -166,6 +183,7 @@ namespace Components.Aphid.Interpreter
             AphidObject obj,
             string key,
             bool isAphidType,
+            bool isCtor,
             bool isDynamic,
             bool returnRef)
         {
@@ -175,8 +193,9 @@ namespace Components.Aphid.Interpreter
 
             AphidObject val = null;
 
-            var selector = isDynamic ?
-                (Func<string, string>)(x => TypeExtender.GetName(x)) :
+            var selector =
+                isDynamic ? (Func<string, string>)(x => TypeExtender.GetDynamicName(x)) :
+                isCtor ? (Func<string, string>)(x => TypeExtender.GetCtorName(x)) :
                 (Func<string, string>)(x => TypeExtender.GetName(x, key));
 
             if (classHierarchy

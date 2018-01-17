@@ -430,7 +430,8 @@ namespace Components.Aphid.Interpreter
                         obj,
                         key,
                         isAphidType: false,
-                        isDynamic: false,
+                        isCtor: false,
+                        isDynamic: false,                        
                         returnRef: returnRef);
 
                     if (extension != null)
@@ -443,6 +444,7 @@ namespace Components.Aphid.Interpreter
                         obj,
                         key,
                         isAphidType: false,
+                        isCtor: false,
                         isDynamic: true,
                         returnRef: returnRef);
                 }
@@ -498,6 +500,7 @@ namespace Components.Aphid.Interpreter
                         obj,
                         key,
                         isAphidType: true,
+                        isCtor: false,
                         isDynamic: false,
                         returnRef: returnRef);
 
@@ -511,6 +514,7 @@ namespace Components.Aphid.Interpreter
                                 obj,
                                 key,
                                 isAphidType: true,
+                                isCtor: false,
                                 isDynamic: true,
                                 returnRef: returnRef)) :
                         val;
@@ -1676,8 +1680,37 @@ namespace Components.Aphid.Interpreter
                     var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
                     var convertedArgs = AphidTypeConverter.Convert(ctor.Arguments);
                     var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
+                    var obj = ValueHelper.Wrap(result);
 
-                    return ValueHelper.Wrap(result);
+                    var extension = TypeExtender.TryResolve(
+                        CurrentScope,
+                        obj,
+                        TypeExtender.GetCtorName(type.FullName),
+                        false,
+                        isCtor: true,
+                        isDynamic: false,
+                        returnRef: false);
+
+                    if (extension != null)
+                    {
+                        var func = extension.Value as AphidFunction;
+
+                        if (func != null)
+                        {
+                            var obj2 = CallFunction(func, obj);
+
+                            if (obj2 != null)
+                            {
+                                obj = obj2;
+                            }
+                        }
+                        else
+                        {
+                            obj = extension;
+                        }
+                    }
+
+                    return obj;
 
                 default:
                     throw new NotImplementedException();
@@ -2335,22 +2368,37 @@ namespace Components.Aphid.Interpreter
         {
             var obj = InterpretObjectExpression(expression.Object);
 
-            var dynamic = expression.Object.Pairs
+            var dynamic = GetModifiedKey(expression, "dynamic");
+            var ctor = GetModifiedKey(expression, "ctor");
+
+            TypeExtender.Extend(
+                this,
+                expression.ExtendType,
+                obj,
+                ctor.SingleOrDefault(),
+                dynamic.SingleOrDefault());
+        }
+
+        private string[] GetModifiedKey(ExtendExpression expression, string modifier)
+        {
+            var modified = expression.Object.Pairs
                 .Where(x =>
                     x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
                     x.LeftOperand
                         .ToIdentifier()
                         .Attributes
-                        .Any(y => y.Identifier == "dynamic"))
+                        .Any(y => y.Identifier == modifier))
                 .Select(x => x.LeftOperand.ToIdentifier().Identifier)
                 .ToArray();
 
-            if (dynamic.Length > 1)
+            if (modified.Length > 1)
             {
-                throw new AphidRuntimeException("Only one extension can be marked as dynamic.");
+                throw new AphidRuntimeException(
+                    "Only one extension can be marked as {0}.",
+                    modifier);
             }
 
-            TypeExtender.Extend(this, expression.ExtendType, obj, dynamic.SingleOrDefault());
+            return modified;
         }
 
         private void InterpretWhileExpression(WhileExpression expression)
