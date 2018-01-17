@@ -77,6 +77,7 @@ if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
 
 ast = {
     op: @() $_.Operator,
+    hasOp: @(op, node) @has('Operator') && isOp(op),
     isOp: @(op, node) node.Operator == op,
     isRet: @() $_.Type == nodeType.unOp && ast.isOp(token.return, $_),
     lhs: @(node) node.LeftOperand,
@@ -161,6 +162,25 @@ ast = {
         });
     },
 
+    where: @(predicate, node) {
+        matches = [];
+        node @walk(@(innerNode, context) {
+            if (predicate(innerNode, context)) {
+                print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
+                matches.add(innerNode);
+            }
+        });
+
+        ret matches;
+    },
+
+    whereNode: @(predicate, node)
+        node @where(@(innerNode, context)
+            innerNode != null &&
+            !context.isRoot &&
+            !context.isBlock &&
+            predicate(innerNode, context)),
+
     id: @(name, attrs) $args.Count == 2 ?
         (new IdentifierExpression(name, attrs)) :
         (new IdentifierExpression(name, expList('IdentifierExpression'))),
@@ -239,6 +259,11 @@ extend AphidExpression {
     isBinOp: @(x) x.is(BinaryOperator),
     isObj: @(x) x.is(Object),
     isExt: @(exp, type) exp.is(Extend) \ exp.extType() == (1`0),
+    init: @(exp) {
+        exp.isUsing = exp.isOp(getToken('using'));
+    },
+    isUsing: null,
+    // isUsing: @(exp) exp.isOp(getToken('using')),
 
     isOp: @(x, op) (x.isUnOp() || x.isBinOp()) && x.op() == op,
 
