@@ -5,6 +5,10 @@ using System.Net.Sockets;
 using System.Text;
 #'Threading';
 
+extend TcpClient {
+    isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
+}
+
 utf8 = new UTF8Encoding();
 
 _client = macro(@(client){
@@ -49,18 +53,32 @@ remote = {
         ctx.listenThread = thread(@{
             while (true) {
                 print('Waiting for client');
-                c = l.AcceptTcpClient();                
-                print('Client connected');
-                n = _client(c);
 
-                n.thread = thread(@{
-                    print('Client thread');
-                    buffer = n.read();
-                    print('Buffer: {0}', buffer);
-                    { result: buffer |> eval } |> serialize |> n.write;
-                });
+                try {
+                    c = l.AcceptTcpClient();
+                    print('Client connected');
+                    n = _client(c);
 
-                ctx.clients.add(n);
+                    n.thread = thread(@{
+                        print('Creating client thread');
+
+                        while (n.socket.isConnected()) {
+                            try {
+                                buffer = n.read();
+                                print('Buffer: {0}', buffer);
+                                { result: buffer |> eval } |> serialize |> n.write;
+                            } catch (e) {
+                                print('Error handling client exchange: {0}', e.message);
+                            }
+                        }
+
+                        print('Client disconnected');
+                    });
+
+                    ctx.clients.add(n);
+                } catch (e) {
+                    print('Error accepting client: {0}', e.message);
+                }
             }            
         });
 
@@ -74,6 +92,7 @@ remote = {
         client = _client(c);
 
         client.eval = @(exp) {
+            print('Wirint command: {0}', exp.Replace('~', '~~'));
             client.write(exp);
             buf = client.read();
             print('Server response: {0}', buf.Replace('~', '~~'));
