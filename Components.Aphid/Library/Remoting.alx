@@ -62,7 +62,8 @@ remote = {
                     n.thread = thread(@{
                         print('Creating client thread');
 
-                        while (n.socket.isConnected()) {
+                        // while (n.socket.isConnected()) {
+                        while (n.socket.Connected) {
                             try {
                                 buffer = n.read();
                                 print('Buffer: {0}', buffer);
@@ -92,8 +93,9 @@ remote = {
         client = _client(c);
 
         client.eval = @(exp) {
-            print('Wirint command: {0}', exp.Replace('~', '~~'));
+            print('Writing command: {0}', exp.Replace('~', '~~'));
             client.write(exp);
+            print('Reading command');
             buf = client.read();
             print('Server response: {0}', buf.Replace('~', '~~'));
             ret buf |> deserialize;
