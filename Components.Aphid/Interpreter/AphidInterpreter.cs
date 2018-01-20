@@ -2224,9 +2224,23 @@ namespace Components.Aphid.Interpreter
                 throw new AphidRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
 
-            Loader.LoadScript(file);
+            List<AphidExpression> ast;
+            string scriptDir;
 
-            return null;
+            if (expression.Filename != null &&
+                !Loader.SearchPaths.Contains(
+                    scriptDir = Path.GetDirectoryName(expression.Filename)))
+            {
+                Loader.SearchPaths.Add(scriptDir);
+                ast = Loader.LoadScript(file);
+                Loader.SearchPaths.RemoveAt(Loader.SearchPaths.Count - 1);
+            }
+            else
+            {
+                ast = Loader.LoadScript(file);
+            }
+
+            return new AphidObject(ast);
         }
 
         private AphidObject InterpretLoadLibraryExpression(LoadLibraryExpression expression)

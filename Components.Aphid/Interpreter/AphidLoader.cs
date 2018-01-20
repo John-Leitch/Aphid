@@ -146,7 +146,7 @@ namespace Components.Aphid.Interpreter
             return null;
         }
 
-        public void LoadScript(string scriptFile, bool isTextDocument = false)
+        public List<AphidExpression> LoadScript(string scriptFile, bool isTextDocument = false)
         {
             var f = FindScriptFile(null, scriptFile);
 
@@ -168,6 +168,8 @@ namespace Components.Aphid.Interpreter
                 mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
 
                 _interpreter.Interpret(mutatedAst);
+                
+                return mutatedAst;
             }
             else
             {
