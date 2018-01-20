@@ -2777,10 +2777,13 @@ namespace Components.Aphid.Interpreter
                     AphidObject obj;
 
                     var id = expression.ToIdentifier().Identifier;
-                    if (!CurrentScope.TryResolve(id, out obj))
+
+                    if (CurrentScope.ContainsKey(id))
                     {
-                        CurrentScope.Add(id, new AphidObject());
+                        throw new AphidRuntimeException("Duplicated variable declaration: {0}", id);
                     }
+
+                    CurrentScope.Add(id, new AphidObject());
                 }
                 else
                 {
