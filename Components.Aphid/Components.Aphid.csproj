@@ -56,6 +56,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compiler\Medusa\LLex\AlxFile.cs" />
+    <Compile Include="Compiler\Medusa\LLex\BinaryExpression.cs" />
+    <Compile Include="Compiler\Medusa\LLex\CharExpression.cs" />
+    <Compile Include="Compiler\Medusa\LLex\GroupExpression.cs" />
+    <Compile Include="Compiler\Medusa\LLex\LexerGenerator.cs" />
+    <Compile Include="Compiler\Medusa\LLex\LexerState.cs" />
+    <Compile Include="Compiler\Medusa\LLex\LexFileMode.cs" />
+    <Compile Include="Compiler\Medusa\LLex\LLexFile.cs" />
+    <Compile Include="Compiler\Medusa\LLex\LLexNameInfo.cs" />
+    <Compile Include="Compiler\Medusa\LLex\OperatorExpression.cs" />
+    <Compile Include="Compiler\Medusa\LLex\RegexCompiler.cs" />
+    <Compile Include="Compiler\Medusa\LLex\RegexExpression.cs" />
+    <Compile Include="Compiler\Medusa\LLex\RegexLexer.cs" />
+    <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
+    <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
+    <Resource Include="Compiler\Medusa\LLex\Resources\AddTokenTemplate.cs" />
+    <Resource Include="Compiler\Medusa\LLex\Resources\CaseTemplate.cs" />
+    <Resource Include="Compiler\Medusa\LLex\Resources\LexicalAnalyzerTemplate.cs" />
+    <Resource Include="Compiler\Medusa\LLex\Resources\RootStateTemplate.cs" />
+    <Resource Include="Compiler\Medusa\LLex\Resources\StateTemplate.cs" />
+    <Compile Include="Compiler\Medusa\LLex\TokenEntry.cs" />
+    <Compile Include="Compiler\Medusa\LLex\TokenTable.cs" />
     <Compile Include="External\ArgLexer.cs" />
     <Compile Include="External\ConsolePlus\CliApplication.cs" />
     <Compile Include="External\ConsolePlus\CliArgAttribute.cs" />
@@ -97,6 +119,11 @@
     <Compile Include="Parser\AphidIdDirectiveMutator.cs" />
     <Compile Include="Parser\AphidCodeVisitor.cs" />
     <Compile Include="Parser\ScriptMutator.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="UI\AphidCli.cs" />
     <Compile Include="Compiler\AphidStringEmitter.cs" />
     <Compile Include="Compiler\AphidStringEmitter.g.cs" />
@@ -204,6 +231,7 @@
     <None Include="AphidObject.alx" />
     <None Include="App.config" />
     <None Include="AphidCustomOperators.alx" />
+    <Resource Include="Compiler\Medusa\LLex\Resources\Lang.CSharp.alx" />
     <None Include="External\Json\Json.alx" />
     <None Include="External\Json\Json.Code.alx" />
     <None Include="External\Json\Json.Tmpl.alx" />
@@ -270,10 +298,16 @@
     <None Include="TestScratch.cmd" />
     <None Include="Scratch.alx" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs
-::$(ProjectDir)..\Llex\bin\$(ConfigurationName)\llex.exe $(ProjectDir)\External\Json\json.alx $(ProjectDir)\External\Json\JsonLexer..cs</PreBuildEvent>
+::$(ProjectDir)..\Llex\bin\$(ConfigurationName)\llex.exe $(ProjectDir)\External\Json\json.alx $(ProjectDir)\External\Json\JsonLexer.cs</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

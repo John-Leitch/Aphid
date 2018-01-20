@@ -75,39 +75,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlxFile.cs" />
-    <Compile Include="BinaryExpression.cs" />
-    <Compile Include="CharExpression.cs" />
-    <Compile Include="GroupExpression.cs" />
-    <Compile Include="LexerGenerator.cs" />
-    <Compile Include="LexerState.cs" />
-    <Compile Include="LLexNameInfo.cs" />
-    <Compile Include="OperatorExpression.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="RegexCompiler.cs" />
-    <Compile Include="RegexExpression.cs" />
-    <Compile Include="RegexLexer.cs" />
-    <Compile Include="RegexNode.cs" />
-    <Compile Include="RegexParser.cs" />
-    <None Include="Resources\AddTokenTemplate.cs" />
-    <Compile Include="TokenEntry.cs" />
-    <Compile Include="TokenTable.cs" />
-    <Compile Include="LexFileMode.cs" />
-    <Compile Include="LLexFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="regex.ll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Resource Include="Resources\CaseTemplate.cs" />
-    <Resource Include="Resources\LexicalAnalyzerTemplate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="regex.ll" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -127,23 +100,13 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\StateTemplate.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\RootStateTemplate.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

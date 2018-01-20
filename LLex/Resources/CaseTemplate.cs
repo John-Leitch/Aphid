@@ -1,3 +1,0 @@
-{{Cases}}
-    {{States}}
-    {{Body}}

@@ -142,7 +142,7 @@ namespace LLex
                         }
                         else
                             body += "\r\nbreak;\r\n";
-
+                        
                         var t = Properties.Resources.CaseTemplate
                             .Replace("{{Cases}}", CreateCases(EncodeChar(x.State)))
                             .Replace("{{Body}}", body)

@@ -1632,7 +1632,7 @@ namespace Components.Aphid.Parser
     public partial class AphidParser
     {
 
-        private System.Collections.Generic.List<AphidExpression> Parse()
+        public System.Collections.Generic.List<AphidExpression> Parse()
         {
             var expressionSequence = new System.Collections.Generic.List<AphidExpression>();
             NextToken();
@@ -2062,7 +2062,7 @@ namespace Components.Aphid.Parser
             return exp;
         }
 
-        private AphidExpression ParseExpression()
+        public AphidExpression ParseExpression()
         {
             return ParseAssignmentExpression();
         }

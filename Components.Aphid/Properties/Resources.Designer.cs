@@ -39,7 +39,7 @@ namespace LLex.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LLex.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Components.Aphid.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -81,6 +81,16 @@ namespace LLex.Properties {
         internal static string CaseTemplate {
             get {
                 return ResourceManager.GetString("CaseTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Lang_CSharp {
+            get {
+                object obj = ResourceManager.GetObject("Lang_CSharp", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
