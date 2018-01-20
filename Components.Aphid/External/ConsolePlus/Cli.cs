@@ -412,6 +412,11 @@ namespace Components.External.ConsolePlus
                 value;
         }
 
+        public static string StyleEscape(object value)
+        {
+            return StyleEscape(value.ToString());
+        }
+
         public static string StyleEscape(string value)
         {
             return !string.IsNullOrEmpty(value) ? value.Replace("~", "~~") : value;

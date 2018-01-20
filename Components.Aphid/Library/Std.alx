@@ -23,8 +23,8 @@ getIdArg = @(i) _callExp(1).Args[i].Identifier;
 idString = @() getArg(0);
 
 format = String.Format;
-//_t = @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]);
-_t = @{};
+
+_t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
 using System.Linq;
 skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
@@ -38,7 +38,7 @@ print = @(fmt, arg0) {
         _null Cli.WriteLine('null', []);
     } else if ($args.Count > 1 && isCollection(fmt)) {
         _t('formatted collection');
-        args = $args |> skip;
+        args = $args |> skip -> Cli.StyleEscape;
         for (x in fmt) {
             Cli.WriteLine(_s(x), args);
         }
@@ -51,7 +51,7 @@ print = @(fmt, arg0) {
             1: {
                 if (isObject(fmt)) {
                     _t('serialized object');
-                    Cli.WriteLine(fmt |> serialize);
+                    Cli.WriteLine(fmt |> serialize |> Cli.StyleEscape);
                 } else if (isCollection(fmt)) {                    
                     _t('collection');
                     fmt->@() Cli.WriteLine(_s($_));
@@ -63,15 +63,15 @@ print = @(fmt, arg0) {
             2: {
                 if (arg0 |> isCollection) {
                     _t('formatted collection');
-                    Cli.WriteLine(_s(fmt), arg0->@()_s($_));
+                    Cli.WriteLine(_s(fmt), arg0->@()_s($_) |> Cli.StyleEscape);
                 } else {
                     _t('single format arg');
-                    Cli.WriteLine(_s(fmt), [ arg0 ]);
+                    Cli.WriteLine(_s(fmt), [ arg0  |> Cli.StyleEscape ]);
                 }
             }
             default: {
                 _t('variadic formatted');
-                args = $args |> skip;
+                args = $args |> skip -> Cli.StyleEscape;
                 Cli.WriteLine(_s(fmt), args);
             }
         }
