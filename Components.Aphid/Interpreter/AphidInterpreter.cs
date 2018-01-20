@@ -2796,13 +2796,7 @@ namespace Components.Aphid.Interpreter
 
         public void Interpret(string code, bool isTextDocument)
         {
-            var ast = AphidParser.Parse(code, isTextDocument);
-            SetAstCode(ast);
-            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
-
-            Interpret(mutatedAst);
+            Interpret(code, null, isTextDocument);
         }
 
         public void InterpretFile(string filename)
@@ -2821,7 +2815,18 @@ namespace Components.Aphid.Interpreter
 
             SetScriptFilename(fullFilename);
             var code = File.ReadAllText(filename);
-            Interpret(code, isTextDocument);
+            Interpret(code, filename, isTextDocument);
+        }
+
+        private void Interpret(string code, string filename, bool isTextDocument)
+        {
+            var ast = AphidParser.Parse(code, filename, isTextDocument);
+            SetAstCode(ast);
+            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+
+            Interpret(mutatedAst);
         }
 
         public AphidFrame[] GetStackTrace()
