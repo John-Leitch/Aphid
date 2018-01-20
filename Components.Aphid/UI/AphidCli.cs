@@ -40,9 +40,10 @@ namespace Components.Aphid.UI
 
             Cli.WriteLine(
                 "Faulting statement: ~Yellow~{0}~R~",
-                statement.Code != null ? 
-                    statement.Code.Substring(statement.Index, statement.Length) :
-                    statement.ToString());
+                Cli.StyleEscape(
+                    statement.Code != null ? 
+                        statement.Code.Substring(statement.Index, statement.Length) :
+                        statement.ToString()));
 
             var file = interpreter.GetScriptFilename();
 

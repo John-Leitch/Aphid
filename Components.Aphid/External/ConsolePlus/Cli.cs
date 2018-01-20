@@ -409,7 +409,12 @@ namespace Components.External.ConsolePlus
                     .Replace("{", "{{")
                     .Replace("}", "}}")
                     .Replace("~", "~~") : 
-                null;
+                value;
+        }
+
+        public static string StyleEscape(string value)
+        {
+            return !string.IsNullOrEmpty(value) ? value.Replace("~", "~~") : value;
         }
 
         public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)
