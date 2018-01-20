@@ -58,7 +58,8 @@ namespace AphidPerformanceTest
                 interpreter.Interpret(test.Prologue);
             }
 
-            var ast = new AphidParser(new AphidLexer(test.Body).GetTokens()).Parse();
+
+            var ast = AphidParser.Parse(test.Body);
 
             for (int i = 0; i < iterations; i++)
             {
