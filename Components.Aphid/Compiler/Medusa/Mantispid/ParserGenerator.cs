@@ -1,4 +1,4 @@
-﻿using AphidCodeGenerator;
+﻿using Components.Aphid.Compiler;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;

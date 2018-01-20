@@ -56,6 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compiler\AphidObjectGenerator.cs" />
+    <Compile Include="Compiler\CodeExpressionExtension.cs" />
+    <Compile Include="Compiler\CodeHelper.cs" />
+    <Compile Include="Compiler\CodeMemberMethodExtension.cs" />
+    <Compile Include="Compiler\CodeMethodReferenceExpressionExtension.cs" />
+    <Compile Include="Compiler\CSharpHelper.cs" />
+    <Compile Include="Compiler\IAphidCodeObject.cs" />
     <Compile Include="Compiler\Medusa\LLex\AlxFile.cs" />
     <Compile Include="Compiler\Medusa\LLex\BinaryExpression.cs" />
     <Compile Include="Compiler\Medusa\LLex\CharExpression.cs" />
@@ -78,6 +85,24 @@
     <Resource Include="Compiler\Medusa\LLex\Resources\StateTemplate.cs" />
     <Compile Include="Compiler\Medusa\LLex\TokenEntry.cs" />
     <Compile Include="Compiler\Medusa\LLex\TokenTable.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\CallIdentifierMutator.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\DeclarativeStatementAttributes.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\DeclarativeStatementMutator.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\EnumBuilder.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\IndexTrackingMutator.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ParserCode.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ParserGenerator.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ParserGeneratorConfig.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ParserIdentifier.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\PlusEqualMutator.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ReferenceType.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\RuleStruct.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\RuleStructResolver.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\RuleTypeBuilder.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\RuleTypeTable.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\SymbolScope.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\SymbolTable.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\TypeInferenceMutator.cs" />
     <Compile Include="External\ArgLexer.cs" />
     <Compile Include="External\ConsolePlus\CliApplication.cs" />
     <Compile Include="External\ConsolePlus\CliArgAttribute.cs" />

@@ -45,13 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AphidObjectGenerator.cs" />
-    <Compile Include="CodeExpressionExtension.cs" />
-    <Compile Include="CodeHelper.cs" />
-    <Compile Include="CodeMemberMethodExtension.cs" />
-    <Compile Include="CodeMethodReferenceExpressionExtension.cs" />
-    <Compile Include="CSharpHelper.cs" />
-    <Compile Include="IAphidCodeObject.cs" />
     <Compile Include="IEnumerableExtension.cs" />
     <Compile Include="LexerHelper.cs" />
     <Compile Include="PathHelper.cs" />

@@ -146,10 +146,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AphidCodeGenerator\AphidCodeGenerator.csproj">
-      <Project>{637f363d-3006-47de-9a4d-bde2a8bd3a6c}</Project>
-      <Name>AphidCodeGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>

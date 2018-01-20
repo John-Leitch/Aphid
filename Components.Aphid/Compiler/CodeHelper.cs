@@ -3,7 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AphidCodeGenerator
+namespace Components.Aphid.Compiler
 {
     public static class CodeHelper
     {

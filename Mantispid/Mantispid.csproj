@@ -45,26 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CallIdentifierMutator.cs" />
-    <Compile Include="DeclarativeStatementAttributes.cs" />
-    <Compile Include="DeclarativeStatementMutator.cs" />
-    <Compile Include="EnumBuilder.cs" />
-    <Compile Include="IndexTrackingMutator.cs" />
-    <Compile Include="ParserCode.cs" />
-    <Compile Include="ParserGenerator.cs" />
-    <Compile Include="ParserGeneratorConfig.cs" />
-    <Compile Include="ParserIdentifier.cs" />
-    <Compile Include="PlusEqualMutator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReferenceType.cs" />
-    <Compile Include="RuleStruct.cs" />
-    <Compile Include="RuleStructResolver.cs" />
-    <Compile Include="RuleTypeBuilder.cs" />
-    <Compile Include="RuleTypeTable.cs" />
-    <Compile Include="SymbolScope.cs" />
-    <Compile Include="SymbolTable.cs" />
-    <Compile Include="TypeInferenceMutator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
