@@ -1,108 +1,123 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-#'Threading';
+﻿remote = null;
 
-extend TcpClient {
-    isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
-}
+@{
+    using System;
+    using System.IO;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    #'Threading';
 
-utf8 = new UTF8Encoding();
+    extend TcpClient {
+        isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
+    }
 
-_client = macro(@(client){
-    {
-        socket: client,
-        stream: client.GetStream(),
+    utf8 = new UTF8Encoding();
+
+    createClient = @(tcp) ({
+        socket: tcp,
+        stream: tcp.GetStream(),
         
         
         read: @{
-            reader = new BinaryReader(client.GetStream());
+            reader = new BinaryReader(tcp.GetStream());
             len = reader.ReadUInt32();
-            print('{0} bytes received', len);
-            buf = len |> Convert.ToInt32 |> reader.ReadBytes |> utf8.GetString;
-            ret new AphidObject(buf);
+            print('Receiving {0:n0} bytes', len);
+            buf = len |> Convert.ToInt32 |> reader.ReadBytes;
+            print('{0:n0} bytes read', buf.Length);
+
+            ret new AphidObject(buf |> utf8.GetString);
         },
 
         write: @(b) {
-            writer = new BinaryWriter(client.GetStream());
-            b.Length |> Convert.ToUInt32 |> writer.Write;
-            b |> utf8.GetBytes |> writer.Write;
+            buf;
+            buf = b |> utf8.GetBytes;
+            writer = new BinaryWriter(tcp.GetStream());
+            buf.Length |> Convert.ToUInt32 |> writer.Write;
+            buf |> writer.Write;
         },
-    }
-});
+    });
 
-_isAlive = macro(@(client) { client.Connected });
+    _isAlive = macro(@(client) { client.Connected });
 
-remote = {
-    port: 0x5230,
+    remote = {
+        port: 0x5230,
 
-    listen: @{
-        print('Creating listener on port {0}', remote.port);
+        listen: @{
+            ctx;
+            print('Creating listener on port {0}', remote.port);
+            ctx = { listener: new TcpListener(remote.port), clients: [] };
+            print('Starting listener');
+            l = ctx.listener;
+            ctx.listener.Start();
 
-        ctx = {
-            listener: new TcpListener(remote.port),
-            clients: [],
-        };
-        
-        print('Starting listener');
-        l = ctx.listener;
-        l.Start();
+            ctx.listenThread = thread(@{
+                while (true) {
+                    print('Waiting for client');
 
-        ctx.listenThread = thread(@{
-            while (true) {
-                print('Waiting for client');
+                    try {
+                        tcp;
+                        c;
 
-                try {
-                    c = l.AcceptTcpClient();
-                    print('Client connected');
-                    n = _client(c);
+                        tcp = ctx.listener.AcceptTcpClient();
+                        print('Client connected');
+                        c = createClient(tcp);
 
-                    n.thread = thread(@{
-                        print('Creating client thread');
+                        c.thread = thread(@{
+                            buffer;
+                            print('Creating client thread');
 
-                        // while (n.socket.isConnected()) {
-                        while (n.socket.Connected) {
+                            // while (n.socket.isConnected()) {
                             try {
-                                buffer = n.read();
-                                print('Buffer: {0}', buffer);
-                                { result: buffer |> eval } |> serialize |> n.write;
+                                while (c.socket.Connected) {
+                                    try {
+                                        buffer = c.read();
+                                        print('Buffer: ~Cyan~{0}~R~', buffer);
+                                        { result: buffer |> c.eval } |> serialize |> c.write;
+                                    } catch (e) {
+                                        print('Error handling client exchange: {0}', e.message);
+                                    }
+                                }
                             } catch (e) {
-                                print('Error handling client exchange: {0}', e.message);
+                                print('Client connection error: {0}', e.message);
                             }
-                        }
 
-                        print('Client disconnected');
-                    });
+                            print('Client disconnected');
+                        });
 
-                    ctx.clients.add(n);
-                } catch (e) {
-                    print('Error accepting client: {0}', e.message);
-                }
-            }            
-        });
+                        ctx.clients.add(c);
+                    } catch (e) {
+                        print('Error accepting client: {0}', e.message);
+                    }
+                }            
+            });
 
-        ret ctx;
-    },
+            ret ctx;
+        },
 
-    connect: @(server){
-        print('Connecting to remote session {0}', server);
-        c = new TcpClient();
-        c.Connect(server, 0x5230);        
-        client = _client(c);
+        connect: @(server){
+            tcp;
+            client;
 
-        client.eval = @(exp) {
-            print('Writing command: {0}', exp.Replace('~', '~~'));
-            client.write(exp);
-            print('Reading command');
-            buf = client.read();
-            print('Server response: {0}', buf.Replace('~', '~~'));
-            ret buf |> deserialize;
-        };
+            print('Connecting to remote session {0}', server);
+            tcp = new TcpClient();
+            tcp.Connect(server, 0x5230);        
+            client = createClient(tcp);
+            client |> keys |> print;
 
-        print('Connected to remote session');
+            client.eval = @(exp) {
+                print('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
+                //this |> keys |> dump;
+                write(exp);
+                print('Reading command');
+                buf = read();
+                print('Server response: {0}', buf.Replace('~', '~~'));
+                ret buf |> deserialize;
+            };
 
-        ret client;
-    },
-};
+            print('Connected to remote session');
+
+            ret client;
+        },
+    };
+}();
