@@ -85,8 +85,7 @@ print = @(fmt, arg0) {
                     arg0->@() _styleEscaped($_) @Cli.WriteLine(_f(fmt));
                 } else {
                     _t('single format arg');
-                    a = _styleEscaped(arg0);
-                    a |> print;
+                    a = _styleEscaped(arg0);                    
                     Cli.WriteLine(fmt, a);
                 }
             }
