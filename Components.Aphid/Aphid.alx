@@ -10,6 +10,19 @@ Lexer({
         #'Aphid.Tmpl';
         #'Aphid.Code';
         #'Aphid.Tokens';
+        using Components.Aphid.Parser;
+
+        using Components.Aphid.UI;
+        //r = new AphidRepl();
+        //r.Interpreter = this.{'$aphid'};
+        //r.Run();
+        //mutator = new ScriptMutator(@{
+            //
+        //});
+        //this |> dump;
+        //getFrame(1) |> print;
+        //exit(0);
+        //Console.ReadLine();
     },
     name: "Components.Aphid.Lexer.Aphid",
     modes: [ 

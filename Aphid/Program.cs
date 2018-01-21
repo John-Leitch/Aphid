@@ -64,6 +64,11 @@ namespace Aphid
             {
                 interpreter.Interpret(code, isTextDocument);
             }
+
+            if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))
+            {
+                new AphidRepl { Interpreter = interpreter }.Run();
+            }
         }
 
         static void RunRepl()

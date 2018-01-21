@@ -100,7 +100,11 @@ namespace Components.Aphid.Interpreter
         {
             Out = Console.Out;
             AsmBuilder = new AphidAssemblyBuilder(this);
-            InteropMethodResolver = new InteropMethodResolver(this);
+            
+            InteropMethodResolver = new InteropMethodResolver(
+                this,
+                InterpretMemberInteropExpression);
+
             OperatorHelper = new OperatorHelper(this);
             ValueHelper = new ValueHelper(this);
             TypeExtender = new TypeExtender(this);
@@ -446,101 +450,18 @@ namespace Components.Aphid.Interpreter
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
+            
+            var interopMethod = InteropMethodResolver.TryResolveMember(
+                expression,
+                obj,
+                returnRef);
+
+            if (interopMethod != null)
+            {
+                return interopMethod;
+            }
+            
             string key;
-
-            AphidInteropReference staticRef = null;
-
-            if (obj == null)
-            {
-                Func<AphidObject> dynamicHandler = null;
-
-                if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
-                {
-                    var staticType = InteropTypeResolver.TryResolveType(
-                        GetImports(),
-                        FlattenPath(expression.LeftOperand),
-                        isType: true);
-
-                    key = expression.RightOperand.ToIdentifier().Identifier;
-                    var extension = TypeExtender.TryResolve(
-                        CurrentScope,
-                        staticType,
-                        key,
-                        isAphidType: false,
-                        isCtor: false,
-                        isDynamic: false,
-                        returnRef: returnRef);
-
-                    if (extension != null)
-                    {
-                        return extension;
-                    }
-
-                    dynamicHandler = () => TypeExtender.TryResolve(
-                        CurrentScope,
-                        staticType,
-                        key,
-                        isAphidType: false,
-                        isCtor: false,
-                        isDynamic: true,
-                        returnRef: returnRef);
-                }
-
-                var staticObj = InterpretMemberInteropExpression(
-                    null,
-                    expression,
-                    returnRef,
-                    dynamicHandler);
-
-                staticRef = staticObj.Value as AphidInteropReference;
-
-                if (staticRef != null && staticRef.Property != null)
-                {
-                    return staticRef;
-                }
-                else if (staticObj != null)
-                {
-                    return staticObj;
-                }
-            }
-
-            if (obj != null && !obj.IsAphidType())
-            {
-                Func<AphidObject> dynamicHandler = null;
-
-                if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
-                {
-                    key = expression.RightOperand.ToIdentifier().Identifier;
-                    var extension = TypeExtender.TryResolve(
-                        CurrentScope,
-                        obj,
-                        key,
-                        isAphidType: false,
-                        isCtor: false,
-                        isDynamic: false,                        
-                        returnRef: returnRef);
-
-                    if (extension != null)
-                    {
-                        return extension;
-                    }
-
-                    dynamicHandler = () => TypeExtender.TryResolve(
-                        CurrentScope,
-                        obj,
-                        key,
-                        isAphidType: false,
-                        isCtor: false,
-                        isDynamic: true,
-                        returnRef: returnRef);
-                }
-
-                return InterpretMemberInteropExpression(
-                    obj.Value,
-                    expression,
-                    returnRef,
-                    dynamicHandler);
-            }
 
             if (expression.RightOperand is IdentifierExpression)
             {
@@ -560,7 +481,7 @@ namespace Components.Aphid.Interpreter
                 throw CreateRuntimeException("Unexpected expression {0}", expression.RightOperand);
             }
 
-            if (returnRef && staticRef == null)
+            if (returnRef)
             {
                 return new AphidRef() { Name = key, Object = obj };
             }
@@ -1601,7 +1522,7 @@ namespace Components.Aphid.Interpreter
             return string.Join(".", FlattenPath(exp));
         }
 
-        private string[] FlattenPath(AphidExpression exp)
+        public string[] FlattenPath(AphidExpression exp)
         {
             var pathExps = Flatten(exp);
 

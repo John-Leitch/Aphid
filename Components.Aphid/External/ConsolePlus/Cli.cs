@@ -41,28 +41,33 @@ namespace Components.External.ConsolePlus
 
                 if (value)
                 {
-                    _write = x => Trace.Write(x);
-                    _writeLine = x => Trace.WriteLine(x);
+                    WriteHandler = x => Trace.Write(x);
+                    WriteLineHandler = x => Trace.WriteLine(x);
                 }
                 else
                 {
-                    _write = Console.Write;
-                    _writeLine = Console.WriteLine;
+                    WriteHandler = Console.Write;
+                    WriteLineHandler = Console.WriteLine;
                 }
             }
         }
 
-        private static Action<string> _write = Console.Write;
+        public static Action<string> WriteHandler { get; set; }
 
-        private static Action<string> _writeLine = Console.WriteLine;
+        public static Action<string> WriteLineHandler { get; set; }
 
         static Cli()
         {
             if (!Environment.UserInteractive)
             {
-                _write = x => { };
-                _writeLine = x => { };
+                WriteHandler = x => { };
+                WriteLineHandler = x => { };
                 return;
+            }
+            else
+            {
+                WriteHandler = Console.Write;
+                WriteLineHandler = Console.WriteLine;
             }
 
             try
@@ -118,7 +123,7 @@ namespace Components.External.ConsolePlus
         [DebuggerStepThrough]
         public static void WriteLine()
         {
-            _writeLine("");
+            WriteLineHandler("");
         }        
 
         public static void DumpTable(IEnumerable<KeyValuePair<string, string>> nameValuePairs)
@@ -323,7 +328,7 @@ namespace Components.External.ConsolePlus
 
                             if (buffer.Length != 0)
                             {
-                                _write(buffer.ToString());
+                                WriteHandler(buffer.ToString());
 
 #if NET35
                                 buffer = new StringBuilder();
@@ -393,11 +398,11 @@ namespace Components.External.ConsolePlus
 
                 if (newLine)
                 {
-                    _writeLine(buffer.ToString());
+                    WriteLineHandler(buffer.ToString());
                 }
                 else
                 {
-                    _write(buffer.ToString());
+                    WriteHandler(buffer.ToString());
                 }
             }
         }

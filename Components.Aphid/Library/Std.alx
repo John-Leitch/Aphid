@@ -36,9 +36,21 @@ print = @(fmt, arg0) {
     _n = macro(@(x1, f1) { _no(x1, f1(x1)) });
     _na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
     _oc = macro(@(x3, r) { _no(x3, isObject(x3) ? r : x3.ToString()) });
-    _o = macro(@(x4) { _oc($_, $_ |> Cli.StyleEscape) });
-    _f = macro(@(x5) { _oc($_, $_ |> serialize |> Cli.Escape) });
-    _s = macro(@(x6) { _oc($_, $_ |> serialize |> Cli.StyleEscape) });
+    
+    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() |> Cli.Escape });
+    
+    
+    _f = macro(@(x5) { 
+        x5 == null ? 'null' :
+        isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
+        x5.ToString()
+    });
+    
+    _styleEscaped = macro(@(x6) {
+        x6 == null ? 'null' :
+        isObject(x6) ? (x6 |> serialize |> Cli.StyleEscape) :
+        x6.ToString()
+    });
 
     if ($args.Count >= 1 && fmt == null) {
         _t('null format');
@@ -47,7 +59,7 @@ print = @(fmt, arg0) {
         _t('format collection');
         args = $args |> skip -> @() _na($_);
         for (x in fmt) {
-            Cli.WriteLine(_s(x), args);
+            Cli.WriteLine(_styleEscaped(x), args);
         }
     } else {
         switch ($args.Count) {
@@ -61,19 +73,21 @@ print = @(fmt, arg0) {
                     Cli.WriteLine(fmt |> serialize |> Cli.StyleEscape);
                 } else if (isCollection(fmt)) {                    
                     _t('collection');
-                    fmt->@(x) _s(x) |> Cli.WriteLine;
+                    fmt->@(x) _styleEscaped(x) |> Cli.WriteLine;
                 } else {
                     _t('scalar');
-                    _o(fmt) |> Cli.WriteLine;
+                    _scalarFormat(fmt) |> Cli.WriteLine;
                 }
             }
             2: {
                 if (arg0 != null && (arg0 |> isCollection)) {
                     _t('arg collection');
-                    arg0->@() _s($_) |> Cli.StyleEscape @Cli.WriteLine(_f(fmt));
+                    arg0->@() _styleEscaped($_) @Cli.WriteLine(_f(fmt));
                 } else {
                     _t('single format arg');
-                    Cli.WriteLine(_f(fmt), _s(arg0));
+                    a = _styleEscaped(arg0);
+                    a |> print;
+                    Cli.WriteLine(fmt, a);
                 }
             }
             default: {

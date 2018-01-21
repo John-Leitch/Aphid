@@ -4272,10 +4272,36 @@ namespace Components.Aphid.Lexer
         CustomOperator175,
         CustomOperator176,
         CustomOperator177,
+        CustomOperator178,
+        CustomOperator179,
         CustomOperator18,
+        CustomOperator180,
+        CustomOperator181,
+        CustomOperator182,
+        CustomOperator183,
+        CustomOperator184,
+        CustomOperator185,
+        CustomOperator186,
+        CustomOperator187,
+        CustomOperator188,
+        CustomOperator189,
         CustomOperator19,
+        CustomOperator190,
+        CustomOperator191,
+        CustomOperator192,
+        CustomOperator193,
+        CustomOperator194,
+        CustomOperator195,
+        CustomOperator196,
+        CustomOperator197,
+        CustomOperator198,
+        CustomOperator199,
         CustomOperator2,
         CustomOperator20,
+        CustomOperator200,
+        CustomOperator201,
+        CustomOperator202,
+        CustomOperator203,
         CustomOperator21,
         CustomOperator22,
         CustomOperator23,
@@ -4569,47 +4595,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator28;
+                                        return AphidTokenType.CustomOperator30;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator29;
+                                        return AphidTokenType.CustomOperator31;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator30;
+                                        return AphidTokenType.CustomOperator32;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator31;
+                                        return AphidTokenType.CustomOperator33;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator32;
+                                        return AphidTokenType.CustomOperator34;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator33;
+                                        return AphidTokenType.CustomOperator35;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator34;
+                                        return AphidTokenType.CustomOperator36;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator35;
+                                        return AphidTokenType.CustomOperator37;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator36;
+                                        return AphidTokenType.CustomOperator38;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator39;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator37;
+                                        return AphidTokenType.CustomOperator40;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator38;
+                                        return AphidTokenType.CustomOperator41;
 
                                 }
 
@@ -4647,59 +4677,63 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator103;
+                                        return AphidTokenType.CustomOperator111;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator104;
+                                        return AphidTokenType.CustomOperator112;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator105;
+                                        return AphidTokenType.CustomOperator113;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator106;
+                                        return AphidTokenType.CustomOperator114;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator107;
+                                        return AphidTokenType.CustomOperator115;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator108;
+                                        return AphidTokenType.CustomOperator116;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator109;
+                                        return AphidTokenType.CustomOperator117;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator110;
+                                        return AphidTokenType.CustomOperator118;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator111;
+                                        return AphidTokenType.CustomOperator119;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator112;
+                                        return AphidTokenType.CustomOperator120;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator113;
+                                        return AphidTokenType.CustomOperator121;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator114;
+                                        return AphidTokenType.CustomOperator122;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator123;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator115;
+                                        return AphidTokenType.CustomOperator124;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator116;
+                                        return AphidTokenType.CustomOperator125;
 
                                 }
 
@@ -4733,59 +4767,63 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator164;
+                                        return AphidTokenType.CustomOperator189;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator165;
+                                        return AphidTokenType.CustomOperator190;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator166;
+                                        return AphidTokenType.CustomOperator191;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator167;
+                                        return AphidTokenType.CustomOperator192;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator168;
+                                        return AphidTokenType.CustomOperator193;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator169;
+                                        return AphidTokenType.CustomOperator194;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator170;
+                                        return AphidTokenType.CustomOperator195;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator171;
+                                        return AphidTokenType.CustomOperator196;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator172;
+                                        return AphidTokenType.CustomOperator197;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator173;
+                                        return AphidTokenType.CustomOperator198;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator174;
+                                        return AphidTokenType.CustomOperator199;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator175;
+                                        return AphidTokenType.CustomOperator200;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator201;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator176;
+                                        return AphidTokenType.CustomOperator202;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator177;
+                                        return AphidTokenType.CustomOperator203;
 
                                 }
 
@@ -4806,55 +4844,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator140;
+                                        return AphidTokenType.CustomOperator151;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator141;
+                                        return AphidTokenType.CustomOperator152;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator142;
+                                        return AphidTokenType.CustomOperator153;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator143;
+                                        return AphidTokenType.CustomOperator154;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator144;
+                                        return AphidTokenType.CustomOperator155;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator145;
+                                        return AphidTokenType.CustomOperator156;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator146;
+                                        return AphidTokenType.CustomOperator157;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator147;
+                                        return AphidTokenType.CustomOperator158;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator148;
+                                        return AphidTokenType.CustomOperator159;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator149;
+                                        return AphidTokenType.CustomOperator160;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator150;
+                                        return AphidTokenType.CustomOperator161;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator162;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator151;
+                                        return AphidTokenType.CustomOperator163;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator152;
+                                        return AphidTokenType.CustomOperator164;
 
                                 }
 
@@ -4903,51 +4945,55 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator65;
+                                        return AphidTokenType.CustomOperator70;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator66;
+                                        return AphidTokenType.CustomOperator71;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator67;
+                                        return AphidTokenType.CustomOperator72;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator68;
+                                        return AphidTokenType.CustomOperator73;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator69;
+                                        return AphidTokenType.CustomOperator74;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator70;
+                                        return AphidTokenType.CustomOperator75;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator71;
+                                        return AphidTokenType.CustomOperator76;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator72;
+                                        return AphidTokenType.CustomOperator77;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator73;
+                                        return AphidTokenType.CustomOperator78;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator74;
+                                        return AphidTokenType.CustomOperator79;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator75;
+                                        return AphidTokenType.CustomOperator80;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator81;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator76;
+                                        return AphidTokenType.CustomOperator82;
 
                                 }
 
@@ -5009,47 +5055,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator92;
+                                        return AphidTokenType.CustomOperator99;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator93;
+                                        return AphidTokenType.CustomOperator100;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator94;
+                                        return AphidTokenType.CustomOperator101;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator95;
+                                        return AphidTokenType.CustomOperator102;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator96;
+                                        return AphidTokenType.CustomOperator103;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator97;
+                                        return AphidTokenType.CustomOperator104;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator98;
+                                        return AphidTokenType.CustomOperator105;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator99;
+                                        return AphidTokenType.CustomOperator106;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator100;
+                                        return AphidTokenType.CustomOperator107;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator108;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator101;
+                                        return AphidTokenType.CustomOperator109;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator102;
+                                        return AphidTokenType.CustomOperator110;
 
                                 }
 
@@ -5070,55 +5120,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator52;
+                                        return AphidTokenType.CustomOperator56;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator53;
+                                        return AphidTokenType.CustomOperator57;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator54;
+                                        return AphidTokenType.CustomOperator58;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator55;
+                                        return AphidTokenType.CustomOperator59;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator56;
+                                        return AphidTokenType.CustomOperator60;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator57;
+                                        return AphidTokenType.CustomOperator61;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator58;
+                                        return AphidTokenType.CustomOperator62;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator59;
+                                        return AphidTokenType.CustomOperator63;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator60;
+                                        return AphidTokenType.CustomOperator64;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator61;
+                                        return AphidTokenType.CustomOperator65;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator62;
+                                        return AphidTokenType.CustomOperator66;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator67;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator63;
+                                        return AphidTokenType.CustomOperator68;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator64;
+                                        return AphidTokenType.CustomOperator69;
 
                                 }
 
@@ -5180,47 +5234,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator153;
+                                        return AphidTokenType.CustomOperator177;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator154;
+                                        return AphidTokenType.CustomOperator178;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator155;
+                                        return AphidTokenType.CustomOperator179;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator156;
+                                        return AphidTokenType.CustomOperator180;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator157;
+                                        return AphidTokenType.CustomOperator181;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator158;
+                                        return AphidTokenType.CustomOperator182;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator159;
+                                        return AphidTokenType.CustomOperator183;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator160;
+                                        return AphidTokenType.CustomOperator184;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator161;
+                                        return AphidTokenType.CustomOperator185;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator162;
+                                        return AphidTokenType.CustomOperator186;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator187;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator163;
+                                        return AphidTokenType.CustomOperator188;
 
                                 }
 
@@ -5268,6 +5326,54 @@ namespace Components.Aphid.Lexer
 
                                         return AphidTokenType.PipelineOperator;
 
+                                    case '`':
+
+                                        return AphidTokenType.CustomOperator165;
+
+                                    case '~':
+
+                                        return AphidTokenType.CustomOperator166;
+
+                                    case '%':
+
+                                        return AphidTokenType.CustomOperator167;
+
+                                    case '^':
+
+                                        return AphidTokenType.CustomOperator168;
+
+                                    case '*':
+
+                                        return AphidTokenType.CustomOperator169;
+
+                                    case '\\':
+
+                                        return AphidTokenType.CustomOperator170;
+
+                                    case '+':
+
+                                        return AphidTokenType.CustomOperator171;
+
+                                    case ':':
+
+                                        return AphidTokenType.CustomOperator172;
+
+                                    case '<':
+
+                                        return AphidTokenType.CustomOperator173;
+
+                                    case '.':
+
+                                        return AphidTokenType.CustomOperator174;
+
+                                    case '/':
+
+                                        return AphidTokenType.CustomOperator175;
+
+                                    case '?':
+
+                                        return AphidTokenType.CustomOperator176;
+
                                 }
 
                                 charIndex--;
@@ -5287,55 +5393,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator39;
+                                        return AphidTokenType.CustomOperator42;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator40;
+                                        return AphidTokenType.CustomOperator43;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator41;
+                                        return AphidTokenType.CustomOperator44;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator42;
+                                        return AphidTokenType.CustomOperator45;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator43;
+                                        return AphidTokenType.CustomOperator46;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator44;
+                                        return AphidTokenType.CustomOperator47;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator45;
+                                        return AphidTokenType.CustomOperator48;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator46;
+                                        return AphidTokenType.CustomOperator49;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator47;
+                                        return AphidTokenType.CustomOperator50;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator48;
+                                        return AphidTokenType.CustomOperator51;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator49;
+                                        return AphidTokenType.CustomOperator52;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator53;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator50;
+                                        return AphidTokenType.CustomOperator54;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator51;
+                                        return AphidTokenType.CustomOperator55;
 
                                 }
 
@@ -5377,47 +5487,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator117;
+                                        return AphidTokenType.CustomOperator126;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator118;
+                                        return AphidTokenType.CustomOperator127;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator119;
+                                        return AphidTokenType.CustomOperator128;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator120;
+                                        return AphidTokenType.CustomOperator129;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator121;
+                                        return AphidTokenType.CustomOperator130;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator122;
+                                        return AphidTokenType.CustomOperator131;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator123;
+                                        return AphidTokenType.CustomOperator132;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator124;
+                                        return AphidTokenType.CustomOperator133;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator125;
+                                        return AphidTokenType.CustomOperator134;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator135;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator126;
+                                        return AphidTokenType.CustomOperator136;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator127;
+                                        return AphidTokenType.CustomOperator137;
 
                                 }
 
@@ -5455,51 +5569,55 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator128;
+                                        return AphidTokenType.CustomOperator138;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator129;
+                                        return AphidTokenType.CustomOperator139;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator130;
+                                        return AphidTokenType.CustomOperator140;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator131;
+                                        return AphidTokenType.CustomOperator141;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator132;
+                                        return AphidTokenType.CustomOperator142;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator133;
+                                        return AphidTokenType.CustomOperator143;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator134;
+                                        return AphidTokenType.CustomOperator144;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator135;
+                                        return AphidTokenType.CustomOperator145;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator136;
+                                        return AphidTokenType.CustomOperator146;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator137;
+                                        return AphidTokenType.CustomOperator147;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator148;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator138;
+                                        return AphidTokenType.CustomOperator149;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator139;
+                                        return AphidTokenType.CustomOperator150;
 
                                 }
 
@@ -5520,55 +5638,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator15;
+                                        return AphidTokenType.CustomOperator16;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator16;
+                                        return AphidTokenType.CustomOperator17;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator17;
+                                        return AphidTokenType.CustomOperator18;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator18;
+                                        return AphidTokenType.CustomOperator19;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator19;
+                                        return AphidTokenType.CustomOperator20;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator20;
+                                        return AphidTokenType.CustomOperator21;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator21;
+                                        return AphidTokenType.CustomOperator22;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator22;
+                                        return AphidTokenType.CustomOperator23;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator23;
+                                        return AphidTokenType.CustomOperator24;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator24;
+                                        return AphidTokenType.CustomOperator25;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator25;
+                                        return AphidTokenType.CustomOperator26;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator27;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator26;
+                                        return AphidTokenType.CustomOperator28;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator27;
+                                        return AphidTokenType.CustomOperator29;
 
                                 }
 
@@ -5916,19 +6038,23 @@ namespace Components.Aphid.Lexer
 
                                         return AphidTokenType.CustomOperator11;
 
-                                    case '/':
+                                    case '|':
 
                                         return AphidTokenType.CustomOperator12;
 
-                                    case '?':
+                                    case '/':
 
                                         return AphidTokenType.CustomOperator13;
+
+                                    case '?':
+
+                                        return AphidTokenType.CustomOperator14;
 
                                 }
 
                                 charIndex--;
                             }
-                            return AphidTokenType.CustomOperator14;
+                            return AphidTokenType.CustomOperator15;
 
                         case '\\':
                             if (charIndex < lastIndex)
@@ -5939,65 +6065,69 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator77;
+                                        return AphidTokenType.CustomOperator83;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator78;
+                                        return AphidTokenType.CustomOperator84;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator79;
+                                        return AphidTokenType.CustomOperator85;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator80;
+                                        return AphidTokenType.CustomOperator86;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator81;
+                                        return AphidTokenType.CustomOperator87;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator82;
+                                        return AphidTokenType.CustomOperator88;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator83;
+                                        return AphidTokenType.CustomOperator89;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator84;
+                                        return AphidTokenType.CustomOperator90;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator85;
+                                        return AphidTokenType.CustomOperator91;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator86;
+                                        return AphidTokenType.CustomOperator92;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator87;
+                                        return AphidTokenType.CustomOperator93;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator88;
+                                        return AphidTokenType.CustomOperator94;
+
+                                    case '|':
+
+                                        return AphidTokenType.CustomOperator95;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator89;
+                                        return AphidTokenType.CustomOperator96;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator90;
+                                        return AphidTokenType.CustomOperator97;
 
                                 }
 
                                 charIndex--;
                             }
-                            return AphidTokenType.CustomOperator91;
+                            return AphidTokenType.CustomOperator98;
 
                         case 't':
                             if (charIndex < lastIndex)

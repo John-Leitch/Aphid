@@ -176,24 +176,6 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        //public AphidObject TryResolve(
-        //    AphidObject scope,
-        //    AphidObject obj,
-        //    string key)
-        //{
-        //    return TryResolve(scope, obj, key, true, false);
-        //}
-
-        //public AphidObject TryResolve(
-        //    AphidObject scope,
-        //    AphidObject obj,
-        //    string key,
-        //    bool isAphidType)
-        //{
-        //    return TryResolve(scope, obj, key, isAphidType, false);
-        //}
-
-
         public AphidObject TryResolve(
             AphidObject scope,
             AphidObject obj,

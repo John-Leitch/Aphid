@@ -99,7 +99,7 @@ Console.WriteLine('Adding custom operators');
 tokenChars = [ 
     '`', '~', /*'!',*/ /*'@',*/ /*'#',*/ /*'$',*/ '%', '^',
     /*'&',*/ '*', /*'-',*/ /*'_',*/ '=', '\\\\', '+', ':',
-    '<', '>', '.', '/', '?'
+    '<', '>', '.', '|', '/', '?'
 ];
 
 using System.Text.RegularExpressions;
@@ -135,5 +135,7 @@ for (x in tokenChars) {
 
     addToken(x |> regexEscape);
 }
+
+//Console.ReadLine();
 
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Components.Aphid.Parser;
+using Components.Aphid.Parser.Fluent;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,9 +11,138 @@ namespace Components.Aphid.Interpreter
 {
     public class InteropMethodResolver : AphidInterpreterComponent
     {
-        public InteropMethodResolver(AphidInterpreter interpreter)
+        Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject>
+            InterpretMemberInteropExpression { get; set; }
+
+        public InteropMethodResolver(
+            AphidInterpreter interpreter,
+            Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject> interpretMemberInteropExpression)
             : base(interpreter)
         {
+            InterpretMemberInteropExpression = interpretMemberInteropExpression;
+        }
+
+        public object TryResolveMember(BinaryOperatorExpression expression, AphidObject obj, bool returnRef)
+        {
+            if (obj == null)
+            {
+                var interopMethod = TryResolveStaticMember(
+                    expression,
+                    returnRef);
+
+                if (interopMethod != null)
+                {
+                    return interopMethod;
+                }
+            }
+
+            if (obj != null && !obj.IsAphidType())
+            {
+                return TryResolveInstanceMember(
+                    expression,
+                    obj,
+                    returnRef);
+            }
+
+            return null;
+        }
+
+        public object TryResolveStaticMember(BinaryOperatorExpression expression, bool returnRef)
+        {
+            Func<AphidObject> dynamicHandler = null;
+
+            if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
+            {
+                var key = expression.RightOperand.ToIdentifier().Identifier;
+
+                var staticType = Interpreter.InteropTypeResolver.TryResolveType(
+                    Interpreter.GetImports(),
+                    Interpreter.FlattenPath(expression.LeftOperand),
+                    isType: true);                
+
+                var extension = Interpreter.TypeExtender.TryResolve(
+                    Interpreter.CurrentScope,
+                    staticType,
+                    key,
+                    isAphidType: false,
+                    isCtor: false,
+                    isDynamic: false,
+                    returnRef: returnRef);
+
+                if (extension != null)
+                {
+                    return extension;
+                }
+
+                dynamicHandler = () => Interpreter.TypeExtender.TryResolve(
+                    Interpreter.CurrentScope,
+                    staticType,
+                    key,
+                    isAphidType: false,
+                    isCtor: false,
+                    isDynamic: true,
+                    returnRef: returnRef);
+            }
+
+            var staticObj = InterpretMemberInteropExpression(
+                null,
+                expression,
+                returnRef,
+                dynamicHandler);
+
+            var staticRef = staticObj.Value as AphidInteropReference;
+
+            if (staticRef != null && staticRef.Property != null)
+            {
+                return staticRef;
+            }
+            else if (staticObj != null)
+            {
+                return staticObj;
+            }
+
+            return null;
+        }
+
+        public object TryResolveInstanceMember(
+            BinaryOperatorExpression expression,
+            AphidObject obj,
+            bool returnRef)
+        {
+            Func<AphidObject> dynamicHandler = null;
+
+            if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
+            {
+                var key = expression.RightOperand.ToIdentifier().Identifier;
+                var extension = Interpreter.TypeExtender.TryResolve(
+                    Interpreter.CurrentScope,
+                    obj,
+                    key,
+                    isAphidType: false,
+                    isCtor: false,
+                    isDynamic: false,
+                    returnRef: returnRef);
+
+                if (extension != null)
+                {
+                    return extension;
+                }
+
+                dynamicHandler = () => Interpreter.TypeExtender.TryResolve(
+                    Interpreter.CurrentScope,
+                    obj,
+                    key,
+                    isAphidType: false,
+                    isCtor: false,
+                    isDynamic: true,
+                    returnRef: returnRef);
+            }
+
+            return InterpretMemberInteropExpression(
+                obj.Value,
+                expression,
+                returnRef,
+                dynamicHandler);
         }
 
         public AphidInteropMethodInfo Resolve<TTargetType>(string methodName, object[] args)

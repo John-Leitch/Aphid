@@ -302,5 +302,108 @@ namespace Components.Aphid.Tests.Integration
                 ret @{@{ }}.Body[0].aaa();
             ");
         }
+
+        [Test, Ignore]
+        public void StaticExtensionMethodDefinedTest()
+        {
+            AssertTrue(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return: @(fmt /*...*/) 9,
+                }
+
+                ret Cli.Return defined;
+            ");
+        }
+
+        [Test, Ignore]
+        public void StaticExtensionMethodNotDefinedTest()
+        {
+            AssertTrue(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return2: @(fmt /*...*/) 9,
+                }
+
+                ret Cli.Return defined;
+            ");
+        }
+
+        [Test]
+        public void StaticExtensionMethodTest()
+        {
+            Assert9(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return: @(fmt /*...*/) 9,
+                }
+
+                ret Cli.Return();
+            ");
+        }
+
+        [Test]
+        public void StaticExtensionMethodTest2()
+        {
+            Assert9(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return: @(fmt, a, b, c, d /*...*/) 8 + b,
+                }
+
+                ret Cli.Return(2, 4, 1, 12);
+            ");
+        }
+
+        [Test]
+        public void StaticExtensionMethodTest3()
+        {
+            AssertFalse(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return: @(fmt, a, b, c, d /*...*/) 8 + a,
+                }
+
+                ret Cli.Return(2, 4, 1, 12) == 9;
+            ");
+        }
+
+        [Test]
+        public void StaticExtensionMethodRefTest()
+        {
+            Assert9(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return: @(fmt, a, b, c, d /*...*/) 8 + b,
+                }
+
+                f = Cli.Return;
+
+                ret f(2, 4, 1, 12);
+            ");
+        }
+
+        [Test]
+        public void StaticExtensionMethodRefTest2()
+        {
+            Assert9(@"
+                using Components.External.ConsolePlus;
+
+                extend Cli {
+                    Return: @(fmt, a, b, c, d /*...*/) 8 + b,
+                }
+
+                f = Cli.Return;
+                x = f;
+
+                ret x(2, 4, 1, 12);
+            ");
+        }
     }
 }

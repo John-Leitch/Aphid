@@ -44,6 +44,15 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|AnyCPU'">
+    <OutputPath>bin\Release64\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -121,11 +130,13 @@
     <Compile Include="IAphidException.cs" />
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
+    <Compile Include="Interpreter\AphidExecutionContext.cs" />
     <Compile Include="Interpreter\AphidFunctionConverter.cs" />
     <Compile Include="Interpreter\AphidInterpreterComponent.cs" />
     <Compile Include="Interpreter\AphidLoadScriptException.cs" />
     <Compile Include="Interpreter\AphidName.cs" />
     <Compile Include="AphidExceptionType.cs" />
+    <Compile Include="Interpreter\AphidInterpreter.Events.cs" />
     <Compile Include="Library\Net\Http\AphidRequest.cs" />
     <Compile Include="Library\Net\Http\AphidSessionManager.cs" />
     <Compile Include="Library\Net\Http\AphidUpload.cs" />
