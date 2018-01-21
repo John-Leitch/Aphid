@@ -46,7 +46,8 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.UInt64))
                 {
-                    throw new AphidRuntimeException("Canot compare System.SByte to System.UInt64");
+                    throw CreateRuntimeException(
+                        "Canot compare System.SByte to System.UInt64");
                 }
                 else if (rightType == typeof(System.Single))
                 {
@@ -148,7 +149,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.UInt64))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Int16 to System.UInt64");
+                    throw CreateRuntimeException("Canot compare System.Int16 to System.UInt64");
                 }
                 else if (rightType == typeof(System.Single))
                 {
@@ -250,7 +251,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.UInt64))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Int32 to System.UInt64");
+                    throw CreateRuntimeException("Canot compare System.Int32 to System.UInt64");
                 }
                 else if (rightType == typeof(System.Single))
                 {
@@ -352,7 +353,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.UInt64))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Int64 to System.UInt64");
+                    throw CreateRuntimeException("Canot compare System.Int64 to System.UInt64");
                 }
                 else if (rightType == typeof(System.Single))
                 {
@@ -375,7 +376,7 @@ namespace Components.Aphid.Interpreter
             {
                 if (rightType == typeof(System.SByte))
                 {
-                    throw new AphidRuntimeException("Canot compare System.UInt64 to System.SByte");
+                    throw CreateRuntimeException("Canot compare System.UInt64 to System.SByte");
                 }
                 else if (rightType == typeof(System.Byte))
                 {
@@ -383,7 +384,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.Int16))
                 {
-                    throw new AphidRuntimeException("Canot compare System.UInt64 to System.Int16");
+                    throw CreateRuntimeException("Canot compare System.UInt64 to System.Int16");
                 }
                 else if (rightType == typeof(System.UInt16))
                 {
@@ -391,7 +392,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.Int32))
                 {
-                    throw new AphidRuntimeException("Canot compare System.UInt64 to System.Int32");
+                    throw CreateRuntimeException("Canot compare System.UInt64 to System.Int32");
                 }
                 else if (rightType == typeof(System.UInt32))
                 {
@@ -399,7 +400,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.Int64))
                 {
-                    throw new AphidRuntimeException("Canot compare System.UInt64 to System.Int64");
+                    throw CreateRuntimeException("Canot compare System.UInt64 to System.Int64");
                 }
                 else if (rightType == typeof(System.UInt64))
                 {
@@ -466,7 +467,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.Decimal))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Single to System.Decimal");
+                    throw CreateRuntimeException("Canot compare System.Single to System.Decimal");
                 }
                 else
                 {
@@ -517,7 +518,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.Decimal))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Double to System.Decimal");
+                    throw CreateRuntimeException("Canot compare System.Double to System.Decimal");
                 }
                 else
                 {
@@ -560,11 +561,11 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (rightType == typeof(System.Single))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Decimal to System.Single");
+                    throw CreateRuntimeException("Canot compare System.Decimal to System.Single");
                 }
                 else if (rightType == typeof(System.Double))
                 {
-                    throw new AphidRuntimeException("Canot compare System.Decimal to System.Double");
+                    throw CreateRuntimeException("Canot compare System.Decimal to System.Double");
                 }
                 else if (rightType == typeof(System.Decimal))
                 {

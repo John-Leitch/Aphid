@@ -10,14 +10,32 @@ namespace Components.Aphid.Parser
     {
         public static string Create(string code, AphidParserException exception)
         {
-            var line = TokenHelper.GetIndexPosition(code, exception.UnexpectedToken.Index);
-
-            return string.Format(
-                "Unexpected {0} {1} on line {2}\r\n\r\n{3}\r\n",
+            var sb = new StringBuilder();
+            sb.AppendFormat(
+                "Unexpected {0} '{1}'",
                 exception.UnexpectedToken.TokenType.ToString().ToLower(),
-                exception.UnexpectedToken.Lexeme,
-                line.Item1,
-                TokenHelper.GetCodeExcerpt(code, exception.UnexpectedToken));
+                exception.UnexpectedToken.Lexeme);
+
+            if (exception.ExpectedToken != default(AphidTokenType))
+            {
+                sb.AppendFormat(" expected {0}", exception.ExpectedToken);
+            }
+
+            if (exception.UnexpectedToken.Index < code.Length)
+            {
+                var line = TokenHelper.GetIndexPosition(code, exception.UnexpectedToken.Index);
+
+                sb.AppendFormat(
+                    " on line {0}\r\n\r\n{1}\r\n",
+                    line.Item1,
+                    TokenHelper.GetCodeExcerpt(code, exception.UnexpectedToken));
+            }
+            else
+            {
+                //sb.AppendFormat("\r\n{0}", exception.);
+            }
+
+            return sb.ToString();
         }
     }
 }

@@ -16,8 +16,7 @@ namespace SeamlessInteropSample2
                 
                 Console.WriteLine(
                     'Length={0}, Capacity={1}', 
-                    sb.Length,
-                    sb.Capacity);
+                    [ sb.Length, sb.Capacity ]);
 
                 sb |> Console.WriteLine;
             ");

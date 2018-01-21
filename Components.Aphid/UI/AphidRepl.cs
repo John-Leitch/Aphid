@@ -65,7 +65,7 @@ namespace Components.Aphid.UI
 
             if (value != null && (value.Value != null || value.Any()))
             {
-                Console.WriteLine(new AphidSerializer().Serialize(value));
+                Console.WriteLine(new AphidSerializer(Interpreter).Serialize(value));
             }
         }
     }

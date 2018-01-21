@@ -269,7 +269,7 @@ namespace AphidUI.ViewModels
             AphidObject vmObj;
             interpreter.CurrentScope.TryResolve(ViewModelName, out vmObj);
             var vm = (AphidReplViewModel)vmObj.Value;
-            var serializer = new AphidSerializer() { IgnoreFunctions = false };
+            var serializer = new AphidSerializer(interpreter) { IgnoreFunctions = false };
 
             vm._codeViewer.Dispatcher.Invoke(() =>
             {
@@ -326,6 +326,11 @@ namespace AphidUI.ViewModels
             try
             {
                 ast = AphidParser.Parse(tokens, code);
+
+                if (ast.Count != 1)
+                {
+                    throw new AphidParserException("Unexpected expression", ast[1]);
+                }
             }
             catch (AphidParserException ex)
             {
@@ -340,10 +345,7 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            if (ast.Count != 1)
-            {
-                throw new InvalidOperationException();
-            }
+            
 
             var exp = ast.First();
             var unary = exp as UnaryOperatorExpression;
@@ -390,7 +392,7 @@ namespace AphidUI.ViewModels
 
             var retVal = _interpreter.GetReturnValue();
 
-            var serializer = new AphidSerializer() { IgnoreFunctions = false };
+            var serializer = new AphidSerializer(_interpreter) { IgnoreFunctions = false };
 
             InvokeDispatcher(() =>
                 _codeViewer.AppendOutput(Code, serializer.Serialize(retVal)));
@@ -554,7 +556,7 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            var retVal = new AphidSerializer() { IgnoreFunctions = false }
+            var retVal = new AphidSerializer(_interpreter) { IgnoreFunctions = false }
                 .Serialize(_interpreter.GetReturnValue());
 
             InvokeDispatcher(() => vm.Value = retVal);

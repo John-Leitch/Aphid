@@ -6,13 +6,18 @@ using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
-    public static class OperatorHelper
+    public class OperatorHelper : AphidInterpreterComponent
     {
-        public static AphidObject Add(AphidObject x, AphidObject y)
+        public OperatorHelper(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+
+        public AphidObject Add(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("addition");
+                throw CreateOperationException("addition");
             }
             else if (x.Value is decimal && y.Value is decimal)
             {
@@ -49,11 +54,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject Mod(AphidObject x, AphidObject y)
+        public AphidObject Mod(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("modulo");
+                throw CreateOperationException("modulo");
             }
             else
             {
@@ -61,13 +66,13 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject BinaryOr(AphidObject x, AphidObject y)
+        public AphidObject BinaryOr(AphidObject x, AphidObject y)
         {
             Type t;
 
             if (x == null || y == null)
             {
-                throw new AphidOperationException("binary or");
+                throw CreateOperationException("binary or");
             }
             else if (!(t = x.Value.GetType()).IsEnum)
             {
@@ -85,11 +90,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject BinaryAnd(AphidObject x, AphidObject y)
+        public AphidObject BinaryAnd(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("binary and");
+                throw CreateOperationException("binary and");
             }
             else
             {
@@ -97,11 +102,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject BinaryShiftLeft(AphidObject x, AphidObject y)
+        public AphidObject BinaryShiftLeft(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("binary shift left");
+                throw CreateOperationException("binary shift left");
             }
             else
             {
@@ -109,11 +114,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject BinaryShiftRight(AphidObject x, AphidObject y)
+        public AphidObject BinaryShiftRight(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("binary shift right");
+                throw CreateOperationException("binary shift right");
             }
             else
             {
@@ -121,11 +126,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject Xor(AphidObject x, AphidObject y)
+        public AphidObject Xor(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("exclusive or");
+                throw CreateOperationException("exclusive or");
             }
             else
             {
@@ -133,11 +138,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject Subtract(AphidObject x, AphidObject y)
+        public AphidObject Subtract(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("subtraction");
+                throw CreateOperationException("subtraction");
             }
             else
             {
@@ -145,7 +150,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private static AphidObject Repeat(string value, decimal count)
+        private AphidObject Repeat(string value, decimal count)
         {
             var sb = new StringBuilder();
 
@@ -157,11 +162,11 @@ namespace Components.Aphid.Interpreter
             return new AphidObject(sb.ToString());  
         }
 
-        public static AphidObject Multiply(AphidObject x, AphidObject y)
+        public AphidObject Multiply(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("multiplication");
+                throw CreateOperationException("multiplication");
             }
             else
             {
@@ -192,11 +197,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject Divide(AphidObject x, AphidObject y)
+        public AphidObject Divide(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("division");
+                throw CreateOperationException("division");
             }
             else
             {
@@ -204,11 +209,11 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static AphidObject Range(AphidObject x, AphidObject y)
+        public AphidObject Range(AphidObject x, AphidObject y)
         {
             if (x == null || y == null)
             {
-                throw new AphidOperationException("range");
+                throw CreateOperationException("range");
             }
             else
             {
@@ -222,21 +227,29 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static bool EqualsCore(AphidObject x, AphidObject y)
+        public bool EqualsCore(AphidObject x, AphidObject y)
         {
             return x.Value != null ?
                 x.Value.Equals(y.Value) :
                 (null == y.Value && x.Count == 0 && y.Count == 0);
         }
 
-        public static AphidObject Equals(AphidObject x, AphidObject y)
+        public AphidObject Equals(AphidObject x, AphidObject y)
         {
             return new AphidObject(EqualsCore(x, y));
         }
 
-        public static AphidObject NotEqual(AphidObject x, AphidObject y)
+        public AphidObject NotEqual(AphidObject x, AphidObject y)
         {
             return new AphidObject(!EqualsCore(x, y));
+        }
+
+        private AphidOperationException CreateOperationException(string op)
+        {
+            return new AphidOperationException(
+                Interpreter.CurrentStatement,
+                Interpreter.CurrentExpression,
+                op);
         }
     }
 }

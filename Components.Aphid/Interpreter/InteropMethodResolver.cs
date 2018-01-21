@@ -7,14 +7,19 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-    public static class InteropMethodResolver
+    public class InteropMethodResolver : AphidInterpreterComponent
     {
-        public static AphidInteropMethodInfo Resolve<TTargetType>(string methodName, object[] args)
+        public InteropMethodResolver(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+
+        public AphidInteropMethodInfo Resolve<TTargetType>(string methodName, object[] args)
         {
             return Resolve(typeof(TTargetType), methodName, args);
         }
 
-        public static AphidInteropMethodInfo Resolve(Type targetType, string methodName, object[] args)
+        public AphidInteropMethodInfo Resolve(Type targetType, string methodName, object[] args)
         {
             return Resolve(
                 targetType
@@ -24,7 +29,7 @@ namespace Components.Aphid.Interpreter
                 args);
         }
 
-        public static AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
+        public AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
         {
             var methods = nameMatches
                 .Where(x => x.GetParameters().Length == args.Length)
@@ -66,13 +71,13 @@ namespace Components.Aphid.Interpreter
                         "Call did not match interop signature. Methods found:\r\n{0}",
                         string.Join("\r\n", nameMatches.Select(GetMethodDescription)));
 
-                throw new AphidRuntimeException(msg);
+                throw Interpreter.CreateRuntimeException(msg, new object[0]);
             }
 
             return methods.First();
         }
 
-        public static string GetMethodDescription(MethodBase method)
+        public string GetMethodDescription(MethodBase method)
         {
             var sb = new StringBuilder();
             MethodInfo info;
@@ -92,7 +97,7 @@ namespace Components.Aphid.Interpreter
             return sb.ToString();
         }
 
-        private static string GetParamDescription(ParameterInfo parameter)
+        private string GetParamDescription(ParameterInfo parameter)
         {
             return string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
         }

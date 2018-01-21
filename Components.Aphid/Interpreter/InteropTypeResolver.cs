@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-    public static class InteropTypeResolver
+    public class InteropTypeResolver : AphidInterpreterComponent
     {
-        public static Type ResolveType(IEnumerable<string> imports, string[] path, bool isType = false)
+        public InteropTypeResolver(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+
+        public Type ResolveType(IEnumerable<string> imports, string[] path, bool isType = false)
         {
             var pathStr = string.Join(".", path);
             var offset = !isType ? 1 : 0;
@@ -37,14 +42,14 @@ namespace Components.Aphid.Interpreter
 
             if (type == null)
             {
-                throw new AphidRuntimeException(
+                throw Interpreter.CreateRuntimeException(
                     "Could not find type for interop call '{0}'",
                     pathStr);
             }
 
             if (type.PartCount != path.Length - offset)
             {
-                throw new AphidRuntimeException(
+                throw Interpreter.CreateRuntimeException(
                     "Could not find method for interop call '{0}'",
                     pathStr);
             }

@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
-    public static class ValueHelper
+    public class ValueHelper : AphidInterpreterComponent
     {
-        private static Dictionary<Type, string> _typeName = new Dictionary<Type, string>
+        private Dictionary<Type, string> _typeName = new Dictionary<Type, string>
         {
             { typeof(string), "string" },
             { typeof(decimal), "number" },
@@ -18,21 +18,26 @@ namespace Components.Aphid.Interpreter
             { typeof(AphidFunction), "function" },
         };
 
-        public static object Unwrap(object obj)
+        public ValueHelper(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+
+        public object Unwrap(object obj)
         {
             AphidObject aphidObj;
 
             return (aphidObj = obj as AphidObject) != null ? aphidObj.Value : obj;
         }
 
-        public static AphidObject Wrap(object obj)
+        public AphidObject Wrap(object obj)
         {
             AphidObject aphidObj;
 
             return (aphidObj = obj as AphidObject) != null ? aphidObj : new AphidObject(obj);
         }
 
-        public static object DeepUnwrap(object obj)
+        public object DeepUnwrap(object obj)
         {
             AphidObject aphidObj;
             List<AphidObject> list;
@@ -55,7 +60,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static object UnwrapAndBoxCollection(object obj)
+        public object UnwrapAndBoxCollection(object obj)
         {
             var o = Unwrap(obj);
             var t = o.GetType();
@@ -99,64 +104,64 @@ namespace Components.Aphid.Interpreter
             return o;
         }
 
-        public static void AssertString(object value, string operation)
+        public void AssertString(object value, string operation)
         {
             AssertValue<string>(value, operation);
         }
 
-        public static void AssertNumber(object value, string operation)
+        public void AssertNumber(object value, string operation)
         {
             AssertValue<decimal>(value, operation);
         }
 
-        public static void AssertBool(object value, string operation)
+        public void AssertBool(object value, string operation)
         {
             AssertValue<bool>(value, operation);
         }
 
-        public static void AssertList(object value, string operation)
+        public void AssertList(object value, string operation)
         {
             AssertValue<List<AphidObject>>(value, operation);
         }
 
-        public static void AssertObject(object value, string operation)
+        public void AssertObject(object value, string operation)
         {
             AssertValue<AphidObject>(value, operation);
         }
 
-        public static void AssertFunction(object value, string operation)
+        public void AssertFunction(object value, string operation)
         {
             AssertValue<AphidFunction>(value, operation);
         }
 
-        public static void AssertValue<TExpected>(object value, string operation)
+        public void AssertValue<TExpected>(object value, string operation)
         {
             if (!(value is TExpected))
             {
-                throw new AphidRuntimeException(
+                throw Interpreter.CreateRuntimeException(
                     "{0} expects {1}, {2} was provided instead.",
                     operation,
-                    ValueHelper.GetTypeName<TExpected>(),
-                    ValueHelper.GetTypeName(value));
+                    GetTypeName<TExpected>(),
+                    GetTypeName(value));
             }
         }  
 
-        public static string GetTypeName(Type type)
+        public string GetTypeName(Type type)
         {
             return _typeName[type];
         }
 
-        public static string GetTypeName<T>()
+        public string GetTypeName<T>()
         {
             return _typeName[typeof(T)];
         }
 
-        public static string GetTypeName(object value)
+        public string GetTypeName(object value)
         {
             return value != null ? _typeName[value.GetType()] : "null";
         }
 
-        public static bool IsComplexAphidObject(object obj)
+        public bool IsComplexAphidObject(object obj)
         {
             var ao = obj as AphidObject;
 
@@ -164,7 +169,7 @@ namespace Components.Aphid.Interpreter
         }
     }
 
-    public static class ValueHelper<TExpected>
+    public class ValueHelper<TExpected>
     {
         
     }

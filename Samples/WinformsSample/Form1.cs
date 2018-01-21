@@ -25,7 +25,7 @@ namespace WinformsSample
             OutputPanel.Controls.Clear();
             Console.WriteLine("Running Aphid");
             var interpreter = new AphidInterpreter();
-            interpreter.CurrentScope.Add("root", ValueHelper.Wrap(OutputPanel));
+            interpreter.CurrentScope.Add("root", interpreter.ValueHelper.Wrap(OutputPanel));
             
             try
             {

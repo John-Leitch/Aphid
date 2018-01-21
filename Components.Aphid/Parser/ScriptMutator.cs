@@ -62,7 +62,8 @@ namespace Components.Aphid.Parser
 
                 if (retVal == null || retVal.Value == null)
                 {
-                    throw new AphidRuntimeException("Mutator implementation returned null, expected expression(s).");
+                    throw Interpreter.CreateRuntimeException(
+                        "Mutator implementation returned null, expected expression(s).");
                 }
                 else
                 {
@@ -82,7 +83,7 @@ namespace Components.Aphid.Parser
                     }
                     else
                     {
-                        throw new AphidRuntimeException(
+                        throw Interpreter.CreateRuntimeException(
                             "Mutator returned invalid type, expected expression, block, or function.");
                     }
                 }

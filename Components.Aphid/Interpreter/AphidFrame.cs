@@ -7,9 +7,9 @@ using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidFrame
+    public class AphidFrame : AphidInterpreterComponent
     {
-        private AphidSerializer _serializer = new AphidSerializer();
+        private AphidSerializer _serializer;
 
         private Lazy<string> _name;
 
@@ -25,23 +25,27 @@ namespace Components.Aphid.Interpreter
         public IEnumerable<object> Arguments { get; private set; }
 
         public AphidFrame(
+            AphidInterpreter interpreter,
             AphidObject scope,
             AphidExpression expression,
             Lazy<string> name)
-            : this(scope, expression, name, new object[0])
+            : this(interpreter, scope, expression, name, new object[0])
         {
         }
 
         public AphidFrame(
+            AphidInterpreter interpreter,
             AphidObject scope,
             AphidExpression expression,
             Lazy<string> name,
             IEnumerable<object> arguments)
+            : base(interpreter)
         {
             Scope = scope;
             Expression = expression;
             _name = name;
             Arguments = arguments;
+            _serializer = new AphidSerializer(interpreter);
         }
 
         public override string ToString()

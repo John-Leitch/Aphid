@@ -251,13 +251,19 @@ namespace Components.Aphid.Interpreter
 
         public AphidObject Resolve(string key, string errorMessage = null)
         {
+            return Resolve(null, key, errorMessage);
+        }
+
+        public AphidObject Resolve(AphidInterpreter interpreter, string key, string errorMessage = null)
+        {
             AphidObject obj;
 
             if (!TryResolve(key, out obj))
             {
-                throw new AphidRuntimeException(
-                    errorMessage ?? 
-                    string.Format("Could not resolve {0}.", key));
+                var msg = string.Format("Could not resolve {0}.", key);
+                throw interpreter != null ? 
+                    interpreter.CreateRuntimeException(errorMessage ??  msg) : 
+                    new AphidRuntimeException(null, null, msg);
             }
 
             return obj;

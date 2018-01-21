@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidAssemblyBuilder
+    public class AphidAssemblyBuilder : AphidInterpreterComponent
     {
         private enum ClassAttributeScanState
         {
@@ -26,19 +26,20 @@ namespace Components.Aphid.Interpreter
 
         public string AssemblyName { get; private set; }
 
-        public string AssemblyFilename { get; private set; }        
+        public string AssemblyFilename { get; private set; }
 
-        public AphidAssemblyBuilder()
-            : this(string.Format("AphidModule_{0}", Guid.NewGuid()))
+        public AphidAssemblyBuilder(AphidInterpreter interpreter)
+            : this(interpreter, string.Format("AphidModule_{0}", Guid.NewGuid()))
         {
         }
 
-        public AphidAssemblyBuilder(string assemblyName)
-            : this(assemblyName, string.Format("{0}.dll", assemblyName))
+        public AphidAssemblyBuilder(AphidInterpreter interpreter, string assemblyName)
+            : this(interpreter, assemblyName, string.Format("{0}.dll", assemblyName))
         {
         }
 
-        public AphidAssemblyBuilder(string assemblyName, string assemblyFilename)
+        public AphidAssemblyBuilder(AphidInterpreter interpreter, string assemblyName, string assemblyFilename)
+            : base(interpreter)
         {
             AssemblyName = assemblyName;
             AssemblyFilename = assemblyFilename;
@@ -78,7 +79,7 @@ namespace Components.Aphid.Interpreter
                         {
                             if (defaultTypeSet || scanner.CurrentAttribute == null)
                             {
-                                throw new AphidRuntimeException("Invalid 'of' attribute.");
+                                throw Interpreter.CreateRuntimeException("Invalid 'of' attribute.");
                             }
 
                             defaultType = scanner.CurrentAttribute;
@@ -88,13 +89,13 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            throw new AphidRuntimeException(
+                            throw Interpreter.CreateRuntimeException(
                                 "Invalid class attribute '{0}'.",
                                 scanner.CurrentAttribute);
                         }
 
                     default:
-                        throw new AphidRuntimeException(
+                        throw Interpreter.CreateRuntimeException(
                             "Invalid class attribute '{0}'.",
                             scanner.CurrentAttribute);
                 }
@@ -115,7 +116,7 @@ namespace Components.Aphid.Interpreter
             {
                 if (kvp.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
                 {
-                    throw new AphidRuntimeException("Invalid class property lhs.");
+                    throw Interpreter.CreateRuntimeException("Invalid class property lhs.");
                 }
 
                 if (kvp.RightOperand.Type == AphidExpressionType.IdentifierExpression &&
@@ -145,7 +146,7 @@ namespace Components.Aphid.Interpreter
 
             if (t == null)
             {
-                throw new AphidRuntimeException(
+                throw Interpreter.CreateRuntimeException(
                     "Could not resolve property type for '{0}.{1}'.",
                     typeBuilder.Name,
                     propertyDecl.Identifier);
@@ -199,7 +200,7 @@ namespace Components.Aphid.Interpreter
         {
             if (property.Attributes == null || !property.Attributes.Any())
             {
-                return InteropTypeResolver.ResolveType(
+                return Interpreter.InteropTypeResolver.ResolveType(
                     imports,
                     new[] { InteropTypeResolver.Unalias(defaultType) },
                     isType: true);
@@ -208,7 +209,7 @@ namespace Components.Aphid.Interpreter
             var scanner = new AphidAttributeScanner(property);
             scanner.Next();
 
-            var t = InteropTypeResolver.ResolveType(
+            var t = Interpreter.InteropTypeResolver.ResolveType(
                 imports,
                 new[] { InteropTypeResolver.Unalias(scanner.CurrentAttribute) },
                 isType: true);

@@ -6,26 +6,31 @@ using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
-    public static class TypeExtender
+    public class TypeExtender : AphidInterpreterComponent
     {
-        public static string GetCtorName(string type)
+        public TypeExtender(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+
+        public string GetCtorName(string type)
         {
             return GetName(type, "$ctor");
         }
 
-        public static string GetDynamicName(string type)
+        public string GetDynamicName(string type)
         {
             return GetName(type, null);
         }
 
-        public static string GetName(string type, string nameStr)
+        public string GetName(string type, string nameStr)
         {
             return nameStr != null ?
                 string.Format("$ext.{0}.{1}", type, nameStr) :
                 string.Format("$ext.{0}", type);
         }
 
-        public static string[] FanInteropName(AphidObject obj)
+        public string[] FanInteropName(AphidObject obj)
         {
             var names = new List<string>();
             var t = obj.Value.GetType();
@@ -41,12 +46,12 @@ namespace Components.Aphid.Interpreter
             return names.ToArray();
         }
 
-        public static string GetInteropName(AphidObject obj)
+        public string GetInteropName(AphidObject obj)
         {
             return GetInteropName(obj.Value.GetType());
         }
 
-        public static string GetInteropName(Type t)
+        public string GetInteropName(Type t)
         {
             var n = AphidAlias.Resolve(t) ?? t.FullName;
 
@@ -80,15 +85,13 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static void Extend(
-            AphidInterpreter interpreter,
+        public void Extend(
             IdentifierExpression type,
             AphidObject extensions,
             string ctorHandler,
             string dynamicHandler)
         {
             Extend(
-                interpreter,
                 type.Identifier,
                 type.Attributes.Select(x => x.Identifier).ToArray(),
                 extensions,
@@ -96,18 +99,16 @@ namespace Components.Aphid.Interpreter
                 dynamicHandler);
         }
 
-        public static void Extend(
-            AphidInterpreter interpreter,
+        public void Extend(
             string type,
             AphidObject extensions,
             string ctorHandler,
             string dynamicHandler)
         {
-            Extend(interpreter, type, new string[0], extensions, ctorHandler, dynamicHandler);
+            Extend(type, new string[0], extensions, ctorHandler, dynamicHandler);
         }
 
-        public static void Extend(
-            AphidInterpreter interpreter,
+        public void Extend(
             string type,
             string[] attributes,
             AphidObject extensions,
@@ -120,8 +121,8 @@ namespace Components.Aphid.Interpreter
 
                 if (AphidAlias.Resolve(type) == null)
                 {
-                    var interopType = InteropTypeResolver.ResolveType(
-                        interpreter.GetImports(),
+                    var interopType = Interpreter.InteropTypeResolver.ResolveType(
+                        Interpreter.GetImports(),
                         new[] { type },
                         isType: true);
 
@@ -149,19 +150,19 @@ namespace Components.Aphid.Interpreter
 
                 foreach (var key in keys)
                 {
-                    if (interpreter.CurrentScope.ContainsKey(key))
+                    if (Interpreter.CurrentScope.ContainsKey(key))
                     {
-                        interpreter.CurrentScope[key] = extension.Value;
+                        Interpreter.CurrentScope[key] = extension.Value;
                     }
                     else
                     {
-                        interpreter.CurrentScope.Add(key, extension.Value);
+                        Interpreter.CurrentScope.Add(key, extension.Value);
                     }
                 }
             }
         }
 
-        //public static AphidObject TryResolve(
+        //public AphidObject TryResolve(
         //    AphidObject scope,
         //    AphidObject obj,
         //    string key)
@@ -169,7 +170,7 @@ namespace Components.Aphid.Interpreter
         //    return TryResolve(scope, obj, key, true, false);
         //}
 
-        //public static AphidObject TryResolve(
+        //public AphidObject TryResolve(
         //    AphidObject scope,
         //    AphidObject obj,
         //    string key,
@@ -178,7 +179,7 @@ namespace Components.Aphid.Interpreter
         //    return TryResolve(scope, obj, key, isAphidType, false);
         //}
 
-        public static AphidObject TryResolve(
+        public AphidObject TryResolve(
             AphidObject scope,
             AphidObject obj,
             string key,
@@ -194,9 +195,9 @@ namespace Components.Aphid.Interpreter
             AphidObject val = null;
 
             var selector =
-                isDynamic ? (Func<string, string>)(x => TypeExtender.GetDynamicName(x)) :
-                isCtor ? (Func<string, string>)(x => TypeExtender.GetCtorName(x)) :
-                (Func<string, string>)(x => TypeExtender.GetName(x, key));
+                isDynamic ? (Func<string, string>)(x => GetDynamicName(x)) :
+                isCtor ? (Func<string, string>)(x => GetCtorName(x)) :
+                (Func<string, string>)(x => GetName(x, key));
 
             if (classHierarchy
                 .Select(selector)

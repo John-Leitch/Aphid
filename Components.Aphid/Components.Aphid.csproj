@@ -117,9 +117,13 @@
     <Compile Include="External\StringTree.cs" />
     <Compile Include="External\XmlObject.cs" />
     <Compile Include="External\XmlSerializerExtension.cs" />
+    <Compile Include="IAphidException.cs" />
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
+    <Compile Include="Interpreter\AphidInterpreterComponent.cs" />
+    <Compile Include="Interpreter\AphidLoadScriptException.cs" />
     <Compile Include="Interpreter\AphidName.cs" />
+    <Compile Include="AphidExceptionType.cs" />
     <Compile Include="Library\Net\Http\AphidRequest.cs" />
     <Compile Include="Library\Net\Http\AphidSessionManager.cs" />
     <Compile Include="Library\Net\Http\AphidUpload.cs" />

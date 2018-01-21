@@ -7,10 +7,8 @@ using System.Reflection;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidLoader
+    public class AphidLoader : AphidInterpreterComponent
     {
-        private AphidInterpreter _interpreter;
-
         private List<string> _searchPaths = new List<string> 
         { 
             Path.Combine(
@@ -26,8 +24,8 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoader(AphidInterpreter interpreter)
+            : base(interpreter)
         {
-            _interpreter = interpreter;
             _modules = new List<Assembly> { Assembly.GetExecutingAssembly() };
         }
 
@@ -162,18 +160,48 @@ namespace Components.Aphid.Interpreter
                     }
                 }
 
-                var ast = AphidParser.Parse(File.ReadAllText(f), f, isTextDocument);
+                List<AphidExpression> ast;
+
+                try
+                {
+                    ast = AphidParser.Parse(File.ReadAllText(f), f, isTextDocument);
+                }
+                catch (AphidParserException e)
+                {
+                    throw new AphidLoadScriptException(
+                        Interpreter.CurrentStatement,
+                        Interpreter.CurrentExpression,
+                        f,
+                        e);
+                }
+                catch (AphidRuntimeException e)
+                {
+                    throw new AphidLoadScriptException(
+                        Interpreter.CurrentStatement,
+                        Interpreter.CurrentExpression,
+                        f,
+                        e);
+                }
+                catch (Exception e)
+                {
+                    throw new AphidLoadScriptException(
+                        Interpreter.CurrentStatement,
+                        Interpreter.CurrentExpression,
+                        f,
+                        e);
+                }
+
                 var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
                 mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
                 mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
 
-                _interpreter.Interpret(mutatedAst);
+                Interpreter.Interpret(mutatedAst);
                 
                 return mutatedAst;
             }
             else
             {
-                throw new AphidRuntimeException("Cannot find script {0}", scriptFile);
+                throw Interpreter.CreateRuntimeException("Cannot find script {0}", scriptFile);
             }
         }
 

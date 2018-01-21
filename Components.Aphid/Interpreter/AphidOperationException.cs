@@ -8,8 +8,11 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidOperationException : AphidRuntimeException
     {
-        public AphidOperationException(string op)
-            : base("Cannot perform {0} operation on null.", op)
+        public AphidOperationException(
+            AphidExpression currentStatement,
+            AphidExpression currentExpression, 
+            string op)
+            : base(currentStatement, currentExpression, "Cannot perform {0} operation on null.", op)
         {
         }
     }

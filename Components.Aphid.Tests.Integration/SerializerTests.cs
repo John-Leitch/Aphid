@@ -68,7 +68,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestNumberSerialization()
         {
             Assert9Deserialization(
-                "@{ using Components.Aphid.Interpreter; ret ValueHelper.Wrap(9) }()",
+                "@{ using Components.Aphid.Interpreter; ret 9 }()",
                 "ret o");
         }
 

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace Components.Aphid.Library
 {
-    public class AphidSerializer
+    public class AphidSerializer : AphidInterpreterComponent
     {
         private const string _root = "obj";
 
@@ -22,7 +22,8 @@ namespace Components.Aphid.Library
 
         public bool IgnoreFunctions { get; set; }
 
-        public AphidSerializer()
+        public AphidSerializer(AphidInterpreter interpreter)
+            : base(interpreter)
         {
             IgnoreFunctions = true;
         }
@@ -45,7 +46,7 @@ namespace Components.Aphid.Library
 
             Action<object> checkGraph = x =>
             {
-                if (x == null || !ValueHelper.IsComplexAphidObject(x))
+                if (x == null || !Interpreter.ValueHelper.IsComplexAphidObject(x))
                 {
                     return;
                 }
@@ -168,7 +169,7 @@ namespace Components.Aphid.Library
 
             if (ast.Count != 1)
             {
-                throw new AphidRuntimeException("Invalid Aphid object string: {0}", obj);
+                throw Interpreter.CreateRuntimeException("Invalid Aphid object string: {0}", obj);
             }
 
             ast[0] = new BinaryOperatorExpression(

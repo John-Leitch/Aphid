@@ -45,14 +45,14 @@ namespace Components.Aphid.Library.Net
             return address;
         }
 
-        [AphidInteropFunction("__udp.send", UnwrapParameters = false)]
-        public static AphidObject UdpSend(AphidObject clientObj, AphidObject datagramObj, AphidObject hostObj, AphidObject portObj)
+        [AphidInteropFunction("__udp.send", UnwrapParameters = false, PassInterpreter = true)]
+        public static AphidObject UdpSend(AphidInterpreter interpreter, AphidObject clientObj, AphidObject datagramObj, AphidObject hostObj, AphidObject portObj)
         {
             var host = (string)hostObj.Value;
             var address = GetIPV4Address(host);
             var port = (decimal)portObj.Value;
             var ep = new IPEndPoint(address, (int)port);
-            var buffer = AphidByteConverter.ToBytes(datagramObj);
+            var buffer = new AphidByteConverter(interpreter).ToBytes(datagramObj);
             var client = (UdpClient)clientObj.Value;
             client.Send(buffer, buffer.Length, ep);
 

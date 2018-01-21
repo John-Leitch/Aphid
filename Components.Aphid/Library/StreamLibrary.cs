@@ -11,8 +11,8 @@ namespace Components.Aphid.Library
     [AphidLibraryAttribute("stream")]
     public class StreamLibrary
     {
-        [AphidInteropFunction("__stream.write")]
-        public static void StreamWrite(Stream stream, object buffer)
+        [AphidInteropFunction("__stream.write", PassInterpreter = true)]
+        public static void StreamWrite(AphidInterpreter interpreter, Stream stream, object buffer)
         {
             byte[] bytes;
             List<AphidObject> objects;
@@ -28,7 +28,9 @@ namespace Components.Aphid.Library
             }
             else
             {
-                throw new AphidRuntimeException("Invalid object passed as buffer: {0}", buffer);
+                throw interpreter.CreateRuntimeException(
+                    "Invalid object passed as buffer: {0}",
+                    buffer);
             }
 
             stream.Write(bytes, 0, bytes.Length);

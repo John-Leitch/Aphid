@@ -6,9 +6,14 @@ using System.Text;
 
 namespace Components.Aphid.Library
 {
-    public static class AphidByteConverter
+    public class AphidByteConverter : AphidInterpreterComponent
     {
-        public static byte[] ToBytes(AphidObject obj)
+        public AphidByteConverter(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+
+        public byte[] ToBytes(AphidObject obj)
         {
             var v = obj.Value;
             byte[] bytes;
@@ -25,7 +30,9 @@ namespace Components.Aphid.Library
             }
             else
             {
-                throw new AphidRuntimeException("Invalid object passed as buffer: {0}", v);
+                throw Interpreter.CreateRuntimeException(
+                    "Invalid object passed as buffer: {0}",
+                    v);
             }
 
             return bytes;

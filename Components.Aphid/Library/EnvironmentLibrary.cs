@@ -39,8 +39,8 @@ namespace Components.Aphid.Library
             return _envArgs.Select(x => new AphidObject(x)).ToList();
         }
 
-        [AphidInteropFunction("env.kill", UnwrapParameters = false)]
-        public static void Kill(AphidObject process)
+        [AphidInteropFunction("env.kill", UnwrapParameters = false, PassInterpreter = true)]
+        public static void Kill(AphidInterpreter interpreter, AphidObject process)
         {
             if (process.Value is int)
             {
@@ -56,7 +56,9 @@ namespace Components.Aphid.Library
             }
             else
             {
-                throw new AphidRuntimeException("Invalid process id: {0}", process.Value);
+                throw interpreter.CreateRuntimeException(
+                    "Invalid process id: {0}",
+                    process.Value);
             }
         }
 

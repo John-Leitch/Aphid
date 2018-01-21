@@ -6,11 +6,18 @@ using System.Text;
 
 namespace Components.Aphid.Parser
 {
-    public class AphidParserException : Exception
+    public class AphidParserException : Exception, IAphidException
     {
+        public AphidExceptionType Type
+        {
+            get { return AphidExceptionType.ParserException; }
+        }
+
         public AphidToken UnexpectedToken { get; set; }
 
         public AphidTokenType ExpectedToken { get; set; }
+
+        public AphidExpression Expression { get; set; }
 
         private string _message;
 
@@ -34,6 +41,17 @@ namespace Components.Aphid.Parser
                 "{0}; expected {1}.",
                 CreateUnexpectedMessage(unexpectedToken),
                 expectedToken);
+        }
+
+        public AphidParserException(string error, AphidExpression expression)
+        {
+            Expression = expression;
+            _message = string.Format("{0}: {1}", error, expression);
+        }
+
+        public AphidParserException(AphidExpression expression)
+            : this(string.Format("Invalid {0}", expression.Type), expression)
+        {
         }
 
         public AphidParserException(string format, params object[] args)

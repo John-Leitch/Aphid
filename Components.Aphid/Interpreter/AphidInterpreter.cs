@@ -19,13 +19,23 @@ namespace Components.Aphid.Interpreter
 
         private Stack<AphidFrame> _frames;
 
-        private AphidAssemblyBuilder _asmBuilder = new AphidAssemblyBuilder();
-
         private ManualResetEvent _breakpointReset;
 
         private bool _isSingleStepping;
 
         private AutoResetEvent _singleStepReset;
+
+        public AphidAssemblyBuilder AsmBuilder { get; private set; }
+
+        public InteropMethodResolver InteropMethodResolver { get; private set; }
+
+        public OperatorHelper OperatorHelper { get; private set; }
+
+        public ValueHelper ValueHelper { get; private set; }
+
+        public InteropTypeResolver InteropTypeResolver { get; private set; }
+
+        public TypeExtender TypeExtender { get; private set; }
 
         public Action<AphidExpression> HandleExecutionBreak { get; set; }
 
@@ -40,6 +50,8 @@ namespace Components.Aphid.Interpreter
         public AphidObject CurrentScope { get; private set; }
 
         public AphidExpression CurrentStatement { get; private set; }
+
+        public AphidExpression CurrentExpression { get; private set; }
 
         public AphidInterpreter()
             : this(true)
@@ -83,10 +95,17 @@ namespace Components.Aphid.Interpreter
         private void Init()
         {
             Out = Console.Out;
+            AsmBuilder = new AphidAssemblyBuilder(this);
+            InteropMethodResolver = new InteropMethodResolver(this);
+            OperatorHelper = new OperatorHelper(this);
+            ValueHelper = new ValueHelper(this);
+            TypeExtender = new TypeExtender(this);
+            InteropTypeResolver = new InteropTypeResolver(this);
+
 
             _frames = new Stack<AphidFrame>(new[] 
             { 
-                new AphidFrame(CurrentScope, null, new Lazy<string>(() => "[Entrypoint]")),
+                new AphidFrame(this, CurrentScope, null, new Lazy<string>(() => "[Entrypoint]")),
             });
 
             if (_createLoader)
@@ -101,7 +120,7 @@ namespace Components.Aphid.Interpreter
 
             if (!CurrentScope.ContainsKey(AphidName.AsmBuilder))
             {
-                CurrentScope.Add(AphidName.AsmBuilder, new AphidObject(_asmBuilder));
+                CurrentScope.Add(AphidName.AsmBuilder, new AphidObject(AsmBuilder));
             }
 
             if (!CurrentScope.ContainsKey(AphidName.Interpreter))
@@ -112,7 +131,7 @@ namespace Components.Aphid.Interpreter
 
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)
         {
-            return new AphidRuntimeException(
+            return CreateRuntimeException(
                     "Undefined member {0} in expression {1}",
                     memberExpression,
                     expression);
@@ -120,7 +139,10 @@ namespace Components.Aphid.Interpreter
 
         private AphidRuntimeException CreateUnaryOperatorException(UnaryOperatorExpression expression)
         {
-            return new AphidRuntimeException("Unknown operator {0} in expression {1}.", expression.Operator, expression);
+            return CreateRuntimeException(
+                "Unknown operator {0} in expression {1}.",
+                expression.Operator,
+                expression);
         }
 
         public List<string> GetImports()
@@ -339,7 +361,7 @@ namespace Components.Aphid.Interpreter
         {
             if (expression.RightOperand.Type != AphidExpressionType.IdentifierExpression)
             {
-                throw new AphidRuntimeException("Invalid member interop access.");
+                throw CreateRuntimeException("Invalid member interop access.");
             }
 
             var members = GetMembers(lhs, expression);
@@ -371,7 +393,7 @@ namespace Components.Aphid.Interpreter
             {
                 if (dynamicHandler == null)
                 {
-                    throw new AphidRuntimeException(
+                    throw CreateRuntimeException(
                         "Could not find property '{0}'",
                         expression.RightOperand.ToIdentifier().ToIdentifier());
                 }
@@ -473,7 +495,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw new AphidRuntimeException("Unexpected expression {0}", expression.RightOperand);
+                throw CreateRuntimeException("Unexpected expression {0}", expression.RightOperand);
             }
 
             if (returnRef)
@@ -488,7 +510,7 @@ namespace Components.Aphid.Interpreter
                 {
                     if (expression.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
                     {
-                        throw new AphidRuntimeException("Null reference exception: {0}", expression);
+                        throw CreateRuntimeException("Null reference exception: {0}", expression);
                     }
 
                     return InterpretMemberInteropExpression(null, expression, returnRef);
@@ -603,7 +625,7 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        throw new AphidRuntimeException("Could not set value by index.");
+                        throw CreateRuntimeException("Could not set value by index.");
                     }
                 }
             }
@@ -646,7 +668,7 @@ namespace Components.Aphid.Interpreter
 
                 if (objRef.Object == null)
                 {
-                    throw new AphidRuntimeException("Undefined variable {0}", expression.LeftOperand);
+                    throw CreateRuntimeException("Undefined variable {0}", expression.LeftOperand);
                 }
                 else if (objRef.Object.ContainsKey(objRef.Name))
                 {
@@ -685,7 +707,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw new AphidRuntimeException(
+                throw CreateRuntimeException(
                     "Invalid left hand side of assignment expression: {0}",
                     expression);
             }
@@ -1082,7 +1104,7 @@ namespace Components.Aphid.Interpreter
                     return InterpretCustomBinaryOperator(expression);
 
                 default:
-                    throw new AphidRuntimeException("Unknown operator {0} in expression {1}", expression.Operator, expression);
+                    throw CreateRuntimeException("Unknown operator {0} in expression {1}", expression.Operator, expression);
             }
         }
 
@@ -1170,14 +1192,14 @@ namespace Components.Aphid.Interpreter
 
             if (!CurrentScope.TryResolve(GetCustomOperatorKey(op), out obj))
             {
-                throw new AphidRuntimeException("Custom operator '{0}' not defined.", op);
+                throw CreateRuntimeException("Custom operator '{0}' not defined.", op);
             }
 
             var func = obj.GetFunction();
 
             if (func == null)
             {
-                throw new AphidRuntimeException(
+                throw CreateRuntimeException(
                     "Custom operator '{0}' should be function, was '{1}'.",
                     op,
                     obj.GetValueType());
@@ -1224,12 +1246,12 @@ namespace Components.Aphid.Interpreter
             {
                 //if (!expression.IsStatement())
                 //{
-                //    throw new AphidRuntimeException(
+                //    ThrowRuntimeException(
                 //        "Class declaration '{0}' must be statement.",
                 //        expression.Identifier.Identifier);
                 //}
 
-                var t = _asmBuilder.CreateType(expression, GetImports());
+                var t = AsmBuilder.CreateType(expression, GetImports());
 
                 return new AphidObject(t); ;
             }
@@ -1366,7 +1388,7 @@ namespace Components.Aphid.Interpreter
                 return CallInteropFunction(func2, (AphidObject[])args);
             }
 
-            throw new AphidRuntimeException("Object is not function: {0}", function);
+            throw CreateRuntimeException("Object is not function: {0}", function);
         }
 
         private string GetInteropAttribute(AphidExpression expression)
@@ -1440,7 +1462,7 @@ namespace Components.Aphid.Interpreter
 
             if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
             {
-                throw new AphidRuntimeException("Invalid interop call path '{0}'", exp);
+                throw CreateRuntimeException("Invalid interop call path '{0}'", exp);
             }
 
             var path = pathExps
@@ -1477,7 +1499,7 @@ namespace Components.Aphid.Interpreter
 
             if (funcExp == null)
             {
-                throw new AphidRuntimeException("Could not find function {0}", expression.FunctionExpression);
+                throw CreateRuntimeException("Could not find function {0}", expression.FunctionExpression);
             }
 
             var args = expression.Args.Select(InterpretExpression).ToArray();
@@ -1561,7 +1583,7 @@ namespace Components.Aphid.Interpreter
                     new[] { retVal });
             }
 
-            throw new AphidRuntimeException("Could not find function {0}", expression);
+            throw CreateRuntimeException("Could not find function {0}", expression);
         }
 
         private AphidObject InterpretImplicitArgumentExpression(AphidExpression expression)
@@ -1608,7 +1630,7 @@ namespace Components.Aphid.Interpreter
             Lazy<string> name,
             IEnumerable<object> args)
         {
-            _frames.Push(new AphidFrame(CurrentScope, callExpression, name, args));
+            _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, args));
         }
 
         private void PopFrame()
@@ -1659,7 +1681,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw new NotImplementedException();
+                throw CreateRuntimeException("Cannot wrap value {0} of type {1}", value, value.GetType());
             }
         }
 
@@ -1713,7 +1735,7 @@ namespace Components.Aphid.Interpreter
                     return obj;
 
                 default:
-                    throw new NotImplementedException();
+                    throw CreateRuntimeException("Operand not supported in new expression: {0}", operand);
             }
         }
 
@@ -1751,7 +1773,7 @@ namespace Components.Aphid.Interpreter
 
                         if (!(val is decimal))
                         {
-                            throw new AphidRuntimeException(
+                            throw CreateRuntimeException(
                                 "Unary operator '-' expects number, {0} was provided instead.",
                                 val.GetType());
                         }
@@ -1826,7 +1848,7 @@ namespace Components.Aphid.Interpreter
                                 break;
 
                             default:
-                                throw new AphidRuntimeException("Invalid operand used with load keyword.");
+                                throw CreateRuntimeException("Invalid operand used with load keyword.");
 
                         }
 
@@ -2075,7 +2097,7 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            throw new AphidRuntimeException("Unknown ? operand");
+                            throw CreateRuntimeException("Unknown ? operand");
                         }
 
 
@@ -2123,7 +2145,7 @@ namespace Components.Aphid.Interpreter
             {
                 if (index < 0 || index >= array.Count)
                 {
-                    throw new AphidRuntimeException("Index out of range: {0}.", index);
+                    throw CreateRuntimeException("Index out of range: {0}.", index);
                 }
 
                 return array[index];
@@ -2148,11 +2170,11 @@ namespace Components.Aphid.Interpreter
                     }
                 }
 
-                throw new AphidRuntimeException("Index out of range: {0}.", index);
+                throw CreateRuntimeException("Index out of range: {0}.", index);
             }
             else
             {
-                throw new AphidRuntimeException(
+                throw CreateRuntimeException(
                     "Array access not supported by {0}.",
                     expression.ArrayExpression);
             }
@@ -2221,7 +2243,7 @@ namespace Components.Aphid.Interpreter
 
             if (Loader == null || file == null)
             {
-                throw new AphidRuntimeException("Cannot load script {0}", expression.FileExpression);
+                throw CreateRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
 
             List<AphidExpression> ast;
@@ -2249,7 +2271,7 @@ namespace Components.Aphid.Interpreter
 
             if (Loader == null || library == null)
             {
-                throw new AphidRuntimeException("Cannot load script {0}", expression.LibraryExpression);
+                throw CreateRuntimeException("Cannot load script {0}", expression.LibraryExpression);
             }
 
             Loader.LoadLibrary(library, CurrentScope);
@@ -2386,7 +2408,6 @@ namespace Components.Aphid.Interpreter
             var ctor = GetModifiedKey(expression, "ctor");
 
             TypeExtender.Extend(
-                this,
                 expression.ExtendType,
                 obj,
                 ctor.SingleOrDefault(),
@@ -2407,7 +2428,7 @@ namespace Components.Aphid.Interpreter
 
             if (modified.Length > 1)
             {
-                throw new AphidRuntimeException(
+                throw CreateRuntimeException(
                     "Only one extension can be marked as {0}.",
                     modifier);
             }
@@ -2609,6 +2630,7 @@ namespace Components.Aphid.Interpreter
 
         private object InterpretExpression(AphidExpression expression)
         {
+            CurrentExpression = expression;
             HandleDebugging(expression);
 #if STRICT_INDEX
             if (expression.Index == -1 || expression.Length == -1)
@@ -2742,7 +2764,7 @@ namespace Components.Aphid.Interpreter
                     return InterpretImplicitArgumentsExpression((ImplicitArgumentsExpression)expression);
 
                 default:
-                    throw new AphidRuntimeException("Unexpected expression {0}", expression);
+                    throw CreateRuntimeException("Unexpected expression {0}", expression);
             }
         }
 
@@ -2768,19 +2790,16 @@ namespace Components.Aphid.Interpreter
 
             foreach (var expression in expressions)
             {
-                CurrentStatement = expression;
+                CurrentStatement = CurrentExpression = expression;
 
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
                     HandleDebugging(expression);
-
-                    AphidObject obj;
-
                     var id = expression.ToIdentifier().Identifier;
 
                     if (CurrentScope.ContainsKey(id))
                     {
-                        throw new AphidRuntimeException("Duplicated variable declaration: {0}", id);
+                        throw CreateRuntimeException("Duplicated variable declaration: {0}", id);
                     }
 
                     CurrentScope.Add(id, new AphidObject());
@@ -2827,7 +2846,7 @@ namespace Components.Aphid.Interpreter
 
             if (fullFilename == null)
             {
-                throw new AphidRuntimeException("Cannot find script {0}", filename);
+                throw CreateRuntimeException("Cannot find script {0}", filename);
             }
 
             SetScriptFilename(fullFilename);
@@ -2968,6 +2987,11 @@ namespace Components.Aphid.Interpreter
         public void Pause()
         {
             SingleStep();
+        }
+
+        public AphidRuntimeException CreateRuntimeException(string message, params object[] args)
+        {
+            return new AphidRuntimeException(CurrentStatement, CurrentExpression, message, args);
         }
     }
 }

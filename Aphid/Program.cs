@@ -45,21 +45,19 @@ namespace Aphid
                 }
                 catch (AphidParserException exception)
                 {
-                    Console.WriteLine("Parser exception\r\n");
-                    Console.WriteLine(ParserErrorMessage.Create(code, exception));
+                    AphidCli.DumpException(exception, code);
+                }
+                catch (AphidLoadScriptException exception)
+                {
+                    AphidCli.DumpException(exception, interpreter, code);
                 }
                 catch (AphidRuntimeException exception)
                 {
-                    Console.WriteLine("Unexpected runtime exception\r\n\r\n{0}\r\n", exception.Message);
-                    AphidCli.DumpStackTrace(interpreter);
+                    AphidCli.DumpException(exception, interpreter);
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine(
-                        "Unexpected exception\r\n\r\n{0}\r\n",
-                        ExceptionHelper.Unwrap(exception).Message);
-
-                    AphidCli.DumpStackTrace(interpreter);
+                    AphidCli.DumpException(exception, interpreter);
                 }
             }
             else

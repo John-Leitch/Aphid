@@ -20,8 +20,7 @@ namespace SeamlessInteropSample3
                 
                 Console.WriteLine(
                     'x={0}, y={1}',
-                    obj.get_Item('x'),
-                    obj.get_Item('y'));
+                    [ obj.get_Item('x'), obj.get_Item('y') ]);
             ");
         }
     }

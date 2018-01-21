@@ -13,26 +13,29 @@ namespace Components.Aphid.Library
     {
         public static Encoding Encoding = Encoding.GetEncoding("iso-8859-1");
 
-        private static AphidSerializer _serializer = new AphidSerializer() { IgnoreFunctions = true };
+        private static AphidSerializer CreateSerializer(AphidInterpreter interpreter)
+        {
+            return new AphidSerializer(interpreter) { IgnoreFunctions = true };
+        }
 
         [AphidInteropFunction("extendType", PassInterpreter = true, UnwrapParameters = false)]
         public static void Extend(AphidInterpreter interpreter, AphidObject type, AphidObject extensions)
         {
             var typeStr = (string)type.Value;
 
-            TypeExtender.Extend(interpreter, (string)type.Value, extensions, null, null);
+            interpreter.TypeExtender.Extend((string)type.Value, extensions, null, null);
         }
 
-        [AphidInteropFunction("serialize", UnwrapParameters = false)]
-        public static AphidObject Serialize(AphidObject obj)
+        [AphidInteropFunction("serialize", UnwrapParameters = false, PassInterpreter = true)]
+        public static AphidObject Serialize(AphidInterpreter interpreter, AphidObject obj)
         {
-            return new AphidObject(_serializer.Serialize(obj));
+            return new AphidObject(CreateSerializer(interpreter).Serialize(obj));
         }
 
-        [AphidInteropFunction("deserialize", UnwrapParameters = false)]
-        public static AphidObject Deserialize(AphidObject obj)
+        [AphidInteropFunction("deserialize", UnwrapParameters = false, PassInterpreter = true)]
+        public static AphidObject Deserialize(AphidInterpreter interpreter, AphidObject obj)
         {
-            return _serializer.Deserialize((string)obj.Value);
+            return CreateSerializer(interpreter).Deserialize((string)obj.Value);
         }
 
         [AphidInteropFunction("ascii.getBytes")]
@@ -105,8 +108,8 @@ namespace Components.Aphid.Library
             return Console.ReadLine();
         }
 
-        [AphidInteropFunction("num")]
-        public static decimal CovertToNumber(object obj)
+        [AphidInteropFunction("num", PassInterpreter = true)]
+        public static decimal CovertToNumber(AphidInterpreter interpreter, object obj)
         {
             if (obj is string)
             {
@@ -114,7 +117,9 @@ namespace Components.Aphid.Library
             }
             else
             {
-                throw new AphidRuntimeException("Could not parse number \"{0}\".", obj);
+                throw interpreter.CreateRuntimeException(
+                    "Could not parse number: {0}",
+                    obj);
             }
         }
 
@@ -293,8 +298,8 @@ namespace Components.Aphid.Library
             return str.Trim();
         }        
 
-        [AphidInteropFunction("__string.split")]
-        private static List<AphidObject> StringSplit(string str, object separator)
+        [AphidInteropFunction("__string.split", PassInterpreter = true)]
+        private static List<AphidObject> StringSplit(AphidInterpreter interpreter, string str, object separator)
         {
             string[] s;
             string separatorString;
@@ -310,7 +315,9 @@ namespace Components.Aphid.Library
             }
             else
             {
-                throw new AphidRuntimeException("Invalid string split separator: {0}", separator);
+                throw interpreter.CreateRuntimeException(
+                    "Invalid string split separator: {0}",
+                    separator);
             }
 
             return str
