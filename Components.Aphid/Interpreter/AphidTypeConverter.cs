@@ -22,9 +22,9 @@ namespace Components.Aphid.Interpreter
         }
     }
 
-    public static class AphidTypeConverter
+    public class AphidTypeConverter : AphidInterpreterComponent
     {
-        private static readonly Type[] _decimalTargetTypes = new[]
+        private readonly Type[] _decimalTargetTypes = new[]
         {
             typeof(object),
             typeof(byte),
@@ -39,17 +39,23 @@ namespace Components.Aphid.Interpreter
             typeof(double)
         };
 
-        public static object[] Convert(AphidInteropMethodArg[] args)
+        public AphidTypeConverter(AphidInterpreter interpreter)
+            : base(interpreter)
+        {
+        }
+            
+
+        public object[] Convert(AphidInteropMethodArg[] args)
         {
             return args.Select(Convert).ToArray();
         }
 
-        public static object Convert(AphidInteropMethodArg arg)
+        public object Convert(AphidInteropMethodArg arg)
         {
             return Convert(arg.TargetType, arg.Argument);
         }
 
-        public static AphidConversionInfo CanConvert(
+        public AphidConversionInfo CanConvert(
             MethodBase method,
             object value,
             Type targetType)
@@ -72,7 +78,7 @@ namespace Components.Aphid.Interpreter
                 
         }
 
-        public static bool CanConvertDecimal(decimal value, Type targetType)
+        public bool CanConvertDecimal(decimal value, Type targetType)
         {
             if (targetType == typeof(byte) && (value < byte.MinValue || byte.MaxValue < value))
             {
@@ -118,7 +124,7 @@ namespace Components.Aphid.Interpreter
             return _decimalTargetTypes.Contains(targetType);
         }
 
-        public static bool CanConvertArray(object value, Type valueType, Type targetType)
+        public bool CanConvertArray(object value, Type valueType, Type targetType)
         {
             if (valueType == typeof(string) && targetType != typeof(char[]))
             {
@@ -151,8 +157,18 @@ namespace Components.Aphid.Interpreter
             return false;
         }
 
-        public static object Convert(Type targetType, object value)
+        public object Convert(Type targetType, object value)
         {
+            if (targetType.IsDerivedFrom<Delegate>())
+            {
+                var method = targetType.GetMethod("Invoke");
+                return Interpreter.FunctionConverter.Convert(targetType, value);
+
+                
+                throw new NotImplementedException();
+                //return Interpreter.FunctionConverter.Convert(
+            }
+
             var t = value.GetType();
 
             if (t == targetType ||
@@ -178,7 +194,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static object Convert(Type targetType, decimal value)
+        public object Convert(Type targetType, decimal value)
         {
             if (targetType == typeof(byte))
             {
@@ -226,7 +242,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public static object Convert(Type targetType, Array value)
+        public object Convert(Type targetType, Array value)
         {
             var dst = Array.CreateInstance(targetType.GetElementType(), value.Length);
             value.CopyTo(dst, 0);
@@ -234,52 +250,52 @@ namespace Components.Aphid.Interpreter
             return dst;
         }
 
-        public static byte ToByte(decimal value)
+        public byte ToByte(decimal value)
         {
             return (byte)value;
         }
 
-        public static ushort ToUInt16(decimal value)
+        public ushort ToUInt16(decimal value)
         {
             return (ushort)value;
         }
 
-        public static uint ToUInt32(decimal value)
+        public uint ToUInt32(decimal value)
         {
             return (uint)value;
         }
 
-        public static ulong ToUInt64(decimal value)
+        public ulong ToUInt64(decimal value)
         {
             return (ulong)value;
         }
 
-        public static sbyte ToSByte(decimal value)
+        public sbyte ToSByte(decimal value)
         {
             return (sbyte)value;
         }
 
-        public static short ToInt16(decimal value)
+        public short ToInt16(decimal value)
         {
             return (short)value;
         }
 
-        public static int ToInt32(decimal value)
+        public int ToInt32(decimal value)
         {
             return (int)value;
         }
 
-        public static long ToInt64(decimal value)
+        public long ToInt64(decimal value)
         {
             return (long)value;
         }
 
-        public static float ToFloat(decimal value)
+        public float ToFloat(decimal value)
         {
             return (float)value;
         }
 
-        public static double ToDouble(decimal value)
+        public double ToDouble(decimal value)
         {
             return (double)value;
         }

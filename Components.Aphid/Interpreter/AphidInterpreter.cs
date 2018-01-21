@@ -37,6 +37,10 @@ namespace Components.Aphid.Interpreter
 
         public TypeExtender TypeExtender { get; private set; }
 
+        public AphidTypeConverter TypeConverter { get; private set; }
+
+        public AphidFunctionConverter FunctionConverter { get; private set; }
+
         public Action<AphidExpression> HandleExecutionBreak { get; set; }
 
         public TextWriter Out { get; set; }
@@ -101,7 +105,8 @@ namespace Components.Aphid.Interpreter
             ValueHelper = new ValueHelper(this);
             TypeExtender = new TypeExtender(this);
             InteropTypeResolver = new InteropTypeResolver(this);
-
+            TypeConverter = new AphidTypeConverter(this);
+            FunctionConverter = new AphidFunctionConverter(this);
 
             _frames = new Stack<AphidFrame>(new[] 
             { 
@@ -645,20 +650,31 @@ namespace Components.Aphid.Interpreter
                     {
                         interopRef.Field.SetValue(
                             interopRef.Object,
-                            AphidTypeConverter.Convert(interopRef.Field.FieldType, v));
+                            TypeConverter.Convert(interopRef.Field.FieldType, v));
                     }
                     else
                     {
                         interopRef.Property.SetValue(
                             interopRef.Object,
                             v != null ?
-                                AphidTypeConverter.Convert(interopRef.Property.PropertyType, v) :
+                                TypeConverter.Convert(interopRef.Property.PropertyType, v) :
                                 null);
                     }
 
                     if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
                     {
-                        func.ParentScope = (AphidObject)interopRef.Object;
+                        var o = interopRef.Object;
+
+                        var ao = o as AphidObject;
+
+                        if (ao != null)
+                        {
+                            func.ParentScope = ao;
+                        }
+                        else
+                        {
+                            func.ParentScope = new AphidObject(o, CurrentScope);
+                        }
                     }
 
                     return value;
@@ -1446,7 +1462,7 @@ namespace Components.Aphid.Interpreter
                 method = m.MakeGenericMethod(genArgs);
             }
 
-            var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
+            var convertedArgs = TypeConverter.Convert(methodInfo.Arguments);
 
             return ValueHelper.Wrap(method.Invoke(null, convertedArgs));
         }
@@ -1659,7 +1675,7 @@ namespace Components.Aphid.Interpreter
                 method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
             }
 
-            var convertedArgs = AphidTypeConverter.Convert(methodInfo.Arguments);
+            var convertedArgs = TypeConverter.Convert(methodInfo.Arguments);
 
             PushFrame(
                 callExpression,
@@ -1700,7 +1716,7 @@ namespace Components.Aphid.Interpreter
                     var path = FlattenPath(call.FunctionExpression);
                     var type = InteropTypeResolver.ResolveType(GetImports(), path, isType: true);
                     var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
-                    var convertedArgs = AphidTypeConverter.Convert(ctor.Arguments);
+                    var convertedArgs = TypeConverter.Convert(ctor.Arguments);
                     var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
                     var obj = ValueHelper.Wrap(result);
 

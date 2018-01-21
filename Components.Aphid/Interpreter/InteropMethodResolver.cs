@@ -46,7 +46,7 @@ namespace Components.Aphid.Interpreter
                     x.Method,
                     x.Args,
                     ConversionInfo = x.Args
-                        .Select(y =>  AphidTypeConverter.CanConvert(x.Method, y.Argument, y.TargetType))
+                        .Select(y =>  Interpreter.TypeConverter.CanConvert(x.Method, y.Argument, y.TargetType))
                         .ToArray()
                 })
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))

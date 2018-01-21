@@ -121,6 +121,7 @@
     <Compile Include="IAphidException.cs" />
     <Compile Include="Interpreter\AphidAlias.cs" />
     <Compile Include="Interpreter\AphidAssemblyBuilder.cs" />
+    <Compile Include="Interpreter\AphidFunctionConverter.cs" />
     <Compile Include="Interpreter\AphidInterpreterComponent.cs" />
     <Compile Include="Interpreter\AphidLoadScriptException.cs" />
     <Compile Include="Interpreter\AphidName.cs" />
