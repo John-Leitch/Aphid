@@ -369,7 +369,18 @@ namespace Components.Aphid.Interpreter
                 throw CreateRuntimeException("Invalid member interop access.");
             }
 
-            var members = GetMembers(lhs, expression);
+            MemberInfo[] members;
+
+            if (lhs != null)
+            {
+                members = GetInteropInstanceMembers(lhs, expression);
+            }
+            else
+            {
+                var path = FlattenPath(expression);
+                var type = InteropTypeResolver.ResolveType(GetImports(), path);
+                members = GetInteropStaticMembers(type, path);
+            }
 
             if (members.Length == 1)
             {
@@ -411,39 +422,87 @@ namespace Components.Aphid.Interpreter
             return ValueHelper.Wrap(new AphidInteropMember(lhs, members));
         }
 
-        private MemberInfo[] GetMembers(object target, BinaryOperatorExpression expression)
+        private MemberInfo[] GetInteropInstanceMembers(object target, BinaryOperatorExpression expression)
         {
-            MemberInfo[] members;
+            var memberName = expression.RightOperand.ToIdentifier().Identifier;
 
-            if (target != null)
-            {
-                var memberName = expression.RightOperand.ToIdentifier().Identifier;
+            return target
+                .GetType()
+                .GetMembers()
+                .Where(x => x.Name == memberName)
+                .ToArray();
+        }
 
-                members = target
-                    .GetType()
-                    .GetMembers()
-                    .Where(x => x.Name == memberName)
-                    .ToArray();
-            }
-            else
-            {
-                var path = FlattenPath(expression);
-                var type = InteropTypeResolver.ResolveType(GetImports(), path);
-                var member = path.Last();
+        private MemberInfo[] GetInteropStaticMembers(Type type, string[] path)
+        {
+            var member = path.Last();
 
-                members = type
-                    .GetMembers(BindingFlags.Static | BindingFlags.Public)
-                    .Where(x => x.Name == member)
-                    .ToArray();
-            }
-
-            return members;
+            return type
+                .GetMembers(BindingFlags.Static | BindingFlags.Public)
+                .Where(x => x.Name == member)
+                .ToArray();
         }
 
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
             string key;
+
+            AphidInteropReference staticRef = null;
+
+            if (obj == null)
+            {
+                Func<AphidObject> dynamicHandler = null;
+
+                if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
+                {
+                    var staticType = InteropTypeResolver.TryResolveType(
+                        GetImports(),
+                        FlattenPath(expression.LeftOperand),
+                        isType: true);
+
+                    key = expression.RightOperand.ToIdentifier().Identifier;
+                    var extension = TypeExtender.TryResolve(
+                        CurrentScope,
+                        staticType,
+                        key,
+                        isAphidType: false,
+                        isCtor: false,
+                        isDynamic: false,
+                        returnRef: returnRef);
+
+                    if (extension != null)
+                    {
+                        return extension;
+                    }
+
+                    dynamicHandler = () => TypeExtender.TryResolve(
+                        CurrentScope,
+                        staticType,
+                        key,
+                        isAphidType: false,
+                        isCtor: false,
+                        isDynamic: true,
+                        returnRef: returnRef);
+                }
+
+                var staticObj = InterpretMemberInteropExpression(
+                    null,
+                    expression,
+                    returnRef,
+                    dynamicHandler);
+
+                staticRef = staticObj.Value as AphidInteropReference;
+
+                if (staticRef != null && staticRef.Property != null)
+                {
+                    return staticRef;
+                }
+                else if (staticObj != null)
+                {
+                    return staticObj;
+                }
+            }
 
             if (obj != null && !obj.IsAphidType())
             {
@@ -476,8 +535,6 @@ namespace Components.Aphid.Interpreter
                         returnRef: returnRef);
                 }
 
-                
-
                 return InterpretMemberInteropExpression(
                     obj.Value,
                     expression,
@@ -503,7 +560,7 @@ namespace Components.Aphid.Interpreter
                 throw CreateRuntimeException("Unexpected expression {0}", expression.RightOperand);
             }
 
-            if (returnRef)
+            if (returnRef && staticRef == null)
             {
                 return new AphidRef() { Name = key, Object = obj };
             }
@@ -640,7 +697,63 @@ namespace Components.Aphid.Interpreter
                     (BinaryOperatorExpression)expression.LeftOperand,
                     true);
 
+                var objRef = obj as AphidRef;
+
+                if (objRef != null)
+                {
+                    if (objRef.Object == null)
+                    {
+                        throw CreateRuntimeException("Undefined variable {0}", expression.LeftOperand);
+                    }
+                    else if (objRef.Object.ContainsKey(objRef.Name))
+                    {
+                        if (ValueHelper.IsComplexAphidObject(value))
+                        {
+                            var v = (AphidObject)value;
+
+                            func = ValueHelper.Unwrap(value) as AphidFunction;
+
+                            if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                            {
+                                func.ParentScope = v;
+                            }
+
+                            objRef.Object[objRef.Name] = v;
+                        }
+                        else
+                        {
+                            if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                            {
+                                func.ParentScope = objRef.Object;
+                            }
+
+                            objRef.Object[objRef.Name].Value = ValueHelper.Unwrap(value);
+                        }
+                    }
+                    else
+                    {
+                        objRef.Object.Add(objRef.Name, ValueHelper.Wrap(value));
+
+                        if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                        {
+                            func.ParentScope = objRef.Object;
+                        }
+                    }
+
+                    return value;
+                }
+
                 var interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
+
+                if (interopRef == null)
+                {
+                    obj = InterpretMemberInteropExpression(
+                        null,
+                        (BinaryOperatorExpression)expression.LeftOperand,
+                        returnRef: true);
+
+                    interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
+                }
 
                 if (interopRef != null)
                 {
@@ -680,46 +793,7 @@ namespace Components.Aphid.Interpreter
                     return value;
                 }
 
-                var objRef = ValueHelper.Unwrap(obj) as AphidRef;
-
-                if (objRef.Object == null)
-                {
-                    throw CreateRuntimeException("Undefined variable {0}", expression.LeftOperand);
-                }
-                else if (objRef.Object.ContainsKey(objRef.Name))
-                {
-                    if (ValueHelper.IsComplexAphidObject(value))
-                    {
-                        var v = (AphidObject)value;
-
-                        func = ValueHelper.Unwrap(value) as AphidFunction;
-
-                        if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
-                        {
-                            func.ParentScope = v;
-                        }
-
-                        objRef.Object[objRef.Name] = v;
-                    }
-                    else
-                    {
-                        if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
-                        {
-                            func.ParentScope = objRef.Object;
-                        }
-
-                        objRef.Object[objRef.Name].Value = ValueHelper.Unwrap(value);
-                    }
-                }
-                else
-                {
-                    objRef.Object.Add(objRef.Name, ValueHelper.Wrap(value));
-
-                    if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
-                    {
-                        func.ParentScope = objRef.Object;
-                    }
-                }
+                
             }
             else
             {
@@ -729,6 +803,51 @@ namespace Components.Aphid.Interpreter
             }
 
             return value;
+        }
+
+        private bool HandleInteropReference(AphidInteropReference interopRef, AphidObject value)
+        {
+            if (interopRef == null)
+            {
+                return false;
+            }
+
+            var v = ValueHelper.Unwrap(value);
+
+            if (interopRef.Field != null)
+            {
+                interopRef.Field.SetValue(
+                    interopRef.Object,
+                    TypeConverter.Convert(interopRef.Field.FieldType, v));
+            }
+            else
+            {
+                interopRef.Property.SetValue(
+                    interopRef.Object,
+                    v != null ?
+                        TypeConverter.Convert(interopRef.Property.PropertyType, v) :
+                        null);
+            }
+
+            AphidFunction func;
+
+            if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+            {
+                var o = interopRef.Object;
+
+                var ao = o as AphidObject;
+
+                if (ao != null)
+                {
+                    func.ParentScope = ao;
+                }
+                else
+                {
+                    func.ParentScope = new AphidObject(o, CurrentScope);
+                }
+            }
+
+            return true;
         }
 
         private AphidObject InterprentOperatorAndAssignmentExpression(
@@ -1276,13 +1395,22 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretIdentifierExpression(IdentifierExpression expression)
         {
             AphidObject obj;
+            Type t;
 
             if (CurrentScope.TryResolve(expression.Identifier, out obj))
             {
                 return obj;
             }
+            //else if ((t = InteropTypeResolver.TryResolveType(
+            //    GetImports(), 
+            //    new[] { expression.Identifier },
+            //    isType: true)) != null)
+            //{
+            //    return new AphidObject(t);
+            //}
             else
             {
+                
                 return null;
             }
         }
@@ -1308,7 +1436,7 @@ namespace Components.Aphid.Interpreter
         {
             AphidObject isExtensionObject;
 
-            bool isExtension;
+            bool isExtension, isStaticExtension;
             AphidObject extensionArg;
 
             if (function.ParentScope != null &&
@@ -1316,11 +1444,12 @@ namespace Components.Aphid.Interpreter
                 (bool)isExtensionObject.Value)
             {
                 isExtension = true;
+                isStaticExtension = function.ParentScope.ResolveBool(AphidName.StaticExtension);
                 function.ParentScope.TryGetValue(AphidName.ImplicitArg, out extensionArg);
             }
             else
             {
-                isExtension = false;
+                isExtension = isStaticExtension = false;
                 extensionArg = null;
             }
 
@@ -1335,7 +1464,7 @@ namespace Components.Aphid.Interpreter
 
             foreach (var arg in argList)
             {
-                if (!isExtension && i == 0)
+                if ((!isExtension || isStaticExtension) && i == 0)
                 {
                     SetImplicitArg(functionScope, arg);
                 }
@@ -1348,7 +1477,7 @@ namespace Components.Aphid.Interpreter
                 functionScope.Add(function.Args[i++], arg);
             }
 
-            if (isExtension)
+            if (isExtension && !isStaticExtension)
             {
                 argList.Insert(0, extensionArg);
                 functionScope[AphidName.ImplicitArg] = extensionArg;
@@ -1569,6 +1698,17 @@ namespace Components.Aphid.Interpreter
                         .Concat(curArgs)
                         .ToArray(),
                     interopPartial.Member);
+            }
+
+            var del = funcExp as Delegate;
+
+            if (del != null)
+            {
+                PushFrame(callExpression, expression, args);
+                var retVal = del.DynamicInvoke(args.Select(ValueHelper.Unwrap).ToArray());
+                PopFrame();
+
+                return ValueHelper.Wrap(retVal);
             }
 
             var func2 = funcExp as AphidFunction;
@@ -2789,6 +2929,46 @@ namespace Components.Aphid.Interpreter
             return ValueHelper.Unwrap(InterpretExpression(expression));
         }
 
+        public void InterpretFile(string filename)
+        {
+            InterpretFile(filename, false);
+        }
+
+        public void InterpretFile(string filename, bool isTextDocument)
+        {
+            var fullFilename = Loader.FindScriptFile(filename);
+
+            if (fullFilename == null)
+            {
+                throw CreateRuntimeException("Cannot find script {0}", filename);
+            }
+
+            SetScriptFilename(fullFilename);
+            var code = File.ReadAllText(filename);
+            Interpret(code, filename, isTextDocument);
+        }
+
+        public void Interpret(string code)
+        {
+            Interpret(code, false);
+        }
+
+        public void Interpret(string code, bool isTextDocument)
+        {
+            Interpret(code, null, isTextDocument);
+        }
+
+        private void Interpret(string code, string filename, bool isTextDocument)
+        {
+            var ast = AphidParser.Parse(code, filename, isTextDocument);
+            SetAstCode(ast);
+            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+
+            Interpret(mutatedAst);
+        }
+
         public void Interpret(List<AphidExpression> expressions)
         {
             SetAstCode(expressions);
@@ -2797,6 +2977,25 @@ namespace Components.Aphid.Interpreter
 
         private void Interpret(List<AphidExpression> expressions, bool resetIsReturning = true)
         {
+            if (OnInterpretBlock != null && !OnInterpretBlockExecuting)
+            {
+                OnInterpretBlockExecuting = true;
+                var ctx = new AphidExecutionContext();
+                var result = OnInterpretBlock(expressions, ctx);
+                OnInterpretBlockExecuting = false;
+
+                if (ctx.IsModified)
+                {
+                    expressions = result;
+                }
+
+                if (ctx.IsHandled)
+                {
+                    
+                    return;
+                }
+            }
+
             AphidObject document;
 
             if (!CurrentScope.TryGetValue(AphidName.Block, out document))
@@ -2839,46 +3038,6 @@ namespace Components.Aphid.Interpreter
                     break;
                 }
             }
-        }
-
-        public void Interpret(string code)
-        {
-            Interpret(code, false);
-        }
-
-        public void Interpret(string code, bool isTextDocument)
-        {
-            Interpret(code, null, isTextDocument);
-        }
-
-        public void InterpretFile(string filename)
-        {
-            InterpretFile(filename, false);
-        }
-
-        public void InterpretFile(string filename, bool isTextDocument)
-        {
-            var fullFilename = Loader.FindScriptFile(filename);
-
-            if (fullFilename == null)
-            {
-                throw CreateRuntimeException("Cannot find script {0}", filename);
-            }
-
-            SetScriptFilename(fullFilename);
-            var code = File.ReadAllText(filename);
-            Interpret(code, filename, isTextDocument);
-        }
-
-        private void Interpret(string code, string filename, bool isTextDocument)
-        {
-            var ast = AphidParser.Parse(code, filename, isTextDocument);
-            SetAstCode(ast);
-            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
-
-            Interpret(mutatedAst);
         }
 
         public AphidFrame[] GetStackTrace()

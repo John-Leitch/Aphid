@@ -125,7 +125,6 @@ namespace Components.Aphid.Interpreter
         public Delegate Convert(
             MethodInfo method,
             Type delegateType,
-            //object target,
             AphidFunction function)
         {
             var methodParams = method.GetParameters();
@@ -153,7 +152,7 @@ namespace Components.Aphid.Interpreter
 
             var genericCall = call.MakeGenericMethod(
                 method.ReturnType != typeof(void) ?
-                    new[] { method.ReturnType }.Concat(methodParamTypes).ToArray() :
+                    methodParamTypes.Concat(new[] { method.ReturnType }).ToArray() :
                     methodParamTypes);
 
             return genericCall.CreateDelegate(delegateType, wrapper);

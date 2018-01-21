@@ -18,9 +18,11 @@ namespace Components.Aphid.Interpreter
             Scope = "$scope",
             Parent = "$parent",
             Extension = "$isExt",
+            StaticExtension = "$isStaticExt",
             Script = "$script",
             AsmBuilder = "$asm",
             Code = "$code",
-            Interpreter = "$aphid";
+            Interpreter = "$aphid",
+            OpenRepl = "openRepl";
     }
 }

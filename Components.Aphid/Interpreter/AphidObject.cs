@@ -327,6 +327,16 @@ namespace Components.Aphid.Interpreter
             return TryResolve(key, out v);
         }
 
+        public bool ResolveBool(string key)
+        {
+            AphidObject value;
+
+            return
+                TryResolve(key, out value) &&
+                value.Value != null &&
+                Convert.ToBoolean(value.Value);
+        }
+
         public bool IsAphidType()
         {
             return IsAphidType(this.Value);

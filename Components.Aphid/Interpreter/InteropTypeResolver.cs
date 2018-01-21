@@ -13,7 +13,12 @@ namespace Components.Aphid.Interpreter
         {
         }
 
-        public Type ResolveType(IEnumerable<string> imports, string[] path, bool isType = false)
+        public Type TryResolveType(IEnumerable<string> imports, string[] path, bool isType = false)
+        {
+            return ResolveType(imports, path, isFatal: false, isType: isType);
+        }
+
+        public Type ResolveType(IEnumerable<string> imports, string[] path, bool isFatal = true, bool isType = false)
         {
             var pathStr = string.Join(".", path);
             var offset = !isType ? 1 : 0;
@@ -42,9 +47,16 @@ namespace Components.Aphid.Interpreter
 
             if (type == null)
             {
-                throw Interpreter.CreateRuntimeException(
-                    "Could not find type for interop call '{0}'",
-                    pathStr);
+                if (isFatal)
+                {
+                    throw Interpreter.CreateRuntimeException(
+                        "Could not find type for interop call '{0}'",
+                        pathStr);
+                }
+                else
+                {
+                    return null;
+                }
             }
 
             if (type.PartCount != path.Length - offset)

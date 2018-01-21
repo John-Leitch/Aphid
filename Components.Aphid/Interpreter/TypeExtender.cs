@@ -30,9 +30,23 @@ namespace Components.Aphid.Interpreter
                 string.Format("$ext.{0}", type);
         }
 
+        public string[] FanStaticInteropTypeName(Type type)
+        {
+            var names = new List<string>();
+
+            while (type != null)
+            {
+                names.Add(GetInteropName(type));
+                type = type.BaseType;
+            }
+
+            return names.ToArray();
+        }
+
         public string[] FanInteropName(AphidObject obj)
         {
             var names = new List<string>();
+
             var t = obj.Value.GetType();
 
             do
@@ -179,6 +193,7 @@ namespace Components.Aphid.Interpreter
         //    return TryResolve(scope, obj, key, isAphidType, false);
         //}
 
+
         public AphidObject TryResolve(
             AphidObject scope,
             AphidObject obj,
@@ -188,10 +203,50 @@ namespace Components.Aphid.Interpreter
             bool isDynamic,
             bool returnRef)
         {
-            var classHierarchy = isAphidType ?
-                new[] { obj.GetValueType() } :
-                FanInteropName(obj);
+            return TryResolve(
+                scope,
+                obj,
+                isAphidType ? new[] { obj.GetValueType() } : FanInteropName(obj),
+                key,
+                isAphidType,
+                isCtor,
+                isDynamic,                
+                isStatic: false,
+                returnRef: returnRef);
+        }
 
+        public AphidObject TryResolve(
+            AphidObject scope,
+            Type staticType,
+            string key,
+            bool isAphidType,
+            bool isCtor,
+            bool isDynamic,
+            bool returnRef)
+        {
+            return TryResolve(
+                scope,
+                null,
+                FanStaticInteropTypeName(staticType),
+                key,
+                isAphidType,
+                isCtor,
+                isDynamic,                
+                isStatic: true,
+                returnRef: returnRef);
+        }
+
+        public AphidObject TryResolve(
+            AphidObject scope,
+            AphidObject obj,
+            string[] classHierarchy,
+            string key,
+            bool isAphidType,
+            bool isCtor,
+            bool isDynamic,
+            bool isStatic,
+            bool returnRef)
+        {
             AphidObject val = null;
 
             var selector =
@@ -212,24 +267,38 @@ namespace Components.Aphid.Interpreter
             if (func != null)
             {
                 var function = func.Clone();
+                var skipOffset = isStatic ? 1 : 0;
+
                 function.ParentScope = new AphidObject { Parent = scope };
-                function.ParentScope.Add(AphidName.ImplicitArg, obj);
+
+                if (!isStatic)
+                {
+                    function.ParentScope.Add(AphidName.ImplicitArg, obj);
+                }
+
                 function.ParentScope.Add(AphidName.Extension, new AphidObject(true));
+                function.ParentScope.Add(AphidName.StaticExtension, new AphidObject(isStatic));
 
                 if (function.Args.Any())
                 {
-                    function.ParentScope.Add(function.Args[0], obj);
+                    if (!isStatic)
+                    {
+                        function.ParentScope.Add(function.Args[0], obj);
+                    }
 
                     int skip;
 
-                    if (isDynamic && function.Args.Length >= 2)
+                    if (isDynamic && function.Args.Length >= 2 - skipOffset)
                     {
-                        function.ParentScope.Add(function.Args[1], new AphidObject(key));
-                        skip = 2;
+                        function.ParentScope.Add(
+                            function.Args[1 - skipOffset],
+                            new AphidObject(key));
+
+                        skip = 2 - skipOffset;
                     }
                     else
                     {
-                        skip = 1;
+                        skip = 1 - skipOffset;
                     }
 
                     function.Args = function.Args.Skip(skip).ToArray();
