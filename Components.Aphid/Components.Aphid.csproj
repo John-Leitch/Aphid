@@ -110,6 +110,7 @@
     <Compile Include="External\ConsolePlus\CliArgReader.cs" />
     <Compile Include="External\ConsolePlus\CliArgWriter.cs" />
     <Compile Include="External\ConsolePlus\CommandString.cs" />
+    <Compile Include="External\ConsolePlus\Cli.g.cs" />
     <Compile Include="External\ConsolePlus\InteractiveConsole.cs" />
     <Compile Include="External\Json\JsonFormatter.cs" />
     <Compile Include="External\Json\JsonLexer.cs" />
@@ -261,6 +262,7 @@
     <None Include="App.config" />
     <None Include="AphidCustomOperators.alx" />
     <Resource Include="Compiler\Medusa\LLex\Resources\Lang.CSharp.alx" />
+    <None Include="External\ConsolePlus\Cli.alx" />
     <None Include="External\Json\Json.alx" />
     <None Include="External\Json\Json.Code.alx" />
     <None Include="External\Json\Json.Tmpl.alx" />

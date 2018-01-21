@@ -1,0 +1,24 @@
+#'Std';
+join = String.Join;
+argSets = 
+        1..4->@(c)(['object ', '']
+            ->@(n)(0..c->@(p) format('{0}arg{1}', n, p) )
+            @join(', '));
+
+@{ %>using System.Diagnostics;
+
+namespace Components.External.ConsolePlus
+{
+    public static partial class Cli
+    {
+    <% [ true, false ]->@(line) argSets->@{ %>
+        [DebuggerStepThrough]
+        public static void Write<%= line ? 'Line' : '' %>(string format, <%= $_[0] %>)
+        {
+            WriteCore(format, <%= line ? 'true' : 'false' %>, <%= $_[1] %>);
+        }
+    <% }; %>
+    }
+}
+
+<% }();

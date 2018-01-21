@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Components.External.ConsolePlus
 {
-    public static class Cli
+    public static partial class Cli
     {
         private const string _messageFormat = "[~{0}~{1}~R~] {2}";
 
