@@ -1,7 +1,7 @@
 #'Std';
 join = String.Join;
 argSets = 
-        1..4->@(c)(['object ', '']
+        1..8->@(c)(['object ', '']
             ->@(n)(0..c->@(p) format('{0}arg{1}', n, p) )
             @join(', '));
 

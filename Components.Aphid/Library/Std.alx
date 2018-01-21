@@ -23,6 +23,7 @@ getIdArg = @(i) _callExp(1).Args[i].Identifier;
 idString = @() getArg(0);
 
 format = String.Format;
+join = String.Join;
 
 _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
@@ -31,14 +32,20 @@ skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
 
 using Components.External.ConsolePlus;
 print = @(fmt, arg0) {
-    _s = @() isObject($_) ? $_ : $_.ToString();
+    _no = macro(@(x, f) { x == null ? 'null' : f });
+    _n = macro(@(x1, f1) { _no(x1, f1(x1)) });
+    _na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
+    _oc = macro(@(x3, r) { _no(x3, isObject(x3) ? r : x3.ToString()) });
+    _o = macro(@(x4) { _oc($_, $_ |> Cli.StyleEscape) });
+    _f = macro(@(x5) { _oc($_, $_ |> serialize |> Cli.Escape) });
+    _s = macro(@(x6) { _oc($_, $_ |> serialize |> Cli.StyleEscape) });
 
     if ($args.Count >= 1 && fmt == null) {
-        1 + 1;
+        _t('null format');
         _null Cli.WriteLine('null', []);
     } else if ($args.Count > 1 && isCollection(fmt)) {
-        _t('formatted collection');
-        args = $args |> skip -> Cli.StyleEscape;
+        _t('format collection');
+        args = $args |> skip -> @() _na($_);
         for (x in fmt) {
             Cli.WriteLine(_s(x), args);
         }
@@ -54,25 +61,25 @@ print = @(fmt, arg0) {
                     Cli.WriteLine(fmt |> serialize |> Cli.StyleEscape);
                 } else if (isCollection(fmt)) {                    
                     _t('collection');
-                    fmt->@() Cli.WriteLine(_s($_));
+                    fmt->@(x) _s(x) |> Cli.WriteLine;
                 } else {
                     _t('scalar');
-                    Cli.WriteLine(_s(fmt));
+                    _o(fmt) |> Cli.WriteLine;
                 }
             }
             2: {
-                if (arg0 |> isCollection) {
-                    _t('formatted collection');
-                    Cli.WriteLine(_s(fmt), arg0->@()_s($_) |> Cli.StyleEscape);
+                if (arg0 != null && (arg0 |> isCollection)) {
+                    _t('arg collection');
+                    arg0->@() _s($_) |> Cli.StyleEscape @Cli.WriteLine(_f(fmt));
                 } else {
                     _t('single format arg');
-                    Cli.WriteLine(_s(fmt), [ arg0  |> Cli.StyleEscape ]);
+                    Cli.WriteLine(_f(fmt), _s(arg0));
                 }
             }
             default: {
                 _t('variadic formatted');
-                args = $args |> skip -> Cli.StyleEscape;
-                Cli.WriteLine(_s(fmt), args);
+                args = $args |> skip ->@() _na($_);
+                Cli.WriteLine(_f(fmt), args);
             }
         }
     }
