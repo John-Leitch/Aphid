@@ -182,6 +182,7 @@ namespace Mantispid
                 .WithPositionFrom(lexerObj));
 
             var interpreter = new AphidInterpreter();
+            interpreter.CurrentScope.Add("nodes", new AphidObject(nodes));
             interpreter.Interpret(ast);
             var lexerCode = AlxFile.From(interpreter.GetReturnValue());
 
