@@ -1,6 +1,8 @@
 ﻿remote = null;
 
 @{
+    _t;
+    _t = traceRemoting defined ? print : @{ };
     using System;
     using System.IO;
     using System.Net;
@@ -22,9 +24,9 @@
         read: @{
             reader = new BinaryReader(tcp.GetStream());
             len = reader.ReadUInt32();
-            print('Receiving {0:n0} bytes', len);
+            _t('Receiving {0:n0} bytes', len);
             buf = len |> Convert.ToInt32 |> reader.ReadBytes;
-            print('{0:n0} bytes read', buf.Length);
+            _t('{0:n0} bytes read', buf.Length);
 
             ret new AphidObject(buf |> utf8.GetString);
         },
@@ -45,49 +47,49 @@
 
         listen: @{
             ctx;
-            print('Creating listener on port {0}', remote.port);
+            _t('Creating listener on port {0}', remote.port);
             ctx = { listener: new TcpListener(remote.port), clients: [] };
-            print('Starting listener');
+            _t('Starting listener');
             l = ctx.listener;
             ctx.listener.Start();
 
             ctx.listenThread = thread(@{
                 while (true) {
-                    print('Waiting for client');
+                    _t('Waiting for client');
 
                     try {
                         tcp;
                         c;
 
                         tcp = ctx.listener.AcceptTcpClient();
-                        print('Client connected');
+                        _t('Client connected');
                         c = createClient(tcp);
 
                         c.thread = thread(@{
                             buffer;
-                            print('Creating client thread');
+                            _t('Creating client thread');
 
                             // while (n.socket.isConnected()) {
                             try {
                                 while (c.socket.Connected) {
                                     try {
                                         buffer = c.read();
-                                        print('Buffer: ~Cyan~{0}~R~', buffer);
+                                        _t('Buffer: ~Cyan~{0}~R~', buffer);
                                         { result: buffer |> c.eval } |> serialize |> c.write;
                                     } catch (e) {
-                                        print('Error handling client exchange: {0}', e.message);
+                                        _t('Error handling client exchange: {0}', e.message);
                                     }
                                 }
                             } catch (e) {
-                                print('Client connection error: {0}', e.message);
+                                _t('Client connection error: {0}', e.message);
                             }
 
-                            print('Client disconnected');
+                            _t('Client disconnected');
                         });
 
                         ctx.clients.add(c);
                     } catch (e) {
-                        print('Error accepting client: {0}', e.message);
+                        _t('Error accepting client: {0}', e.message);
                     }
                 }            
             });
@@ -99,23 +101,23 @@
             tcp;
             client;
 
-            print('Connecting to remote session {0}', server);
+            _t('Connecting to remote session {0}', server);
             tcp = new TcpClient();
             tcp.Connect(server, 0x5230);        
             client = createClient(tcp);
-            client |> keys |> print;
+            client |> keys |> _t;
 
             client.eval = @(exp) {
-                print('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
+                _t('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
                 //this |> keys |> dump;
                 write(exp);
-                print('Reading command');
+                _t('Reading command');
                 buf = read();
-                print('Server response: {0}', buf.Replace('~', '~~'));
+                _t('Server response: {0}', buf.Replace('~', '~~'));
                 ret buf |> deserialize;
             };
 
-            print('Connected to remote session');
+            _t('Connected to remote session');
 
             ret client;
         },
