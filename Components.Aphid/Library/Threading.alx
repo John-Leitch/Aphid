@@ -1,1 +1,7 @@
 ﻿##'Components.Aphid.Library.ThreadingLibrary';
+
+parallel = @(action, collection) collection
+    ->(@(element) ctx = { thread: thread(@{ ctx.state = element |> action; }) })
+    ->(@(ctx)ctx.thread.WaitOne() ? ctx.state : null);
+
+@ >~ (collection, action) parallel(action, collection);
