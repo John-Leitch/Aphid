@@ -2,7 +2,14 @@
 
 @{
     _t;
-    _t = traceRemoting defined ? print : @{ };
+    #'Query';
+    _t = traceRemoting defined ?
+        @(f){
+            if ($args.Count == 0) print('');
+            else if ($args.Count == 1) print($args[0]);
+            else  print($args[0], $args @aq.skip(1));
+        } :
+        @{ };
     using System;
     using System.IO;
     using System.Net;
@@ -67,18 +74,27 @@
 
                         c.thread = thread(@{
                             buffer;
+                            resp;
                             _t('Creating client thread');
 
                             // while (n.socket.isConnected()) {
                             try {
                                 while (c.socket.Connected) {
-                                    try {
-                                        buffer = c.read();
-                                        _t('Buffer: ~Cyan~{0}~R~', buffer);
-                                        { result: buffer |> c.eval } |> serialize |> c.write;
-                                    } catch (e) {
-                                        _t('Error handling client exchange: {0}', e.message);
+                                    try buffer = c.read();
+                                    catch (e) {
+                                        _t('Error reading buffer: {0}', e.message);
+                                        continue;
                                     }
+
+                                    _t('Buffer: ~Cyan~{0}~R~', buffer);
+
+                                    try resp = { result: buffer |> c.eval } |> serialize;
+                                    catch (e) {
+                                        _t('Error serializating ressponse: {0}', e.message);
+                                        this |> serialize |> c.write;
+                                    }
+
+                                    resp |> c.write;
                                 }
                             } catch (e) {
                                 _t('Client connection error: {0}', e.message);
@@ -101,11 +117,14 @@
             tcp;
             client;
 
+            if (!(server defined) || server == null) {
+                fata('Server must be specified');
+            }
+
             _t('Connecting to remote session {0}', server);
             tcp = new TcpClient();
             tcp.Connect(server, 0x5230);        
             client = createClient(tcp);
-            client |> keys |> _t;
 
             client.eval = @(exp) {
                 _t('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
