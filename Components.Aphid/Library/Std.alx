@@ -14,6 +14,7 @@ float = Convert.ToSingle;
 double = Convert.ToDouble;
 decimal = Convert.ToDecimal;
 
+aphid = this.{'$aphid'};
 getBlock = @() this.{'$parent'}.{'$block'};
 _callExp = macro(@(i){ this.{'$frames'}[i].Expression });
 getCall = @() _callExp(1);
@@ -37,7 +38,7 @@ print = @(fmt, arg0) {
     _na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
     _oc = macro(@(x3, r) { _no(x3, isObject(x3) ? r : x3.ToString()) });
     
-    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() |> Cli.Escape });
+    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
     
     
     _f = macro(@(x5) { 
