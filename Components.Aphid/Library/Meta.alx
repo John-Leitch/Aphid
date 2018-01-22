@@ -13,6 +13,23 @@ using Components.Aphid.Parser;
     
 };
 
+
+mutate = null;
+
+@{
+    using Components.Aphid.Parser;
+    print('foo');
+    mutate = @(f, n) (new ScriptMutator(f)).Mutate(n);
+}();
+
+    // 
+    //  = @(block, context) { block |> m.Mutate };
+
+transformBlock = @(f){
+    this.{'$aphid'}.OnInterpretBlock = f;
+    
+};
+
 frames = @() this.{'$frames'};
 frame = @(i) this.{'$frames'}[i];
 
@@ -191,6 +208,14 @@ ast = {
     member: @(lhs, rhs) binOp(lhs, getToken('.'), rhs),
     pair: @(lhs, rhs) binOp(lhs, getToken(':'), rhs),
     call: @(target, args) new CallExpression(target, args),
+    text: @(text) new TextExpression(text),
+    
+    str: @(value) new StringExpression(expression
+        .ToString()
+        .Replace('\\', '\\\\')
+        .Replace('"', '\\"')
+        @format('"{0}"')),
+
     makeRet: @(operand) preUnOp(token.return, operand),
     return: makeRet,
     
@@ -261,6 +286,8 @@ extend AphidExpression {
     isBinOp: @(x) x.is(BinaryOperator),
     isObj: @(x) x.is(Object),
     isExt: @(exp, type) exp.is(Extend) \ exp.extType() == (1`0),
+    isText: @(x) x.is(Text),
+
     init: @(exp) {
         exp.isUsing = exp.isOp(getToken('using'));
     },
@@ -305,8 +332,13 @@ extend AphidExpression {
     property: @(lhs, name) lhs
         .member(ast.id(name).WithPositionFrom(lhs))
         .WithPositionFrom(lhs),
-    call: @(target, args) ast.call(target, args).WithPositionFrom(target),
+    call: @(target, args) ast.call(target, args).WithPositionFrom(target),    
 }
+
+// extend TextExpression {
+//     replace: @(text, search, replacement)
+//         text.Text.Replace(search, replacement) |> ast.text @() $_.WithPositionFrom(text),
+// }
 
 getLexer = @(stream) {
     l = {
@@ -398,6 +430,4 @@ dumpAstJson = @(node){
 
     node |> toJson |> print;
     ret null;
-
-    
 };
