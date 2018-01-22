@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Components.Aphid.Parser;
+using System.IO;
 
 namespace Components.Aphid.UI
 {
@@ -29,7 +30,10 @@ namespace Components.Aphid.UI
             AphidInterpreter interpreter,
             string code)
         {
-            Console.WriteLine(GetErrorMessage(exception, code));
+            Console.WriteLine(GetErrorMessage(
+                exception,
+                File.ReadAllText(exception.ScriptFile)));
+
             DumpStackTrace(interpreter);
         }
 
