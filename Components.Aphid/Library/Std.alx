@@ -26,6 +26,11 @@ idString = @() getArg(0);
 format = String.Format;
 join = String.Join;
 
+@ =< (selector, source) source -> selector;
+@ <| (target, arg) arg |> target;
+@ :: (fmt, args) String.Format(fmt, args);
+@ :> (fmt, args) $args.Count == 2 ? print(fmt, args) : print(fmt);
+
 _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
 using System.Linq;
@@ -39,7 +44,6 @@ print = @(fmt, arg0) {
     _oc = macro(@(x3, r) { _no(x3, isObject(x3) ? r : x3.ToString()) });
     
     _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
-    
     
     _f = macro(@(x5) { 
         x5 == null ? 'null' :
