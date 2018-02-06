@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidString")]
+    [TestFixture(Category = "AphidString"), Parallelizable(ParallelScope.Self)]
     public class StringTests : AphidTests
     {
         protected override bool LoadStd { get { return true; } }

@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidExtensionMethod")]
+    [TestFixture(Category = "AphidExtensionMethod"), Parallelizable(ParallelScope.Self)]
     public class ExtensionMethodTests : AphidTests
     {       
         [Test]
@@ -82,6 +83,35 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
         }
+
+        //Todo: Add alias tests using SuiteAttribute.
+        [Test]
+        public void ExtensionMethodCSStyleDecimalAliasTest8()
+        {
+            Assert9("using System; extend decimal{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
+        }        
+
+        //public void ExtensionMethodNumberCore([CallerMemberName] string name = null)
+        //{
+
+        //    string t;
+
+        //    if (name.Contains("CSStyleDecimalAlias"))
+        //    {
+        //        t = "decimal";
+        //    }
+        //    else if (name.StartsWith("ExtensionMethodNumberTest"))
+        //    {
+        //        t = "number";
+        //    }
+        //    else
+        //    {
+        //        throw new ArgumentException("Invalid caller name: {0}", name);
+        //    }
+                
+
+        //    Assert9("extend {0}{{g:@(x,y)$args[0]+$args[1]}}ret(8).g(1)", t);
+        //}
 
         [Test]
         public void ExtensionMethodTestUnknown()
@@ -303,7 +333,7 @@ namespace Components.Aphid.Tests.Integration
             ");
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void StaticExtensionMethodDefinedTest()
         {
             AssertTrue(@"
@@ -317,7 +347,7 @@ namespace Components.Aphid.Tests.Integration
             ");
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void StaticExtensionMethodNotDefinedTest()
         {
             AssertTrue(@"

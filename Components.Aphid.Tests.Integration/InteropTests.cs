@@ -2,7 +2,7 @@
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidInterop")]
+    [TestFixture(Category = "AphidInterop"), Parallelizable(ParallelScope.Self)]
     public class InteropTests : AphidTests
     {
         [Test]

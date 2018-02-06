@@ -272,7 +272,7 @@ namespace Components.Aphid.Tests.Integration
         ////////////////////////////////////////////////////////////////
         // Todo: Fix ulong hex runtime bug.
         ////////////////////////////////////////////////////////////////
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void TestArrayTypeCoercion4()
         {
             ArrayAssert9<ulong>(0x1, "try { a[0x0] = 0xffffffffffffffff } catch { ret 0 }  ret 9");
@@ -299,7 +299,7 @@ namespace Components.Aphid.Tests.Integration
         ////////////////////////////////////////////////////////////////
         // Todo: Fix ulong hex parsing bug.
         ////////////////////////////////////////////////////////////////
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void TestArrayTypeCoercion8()
         {
             ArrayAssert9<ulong>(0x1, "try { a[0x0] = 0x10000000000000000 } catch { ret 9 }  ret 0");

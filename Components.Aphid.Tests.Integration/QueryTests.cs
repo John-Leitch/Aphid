@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidQuery")]
+    [TestFixture(Category = "AphidQuery"), Parallelizable(ParallelScope.Self)]
     public class QueryTests : AphidTests
     {
         protected override bool LoadStd
@@ -15,9 +17,9 @@ namespace Components.Aphid.Tests.Integration
             get { return true;  }
         }
 
-        protected override string PrefixScript(string script)
+        protected override List<AphidExpression> ParseScript(AphidInterpreter interpreter, string script)
         {
-            return base.PrefixScript("#'Query'; l = [ 1, 1, 2, 3, ]; l2 = [ 4, ];") + script;
+            return base.ParseScript(interpreter, "#'Query'; l = [ 1, 1, 2, 3, ]; l2 = [ 4, ];" + script);
         }
 
         [Test]

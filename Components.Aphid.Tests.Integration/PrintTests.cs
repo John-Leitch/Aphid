@@ -2,7 +2,7 @@
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidPrint")]
+    [TestFixture(Category = "AphidPrint"), Parallelizable(ParallelScope.Self)]
     public class PrintTests : AphidTests
     {
         [Test]
@@ -10,7 +10,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertTrue(@"
                 using Components.External.ConsolePlus;
-                tracePrint;
+                //tracePrint;
                 #'Std';
                 #'Meta';
                 

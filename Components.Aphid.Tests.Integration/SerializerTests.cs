@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "Serialization")]
+    [TestFixture(Category = "Serialization"), Parallelizable(ParallelScope.Self)]
     public class SerializerTests : AphidTests
     {
         protected override bool LoadStd
@@ -126,7 +126,7 @@ namespace Components.Aphid.Tests.Integration
             AssertTrueDeserialization("0..0x1000", "ret o.Count == 0x1000");
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported")]
         public void TestListSerialization8()
         {
             Assert9Deserialization(
@@ -202,7 +202,7 @@ namespace Components.Aphid.Tests.Integration
                 "ret o.context.metadata.bar.w[4]");
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void TestCircularSerialization5()
         {
             Assert9Deserialization(

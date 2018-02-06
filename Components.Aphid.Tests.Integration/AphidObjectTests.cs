@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidObject")]
+    [TestFixture(Category = "AphidObject"), Parallelizable(ParallelScope.Self)]
     public class AphidObjectTests : AphidTests
     {
         [Test]
@@ -28,13 +28,13 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo("y = 'foo'; x = { y }; ret x.y;");
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void ObjectMemberSetTest1()
         {
             AssertFoo("x='foo'; a={x}; a.x='bar'; ret x;");
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Not yet supported.")]
         public void ObjectMemberSetTest2()
         {
             AssertTrue("x='foo'; a={x}; a.x='bar'; ret x=='foo' && a.x='bar';");
