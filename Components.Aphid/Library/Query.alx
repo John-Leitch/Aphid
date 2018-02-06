@@ -1,36 +1,58 @@
-﻿aphidQuery = {
+﻿_p = macro(@{
+    x;
+    y;
+    x = [];
+});
+
+_p2 = macro(@{
+    _p();
+    z;
+});
+
+_p3 = macro(@{
+    _p();
+    i;
+    i = 0;
+});
+
+aphidQuery = {
     where: @(predicate, list) {
-        x = [];
-        for (element in list) if (predicate(element)) x.add(element);
+        _p();
+        for (y in list) if (predicate(y)) x.add(y);
         ret x;
     },
 
     select: @(selector, list) {
-        x = [];
+        _p();
         for (y in list) y |> selector |> x.add;
         ret x;
     },
 
     selectMany: @(selector, list) {
-        x = [];
+        _p2();
         for (y in list) for (z in selector(y)) x.add(z);
         ret x;
     },
 
     any: @(predicate, list) {
-        for (element in list) if (predicate(element)) ret true;
+        x;
+        for (x in list) if (predicate(x)) ret true;
         ret false;
     },
 
     first: @(predicate, list) {
         if ($args.Count == 2) {
+            x;
             for (x in list) if (predicate(x)) ret x;
         } else {
+            x;
             for (x in predicate) ret x;
         }
     },
 
     last: @(predicate, list) {
+        x;
+        last;
         last = null;
 
         if ($args.Count == 2) {
@@ -43,16 +65,18 @@
     },
 
     distinct: @(list) {
-        x = [];
+        _p();
         for (y in list) if (!__list.contains(x, y)) x.add(y);
         ret x;
     },
 
     iter: @(action, list) {
+        x;
         for (x in list) action(x);
     },
 
     all: @(predicate, list) {
+        x;
         for (x in list) if (!predicate(x)) ret false;
         ret true;
     },
@@ -60,47 +84,54 @@
     count: @(list) __list.count(list),
 
     concat: @(list, otherList) {
-        x = [];
+        _p();
         for (y in otherList) x.add(y);
         for (y in list) x.add(y);
         ret x;
     },
 
     skip: @(count, list) {
-        x = []; i = 0;
+        _p3();
+
         for (y in list) {
             if (i >= count) x.add(y);
             i++;
         }
+
         ret x;
     },
 
     take: @(count, list) {
-        x = []; i = 0;
+        _p3();
+
         for (y in list) {
             if (i < count) x.add(y);
             i++;
         }
+
         ret x;
     },
 
     takeWhile: @(predicate, list) {
-    x = [];
+        x;
+        x = [];
 
-    list for {
-        if (predicate($_)) {
-            x.add($_);
-        } else {
-            break;
-        }
-    };
+        list for {
+            if (predicate($_)) {
+                x.add($_);
+            } else {
+                break;
+            }
+        };
 
-    ret x;
-},
+        ret x;
+    },
     
     aggr: @(acc, list) {
         if (list.count() == 1) ret list[0];
         else {
+            s;
+            x;
             s = list[0];
             for (x in list.skip(1)) s = acc(s, x);
             ret s;
