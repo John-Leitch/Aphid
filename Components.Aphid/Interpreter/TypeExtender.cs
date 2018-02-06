@@ -43,9 +43,21 @@ namespace Components.Aphid.Interpreter
             return names.ToArray();
         }
 
+        public string[] FanAphidName(AphidObject obj)
+        {
+            return FanInteropNameCore(obj, includeAphidType: true);
+        }
+
         public string[] FanInteropName(AphidObject obj)
         {
-            var names = new List<string>();
+            return FanInteropNameCore(obj, includeAphidType: false);
+        }
+
+        private string[] FanInteropNameCore(AphidObject obj, bool includeAphidType)
+        {
+            var names = !includeAphidType ?
+                new List<string>() :
+                new[] { obj.GetValueType() }.ToList();
 
             var t = obj.Value.GetType();
 
@@ -188,7 +200,7 @@ namespace Components.Aphid.Interpreter
             return TryResolve(
                 scope,
                 obj,
-                isAphidType ? new[] { obj.GetValueType() } : FanInteropName(obj),
+                isAphidType ? FanAphidName(obj) : FanInteropName(obj),
                 key,
                 isAphidType,
                 isCtor,
@@ -249,6 +261,7 @@ namespace Components.Aphid.Interpreter
             if (func != null)
             {
                 var function = func.Clone();
+                //var function = func;
                 var skipOffset = isStatic ? 1 : 0;
 
                 function.ParentScope = new AphidObject { Parent = scope };
