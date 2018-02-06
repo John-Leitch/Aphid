@@ -1,4 +1,18 @@
-﻿extend list { 
+﻿_p = macro(@{
+    x;
+    y;
+    x = [];
+});
+
+_p2 = macro(@{
+    x;
+    y;
+    i;
+    x = [];
+    i = 0;
+});
+
+extend list { 
 	count: @(l) __list.count(l),
 		
 	add: @(l, item) { 
@@ -18,57 +32,59 @@
 	contains: @(l, item) __list.contains(l, item),
 
 	select: @(l, selector) {
-		x = [];
+		_p();
 		for (y in l) __list.add(x, selector(y));
 		ret x;
 	},
 
 	where: @(l, predicate) { 
-		x = [];
+		_p();
 		for (y in l) if (predicate(y)) __list.add(x, y);
 		ret x;
 	},
 
 	first: @(l, predicate) {
+        x;
 		for (x in l) if (predicate(x)) ret x;
 	},
 
 	selectMany: @(l, selector) {
-		x = [];
+		_p();
 		for (y in l) for (z in selector(y)) x.add(z);
 		ret x;
 	},
 
 	distinct: @(l) {
-		x = [];
+		_p();
 		for (y in l) if (!__list.contains(x, y)) x.add(y);
 		ret x;
 	},
 
 	any: @(l, predicate) {
 		if (predicate defined) {
+            x;
 			for (x in l) if (predicate(x)) ret true;
 			ret false;
-		}
-		else {
-				ret __list.count(l) != 0;
+		} else {
+			ret __list.count(l) != 0;
 		}
 	},
 
 	all: @(l, predicate) {
+        x;
 		for (x in l) if (!predicate(x)) ret false;
 		ret true;
 	},
 
 	concat: @(l, second) {
-		x = [];
+		_p();
 		for (y in l) x.add(y);
 		for (y in second) x.add(y);
 		ret x;
 	},
 
 	skip: @(l, count) {
-		x = []; i = 0;
+		_p2();
 		for (y in l) {
 			if (i >= count) x.add(y);
 			i++;
@@ -77,7 +93,7 @@
 	},
 
 	take: @(l, count) {
-		x = []; i = 0;
+		_p2();
 		for (y in l) {
 			if (i < count) x.add(y);
 			i++;
@@ -88,6 +104,8 @@
 	aggregate: @(l, acc) {
 		if (l.count() == 1) ret l[0];
 		else {
+            s;
+            x;
 			s = l[0];
 			for (x in l.skip(1)) s = acc(s, x);
 			ret s;
@@ -101,7 +119,7 @@
 	addAll: @(l) l.aggregate(@(x, y)x + y),
 
 	clone: @(l) {
-		x = [];
+		_p();
 		l.iter(x.add);
 		ret x;
 	},
