@@ -49,16 +49,23 @@ namespace Components.Aphid.Interpreter
 
         public object TryResolveStaticMember(BinaryOperatorExpression expression, bool returnRef)
         {
+            string key;
+            Type staticType = null;
             Func<AphidObject> dynamicHandler = null;
 
             if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
             {
-                var key = expression.RightOperand.ToIdentifier().Identifier;
+                //if (expression.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
+                //    expression.LeftOperand.ToIdentifier().Identifier.Contains("Thread"))
+                //{
+                //    Console.WriteLine();
+                //}
+                key = expression.RightOperand.ToIdentifier().Identifier;
 
-                var staticType = Interpreter.InteropTypeResolver.TryResolveType(
+                staticType = Interpreter.InteropTypeResolver.TryResolveType(
                     Interpreter.GetImports(),
                     Interpreter.FlattenPath(expression.LeftOperand),
-                    isType: true);                
+                    isType: true);
 
                 var extension = Interpreter.TypeExtender.TryResolve(
                     Interpreter.CurrentScope,
