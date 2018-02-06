@@ -2290,6 +2290,10 @@ namespace Components.Aphid.Interpreter
                 (expression.Element as IdentifierExpression).Identifier :
                 null;
 
+            var elementObjScope = elementId != null ?
+                CurrentScope.TryResolveParent(elementId) :
+                null;
+
             foreach (var element in elements)
             {
                 EnterChildScope();
@@ -2298,7 +2302,14 @@ namespace Components.Aphid.Interpreter
 
                 if (elementId != null)
                 {
-                    CurrentScope.Add(elementId, obj);
+                    if (elementObjScope == null)
+                    {
+                        CurrentScope.Add(elementId, obj);
+                    }
+                    else
+                    {
+                        elementObjScope[elementId] = obj;
+                    }
                 }
 
                 Interpret(expression.Body, false);
