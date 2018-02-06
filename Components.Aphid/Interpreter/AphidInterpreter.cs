@@ -489,7 +489,7 @@ namespace Components.Aphid.Interpreter
             {
                 AphidObject val;
 
-                if (obj == null|| (obj.Count == 0 && obj.Value == null))
+                if (obj == null || (obj.Count == 0 && obj.Value == null))
                 {
                     if (expression.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
                     {
@@ -497,6 +497,44 @@ namespace Components.Aphid.Interpreter
                     }
 
                     return InterpretMemberInteropExpression(null, expression, returnRef);
+                }
+                else if (obj.Count == 0)
+                {
+                    var aphidType = obj.IsAphidType();
+                    val = TypeExtender.TryResolve(
+                            CurrentScope,
+                            obj,
+                            key,
+                            isAphidType: aphidType,
+                            isCtor: false,
+                            isDynamic: false,
+                            returnRef: returnRef) ??
+                        InterpretMemberInteropExpression(
+                            obj.Value,
+                            expression,
+                            returnRef,
+                            () => TypeExtender.TryResolve(
+                                CurrentScope,
+                                obj,
+                                key,
+                                isAphidType: aphidType,
+                                isCtor: false,
+                                isDynamic: true,
+                                returnRef: returnRef));
+
+                    if (val == null)
+                    {
+                        throw CreateRuntimeException(
+                            "No CLR member or Aphid extension '{0}' " + 
+                            "declared for type '{1}': {1}",
+                            key,
+                            aphidType ?
+                                obj.GetValueType() :
+                                obj.Value.GetType().FullName,
+                            expression);
+                    }
+
+                    return val;
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
