@@ -1,24 +1,52 @@
-#'Std';
-join = String.Join;
-argSets = 
-        1..8->@(c)(['object ', '']
-            ->@(n)(0..c->@(p) format('{0}arg{1}', n, p) )
-            @join(', '));
+#'..\\..\\..\\Components.Aphid\\Library\\Meta.alx';
+#'..\\..\\..\\Components.Aphid\\Library\\Std.alx';
 
-@{ %>using System.Diagnostics;
+(@{
+    using System;
+    using System.IO;
 
-namespace Components.External.ConsolePlus
-{
-    public static partial class Cli
+    categories = ['Info', 'Query', 'Success', 'Error', 'CriticalError' ];
+    (1..8 -> @(c) (['object ', ''] -> @(n) (0..c -> @format('{0}arg{1}', n)) @join(', ')))
+    @(args) { %>
+    
+    namespace Components.External.ConsolePlus
     {
-    <% [ true, false ]->@(line) argSets->@{ %>
-        [DebuggerStepThrough]
-        public static void Write<%= line ? 'Line' : '' %>(string format, <%= $_[0] %>)
+        public static partial class Cli
         {
-            WriteCore(format, <%= line ? 'true' : 'false' %>, <%= $_[1] %>);
-        }
-    <% }; %>
-    }
-}
+        <% [ true, false ]->@(l) args->@(a){ %>
+            Prologue<%= l ? 'Line' : '' %>(string format, <%= a[0] %>)
+            {
+                WriteCore(format, <%= l ? 'true' : 'false' %>, <%= a[1] %>);
+            }
+        <% }; %>
 
-<% }();
+        <% categories->@(c) args->@(a){ %>
+            Prologue<%= c %>Message(string format, <%= a[0] %>)
+            {
+                Write<%= c %>Message(format, new object[] { <%= a[1] %> });
+            }
+        <% }; %>
+
+        <% categories->@(c){ %>
+            Prologue<%= c %>Message(string message)
+            {
+                Write<%= c %>Message(message.Replace("{", "{{").Replace("}", "}}"), new object[0]);
+            }
+        <% }; %>
+        }
+    }
+
+    <% };
+}
+@mutateFunc(@{
+    if (expression.isText() && expression.Text.Contains('Prologue')) {
+        hasChanged = true;
+
+        ret ' ' * 12
+            @format(
+                '\r\n' +
+                '{0}[System.Diagnostics.DebuggerStepThrough]\r\n' +
+                '{0}public static void Write')
+            |> ast.text;
+    }
+}))();
