@@ -61,6 +61,14 @@ namespace Components.Aphid.Interpreter
             Type targetType)
         {
             var valueType = value.GetType();
+
+            if (targetType.IsDerivedFrom(typeof(Delegate)) &&
+                valueType == typeof(AphidFunction))
+            {
+                return new AphidConversionInfo(true, new Type[0]);
+            }
+
+            
             var genericArguments = new List<Type>();
 
             // Todo:
