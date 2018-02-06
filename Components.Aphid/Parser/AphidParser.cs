@@ -147,5 +147,25 @@ namespace Components.Aphid.Parser
                 filename,
                 useImplicitReturns: useImplicitReturns);
         }
+
+        public static List<AphidExpression> ParseFile(string filename)
+        {
+            return ParseFile(
+                filename,
+                isTextDocument: false,
+                useImplicitReturns: true);
+        }
+
+        public static List<AphidExpression> ParseFile(
+            string filename,
+            bool isTextDocument = false,
+            bool useImplicitReturns = true)
+        {
+            return Parse(
+                File.ReadAllText(filename),
+                filename,
+                isTextDocument,
+                useImplicitReturns);
+        }
     }
 }
