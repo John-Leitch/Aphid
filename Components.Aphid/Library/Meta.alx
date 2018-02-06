@@ -13,22 +13,27 @@ using Components.Aphid.Parser;
     
 };
 
-
-mutate = null;
+mutate;
+mutateFunc;
+transformBlock;
 
 @{
     using Components.Aphid.Parser;
-    print('foo');
-    mutate = @(f, n) (new ScriptMutator(f)).Mutate(n);
-}();
-
-    // 
-    //  = @(block, context) { block |> m.Mutate };
-
-transformBlock = @(f){
-    this.{'$aphid'}.OnInterpretBlock = f;
+    mutate = @(mutateNode, rootNode) (new ScriptMutator(mutateNode)).MutateRecursively(rootNode);
     
-};
+    mutateFunc = @(mutateBody, func) {
+        using Components.Aphid.Interpreter;
+        using System.Reflection;
+        r;
+        r = func.Body @mutate(mutateBody);
+        func.Body.Clear();
+        r->func.Body.Add;
+
+        ret func;
+    };
+
+    transformBlock = @(f) this.{'$aphid'}.OnInterpretBlock = f;
+}();
 
 frames = @() this.{'$frames'};
 frame = @(i) this.{'$frames'}[i];
