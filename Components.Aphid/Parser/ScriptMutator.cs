@@ -93,6 +93,7 @@ namespace Components.Aphid.Parser
             else
             {
                 hasChanged = false;
+                mutated = new List<AphidExpression> { expression };
             }
             
             Interpreter.LeaveChildScope();
