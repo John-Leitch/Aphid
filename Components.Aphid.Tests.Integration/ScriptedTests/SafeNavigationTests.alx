@@ -1,0 +1,48 @@
+﻿#'Std';
+#'Meta';
+
+@?. (lhs, rhs) lhs != null ? lhs.{frame(1).exp().rhs().id()} : null;
+
+_prologue = macro(@{
+    foo = {
+        bar: {
+            x: 10
+        }
+    };
+});
+
+#'Test';
+
+unsafeNavigation = success(@{
+    _prologue();
+    foo.bar.x |> print;
+});
+
+unsafeNavigation2 = fault(@{
+    _prologue();
+    foo.bar = null;
+    foo.bar.x |> print;
+});
+
+unsafeNavigation3 = fault(@{
+    _prologue();
+    foo = null;
+    foo.bar.x |> print;
+});
+
+safeNavigation = success(@{
+    _prologue();
+    foo?.bar?.x |> print;
+});
+
+safeNavigation2 = success(@{
+    _prologue();
+    foo.bar = null;
+    foo?.bar?.x |> print;
+});
+
+safeNavigation3 = success(@{
+    _prologue();
+    foo = null;
+    foo?.bar?.x |> print;
+});
