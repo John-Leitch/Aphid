@@ -77,7 +77,7 @@ namespace Components.Aphid.Interpreter
 
             var canConvert =
                 valueType == targetType ? true :
-                value is decimal ? CanConvertDecimal((decimal)value, targetType) :
+                valueType == typeof(decimal) ? CanConvertDecimal((decimal)value, targetType) :
                 valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
                 targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
                 false;
