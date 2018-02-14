@@ -159,12 +159,21 @@ namespace Components.Aphid.Interpreter
 
         public AphidInteropMethodInfo Resolve(Type targetType, string methodName, object[] args)
         {
-            return Resolve(
-                targetType
-                    .GetMethods()
-                    .Where(x => x.Name == methodName && x.GetParameters().Length == args.Length)
-                    .ToArray(),
-                args);
+            var matches = targetType
+                .GetMethods()
+                .Where(x => x.Name == methodName && x.GetParameters().Length == args.Length)
+                .ToArray();
+
+            if (!matches.Any())
+            {
+                throw Interpreter.CreateRuntimeException(
+                    "Type {0} does not declare a method that matches signature {1}({2}).",
+                    targetType,
+                    methodName,
+                    string.Join(", ", args.Select(x => x.GetType().ToString())));
+            }
+
+            return Resolve(matches, args);
         }
 
         public AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
@@ -202,14 +211,9 @@ namespace Components.Aphid.Interpreter
 
             if (!methods.Any())
             {
-                
-                var msg = !nameMatches.Any() ? 
-                    "Could not resolve interop method." :
-                    string.Format(
-                        "Call did not match interop signature. Methods found:\r\n{0}",
-                        string.Join("\r\n", nameMatches.Select(GetMethodDescription)));
-
-                throw Interpreter.CreateRuntimeException(msg, new object[0]);
+                throw Interpreter.CreateRuntimeException(
+                    "Call did not match interop signature. Methods found:\r\n{0}",
+                    string.Join("\r\n", nameMatches.Select(GetMethodDescription)));
             }
 
             return methods.First();
