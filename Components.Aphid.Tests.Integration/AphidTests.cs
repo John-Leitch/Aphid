@@ -15,13 +15,9 @@ using Components.Aphid.Parser;
 namespace Components.Aphid.Tests.Integration
 {
     [Parallelizable(ParallelScope.All)]
-    public class AphidTests : DynamicObject
+    public class AphidTests
     {
         private static object _cachedStdNodesSync = new object();
-
-        private static string _cachedStdFilename;
-
-        private static string _cachedStdText;
 
         private static List<AphidExpression> _cachedStdNodes;
 
@@ -124,6 +120,16 @@ namespace Components.Aphid.Tests.Integration
             return Token(type, null);
         }
 
+        public static void IsFoo(object value)
+        {
+            Assert.AreEqual("foo", value);
+        }
+
+        public static void Is9(object value)
+        {
+            Assert.AreEqual(9m, value);
+        }
+
         protected void AssertEquals(object expected, string script)
         {
             Assert.AreEqual(expected, Execute(script).Value);
@@ -134,9 +140,8 @@ namespace Components.Aphid.Tests.Integration
             AssertEquals("foo", script);
         }
 
-        protected void Assert9(string script, params object[] args)
+        protected void Assert9(string script)
         {
-            FormatScript();
             AssertEquals(9m, script);
         }
 
@@ -178,64 +183,6 @@ namespace Components.Aphid.Tests.Integration
         protected void AssertExpFalse(string expression)
         {
             AssertFalse(CreateStatement(expression));
-        }
-
-        private void FormatScript()
-        {
-            //ProfileOperationResult result;
-
-
-
-            //var frame = new StackTrace().GetFrame(1);
-            //DkmThread.Create(
-            //Microsoft.VisualStudio.Debugger.CallStack.DkmStackWalkContext.Create(
-            //frame.GetNativeOffset()
-            //var method = frame.GetMethod();
-            //var parms = method.GetParameters();
-
-
-
-
-            //Console.WriteLine(result);
-
-            //var result2 = Microsoft.VisualStudio.Profiler.DataCollection.NameProfile("FOOO", ProfileLevel.Thread, 1);
-            //var x = Interlocked.Increment(ref i);
-            //Debug.Print("Marking {0}", x);
-            //var result2 = Microsoft.VisualStudio.Profiler.DataCollection.CommentMarkProfile(x, "FormatScript");
-            //var result2 = Microsoft.VisualStudio.Profiler.DataCollection.MarkProfile(x);
-
-
-
-            //if (result2 != MarkOperationResult.OK)
-            //{
-            //    throw new NotImplementedException("MarkProfile failed: " + result2.ToString());
-            //}
-
-            //var result3 = DataCollection.MarkProfile(1);
-            //if (result3 != MarkOperationResult.OK)
-            //{
-            //    throw new NotImplementedException("Mark failed: " + result3.ToString());
-            //}
-            //var args = parms[1]. as object[];
-
-            //if (args == null || !args.Any())
-            //{
-            //    return;
-            //}
-
-            //var script = parms.GetValue(0) as string;
-        }
-
-        ~AphidTests()
-        {
-            //var result2 = DataCollection.StopProfile(
-            //    ProfileLevel.Process,
-            //    DataCollection.CurrentId);
-
-            //if (result2 != ProfileOperationResult.OK)
-            //{
-            //    throw new NotImplementedException(result2.ToString());
-            //}
         }
     }
 }

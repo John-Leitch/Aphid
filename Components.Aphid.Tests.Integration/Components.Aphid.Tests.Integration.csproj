@@ -67,6 +67,7 @@
     <Compile Include="DefinedOperatorTests.cs" />
     <Compile Include="ExtensionMethodTests.cs" />
     <Compile Include="CustomOperatorTests.cs" />
+    <Compile Include="ScriptedTests.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="IndexTests.cs" />
     <Compile Include="TypeCoercionTests.cs" />
@@ -82,7 +83,6 @@
     <Compile Include="ThisTests.cs" />
     <Compile Include="InitTests.cs" />
     <Compile Include="QueryTests.cs" />
-    <Compile Include="ListTests.cs" />
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="FunctionTests.cs" />
     <Compile Include="LiteralTests.cs" />
@@ -103,6 +103,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ScriptedTests\ListTests.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
