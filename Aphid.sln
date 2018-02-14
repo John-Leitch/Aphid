@@ -79,31 +79,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.Silverlight", "Components.Aphid.Silverlight\Components.Aphid.Silverlight.csproj", "{56ACCB02-4F2D-422B-88C4-9951924E841D}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://autosectools.visualstudio.com/defaultcollection
-		SccProjectUniqueName0 = Components.Aphid\\Components.Aphid.csproj
-		SccProjectName0 = Components.Aphid
-		SccAuxPath0 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath0 = Components.Aphid
-		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName1 = Aphid\\Aphid.csproj
-		SccProjectName1 = Aphid
-		SccAuxPath1 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath1 = Aphid
-		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName2 = Components.Aphid.Tests.Integration\\Components.Aphid.Tests.Integration.csproj
-		SccProjectName2 = Components.Aphid.Tests.Integration
-		SccAuxPath2 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath2 = Components.Aphid.Tests.Integration
-		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccProjectUniqueName3 = AphidUI\\AphidUI.csproj
-		SccProjectName3 = AphidUI
-		SccAuxPath3 = https://autosectools.visualstudio.com/defaultcollection
-		SccLocalPath3 = AphidUI
-		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
