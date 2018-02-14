@@ -593,7 +593,133 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator201,
         CustomOperator202,
         CustomOperator203,
-        CustomOperator204
+        CustomOperator204,
+        CustomOperator205,
+        CustomOperator206,
+        CustomOperator207,
+        CustomOperator208,
+        CustomOperator209,
+        CustomOperator210,
+        CustomOperator211,
+        CustomOperator212,
+        CustomOperator213,
+        CustomOperator214,
+        CustomOperator215,
+        CustomOperator216,
+        CustomOperator217,
+        CustomOperator218,
+        CustomOperator219,
+        CustomOperator220,
+        CustomOperator221,
+        CustomOperator222,
+        CustomOperator223,
+        CustomOperator224,
+        CustomOperator225,
+        CustomOperator226,
+        CustomOperator227,
+        CustomOperator228,
+        CustomOperator229,
+        CustomOperator230,
+        CustomOperator231,
+        CustomOperator232,
+        CustomOperator233,
+        CustomOperator234,
+        CustomOperator235,
+        CustomOperator236,
+        CustomOperator237,
+        CustomOperator238,
+        CustomOperator239,
+        CustomOperator240,
+        CustomOperator241,
+        CustomOperator242,
+        CustomOperator243,
+        CustomOperator244,
+        CustomOperator245,
+        CustomOperator246,
+        CustomOperator247,
+        CustomOperator248,
+        CustomOperator249,
+        CustomOperator250,
+        CustomOperator251,
+        CustomOperator252,
+        CustomOperator253,
+        CustomOperator254,
+        CustomOperator255,
+        CustomOperator256,
+        CustomOperator257,
+        CustomOperator258,
+        CustomOperator259,
+        CustomOperator260,
+        CustomOperator261,
+        CustomOperator262,
+        CustomOperator263,
+        CustomOperator264,
+        CustomOperator265,
+        CustomOperator266,
+        CustomOperator267,
+        CustomOperator268,
+        CustomOperator269,
+        CustomOperator270,
+        CustomOperator271,
+        CustomOperator272,
+        CustomOperator273,
+        CustomOperator274,
+        CustomOperator275,
+        CustomOperator276,
+        CustomOperator277,
+        CustomOperator278,
+        CustomOperator279,
+        CustomOperator280,
+        CustomOperator281,
+        CustomOperator282,
+        CustomOperator283,
+        CustomOperator284,
+        CustomOperator285,
+        CustomOperator286,
+        CustomOperator287,
+        CustomOperator288,
+        CustomOperator289,
+        CustomOperator290,
+        CustomOperator291,
+        CustomOperator292,
+        CustomOperator293,
+        CustomOperator294,
+        CustomOperator295,
+        CustomOperator296,
+        CustomOperator297,
+        CustomOperator298,
+        CustomOperator299,
+        CustomOperator300,
+        CustomOperator301,
+        CustomOperator302,
+        CustomOperator303,
+        CustomOperator304,
+        CustomOperator305,
+        CustomOperator306,
+        CustomOperator307,
+        CustomOperator308,
+        CustomOperator309,
+        CustomOperator310,
+        CustomOperator311,
+        CustomOperator312,
+        CustomOperator313,
+        CustomOperator314,
+        CustomOperator315,
+        CustomOperator316,
+        CustomOperator317,
+        CustomOperator318,
+        CustomOperator319,
+        CustomOperator320,
+        CustomOperator321,
+        CustomOperator322,
+        CustomOperator323,
+        CustomOperator324,
+        CustomOperator325,
+        CustomOperator326,
+        CustomOperator327,
+        CustomOperator328,
+        CustomOperator329,
+        CustomOperator330
         // CustomOperatorTup End
         : {
             TakeToken(t);
@@ -1254,7 +1380,133 @@ ParseFunctionExpression = @{
         CustomOperator201,
         CustomOperator202,
         CustomOperator203,
-        CustomOperator204
+        CustomOperator204,
+        CustomOperator205,
+        CustomOperator206,
+        CustomOperator207,
+        CustomOperator208,
+        CustomOperator209,
+        CustomOperator210,
+        CustomOperator211,
+        CustomOperator212,
+        CustomOperator213,
+        CustomOperator214,
+        CustomOperator215,
+        CustomOperator216,
+        CustomOperator217,
+        CustomOperator218,
+        CustomOperator219,
+        CustomOperator220,
+        CustomOperator221,
+        CustomOperator222,
+        CustomOperator223,
+        CustomOperator224,
+        CustomOperator225,
+        CustomOperator226,
+        CustomOperator227,
+        CustomOperator228,
+        CustomOperator229,
+        CustomOperator230,
+        CustomOperator231,
+        CustomOperator232,
+        CustomOperator233,
+        CustomOperator234,
+        CustomOperator235,
+        CustomOperator236,
+        CustomOperator237,
+        CustomOperator238,
+        CustomOperator239,
+        CustomOperator240,
+        CustomOperator241,
+        CustomOperator242,
+        CustomOperator243,
+        CustomOperator244,
+        CustomOperator245,
+        CustomOperator246,
+        CustomOperator247,
+        CustomOperator248,
+        CustomOperator249,
+        CustomOperator250,
+        CustomOperator251,
+        CustomOperator252,
+        CustomOperator253,
+        CustomOperator254,
+        CustomOperator255,
+        CustomOperator256,
+        CustomOperator257,
+        CustomOperator258,
+        CustomOperator259,
+        CustomOperator260,
+        CustomOperator261,
+        CustomOperator262,
+        CustomOperator263,
+        CustomOperator264,
+        CustomOperator265,
+        CustomOperator266,
+        CustomOperator267,
+        CustomOperator268,
+        CustomOperator269,
+        CustomOperator270,
+        CustomOperator271,
+        CustomOperator272,
+        CustomOperator273,
+        CustomOperator274,
+        CustomOperator275,
+        CustomOperator276,
+        CustomOperator277,
+        CustomOperator278,
+        CustomOperator279,
+        CustomOperator280,
+        CustomOperator281,
+        CustomOperator282,
+        CustomOperator283,
+        CustomOperator284,
+        CustomOperator285,
+        CustomOperator286,
+        CustomOperator287,
+        CustomOperator288,
+        CustomOperator289,
+        CustomOperator290,
+        CustomOperator291,
+        CustomOperator292,
+        CustomOperator293,
+        CustomOperator294,
+        CustomOperator295,
+        CustomOperator296,
+        CustomOperator297,
+        CustomOperator298,
+        CustomOperator299,
+        CustomOperator300,
+        CustomOperator301,
+        CustomOperator302,
+        CustomOperator303,
+        CustomOperator304,
+        CustomOperator305,
+        CustomOperator306,
+        CustomOperator307,
+        CustomOperator308,
+        CustomOperator309,
+        CustomOperator310,
+        CustomOperator311,
+        CustomOperator312,
+        CustomOperator313,
+        CustomOperator314,
+        CustomOperator315,
+        CustomOperator316,
+        CustomOperator317,
+        CustomOperator318,
+        CustomOperator319,
+        CustomOperator320,
+        CustomOperator321,
+        CustomOperator322,
+        CustomOperator323,
+        CustomOperator324,
+        CustomOperator325,
+        CustomOperator326,
+        CustomOperator327,
+        CustomOperator328,
+        CustomOperator329,
+        CustomOperator330
         // CustomOperatorTup End
         : {
             TakeToken(op);
@@ -1616,5 +1868,131 @@ CustomOperatorOr = macro(@{
     | CustomOperator202
     | CustomOperator203
     | CustomOperator204
+    | CustomOperator205
+    | CustomOperator206
+    | CustomOperator207
+    | CustomOperator208
+    | CustomOperator209
+    | CustomOperator210
+    | CustomOperator211
+    | CustomOperator212
+    | CustomOperator213
+    | CustomOperator214
+    | CustomOperator215
+    | CustomOperator216
+    | CustomOperator217
+    | CustomOperator218
+    | CustomOperator219
+    | CustomOperator220
+    | CustomOperator221
+    | CustomOperator222
+    | CustomOperator223
+    | CustomOperator224
+    | CustomOperator225
+    | CustomOperator226
+    | CustomOperator227
+    | CustomOperator228
+    | CustomOperator229
+    | CustomOperator230
+    | CustomOperator231
+    | CustomOperator232
+    | CustomOperator233
+    | CustomOperator234
+    | CustomOperator235
+    | CustomOperator236
+    | CustomOperator237
+    | CustomOperator238
+    | CustomOperator239
+    | CustomOperator240
+    | CustomOperator241
+    | CustomOperator242
+    | CustomOperator243
+    | CustomOperator244
+    | CustomOperator245
+    | CustomOperator246
+    | CustomOperator247
+    | CustomOperator248
+    | CustomOperator249
+    | CustomOperator250
+    | CustomOperator251
+    | CustomOperator252
+    | CustomOperator253
+    | CustomOperator254
+    | CustomOperator255
+    | CustomOperator256
+    | CustomOperator257
+    | CustomOperator258
+    | CustomOperator259
+    | CustomOperator260
+    | CustomOperator261
+    | CustomOperator262
+    | CustomOperator263
+    | CustomOperator264
+    | CustomOperator265
+    | CustomOperator266
+    | CustomOperator267
+    | CustomOperator268
+    | CustomOperator269
+    | CustomOperator270
+    | CustomOperator271
+    | CustomOperator272
+    | CustomOperator273
+    | CustomOperator274
+    | CustomOperator275
+    | CustomOperator276
+    | CustomOperator277
+    | CustomOperator278
+    | CustomOperator279
+    | CustomOperator280
+    | CustomOperator281
+    | CustomOperator282
+    | CustomOperator283
+    | CustomOperator284
+    | CustomOperator285
+    | CustomOperator286
+    | CustomOperator287
+    | CustomOperator288
+    | CustomOperator289
+    | CustomOperator290
+    | CustomOperator291
+    | CustomOperator292
+    | CustomOperator293
+    | CustomOperator294
+    | CustomOperator295
+    | CustomOperator296
+    | CustomOperator297
+    | CustomOperator298
+    | CustomOperator299
+    | CustomOperator300
+    | CustomOperator301
+    | CustomOperator302
+    | CustomOperator303
+    | CustomOperator304
+    | CustomOperator305
+    | CustomOperator306
+    | CustomOperator307
+    | CustomOperator308
+    | CustomOperator309
+    | CustomOperator310
+    | CustomOperator311
+    | CustomOperator312
+    | CustomOperator313
+    | CustomOperator314
+    | CustomOperator315
+    | CustomOperator316
+    | CustomOperator317
+    | CustomOperator318
+    | CustomOperator319
+    | CustomOperator320
+    | CustomOperator321
+    | CustomOperator322
+    | CustomOperator323
+    | CustomOperator324
+    | CustomOperator325
+    | CustomOperator326
+    | CustomOperator327
+    | CustomOperator328
+    | CustomOperator329
+    | CustomOperator330
     // CustomOperatorOr End
 });
