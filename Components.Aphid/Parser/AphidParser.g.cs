@@ -2185,106 +2185,106 @@ namespace Components.Aphid.Parser
             for (
             ; ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.RangeOperator)
                         || (_currentToken.TokenType == AphidTokenType.CompositionOperator))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator0))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator1))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator2))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator3))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator4))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator5))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator6))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator7))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator8))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator9))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator10))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator11))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator12))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator13))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator14))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator15))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator16))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator17))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator18))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator19))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator20))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator21))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator22))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator23))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator24))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator25))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator26))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator27))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator28))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator29))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator30))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator31))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator32))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator33))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator34))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator35))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator36))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator37))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator38))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator39))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator40))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator41))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator42))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator43))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator44))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator45))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator46))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator47))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator48))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator49))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator50))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator51))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator52))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator53))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator54))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator55))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator56))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator57))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator58))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator59))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator60))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator61))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator62))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator63))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator64))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator65))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator66))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator67))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator68))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator69))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator70))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator71))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator72))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator73))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator74))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator75))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator76))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator77))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator78))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator79))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator80))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator81))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator82))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator83))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator84))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator85))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator86))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator87))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator88))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator89))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator90))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator91))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator92))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator93))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator94))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator95))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator96))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator97))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator98))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator99))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator000))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator001))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator002))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator003))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator004))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator005))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator006))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator007))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator008))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator009))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator010))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator011))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator012))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator013))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator014))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator015))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator016))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator017))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator018))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator019))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator020))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator021))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator022))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator023))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator024))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator025))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator026))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator027))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator028))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator029))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator030))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator031))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator032))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator033))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator034))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator035))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator036))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator037))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator038))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator039))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator040))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator041))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator042))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator043))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator044))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator045))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator046))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator047))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator048))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator049))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator050))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator051))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator052))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator053))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator054))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator055))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator056))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator057))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator058))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator059))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator060))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator061))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator062))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator063))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator064))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator065))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator066))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator067))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator068))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator069))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator070))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator071))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator072))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator073))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator074))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator075))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator076))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator077))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator078))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator079))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator080))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator081))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator082))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator083))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator084))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator085))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator086))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator087))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator088))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator089))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator090))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator091))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator092))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator093))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator094))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator095))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator096))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator097))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator098))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator099))
                         || (_currentToken.TokenType == AphidTokenType.CustomOperator100))
                         || (_currentToken.TokenType == AphidTokenType.CustomOperator101))
                         || (_currentToken.TokenType == AphidTokenType.CustomOperator102))
@@ -2612,106 +2612,106 @@ namespace Components.Aphid.Parser
                         || (_currentToken.TokenType == AphidTokenType.usingKeyword))
                         || (_currentToken.TokenType == AphidTokenType.newKeyword))
                         || (_currentToken.TokenType == AphidTokenType.loadKeyword))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator0))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator1))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator2))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator3))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator4))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator5))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator6))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator7))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator8))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator9))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator10))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator11))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator12))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator13))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator14))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator15))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator16))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator17))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator18))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator19))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator20))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator21))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator22))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator23))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator24))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator25))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator26))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator27))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator28))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator29))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator30))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator31))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator32))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator33))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator34))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator35))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator36))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator37))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator38))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator39))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator40))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator41))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator42))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator43))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator44))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator45))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator46))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator47))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator48))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator49))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator50))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator51))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator52))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator53))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator54))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator55))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator56))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator57))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator58))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator59))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator60))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator61))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator62))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator63))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator64))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator65))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator66))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator67))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator68))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator69))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator70))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator71))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator72))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator73))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator74))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator75))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator76))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator77))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator78))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator79))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator80))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator81))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator82))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator83))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator84))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator85))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator86))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator87))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator88))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator89))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator90))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator91))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator92))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator93))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator94))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator95))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator96))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator97))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator98))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator99))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator000))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator001))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator002))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator003))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator004))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator005))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator006))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator007))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator008))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator009))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator010))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator011))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator012))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator013))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator014))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator015))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator016))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator017))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator018))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator019))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator020))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator021))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator022))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator023))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator024))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator025))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator026))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator027))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator028))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator029))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator030))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator031))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator032))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator033))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator034))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator035))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator036))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator037))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator038))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator039))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator040))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator041))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator042))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator043))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator044))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator045))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator046))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator047))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator048))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator049))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator050))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator051))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator052))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator053))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator054))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator055))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator056))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator057))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator058))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator059))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator060))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator061))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator062))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator063))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator064))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator065))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator066))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator067))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator068))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator069))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator070))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator071))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator072))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator073))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator074))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator075))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator076))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator077))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator078))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator079))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator080))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator081))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator082))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator083))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator084))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator085))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator086))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator087))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator088))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator089))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator090))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator091))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator092))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator093))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator094))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator095))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator096))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator097))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator098))
+                        || (_currentToken.TokenType == AphidTokenType.CustomOperator099))
                         || (_currentToken.TokenType == AphidTokenType.CustomOperator100))
                         || (_currentToken.TokenType == AphidTokenType.CustomOperator101))
                         || (_currentToken.TokenType == AphidTokenType.CustomOperator102))
@@ -3607,106 +3607,106 @@ namespace Components.Aphid.Parser
                     }
                     else
                     {
-                        if (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.CustomOperator0)
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator1))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator2))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator3))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator4))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator5))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator6))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator7))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator8))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator9))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator10))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator11))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator12))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator13))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator14))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator15))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator16))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator17))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator18))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator19))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator20))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator21))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator22))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator23))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator24))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator25))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator26))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator27))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator28))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator29))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator30))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator31))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator32))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator33))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator34))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator35))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator36))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator37))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator38))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator39))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator40))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator41))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator42))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator43))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator44))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator45))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator46))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator47))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator48))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator49))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator50))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator51))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator52))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator53))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator54))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator55))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator56))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator57))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator58))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator59))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator60))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator61))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator62))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator63))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator64))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator65))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator66))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator67))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator68))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator69))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator70))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator71))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator72))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator73))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator74))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator75))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator76))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator77))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator78))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator79))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator80))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator81))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator82))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator83))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator84))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator85))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator86))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator87))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator88))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator89))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator90))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator91))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator92))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator93))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator94))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator95))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator96))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator97))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator98))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator99))
+                        if (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.CustomOperator000)
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator001))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator002))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator003))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator004))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator005))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator006))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator007))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator008))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator009))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator010))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator011))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator012))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator013))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator014))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator015))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator016))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator017))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator018))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator019))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator020))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator021))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator022))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator023))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator024))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator025))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator026))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator027))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator028))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator029))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator030))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator031))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator032))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator033))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator034))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator035))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator036))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator037))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator038))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator039))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator040))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator041))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator042))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator043))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator044))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator045))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator046))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator047))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator048))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator049))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator050))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator051))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator052))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator053))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator054))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator055))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator056))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator057))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator058))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator059))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator060))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator061))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator062))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator063))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator064))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator065))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator066))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator067))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator068))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator069))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator070))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator071))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator072))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator073))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator074))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator075))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator076))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator077))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator078))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator079))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator080))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator081))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator082))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator083))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator084))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator085))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator086))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator087))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator088))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator089))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator090))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator091))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator092))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator093))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator094))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator095))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator096))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator097))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator098))
+                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator099))
                                     || (_currentToken.TokenType == AphidTokenType.CustomOperator100))
                                     || (_currentToken.TokenType == AphidTokenType.CustomOperator101))
                                     || (_currentToken.TokenType == AphidTokenType.CustomOperator102))
@@ -4184,9 +4184,106 @@ namespace Components.Aphid.Lexer
         CompositionOperator,
         ConditionalOperator,
         continueKeyword,
-        CustomOperator0,
-        CustomOperator1,
-        CustomOperator10,
+        CustomOperator000,
+        CustomOperator001,
+        CustomOperator002,
+        CustomOperator003,
+        CustomOperator004,
+        CustomOperator005,
+        CustomOperator006,
+        CustomOperator007,
+        CustomOperator008,
+        CustomOperator009,
+        CustomOperator010,
+        CustomOperator011,
+        CustomOperator012,
+        CustomOperator013,
+        CustomOperator014,
+        CustomOperator015,
+        CustomOperator016,
+        CustomOperator017,
+        CustomOperator018,
+        CustomOperator019,
+        CustomOperator020,
+        CustomOperator021,
+        CustomOperator022,
+        CustomOperator023,
+        CustomOperator024,
+        CustomOperator025,
+        CustomOperator026,
+        CustomOperator027,
+        CustomOperator028,
+        CustomOperator029,
+        CustomOperator030,
+        CustomOperator031,
+        CustomOperator032,
+        CustomOperator033,
+        CustomOperator034,
+        CustomOperator035,
+        CustomOperator036,
+        CustomOperator037,
+        CustomOperator038,
+        CustomOperator039,
+        CustomOperator040,
+        CustomOperator041,
+        CustomOperator042,
+        CustomOperator043,
+        CustomOperator044,
+        CustomOperator045,
+        CustomOperator046,
+        CustomOperator047,
+        CustomOperator048,
+        CustomOperator049,
+        CustomOperator050,
+        CustomOperator051,
+        CustomOperator052,
+        CustomOperator053,
+        CustomOperator054,
+        CustomOperator055,
+        CustomOperator056,
+        CustomOperator057,
+        CustomOperator058,
+        CustomOperator059,
+        CustomOperator060,
+        CustomOperator061,
+        CustomOperator062,
+        CustomOperator063,
+        CustomOperator064,
+        CustomOperator065,
+        CustomOperator066,
+        CustomOperator067,
+        CustomOperator068,
+        CustomOperator069,
+        CustomOperator070,
+        CustomOperator071,
+        CustomOperator072,
+        CustomOperator073,
+        CustomOperator074,
+        CustomOperator075,
+        CustomOperator076,
+        CustomOperator077,
+        CustomOperator078,
+        CustomOperator079,
+        CustomOperator080,
+        CustomOperator081,
+        CustomOperator082,
+        CustomOperator083,
+        CustomOperator084,
+        CustomOperator085,
+        CustomOperator086,
+        CustomOperator087,
+        CustomOperator088,
+        CustomOperator089,
+        CustomOperator090,
+        CustomOperator091,
+        CustomOperator092,
+        CustomOperator093,
+        CustomOperator094,
+        CustomOperator095,
+        CustomOperator096,
+        CustomOperator097,
+        CustomOperator098,
+        CustomOperator099,
         CustomOperator100,
         CustomOperator101,
         CustomOperator102,
@@ -4197,7 +4294,6 @@ namespace Components.Aphid.Lexer
         CustomOperator107,
         CustomOperator108,
         CustomOperator109,
-        CustomOperator11,
         CustomOperator110,
         CustomOperator111,
         CustomOperator112,
@@ -4208,7 +4304,6 @@ namespace Components.Aphid.Lexer
         CustomOperator117,
         CustomOperator118,
         CustomOperator119,
-        CustomOperator12,
         CustomOperator120,
         CustomOperator121,
         CustomOperator122,
@@ -4219,7 +4314,6 @@ namespace Components.Aphid.Lexer
         CustomOperator127,
         CustomOperator128,
         CustomOperator129,
-        CustomOperator13,
         CustomOperator130,
         CustomOperator131,
         CustomOperator132,
@@ -4230,7 +4324,6 @@ namespace Components.Aphid.Lexer
         CustomOperator137,
         CustomOperator138,
         CustomOperator139,
-        CustomOperator14,
         CustomOperator140,
         CustomOperator141,
         CustomOperator142,
@@ -4241,7 +4334,6 @@ namespace Components.Aphid.Lexer
         CustomOperator147,
         CustomOperator148,
         CustomOperator149,
-        CustomOperator15,
         CustomOperator150,
         CustomOperator151,
         CustomOperator152,
@@ -4252,7 +4344,6 @@ namespace Components.Aphid.Lexer
         CustomOperator157,
         CustomOperator158,
         CustomOperator159,
-        CustomOperator16,
         CustomOperator160,
         CustomOperator161,
         CustomOperator162,
@@ -4263,7 +4354,6 @@ namespace Components.Aphid.Lexer
         CustomOperator167,
         CustomOperator168,
         CustomOperator169,
-        CustomOperator17,
         CustomOperator170,
         CustomOperator171,
         CustomOperator172,
@@ -4274,7 +4364,6 @@ namespace Components.Aphid.Lexer
         CustomOperator177,
         CustomOperator178,
         CustomOperator179,
-        CustomOperator18,
         CustomOperator180,
         CustomOperator181,
         CustomOperator182,
@@ -4285,7 +4374,6 @@ namespace Components.Aphid.Lexer
         CustomOperator187,
         CustomOperator188,
         CustomOperator189,
-        CustomOperator19,
         CustomOperator190,
         CustomOperator191,
         CustomOperator192,
@@ -4296,98 +4384,11 @@ namespace Components.Aphid.Lexer
         CustomOperator197,
         CustomOperator198,
         CustomOperator199,
-        CustomOperator2,
-        CustomOperator20,
         CustomOperator200,
         CustomOperator201,
         CustomOperator202,
         CustomOperator203,
-        CustomOperator21,
-        CustomOperator22,
-        CustomOperator23,
-        CustomOperator24,
-        CustomOperator25,
-        CustomOperator26,
-        CustomOperator27,
-        CustomOperator28,
-        CustomOperator29,
-        CustomOperator3,
-        CustomOperator30,
-        CustomOperator31,
-        CustomOperator32,
-        CustomOperator33,
-        CustomOperator34,
-        CustomOperator35,
-        CustomOperator36,
-        CustomOperator37,
-        CustomOperator38,
-        CustomOperator39,
-        CustomOperator4,
-        CustomOperator40,
-        CustomOperator41,
-        CustomOperator42,
-        CustomOperator43,
-        CustomOperator44,
-        CustomOperator45,
-        CustomOperator46,
-        CustomOperator47,
-        CustomOperator48,
-        CustomOperator49,
-        CustomOperator5,
-        CustomOperator50,
-        CustomOperator51,
-        CustomOperator52,
-        CustomOperator53,
-        CustomOperator54,
-        CustomOperator55,
-        CustomOperator56,
-        CustomOperator57,
-        CustomOperator58,
-        CustomOperator59,
-        CustomOperator6,
-        CustomOperator60,
-        CustomOperator61,
-        CustomOperator62,
-        CustomOperator63,
-        CustomOperator64,
-        CustomOperator65,
-        CustomOperator66,
-        CustomOperator67,
-        CustomOperator68,
-        CustomOperator69,
-        CustomOperator7,
-        CustomOperator70,
-        CustomOperator71,
-        CustomOperator72,
-        CustomOperator73,
-        CustomOperator74,
-        CustomOperator75,
-        CustomOperator76,
-        CustomOperator77,
-        CustomOperator78,
-        CustomOperator79,
-        CustomOperator8,
-        CustomOperator80,
-        CustomOperator81,
-        CustomOperator82,
-        CustomOperator83,
-        CustomOperator84,
-        CustomOperator85,
-        CustomOperator86,
-        CustomOperator87,
-        CustomOperator88,
-        CustomOperator89,
-        CustomOperator9,
-        CustomOperator90,
-        CustomOperator91,
-        CustomOperator92,
-        CustomOperator93,
-        CustomOperator94,
-        CustomOperator95,
-        CustomOperator96,
-        CustomOperator97,
-        CustomOperator98,
-        CustomOperator99,
+        CustomOperator204,
         DecrementOperator,
         defaultKeyword,
         definedKeyword,
@@ -4595,51 +4596,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator30;
+                                        return AphidTokenType.CustomOperator031;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator31;
+                                        return AphidTokenType.CustomOperator032;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator32;
+                                        return AphidTokenType.CustomOperator033;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator33;
+                                        return AphidTokenType.CustomOperator034;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator34;
+                                        return AphidTokenType.CustomOperator035;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator35;
+                                        return AphidTokenType.CustomOperator036;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator36;
+                                        return AphidTokenType.CustomOperator037;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator37;
+                                        return AphidTokenType.CustomOperator038;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator38;
+                                        return AphidTokenType.CustomOperator039;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator39;
+                                        return AphidTokenType.CustomOperator040;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator40;
+                                        return AphidTokenType.CustomOperator041;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator41;
+                                        return AphidTokenType.CustomOperator042;
 
                                 }
 
@@ -4677,63 +4678,63 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator111;
+                                        return AphidTokenType.CustomOperator112;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator112;
+                                        return AphidTokenType.CustomOperator113;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator113;
+                                        return AphidTokenType.CustomOperator114;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator114;
+                                        return AphidTokenType.CustomOperator115;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator115;
+                                        return AphidTokenType.CustomOperator116;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator116;
+                                        return AphidTokenType.CustomOperator117;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator117;
+                                        return AphidTokenType.CustomOperator118;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator118;
+                                        return AphidTokenType.CustomOperator119;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator119;
+                                        return AphidTokenType.CustomOperator120;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator120;
+                                        return AphidTokenType.CustomOperator121;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator121;
+                                        return AphidTokenType.CustomOperator122;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator122;
+                                        return AphidTokenType.CustomOperator123;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator123;
+                                        return AphidTokenType.CustomOperator124;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator124;
+                                        return AphidTokenType.CustomOperator125;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator125;
+                                        return AphidTokenType.CustomOperator126;
 
                                 }
 
@@ -4767,63 +4768,63 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator189;
+                                        return AphidTokenType.CustomOperator190;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator190;
+                                        return AphidTokenType.CustomOperator191;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator191;
+                                        return AphidTokenType.CustomOperator192;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator192;
+                                        return AphidTokenType.CustomOperator193;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator193;
+                                        return AphidTokenType.CustomOperator194;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator194;
+                                        return AphidTokenType.CustomOperator195;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator195;
+                                        return AphidTokenType.CustomOperator196;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator196;
+                                        return AphidTokenType.CustomOperator197;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator197;
+                                        return AphidTokenType.CustomOperator198;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator198;
+                                        return AphidTokenType.CustomOperator199;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator199;
+                                        return AphidTokenType.CustomOperator200;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator200;
+                                        return AphidTokenType.CustomOperator201;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator201;
+                                        return AphidTokenType.CustomOperator202;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator202;
+                                        return AphidTokenType.CustomOperator203;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator203;
+                                        return AphidTokenType.CustomOperator204;
 
                                 }
 
@@ -4844,59 +4845,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator151;
+                                        return AphidTokenType.CustomOperator152;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator152;
+                                        return AphidTokenType.CustomOperator153;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator153;
+                                        return AphidTokenType.CustomOperator154;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator154;
+                                        return AphidTokenType.CustomOperator155;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator155;
+                                        return AphidTokenType.CustomOperator156;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator156;
+                                        return AphidTokenType.CustomOperator157;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator157;
+                                        return AphidTokenType.CustomOperator158;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator158;
+                                        return AphidTokenType.CustomOperator159;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator159;
+                                        return AphidTokenType.CustomOperator160;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator160;
+                                        return AphidTokenType.CustomOperator161;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator161;
+                                        return AphidTokenType.CustomOperator162;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator162;
+                                        return AphidTokenType.CustomOperator163;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator163;
+                                        return AphidTokenType.CustomOperator164;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator164;
+                                        return AphidTokenType.CustomOperator165;
 
                                 }
 
@@ -4945,55 +4946,55 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator70;
+                                        return AphidTokenType.CustomOperator071;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator71;
+                                        return AphidTokenType.CustomOperator072;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator72;
+                                        return AphidTokenType.CustomOperator073;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator73;
+                                        return AphidTokenType.CustomOperator074;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator74;
+                                        return AphidTokenType.CustomOperator075;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator75;
+                                        return AphidTokenType.CustomOperator076;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator76;
+                                        return AphidTokenType.CustomOperator077;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator77;
+                                        return AphidTokenType.CustomOperator078;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator78;
+                                        return AphidTokenType.CustomOperator079;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator79;
+                                        return AphidTokenType.CustomOperator080;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator80;
+                                        return AphidTokenType.CustomOperator081;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator81;
+                                        return AphidTokenType.CustomOperator082;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator82;
+                                        return AphidTokenType.CustomOperator083;
 
                                 }
 
@@ -5055,51 +5056,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator99;
+                                        return AphidTokenType.CustomOperator100;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator100;
+                                        return AphidTokenType.CustomOperator101;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator101;
+                                        return AphidTokenType.CustomOperator102;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator102;
+                                        return AphidTokenType.CustomOperator103;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator103;
+                                        return AphidTokenType.CustomOperator104;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator104;
+                                        return AphidTokenType.CustomOperator105;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator105;
+                                        return AphidTokenType.CustomOperator106;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator106;
+                                        return AphidTokenType.CustomOperator107;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator107;
+                                        return AphidTokenType.CustomOperator108;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator108;
+                                        return AphidTokenType.CustomOperator109;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator109;
+                                        return AphidTokenType.CustomOperator110;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator110;
+                                        return AphidTokenType.CustomOperator111;
 
                                 }
 
@@ -5120,59 +5121,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator56;
+                                        return AphidTokenType.CustomOperator057;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator57;
+                                        return AphidTokenType.CustomOperator058;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator58;
+                                        return AphidTokenType.CustomOperator059;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator59;
+                                        return AphidTokenType.CustomOperator060;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator60;
+                                        return AphidTokenType.CustomOperator061;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator61;
+                                        return AphidTokenType.CustomOperator062;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator62;
+                                        return AphidTokenType.CustomOperator063;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator63;
+                                        return AphidTokenType.CustomOperator064;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator64;
+                                        return AphidTokenType.CustomOperator065;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator65;
+                                        return AphidTokenType.CustomOperator066;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator66;
+                                        return AphidTokenType.CustomOperator067;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator67;
+                                        return AphidTokenType.CustomOperator068;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator68;
+                                        return AphidTokenType.CustomOperator069;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator69;
+                                        return AphidTokenType.CustomOperator070;
 
                                 }
 
@@ -5234,51 +5235,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator177;
+                                        return AphidTokenType.CustomOperator178;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator178;
+                                        return AphidTokenType.CustomOperator179;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator179;
+                                        return AphidTokenType.CustomOperator180;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator180;
+                                        return AphidTokenType.CustomOperator181;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator181;
+                                        return AphidTokenType.CustomOperator182;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator182;
+                                        return AphidTokenType.CustomOperator183;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator183;
+                                        return AphidTokenType.CustomOperator184;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator184;
+                                        return AphidTokenType.CustomOperator185;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator185;
+                                        return AphidTokenType.CustomOperator186;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator186;
+                                        return AphidTokenType.CustomOperator187;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator187;
+                                        return AphidTokenType.CustomOperator188;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator188;
+                                        return AphidTokenType.CustomOperator189;
 
                                 }
 
@@ -5328,51 +5329,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator165;
+                                        return AphidTokenType.CustomOperator166;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator166;
+                                        return AphidTokenType.CustomOperator167;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator167;
+                                        return AphidTokenType.CustomOperator168;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator168;
+                                        return AphidTokenType.CustomOperator169;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator169;
+                                        return AphidTokenType.CustomOperator170;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator170;
+                                        return AphidTokenType.CustomOperator171;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator171;
+                                        return AphidTokenType.CustomOperator172;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator172;
+                                        return AphidTokenType.CustomOperator173;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator173;
+                                        return AphidTokenType.CustomOperator174;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator174;
+                                        return AphidTokenType.CustomOperator175;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator175;
+                                        return AphidTokenType.CustomOperator176;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator176;
+                                        return AphidTokenType.CustomOperator177;
 
                                 }
 
@@ -5393,59 +5394,59 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator42;
+                                        return AphidTokenType.CustomOperator043;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator43;
+                                        return AphidTokenType.CustomOperator044;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator44;
+                                        return AphidTokenType.CustomOperator045;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator45;
+                                        return AphidTokenType.CustomOperator046;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator46;
+                                        return AphidTokenType.CustomOperator047;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator47;
+                                        return AphidTokenType.CustomOperator048;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator48;
+                                        return AphidTokenType.CustomOperator049;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator49;
+                                        return AphidTokenType.CustomOperator050;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator50;
+                                        return AphidTokenType.CustomOperator051;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator51;
+                                        return AphidTokenType.CustomOperator052;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator52;
+                                        return AphidTokenType.CustomOperator053;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator53;
+                                        return AphidTokenType.CustomOperator054;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator54;
+                                        return AphidTokenType.CustomOperator055;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator55;
+                                        return AphidTokenType.CustomOperator056;
 
                                 }
 
@@ -5487,51 +5488,51 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator126;
+                                        return AphidTokenType.CustomOperator127;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator127;
+                                        return AphidTokenType.CustomOperator128;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator128;
+                                        return AphidTokenType.CustomOperator129;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator129;
+                                        return AphidTokenType.CustomOperator130;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator130;
+                                        return AphidTokenType.CustomOperator131;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator131;
+                                        return AphidTokenType.CustomOperator132;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator132;
+                                        return AphidTokenType.CustomOperator133;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator133;
+                                        return AphidTokenType.CustomOperator134;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator134;
+                                        return AphidTokenType.CustomOperator135;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator135;
+                                        return AphidTokenType.CustomOperator136;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator136;
+                                        return AphidTokenType.CustomOperator137;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator137;
+                                        return AphidTokenType.CustomOperator138;
 
                                 }
 
@@ -5569,55 +5570,55 @@ namespace Components.Aphid.Lexer
 
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator138;
+                                        return AphidTokenType.CustomOperator139;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator139;
+                                        return AphidTokenType.CustomOperator140;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator140;
+                                        return AphidTokenType.CustomOperator141;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator141;
+                                        return AphidTokenType.CustomOperator142;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator142;
+                                        return AphidTokenType.CustomOperator143;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator143;
+                                        return AphidTokenType.CustomOperator144;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator144;
+                                        return AphidTokenType.CustomOperator145;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator145;
+                                        return AphidTokenType.CustomOperator146;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator146;
+                                        return AphidTokenType.CustomOperator147;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator147;
+                                        return AphidTokenType.CustomOperator148;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator148;
+                                        return AphidTokenType.CustomOperator149;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator149;
+                                        return AphidTokenType.CustomOperator150;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator150;
+                                        return AphidTokenType.CustomOperator151;
 
                                 }
 
@@ -5632,65 +5633,65 @@ namespace Components.Aphid.Lexer
 
                                 switch (currentChar)
                                 {
-                                    case '~':
-
-                                        return AphidTokenType.CustomOperator0;
-
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator16;
+                                        return AphidTokenType.CustomOperator016;
+
+                                    case '~':
+
+                                        return AphidTokenType.CustomOperator017;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator17;
+                                        return AphidTokenType.CustomOperator018;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator18;
+                                        return AphidTokenType.CustomOperator019;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator19;
+                                        return AphidTokenType.CustomOperator020;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator20;
+                                        return AphidTokenType.CustomOperator021;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator21;
+                                        return AphidTokenType.CustomOperator022;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator22;
+                                        return AphidTokenType.CustomOperator023;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator23;
+                                        return AphidTokenType.CustomOperator024;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator24;
+                                        return AphidTokenType.CustomOperator025;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator25;
+                                        return AphidTokenType.CustomOperator026;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator26;
+                                        return AphidTokenType.CustomOperator027;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator27;
+                                        return AphidTokenType.CustomOperator028;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator28;
+                                        return AphidTokenType.CustomOperator029;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator29;
+                                        return AphidTokenType.CustomOperator030;
 
                                 }
 
@@ -5992,69 +5993,69 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator0;
+                                        return AphidTokenType.CustomOperator000;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator1;
+                                        return AphidTokenType.CustomOperator001;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator2;
+                                        return AphidTokenType.CustomOperator002;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator3;
+                                        return AphidTokenType.CustomOperator003;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator4;
+                                        return AphidTokenType.CustomOperator004;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator5;
+                                        return AphidTokenType.CustomOperator005;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator6;
+                                        return AphidTokenType.CustomOperator006;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator7;
+                                        return AphidTokenType.CustomOperator007;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator8;
+                                        return AphidTokenType.CustomOperator008;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator9;
+                                        return AphidTokenType.CustomOperator009;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator10;
+                                        return AphidTokenType.CustomOperator010;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator11;
+                                        return AphidTokenType.CustomOperator011;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator12;
+                                        return AphidTokenType.CustomOperator012;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator13;
+                                        return AphidTokenType.CustomOperator013;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator14;
+                                        return AphidTokenType.CustomOperator014;
 
                                 }
 
                                 charIndex--;
                             }
-                            return AphidTokenType.CustomOperator15;
+                            return AphidTokenType.CustomOperator015;
 
                         case '\\':
                             if (charIndex < lastIndex)
@@ -6065,69 +6066,69 @@ namespace Components.Aphid.Lexer
                                 {
                                     case '`':
 
-                                        return AphidTokenType.CustomOperator83;
+                                        return AphidTokenType.CustomOperator084;
 
                                     case '~':
 
-                                        return AphidTokenType.CustomOperator84;
+                                        return AphidTokenType.CustomOperator085;
 
                                     case '%':
 
-                                        return AphidTokenType.CustomOperator85;
+                                        return AphidTokenType.CustomOperator086;
 
                                     case '^':
 
-                                        return AphidTokenType.CustomOperator86;
+                                        return AphidTokenType.CustomOperator087;
 
                                     case '*':
 
-                                        return AphidTokenType.CustomOperator87;
+                                        return AphidTokenType.CustomOperator088;
 
                                     case '=':
 
-                                        return AphidTokenType.CustomOperator88;
+                                        return AphidTokenType.CustomOperator089;
 
                                     case '\\':
 
-                                        return AphidTokenType.CustomOperator89;
+                                        return AphidTokenType.CustomOperator090;
 
                                     case '+':
 
-                                        return AphidTokenType.CustomOperator90;
+                                        return AphidTokenType.CustomOperator091;
 
                                     case ':':
 
-                                        return AphidTokenType.CustomOperator91;
+                                        return AphidTokenType.CustomOperator092;
 
                                     case '<':
 
-                                        return AphidTokenType.CustomOperator92;
+                                        return AphidTokenType.CustomOperator093;
 
                                     case '>':
 
-                                        return AphidTokenType.CustomOperator93;
+                                        return AphidTokenType.CustomOperator094;
 
                                     case '.':
 
-                                        return AphidTokenType.CustomOperator94;
+                                        return AphidTokenType.CustomOperator095;
 
                                     case '|':
 
-                                        return AphidTokenType.CustomOperator95;
+                                        return AphidTokenType.CustomOperator096;
 
                                     case '/':
 
-                                        return AphidTokenType.CustomOperator96;
+                                        return AphidTokenType.CustomOperator097;
 
                                     case '?':
 
-                                        return AphidTokenType.CustomOperator97;
+                                        return AphidTokenType.CustomOperator098;
 
                                 }
 
                                 charIndex--;
                             }
-                            return AphidTokenType.CustomOperator98;
+                            return AphidTokenType.CustomOperator099;
 
                         case 't':
                             if (charIndex < lastIndex)

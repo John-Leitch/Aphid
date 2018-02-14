@@ -76,8 +76,6 @@ tokens = [
 
     { regex: "%%", type: "InteropOperator" },
 
-    { regex: "~~", type: "CustomOperator0" },
-
     { regex: ";", type: "EndOfStatement" },
 
     { regex: "\\r|\\n|\\t|\\v|\\s", type: "WhiteSpace" },
@@ -124,7 +122,7 @@ customTokenNumber = 0;
 addToken = @(t) {
     if (!usedTokens.contains(t)) {
         Console.WriteLine('  {0}', t);
-        tokens.add({ regex: t, type: "CustomOperator" + str(customTokenNumber++) });
+        tokens.add({ regex: t, type: "CustomOperator" + str(customTokenNumber++).PadLeft(3, '0') });
     }
 };
 
