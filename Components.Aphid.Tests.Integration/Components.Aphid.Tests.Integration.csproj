@@ -67,7 +67,6 @@
     <Compile Include="DefinedOperatorTests.cs" />
     <Compile Include="ExtensionMethodTests.cs" />
     <Compile Include="CustomOperatorTests.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="IndexTests.cs" />
     <Compile Include="TypeCoercionTests.cs" />
@@ -107,9 +106,6 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Program.vb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
