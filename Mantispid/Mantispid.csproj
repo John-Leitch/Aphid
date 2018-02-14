@@ -52,17 +52,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AphidCodeGenerator\AphidCodeGenerator.csproj">
-      <Project>{637f363d-3006-47de-9a4d-bde2a8bd3a6c}</Project>
-      <Name>AphidCodeGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LLex\LLex.csproj">
-      <Project>{d172ad83-34d8-478d-8875-2d467a28129c}</Project>
-      <Name>LLex</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
