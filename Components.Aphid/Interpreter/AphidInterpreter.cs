@@ -1,4 +1,4 @@
-﻿using Components.Aphid.Lexer;
+using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using System;

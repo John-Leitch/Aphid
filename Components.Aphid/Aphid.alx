@@ -1,4 +1,4 @@
-﻿namespace Components.Aphid;
+namespace Components.Aphid;
 token AphidTokenType;
 base AphidExpression;
 node AphidNodeType;
@@ -10,19 +10,6 @@ Lexer({
         #'Aphid.Tmpl';
         #'Aphid.Code';
         #'Aphid.Tokens';
-        using Components.Aphid.Parser;
-
-        using Components.Aphid.UI;
-        //r = new AphidRepl();
-        //r.Interpreter = this.{'$aphid'};
-        //r.Run();
-        //mutator = new ScriptMutator(@{
-            //
-        //});
-        //this |> dump;
-        //getFrame(1) |> print;
-        //exit(0);
-        //Console.ReadLine();
     },
     name: "Components.Aphid.Lexer.Aphid",
     modes: [ 
@@ -332,184 +319,7 @@ ParseRangeExpression = ParseBinOpExp(
     ParseConditionalExpression,
     RangeOperator
     | CompositionOperator
-    | CustomOperator000
-    | CustomOperator001
-    | CustomOperator002
-    | CustomOperator003
-    | CustomOperator004
-    | CustomOperator005
-    | CustomOperator006
-    | CustomOperator007
-    | CustomOperator008
-    | CustomOperator009
-    | CustomOperator010
-    | CustomOperator011
-    | CustomOperator012
-    | CustomOperator013
-    | CustomOperator014
-    | CustomOperator015
-    | CustomOperator016
-    | CustomOperator017
-    | CustomOperator018
-    | CustomOperator019
-    | CustomOperator020
-    | CustomOperator021
-    | CustomOperator022
-    | CustomOperator023
-    | CustomOperator024
-    | CustomOperator025
-    | CustomOperator026
-    | CustomOperator027
-    | CustomOperator028
-    | CustomOperator029
-    | CustomOperator030
-    | CustomOperator031
-    | CustomOperator032
-    | CustomOperator033
-    | CustomOperator034
-    | CustomOperator035
-    | CustomOperator036
-    | CustomOperator037
-    | CustomOperator038
-    | CustomOperator039
-    | CustomOperator040
-    | CustomOperator041
-    | CustomOperator042
-    | CustomOperator043
-    | CustomOperator044
-    | CustomOperator045
-    | CustomOperator046
-    | CustomOperator047
-    | CustomOperator048
-    | CustomOperator049
-    | CustomOperator050
-    | CustomOperator051
-    | CustomOperator052
-    | CustomOperator053
-    | CustomOperator054
-    | CustomOperator055
-    | CustomOperator056
-    | CustomOperator057
-    | CustomOperator058
-    | CustomOperator059
-    | CustomOperator060
-    | CustomOperator061
-    | CustomOperator062
-    | CustomOperator063
-    | CustomOperator064
-    | CustomOperator065
-    | CustomOperator066
-    | CustomOperator067
-    | CustomOperator068
-    | CustomOperator069
-    | CustomOperator070
-    | CustomOperator071
-    | CustomOperator072
-    | CustomOperator073
-    | CustomOperator074
-    | CustomOperator075
-    | CustomOperator076
-    | CustomOperator077
-    | CustomOperator078
-    | CustomOperator079
-    | CustomOperator080
-    | CustomOperator081
-    | CustomOperator082
-    | CustomOperator083
-    | CustomOperator084
-    | CustomOperator085
-    | CustomOperator086
-    | CustomOperator087
-    | CustomOperator088
-    | CustomOperator089
-    | CustomOperator090
-    | CustomOperator091
-    | CustomOperator092
-    | CustomOperator093
-    | CustomOperator094
-    | CustomOperator095
-    | CustomOperator096
-    | CustomOperator097
-    | CustomOperator098
-    | CustomOperator099
-    | CustomOperator100
-    | CustomOperator101
-    | CustomOperator102
-    | CustomOperator103
-    | CustomOperator104
-    | CustomOperator105
-    | CustomOperator106
-    | CustomOperator107
-    | CustomOperator108
-    | CustomOperator109
-    | CustomOperator110
-    | CustomOperator111
-    | CustomOperator112
-    | CustomOperator113
-    | CustomOperator114
-    | CustomOperator115
-    | CustomOperator116
-    | CustomOperator117
-    | CustomOperator118
-    | CustomOperator119
-    | CustomOperator120
-    | CustomOperator121
-    | CustomOperator122
-    | CustomOperator123
-    | CustomOperator124
-    | CustomOperator125
-    | CustomOperator126
-    | CustomOperator127
-    | CustomOperator128
-    | CustomOperator129
-    | CustomOperator130
-    | CustomOperator131
-    | CustomOperator132
-    | CustomOperator133
-    | CustomOperator134
-    | CustomOperator135
-    | CustomOperator136
-    | CustomOperator137
-    | CustomOperator138
-    | CustomOperator139
-    | CustomOperator140
-    | CustomOperator141
-    | CustomOperator142
-    | CustomOperator143
-    | CustomOperator144
-    | CustomOperator145
-    | CustomOperator146
-    | CustomOperator147
-    | CustomOperator148
-    | CustomOperator149
-    | CustomOperator150
-    | CustomOperator151
-    | CustomOperator152
-    | CustomOperator153
-    | CustomOperator154
-    | CustomOperator155
-    | CustomOperator156
-    | CustomOperator157
-    | CustomOperator158
-    | CustomOperator159
-    | CustomOperator160
-    | CustomOperator161
-    | CustomOperator162
-    | CustomOperator163
-    | CustomOperator164
-    | CustomOperator165
-    | CustomOperator166
-    | CustomOperator167
-    | CustomOperator168
-    | CustomOperator169
-    | CustomOperator170
-    | CustomOperator171
-    | CustomOperator172
-    | CustomOperator173
-    | CustomOperator174
-    | CustomOperator175
-    | CustomOperator176
-    | CustomOperator177);
+    | CustomOperatorOr());
 
 ParseConditionalExpression = @{
     exp ParseLogicalExpression;
@@ -578,6 +388,7 @@ ParsePrefixUnaryOperatorExpression = @{
         usingKeyword,
         newKeyword,
         loadKeyword,
+        // CustomOperatorTup Begin
         CustomOperator000,
         CustomOperator001,
         CustomOperator002,
@@ -755,7 +566,36 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator174,
         CustomOperator175,
         CustomOperator176,
-        CustomOperator177: {
+        CustomOperator177,
+        CustomOperator178,
+        CustomOperator179,
+        CustomOperator180,
+        CustomOperator181,
+        CustomOperator182,
+        CustomOperator183,
+        CustomOperator184,
+        CustomOperator185,
+        CustomOperator186,
+        CustomOperator187,
+        CustomOperator188,
+        CustomOperator189,
+        CustomOperator190,
+        CustomOperator191,
+        CustomOperator192,
+        CustomOperator193,
+        CustomOperator194,
+        CustomOperator195,
+        CustomOperator196,
+        CustomOperator197,
+        CustomOperator198,
+        CustomOperator199,
+        CustomOperator200,
+        CustomOperator201,
+        CustomOperator202,
+        CustomOperator203,
+        CustomOperator204
+        // CustomOperatorTup End
+        : {
             TakeToken(t);
                         
             ret UnaryOperatorExpression(t, ParseArrayAccessExpression());
@@ -1209,6 +1049,7 @@ ParseFunctionExpression = @{
             exp = PartialOperatorExpression(op, ParseRangeExpression());
         }
 
+        // CustomOperatorTup Begin
         CustomOperator000,
         CustomOperator001,
         CustomOperator002,
@@ -1386,7 +1227,36 @@ ParseFunctionExpression = @{
         CustomOperator174,
         CustomOperator175,
         CustomOperator176,
-        CustomOperator177: {
+        CustomOperator177,
+        CustomOperator178,
+        CustomOperator179,
+        CustomOperator180,
+        CustomOperator181,
+        CustomOperator182,
+        CustomOperator183,
+        CustomOperator184,
+        CustomOperator185,
+        CustomOperator186,
+        CustomOperator187,
+        CustomOperator188,
+        CustomOperator189,
+        CustomOperator190,
+        CustomOperator191,
+        CustomOperator192,
+        CustomOperator193,
+        CustomOperator194,
+        CustomOperator195,
+        CustomOperator196,
+        CustomOperator197,
+        CustomOperator198,
+        CustomOperator199,
+        CustomOperator200,
+        CustomOperator201,
+        CustomOperator202,
+        CustomOperator203,
+        CustomOperator204
+        // CustomOperatorTup End
+        : {
             TakeToken(op);
             exp = BinaryOperatorBodyExpression(op, ParseFunctionDeclaration());
         }
@@ -1538,3 +1408,213 @@ ParseGatorEmitExpression = @{
     GatorCloseOperator;
     ret t;
 };
+
+CustomOperatorOr = macro(@{
+    // CustomOperatorOr Begin
+    CustomOperator000
+    | CustomOperator001
+    | CustomOperator002
+    | CustomOperator003
+    | CustomOperator004
+    | CustomOperator005
+    | CustomOperator006
+    | CustomOperator007
+    | CustomOperator008
+    | CustomOperator009
+    | CustomOperator010
+    | CustomOperator011
+    | CustomOperator012
+    | CustomOperator013
+    | CustomOperator014
+    | CustomOperator015
+    | CustomOperator016
+    | CustomOperator017
+    | CustomOperator018
+    | CustomOperator019
+    | CustomOperator020
+    | CustomOperator021
+    | CustomOperator022
+    | CustomOperator023
+    | CustomOperator024
+    | CustomOperator025
+    | CustomOperator026
+    | CustomOperator027
+    | CustomOperator028
+    | CustomOperator029
+    | CustomOperator030
+    | CustomOperator031
+    | CustomOperator032
+    | CustomOperator033
+    | CustomOperator034
+    | CustomOperator035
+    | CustomOperator036
+    | CustomOperator037
+    | CustomOperator038
+    | CustomOperator039
+    | CustomOperator040
+    | CustomOperator041
+    | CustomOperator042
+    | CustomOperator043
+    | CustomOperator044
+    | CustomOperator045
+    | CustomOperator046
+    | CustomOperator047
+    | CustomOperator048
+    | CustomOperator049
+    | CustomOperator050
+    | CustomOperator051
+    | CustomOperator052
+    | CustomOperator053
+    | CustomOperator054
+    | CustomOperator055
+    | CustomOperator056
+    | CustomOperator057
+    | CustomOperator058
+    | CustomOperator059
+    | CustomOperator060
+    | CustomOperator061
+    | CustomOperator062
+    | CustomOperator063
+    | CustomOperator064
+    | CustomOperator065
+    | CustomOperator066
+    | CustomOperator067
+    | CustomOperator068
+    | CustomOperator069
+    | CustomOperator070
+    | CustomOperator071
+    | CustomOperator072
+    | CustomOperator073
+    | CustomOperator074
+    | CustomOperator075
+    | CustomOperator076
+    | CustomOperator077
+    | CustomOperator078
+    | CustomOperator079
+    | CustomOperator080
+    | CustomOperator081
+    | CustomOperator082
+    | CustomOperator083
+    | CustomOperator084
+    | CustomOperator085
+    | CustomOperator086
+    | CustomOperator087
+    | CustomOperator088
+    | CustomOperator089
+    | CustomOperator090
+    | CustomOperator091
+    | CustomOperator092
+    | CustomOperator093
+    | CustomOperator094
+    | CustomOperator095
+    | CustomOperator096
+    | CustomOperator097
+    | CustomOperator098
+    | CustomOperator099
+    | CustomOperator100
+    | CustomOperator101
+    | CustomOperator102
+    | CustomOperator103
+    | CustomOperator104
+    | CustomOperator105
+    | CustomOperator106
+    | CustomOperator107
+    | CustomOperator108
+    | CustomOperator109
+    | CustomOperator110
+    | CustomOperator111
+    | CustomOperator112
+    | CustomOperator113
+    | CustomOperator114
+    | CustomOperator115
+    | CustomOperator116
+    | CustomOperator117
+    | CustomOperator118
+    | CustomOperator119
+    | CustomOperator120
+    | CustomOperator121
+    | CustomOperator122
+    | CustomOperator123
+    | CustomOperator124
+    | CustomOperator125
+    | CustomOperator126
+    | CustomOperator127
+    | CustomOperator128
+    | CustomOperator129
+    | CustomOperator130
+    | CustomOperator131
+    | CustomOperator132
+    | CustomOperator133
+    | CustomOperator134
+    | CustomOperator135
+    | CustomOperator136
+    | CustomOperator137
+    | CustomOperator138
+    | CustomOperator139
+    | CustomOperator140
+    | CustomOperator141
+    | CustomOperator142
+    | CustomOperator143
+    | CustomOperator144
+    | CustomOperator145
+    | CustomOperator146
+    | CustomOperator147
+    | CustomOperator148
+    | CustomOperator149
+    | CustomOperator150
+    | CustomOperator151
+    | CustomOperator152
+    | CustomOperator153
+    | CustomOperator154
+    | CustomOperator155
+    | CustomOperator156
+    | CustomOperator157
+    | CustomOperator158
+    | CustomOperator159
+    | CustomOperator160
+    | CustomOperator161
+    | CustomOperator162
+    | CustomOperator163
+    | CustomOperator164
+    | CustomOperator165
+    | CustomOperator166
+    | CustomOperator167
+    | CustomOperator168
+    | CustomOperator169
+    | CustomOperator170
+    | CustomOperator171
+    | CustomOperator172
+    | CustomOperator173
+    | CustomOperator174
+    | CustomOperator175
+    | CustomOperator176
+    | CustomOperator177
+    | CustomOperator178
+    | CustomOperator179
+    | CustomOperator180
+    | CustomOperator181
+    | CustomOperator182
+    | CustomOperator183
+    | CustomOperator184
+    | CustomOperator185
+    | CustomOperator186
+    | CustomOperator187
+    | CustomOperator188
+    | CustomOperator189
+    | CustomOperator190
+    | CustomOperator191
+    | CustomOperator192
+    | CustomOperator193
+    | CustomOperator194
+    | CustomOperator195
+    | CustomOperator196
+    | CustomOperator197
+    | CustomOperator198
+    | CustomOperator199
+    | CustomOperator200
+    | CustomOperator201
+    | CustomOperator202
+    | CustomOperator203
+    | CustomOperator204
+    // CustomOperatorOr End
+});

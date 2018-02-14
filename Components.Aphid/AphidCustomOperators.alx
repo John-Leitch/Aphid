@@ -16,38 +16,66 @@ getCases = @(indent) customOps
     ->(@String.Format('{0}case AphidTokenType.{1}:\r\n', indent))
     +>(@(x, y) x + y);
 
-cases = getCases(' ' * 16);
+getOr = @(indent)
+    indent +
+    (customOps ->(@+'\r\n') +>(@(x, y) x + indent + '| ' + y));
+
+getTup = @(indent)
+    indent +
+    (customOps +>(@(x, y) x + ',\r\n' + indent + y)) +
+    '\r\n';
 
 dir = Environment.GetCommandLineArgs()[1]
     |> Path.GetFullPath
     |> Path.GetDirectoryName;
 
-csFile = Path.Combine(dir, 'Interpreter', 'AphidInterpreter.cs');
-cs = csFile |> File.ReadAllText;
-matches = @Regex.Matches(cs);
+updateCustomOperators = @(codeFile, regionBegin, regionEnd, getText) {
+    code = codeFile |> File.ReadAllText;
+    matches = @Regex.Matches(code);
 
-ends = '#endregion' |> matches;
+    ends = regionEnd |> matches;
 
-ranges = [];
+    ranges = [];
 
-'(( |\t)+)#region Custom Operator Cases' |> matches
- for {
-    o = {
-        indent: $_.Groups[1].Value,
-        start: $_.Index,
-        end: cs.IndexOf('#endregion', $_.Index)
+    ('(( |\t)+)' + regionBegin) |> matches
+     for {
+        o = {
+            indent: $_.Groups[1].Value,
+            start: $_.Index,
+            end: code.IndexOf(regionEnd, $_.Index)
+        };
+        ranges.add(o);
     };
-    ranges.add(o);
+
+    ranges.Reverse();
+
+    ranges->@() code = code
+        .Remove($_.start, $_.end - $_.start)
+        .Insert(
+            $_.start,
+            $_.indent + regionBegin + '\r\n' +
+            ($_.indent |> getText) + 
+            $_.indent);
+
+    code @File.WriteAllText(codeFile);
 };
 
-ranges.Reverse();
+updateCustomOperators(
+    Path.Combine(dir, 'Interpreter', 'AphidInterpreter.cs'),
+    '#region Custom Operator Cases',
+    '#endregion',
+    getCases);
 
-ranges->@() cs = cs
-    .Remove($_.start, $_.end - $_.start)
-    .Insert(
-        $_.start,
-        $_.indent + '#region Custom Operator Cases\r\n' +
-        ($_.indent |> getCases) + 
-        $_.indent);
+updateCustomOperators(
+    Path.Combine(dir, 'Aphid.alx'),
+    '// CustomOperatorOr Begin',
+    '// CustomOperatorOr End',
+    getOr);
 
-cs @File.WriteAllText(csFile);
+updateCustomOperators(
+    Path.Combine(dir, 'Aphid.alx'),
+    '// CustomOperatorTup Begin',
+    '// CustomOperatorTup End',
+    getTup);
+
+    
