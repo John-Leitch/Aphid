@@ -174,7 +174,7 @@ namespace LLex
             return table.KeywordTokens.Any() ? 
                 table.KeywordTokens
                     .Select(x => "TokenType == {TokenType}." + x)
-                    .Aggregate((x, y) => x + "||\r\n" + y) :
+                    .Aggregate((x, y) => x + "||\r\n" + new string(' ', 16) + y) :
                 "false";
         }
 
