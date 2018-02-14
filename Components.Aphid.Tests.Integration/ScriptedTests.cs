@@ -16,7 +16,12 @@ namespace Components.Aphid.Tests.Integration
         [Test, TestCaseSource("Tests")]
         public void TestFoo(AphidInterpreter interpreter, string funcName)
         {
-            interpreter.CallFunction(funcName);
+            var result = interpreter.CallFunction(funcName);
+
+            if (result != null && result.Value != null && result.Value.GetType() == typeof(bool))
+            {
+                Assert.True(result.GetBool(), "Function {0} returned false.", funcName);
+            }
         }
 
         public static IEnumerable Tests
@@ -28,7 +33,8 @@ namespace Components.Aphid.Tests.Integration
                 var testScripts = aphidDir
                     .GetDirectories("ScriptedTests")
                     .Single()
-                    .GetFiles("*.alx", SearchOption.AllDirectories);
+                    .GetFiles("*.alx", SearchOption.AllDirectories)
+                    .Where(x => x.Name.ToLower() != "test.alx");
 
                 var testList = new List<TestCaseData>();
 
@@ -36,6 +42,7 @@ namespace Components.Aphid.Tests.Integration
                 {
                     var interpreter = new AphidInterpreter();
                     interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
+                    interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
                     
                     interpreter.Interpret(@"
                         using Components.Aphid.Tests.Integration;

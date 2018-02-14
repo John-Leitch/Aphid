@@ -1,5 +1,5 @@
 ﻿#'Std';
-tests;
+#'Test';
 listAccess = @{ x = [ 9, 'foo' ]; isFoo(x[1]) };
 listAccess2 = @{ x = [ 9, 'foo' ]; is9(x[0]) };
 listAccess3 = @{ x={ y:['foo'] }; isFoo(x.y[0]); };

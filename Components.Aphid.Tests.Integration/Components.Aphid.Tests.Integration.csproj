@@ -103,6 +103,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ScriptedTests\Test.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ScriptedTests\TypeConversionTests.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ScriptedTests\ListTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,0 +1,4 @@
+﻿_try = macro(@(expectSuccess) { @() @(){ try $_(); catch ret !expectSuccess; ret expectSuccess } });
+success = _try(true);
+fault = _try(false);
+tests;

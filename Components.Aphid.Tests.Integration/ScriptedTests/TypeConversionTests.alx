@@ -1,0 +1,10 @@
+﻿#'Std';
+#'Test';
+decimalToInt = @() 'f'.PadRight(3) == 'f  ';
+decimalToInt2 = @() 'foo'.PadRight(3) == 'foo';
+decimalToInt3 = @() 'f'.PadRight(3).Trim() == 'f';
+
+stringToChar = @() 'f'.PadRight(3, 'o') == 'foo';
+_stringToo = macro(@(n, s) { id('stringToo', n, 'ForChar') = fault(@{ 'f'.PadRight(3, s) }) });
+_stringToo('Short', '');
+_stringToo('Long', 'oo');
