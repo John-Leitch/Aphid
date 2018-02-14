@@ -1,7 +1,7 @@
 ﻿#'Std';
 #'Meta';
 
-@?. (lhs, rhs) lhs != null ? lhs.{this.{'$frames'}[depth].exp().rhs().id()} : null;
+@?. (lhs, rhs) lhs != null ? lhs.{frame(1).exp().rhs().id()} : null;
 
 foo = {
     bar: {
