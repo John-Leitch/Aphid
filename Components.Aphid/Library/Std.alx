@@ -140,7 +140,7 @@ _get = macro(@(m) { $_.GetType().m() });
 
 _dump = macro(@(m) {
     id(get, m) = @() _get(id(Get, m));
-    id(dump, m) = @() ($_ |> id(get, m))->print
+    id(dump, m) = @{ ($_ |> id(get, m))->print };
 });
 
 _dump(Members);
