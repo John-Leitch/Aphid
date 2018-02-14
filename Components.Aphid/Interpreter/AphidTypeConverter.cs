@@ -78,6 +78,7 @@ namespace Components.Aphid.Interpreter
             var canConvert =
                 valueType == targetType ? true :
                 valueType == typeof(decimal) ? CanConvertDecimal((decimal)value, targetType) :
+                valueType == typeof(string) && targetType == typeof(char) && ((string)value).Length == 1 ? true :
                 valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
                 targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
                 false;
@@ -192,13 +193,34 @@ namespace Components.Aphid.Interpreter
             {
                 return Convert(targetType, (Array)value);
             }
-            else if (t == typeof(string) && targetType == typeof(char[]))
+            else if (t == typeof(string))
             {
-                return ((string)value).ToCharArray();
+                var s = ((string)value);
+
+                if (targetType == typeof(char))
+                {
+                    if (s.Length != 1)
+                    {
+                        throw Interpreter.CreateRuntimeException(
+                            "Cannot convert string '{0}' to char due to length.",
+                            s);
+                    }
+
+                    return s[0];
+
+                }
+                else if (targetType == typeof(char[]))
+                {
+                    return s.ToCharArray();
+                }
+                else
+                {
+                    throw GetConversionError(value, t, targetType);
+                }
             }
             else
             {
-                throw new NotImplementedException();
+                throw GetConversionError(value, t, targetType);
             }
         }
 
@@ -306,6 +328,15 @@ namespace Components.Aphid.Interpreter
         public double ToDouble(decimal value)
         {
             return (double)value;
+        }
+
+        private AphidRuntimeException GetConversionError(object value, Type valueType, Type targetType)
+        {
+            return Interpreter.CreateRuntimeException(
+                "Cannot convert '{0}' from type {1} to {2}.",
+                value,
+                valueType,
+                targetType);
         }
     }
 }
