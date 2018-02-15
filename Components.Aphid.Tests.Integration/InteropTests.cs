@@ -20,7 +20,7 @@ namespace Components.Aphid.Tests.Integration
             ");
         }
 
-        [Test, Ignore("Will be fixed when params is supported.")]
+        [Test]
         public void StaticArgTest1()
         {
             AssertExpFoo("%%System.String.Format('foo')");

@@ -24,9 +24,8 @@ namespace Components.Aphid.Interpreter
 
     public class AphidTypeConverter : AphidInterpreterComponent
     {
-        private readonly Type[] _decimalTargetTypes = new[]
+        private static readonly Type[] _numberTypes = new[]
         {
-            typeof(object),
             typeof(byte),
             typeof(ushort),
             typeof(uint),
@@ -67,7 +66,6 @@ namespace Components.Aphid.Interpreter
             {
                 return new AphidConversionInfo(true, new Type[0]);
             }
-
             
             var genericArguments = new List<Type>();
 
@@ -77,7 +75,7 @@ namespace Components.Aphid.Interpreter
 
             var canConvert =
                 valueType == targetType ? true :
-                valueType == typeof(decimal) ? CanConvertDecimal((decimal)value, targetType) :
+                valueType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)value, targetType) :
                 valueType == typeof(string) && targetType == typeof(char) && ((string)value).Length == 1 ? true :
                 valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
                 targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
@@ -87,58 +85,75 @@ namespace Components.Aphid.Interpreter
                 
         }
 
-        public bool CanConvertDecimal(decimal value, Type targetType)
+        public static bool CanConvertOrBoxDecimal(decimal value, Type targetType)
         {
-            if (targetType == typeof(byte) && (value < byte.MinValue || byte.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(ushort) && (value < ushort.MinValue || ushort.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(uint) && (value < uint.MinValue || uint.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(ulong) && (value < ulong.MinValue || ulong.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(sbyte) && (value < sbyte.MinValue || sbyte.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(short) && (value < short.MinValue || short.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(int) && (value < int.MinValue || int.MaxValue < value))
-            {
-                return false;
-            }
-            else if (targetType == typeof(long) && (value < long.MinValue || long.MaxValue < value))
-            {
-                return false;
-            }
-            //else if (targetType == typeof(float) && (value < float.MinValue || float.MaxValue < value))
-            //{
-            //    return false;
-            //}
-            //else if (targetType == typeof(double) && (value < double.MinValue || double.MaxValue < value))
-            //{
-            //    return false;
-            //}
+            return targetType == typeof(object) || CanConvertDecimal(value, targetType);
+        }
 
-            return _decimalTargetTypes.Contains(targetType);
+        public static bool CanConvertDecimal(decimal value, Type targetType)
+        {
+            return IsNumber(targetType) && CanDecimalFit(value, targetType);
+        }
+
+        public static bool CanDecimalFit(decimal value, Type targetType)
+        {
+            if (targetType == typeof(byte))
+            {
+                return byte.MinValue <= value && value <= byte.MaxValue;
+            }
+            else if (targetType == typeof(ushort))
+            {
+                return ushort.MinValue <= value && value <= ushort.MaxValue;
+            }
+            else if (targetType == typeof(uint))
+            {
+                return uint.MinValue <= value && value <= uint.MaxValue;
+            }
+            else if (targetType == typeof(ulong))
+            {
+                return ulong.MinValue <= value && value <= ulong.MaxValue;
+            }
+            else if (targetType == typeof(sbyte))
+            {
+                return sbyte.MinValue <= value && value <= sbyte.MaxValue;
+            }
+            else if (targetType == typeof(short))
+            {
+                return short.MinValue <= value && value <= short.MaxValue;
+            }
+            else if (targetType == typeof(int))
+            {
+                return int.MinValue <= value && value <= int.MaxValue;
+            }
+            else if (targetType == typeof(long))
+            {
+                return long.MinValue <= value && value <= long.MaxValue;
+            }
+            else if (targetType == typeof(float) || targetType == typeof(double))
+            {
+                return true;
+            }
+            else
+            {
+                throw new NotImplementedException("Unknown number type: " + targetType);
+            }
+        }
+
+        public static bool IsNumber(Type targetType)
+        {
+            return _numberTypes.Contains(targetType);
         }
 
         public bool CanConvertArray(object value, Type valueType, Type targetType)
         {
-            if (valueType == typeof(string) && targetType != typeof(char[]))
-            {
-                return false;
-            }
+            //if (valueType == typeof(string) && targetType != typeof(char[]))
+            //{
+            //    return false;
+            //}
+            //else if (valueType.IsArray && targetType == typeof(string[]))
+            //{
+            //    return true;
+            //}
 
             var valueCollection = value as IEnumerable;
 
@@ -159,43 +174,39 @@ namespace Components.Aphid.Interpreter
 
             if (valueElementTypes.Length == 1)
             {
-                return valueElementTypes[0] == targetElementType ||
-                    valueElementTypes[0].IsDerivedFromOrImplements(targetElementType, new List<Type>());
+                var t = valueElementTypes[0];
+
+                return t == targetElementType || t.IsDerivedFromOrImplements(targetElementType);
             }
 
             return false;
         }
 
-        public object Convert(Type targetType, object value)
+        public object Convert(Type targetType, object srcValue)
         {
             if (targetType.IsDerivedFrom<Delegate>())
             {
-                var method = targetType.GetMethod("Invoke");
-                return Interpreter.FunctionConverter.Convert(targetType, value);
-
-                
-                throw new NotImplementedException();
-                //return Interpreter.FunctionConverter.Convert(
+                return Interpreter.FunctionConverter.Convert(targetType, srcValue);
             }
 
-            var t = value.GetType();
+            var srcType = srcValue.GetType();
 
-            if (t == targetType ||
-                t.IsDerivedFromOrImplements(targetType, new List<Type>()))
+            if (srcType == targetType ||
+                srcType.IsDerivedFromOrImplements(targetType, new List<Type>()))
             {
-                return value;
+                return srcValue;
             }
-            else if (t == typeof(decimal))
+            else if (srcType == typeof(decimal))
             {
-                return Convert(targetType, (decimal)value);
+                return Convert(targetType, (decimal)srcValue);
             }
-            else if (t.IsArray)
+            else if (srcType.IsArray)
             {
-                return Convert(targetType, (Array)value);
+                return ConvertArray(targetType, srcType, (Array)srcValue);
             }
-            else if (t == typeof(string))
+            else if (srcType == typeof(string))
             {
-                var s = ((string)value);
+                var s = ((string)srcValue);
 
                 if (targetType == typeof(char))
                 {
@@ -215,12 +226,12 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    throw GetConversionError(value, t, targetType);
+                    throw GetConversionError(srcValue, srcType, targetType);
                 }
             }
             else
             {
-                throw GetConversionError(value, t, targetType);
+                throw GetConversionError(srcValue, srcType, targetType);
             }
         }
 
@@ -272,12 +283,30 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public object Convert(Type targetType, Array value)
+        public object ConvertArray(Type targetType, Type srcArrayType, Array srcArray)
         {
-            var dst = Array.CreateInstance(targetType.GetElementType(), value.Length);
-            value.CopyTo(dst, 0);
+            if (targetType == srcArrayType)
+            {
+                return srcArrayType;
+            }
+            else if (targetType != typeof(string[]))
+            {
+                var dst = Array.CreateInstance(targetType.GetElementType(), srcArray.Length);
+                srcArray.CopyTo(dst, 0);
 
-            return dst;
+                return dst;
+            }
+            else
+            {
+                var s = new string[srcArray.Length];
+
+                for (var i = 0; i < s.Length; i++)
+                {
+                    s[i] = srcArray.GetValue(i).ToString();
+                }
+
+                return s;
+            }
         }
 
         public byte ToByte(decimal value)

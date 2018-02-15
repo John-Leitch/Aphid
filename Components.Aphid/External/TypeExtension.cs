@@ -104,6 +104,11 @@ namespace Components.External
             return false;
         }
 
+        public static bool IsDerivedFromOrImplements(this Type type, Type baseType)
+        {
+            return type.IsDerivedFromOrImplements(baseType, new List<Type>());
+        }
+
         public static bool IsDerivedFromOrImplements(this Type type, Type baseType, List<Type> genericArguments)
         {
             return baseType.IsInterface ? type.Implements(baseType, genericArguments) : type.IsDerivedFrom(baseType);

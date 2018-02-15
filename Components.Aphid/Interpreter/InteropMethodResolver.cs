@@ -2,6 +2,7 @@
 using Components.Aphid.Parser.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -55,11 +56,6 @@ namespace Components.Aphid.Interpreter
 
             if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
             {
-                //if (expression.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
-                //    expression.LeftOperand.ToIdentifier().Identifier.Contains("Thread"))
-                //{
-                //    Console.WriteLine();
-                //}
                 key = expression.RightOperand.ToIdentifier().Identifier;
 
                 staticType = Interpreter.InteropTypeResolver.TryResolveType(
@@ -157,11 +153,12 @@ namespace Components.Aphid.Interpreter
             return Resolve(typeof(TTargetType), methodName, args);
         }
 
+        //Todo: memoize resolved types 
         public AphidInteropMethodInfo Resolve(Type targetType, string methodName, object[] args)
         {
             var matches = targetType
                 .GetMethods()
-                .Where(x => x.Name == methodName && x.GetParameters().Length == args.Length)
+                .Where(x => x.Name == methodName && CheckArgumentCount(x, args))
                 .ToArray();
 
             if (!matches.Any())
@@ -173,32 +170,37 @@ namespace Components.Aphid.Interpreter
                     string.Join(", ", args.Select(x => x.GetType().ToString())));
             }
 
-            return Resolve(matches, args);
+            return ResolveCore(matches, args);
         }
 
         public AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
         {
+            return ResolveCore(
+                nameMatches.Where(x => CheckArgumentCount(x, args)).ToArray(),
+                args);
+        }
+
+        private AphidInteropMethodInfo ResolveCore(MethodBase[] nameMatches, object[] args)
+        {
             var methods = nameMatches
-                .Where(x => x.GetParameters().Length == args.Length)
                 .Select(x => new
                 {
                     Method = x,
                     Args = x
                         .GetParameters()
-                        .Select((y, i) => new AphidInteropMethodArg(args[i], y.ParameterType))
+                        .Select((y, i) => CreateMethodArg(y, i, args))
                         .ToArray()
                 })
-                .Select(x => new 
+                .Select(x => new
                 {
                     x.Method,
                     x.Args,
                     ConversionInfo = x.Args
-                        .Select(y =>  Interpreter.TypeConverter.CanConvert(x.Method, y.Argument, y.TargetType))
+                        .Select(y => Interpreter.TypeConverter.CanConvert(x.Method, y.Argument, y.TargetType))
                         .ToArray()
                 })
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))
-                .OrderBy(x => x.Args.Count(y => y.TargetType == typeof(object)))
-                //.ThenByDescending(x => x.Args.Count(y => y.TargetType == typeof(object[])))
+                .OrderBy(x => WeightInference(x.Args))
                 .Select(x => new AphidInteropMethodInfo(
                     x.Method,
                     x.ConversionInfo
@@ -217,6 +219,69 @@ namespace Components.Aphid.Interpreter
             }
 
             return methods.First();
+        }
+
+        private uint WeightInference(AphidInteropMethodArg[] args)
+        {
+            var u = 0u;
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                u += WeightInference(args[i]);
+            }
+
+            return u;
+        }
+
+        private uint WeightInference(AphidInteropMethodArg arg)
+        {
+            if (arg.IsExactBasicTypeMatch)
+            {
+                return 0x1;
+            }
+            else if (arg.IsExactUserReferenceTypeMatch)
+            {
+                return 0x2;
+            }
+            else if (arg.IsDerivedFromUserReferenceType)
+            {
+                return 0x4;
+            }
+            else if (arg.IsNonRootImplementationOfTarget)
+            {
+                return 0x10;
+            }
+            else if (arg.IsSafeConvertibleNumberPair)
+            {
+                return 0x20;
+            }
+            else if (arg.IsUnsafeConvertibleNumberPair)
+            {
+                return 0x1000000;
+            }
+            else if (arg.TargetType == typeof(object))
+            {
+                return 0x80;
+            }
+            else if (arg.TargetType == typeof(object[]))
+            {
+                if (arg.ConstructsParamArray)
+                {
+                    return 0x200;
+                }
+                else if (!arg.ArgumentType.IsArray)
+                {
+                    return 0x100;
+                }
+                else
+                {
+                    return 0x40;
+                }
+            }
+            else
+            {
+                return 0x400;
+            }
         }
 
         public string GetMethodDescription(MethodBase method)
@@ -242,6 +307,52 @@ namespace Components.Aphid.Interpreter
         private string GetParamDescription(ParameterInfo parameter)
         {
             return string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
+        }
+
+        private bool CheckArgumentCount(MethodBase method, object[] args)
+        {
+            var p = method.GetParameters();
+            ParameterInfo lp;
+
+            if (p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute)))
+            {
+                return lp.ParameterType == typeof(object[]) && args.Length >= p.Length - 1;
+            }
+            else
+            {
+                return p.Length == args.Length;
+            }
+        }
+
+        private AphidInteropMethodArg CreateMethodArg(ParameterInfo parameter, int index, object[] args)
+        {
+            object arg;
+            Type argType;
+
+            if (!parameter.IsDefined(typeof(ParamArrayAttribute)))
+            {
+                return new AphidInteropMethodArg(args[index], parameter);
+            }
+            else if (args.Length - 1 == index &&
+                (argType = (arg = args[index]).GetType()).IsArray &&
+                Interpreter.TypeConverter.CanConvertArray(arg, argType, parameter.ParameterType))
+            {
+                return new AphidInteropMethodArg(arg, parameter, false);
+            }
+            else if (parameter.ParameterType == typeof(object[]))
+            {
+                var p = new object[args.Length - index];
+                Array.Copy(args, index, p, 0, p.Length);
+
+                return new AphidInteropMethodArg(p, parameter);
+            }
+            else
+            {
+                throw Interpreter.CreateRuntimeException(
+                    "Invalid param array element type {0}, only {1} currently supported.",
+                    parameter.ParameterType.GetElementType(),
+                    typeof(object));
+            }
         }
     }
 }
