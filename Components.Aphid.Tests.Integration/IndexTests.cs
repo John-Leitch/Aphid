@@ -269,10 +269,7 @@ namespace Components.Aphid.Tests.Integration
             ArrayAssert9<uint>(0x1, "try { a[0x0] = 0xffffffff } catch { ret 0 }  ret 9");
         }
 
-        ////////////////////////////////////////////////////////////////
-        // Todo: Fix ulong hex runtime bug.
-        ////////////////////////////////////////////////////////////////
-        [Test, Ignore("Not yet supported.")]
+        [Test]
         public void TestArrayTypeCoercion4()
         {
             ArrayAssert9<ulong>(0x1, "try { a[0x0] = 0xffffffffffffffff } catch { ret 0 }  ret 9");

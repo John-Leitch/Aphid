@@ -1,4 +1,4 @@
-namespace Components.Aphid;
+﻿namespace Components.Aphid;
 token AphidTokenType;
 base AphidExpression;
 node AphidNodeType;
@@ -1622,7 +1622,7 @@ ParseFactorExpression = @{
         breakKeyword: _keywordExp(BreakExpression);
 
         HexNumber: {
-            exp = NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
+            exp = NumberExpression(System.Convert.ToUInt64(_currentToken.Lexeme.Substring(2), 16));
             NextToken;
         }
 

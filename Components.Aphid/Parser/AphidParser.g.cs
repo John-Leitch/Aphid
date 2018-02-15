@@ -4533,7 +4533,7 @@ namespace Components.Aphid.Parser
                                                                                 {
                                                                                     if ((_currentToken.TokenType == AphidTokenType.HexNumber))
                                                                                     {
-                                                                                        exp = new NumberExpression(System.Convert.ToInt64(_currentToken.Lexeme.Substring(2), 16));
+                                                                                        exp = new NumberExpression(System.Convert.ToUInt64(_currentToken.Lexeme.Substring(2), 16));
                                                                                         NextToken();
                                                                                     }
                                                                                     else
