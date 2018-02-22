@@ -175,14 +175,19 @@ namespace Components.Aphid.Interpreter
 
         public AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
         {
-            return ResolveCore(
-                nameMatches.Where(x => CheckArgumentCount(x, args)).ToArray(),
-                args);
+            var signatureMatches = nameMatches.Where(x => CheckArgumentCount(x, args)).ToArray();
+
+            if (signatureMatches.Length == 0)
+            {
+                throw CreateSignatureException(nameMatches);
+            }
+
+            return ResolveCore(signatureMatches, args);
         }
 
-        private AphidInteropMethodInfo ResolveCore(MethodBase[] nameMatches, object[] args)
+        private AphidInteropMethodInfo ResolveCore(MethodBase[] signatureMatches, object[] args)
         {
-            var methods = nameMatches
+            var methods = signatureMatches
                 .Select(x => new
                 {
                     Method = x,
@@ -211,11 +216,9 @@ namespace Components.Aphid.Interpreter
                     x.Args))
                 .ToArray();
 
-            if (!methods.Any())
+            if (methods.Length == 0)
             {
-                throw Interpreter.CreateRuntimeException(
-                    "Call did not match interop signature. Methods found:\r\n{0}",
-                    string.Join("\r\n", nameMatches.Select(GetMethodDescription)));
+                throw CreateSignatureException(signatureMatches);
             }
 
             return methods.First();
@@ -282,6 +285,13 @@ namespace Components.Aphid.Interpreter
             {
                 return 0x400;
             }
+        }
+
+        private AphidRuntimeException CreateSignatureException(MethodBase[] matches)
+        {
+            return Interpreter.CreateRuntimeException(
+                "Call did not match interop signature. Methods found:\r\n{0}",
+                string.Join("\r\n", matches.Select(GetMethodDescription)));
         }
 
         public string GetMethodDescription(MethodBase method)
