@@ -148,6 +148,11 @@ namespace Components.Aphid.Interpreter
                     method);
             }
 
+            if (methodParams.Length == 0)
+            {
+                return call.CreateDelegate(delegateType, wrapper);
+            }
+
             var methodParamTypes = methodParams.Select(x => x.ParameterType).ToArray();
 
             var genericCall = call.MakeGenericMethod(
