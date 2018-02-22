@@ -161,7 +161,7 @@ namespace Components.Aphid.Interpreter
                 .Where(x => x.Name == methodName && CheckArgumentCount(x, args))
                 .ToArray();
 
-            if (!matches.Any())
+            if (matches.Length == 0)
             {
                 throw Interpreter.CreateRuntimeException(
                     "Type {0} does not declare a method that matches signature {1}({2}).",
