@@ -2,25 +2,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Components.Aphid.Interpreter
 {
     public partial class AphidObject : Dictionary<string, AphidObject>
     {
+        public int OwnerThread { get; private set; }
+
         public AphidObject Parent { get; set; }
 
         public object Value { get; set; }
 
         public AphidObject()
         {
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
         }
 
         public AphidObject(object value)
+            : this()
         {
             Value = value;
         }
 
         public AphidObject(object value, AphidObject parent)
+            : this()
         {
             Value = value;
             Parent = parent;
