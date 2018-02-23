@@ -14,8 +14,9 @@ namespace Components.Aphid.Tests.Integration
     public class ScriptedTests : AphidTests
     {
         [Test, TestCaseSource("Tests")]
-        public void TestFoo(AphidInterpreter interpreter, string funcName)
+        public void RunTestScript(Func<AphidInterpreter> createInterpreter, string funcName)
         {
+            var interpreter = createInterpreter();
             var result = interpreter.CallFunction(funcName);
 
             if (result != null && result.Value != null && result.Value.GetType() == typeof(bool))
@@ -40,26 +41,31 @@ namespace Components.Aphid.Tests.Integration
 
                 foreach (var s in testScripts)
                 {
-                    var interpreter = new AphidInterpreter();
-                    interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
-                    interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
-                    
-                    interpreter.Interpret(@"
+                    Func<AphidInterpreter> create = () =>
+                    {
+                        var interpreter = new AphidInterpreter();
+                        interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
+                        interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
+
+                        interpreter.Interpret(@"
                         using Components.Aphid.Tests.Integration;
                         isFoo = AphidTests.IsFoo;
                         is9 = AphidTests.Is9;
                     ");
 
-                    interpreter.Interpret(File.ReadAllText(s.FullName));
+                        interpreter.Interpret(File.ReadAllText(s.FullName));
 
-                    var tests = interpreter.CurrentScope.Keys
+                        return interpreter;
+                    };
+
+                    var tests = create().CurrentScope.Keys
                         .SkipWhile(x => x != "tests")
                         .Skip(1)
                         .ToArray();
 
                     foreach (var t in tests)
                     {
-                        yield return new TestCaseData(interpreter, t)
+                        yield return new TestCaseData(create, t)
                             .SetCategory(Path.GetFileNameWithoutExtension(s.Name))
                             .SetName(FormatTestName(t));
                         

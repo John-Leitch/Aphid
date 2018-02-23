@@ -25,6 +25,8 @@ namespace Components.Aphid.Interpreter
 
         private AutoResetEvent _singleStepReset;
 
+        public int OwnerThread { get; private set; }
+
         public AphidAssemblyBuilder AsmBuilder { get; private set; }
 
         public InteropMethodResolver InteropMethodResolver { get; private set; }
@@ -64,6 +66,7 @@ namespace Components.Aphid.Interpreter
 
         public AphidInterpreter(bool createLoader)
         {
+            OwnerThread = -1;
             _createLoader = createLoader;
             CurrentScope = new AphidObject();
             CurrentScope.Add(AphidName.Scope, CurrentScope);
@@ -73,6 +76,7 @@ namespace Components.Aphid.Interpreter
 
         public AphidInterpreter(AphidObject currentScope)
         {
+            OwnerThread = -1;
             _createLoader = true;
             CurrentScope = currentScope;
             AphidObject obj;
@@ -93,6 +97,14 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
+            Init();
+        }
+
+        private AphidInterpreter(AphidLoader loader, AphidObject parentScope)
+        {
+            _createLoader = false;
+            Loader = loader;
+            CurrentScope = new AphidObject(null, parentScope);
             Init();
         }
 
@@ -1541,7 +1553,17 @@ namespace Components.Aphid.Interpreter
 
         public AphidObject CallFunction(AphidFunction function, params object[] parms)
         {
-            return CallFunctionCore(function, parms.Select(ValueHelper.Wrap));
+            var parmsWrapped = parms.Select(ValueHelper.Wrap);
+
+            if (Thread.CurrentThread.ManagedThreadId == OwnerThread)
+            {
+                return CallFunctionCore(function, parmsWrapped);
+            }
+            else
+            {
+                var childInterpreter = new AphidInterpreter(Loader, CurrentScope);
+                return childInterpreter.CallFunctionCore(function, parmsWrapped);
+            }
         }
 
         private AphidObject CallFunctionCore(AphidFunction function, IEnumerable<AphidObject> parms)
@@ -3247,6 +3269,7 @@ namespace Components.Aphid.Interpreter
 
         public void Interpret(List<AphidExpression> expressions)
         {
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
             SetAstCode(expressions);
             Interpret(expressions, resetIsReturning: true);
         }
