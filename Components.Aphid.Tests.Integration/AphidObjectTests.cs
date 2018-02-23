@@ -28,16 +28,16 @@ namespace Components.Aphid.Tests.Integration
             AssertFoo("y = 'foo'; x = { y }; ret x.y;");
         }
 
-        [Test, Ignore("Not yet supported.")]
+        [Test]
         public void ObjectMemberSetTest1()
         {
             AssertFoo("x='foo'; a={x}; a.x='bar'; ret x;");
         }
 
-        [Test, Ignore("Not yet supported.")]
+        [Test]
         public void ObjectMemberSetTest2()
         {
-            AssertTrue("x='foo'; a={x}; a.x='bar'; ret x=='foo' && a.x='bar';");
+            AssertTrue("x='foo'; a={x}; a.x='bar'; ret x=='foo' && a.x=='bar';");
         }        
     }
 }

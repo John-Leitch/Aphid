@@ -1494,7 +1494,15 @@ namespace Components.Aphid.Interpreter
                         ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
 
                     var objectValue = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
-                    obj.Add(objectKey, objectValue);
+
+                    if (objectValue.Value == null)
+                    {
+                        obj.Add(objectKey, objectValue);
+                    }
+                    else
+                    {
+                        obj.Add(objectKey, new AphidObject(objectValue.Value));
+                    }
                 }
 
                 CurrentScope = CurrentScope.Parent;
