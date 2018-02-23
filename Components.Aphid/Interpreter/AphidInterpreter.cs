@@ -538,7 +538,7 @@ namespace Components.Aphid.Interpreter
                     {
                         throw CreateRuntimeException(
                             "No CLR member or Aphid extension '{0}' " + 
-                            "declared for type '{1}': {1}",
+                            "declared for type '{1}': {2}",
                             key,
                             aphidType ?
                                 obj.GetValueType() :
