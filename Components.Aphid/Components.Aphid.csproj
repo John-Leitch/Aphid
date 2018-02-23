@@ -73,6 +73,9 @@
     <OutputPath>bin\Release64\</OutputPath>
     <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <DefineConstants>DEBUG</DefineConstants>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -80,9 +83,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" Condition="!$(DefineConstants.Contains('NO_JSON'))" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
