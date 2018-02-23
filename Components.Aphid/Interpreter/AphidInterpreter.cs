@@ -1768,7 +1768,7 @@ namespace Components.Aphid.Interpreter
                 case AphidExpressionType.BinaryOperatorExpression:
                     var binOpExp = (BinaryOperatorExpression)exp;
                     expressions.AddRange(Flatten(binOpExp.LeftOperand));
-                    expressions.AddRange(Flatten(binOpExp.RightOperand));
+                    expressions.Add(binOpExp.RightOperand);
                     break;
 
                 default:
