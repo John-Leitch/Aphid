@@ -1,0 +1,91 @@
+﻿#'Std';
+#'Test';
+using System.Threading;
+
+threadLocal = @{
+    x = 'foo';
+
+    thread = new Thread(@{
+        x;
+        x = 9;
+    });
+
+    thread.Start();
+    thread.Join();
+    isFoo(x)
+};
+
+threadClosure = @{
+    x = 'foo';
+    thread = new Thread(@{ x = 9 });
+    isFoo(x);
+    thread.Start();
+    thread.Join();
+    is9(x)
+};
+
+threadClosureLambda = @{
+    x = 'foo';    
+    thread = new Thread(@() x = 9);
+    isFoo(x);
+    thread.Start();
+    thread.Join();
+    is9(x)
+};
+
+threadClosureSleepJoin = @{
+    x = 'foo';
+    thread = new Thread(@{
+        Thread.Sleep(100);
+        x = 9;
+    });
+    thread.Start();
+    thread.Join();
+    is9(x)
+};
+
+threadClosureDefined = @{
+    x = 'foo';
+    thread = new Thread(@{ x = 9 });
+    thread.Start();
+    thread.Join();
+    ret x defined;
+};
+
+threadClosureNotDefined = @{
+    thread = new Thread(@{ x = 9 });
+    thread.Start();
+    thread.Join();
+    ret !(x defined);
+};
+
+threadPoolLocal = @{
+    x = 'foo';
+    isFoo(x);
+    r = new ManualResetEvent(false);
+
+    ThreadPool.QueueUserWorkItem(@{
+        x;
+        x = 'bar';
+        r.Set();
+    });
+
+    r.WaitOne();
+    r.Dispose();
+    isFoo(x);
+};
+
+threadPoolClosure = @{
+    x = 'foo';
+    isFoo(x);
+    r = new ManualResetEvent(false);
+
+    ThreadPool.QueueUserWorkItem(@{
+        x = 9;
+        r.Set();
+    });
+
+    r.WaitOne();
+    r.Dispose();
+    is9(x);
+};
