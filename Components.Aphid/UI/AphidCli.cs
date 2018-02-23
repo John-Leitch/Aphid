@@ -12,6 +12,52 @@ namespace Components.Aphid.UI
 {
     public static class AphidCli
     {
+        public static void ExecuteCode(string code)
+        {
+            ExecuteCode(code, isTextDocument: false);
+        }
+
+        public static void ExecuteCode(AphidInterpreter interpreter, string code)
+        {
+            ExecuteCode(interpreter, code, isTextDocument: false);
+        }
+
+        public static void ExecuteCode(string code, bool isTextDocument)
+        {
+            ExecuteCode(new AphidInterpreter(), code, isTextDocument);
+        }
+
+        public static void ExecuteCode(
+            AphidInterpreter interpreter,
+            string code,
+            bool isTextDocument)
+        {
+            try
+            {
+                interpreter.Interpret(code, isTextDocument);
+            }
+            catch (AphidParserException exception)
+            {
+                AphidCli.DumpException(exception, code);
+                Environment.Exit((int)AphidExitCode.ParserError);
+            }
+            catch (AphidLoadScriptException exception)
+            {
+                AphidCli.DumpException(exception, interpreter, code);
+                Environment.Exit((int)AphidExitCode.LoadScriptError);
+            }
+            catch (AphidRuntimeException exception)
+            {
+                AphidCli.DumpException(exception, interpreter);
+                Environment.Exit((int)AphidExitCode.RuntimeError);
+            }
+            catch (Exception exception)
+            {
+                AphidCli.DumpException(exception, interpreter);
+                Environment.Exit((int)AphidExitCode.GeneralError);
+            }
+        }
+
         public static void DumpException(AphidParserException exception, string code)
         {
             Console.WriteLine(GetErrorMessage(exception, code));
