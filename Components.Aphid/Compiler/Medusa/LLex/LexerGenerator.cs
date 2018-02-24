@@ -143,7 +143,7 @@ namespace LLex
                         else
                             body += "\r\nbreak;\r\n";
                         
-                        var t = Properties.Resources.CaseTemplate
+                        var t = Components.Aphid.Properties.Resources.CaseTemplate
                             .Replace("{{Cases}}", CreateCases(EncodeChar(x.State)))
                             .Replace("{{Body}}", body)
                             .Replace("{{States}}", x.Children.Any() ? EmitState(x, false) : "");
@@ -163,8 +163,8 @@ namespace LLex
 
 
             var template = !root ? 
-                Properties.Resources.StateTemplate : 
-                Properties.Resources.RootStateTemplate;
+                Components.Aphid.Properties.Resources.StateTemplate : 
+                Components.Aphid.Properties.Resources.RootStateTemplate;
 
             return template.Replace("{{States}}", childTemplates);
         }
@@ -223,7 +223,7 @@ namespace LLex
                 .Aggregate((x, y) => x + "else " + y);
 
 
-            var s = Properties.Resources.LexicalAnalyzerTemplate
+            var s = Components.Aphid.Properties.Resources.LexicalAnalyzerTemplate
                 .Replace("{Root}", root)
                 .Replace("{Enums}", enums)
                 .Replace("{IsKeyword}", GenerateIsKeyword())
@@ -235,8 +235,8 @@ namespace LLex
             }
 
             return s
-                .Replace("{Body}", Properties.Resources.AddTokenTemplate)
-                .Replace("{AllBody}", Properties.Resources.AddTokenTemplate)
+                .Replace("{Body}", Components.Aphid.Properties.Resources.AddTokenTemplate)
+                .Replace("{AllBody}", Components.Aphid.Properties.Resources.AddTokenTemplate)
                 .Replace("PreviousChar();", "charIndex--;");
         }
     }

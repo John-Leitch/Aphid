@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LLex.Properties {
+namespace Components.Aphid.Properties {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace LLex.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace LLex.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Components.Aphid.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace LLex.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -67,7 +67,7 @@ namespace LLex.Properties {
         ///tokens.Add(new {Token}(tokenType, lexeme, index));
         ///.
         /// </summary>
-        internal static string AddTokenTemplate {
+        public static string AddTokenTemplate {
             get {
                 return ResourceManager.GetString("AddTokenTemplate", resourceCulture);
             }
@@ -78,7 +78,7 @@ namespace LLex.Properties {
         ///    {{States}}
         ///    {{Body}}.
         /// </summary>
-        internal static string CaseTemplate {
+        public static string CaseTemplate {
             get {
                 return ResourceManager.GetString("CaseTemplate", resourceCulture);
             }
@@ -87,7 +87,7 @@ namespace LLex.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Lang_CSharp {
+        public static byte[] Lang_CSharp {
             get {
                 object obj = ResourceManager.GetObject("Lang_CSharp", resourceCulture);
                 return ((byte[])(obj));
@@ -114,7 +114,7 @@ namespace LLex.Properties {
         ///        {Enums}
         ///    [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string LexicalAnalyzerTemplate {
+        public static string LexicalAnalyzerTemplate {
             get {
                 return ResourceManager.GetString("LexicalAnalyzerTemplate", resourceCulture);
             }
@@ -133,7 +133,7 @@ namespace LLex.Properties {
         ///    return {TokenType}.Unknown;
         ///}.
         /// </summary>
-        internal static string RootStateTemplate {
+        public static string RootStateTemplate {
             get {
                 return ResourceManager.GetString("RootStateTemplate", resourceCulture);
             }
@@ -152,7 +152,7 @@ namespace LLex.Properties {
         ///    PreviousChar();
         ///}.
         /// </summary>
-        internal static string StateTemplate {
+        public static string StateTemplate {
             get {
                 return ResourceManager.GetString("StateTemplate", resourceCulture);
             }
