@@ -1,0 +1,63 @@
+﻿#'Std';
+#'Meta';
+using System.Diagnostics;
+cls();
+
+tests = {};
+
+benchmark = macro(@(name, iterations, prologue, action, epilogue){
+    template = @{
+        @{
+            using System;
+            sw = new Stopwatch();
+            n = namePlaceholder;
+            Console.WriteLine('Running {0} performance tests', n);
+            sw.Start();
+            placeholder;
+            sw.Stop();
+            Console.WriteLine('{0} performance test complete in {1}', n, sw.Elapsed);
+        }
+    };
+
+    print('Mutating template');
+    body2 = template.Body[0].ToString() |> parseExp @.Body @shallowMutate(@{
+        if (expression.isId()) {
+            if (expression.id() == 'placeholder') {
+                print('Mutating placeholder');
+                block = parseExp('@{}');
+                prologue.Body->block.Body.Add;
+                0..iterations->@() action.Body->block.Body.Add;
+                epilogue.Body->block.Body.Add;
+                hasChanged = true;
+                print('Done mutating placeholder');
+                finalize();
+                ret block.Body;
+            } else if (expression.id() == 'namePlaceholder') {
+                head('Changed name');
+                hasChanged = true;
+                ret parseExp('@{{ "{0}" }}' :: name);
+            }
+        }
+    });
+
+    print('Done mutating template');
+    f2 = '@{}' |> parseExp |> evalExp;
+    body2->f2.Body.Add;
+    tests.{name + 'Benchmark'} = f2;
+});
+
+head('Starting performance tests');
+benchmark(
+    'increment',
+    100000,
+    @{
+        print('Starting increment test');
+        i = 0;
+    },
+    @{ i++ },
+    @{ print('Final value: {0}', i) });
+
+print('Calling benchmark function');
+//dump(tests);
+tests.incrementBenchmark();
+print('Done calling benchmark function');
