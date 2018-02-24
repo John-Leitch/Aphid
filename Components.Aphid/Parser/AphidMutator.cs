@@ -13,6 +13,8 @@ namespace Components.Aphid.Parser
 
         protected bool IsStatement { get; private set; }
 
+        public bool HasFinalized { get; private set; }
+
         public AphidMutator()
         {
             Ancestors = new Stack<AphidExpression>();
@@ -65,6 +67,11 @@ namespace Components.Aphid.Parser
 
         private List<AphidExpression> Mutate(AphidExpression expression)
         {
+            if (HasFinalized)
+            {
+                return new List<AphidExpression> { expression };
+            }
+
             Ancestors.Push(expression);
             var code = expression.Code;
             bool hasChanged;
@@ -395,7 +402,7 @@ namespace Components.Aphid.Parser
                 {
                     anyMutations = true;
                 }
-            } while (HasMutated);
+            } while (HasMutated && !HasFinalized);
 
             HasMutated = anyMutations;
 
@@ -423,6 +430,11 @@ namespace Components.Aphid.Parser
             {
                 throw new InvalidOperationException("Mutator Ancestor stack unbalanced.");
             }
+        }
+
+        protected void Finalize()
+        {
+            HasFinalized = true;
         }
     }
 }
