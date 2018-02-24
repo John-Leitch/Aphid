@@ -40,12 +40,14 @@ namespace AphidPerformanceTest
 
     class Program
     {
+        private const int _iterations = 10000000;
+
         private static PerfTest[] _tests = new []
         {
-            new PerfTest("increment", "z=0;", "z++;", 1000000),
-            new PerfTest("varSet", "z=0;", "z = 1;", 1000000),
-            new PerfTest("call", "foo=@() { };", "foo();", 1000000),
-            new PerfTest("interopCall", "#'Std';", "str(1);", 1000000),
+            new PerfTest("increment", "z=0;", "z++;", _iterations),
+            new PerfTest("varSet", "z=0;", "z = 1;", _iterations),
+            new PerfTest("call", "foo=@() { };", "foo();", _iterations),
+            new PerfTest("interopCall", "#'Std';", "str(1);", _iterations),
             new PerfTest("std import", "#'Std';", 1000),
         };
 
