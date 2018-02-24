@@ -49,6 +49,16 @@ namespace Components.Aphid.Parser
             s.Add("isStatement", new AphidObject(IsStatement));
             s.Add("expression", new AphidObject(expression));
             s.Add("hasChanged", new AphidObject(false));
+
+            s.Add(
+                "finalize",
+                new AphidObject(new AphidInteropFunction((interpreter, args) =>
+                {
+                    Finalize();
+
+                    return null;
+                })));
+
             Interpreter.Interpret(_mutateImplementation.Value);
             AphidObject hasChangedObj;            
             List<AphidExpression> mutated = null;
