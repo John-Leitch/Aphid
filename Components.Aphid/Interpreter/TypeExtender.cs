@@ -141,27 +141,38 @@ namespace Components.Aphid.Interpreter
             string ctorHandler,
             string dynamicHandler)
         {
+            if (AphidAlias.Resolve(type) == null)
+            {
+                var interopType = Interpreter.InteropTypeResolver.ResolveType(
+                    Interpreter.GetImports(),
+                    new[] { type },
+                    isType: true);
+
+                if (attributes != null)
+                {
+                    if (attributes.Length == 1)
+                    {
+                        if (attributes[0] == AphidType.List)
+                        {
+                            interopType = typeof(List<>).MakeGenericType(interopType);
+                        }
+                        else
+                        {
+                            throw GetInteropTypeException(attributes, type);
+                        }
+                    }
+                    else if (attributes.Length != 0)
+                    {
+                        throw GetInteropTypeException(attributes, type);
+                    }
+                }
+
+                type = GetInteropName(interopType);
+            }
+
             foreach (var extension in extensions)
             {
                 var nameStr = extension.Key;
-
-                if (AphidAlias.Resolve(type) == null)
-                {
-                    var interopType = Interpreter.InteropTypeResolver.ResolveType(
-                        Interpreter.GetImports(),
-                        new[] { type },
-                        isType: true);
-
-                    if (attributes != null &&
-                        attributes.Length == 1 &&
-                        attributes[0] == AphidType.List)
-                    {
-                        interopType = typeof(List<>).MakeGenericType(interopType);
-                    }
-
-                    type = GetInteropName(interopType);
-                }
-
                 var keys = new List<string> { GetName(type, nameStr) };
 
                 if (nameStr == dynamicHandler)
@@ -186,6 +197,14 @@ namespace Components.Aphid.Interpreter
                     }
                 }
             }
+        }
+
+        private AphidRuntimeException GetInteropTypeException(string[] attributes, string type)
+        {
+            return Interpreter.CreateRuntimeException(
+                "Unexpected attribute(s) '{0}' for type '{1}'. Expected attribute 'list' or none.",
+                string.Join(", ", attributes),
+                type);
         }
 
         public AphidObject TryResolve(

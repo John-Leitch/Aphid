@@ -84,6 +84,180 @@ namespace Components.Aphid.Tests.Integration
             Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
         }
 
+        [Test]
+        public void ExtensionMethodGenericTest()
+        {
+            Assert9(@"
+                #'Std';
+                #'Meta';
+                using Components.Aphid.Parser;
+                extend list AphidExpression {
+                    whereId: @(l, id) id defined ?
+                        l-?@(x) x.isId() && x.id() == id :
+                        l-?@(x) x.isId(),
+
+                    singleId: @(l, id) {
+                        matches = l-?@(x) x.isId() && x.id() == id;
+
+
+                        if (matches.Count != 1) {
+                            fatal('Expected single expression with id ""{0}"".', id);
+                        }
+
+                        ret matches[0];
+                    },
+                }
+
+                b = @{ a; b; c; d; e; f; g; h; i; };
+                ret b.Body.whereId().Count;
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodGenericTest2()
+        {
+            Assert9(@"
+                #'Std';
+                #'Meta';
+                using Components.Aphid.Parser;
+                extend list AphidExpression {
+                    whereId: @(l, id) id defined ?
+                        l-?@(x) x.isId() && x.id() == id :
+                        l-?@(x) x.isId(),
+
+                    singleId: @(l, id) {
+                        matches = l-?@(x) x.isId() && x.id() == id;
+
+
+                        if (matches.Count != 1) {
+                            fatal('Expected single expression with id ""{0}"".', id);
+                        }
+
+                        ret matches[0];
+                    },
+                }
+
+                b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
+                ret b.Body.whereId().Count;
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodGenericTest3()
+        {
+            AssertFalse(@"
+                #'Std';
+                #'Meta';
+                using Components.Aphid.Parser;
+                extend list AphidExpression {
+                    whereId: @(l, id) id defined ?
+                        l-?@(x) x.isId() && x.id() == id :
+                        l-?@(x) x.isId(),
+
+                    singleId: @(l, id) {
+                        matches = l-?@(x) x.isId() && x.id() == id;
+
+
+                        if (matches.Count != 1) {
+                            fatal('Expected single expression with id ""{0}"".', id);
+                        }
+
+                        ret matches[0];
+                    },
+                }
+
+                b = @{ a; b; c; d; e; f; g; h; i; };
+                ret b.Body.whereId().Count == 8;
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodGenericTest4()
+        {
+            AssertFalse(@"
+                #'Std';
+                #'Meta';
+                using Components.Aphid.Parser;
+                extend list AphidExpression {
+                    whereId: @(l, id) id defined ?
+                        l-?@(x) x.isId() && x.id() == id :
+                        l-?@(x) x.isId(),
+
+                    singleId: @(l, id) {
+                        matches = l-?@(x) x.isId() && x.id() == id;
+
+
+                        if (matches.Count != 1) {
+                            fatal('Expected single expression with id ""{0}"".', id);
+                        }
+
+                        ret matches[0];
+                    },
+                }
+
+                b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
+                ret b.Body.whereId().Count == 8;
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodGenericTestFault()
+        {
+            AssertFalse(@"
+                #'Std';
+                #'Meta';
+                try {
+                    extend list AphidExpressiona {
+                        whereId: @(l, id) id defined ?
+                            l-?@(x) x.isId() && x.id() == id :
+                            l-?@(x) x.isId(),
+                    }
+
+                    ret true;
+                } catch (e) {
+                    ret false;
+                }
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodGenericTestFault2()
+        {
+            AssertFalse(@"
+                #'Std';
+                #'Meta';
+                try {
+                    extend list list AphidExpression {
+                        whereId: @(l, id) id defined ?
+                            l-?@(x) x.isId() && x.id() == id :
+                            l-?@(x) x.isId(),
+                    }
+
+                    ret true;
+                } catch (e) {
+                    ret false;
+                }
+            ");
+        }
+
+        [Test]
+        public void ExtensionMethodGenericTestFault3()
+        {
+            AssertFalse(@"
+                try {
+                    extend AphidExpressiona {
+                        whereId: @(l, id) id defined ?
+                            l-?@(x) x.isId() && x.id() == id :
+                            l-?@(x) x.isId(),
+                    }
+
+                    ret true;
+                } catch (e) {
+                    ret false;
+                }
+            ");
+        }
+
         //Todo: Add alias tests using SuiteAttribute.
         [Test]
         public void ExtensionMethodCSStyleDecimalAliasTest8()

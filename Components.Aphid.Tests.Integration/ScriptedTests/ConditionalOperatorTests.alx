@@ -1,0 +1,12 @@
+﻿#'Test';
+_c = macro(@(n, b) { id('conditionalOperator', n) = b });
+_c('', success(@{ true ? 9 : 0 |> is9 }));
+_c('2', success(@{ false ? 0 : 9|> is9 }));
+_c('3', success(@{ true ? 'foo' : 'bar' |> isFoo }));
+_c('4', success(@{ false ? 'bar' : 'foo' |> isFoo }));
+_c('5', success(@{ false ? 9 : 'foo' |> isFoo }));
+_c('6', success(@{ false ? 'foo' : 9 |> is9 }));
+
+_c('OperatorInvalidCondition', fault(@{ 'test' ? 'foo' : 9 }));
+_c('OperatorInvalidCondition2', fault(@{ { foo: 'test' } ? 'foo' : 9 }));
+_c('OperatorInvalidCondition3', fault(@{ 9 ? 'foo' : 9 }));
