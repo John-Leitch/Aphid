@@ -69,8 +69,16 @@ namespace Components.Aphid.Interpreter
 
         public string GetValueType()
         {
+            return GetValueType(true);
+        }
+
+        public string GetValueType(bool includeClrTypes)
+        {
+            Type t;
+
             return Value != null ? 
-                AphidAlias.Resolve(Value.GetType()) ?? AphidType.Unknown :
+                AphidAlias.Resolve(t = Value.GetType()) ??
+                    (includeClrTypes ? t.FullName : AphidType.Unknown) :
                 AphidType.Null;
         }
 
@@ -359,6 +367,13 @@ namespace Components.Aphid.Interpreter
             }
 
             return scopes.ToArray();
+        }
+
+        public string GetTypeName()
+        {
+            return Count > 0 ? AphidType.Object :
+                Value != null ? GetValueType() :
+                AphidType.Null;
         }
 
         public static bool IsAphidType(object obj)

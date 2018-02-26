@@ -12,6 +12,7 @@ using System.Collections;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using System.Runtime;
+using Components.Aphid.Library;
 
 namespace Components.Aphid.Interpreter
 {
@@ -537,6 +538,7 @@ namespace Components.Aphid.Interpreter
                 else if (obj.Count == 0)
                 {
                     var aphidType = obj.IsAphidType();
+
                     val = TypeExtender.TryResolve(
                             CurrentScope,
                             obj,
@@ -560,47 +562,60 @@ namespace Components.Aphid.Interpreter
 
                     if (val == null)
                     {
-                        throw CreateRuntimeException(
-                            "No CLR member or Aphid extension '{0}' " +
-                            "declared for type '{1}': {2}",
-                            key,
-                            aphidType ?
-                                obj.GetValueType() :
-                                obj.Value.GetType().FullName,
-                            expression);
+                        throw CreateException(key, obj, expression);
                     }
 
                     return val;
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
-                    val = TypeExtender.TryResolve(
-                        CurrentScope,
-                        obj,
-                        key,
-                        isAphidType: true,
-                        isCtor: false,
-                        isDynamic: false,
-                        returnRef: returnRef);
+                    if (obj.Value != null)
+                    {
+                        val = TypeExtender.TryResolve(
+                            CurrentScope,
+                            obj,
+                            key,
+                            isAphidType: true,
+                            isCtor: false,
+                            isDynamic: false,
+                            returnRef: returnRef);
 
-                    return val == null ?
-                        InterpretMemberInteropExpression(
-                            obj.Value,
-                            expression,
-                            returnRef,
-                            () => TypeExtender.TryResolve(
-                                CurrentScope,
-                                obj,
-                                key,
-                                isAphidType: true,
-                                isCtor: false,
-                                isDynamic: true,
-                                returnRef: returnRef)) :
-                        val;
+                        return val == null ?
+                            InterpretMemberInteropExpression(
+                                obj.Value,
+                                expression,
+                                returnRef,
+                                () => TypeExtender.TryResolve(
+                                    CurrentScope,
+                                    obj,
+                                    key,
+                                    isAphidType: true,
+                                    isCtor: false,
+                                    isDynamic: true,
+                                    returnRef: returnRef)) :
+                            val;
+                    }
+                    else
+                    {
+                        throw CreateException(key, obj, expression);
+                    }
                 }
 
                 return val;
             }
+        }
+
+        private AphidRuntimeException CreateException(string key, AphidObject obj, AphidExpression expression)
+        {
+            return CreateRuntimeException(
+                "No CLR member or Aphid extension '{0}' " +
+                    "declared for type '{1}'.\r\n\r\n" +
+                    "Expression: {2}\r\n\r\n" +
+                    "Serialized target object: {3}",
+                key,
+                obj.GetValueType(includeClrTypes: true),
+                expression,
+                new AphidSerializer(this).Serialize(obj));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
