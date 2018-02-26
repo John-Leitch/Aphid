@@ -7,6 +7,7 @@ namespace Components.PInvoke
 {
     public enum AllocationProtect : uint
     {
+        None = 0x00000000,
         PAGE_EXECUTE = 0x00000010,
         PAGE_EXECUTE_READ = 0x00000020,
         PAGE_EXECUTE_READWRITE = 0x00000040,
