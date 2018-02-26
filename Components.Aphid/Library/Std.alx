@@ -25,7 +25,6 @@ getArgs = @() _callExp(1).Args;
 getArg = @(i) _callExp(1).Args[i];
 getIdArg = @(i) _callExp(1).Args[i].Identifier;
 idString = @() getArg(0);
-
 format = String.Format;
 join = String.Join;
 
@@ -223,38 +222,50 @@ printMember = @(m, useFullNames) {
         expressionColor.modifier,
         ($(m.GetType())
             typeof(RuntimeMethodInfo),
-            typeof(RuntimeConstructorInfo):
+            typeof(RuntimeConstructorInfo),            
+            typeof(ConstructorInfo),
+            typeof(RuntimeConstructorInfo),
+            typeof(FieldInfo),
+            typeof(RuntimeFieldInfo),
+            typeof(RtFieldInfo):
                 m.IsPublic,
-            typeof(RuntimePropertyInfo):
+            typeof(PropertyInfo), typeof(RuntimePropertyInfo):
                 m.hasPublicGetter(),
-            typeof(RuntimeEventInfo):
-                m.AddMethod != null && m.AddMethod.IsPublic) ?
+            typeof(EventInfo), typeof(RuntimeEventInfo):
+                m.AddMethod != null && m.AddMethod.IsPublic,
+            false) ?
             'public' :
             'private') +
     ((m @has('IsStatic')) && m.IsStatic ?
         format('{0}static~R~ ', expressionColor.modifier) :
         '') +
     ($(m.GetType())
-        typeof(EventInfo),
-        typeof(RuntimeEventInfo):
+        typeof(EventInfo), typeof(RuntimeEventInfo):
             format('{0}event~R~ ', expressionColor.modifier),
         '') +
     ($(m.GetType())
-        typeof(RuntimeConstructorInfo):
+        typeof(ConstructorInfo), typeof(RuntimeConstructorInfo):
             format(
-                '{0}{1}~R~({2})',
+                '{0}{1}~R~({2});',
                 expressionColor.type,
                 _pn(m.DeclaringType),
                 formatParams(m, useFullNames)),
-        typeof(RuntimeMethodInfo):
+        typeof(MethodInfo), typeof(RuntimeMethodInfo):
             format(
-                '{0}{1}~R~ {2}{3}~R~({4})',
+                '{0}{1}~R~ {2}{3}~R~({4});',
                 expressionColor.type,
                 _pn(m.ReturnType),
                 expressionColor.methodName,
                 m.Name,
                 formatParams(m, useFullNames)),
-        typeof(RuntimePropertyInfo):
+        typeof(FieldInfo), typeof(RuntimeFieldInfo), typeof(RtFieldInfo):
+            format(
+                '{0}{1}~R~ {2}{3}~R~;',
+                expressionColor.type,
+                _pn(m.FieldType),
+                expressionColor.propertyName,
+                m.Name),
+        typeof(PropertyInfo), typeof(RuntimePropertyInfo):
             format(
                 '{0}{1}~R~ {2}{3}~R~ {{ {4}get~R~;{5} }}',
                 expressionColor.type,
