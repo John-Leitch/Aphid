@@ -29,7 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FULL_DBG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>True</Externalconsole>
@@ -135,6 +135,7 @@
     <Compile Include="Compiler\Medusa\Mantispid\SymbolTable.cs" />
     <Compile Include="Compiler\Medusa\Mantispid\TypeInferenceMutator.cs" />
     <Compile Include="External\ArgLexer.cs" />
+    <Compile Include="External\ByteArrayExtension.cs" />
     <Compile Include="External\ConsolePlus\CliApplication.cs" />
     <Compile Include="External\ConsolePlus\CliArgAttribute.cs" />
     <Compile Include="External\ConsolePlus\CliArgProperty.cs" />
@@ -143,9 +144,43 @@
     <Compile Include="External\ConsolePlus\CommandString.cs" />
     <Compile Include="External\ConsolePlus\Cli.g.cs" />
     <Compile Include="External\ConsolePlus\InteractiveConsole.cs" />
+    <Compile Include="External\Debugging\BreakpointManager.cs" />
+    <Compile Include="External\Debugging\Cache.cs" />
+    <Compile Include="External\Debugging\DebuggerEventArgs.cs" />
+    <Compile Include="External\Debugging\DebugProcess.cs" />
+    <Compile Include="External\Debugging\ExceptionType.cs" />
+    <Compile Include="External\Debugging\HookManager.cs" />
+    <Compile Include="External\Debugging\Instruction.cs" />
+    <Compile Include="External\Debugging\NativeContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="External\Debugging\NativeDebugger.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="External\Debugging\NativeFunction.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="External\Debugging\ProcessExtension.cs" />
+    <Compile Include="External\Debugging\StackDumper.cs" />
+    <Compile Include="External\EnvironmentHelper.cs" />
     <Compile Include="External\Json\JsonFormatter.cs" />
     <Compile Include="External\Json\JsonLexer.cs" />
     <Compile Include="External\Json\JsonSerializer.cs" />
+    <Compile Include="External\PInvoke\AccessViolationFlag.cs" />
+    <Compile Include="External\PInvoke\DbgHelp.cs" />
+    <Compile Include="External\PInvoke\EnumWindowsProc.cs" />
+    <Compile Include="External\PInvoke\ExceptionCode.cs" />
+    <Compile Include="External\PInvoke\HookType.cs" />
+    <Compile Include="External\PInvoke\KeyboardHook.cs" />
+    <Compile Include="External\PInvoke\LASTINPUTINFO.cs" />
+    <Compile Include="External\PInvoke\MiniDumpType.cs" />
+    <Compile Include="External\PInvoke\MINIDUMP_EXCEPTION_INFORMATION.cs" />
+    <Compile Include="External\PInvoke\NTDll.cs" />
+    <Compile Include="External\PInvoke\SetWindowPosFlags.cs" />
+    <Compile Include="External\PInvoke\User32.cs" />
+    <Compile Include="External\PInvoke\WindowsHookCallback.cs" />
+    <Compile Include="External\StringEnumerableExtension.cs" />
+    <Compile Include="External\StringExtension.cs" />
     <Compile Include="External\StringTree.cs" />
     <Compile Include="External\XmlObject.cs" />
     <Compile Include="External\XmlSerializerExtension.cs" />
@@ -159,6 +194,22 @@
     <Compile Include="Interpreter\AphidName.cs" />
     <Compile Include="AphidExceptionType.cs" />
     <Compile Include="Interpreter\AphidInterpreter.Events.cs" />
+    <Compile Include="External\Debugging\NativeHook.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="External\Debugging\ProcessMemory.cs" />
+    <Compile Include="External\Debugging\ThreadContext.cs" />
+    <Compile Include="External\Debugging\TrampolineHeap.cs" />
+    <Compile Include="External\IA32\DecodedInstruction.cs" />
+    <Compile Include="External\IA32\DecodedModRMByte.cs" />
+    <Compile Include="External\IA32\DecodedOpcode.cs" />
+    <Compile Include="External\IA32\IA32Disassembler.cs" />
+    <Compile Include="External\IA32\Mod.cs" />
+    <Compile Include="External\IA32\Opcode.cs" />
+    <Compile Include="External\IA32\OpcodeDirection.cs" />
+    <Compile Include="External\IA32\OpcodeSize.cs" />
+    <Compile Include="External\IA32\Register32.cs" />
+    <Compile Include="External\IA32\SibByte.cs" />
     <Compile Include="Library\Net\Http\AphidRequest.cs" />
     <Compile Include="Library\Net\Http\AphidSessionManager.cs" />
     <Compile Include="Library\Net\Http\AphidUpload.cs" />
@@ -179,6 +230,33 @@
     <Compile Include="Library\Net\Http\HttpUpload.cs" />
     <Compile Include="Library\Net\Http\HttpVersion.cs" />
     <Compile Include="Library\Net\Http\MimeType.cs" />
+    <Compile Include="External\PInvoke\AllocationProtect.cs" />
+    <Compile Include="External\PInvoke\AllocationType.cs" />
+    <Compile Include="External\PInvoke\CONTEXT.cs" />
+    <Compile Include="External\PInvoke\CONTEXT_FLAGS.cs" />
+    <Compile Include="External\PInvoke\ContinueStatus.cs" />
+    <Compile Include="External\PInvoke\CREATE_PROCESS_DEBUG_INFO.cs" />
+    <Compile Include="External\PInvoke\CREATE_THREAD_DEBUG_INFO.cs" />
+    <Compile Include="External\PInvoke\DebugEventType.cs" />
+    <Compile Include="External\PInvoke\DEBUG_EVENT.cs" />
+    <Compile Include="External\PInvoke\EXCEPTION_DEBUG_INFO.cs" />
+    <Compile Include="External\PInvoke\EXCEPTION_RECORD.cs" />
+    <Compile Include="External\PInvoke\EXIT_PROCESS_DEBUG_INFO.cs" />
+    <Compile Include="External\PInvoke\EXIT_THREAD_DEBUG_INFO.cs" />
+    <Compile Include="External\PInvoke\FLOATING_SAVE_AREA.cs" />
+    <Compile Include="External\PInvoke\Kernel32.cs" />
+    <Compile Include="External\PInvoke\LOAD_DLL_DEBUG_INFO.cs" />
+    <Compile Include="External\PInvoke\MemoryProtection.cs" />
+    <Compile Include="External\PInvoke\MEMORY_BASIC_INFORMATION.cs" />
+    <Compile Include="External\PInvoke\OUTPUT_DEBUG_STRING_INFO.cs" />
+    <Compile Include="External\PInvoke\ProcessCreationFlags.cs" />
+    <Compile Include="External\PInvoke\PROCESS_BASIC_INFORMATION.cs" />
+    <Compile Include="External\PInvoke\PROCESS_INFORMATION.cs" />
+    <Compile Include="External\PInvoke\PTHREAD_START_ROUTINE.cs" />
+    <Compile Include="External\PInvoke\RIP_INFO.cs" />
+    <Compile Include="External\PInvoke\STARTUPINFO.cs" />
+    <Compile Include="External\PInvoke\ThreadAccess.cs" />
+    <Compile Include="External\PInvoke\UNLOAD_DLL_DEBUG_INFO.cs" />
     <Compile Include="Parser\AphidAttributeScanner.cs" />
     <Compile Include="Parser\AphidIdDirectiveMutator.cs" />
     <Compile Include="Parser\AphidCodeVisitor.cs" />
@@ -370,6 +448,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs
