@@ -136,6 +136,7 @@ has = @(name, target)
     target.GetType().GetProperty(name) != null;
 
 expressionColor = {
+    comment: '~DarkGreen~',
     modifier: '~DarkCyan~',
     keyword: modifier,
     type: '~Cyan~',
@@ -159,9 +160,21 @@ _en = macro(@(prefix) { !cm.Name.StartsWith(prefix + '_') });
 _dump = macro(@(m) {
     id(get, m) = @(obj) _get(id(Get, m));
     id(dump, m) = @(obj) {
+        n;
+        n = this.{'$frames'}[0].Name;
+        print(
+            expressionColor.comment +
+                '//' * 40 +
+                '\r\n// {0}({1})\r\n' +
+                '//' * 40 +
+                '~R~',
+            n,
+            obj != null ? obj.GetType().FullName : 'null');
         (obj |> id(get, m))
             -?(@(cm) _en('get') && _en('set') && _en('add') && _en('remove'))
-            ->printMember
+            ->printMember;
+
+        print();
     };
 });
 
