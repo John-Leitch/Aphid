@@ -416,7 +416,7 @@ namespace Components.Aphid.Interpreter
             else
             {
                 var path = FlattenPath(expression);
-                var type = InteropTypeResolver.ResolveType(GetImports(), path);
+                var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path);
                 members = GetInteropStaticMembers(type, path);
             }
 
@@ -1774,7 +1774,7 @@ namespace Components.Aphid.Interpreter
             var pathStr = string.Join(".", path);
             var imports = GetImports();
 
-            var type = InteropTypeResolver.ResolveType(GetImports(), path);
+            var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path);
             var methodName = path.Last();
 
             var args = callExpression.Args
@@ -2077,7 +2077,7 @@ namespace Components.Aphid.Interpreter
                         .ToArray();
 
                     var path = FlattenPath(call.FunctionExpression);
-                    var type = InteropTypeResolver.ResolveType(GetImports(), path, isType: true);
+                    var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path, isType: true);
                     var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
                     var convertedArgs = TypeConverter.Convert(ctor.Arguments);
                     var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);

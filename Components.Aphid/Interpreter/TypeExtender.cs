@@ -144,7 +144,7 @@ namespace Components.Aphid.Interpreter
             if (AphidAlias.Resolve(type) == null)
             {
                 var interopType = Interpreter.InteropTypeResolver.ResolveType(
-                    Interpreter.GetImports(),
+                    Interpreter.GetImports().ToArray(),
                     new[] { type },
                     isType: true);
 

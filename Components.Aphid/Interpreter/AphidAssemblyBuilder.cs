@@ -142,7 +142,7 @@ namespace Components.Aphid.Interpreter
             IdentifierExpression propertyDecl,
             IEnumerable<string> imports)
         {
-            var t = GetPropertyType(defaultType, propertyDecl, imports);
+            var t = GetPropertyType(defaultType, propertyDecl, imports.ToArray());
 
             if (t == null)
             {
@@ -196,7 +196,7 @@ namespace Components.Aphid.Interpreter
         private Type GetPropertyType(
             string defaultType,
             IdentifierExpression property,
-            IEnumerable<string> imports)
+            string[] imports)
         {
             if (property.Attributes == null || !property.Attributes.Any())
             {

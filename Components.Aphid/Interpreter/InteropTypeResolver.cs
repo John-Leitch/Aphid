@@ -13,12 +13,12 @@ namespace Components.Aphid.Interpreter
         {
         }
 
-        public Type TryResolveType(IEnumerable<string> imports, string[] path, bool isType = false)
+        public Type TryResolveType(string[] imports, string[] path, bool isType = false)
         {
             return ResolveType(imports, path, isFatal: false, isType: isType);
         }
 
-        public Type ResolveType(IEnumerable<string> imports, string[] path, bool isFatal = true, bool isType = false)
+        public Type ResolveType(string[] imports, string[] path, bool isFatal = true, bool isType = false)
         {
             var pathStr = string.Join(".", path);
             var offset = !isType ? 1 : 0;
