@@ -54,7 +54,7 @@ namespace Components.Aphid.Parser
                 "finalize",
                 new AphidObject(new AphidInteropFunction((interpreter, args) =>
                 {
-                    Finalize();
+                    FinalizeMutation();
 
                     return null;
                 })));

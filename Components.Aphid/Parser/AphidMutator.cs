@@ -432,7 +432,7 @@ namespace Components.Aphid.Parser
             }
         }
 
-        protected void Finalize()
+        protected void FinalizeMutation()
         {
             HasFinalized = true;
         }
