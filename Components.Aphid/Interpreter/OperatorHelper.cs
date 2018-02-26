@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Components.Aphid.Interpreter
@@ -92,12 +93,91 @@ namespace Components.Aphid.Interpreter
 
         public AphidObject BinaryAnd(AphidObject x, AphidObject y)
         {
-            if (x == null || y == null)
+            Type xType, yType, xBaseType, yBaseType;
+
+            if (x == null || y == null || x.Value == null || y.Value == null)
             {
                 throw CreateOperationException("binary and");
             }
+            else if ((xType = x.Value.GetType()).IsEnum &&
+                (yType = y.Value.GetType()).IsEnum)
+            {
+                if ((xBaseType = Enum.GetUnderlyingType(xType)) !=
+                (yBaseType = Enum.GetUnderlyingType(yType)))
+                {
+                    throw Interpreter.CreateRuntimeException(
+                        "Enum type mismatch, cannot perform binary operations on " +
+                            "enums with different underlying ytpes: {0} and {1}",
+                        xBaseType.FullName,
+                        yBaseType.FullName);
+                }
+                else if (xBaseType == typeof(byte))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (byte)x.Value & (byte)y.Value));
+                }
+                else if (xBaseType == typeof(ushort))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (ushort)x.Value & (ushort)y.Value));
+                }
+                else if (xBaseType == typeof(uint))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (uint)x.Value & (uint)y.Value));
+                }
+                else if (xBaseType == typeof(ulong))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (ulong)x.Value & (ulong)y.Value));
+                }
+                else if (xBaseType == typeof(sbyte))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (sbyte)x.Value & (sbyte)y.Value));
+                }
+                else if (xBaseType == typeof(short))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (short)x.Value & (short)y.Value));
+                }
+                else if (xBaseType == typeof(int))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (int)x.Value & (int)y.Value));
+                }
+                else if (xBaseType == typeof(long))
+                {
+                    return new AphidObject(
+                        Enum.ToObject(
+                            xType,
+                            (long)x.Value & (long)y.Value));
+                }
+                else
+                {
+                    throw Interpreter.CreateRuntimeException(
+                        "Unsupported underlying type: {0}",
+                        xBaseType);
+                }
+            }
             else
             {
+                // Todo: Perform proper type checking and conversion by
+                // branching on both lhs and rhs type.
                 return new AphidObject((decimal)((long)(decimal)x.Value & (long)(decimal)y.Value));
             }
         }
