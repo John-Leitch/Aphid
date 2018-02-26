@@ -1,55 +1,86 @@
 ﻿#'Std';
 #'Meta';
+using Components.Aphid;
 using System.Diagnostics;
-cls();
 
 tests = {};
 
+extend list AphidExpression {
+    whereId: @(l, id) l-?@(x) x.isId() && x.id() == id,
+
+    singleId: @(l, id) {
+        matches = l-?@(x) x.isId() && x.id() == id;
+
+
+        if (matches.Count != 1) {
+            fatal("Expected single expression with id '{0}'.", id);
+        }
+
+        ret matches[0];
+    },
+
+    replaceId: @(l, id, block) {
+        using System.Linq;
+        matches = l.whereId(id);// |> Enumerable.Reverse;
+
+        for (m in matches) {
+            i = l.IndexOf(m);
+            l.RemoveAt(i);
+            l.InsertRange(i, block.Body);
+        }
+    }
+}
+
+#'Std';
 benchmark = macro(@(name, iterations, prologue, action, epilogue){
+    if (action.Body.Count != 1) fatal('Action must be single statement.');
+
     template = @{
         @{
             using System;
+            namePlaceholder;
+            print('Running ~Cyan~{0}~R~ performance tests', n);
             sw = new Stopwatch();
-            n = namePlaceholder;
-            Console.WriteLine('Running {0} performance tests', n);
             sw.Start();
             placeholder;
             sw.Stop();
-            Console.WriteLine('{0} performance test complete in {1}', n, sw.Elapsed);
+            
+            print(
+                'Finished ~Cyan~{0}~R~ performance test complete in ~Magenta~{1}~R~',
+                n,
+                sw.Elapsed);
         }
     };
 
     print('Mutating template');
-    body2 = template.Body[0].ToString() |> parseExp @.Body @shallowMutate(@{
-        if (expression.isId()) {
-            if (expression.id() == 'placeholder') {
-                print('Mutating placeholder');
-                block = parseExp('@{}');
-                prologue.Body->block.Body.Add;
-                0..iterations->@() action.Body->block.Body.Add;
-                epilogue.Body->block.Body.Add;
-                hasChanged = true;
-                print('Done mutating placeholder');
-                finalize();
-                ret block.Body;
-            } else if (expression.id() == 'namePlaceholder') {
-                head('Changed name');
-                hasChanged = true;
-                ret parseExp('@{{ "{0}" }}' :: name);
-            }
-        }
-    });
 
-    print('Done mutating template');
-    f2 = '@{}' |> parseExp |> evalExp;
-    body2->f2.Body.Add;
-    tests.{name + 'Benchmark'} = f2;
+    benchmarkFunc = template.Body[0].ToString() |> parseExp |> evalExp;
+    benchmarkFunc.Body.InsertRange(0, prologue.Body);
+    benchmarkFunc.Body.AddRange(epilogue.Body);
+
+    benchmarkFunc.Body.replaceId(
+        'namePlaceholder',
+        '@{ n = "' + name + '" }' |> parseExp |> evalExp);
+
+    actionBlock = '@{}' |> parseExp |> evalExp;
+    actionStmt = action.Body[0];
+    using System.Linq;
+    using System.Collections;
+    ArrayList
+        .Repeat(actionStmt, iterations)
+        .ToArray(typeof(AphidExpression))
+        |> actionBlock.Body.AddRange;
+
+    benchmarkFunc.Body.replaceId('placeholder', actionBlock);
+
+    tests.{name + 'Benchmark'} = benchmarkFunc;
 });
 
 head('Starting performance tests');
+
 benchmark(
     'increment',
-    100000,
+    10000000,
     @{
         print('Starting increment test');
         i = 0;
@@ -58,6 +89,5 @@ benchmark(
     @{ print('Final value: {0}', i) });
 
 print('Calling benchmark function');
-//dump(tests);
 tests.incrementBenchmark();
 print('Done calling benchmark function');
