@@ -1594,9 +1594,14 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunction(string name, params object[] parms)
         {
-            var val = InterpretIdentifierExpression(new IdentifierExpression(name));
+            var idExp = new IdentifierExpression(name);
+            PushFrame(idExp, idExp, parms);
+            var val = InterpretIdentifierExpression(idExp);
             var func = ValueHelper.Unwrap(val) as AphidFunction;
-            return CallFunction(func, parms);
+            var result = CallFunction(func, parms);
+            PopFrame();
+
+            return result;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
