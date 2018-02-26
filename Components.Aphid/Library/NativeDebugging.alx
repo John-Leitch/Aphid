@@ -1,0 +1,218 @@
+﻿scanMemory;
+debugCommand;
+catchExceptions;
+
+@{
+    #'Std';
+    #'Meta';
+    using Components.Cypress;
+    using Components.PInvoke;
+    using System;
+    using System.ComponentModel;
+
+    catchExceptions = @(command, callback) {
+        dbg;
+        dbg = new NativeDebugger();
+        dbg.add_DebugEventReceived(@(sender, e){
+            switch (e.DebugEvent.dwDebugEventCode) {
+                DebugEventType.EXCEPTION_DEBUG_EVENT: {
+                    print('Exception: ~Red~{0}~R~', e);
+                    callback(sender, e);
+                }
+
+                default: print('Debug event: {0}', e.DebugEvent.dwDebugEventCode);
+            }
+
+            e.DebugEvent.ContinueUnhandled();
+        });
+
+        dbg.StartProcess(command);
+
+        ret dbg;
+    };
+
+    debugCommand = @(command, eventMap2) {
+        dbg;
+        eventMap;
+        win32ExceptionType;
+        handlerTemplate;
+        handler;
+        eventMap = eventMap2;
+        dbg = new NativeDebugger();
+        
+        win32ExceptionType =
+            'System.ComponentModel.Win32Exception'
+            |> (new Uri('https://autosectools.com/'))
+            .GetType().Assembly
+            .GetType;
+
+        if (win32ExceptionType == null) {
+            print('Could not get type System.ComponentModel.Win32Exception');
+            exit(1);
+        }
+
+        
+        handlerTemplate = '@(sender, e) { };';
+        handlerTemplate @print('~Magenta~Handler template:~R~ {0}');
+        handler = handlerTemplate |> parseExp |> evalNode;
+
+        _de = macro(@(_em, _f) {
+            //id;
+            //id = getIdArg(0);
+            //f2;
+            //f2 = getIdArg(1);
+
+            if (eventMap._f defined) {
+                print('Adding debug event');
+                //f;
+                //f = eventMap._f.Clone();
+                //print(eventMap._f);
+                //print(f);
+                //exit();
+                //eventMap.{f2};
+                
+
+                @{
+                    e.DebugEvent.dwDebugEventCode == DebugEventType._em
+                    @print('~Magenta~e.DebugEvent.dwDebugEventCode == DebugEventType._em:~R~ {0}');
+                    //dumpe(this);
+                    if (e.DebugEvent.dwDebugEventCode == DebugEventType._em) {
+                        print('Exception: ~Red~{0}~R~', e);
+                        eventMap defined @print('~Magenta~eventMap defined:~R~ {0}');
+                        eventMap._f defined @print('~Magenta~eventMap>_f defined:~R~ {0}');
+                        eventMap._f(sender, e);
+                    }
+                }.Body
+                |> handler.Body.AddRange;
+            } else {
+                print('Not adding debug event');
+            }
+        });
+        
+        _de(EXCEPTION_DEBUG_EVENT, exception);
+        _de(CREATE_THREAD_DEBUG_EVENT, createThread);
+        _de(CREATE_PROCESS_DEBUG_EVENT, createProcess);
+        _de(EXIT_THREAD_DEBUG_EVENT, exitThread);
+        _de(EXIT_PROCESS_DEBUG_EVENT, exitProcess);
+        _de(LOAD_DLL_DEBUG_EVENT, loadDll);
+        _de(OUTPUT_DEBUG_STRING_EVENT, outputDebugSring);
+        _de(RIP_EVENT, ripEvent);
+        _de(UNLOAD_DLL_DEBUG_EVENT, unloadDll);
+        handler.Body.Add(@{ e.DebugEvent.ContinueUnhandled() }.Body[0]);
+        handler.Body->@print('~Magenta~[Node]~R~ {0}');
+        dbg.add_DebugEventReceived(handler);
+
+        head('Event map');
+        //eventMap |> keys |> dump;
+        //exit();
+         dbg.StartProcess(command);
+        //try dbg.StartProcess(command);
+        //catch (e) {
+            //print('Type: {0}', e.exception.InnerException.GetType());
+            //print('Stored type: {0}', win32ExceptionType);
+            //print('Error code: {0}', e.exception.InnerException.ErrorCode.ToString('x'));
+            //print(
+                //'Native error code: {0}',
+                //e.exception.InnerException.NativeErrorCode.ToString('x'));
+            //print('Type check: {0}', e.exception.InnerException.GetType() == win32ExceptionType);
+            //print('Error code check: {0}', e.exception.InnerException.ErrorCode == 0x80004005);
+            //if (e.exception.InnerException.GetType() == win32ExceptionType &&
+                //e.exception.InnerException.ErrorCode == 0x80004005) {
+//
+                //ret dbg;
+            //} else {
+                //print('Error: {0}', e.exception.InnerException);
+//
+                //ret null;
+            //}
+        //}
+
+        ret dbg;
+    };
+
+    scanMemory = @(memory, start, end, step) {
+        using System;
+        i;
+        intPtrType;
+        blocks;
+        start = start defined ? start : 0x0;
+        end = end defined ? end : 0x7fff0000;
+        step = step defined ? step : 0x1000;
+    
+        intPtrType = Type.GetType('System.IntPtr');
+        blocks = [];
+        i = start;
+    
+        //#'serialization';
+        do {
+            addr = i |> Convert.ToInt64;
+            mem = new IntPtr(addr) |> memory.ReadMemoryInfo;
+
+            if (mem.Protect != AllocationProtect.None &&
+                (mem.Protect & AllocationProtect.PAGE_NOACCESS) !=
+                    AllocationProtect.PAGE_NOACCESS) {
+                blocks.add({ address: addr, region: mem });
+                //print(
+                    //'{0} = {1}',
+                    //'Address'.PadRight(18, ' '),
+                    //addr
+                    //@String.Format("{0:x}")
+                    //@(x) '0x' + x.PadLeft(8, '0'));
+    //
+                //mem.GetType().GetFields() ->@(f)
+                    //print(
+                        //'{0} = {1}',
+                        //f.Name.PadRight(18, ' '),
+                        //f
+                            //.GetValue(mem)
+                            //@(x) {
+                                ////x |> dumpFuncs;
+                                ////f |> dumpProps;
+                                //ret f != null &&
+                                    //x != null &&
+                                    //f.FieldType == intPtrType ?
+                                        //x.ToInt64() :
+                                        //x
+                            //}
+                            //@String.Format("{0:x}")
+                            //@(x) '0x' + x.PadLeft(8, '0'));
+
+                //print();
+                endOfRegion = mem.AllocationBase.ToInt64() +
+                        mem.RegionSize.ToInt64();
+
+                //delta = mem.AllocationBase.ToInt64() - addr;
+                //print('Delta: {0}', delta);
+                if (addr < endOfRegion) {
+                    //print('Copying allocation base');
+                    i = endOfRegion;
+                } else if (mem.RegionSize.ToInt64() != 0) {
+                    i += mem.RegionSize.ToInt64();
+                } else {
+                    //print('incrementing by step');
+                    i += step;
+                }
+            } else if (mem.RegionSize.ToInt64() != 0) {
+                i += mem.RegionSize.ToInt64();
+            } else {
+                i += step;
+            }
+        } while(i <= end);
+        //blocks->@()$_.region |> toJson |> print;
+        print('Done');
+        //exit();
+        ret blocks;
+    };
+}();
+//#'std';
+//cls();
+//print('ready');
+//test = 'c:\\source\\BadParser\\BadParser\\bin\\Debug\\test_0xdead0003.xml';
+////cmd = '{0} "{1}"' :: [ exe, test ];
+//debugCommand(
+    //test,
+    //{
+        //exception: @(sender, e) {
+            //print('~Red~{0}~R~', e.ToString());
+        //}
+    //});
