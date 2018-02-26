@@ -2,7 +2,10 @@
 #'String';
 #'List';
 #'Conversion';
+using Components.External.ConsolePlus;
 using System;
+using System.Linq;
+using System.Reflection;
 
 byte = Convert.ToByte;
 uint = Convert.ToUInt32;
@@ -33,10 +36,8 @@ join = String.Join;
 
 _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
-using System.Linq;
 skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
 
-using Components.External.ConsolePlus;
 print = @(fmt, arg0) {
     _no = macro(@(x, f) { x == null ? 'null' : f });
     _n = macro(@(x1, f1) { _no(x1, f1(x1)) });
@@ -135,31 +136,179 @@ has = @(name, target)
     target.GetType().GetMethod(name) != null ||
     target.GetType().GetProperty(name) != null;
 
+expressionColor = {
+    modifier: '~DarkCyan~',
+    keyword: modifier,
+    type: '~Cyan~',
+    methodName: '~White~',
+    propertyName: methodName,
+    eventName: methodName,
+    paramName: '~|DarkBlue~~White~',
+};
 
-_get = macro(@(m) { $_.GetType().m() });
+_get = macro(@(method) {
+    ([
+        //BindingFlags.NonPublic | BindingFlags.Instance,
+        //BindingFlags.NonPublic | BindingFlags.Static,
+        BindingFlags.Public | BindingFlags.Instance,
+        BindingFlags.Public | BindingFlags.Static,
+    ]-<obj.GetType().method)
+});
+
+_en = macro(@(prefix) { !cm.Name.StartsWith(prefix + '_') });
 
 _dump = macro(@(m) {
-    id(get, m) = @() _get(id(Get, m));
-    id(dump, m) = @{ ($_ |> id(get, m))->print };
+    id(get, m) = @(obj) _get(id(Get, m));
+    id(dump, m) = @(obj) {
+        (obj |> id(get, m))
+            -?(@(cm) _en('get') && _en('set') && _en('add') && _en('remove'))
+            ->printMember
+    };
 });
 
 _dump(Members);
 _dump(Properties);
 _dump(Methods);
 
+memberAccess = { private = 0x1, protected = 0x2, public = 0x4 };
+
+extend RuntimePropertyInfo {
+    getAccessor: @(m, access, getSetter) {
+        a;
+        matches;
+        a = m.GetAccessors(false);
+
+        if (a == null || a.Length == 0) {
+            ret null;
+        }
+
+        matches = a
+            -? (@(x)
+                (getSetter && x.ReturnType == typeof(Void)) ||
+                (!getSetter && x.ReturnType != typeof(Void)))
+            -? (@(x)
+                (access == memberAccess.private && x.IsPrivate) ||
+                (access == memberAccess.protected && x.IsFamily) ||
+                (access == memberAccess.public && x.IsPublic));
+
+        ret matches.Count == 0 ? null : matches[0];
+    },
+
+    getPrivateAccessor: @(m, getSetter) m.getAccessor(memberAccess.private, getSetter),
+    getProtectedAccessor: @(m, getSetter) m.getAccessor(memberAccess.protected, getSetter),
+    getPublicAccessor: @(m, getSetter) m.getAccessor(memberAccess.public, getSetter),
+
+    getPrivateSetter: @(m) m.getPrivateAccessor(true),
+    getPrivateGetter: @(m) m.getPrivateAccessor(false),
+    getProtectedSetter: @(m) m.getProtectedAccessor(true),
+    getProtectedGetter: @(m) m.getProtectedAccessor(false),
+    getPublicGetter: @(m) m.getPublicAccessor(false),
+    getPublicSetter: @(m) m.getPublicAccessor(true),
+
+    hasPrivateSetter: @(m) m.getPrivateAccessor(true) != null,
+    hasPrivateGetter: @(m) m.getPrivateAccessor(false) != null,
+    hasProtectedSetter: @(m) m.getProtectedAccessor(true) != null,
+    hasProtectedGetter: @(m) m.getProtectedAccessor(false) != null,
+    hasPublicGetter: @(m) m.getPublicAccessor(false) != null,
+    hasPublicSetter: @(m) m.getPublicAccessor(true) != null,
+}
+
+_pn = macro(@(t) { useFullNames ? t.FullName : t.Name });
+
+printMember = @(m, useFullNames) {
+    useFullNames = useFullNames defined ? useFullNames : false;
+
+    format(
+        '{0}{1}~R~ ',
+        expressionColor.modifier,
+        ($(m.GetType())
+            typeof(RuntimeMethodInfo),
+            typeof(RuntimeConstructorInfo):
+                m.IsPublic,
+            typeof(RuntimePropertyInfo):
+                m.hasPublicGetter(),
+            typeof(RuntimeEventInfo):
+                m.AddMethod != null && m.AddMethod.IsPublic) ?
+            'public' :
+            'private') +
+    ((m @has('IsStatic')) && m.IsStatic ?
+        format('{0}static~R~ ', expressionColor.modifier) :
+        '') +
+    ($(m.GetType())
+        typeof(EventInfo),
+        typeof(RuntimeEventInfo):
+            format('{0}event~R~ ', expressionColor.modifier),
+        '') +
+    ($(m.GetType())
+        typeof(RuntimeConstructorInfo):
+            format(
+                '{0}{1}~R~({2})',
+                expressionColor.type,
+                _pn(m.DeclaringType),
+                formatParams(m, useFullNames)),
+        typeof(RuntimeMethodInfo):
+            format(
+                '{0}{1}~R~ {2}{3}~R~({4})',
+                expressionColor.type,
+                _pn(m.ReturnType),
+                expressionColor.methodName,
+                m.Name,
+                formatParams(m, useFullNames)),
+        typeof(RuntimePropertyInfo):
+            format(
+                '{0}{1}~R~ {2}{3}~R~ {{ {4}get~R~;{5} }}',
+                expressionColor.type,
+                _pn(m.PropertyType),
+                expressionColor.propertyName,
+                m.Name,
+                expressionColor.keyword,
+                m |> formatAutoSet),
+        typeof(EventInfo), typeof(RuntimeEventInfo):
+            format(
+                '{0}{1}~R~ {2}{3}~R~',
+                expressionColor.type,
+                _pn(m.EventHandlerType),
+                expressionColor.eventName,
+                m.Name),
+        m.ToString())
+    |> print;
+};
+
+formatParams = @(m, useFullNames) m.GetParameters().Length > 0 ?
+    m
+        .GetParameters()
+        ->(@(x) format(
+            '{0}{1}~R~ {2}{3}~R~',
+            expressionColor.type,
+            _pn(x.ParameterType),
+            expressionColor.paramName,
+            x.Name))
+        +>@(x, y) x + ' ' + y :
+    '';
+
 _alias = macro(@(n, n2) {
     id(get, n) = id(get, n2);
     id(dump, n) = id(dump, n2);
 });
+
+formatAutoSet = @(m) 
+    m.hasPrivateSetter() ? format(
+        ' {0}private set~R~;',
+        expressionColor.keyword) :
+    m.hasProtectedSetter() ? format(
+        ' {0}protected set~R~;',
+        expressionColor.keyword) :
+    m.hasPublicSetter() ? format(
+        ' {0}set~R~;',
+        expressionColor.keyword) :
+    '';
 
 _alias(Props, Properties);
 _alias(Funcs, Methods);
 
 getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
 getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
-
 getEnums = @(name) 0 |> getIdArg |> typeof |> Enum.GetValues;
-
 getFullNames = @(name) this.{'$imports'}->@+('.' + name);
 
 typeof = @(name){
@@ -179,7 +328,6 @@ map = @(mapping, obj) {
     ret m;
 };
 
-using System.Linq;
 isObject = keys @> Enumerable.Any;
 
 isCollection = @(x)
