@@ -2,6 +2,25 @@
 debugCommand;
 catchExceptions;
 
+
+// ================================================================
+// == Todo ========================================================
+// ================================================================
+// * Add lazy keyword.
+//   -> When applied to variables, behave like standard lazy evaluation.
+//      lazy foo = 10 + bar // <- Bar not accessed until foo is, value is cached.
+//   -> When applied to function param, arguments passed in are lazily evaluated.
+//      This functionality will broaded Medusa capabilities when redefining
+//      semantics in such a way that would cause exceptions during calling e.g.
+//      null reference exceptions.
+//      // Entirely contrived, but an example of using lazy to intentionally ignore
+//      // evaluation of an argument for the purpose of custom semantics.
+//      select = @(lazy path, source) 'source.' + getArg(0).ToString() |> evalExp;
+//   -> Support with custom operaotr?
+// * Add memoize support.
+//   -> memoize parseCsv = @(text) /* ... */;
+// * Replace NUnit with proprietary framework. 
+//   -> Update  
 @{
     #'Std';
     #'Meta';
@@ -9,6 +28,8 @@ catchExceptions;
     using Components.PInvoke;
     using System;
     using System.ComponentModel;
+    debugGlobals;
+    debugGlobals = {};
 
     catchExceptions = @(command, callback) {
         dbg;
@@ -31,61 +52,26 @@ catchExceptions;
         ret dbg;
     };
 
-    debugCommand = @(command, eventMap2) {
+    debugCommand = @(command, eventMap) {
         dbg;
-        eventMap;
-        win32ExceptionType;
-        handlerTemplate;
         handler;
-        eventMap = eventMap2;
-        dbg = new NativeDebugger();
-        
-        win32ExceptionType =
-            'System.ComponentModel.Win32Exception'
-            |> (new Uri('https://autosectools.com/'))
-            .GetType().Assembly
-            .GetType;
 
-        if (win32ExceptionType == null) {
-            print('Could not get type System.ComponentModel.Win32Exception');
-            exit(1);
+        if (!(debugGlobals.eventMap defined)) {
+            // Workaround until scope bug fixed.
+            debugGlobals.eventMap = eventMap;
         }
 
         
-        handlerTemplate = '@(sender, e) { };';
-        handlerTemplate @print('~Magenta~Handler template:~R~ {0}');
-        handler = handlerTemplate |> parseExp |> evalNode;
+        handler = '@(sender, e) { };' |> parseExp |> evalNode;
 
         _de = macro(@(_em, _f) {
-            //id;
-            //id = getIdArg(0);
-            //f2;
-            //f2 = getIdArg(1);
-
-            if (eventMap._f defined) {
-                print('Adding debug event');
-                //f;
-                //f = eventMap._f.Clone();
-                //print(eventMap._f);
-                //print(f);
-                //exit();
-                //eventMap.{f2};
-                
-
+            if (debugGlobals.eventMap._f defined) {
                 @{
-                    e.DebugEvent.dwDebugEventCode == DebugEventType._em
-                    @print('~Magenta~e.DebugEvent.dwDebugEventCode == DebugEventType._em:~R~ {0}');
-                    //dumpe(this);
                     if (e.DebugEvent.dwDebugEventCode == DebugEventType._em) {
-                        print('Exception: ~Red~{0}~R~', e);
-                        eventMap defined @print('~Magenta~eventMap defined:~R~ {0}');
-                        eventMap._f defined @print('~Magenta~eventMap>_f defined:~R~ {0}');
-                        eventMap._f(sender, e);
+                        debugGlobals.eventMap._f(sender, e);
                     }
                 }.Body
                 |> handler.Body.AddRange;
-            } else {
-                print('Not adding debug event');
             }
         });
         
@@ -99,33 +85,9 @@ catchExceptions;
         _de(RIP_EVENT, ripEvent);
         _de(UNLOAD_DLL_DEBUG_EVENT, unloadDll);
         handler.Body.Add(@{ e.DebugEvent.ContinueUnhandled() }.Body[0]);
-        handler.Body->@print('~Magenta~[Node]~R~ {0}');
+        dbg = new NativeDebugger();
         dbg.add_DebugEventReceived(handler);
-
-        head('Event map');
-        //eventMap |> keys |> dump;
-        //exit();
-         dbg.StartProcess(command);
-        //try dbg.StartProcess(command);
-        //catch (e) {
-            //print('Type: {0}', e.exception.InnerException.GetType());
-            //print('Stored type: {0}', win32ExceptionType);
-            //print('Error code: {0}', e.exception.InnerException.ErrorCode.ToString('x'));
-            //print(
-                //'Native error code: {0}',
-                //e.exception.InnerException.NativeErrorCode.ToString('x'));
-            //print('Type check: {0}', e.exception.InnerException.GetType() == win32ExceptionType);
-            //print('Error code check: {0}', e.exception.InnerException.ErrorCode == 0x80004005);
-            //if (e.exception.InnerException.GetType() == win32ExceptionType &&
-                //e.exception.InnerException.ErrorCode == 0x80004005) {
-//
-                //ret dbg;
-            //} else {
-                //print('Error: {0}', e.exception.InnerException);
-//
-                //ret null;
-            //}
-        //}
+        dbg.StartProcess(command);
 
         ret dbg;
     };
