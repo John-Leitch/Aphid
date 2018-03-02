@@ -1663,11 +1663,12 @@ namespace Components.Aphid.Interpreter
             };
 
             functionScope.Add(AphidName.Scope, functionScope);
-            var i = 0;
             var argList = parms.ToList();
 
-            foreach (var arg in argList)
+            for (var i = 0; i < argList.Count; i++)
             {
+                var arg = argList[i];
+
                 if ((!isExtension || isStaticExtension) && i == 0)
                 {
                     SetImplicitArg(functionScope, arg);
@@ -1678,7 +1679,7 @@ namespace Components.Aphid.Interpreter
                     break;
                 }
 
-                functionScope.Add(function.Args[i++], arg);
+                functionScope.Add(function.Args[i], arg);
             }
 
             if (isExtension && !isStaticExtension)
