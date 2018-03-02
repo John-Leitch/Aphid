@@ -1622,7 +1622,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunction(AphidFunction function, params object[] parms)
         {
-            var parmsWrapped = parms.Select(ValueHelper.Wrap);
+            var parmsWrapped = parms.Select(ValueHelper.Wrap).ToArray();
 
             if (Thread.CurrentThread.ManagedThreadId == OwnerThread)
             {
@@ -1636,7 +1636,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject CallFunctionCore(AphidFunction function, IEnumerable<AphidObject> parms)
+        private AphidObject CallFunctionCore(AphidFunction function, AphidObject[] parms)
         {
             AphidObject isExtensionObject;
 
@@ -1931,7 +1931,7 @@ namespace Components.Aphid.Interpreter
             if (func2 != null)
             {
                 PushFrame(callExpression, expression, args);
-                var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap));
+                var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap).ToArray());
                 PopFrame();
 
                 return retVal;
