@@ -392,10 +392,8 @@ extend string {
     dec: @(x) x |> Decimal.Parse,
 }
 
-exted IntPtr {
-    toHex: @(p)
-        '0x' +
-        String
-            .Format("{0:x}", p.ToInt64())
-            .PadLeft(IntPtr.Size == 0x4 ? 0x8 : 0x10, '0'),
-};
+extend IntPtr {
+    toHex: @(p) '0x' + String
+        .Format("{0:x}", p.ToInt64())
+        .PadLeft(IntPtr.Size == 0x4 ? 0x8 : 0x10, '0'),
+}
