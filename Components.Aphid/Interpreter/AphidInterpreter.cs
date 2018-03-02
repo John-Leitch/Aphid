@@ -3448,8 +3448,9 @@ namespace Components.Aphid.Interpreter
                 CurrentScope.Add(AphidName.Block, new AphidObject(expressions));
             }
 
-            foreach (var expression in expressions)
+            for (var i = 0; i < expressions.Count; i++)
             {
+                var expression = expressions[i];
                 CurrentStatement = CurrentExpression = expression;
 
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
