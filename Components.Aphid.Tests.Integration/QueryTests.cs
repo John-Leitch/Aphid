@@ -107,6 +107,15 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void TakeTest2()
+        {
+            AssertTrue(@"
+                x = l @aq.take(3);
+                ret x.count() == 3 && x[0] == 1 && x[1] == 1 && x[2] == 2;
+            ");
+        }
+
+        [Test]
         public void AggrTest()
         {
             Assert9("ret [ 0, 2, 3, 4 ] |> @aq.aggr(@(x, y) x + y);");
