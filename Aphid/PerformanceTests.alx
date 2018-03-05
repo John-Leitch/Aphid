@@ -21,7 +21,7 @@ extend list AphidExpression {
 
     replaceId: @(l, id, block) {
         using System.Linq;
-        matches = l.whereId(id);// |> Enumerable.Reverse;
+        matches = l.whereId(id);
 
         for (m in matches) {
             i = l.IndexOf(m);
@@ -32,7 +32,10 @@ extend list AphidExpression {
 }
 
 #'Std';
-benchmark = macro(@(name, iterations, prologue, action, epilogue){
+benchmark = macro(@(name, iterations, prologue, action, epilogue) {
+    using System.Linq;
+    using System.Collections;
+
     if (action.Body.Count != 1) fatal('Action must be single statement.');
 
     template = @{
@@ -64,8 +67,7 @@ benchmark = macro(@(name, iterations, prologue, action, epilogue){
 
     actionBlock = '@{}' |> parseExp |> evalExp;
     actionStmt = action.Body[0];
-    using System.Linq;
-    using System.Collections;
+    
     ArrayList
         .Repeat(actionStmt, iterations)
         .ToArray(typeof(AphidExpression))
