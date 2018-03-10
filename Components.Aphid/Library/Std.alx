@@ -38,25 +38,26 @@ _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) 
 skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
 
 print = @(fmt, arg0) {
-    _no = macro(@(x, f) { x == null ? 'null' : f });
+    _no = macro(@(x, f) { x == null ? 'null' : x.GetType().IsPrimitive ? x : f });
     _n = macro(@(x1, f1) { _no(x1, f1(x1)) });
     _na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
-    _oc = macro(@(x3, r) { _no(x3, isObject(x3) ? r : x3.ToString()) });
     
-    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
+    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : _nonPrimitiveToString(x4) });
     
     _f = macro(@(x5) { 
         x5 == null ? 'null' :
         isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
-        !x5.GetType().IsPrimitive ? x5.ToString() :
-        x5
+        _nonPrimitiveToString(x5)
     });
     
     _styleEscaped = macro(@(x6) {
         x6 == null ? 'null' :
         isObject(x6) ? (x6 |> serialize |> Cli.StyleEscape) :
-        !x6.GetType().IsPrimitive ? x6.ToString() :
-        x6
+        _nonPrimitiveToString(x6)
+    });
+
+    _nonPrimitiveToString = macro(@(value) {
+        !value.GetType().IsPrimitive ? value.ToString() : value
     });
 
     if ($args.Count >= 1 && fmt == null) {
