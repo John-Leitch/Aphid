@@ -2933,6 +2933,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretPatternMatchingExpression(PatternMatchingExpression expression)
         {
             var left = (AphidObject)InterpretExpression(expression.TestExpression);
+            var leftType = left.Value != null ? left.Value.GetType() : null;
 
             foreach (var pattern in expression.Patterns)
             {
@@ -2941,12 +2942,13 @@ namespace Components.Aphid.Interpreter
                     foreach (var patternTest in pattern.Patterns)
                     {
                         var right = (AphidObject)InterpretExpression(patternTest);
+                        var rightType = right.Value != null ? right.Value.GetType() : null;
 
-                        var b = left.Value != null ?
-                            left.Value.Equals(right.Value) :
-                            (null == right.Value && left.Count == 0 && right.Count == 0);
-
-                        if (b)
+                        if (InterpretEqualityExpression(
+                            left.Value,
+                            leftType,
+                            right.Value,
+                            rightType))
                         {
                             return ValueHelper.Wrap(InterpretExpression(pattern.Value));
                         }
