@@ -47,7 +47,7 @@ print = @(fmt, arg0) {
     _f = macro(@(x5) { 
         x5 == null ? 'null' :
         isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
-        _nonPrimitiveToString(x5)
+        x5.ToString()
     });
     
     _styleEscaped = macro(@(x6) {
