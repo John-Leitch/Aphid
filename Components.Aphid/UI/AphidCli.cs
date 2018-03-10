@@ -60,14 +60,14 @@ namespace Components.Aphid.UI
 
         public static void DumpException(AphidParserException exception, string code)
         {
-            Console.WriteLine(GetErrorMessage(exception, code));
+            Cli.WriteErrorMessage(Cli.Escape(GetErrorMessage(exception, code)));
         }
 
         public static void DumpException(
             AphidRuntimeException exception,
             AphidInterpreter interpreter)
         {
-            Console.WriteLine(GetErrorMessage(exception));
+            Cli.WriteErrorMessage(Cli.Escape(GetErrorMessage(exception)));
             DumpStackTrace(interpreter);
         }
 
@@ -76,9 +76,11 @@ namespace Components.Aphid.UI
             AphidInterpreter interpreter,
             string code)
         {
-            Console.WriteLine(GetErrorMessage(
-                exception,
-                File.ReadAllText(exception.ScriptFile)));
+            Cli.WriteErrorMessage(
+                Cli.Escape(
+                    GetErrorMessage(
+                        exception,
+                        File.ReadAllText(exception.ScriptFile))));
 
             DumpStackTrace(interpreter);
         }
@@ -87,7 +89,7 @@ namespace Components.Aphid.UI
             Exception exception,
             AphidInterpreter interpreter)
         {
-            Console.WriteLine(GetErrorMessage(exception));
+            Cli.WriteErrorMessage(Cli.Escape(GetErrorMessage(exception)));
             DumpStackTrace(interpreter);
         }
 
@@ -168,7 +170,7 @@ namespace Components.Aphid.UI
         public static string GetErrorMessage(Exception exception)
         {
             return string.Format(
-                "Unexpected exception\r\n\r\n{0}\r\n",
+                "Unexpected exception: {0}\r\n",
                 ExceptionHelper.Unwrap(exception).Message);
         }
     }
