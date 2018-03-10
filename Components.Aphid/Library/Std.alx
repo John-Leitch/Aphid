@@ -48,13 +48,15 @@ print = @(fmt, arg0) {
     _f = macro(@(x5) { 
         x5 == null ? 'null' :
         isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
-        x5.ToString()
+        !x5.GetType().IsPrimitive ? x5.ToString() :
+        x5
     });
     
     _styleEscaped = macro(@(x6) {
         x6 == null ? 'null' :
         isObject(x6) ? (x6 |> serialize |> Cli.StyleEscape) :
-        x6.ToString()
+        !x6.GetType().IsPrimitive ? x6.ToString() :
+        x6
     });
 
     if ($args.Count >= 1 && fmt == null) {
