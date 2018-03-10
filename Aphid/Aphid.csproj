@@ -65,7 +65,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -128,73 +129,76 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="ConditionalOperatorExample.alx">
+    <None Include="Samples\ConditionalOperatorExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="AbstractSyntaxTreeExample.alx">
+    <None Include="Samples\AbstractSyntaxTreeExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="AphidUI.alx">
+    <None Include="Samples\AphidUI.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PerformanceTests.alx">
+    <None Include="Samples\NativeDebuggerExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="CustomOperatorExample.alx">
+    <None Include="Samples\PerformanceTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="CustomOperatorPerfTest.alx">
+    <None Include="Samples\CustomOperatorExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ILMerge.alx">
+    <None Include="Samples\CustomOperatorPerfTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="VbsExample.alx">
+    <None Include="Samples\ILMerge.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MakeExe.alx">
+    <None Include="Samples\VbsExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ILExample.alx">
+    <None Include="Samples\MakeExe.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MacroExample.alx">
+    <None Include="Samples\ILExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="InteropExample.alx">
+    <None Include="Samples\MacroExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="StringEmitterTest.alx">
+    <None Include="Samples\InteropExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestLoop.alx">
+    <None Include="Samples\StringEmitterTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TextDocumentExample.alxt">
+    <None Include="Samples\TestLoop.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="FibonacciExample.alx">
+    <None Include="Samples\TextDocumentExample.alxt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PatternMatchingExample.alx">
+    <None Include="Samples\FibonacciExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TcpExample.alx">
+    <None Include="Samples\PatternMatchingExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PartialFunctionExample.alx">
+    <None Include="Samples\TcpExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PipeliningExample.alx">
+    <None Include="Samples\PartialFunctionExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="LambdaExample.alx">
+    <None Include="Samples\PipeliningExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="FunctionExample.alx">
+    <None Include="Samples\LambdaExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="HelloWorld.alx">
+    <None Include="Samples\FunctionExample.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Samples\HelloWorld.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

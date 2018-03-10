@@ -1,5 +1,0 @@
-﻿#'Std';
-
-add = @(x, y) x + y;
-add10 = @add(10);
-20 |> add10 |> print;
