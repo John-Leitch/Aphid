@@ -402,3 +402,5 @@ extend IntPtr {
 }
 
 getExe = @() Assembly.GetEntryAssembly().Location;
+getCommand = @() Environment.CommandLine;
+getCommandLineArgs = @() Environment.GetCommandLineArgs();
