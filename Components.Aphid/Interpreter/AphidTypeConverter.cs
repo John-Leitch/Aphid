@@ -146,6 +146,11 @@ namespace Components.Aphid.Interpreter
 
         public bool CanConvertArray(object value, Type valueType, Type targetType)
         {
+            if (valueType == targetType)
+            {
+                return true;
+            }
+
             //if (valueType == typeof(string) && targetType != typeof(char[]))
             //{
             //    return false;
