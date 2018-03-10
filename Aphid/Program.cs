@@ -39,26 +39,10 @@ namespace Aphid
 
             if (!Debugger.IsAttached)
             {
-                try
-                {
-                    interpreter.Interpret(code, isTextDocument);
-                }
-                catch (AphidParserException exception)
-                {
-                    AphidCli.DumpException(exception, code);
-                }
-                catch (AphidLoadScriptException exception)
-                {
-                    AphidCli.DumpException(exception, interpreter, code);
-                }
-                catch (AphidRuntimeException exception)
-                {
-                    AphidCli.DumpException(exception, interpreter);
-                }
-                catch (Exception exception)
-                {
-                    AphidCli.DumpException(exception, interpreter);
-                }
+                AphidCli.TryAction(
+                    interpreter,
+                    code,
+                    () => interpreter.Interpret(code, isTextDocument));
             }
             else
             {

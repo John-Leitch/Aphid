@@ -12,6 +12,34 @@ namespace Components.Aphid.UI
 {
     public static class AphidCli
     {
+        public static bool TryAction(AphidInterpreter interpreter, string code, Action action)
+        {
+            try
+            {
+                action();
+
+                return true;
+            }
+            catch (AphidParserException exception)
+            {
+                AphidCli.DumpException(exception, code);
+            }
+            catch (AphidLoadScriptException exception)
+            {
+                AphidCli.DumpException(exception, interpreter, code);
+            }
+            catch (AphidRuntimeException exception)
+            {
+                AphidCli.DumpException(exception, interpreter);
+            }
+            catch (Exception exception)
+            {
+                AphidCli.DumpException(exception, interpreter);
+            }
+
+            return false;
+        }
+
         public static void ExecuteCode(string code)
         {
             ExecuteCode(code, isTextDocument: false);

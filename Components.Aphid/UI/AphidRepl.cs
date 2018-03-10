@@ -30,19 +30,7 @@ namespace Components.Aphid.UI
 
                 if (!Debugger.IsAttached)
                 {
-                    try
-                    {
-                        RunCode(code);
-                    }
-                    catch (AphidParserException e)
-                    {
-                        Cli.WriteErrorMessage("Syntax error:\r\n{0}", e.Message);
-                    }
-                    catch (Exception e)
-                    {
-                        Cli.WriteErrorMessage("Runtime error:\r\n{0}", e.Message);
-                        AphidCli.DumpStackTrace(Interpreter);
-                    }
+                    AphidCli.TryAction(Interpreter, code, () => RunCode(code));
                 }
                 else
                 {
