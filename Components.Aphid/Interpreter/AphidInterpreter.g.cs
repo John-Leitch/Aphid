@@ -588,6 +588,14 @@ namespace Components.Aphid.Interpreter
 
                 return str.Length == 1 && str[0] == (char)right;
             }
+            else if (left == null)
+            {
+                return right == null;
+            }
+            else if (right == null)
+            {
+                return left == null;
+            }
             else
             {
                 return left.Equals(right);
