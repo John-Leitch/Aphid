@@ -42,7 +42,7 @@ print = @(fmt, arg0) {
     _n = macro(@(x1, f1) { _no(x1, f1(x1)) });
     _na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
     
-    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : _nonPrimitiveToString(x4) });
+    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
     
     _f = macro(@(x5) { 
         x5 == null ? 'null' :

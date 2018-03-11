@@ -49,6 +49,8 @@ namespace Components.Aphid.Tests.Integration
                 print(exp);
                 exp |> evalExp;
 
+                null == true |> print;
+
                 ret true;
             ");
         }
