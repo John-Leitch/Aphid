@@ -130,6 +130,11 @@ namespace Components.Aphid.Tests.Integration
             Assert.AreEqual(9m, value);
         }
 
+        public static void IsNull(object value)
+        {
+            Assert.IsNull(value);
+        }
+
         protected void AssertEquals(object expected, string script)
         {
             Assert.AreEqual(expected, Execute(script).Value);

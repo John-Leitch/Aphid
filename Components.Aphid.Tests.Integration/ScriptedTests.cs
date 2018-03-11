@@ -48,10 +48,11 @@ namespace Components.Aphid.Tests.Integration
                         interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
 
                         interpreter.Interpret(@"
-                        using Components.Aphid.Tests.Integration;
-                        isFoo = AphidTests.IsFoo;
-                        is9 = AphidTests.Is9;
-                    ");
+                            using Components.Aphid.Tests.Integration;
+                            isFoo = AphidTests.IsFoo;
+                            is9 = AphidTests.Is9;
+                            isNull = AphidTests.IsNull;
+                        ");
 
                         interpreter.Interpret(File.ReadAllText(s.FullName));
 
