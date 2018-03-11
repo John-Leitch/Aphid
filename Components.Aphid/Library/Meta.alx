@@ -1,4 +1,22 @@
-﻿using System;
+﻿// Todo: generate API documentation from AST e.g.
+//
+// // Summary: Walks the abstract syntax tree beginning
+// // with the root specified via the node parameter and
+// // prints a text representation to the console.
+// // node: The node to treat as root of the tree.
+// // returns: null.
+// dumpAst = @(node) { ... }
+//
+// * Use comments to generate documentation that links
+//   identifiers in descriptions.
+// * Infer "returns: null" when not specified.
+// * Support single-line comments that are contiguous or
+//   broken by whitespace. Also support multi-line comments.
+// * Output multiple formats e.g. HTML, XML, Markdown,
+//   formats used by intellisense/autocomplete, etc.
+// * Support output formats definitions via EBNF-style grammar.
+
+using System;
 using Components.Aphid.Lexer;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
