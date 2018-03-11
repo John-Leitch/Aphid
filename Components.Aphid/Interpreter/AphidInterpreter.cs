@@ -2231,16 +2231,21 @@ namespace Components.Aphid.Interpreter
                                 break;
 
                             case AphidExpressionType.StringExpression:
-                                var str = ((StringExpression)expression.Operand).Value;
-                                path = StringParser.Parse(str);
-                                asm = Assembly.LoadFile(Path.GetFullPath(path));
+                                var strExp = (StringExpression)expression.Operand;
+                                var str = StringParser.Parse(strExp.Value);
+
+                                if (File.Exists(path = Path.GetFullPath(str)))
+                                {
+                                    asm = Assembly.LoadFile(path);
+                                }
+
                                 break;
                         }
 
                         if (asm == null)
                         {
-                            // Todo: safetly deref member expressiosn to avoid
-                            // null reference exceptions when falling back.
+                            // Todo: safely deref member expression to avoid
+                            // null ref exception on fallback.
                             var loadOperand = InterpretExpression(expression.Operand);
                             var unwrappedPath = ValueHelper.Unwrap(loadOperand);
 
@@ -2249,8 +2254,10 @@ namespace Components.Aphid.Interpreter
                                 return new AphidObject(null);
                             }
 
-                            path = unwrappedPath.ToString();
-                            asm = Assembly.LoadFile(path);
+                            if (File.Exists(path = unwrappedPath.ToString()))
+                            {
+                                asm = Assembly.LoadFile(path);
+                            }
                         }
 
                         return new AphidObject(asm);
