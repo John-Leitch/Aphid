@@ -1,0 +1,94 @@
+﻿psContext;
+
+initPSInterop = @{
+    #'std';
+    load System.Management.Automation;
+    using System;
+    using System.Linq;   
+    using System.Management.Automation;
+
+    psObjectType = typeof(PSObject);
+
+    psContext = {
+        engine: PowerShell.Create(),
+        
+        exec: @(command) {
+            engine.AddScript(command);
+            r;
+            r = engine.Invoke() |> psContext.importPSResults;
+
+            ret r;
+        },
+
+        execSelect: @(command, selector) command |> exec -> selector,
+        execWhere: @(command, predicate) command |> exec -? predicate,
+
+        importPSResults: @(psResults) psResults->importPSObject,
+
+        importPSObject: @(psObj) {
+            //if (psObj == null || psObj.GetType() != psObjectType) {
+                //ret psObj;
+            //}
+
+            o;
+            o = {PSObject: psObj};
+
+            _notAccessor = macro(@(n){
+                !n.Name.StartsWith('get_') &&
+                !n.Name.StartsWith('set_')
+            });
+
+            psObj.Properties
+                -?(@(p) $(p.Name) 'BaseName', 'VersionInfo': false, _notAccessor(p))
+                ->@(p) o.{p.Name} = p.Value;
+
+            psObj.Methods
+                -?(@(m) _notAccessor(m))
+                ->@(m) o.{m.Name} = m.Invoke;
+
+            ret o;
+        }
+    };
+
+    extend PSObject {
+        dynamic funcHandler:@(psObj, name) {
+            methods = psObj.Methods-?(@(x) x.Name == name);
+
+            if (methods.Count == 0) {
+                fatal('Could not find PowerShell method with name "{0}".' :: [ name ]);
+            }
+
+            ret methods[0].Invoke($args @aq.skip(1)) |> psContext.importPSResults;
+        },
+
+        toAphidObject: psContext.importPSObject,
+    }
+
+    testPSInterop();
+};
+
+testPSInterop = macro(@{
+    if (!getCommand().EndsWith('PowerShell.alx')) {
+        ret null;
+    }
+
+    cls();
+    h = @(c) head('Testing PowerShell Script "{0}"' :: [ c ]);
+    
+    psExp = 'dir';
+    h(psExp);
+
+    using System.IO;
+
+    psExp
+        |> psContext.exec
+        -?(@(x) x.GetFiles defined)
+        ->@(o) o.GetFiles('*Library*', SearchOption.AllDirectories) |> print;
+
+    print();
+    psExp = 'dir | Format-Table | Out-String';
+    h(psExp);
+    psExp |> psContext.exec ->(@()$_.ToString()) -> print;//.ToString() |> print;
+});
+
+initPSInterop();
