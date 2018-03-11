@@ -258,6 +258,10 @@ namespace Components.Aphid.Interpreter
             {
                 return 0x20;
             }
+            else if (arg.ArgumentType == null)
+            {
+                return 0x100000;
+            }
             else if (arg.IsUnsafeConvertibleNumberPair)
             {
                 return 0x1000000;

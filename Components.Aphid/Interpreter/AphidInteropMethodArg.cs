@@ -53,7 +53,11 @@ namespace Components.Aphid.Interpreter
             bool? constructsParamArray = null)
         {
             Argument = argument;
-            ArgumentType = argument.GetType();
+
+            ArgumentType = argument != null ?
+                argument.GetType() :
+                null;
+
             TargetType = parameter.ParameterType;
 
             if (IsExactTypeMatch = ArgumentType == TargetType)
@@ -83,11 +87,13 @@ namespace Components.Aphid.Interpreter
                 TargetType.IsClass &&
                 TargetType != typeof(object) &&
                 TargetType != typeof(object[]) &&
-                ArgumentType.IsClass &&
-                ArgumentType.IsDerivedFrom(TargetType);
+                (ArgumentType == null ||
+                    (ArgumentType.IsClass &&
+                    ArgumentType.IsDerivedFrom(TargetType)));
 
             IsNonRootImplementationOfTarget =
                 TargetType.IsInterface &&
+                ArgumentType != null &&
                 ArgumentType != typeof(object) &&
                 ArgumentType.GetInterfaces().Contains(TargetType);
 
@@ -123,7 +129,9 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        if (!IsExactTypeMatch && ArgumentType.GetInterface("IEnumerable") != null)
+                        if (!IsExactTypeMatch &&
+                            ArgumentType != null &&
+                            ArgumentType.GetInterface("IEnumerable") != null)
                         {
                             ConstructsParamArray = true;
                             PassesParamArray = false;

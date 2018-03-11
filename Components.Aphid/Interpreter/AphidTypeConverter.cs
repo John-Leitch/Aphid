@@ -59,30 +59,33 @@ namespace Components.Aphid.Interpreter
             object value,
             Type targetType)
         {
-            var valueType = value.GetType();
+            Type valueType;
 
-            if (targetType.IsDerivedFrom(typeof(Delegate)) &&
-                valueType == typeof(AphidFunction))
+            if (value == null)
+            {
+                return new AphidConversionInfo(
+                    !targetType.IsPrimitive && !targetType.IsEnum,
+                    new Type[0]);
+            }
+            else if ((valueType = value.GetType()) == typeof(AphidFunction) &&
+                targetType.IsDerivedFrom(typeof(Delegate)))
             {
                 return new AphidConversionInfo(true, new Type[0]);
             }
-            
-            var genericArguments = new List<Type>();
+            else
+            {
+                var genericArguments = new List<Type>();
 
-            // Todo:
-            // Add weighting to prioritize exact type matches vs polymorphism e.g.
-            // Match string with string over char[].
+                var canConvert =
+                    valueType == targetType ? true :
+                    valueType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)value, targetType) :
+                    valueType == typeof(string) && targetType == typeof(char) && ((string)value).Length == 1 ? true :
+                    valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
+                    targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
+                    false;
 
-            var canConvert =
-                valueType == targetType ? true :
-                valueType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)value, targetType) :
-                valueType == typeof(string) && targetType == typeof(char) && ((string)value).Length == 1 ? true :
-                valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
-                targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
-                false;
-
-            return new AphidConversionInfo(canConvert, genericArguments.ToArray());
-                
+                return new AphidConversionInfo(canConvert, genericArguments.ToArray());
+            }
         }
 
         public static bool CanConvertOrBoxDecimal(decimal value, Type targetType)
@@ -189,14 +192,17 @@ namespace Components.Aphid.Interpreter
 
         public object Convert(Type targetType, object srcValue)
         {
-            if (targetType.IsDerivedFrom<Delegate>())
+            Type srcType;
+
+            if (srcValue == null)
+            {
+                return null;
+            }
+            else if (targetType.IsDerivedFrom<Delegate>())
             {
                 return Interpreter.FunctionConverter.Convert(targetType, srcValue);
             }
-
-            var srcType = srcValue.GetType();
-
-            if (srcType == targetType ||
+            else if ((srcType = srcValue.GetType()) == targetType ||
                 srcType.IsDerivedFromOrImplements(targetType, new List<Type>()))
             {
                 return srcValue;
