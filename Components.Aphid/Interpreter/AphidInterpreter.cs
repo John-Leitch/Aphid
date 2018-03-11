@@ -2241,10 +2241,15 @@ namespace Components.Aphid.Interpreter
                         {
                             // Todo: safetly deref member expressiosn to avoid
                             // null reference exceptions when falling back.
-                            path = ValueHelper
-                                .Unwrap(InterpretExpression(expression.Operand))
-                                .ToString();
+                            var loadOperand = InterpretExpression(expression.Operand);
+                            var unwrappedPath = ValueHelper.Unwrap(loadOperand);
 
+                            if (unwrappedPath == null)
+                            {
+                                return new AphidObject(null);
+                            }
+
+                            path = unwrappedPath.ToString();
                             asm = Assembly.LoadFile(path);
                         }
 
