@@ -16,6 +16,9 @@ using Components.Aphid.Library;
 
 namespace Components.Aphid.Interpreter
 {
+    // Todo:
+    // * Fix all methods that return object instead of AphidObject,
+    //   then remove excessive ValueHelper.Wrap/Unwrap and casting.
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
@@ -2215,7 +2218,9 @@ namespace Components.Aphid.Interpreter
                         return InterpretInteropNewExpression(expression.Operand);
 
                     case AphidTokenType.loadKeyword:
-                        Assembly asm;
+                        // Todo: make more robust by searching application dir,
+                        // script dir, etc.
+                        Assembly asm = null;
 
                         switch (expression.Operand.Type)
                         {
@@ -2226,16 +2231,24 @@ namespace Components.Aphid.Interpreter
                                 break;
 
                             case AphidExpressionType.StringExpression:
-                                path = StringParser.Parse(((StringExpression)expression.Operand).Value);
-                                asm = Assembly.LoadFile(path);
+                                var str = ((StringExpression)expression.Operand).Value;
+                                path = StringParser.Parse(str);
+                                asm = Assembly.LoadFile(Path.GetFullPath(path));
                                 break;
-
-                            default:
-                                throw CreateRuntimeException("Invalid operand used with load keyword.");
-
                         }
 
-                        return ValueHelper.Wrap(asm);
+                        if (asm == null)
+                        {
+                            // Todo: safetly deref member expressiosn to avoid
+                            // null reference exceptions when falling back.
+                            path = ValueHelper
+                                .Unwrap(InterpretExpression(expression.Operand))
+                                .ToString();
+
+                            asm = Assembly.LoadFile(path);
+                        }
+
+                        return new AphidObject(asm);
 
                     case AphidTokenType.InteropOperator:
                         var attr = GetInteropAttribute(expression.Operand);
