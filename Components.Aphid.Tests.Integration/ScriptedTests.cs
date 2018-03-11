@@ -52,6 +52,7 @@ namespace Components.Aphid.Tests.Integration
                             isFoo = AphidTests.IsFoo;
                             is9 = AphidTests.Is9;
                             isNull = AphidTests.IsNull;
+                            notNull = AphidTests.NotNull;
                         ");
 
                         interpreter.Interpret(File.ReadAllText(s.FullName));

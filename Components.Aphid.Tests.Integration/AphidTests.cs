@@ -135,6 +135,11 @@ namespace Components.Aphid.Tests.Integration
             Assert.IsNull(value);
         }
 
+        public static void NotNull(object value)
+        {
+            Assert.NotNull(value);
+        }
+
         protected void AssertEquals(object expected, string script)
         {
             Assert.AreEqual(expected, Execute(script).Value);
