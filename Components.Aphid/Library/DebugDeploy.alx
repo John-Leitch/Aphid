@@ -3,9 +3,9 @@
     using System;
     using System.IO;
     using System.Reflection;
-
+    deployVerbosity = deployVerbosity defined ? deployVerbosity : 1;
     // cls();
-    _print = print;
+    _print = deployVerbosity != 0 ? print : @{};
     //_print = @{};
     scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;
     dir = scriptDir;
@@ -14,13 +14,17 @@
 
     dir @_print('Script dir: ~Green~{0}~R~');
     libDir;
-
+    libDirTmp;
     do
     {
-        stdFile = Path.Combine(dir.FullName, 'Components.Aphid', 'Library', 'Std.alx');
-        stdFile |> @_print('Checking dir: ~Cyan~{0}~R~');
-        if (File.Exists(stdFile)) {
-            libDir = Path.GetDirectoryName(stdFile);
+        libDirTmp = Path.Combine(dir.FullName, 'Components.Aphid', 'Library');
+
+        if (deployVerbosity > 1) {
+            libDirTmp @_print('Checking dir: ~Cyan~{0}~R~');
+        }
+
+        if ('Std.alx' @Path.Combine(libDirTmp) File.Exists) {
+            libDir = libDirTmp;
         }
 
     } while ((dir = dir.Parent) != null);
@@ -34,8 +38,17 @@
     _print('[~Green~+~R~] Updating standard headers');
 
     Directory.GetFiles(libDir, '*.alx')->@ (src){
-        dst = Path.Combine(scriptDir.FullName, 'Library', src |> Path.GetFileName);
-        _print('Copying ~Cyan~{0}~R~ to ~Cyan~{1}~R~', src, dst);
+        srcFilename = src |> Path.GetFileName;
+        dst = Path.Combine(scriptDir.FullName, 'Library', srcFilename);
+
+        if (deployVerbosity > 1) {
+            _print('Copying ~Cyan~{0}~R~ to ~Cyan~{1}~R~', src, dst);
+        } else if (deployVerbosity == 1) {
+            _print('Copying ~Cyan~{0}~R~', srcFilename);
+        }
+
         File.Copy(src, dst, true);
     };
+
+    _print();
 }();
