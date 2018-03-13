@@ -358,6 +358,8 @@ extend AphidExpression {
     call: @(target, args) ast.call(target, args).WithPositionFrom(target),    
 }
 
+extend AphidFunction { map: @(f, selector) f.Body->selector }
+
 // extend TextExpression {
 //     replace: @(text, search, replacement)
 //         text.Text.Replace(search, replacement) |> ast.text @() $_.WithPositionFrom(text),
