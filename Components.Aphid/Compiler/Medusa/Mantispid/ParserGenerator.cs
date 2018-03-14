@@ -15,6 +15,21 @@ using System.Threading.Tasks;
 
 namespace Mantispid
 {
+    ////////////////////////////////////////////////////////////////
+    // Todo:
+    // * Add EBNF style macros/funcs/custom ops
+    // * Implement more types using Aphid-to-C#
+    //   
+    //   typedef IEnumerable iter;
+    //   typedef AphidExpression expression;
+    //   typedef iter expression block;
+    //   // Infer interface from hungarian notation
+    //   type IParentNode block GetChildren();
+    //   // ->
+    //   // public interface IParentNode
+    //   // {
+    //   /    IEnumerable<AphidExpression> GetChildren();
+    //   // }
     public class ParserGenerator
     {
         private const string
