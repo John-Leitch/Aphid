@@ -407,7 +407,10 @@ namespace Components.Aphid.Interpreter
         {
             if (expression.RightOperand.Type != AphidExpressionType.IdentifierExpression)
             {
-                throw CreateRuntimeException("Invalid member interop access.");
+                throw CreateRuntimeException(
+                    "Invalid member interop access, expected identifier on right-hand " +
+                        "side of expression '{0}'.",
+                    expression);
             }
 
             MemberInfo[] members;
