@@ -398,6 +398,7 @@ namespace Components.Aphid.Interpreter
             return new AphidObject(val);
         }
 
+        // Todo: add interop support for dynamic members e.g. Path.{'Combine'}
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretMemberInteropExpression(
             object lhs,
@@ -2058,7 +2059,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject WrapInteropValue(object value)
+        public AphidObject WrapInteropValue(object value)
         {
             if (AphidObject.IsAphidType(value))
             {
@@ -2066,7 +2067,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw CreateRuntimeException("Cannot wrap value {0} of type {1}", value, value.GetType());
+                throw CreateValueException(value, "Cannot wrap value");
             }
         }
 
@@ -2742,10 +2743,10 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw CreateRuntimeException(
-                    "Array access not supported by {0} of type {1}.",
+                throw CreateExpressionException(
                     expression.ArrayExpression,
-                    AphidType.GetName(val));
+                    val,
+                    "Array access not supported by");
             }
         }
 
@@ -2882,6 +2883,11 @@ namespace Components.Aphid.Interpreter
         {
             var obj = (AphidObject)InterpretExpression(expression.Call.FunctionExpression);
 
+            if (obj == null)
+            {
+                throw CreatePartialFunctionException(expression, obj);
+            }
+
             var func = obj.Value as AphidFunction;
             if (func != null)
             {
@@ -2915,11 +2921,7 @@ namespace Components.Aphid.Interpreter
 
                 if (interopObj == null)
                 {
-                    throw CreateRuntimeException(
-                        "Cannot perform partial function application " +
-                            "on '{0}' of type '{1}'.",
-                        expression.Call.FunctionExpression,
-                        AphidType.GetName(obj.Value));
+                    throw CreatePartialFunctionException(expression, obj);
                 }
 
                 var applied = expression.Call.Args
@@ -2929,6 +2931,16 @@ namespace Components.Aphid.Interpreter
 
                 return new AphidObject(new AphidInteropPartialFunction(interopObj, applied));
             }
+        }
+
+        private AphidRuntimeException CreatePartialFunctionException(
+            PartialFunctionExpression expression,
+            AphidObject obj)
+        {
+            return CreateExpressionException(
+                expression.Call.FunctionExpression,
+                obj != null ? obj.Value : null,
+                "Cannot perform partial function application on");
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3657,6 +3669,59 @@ namespace Components.Aphid.Interpreter
         public AphidRuntimeException CreateRuntimeException(string message, params object[] args)
         {
             return new AphidRuntimeException(CurrentStatement, CurrentExpression, message, args);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidRuntimeException CreateRuntimeException(
+            AphidExpression expression,
+            object obj)
+        {
+            return CreateRuntimeException(
+                "Unhandled exception caused by ",
+                GetExpressionValueString(expression, obj));
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidRuntimeException CreateValueException(
+            object obj,
+            string message,
+            params object[] args)
+        {
+            return CreateRuntimeException(
+                string.Format("{0} {1}", message, GetValueString(obj)),
+                args);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidRuntimeException CreateExpressionException(
+            AphidExpression expression,
+            object obj,
+            string message,
+            params object[] args)
+        {
+            return CreateRuntimeException(
+                string.Format(
+                    "{0} {1}",
+                    message,
+                    GetExpressionValueString(expression, obj)),
+                args);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string GetExpressionValueString(AphidExpression expression, object obj)
+        { 
+            return string.Format(
+                "{0}, which was evaluated from '{1}'.",
+                GetValueString(obj),
+                expression);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string GetValueString(object obj)
+        {
+            return obj != null ?
+                string.Format("'{0}' of type '{1}'", obj, AphidType.GetName(obj)) :
+                "null";
         }
     }
 }
