@@ -15,5 +15,14 @@ namespace Components.Aphid.Interpreter
             Object = "object",
             Function = "function",
             Null = "null";
+
+        public static string GetName(object value)
+        {
+            Type t;
+
+            return value != null ?
+                AphidAlias.Resolve(t = value.GetType()) ?? t.FullName :
+                AphidType.Null;
+        }
     }
 }

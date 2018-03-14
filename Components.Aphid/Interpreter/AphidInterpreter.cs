@@ -2740,8 +2740,9 @@ namespace Components.Aphid.Interpreter
             else
             {
                 throw CreateRuntimeException(
-                    "Array access not supported by {0}.",
-                    expression.ArrayExpression);
+                    "Array access not supported by {0} of type {1}.",
+                    expression.ArrayExpression,
+                    AphidType.GetName(val));
             }
         }
 
