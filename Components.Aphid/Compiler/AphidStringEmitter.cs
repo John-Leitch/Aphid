@@ -125,13 +125,20 @@ namespace Components.Aphid.Compiler
             {
                 BeginStatement(stmt);
 
-                try
+                if (Debugger.IsAttached)
                 {
                     Emit(stmt, isStatement: true);
                 }
-                catch (NotImplementedException)
+                else
                 {
-                    throw new InvalidOperationException(string.Format("{0} is not supported.", stmt.Type));
+                    try
+                    {
+                        Emit(stmt, isStatement: true);
+                    }
+                    catch (NotImplementedException)
+                    {
+                        throw new InvalidOperationException(string.Format("{0} is not supported.", stmt.Type));
+                    }
                 }
 
                 EndStatement(stmt);
