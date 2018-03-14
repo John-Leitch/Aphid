@@ -2912,7 +2912,11 @@ namespace Components.Aphid.Interpreter
 
                 if (interopObj == null)
                 {
-                    throw new NotImplementedException();
+                    throw CreateRuntimeException(
+                        "Cannot perform partial function application " +
+                            "on '{0}' of type '{1}'.",
+                        expression.Call.FunctionExpression,
+                        AphidType.GetName(obj.Value));
                 }
 
                 var applied = expression.Call.Args

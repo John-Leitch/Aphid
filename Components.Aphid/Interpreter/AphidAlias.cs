@@ -33,10 +33,25 @@ namespace Components.Aphid.Interpreter
                 case AphidType.Boolean:
                     return AphidType.Boolean;
 
-
                 case "AphidObject":
                 case AphidType.Object:
                     return AphidType.Object;
+
+                case "AphidFunction":
+                case AphidType.Function:
+                    return AphidType.Function;
+
+                case "AphidInteropFunction":
+                case AphidType.InteropFunction:
+                    return AphidType.InteropFunction;
+
+                case "AphidInteropPartialFunction":
+                case AphidType.PartialFunction:
+                    return AphidType.PartialFunction;
+
+                case "AphidFunctionComposition":
+                case AphidType.FunctionComposition:
+                    return AphidType.FunctionComposition;
 
                 case AphidType.Unknown:
                     return AphidType.Unknown;

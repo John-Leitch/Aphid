@@ -14,6 +14,9 @@ namespace Components.Aphid.Interpreter
             List = "list",
             Object = "object",
             Function = "function",
+            InteropFunction = "interopFunction",
+            PartialFunction = "partialFunction",
+            FunctionComposition = "functionComposition",
             Null = "null";
 
         public static string GetName(object value)
