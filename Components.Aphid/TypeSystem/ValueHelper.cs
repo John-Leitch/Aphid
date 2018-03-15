@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Components.Aphid.Interpreter;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class ValueHelper : AphidInterpreterComponent
+    public class ValueHelper : AphidRuntimeComponent
     {
         private Dictionary<Type, string> _typeName = new Dictionary<Type, string>
         {

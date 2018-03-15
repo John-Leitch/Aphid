@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using Components.Aphid.Parser;
 using System.Net;
+using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library.Net
 {

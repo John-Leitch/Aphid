@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropPartialFunction
     {

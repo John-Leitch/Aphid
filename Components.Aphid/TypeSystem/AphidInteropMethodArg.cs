@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
     // Todo: refactor properties into AphidConversionInfo and logic into AphidTypeConverter.
     public class AphidInteropMethodArg

@@ -1,10 +1,11 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
     public class AphidOperationException : AphidRuntimeException
     {

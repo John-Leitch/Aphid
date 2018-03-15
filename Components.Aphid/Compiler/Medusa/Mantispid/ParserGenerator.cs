@@ -3,6 +3,7 @@ using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
+using Components.Aphid.TypeSystem;
 using LLex;
 using System;
 using System.CodeDom;

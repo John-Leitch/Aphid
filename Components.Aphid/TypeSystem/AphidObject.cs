@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Components.Aphid.Interpreter;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
     public partial class AphidObject : Dictionary<string, AphidObject>
     {

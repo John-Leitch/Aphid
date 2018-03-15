@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using System;
 using System.Collections;
@@ -9,9 +10,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class InteropMethodResolver : AphidInterpreterComponent
+    public class InteropMethodResolver : AphidRuntimeComponent
     {
         Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject>
             InterpretMemberInteropExpression { get; set; }
@@ -202,7 +203,11 @@ namespace Components.Aphid.Interpreter
                     x.Method,
                     x.Args,
                     ConversionInfo = x.Args
-                        .Select(y => Interpreter.TypeConverter.CanConvert(x.Method, y.Argument, y.TargetType))
+                        .Select(y => Interpreter.TypeConverter.CanConvert(
+                            y,
+                            x.Method,
+                            y.Argument,
+                            y.TargetType))
                         .ToArray()
                 })
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))

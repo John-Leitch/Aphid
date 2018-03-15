@@ -13,6 +13,7 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.Runtime;
 using Components.Aphid.Library;
+using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Interpreter
 {
@@ -26,6 +27,11 @@ namespace Components.Aphid.Interpreter
     //   - Spin up secondary interpreter during preprocessing to easily
     //     support state, complex filter/projection, etc.
     // * Add quote support for macros.
+    // * Add var support for inline decl/init e.g.
+    //   var i = 0;
+    //   ->
+    //   i;
+    //   i = 0;
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;

@@ -2,6 +2,7 @@
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
+using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Components.Aphid.Library
 {
-    public class AphidSerializer : AphidInterpreterComponent
+    public class AphidSerializer : AphidRuntimeComponent
     {
         private const string _root = "obj";
 

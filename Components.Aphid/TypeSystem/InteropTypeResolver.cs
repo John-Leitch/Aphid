@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Components.Aphid.Interpreter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class InteropTypeResolver : AphidInterpreterComponent
+    public class InteropTypeResolver : AphidRuntimeComponent
     {
         public InteropTypeResolver(AphidInterpreter interpreter)
             : base(interpreter)

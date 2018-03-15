@@ -1,4 +1,5 @@
 using Components.Aphid.Parser;
+using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,7 @@ using System.Reflection;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidLoader : AphidInterpreterComponent
+    public class AphidLoader : AphidRuntimeComponent
     {
         private List<string> _searchPaths = new List<string> 
         { 

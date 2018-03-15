@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-    public abstract class AphidInterpreterComponent
+    public abstract class AphidRuntimeComponent
     {
         public AphidInterpreter Interpreter { get; private set; }
 
-        public AphidInterpreterComponent(AphidInterpreter interpreter)
+        public AphidRuntimeComponent(AphidInterpreter interpreter)
         {
             Interpreter = interpreter;
         }

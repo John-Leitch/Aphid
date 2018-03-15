@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library
 {

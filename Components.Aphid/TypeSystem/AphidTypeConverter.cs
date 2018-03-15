@@ -1,4 +1,5 @@
-﻿using Components.External;
+﻿using Components.Aphid.Interpreter;
+using Components.External;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,22 +8,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class AphidConversionInfo
-    {
-        public bool CanConvert { get; private set; }
-
-        public Type[] GenericArguments { get; private set; }
-
-        public AphidConversionInfo(bool canConvert, Type[] genericArguments)
-        {
-            CanConvert = canConvert;
-            GenericArguments = genericArguments;
-        }
-    }
-
-    public class AphidTypeConverter : AphidInterpreterComponent
+    public class AphidTypeConverter : AphidRuntimeComponent
     {
         private static readonly Type[] _numberTypes = new[]
         {
@@ -55,6 +43,7 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidConversionInfo CanConvert(
+            AphidInteropMethodArg interopArg,
             MethodBase method,
             object value,
             Type targetType)
@@ -64,28 +53,58 @@ namespace Components.Aphid.Interpreter
             if (value == null)
             {
                 return new AphidConversionInfo(
+                    interopArg,
                     !targetType.IsPrimitive && !targetType.IsEnum,
                     new Type[0]);
             }
             else if ((valueType = value.GetType()) == typeof(AphidFunction) &&
                 targetType.IsDerivedFrom(typeof(Delegate)))
             {
-                return new AphidConversionInfo(true, new Type[0]);
+                return new AphidConversionInfo(interopArg, true, new Type[0]);
             }
             else
             {
                 var genericArguments = new List<Type>();
 
+                MethodInfo implicitOperator = null, explicitOperator = null;
+
                 var canConvert =
                     valueType == targetType ? true :
+                    (implicitOperator = GetImplicitOperator(valueType, targetType)) != null ? true :
                     valueType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)value, targetType) :
                     valueType == typeof(string) && targetType == typeof(char) && ((string)value).Length == 1 ? true :
                     valueType.IsDerivedFromOrImplements(targetType, genericArguments) ? true :
                     targetType.IsArray ? CanConvertArray(value, valueType, targetType) :
+                    (explicitOperator = GetExplicitOperator(valueType, targetType)) != null ? true :
                     false;
 
-                return new AphidConversionInfo(canConvert, genericArguments.ToArray());
+                return new AphidConversionInfo(
+                    interopArg,
+                    canConvert,
+                    genericArguments.ToArray(),
+                    implicitOperator,
+                    explicitOperator);
             }
+        }
+
+        private static MethodInfo GetImplicitOperator(Type valueType, Type targetType)
+        {
+            return GetConversionOperator(valueType, targetType, isImplicit: true);
+        }
+
+        private static MethodInfo GetExplicitOperator(Type valueType, Type targetType)
+        {
+            return GetConversionOperator(valueType, targetType, isImplicit: false);
+        }
+
+        private static MethodInfo GetConversionOperator(
+            Type valueType,
+            Type targetType,
+            bool isImplicit)
+        {
+            return valueType.GetMethod(
+                isImplicit ? "op_Implicit" : "op_Explicit",
+                new[] { targetType });
         }
 
         public static bool CanConvertOrBoxDecimal(decimal value, Type targetType)

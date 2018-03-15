@@ -1,5 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
+using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;

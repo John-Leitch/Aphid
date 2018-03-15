@@ -1,13 +1,14 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class OperatorHelper : AphidInterpreterComponent
+    public class OperatorHelper : AphidRuntimeComponent
     {
         public OperatorHelper(AphidInterpreter interpreter)
             : base(interpreter)

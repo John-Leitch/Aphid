@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace Components.Aphid.Library
 {
-    public class AphidByteConverter : AphidInterpreterComponent
+    public class AphidByteConverter : AphidRuntimeComponent
     {
         public AphidByteConverter(AphidInterpreter interpreter)
             : base(interpreter)

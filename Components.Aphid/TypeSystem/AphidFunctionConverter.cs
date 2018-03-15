@@ -5,10 +5,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Components.External;
+using Components.Aphid.Interpreter;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class AphidFunctionWrapper : AphidInterpreterComponent
+    public class AphidFunctionWrapper : AphidRuntimeComponent
     {
         //public static readonly 
 
@@ -97,7 +98,7 @@ namespace Components.Aphid.Interpreter
         }
     }
 
-    public class AphidFunctionConverter : AphidInterpreterComponent
+    public class AphidFunctionConverter : AphidRuntimeComponent
     {
         public AphidFunctionConverter(AphidInterpreter interpreter)
             : base(interpreter)

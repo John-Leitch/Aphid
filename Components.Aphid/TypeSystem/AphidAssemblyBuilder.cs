@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Interpreter
+namespace Components.Aphid.TypeSystem
 {
-    public class AphidAssemblyBuilder : AphidInterpreterComponent
+    public class AphidAssemblyBuilder : AphidRuntimeComponent
     {
         private enum ClassAttributeScanState
         {

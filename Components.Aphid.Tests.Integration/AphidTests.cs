@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Dynamic;
 using Components.Aphid.Parser;
+using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Tests.Integration
 {

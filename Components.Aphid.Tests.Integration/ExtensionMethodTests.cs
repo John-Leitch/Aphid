@@ -321,7 +321,7 @@ namespace Components.Aphid.Tests.Integration
         public void ExtensionMethodTestUnknownImplicitArg()
         {
             AssertTrue(@"
-                extend unknown{g:@(x)$_.ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                extend unknown{g:@(x)$_.ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g(2)");
         }
 
@@ -329,7 +329,7 @@ namespace Components.Aphid.Tests.Integration
         public void ExtensionMethodTestUnknownImplicitArg2()
         {
             AssertTrue(@"
-                extend unknown{g:@(x)$_.ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                extend unknown{g:@(x)$_.ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g()");
         }
 
@@ -337,7 +337,7 @@ namespace Components.Aphid.Tests.Integration
         public void ExtensionMethodTestUnknownImplicitArg3()
         {
             AssertTrue(@"
-                extend unknown{g:@()$_.ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                extend unknown{g:@()$_.ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g()");
         }
 
@@ -345,7 +345,7 @@ namespace Components.Aphid.Tests.Integration
         public void ExtensionMethodTestUnknownImplicitArgArray()
         {
             AssertTrue(@"
-                extend unknown{g:@()$args[0].ToString()=='Components.Aphid.Interpreter.AphidInteropMember'}
+                extend unknown{g:@()$args[0].ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g()");
         }
 

@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.TypeSystem;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
