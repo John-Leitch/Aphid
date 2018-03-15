@@ -26,17 +26,24 @@ _psPartsProgloue = macro(@{
 
     parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
     isCommand = parts[0] |> psContext.isCommand;
+    r;
 
     if (isCommand) {
         parts[0] |> psContext.engine.AddCommand;
         parts @aq.skip(1) -> psContext.engine.AddArgument;
+        r = psContext.engine.Invoke();
     } else {
         if (parts.Count > 1) fatal('Too many parts');
-        'Get-Item' |> psContext.engine.AddCommand;
-        parts[0] |> psContext.engine.AddArgument;
+
+        try {
+            'Get-Item' |> psContext.engine.AddCommand;
+            parts[0] |> psContext.engine.AddArgument;
+            r = psContext.engine.Invoke();
+        } catch (e) {
+            r = null;
+        }
     }
-    r;
-    r = psContext.engine.Invoke();
+
     psContext.engine.Commands.Clear();
 
     if (!isCommand &&
@@ -135,7 +142,7 @@ initPSInterop = @{
     psContext.outString = @(obj) {
         _initTrace('PS');
         tracePS('Dumping result via Out-String');
-        { InputObject: obj } @psContext.psContext.execNamed('Out-String') print;
+        { InputObject: obj } @psContext.psContext.execNamed('Out-String')->Console.Write;
     };
 
     extend PSObject {
