@@ -74,6 +74,7 @@ namespace Components.Aphid.TypeSystem
                     valType.IsDerivedFromOrImplements(target, genericArguments) ? true :
                     target.IsArray ? CanConvertArray(val, valType, target) :
                     interopArg.ExplicitConversionOperator != null ? true :
+                    target == typeof(string) ? true :
                     false;
 
                 return new AphidConversionInfo(
@@ -234,6 +235,10 @@ namespace Components.Aphid.TypeSystem
                 {
                     throw GetConversionError(srcValue, srcType, targetType);
                 }
+            }
+            else if (targetType == typeof(string))
+            {
+                return srcValue.ToString();
             }
             else
             {

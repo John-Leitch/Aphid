@@ -264,13 +264,9 @@ namespace Components.Aphid.TypeSystem
             {
                 return 0x20;
             }
-            else if (arg.ArgumentType == null)
+            else if (arg.HasImplicitConversion)
             {
-                return 0x100000;
-            }
-            else if (arg.IsUnsafeConvertibleNumberPair)
-            {
-                return 0x1000000;
+                return 0x40;
             }
             else if (arg.TargetType == typeof(object))
             {
@@ -288,8 +284,28 @@ namespace Components.Aphid.TypeSystem
                 }
                 else
                 {
-                    return 0x40;
+                    return 0x80;
                 }
+            }
+            else if (arg.ArgumentType == null)
+            {
+                return 0x10000;
+            }
+            //else if (arg.HasImplicitConversion)
+            //{
+            //    return 0x100000;
+            //}
+            else if (arg.HasExplicitConversion)
+            {
+                return 0x1000000;
+            }
+            else if (arg.IsUnsafeConvertibleNumberPair)
+            {
+                return 0x10000000;
+            }
+            else if (arg.HasToStringConversion)
+            {
+                return 0x80000000;
             }
             else
             {

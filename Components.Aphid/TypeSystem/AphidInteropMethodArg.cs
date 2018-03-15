@@ -25,6 +25,8 @@ namespace Components.Aphid.TypeSystem
 
         public bool HasExplicitConversion { get; private set; }
 
+        public bool HasToStringConversion { get; private set; }
+
         public bool IsExactBasicTypeMatch { get; private set; }
 
         public bool IsExactUserReferenceTypeMatch { get; private set; }
@@ -77,6 +79,7 @@ namespace Components.Aphid.TypeSystem
                     ArgumentType == typeof(decimal);
 
                 IsExactUserReferenceTypeMatch = ArgumentType.IsClass && ArgumentType != typeof(object);
+                HasToStringConversion = TargetType == typeof(string);
             }
             else if ((ArgumentType == typeof(string) &&
                     TargetType == typeof(char) &&
@@ -85,6 +88,7 @@ namespace Components.Aphid.TypeSystem
             {
                 IsExactBasicTypeMatch = true;
                 IsExactUserReferenceTypeMatch = false;
+                HasToStringConversion = TargetType == typeof(string);
             }
             else
             {
@@ -101,6 +105,11 @@ namespace Components.Aphid.TypeSystem
                         ArgumentType)) != null)
                     {
                         HasExplicitConversion = true;
+                    }
+
+                    if (TargetType == typeof(string))
+                    {
+                        HasToStringConversion = true;
                     }
                 }
 
