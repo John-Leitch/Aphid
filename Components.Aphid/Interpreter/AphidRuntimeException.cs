@@ -13,6 +13,8 @@ namespace Components.Aphid.Interpreter
             get { return AphidExceptionType.RuntimeException; }
         }
 
+        public AphidObject ExceptionScope { get; set; }
+
         public AphidExpression CurrentStatement { get; set; }
 
         public AphidExpression CurrentExpression { get; set; }
@@ -25,10 +27,12 @@ namespace Components.Aphid.Interpreter
         //}
 
         public AphidRuntimeException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             Exception innerException)
-            : base(
+            : this(
+                exceptionScope,
                 string.Format(
                     "Runtime exception when evaluating expression {0}.",
                     currentExpression),
@@ -39,14 +43,24 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidRuntimeException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string message,
             params object[] args)
-            : base(string.Format(message, args))
+            : this(exceptionScope, string.Format(message, args))
         {
             CurrentStatement = currentStatement;
             CurrentExpression = currentExpression;
+        }
+
+        private AphidRuntimeException(
+            AphidObject exceptionScope,
+            string message,
+            Exception innerException = null)
+            : base(message, innerException)
+        {
+            ExceptionScope = exceptionScope;
         }
     }
 }

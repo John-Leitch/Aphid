@@ -34,51 +34,80 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoadScriptException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string scriptFile,
             AphidParserException parserException)
-            : this(currentStatement, currentExpression, parserException, scriptFile)
+            : this(
+                exceptionScope,
+                currentStatement,
+                currentExpression,
+                parserException,
+                scriptFile)
         {
             ParserException = parserException;
         }
 
         public AphidLoadScriptException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string scriptFile,
             AphidRuntimeException runtimeException)
-            : this(currentStatement, currentExpression, runtimeException, scriptFile)
+            : this(
+                exceptionScope,
+                currentStatement,
+                currentExpression,
+                runtimeException,
+                scriptFile)
         {
             AphidRuntimeException = runtimeException;
         }
 
         public AphidLoadScriptException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string scriptFile,
             Exception runtimeException)
-            : this(currentStatement, currentExpression, runtimeException, scriptFile)
+            : this(
+                exceptionScope,
+                currentStatement,
+                currentExpression,
+                runtimeException,
+                scriptFile)
         {
             RuntimeException = runtimeException;
         }
 
         private AphidLoadScriptException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             Exception innerException,
             string scriptFile)
-            : base(currentStatement, currentExpression, innerException)
+            : base(
+                exceptionScope,
+                currentStatement,
+                currentExpression,
+                innerException)
         {
             ScriptFile = scriptFile;
         }
 
         public AphidLoadScriptException(
+            AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string message,
             params object[] args)
-            : base(currentStatement, currentExpression, message, args)
+            : base(
+                exceptionScope,
+                currentStatement,
+                currentExpression,
+                message,
+                args)
         {
         }
 

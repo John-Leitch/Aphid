@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Components.Aphid.Parser;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,12 +10,18 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidInteropMember
     {
+        public AphidExpression Expression { get; private set; }
+
         public object Target { get; private set; }
 
         public MemberInfo[] Members { get; private set; }
 
-        public AphidInteropMember(object target, MemberInfo[] members)
+        public AphidInteropMember(
+            AphidExpression expression,
+            object target,
+            MemberInfo[] members)
         {
+            Expression = expression;
             Target = target;
             Members = members;
         }

@@ -112,6 +112,12 @@ print = @(fmt, arg0) {
 };
 
 cls = Console.Clear;
+
+fixColors = @{
+    Console.ForegroundColor = ConsoleColor.Gray;
+    Console.BackgroundColor = ConsoleColor.Black;
+};
+
 head = @(msg){ Cli.WriteHeader($_, '~|Blue~~White~') };
 header = head;
 

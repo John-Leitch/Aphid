@@ -36,7 +36,7 @@ namespace Components.Aphid.Parser
 
         public ScriptMutator(AphidFunction mutateImplementation)
             : this(
-                (AphidInterpreter)mutateImplementation.ParentScope.Resolve("$aphid").Value,
+                (AphidInterpreter)mutateImplementation.ParentScope.Resolve(null, "$aphid").Value,
                 mutateImplementation.Body)
         {
         }

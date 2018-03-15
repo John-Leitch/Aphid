@@ -197,9 +197,12 @@ namespace Components.Aphid.UI
 
         public static string GetErrorMessage(Exception exception)
         {
+            var ex = ExceptionHelper.Unwrap(exception);
+
             return string.Format(
-                "Unexpected exception: {0}\r\n",
-                ExceptionHelper.Unwrap(exception).Message);
+                "Unexpected exception: {0}\r\n\r\n{1}",
+                ex.Message,
+                ex.StackTrace);
         }
     }
 }

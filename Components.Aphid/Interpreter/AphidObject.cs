@@ -8,6 +8,35 @@ namespace Components.Aphid.Interpreter
 {
     public partial class AphidObject : Dictionary<string, AphidObject>
     {
+        private bool _isScalar;
+
+        public bool IsScalar
+        {
+            get { return _isScalar; }
+            set
+            {
+                _isScalar = value;
+                _isComplex = !value;
+            }
+        }
+
+        private bool _isComplex;
+
+        public bool IsComplex
+        {
+            get { return _isComplex; }
+            set
+            {
+                _isComplex = value;
+                _isScalar = !value;
+            }
+        }
+
+        public bool IsComplexitySet
+        {
+            get { return _isScalar || _isComplex; }
+        }
+
         public int OwnerThread { get; private set; }
 
         public AphidObject Parent { get; set; }
@@ -20,16 +49,22 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidObject(object value)
-            : this()
+            : this(isScalar: true)
         {
             Value = value;
         }
 
         public AphidObject(object value, AphidObject parent)
-            : this()
+            : this(isScalar: true)
         {
             Value = value;
             Parent = parent;
+        }
+
+        private AphidObject(bool isScalar)
+        {
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
+            IsScalar = isScalar;
         }
 
         public override string ToString()
@@ -263,21 +298,15 @@ namespace Components.Aphid.Interpreter
             return ConvertFrom(typeof(T), o);
         }
 
-        public AphidObject Resolve(string key, string errorMessage = null)
-        {
-            return Resolve(null, key, errorMessage);
-        }
-
         public AphidObject Resolve(AphidInterpreter interpreter, string key, string errorMessage = null)
         {
             AphidObject obj;
 
             if (!TryResolve(key, out obj))
             {
-                var msg = string.Format("Could not resolve {0}.", key);
-                throw interpreter != null ? 
-                    interpreter.CreateRuntimeException(errorMessage ??  msg) : 
-                    new AphidRuntimeException(null, null, msg);
+                throw errorMessage == null ?
+                    interpreter.CreateValueException(this, "Could not resolve property {0}", key) :
+                    interpreter.CreateValueException(this, errorMessage);
             }
 
             return obj;
@@ -387,6 +416,11 @@ namespace Components.Aphid.Interpreter
                 obj is AphidObject ||
                 obj is AphidFunction ||
                 obj is AphidInteropFunction;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
         }
     }
 }

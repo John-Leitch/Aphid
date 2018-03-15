@@ -327,6 +327,7 @@ namespace Components.Aphid.Interpreter
         private AphidOperationException CreateOperationException(string op)
         {
             return new AphidOperationException(
+                Interpreter.CurrentScope,
                 Interpreter.CurrentStatement,
                 Interpreter.CurrentExpression,
                 op);
