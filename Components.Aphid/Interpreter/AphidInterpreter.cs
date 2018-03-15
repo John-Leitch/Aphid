@@ -2721,10 +2721,20 @@ namespace Components.Aphid.Interpreter
             }
             else if ((str = val as string) != null)
             {
+                if (index < 0 || index >= str.Length)
+                {
+                    throw CreateOutOfBoundsException(expression, val, index, str.Length);
+                }
+
                 return new AphidObject(str[index].ToString());
             }
             else if ((list = val as IList) != null)
             {
+                if (index < 0 || index >= list.Count)
+                {
+                    throw CreateOutOfBoundsException(expression, val, index, list.Count);
+                }
+
                 return ValueHelper.Wrap(list[index]);
             }
             else if ((enumerable = val as IEnumerable) != null)
@@ -2739,7 +2749,7 @@ namespace Components.Aphid.Interpreter
                     }
                 }
 
-                throw CreateRuntimeException("Index out of range: {0}.", index);
+                throw CreateOutOfBoundsException(expression, val, index, i - 1);
             }
             else
             {
@@ -2748,6 +2758,20 @@ namespace Components.Aphid.Interpreter
                     val,
                     "Array access not supported by");
             }
+        }
+
+        private AphidRuntimeException CreateOutOfBoundsException(
+            AphidExpression expression,
+            object val,
+            int index,
+            int count)
+        {
+            return CreateExpressionException(
+                expression,
+                val,
+                "Index {0} is out of bounds of {1} element collection",
+                index,
+                count);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
