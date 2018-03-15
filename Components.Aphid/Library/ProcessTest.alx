@@ -1,0 +1,6 @@
+﻿#'Std';
+#'Query';
+#'Meta';
+#'Process';
+cls();
+'cmd /c echo "fo o"' ~> @Console.WriteLine('Line: {0}');

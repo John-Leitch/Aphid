@@ -1,0 +1,63 @@
+﻿system;
+startProcess;
+prepareCommand;
+
+@{
+    #'Std';
+    #'List';
+    #'Query';
+    using Components;
+    using System;
+    using System.Diagnostics;
+    using System.Threading;
+
+    startProcess = @(exe, args, onLine) {
+        proc;
+        si;
+        print('Starting process');
+        si = new ProcessStartInfo(exe, args);
+        si.UseShellExecute = false;
+        si.CreateNoWindow = false;
+        si.RedirectStandardOutput = true;
+        si.RedirectStandardError = true;
+        proc = Process.Start(si);
+
+        procThread = new Thread(@{
+            try {
+                while (!proc.StandardOutput.EndOfStream) {
+                    line = proc.StandardOutput.ReadLine();
+
+                    if (line == null) {
+                        continue;
+                    }
+
+                    [ onLine, Console.WriteLine]->@(x)x(line);
+                }
+            } catch(e) {
+                print('[x] Thread error: ~Yellow~{0}~R~', e.message);
+            }
+        });
+
+        procThread.Start();
+
+        print('[?] Waiting for thread');
+        procThread.Join();
+        print('[+] Done');
+
+        ret proc;
+    };
+
+    system = @(cmd) cmd ~> print @() try $_.WaitForExit(); catch(e) { };
+
+    prepareCommand = @(cmd)
+        cmd == null  ? null :
+        !cmd.GetType().IsArray ? cmd |> ArgLexer.Tokenize |> prepareCommand :
+        $(cmd.Length)
+            0: null,
+            [
+                cmd[0],
+                cmd @aq.skip(1) -> (@(x) x.Contains(' ') ? format('"{0}"', x) : x) @String.Join(' ')
+            ];
+}();
+
+@ ~> (cmd, onLine) cmd |> prepareCommand @() startProcess($_[0], $_[1], onLine);
