@@ -403,11 +403,19 @@ loadFile = @(asmFile) asmFile
     @String.Format('load "{0}"')
     |> evalExp;
 
+
+
 extend string {
     removeAt: @(x, substring)
         substring
         |> x.IndexOf
         |> x.Remove,
+    removeAtIndexOf: @(x, value, offset) {
+        i;
+        ret ((i = x.IndexOf(value)) < 0) ?
+            value :
+            x.Remove(i + (offset defined ? offset : 0));
+    },
     dec: @(x) x |> Decimal.Parse,
 }
 
