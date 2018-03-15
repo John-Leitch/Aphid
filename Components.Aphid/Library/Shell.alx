@@ -9,14 +9,50 @@ openRepl = false;
 // openRepl = true;
 // 1/0;
 
-//useTracing = true;
+useTracing = true;
 
 testScript = @{ %>
-    dir c:\staging *.alx
-    dir c:\staging *.txt
+
+    New-Alias out Write-Output
+    out "Copying file "
+    copy c:\temp\test.cmd c:\temp\test2.txt
+    out "Done copying file"
+    Test-Path c:\temp\test2.txt
+
 <% };
 
 testScript = @{ %>
+
+    using System
+    using System.IO
+    Console.WriteLine "Copying file"
+    File.Copy c:\temp\test.cmd c:\temp\test2.txt
+    Console.WriteLine "Done copying file"
+    File.Exists c:\temp\test2.txt
+
+<% };
+
+testScript2 = @{ %>
+    
+    dir c:\staging *.pl
+    dir c:\staging *.txt
+    //Invoke-Expression "Get-Help Write-Output -Detailed"
+    Write-Output "Hello world"
+    Set-Alias Write-Output out
+    out "Copying file"
+    copy c:\temp\test.txt c:\temp\test2.txt
+    Write-Output "Done copying file"
+
+<% };
+
+testScript2 = @{ %>
+    Get-Help Get-ChildItem
+    Get-ChildItem -Pattern *.txt -Directory d:\staging
+<% };
+
+
+
+testScript2 = @{ %>
         #'Std'
         #'IO'
         #'Meta'
@@ -399,7 +435,7 @@ shell.resolvers = [
                         //nameMatches.ToString() @print('calling aphid function {0}');
                         ret shell.interpreter.CallFunction(nameMatches, args);
                     };
-
+                    
                     ret r;
                 }
 
@@ -407,13 +443,22 @@ shell.resolvers = [
                     r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
                         nameMatches.Members,
                         signature);
-
+                    // signature->print;
+                    // exit();
+                    r.methodInfo.dir();
+                    r.value.dir();
+                    
+                    head('obj');
+                    psContext.psObject.GetType() |> print;
                     if (r.methodInfo == null) {
                         ret null;
                     }
 
                     r.call =  @(args) {
-                        //print('calling interop function {0}', r.value.Expression);
+                        print('calling interop function {0}', r.value.Expression);
+                        head('test');
+                        //exit();
+                        
 
                         ret shell.interpreter.CallInteropFunction(
                             r.value.Expression,
@@ -460,7 +505,6 @@ shell.exec = @(command) {
     exec;
     execDump;
     _initTrace('Exec');
-    
     peekTokens = command |> tokenize;
 
     _stdExec = macro(@{
@@ -470,7 +514,8 @@ shell.exec = @(command) {
     });
 
     if (peekTokens.Count >= 1 &&
-        peekTokens[0].TokenType == AphidTokenType.LoadScriptOperator) {
+        (peekTokens[0].TokenType == AphidTokenType.LoadScriptOperator ||
+        peekTokens[0].TokenType == AphidTokenType.usingKeyword)) {
         command @traceExec('Executing load script command: {0}');
 
         ret shell.interpret(command);
@@ -518,11 +563,12 @@ shell.exec = @(command) {
 
 // Todo: replace with proper lexing/parsing to allow Aphid expressions
 // that span multiple lines, ops such as |, and ; delimited statements.
-shell.execBlock = @(block) block
+shell.execScript = @(script) script |> shell.parseScript -> shell.exec;
+
+shell.parseScript = @(script) script 
     .Split([ '\r', '\n' ], StringSplitOptions.RemoveEmptyEntries)
     ->(@() $_.Trim())
-    -?(@() !String.IsNullOrEmpty($_))
-    ->shell.exec;
+    -?(@() !String.IsNullOrEmpty($_));
 
 shell.style = {
     currentDirectory: { foreground: ConsoleColor.White },
@@ -566,22 +612,22 @@ shell.writePrompt = @() {
     Cli.Write(prompt);
 };
 
-// while (true) {
-//     shell.writePrompt();
-//     cmd;
-//     cmd = Console.ReadLine();
+ while (false) {
+     shell.writePrompt();
+     cmd;
+     cmd = Console.ReadLine();
 
-//     switch (cmd) {
-//         'exit': exit();
+     switch (cmd) {
+         'exit': exit();
 
-//     }
+     }
 
-//     try cmd |> shell.exec;
-//     catch (e) {
-//         print('Error executing command: {0}', e.message);
-//         psContext.engine.Commands.Clear();
-//     }
-// }
+     try cmd |> shell.exec;
+     catch (e) {
+         print('Error executing command: {0}', e.message);
+         psContext.engine.Commands.Clear();
+     }
+}
 // code1 |> tokenizeCommand;
 // code2 |> tokenizeCommand;
 // code3 |> tokenizeCommand;
@@ -604,6 +650,6 @@ if (useTracing defined && useTracing) shell.trace();
 
 // shell.exec('k = $this |> keys');
 
-testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execBlock;
+testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execScript;
 testPrologue();
 
