@@ -1,0 +1,435 @@
+﻿#'Std';
+#'Query';
+#'Meta';
+#'Process';
+#'Powershell';
+cls();
+head('Starting AphidShell');
+
+//useTracing = true;
+
+testScript = @{ %>
+        #'Std'
+        #'IO'
+        Write-Output "Testing PowerShell Interop"
+        Write-Output "Testing PowerShell Interop"
+        dir c:\staging *.alx
+        dir c:\staging *.txt
+        testVar = c:\staging
+
+        files = dir $(testVar) *.alx
+        $files-?(@()($_.BaseObject.FullName |> File.ReadAllText).ToLower().Contains('meta'))
+        $files-?(@()$_.ToString().Contains('-'))
+        files2 = $files->@+'-Suffix'
+        testVar2 = dir $testVar
+        dir $testVar
+        $files2
+<% };
+
+testPrologue = @{
+    scope = shell.interpreter.CurrentScope;
+    scope.testVar @print('testVar: {0}');
+    scope.testVar2 +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
+};
+
+_initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
+
+_initTraceCore = macro(@(name, fullName) {
+    fullName;
+    
+    fullName = shell.fullName defined && shell.fullName ?
+        @(fmt) print(
+            '{0} Trace: ~Magenta~{1}~R~',
+            name,
+            ($($args.Count)
+                0: '[Nothing]',
+                1: fmt,
+                format(fmt, $args @aq.skip(1)))) :
+        @() {};
+});
+
+shell;
+
+shell = {
+    internal: {
+        tokenize: @(text, offset) {
+            lexer;
+            lexer = new AphidLexer(offset |> text.Substring);
+            lexer.SetShellMode();
+
+            ret lexer.GetTokens();
+        },
+
+        parse: @(tokens, index) {
+            using System.Linq;
+            parser;
+            expression;
+            streamOffset;
+            _initTrace('Parse');
+
+            parser = new AphidParser(tokens);
+            parser.SetToken(index);
+
+            if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
+                traceParse('~Cyan~Skipping left paren~R~');
+                parser.NextToken();
+                traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
+                expression = parser.ParseExpression();
+                traceParse('Matching right paren');
+                parser.PeekRightParenthesis();
+                streamOffset = parser.CurrentToken.Index + 1;
+            } else {
+                traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
+                expression = parser.ParseExpression();
+                traceParse('Index: {0}, Length: {1}', expression.Index, expression.Length);
+                parser.PreviousToken();
+                streamOffset = parser.CurrentToken.Index + parser.CurrentToken.Lexeme.Length;
+            }
+
+            traceParse('Stream continuing at offset: {0}', streamOffset);
+
+            ret { expression, streamOffset };
+        }
+    },
+
+    trace: @{
+        shell.traceParse = true;
+        shell.traceTokenize = true;
+        shell.traceEmit = true;
+        shell.traceExec = true;
+        shell.tracePS = true;
+    }
+};
+
+shell.token = {
+    text: 0x01,
+    expression: 0x02,
+    concat: 0x03
+};
+
+tokenizeCommand = @(text) {
+    using System.Text;
+    offset;
+    index;
+    tokens;
+    streamOffset;
+    shellTokens;
+    afterExpression;
+    baseOffset;
+    lastToken;
+    addToken;
+    _initTrace('Tokenize');
+
+    //head('Testing shell parser');
+    traceTokenize('Building command from "{0}"', text);
+    shellTokens = [];
+    afterExpression = false;
+    baseOffset = 0;
+
+    addToken = @(type, element) {
+        n;
+        n = {
+            type,
+            element,
+            
+            isImplicitPrefix: @()
+                n.type == shell.token.expression || 
+                (n.type == shell.token.text &&
+                    n.element.Length > 0 &&
+                    !Char.IsWhiteSpace(n.element, n.element.Length - 1)),
+                    
+            isImplicitSuffix: @()
+                n.type == shell.token.text &&
+                n.element.Length > 0 &&
+                !Char.IsWhiteSpace(n.element[0]),
+        };
+        shellTokens.add(n);
+        lastToken = n;
+    };
+
+    addConcat = @() addToken(shell.token.concat, '+');
+    tokens = shell.internal.tokenize(text, 0);
+    streamOffset = null;
+
+    for (index = 0; index < tokens.Count; index++) {
+        token = tokens[index];
+
+        if (streamOffset != null) {
+            index = 0;
+            baseOffset += streamOffset;
+            tokens = shell.internal.tokenize(text, baseOffset);
+
+            if (tokens.Count == 0) {
+                break;
+            }
+
+            token = tokens[index];
+            streamOffset = null;
+            afterExpression = true;
+        }
+
+        traceTokenize('Scanning token: {0} "{1}"', token.TokenType, token.Lexeme);
+
+        if (token.TokenType == AphidTokenType.AphidExpressionOperator) {
+            result = shell.internal.parse(tokens, index + 1);
+            result.expression |> traceTokenize;      
+            streamOffset = result.streamOffset;
+
+            if (lastToken != null && lastToken.isImplicitPrefix()) {
+                addConcat();
+            }
+
+            addToken(shell.token.expression, result.expression);
+        } else {
+            if (lastToken != null &&
+                token.Lexeme.Length > 0 &&
+                !Char.IsWhiteSpace(token.Lexeme[0])) {
+                addConcat();
+            }
+
+            addToken(shell.token.text, token.Lexeme);
+        }
+    }
+    shellTokens->(serialize) +>(@(x, y) x + '\r\n' + y)
+    @traceTokenize('Shell token count: {0}\r\n{1}\r\n\r\n', shellTokens.Count);
+
+    ret shellTokens;
+};
+
+using Components;
+
+shell.node = {
+    literal: 0x01,
+    expression: 0x02,
+    concat: 0x03,
+};
+
+shell.parseCommand = @(commandTokens)
+    commandTokens -< @(t) $(t.type)
+        shell.token.text:
+            t.element.Trim()
+            |> ArgLexer.Tokenize
+            -> @(a)({ type: shell.node.literal, node: a }),
+
+        shell.token.expression: [ { type: shell.node.expression, node: t.element } ],
+        shell.token.concat: [ { type: shell.node.concat, node: t.element } ],
+        fatal('Uknown token type');
+
+shell.interpreter = new AphidInterpreter();
+shell.interpret = shell.interpreter.Interpret;
+
+shell.emitCommand = @(commandAst) {
+    node;
+    index;
+    values;
+    appendValue;
+    _initTrace('Emit');
+
+    index = -1;
+    values = [];
+
+    while (++index < commandAst.Count) {
+        node = commandAst[index];
+
+        switch (node.type) {
+            shell.node.concat: { 
+                appendValue = commandAst[++index] |> shell.emitCommandNode;
+                
+                traceEmit(
+                    'Appending {0} with {1}',
+                    values[values.Count - 1],
+                    appendValue);
+
+                values[values.Count - 1] += appendValue;
+            }
+
+            default: node |> shell.emitCommandNode |> values.add
+        }
+    }
+
+    ret values;
+};
+
+shell.emitCommandNode = @(commandNode)
+    $(commandNode.type)
+        shell.node.literal: commandNode.node,
+        shell.node.expression: commandNode.node |> shell.interpret,
+        fatal('Invalid command node');
+
+
+// Todo: check for assignments, includes, etc. and handle 
+// accordingly rather than dumping everything to out
+shell.interpretCommand = @(command) {
+    r;
+    r = command |> psContext.outString;
+
+    ret r;
+};
+
+shell.exec = @(command) {
+    //print('Executing command ~Cyan~{0}~R~', command);
+    peekTokens;
+    execCore;
+    _initTrace('Exec');
+    
+    execCore = 
+        tokenizeCommand
+        @> shell.parseCommand 
+        @> shell.emitCommand 
+        @> psContext.execPositional
+        @> shell.interpretCommand;
+    
+    peekTokens = command |> tokenize;
+
+    if (peekTokens.Count >= 1 &&
+        peekTokens[0].TokenType == AphidTokenType.LoadScriptOperator) {
+        command @traceExec('Executing load script command: {0}');
+
+        ret shell.interpret(command);
+    }
+    // else if (peekTokens.Count >= 2 &&
+    //     peekTokens[1].TokenType == AphidTokenType.AssignmentOperator) {
+    // }
+    else if (command.Contains('=')) {
+        lhs;
+        rhs;
+        lhsAst;
+        opIndex;
+        value;
+
+        lhsAst = null;
+        opIndex = '=' |> command.IndexOf;
+        lhs = opIndex |> command.Remove;
+        rhs = opIndex + 1 |> command.Substring;
+        
+        try lhsAst = AphidParser.Parse(lhs);
+        catch @(e) { };
+
+        // lhsAst.Count |> print;
+        // lhsAst |> print;
+
+        if (lhsAst != null &&
+            lhsAst.Count == 1 &&
+            (lhsAst[0].isBinOp() || lhsAst[0].isId())) {
+            command @traceExec('Executing assign command: {0}');
+            key;
+            assign;
+            
+            key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
+            
+            shell.interpreter.CurrentScope.{key} =
+                rhs
+                |> tokenizeCommand
+                |> shell.parseCommand 
+                |> shell.emitCommand
+                |> psContext.execPositional;
+
+            assign = lhs + (key @format('=this.{0}; delete {0}'));
+            assign @traceExec('Running assign script: {0}');
+            shell.interpret(assign);
+            //shell.interpreter.CurrentScope |> keys |> print;
+
+            ret null;
+        } else {
+            command @traceExec('Executing standard command: {0}');
+            ret command |> execCore;
+        }
+    } else {
+        command @traceExec('Executing standard command: {0}');
+        ret command |> execCore;
+    }
+
+    traceExec('~Red~Error~R~');
+};
+
+// Todo: replace with proper lexing/parsing to allow Aphid expressions
+// that span multiple lines, ops such as |, and ; delimited statements.
+shell.execBlock = @(block) block
+    .Split([ '\r', '\n' ], StringSplitOptions.RemoveEmptyEntries)
+    ->(@() $_.Trim())
+    -?(@() !String.IsNullOrEmpty($_))
+    ->shell.exec;
+
+shell.style = {
+    currentDirectory: { foreground: ConsoleColor.White },
+    promptEnd: {
+        token: '#',
+        foreground: ConsoleColor.Cyan
+    },
+};
+
+_promptStyle = macro(@(value, name) {
+    id(name, 'HasStyle');
+    id(name, 'HasStyle') = false;
+
+    if (shell.style.name defined) {
+        if (shell.style.name.foreground defined) {
+            prompt += '~' + shell.style.name.foreground + '~';
+            id(name, 'HasStyle') = true;
+        }
+
+        if (shell.style.name.background defined) {
+            prompt += '~|' + shell.style.name.foreground + '~';
+            id(name, 'HasStyle') = true;
+        }
+    }
+    
+    prompt += value;
+
+    if (id(name, 'HasStyle')) {
+        prompt += '~R~';
+    }
+});
+
+shell.writePrompt = @() {
+    using System.IO;
+    using Components.External;
+    prompt;
+    
+    prompt = '';
+    _promptStyle(Directory.GetCurrentDirectory(), currentDirectory);
+    _promptStyle(shell.style.promptEnd.token, promptEnd);
+    Cli.Write(prompt);
+};
+
+// while (true) {
+//     shell.writePrompt();
+//     cmd;
+//     cmd = Console.ReadLine();
+
+//     switch (cmd) {
+//         'exit': exit();
+
+//     }
+
+//     try cmd |> shell.exec;
+//     catch (e) {
+//         print('Error executing command: {0}', e.message);
+//         psContext.engine.Commands.Clear();
+//     }
+// }
+// code1 |> tokenizeCommand;
+// code2 |> tokenizeCommand;
+// code3 |> tokenizeCommand;
+code4 = "dir c:\\temp *.txt $'b\\x41r' 0x10 $('foo1234'.ToCharArray()+>@(x,y) x + ', ' + y)b";
+code4 = "dir c:\\source $('*. '.Trim() + 'txt')";
+// commandTokens = code4 |> tokenizeCommand;
+// commandTokens |> print;
+// head('parsed');
+// commandAst = commandTokens |> shell.parseCommand;
+// commandAst |> print;
+// emittedCommand = commandAst |> emitCommand;
+// head('emittedCommand');
+// emittedCommand |> print;
+// head('interpret command');
+// emittedCommand |> shell.interpretCommand;
+
+// |> print; exit();
+
+if (useTracing defined && useTracing) shell.trace();
+
+// shell.exec('k = $this |> keys');
+
+testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execBlock;
+testPrologue();
+
