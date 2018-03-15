@@ -12,47 +12,11 @@ _initTraceCore = macro(@(name, fullName) {
         @(fmt) print(
             '{0} Trace: ~Magenta~{1}~R~',
             name,
-            ($($args.Count)
+            $($args.Count)
                 0: '[Nothing]',
                 1: fmt,
-                format(fmt, $args @aq.skip(1)))) :
+                format(fmt, $args @aq.skip(1))) :
         @() {};
-});
-
-_psPartsProgloue = macro(@{
-    _checkCmdParts();
-    _initTrace('PS');
-    isCommand;
-
-    parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
-    isCommand = parts[0] |> psContext.isCommand;
-    r;
-
-    if (isCommand) {
-        parts[0] |> psContext.engine.AddCommand;
-        parts @aq.skip(1) -> psContext.engine.AddArgument;
-        r = psContext.engine.Invoke();
-    } else {
-        if (parts.Count > 1) fatal('Too many parts');
-
-        try {
-            'Get-Item' |> psContext.engine.AddCommand;
-            parts[0] |> psContext.engine.AddArgument;
-            r = psContext.engine.Invoke();
-        } catch (e) {
-            r = null;
-        }
-    }
-
-    psContext.engine.Commands.Clear();
-
-    if (!isCommand &&
-        parts != null &&
-        parts.Count >= 1 &&
-        (r == null || r.Count == 0) &&
-        parts[0].GetType() != typeof(String)) {
-        r = parts.Count == 1 ? parts[0] : parts;
-    }
 });
 
 psContext;
@@ -120,7 +84,47 @@ initPSInterop = @{
     };
 
     psContext.execPositional = @(parts) {
-        _psPartsProgloue();
+            _checkCmdParts();
+            _initTrace('PS');
+            isCommand;
+
+            parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
+            isCommand = parts[0] |> psContext.isCommand;
+            r;
+
+            if (isCommand) {
+                parts[0] |> psContext.engine.AddCommand;
+                parts @aq.skip(1) -> psContext.engine.AddArgument;
+                r = psContext.engine.Invoke();
+                psContext.engine.Commands.Clear();
+            } else {
+                if (parts.Count > 1) fatal('Too many parts');
+                r = parts[0]|> psContext.getItem;
+            }
+
+            if (!isCommand &&
+                parts != null &&
+                parts.Count >= 1 &&
+                (r == null || r.Count == 0) &&
+                parts[0].GetType() != typeof(String)) {
+                r = parts.Count == 1 ? parts[0] : parts;
+            }
+
+        ret r;
+    };
+
+    psContext.getItem = @(path) {
+        r;
+
+        try {
+            'Get-Item' |> psContext.engine.AddCommand;
+            path |> psContext.engine.AddArgument;
+            r = psContext.engine.Invoke();
+        } catch (e) {
+            r = null;
+        }
+
+        psContext.engine.Commands.Clear();
 
         ret r;
     };

@@ -5,31 +5,60 @@
 #'Powershell';
 cls();
 head('Starting AphidShell');
+openRepl = false;
+// openRepl = true;
+// 1/0;
 
 //useTracing = true;
 
 testScript = @{ %>
+    dir c:\staging *.alx
+    dir c:\staging *.txt
+<% };
+
+testScript = @{ %>
         #'Std'
         #'IO'
+        #'Meta'
+        x ='foo'
+        print "test={0:x} bar={1:x}" 0xdeadbeef 0xcafeababe.GetType()
+        Console.WriteLine "foobar {0} {1}" 0x100 x
+<% };
+
+testScript2 = @{ %>
+        #'Std'
+        #'IO'
+        #'Meta'
+        
         Write-Output "Testing PowerShell Interop"
-        Write-Output "Testing PowerShell Interop"
-        dir c:\staging *.alx
-        dir c:\staging *.txt
+
         testVar = c:\staging
 
         files = dir $(testVar) *.alx
-        $files-?(@()($_.BaseObject.FullName |> File.ReadAllText).ToLower().Contains('meta'))
-        $files-?(@()$_.ToString().Contains('-'))
+
+        Write-Output "Filename contains '_'"
+        $files-?@()$_.ToString().Contains('_')
+
+        Write-Output "File text 'meta'"
+        $(files-?@()$_.BaseObject.FullName |> File.ReadAllText @(t) t.ToLower().Contains('meta'))
+
         files2 = $files->@+'-Suffix'
         testVar2 = dir $testVar
-        dir $testVar
+        
         $files2
+
 <% };
+
+// testScript = @{ %>
+//         #'Std'
+//         #'IO'
+//         Console.WriteLine "foo"
+// <% };
 
 testPrologue = @{
     scope = shell.interpreter.CurrentScope;
-    scope.testVar @print('testVar: {0}');
-    scope.testVar2 +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
+    if (scope.testVar defined) scope.testVar @print('testVar: {0}');
+    if (scope.testVar2 defined) scope.testVar2 +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
 };
 
 _initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
@@ -257,29 +286,188 @@ shell.emitCommandNode = @(commandNode)
         fatal('Invalid command node');
 
 
+shell.interpretCommand = @(commandObj) {
+    //commandObj |>dump;
+    // commandObj |> keys |> dumpe;
+    resolved;
+    args;
+    
+    args = (commandObj @aq.skip(1) -> shell.resolveMember);
+    resolved = shell.resolveMethod(commandObj[0], args);
+    resolvedMembers;
+    
+    if (resolved != null) {
+        //head('Resolving members');
+        
+        //args |> serialize |> print;
+        // args[0][0] |> print;
+        // dumpe(args[0][0]);
+        ret args |> resolved.call;
+    } else {
+        ret commandObj |> psContext.execPositional;
+    }
+};
+
+
+
+shell.resolveImpl = @(isResolvingMethod, path, args) {
+        matches;
+        resolved;
+        resolved = null;
+
+        shell.resolvers for (r) {
+            //isResolvingMethod @print('Resolving path {0}, isMethood: {1}', path);
+
+            if ((matches = path |> r.resolveName) != null) {
+                if (!isResolvingMethod) {
+                    //matches @print('~Green~Resolved path {0} to {1}~R~', path);
+                    ret matches;                    
+                } else if ((resolved = r.resolveSignature(matches, args)) != null) {
+                    //resolved |>serialize @print('~Green~Resolved signature {0} to {1}~R~', args);
+                    ret resolved;
+                }
+            }
+        };
+
+        if (isResolvingMethod) {
+            ret null;
+        }
+
+        //path @print('~Yellow~Failed resolving path {0}~R~');
+        psResult;
+        final;
+        psResult = path |> psContext.getItem;
+        //psResult @print('~Yellow~PS backup: {0}~R~');
+        final = (isResolvingMethod ? shell.resolvePSCmd : shell.resolvePSItem)(path, psResult);
+        //final @print('~Yellow~PS backup: {0}~R~');
+
+        ret final;
+};
+
+shell.resolvePSCmd = @(path, psResult)
+    psResult != null && psResult.Count > 1 ? psResult : 
+    psResult != null && psResult.Count > 0 ? psResult[0] :null;
+
+shell.resolvePSItem = @(path, psResult)
+    psResult != null && psResult.Count > 1 ? psResult : 
+    psResult != null && psResult.Count > 0 ? psResult[0] :
+    path != null ? path.ToString() :
+    null;
+
+shell.resolveMethod = @(path, args) shell.resolveImpl(true, path, args);
+shell.resolveMember = @(path, args) shell.resolveImpl(false, path, args);
+
+shell.resolvers = [
+    {
+        resolveName: @(name) {
+            nameTokens;
+            try nameTokens = name |> tokenize;
+            catch {} //nameTokens = null;
+            if (nameTokens defined &&
+                nameTokens != null &&
+                nameTokens.Count >= 1) {
+                    result;
+                    try {
+                        result =
+                            AphidParser.Parse(name)[0]
+                            |> shell.interpret;
+
+                        if (result != null) {
+                            //result @print('Name match: {0}', result);
+                            ret result;
+                        }
+                    }catch (e) {
+                        //print('~Red~{0}~R~', e);
+                    }
+                
+            } else {
+                //dump(this);
+                //if (nameTokens != null && nameTokens.Count == 1) {
+                //}
+                //nameTokens[0].TokenType |> print;
+            }
+                
+            ret null;
+        },
+
+        resolveSignature: @(nameMatches, signature) {
+            r;
+            r = { value: nameMatches };
+            switch (nameMatches.GetType()) {
+                typeof(AphidFunction): {
+                    r.call =  @(args) {
+                        //nameMatches.ToString() @print('calling aphid function {0}');
+                        ret shell.interpreter.CallFunction(nameMatches, args);
+                    };
+
+                    ret r;
+                }
+
+                typeof(AphidInteropMember): {
+                    r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
+                        nameMatches.Members,
+                        signature);
+
+                    if (r.methodInfo == null) {
+                        ret null;
+                    }
+
+                    r.call =  @(args) {
+                        //print('calling interop function {0}', r.value.Expression);
+
+                        ret shell.interpreter.CallInteropFunction(
+                            r.value.Expression,
+                            r.methodInfo,
+                            r.value);
+                    };
+
+                    ret r;
+                }
+            }
+        },
+    },
+    {
+        resolveName: @(path) path |> psContext.getItem @shell.resolvePSItem(path),
+        // resolveSignature: @(nameMatches, signature) ({
+        //     value: nameMatches,
+        //     call: @(args) { head('foo');exit(); }
+        // })
+
+        resolveSignature: @(nameMatches, signature) null,
+    }
+];
+
 // Todo: check for assignments, includes, etc. and handle 
 // accordingly rather than dumping everything to out
-shell.interpretCommand = @(command) {
+shell.dumpObject = @(command) {
     r;
     r = command |> psContext.outString;
 
     ret r;
 };
 
+shell.execImpl =
+    tokenizeCommand
+    @> shell.parseCommand 
+    @> shell.emitCommand 
+    @> shell.interpretCommand;
+
+shell.execDumpImpl = shell.execImpl @> shell.dumpObject;
+
 shell.exec = @(command) {
     //print('Executing command ~Cyan~{0}~R~', command);
     peekTokens;
-    execCore;
+    exec;
+    execDump;
     _initTrace('Exec');
     
-    execCore = 
-        tokenizeCommand
-        @> shell.parseCommand 
-        @> shell.emitCommand 
-        @> psContext.execPositional
-        @> shell.interpretCommand;
-    
     peekTokens = command |> tokenize;
+
+    _stdExec = macro(@{
+        command @traceExec('Executing standard command: {0}');
+
+        ret command |> shell.execDumpImpl;
+    });
 
     if (peekTokens.Count >= 1 &&
         peekTokens[0].TokenType == AphidTokenType.LoadScriptOperator) {
@@ -305,38 +493,24 @@ shell.exec = @(command) {
         try lhsAst = AphidParser.Parse(lhs);
         catch @(e) { };
 
-        // lhsAst.Count |> print;
-        // lhsAst |> print;
-
         if (lhsAst != null &&
             lhsAst.Count == 1 &&
             (lhsAst[0].isBinOp() || lhsAst[0].isId())) {
             command @traceExec('Executing assign command: {0}');
             key;
             assign;
-            
             key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
-            
-            shell.interpreter.CurrentScope.{key} =
-                rhs
-                |> tokenizeCommand
-                |> shell.parseCommand 
-                |> shell.emitCommand
-                |> psContext.execPositional;
-
+            shell.interpreter.CurrentScope.{key} = rhs |> shell.execImpl;
             assign = lhs + (key @format('=this.{0}; delete {0}'));
             assign @traceExec('Running assign script: {0}');
             shell.interpret(assign);
-            //shell.interpreter.CurrentScope |> keys |> print;
 
             ret null;
         } else {
-            command @traceExec('Executing standard command: {0}');
-            ret command |> execCore;
+            _stdExec();
         }
     } else {
-        command @traceExec('Executing standard command: {0}');
-        ret command |> execCore;
+        _stdExec();
     }
 
     traceExec('~Red~Error~R~');
@@ -422,7 +596,7 @@ code4 = "dir c:\\source $('*. '.Trim() + 'txt')";
 // head('emittedCommand');
 // emittedCommand |> print;
 // head('interpret command');
-// emittedCommand |> shell.interpretCommand;
+// emittedCommand |> shell.dumpObject;
 
 // |> print; exit();
 
