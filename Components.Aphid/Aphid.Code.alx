@@ -146,3 +146,37 @@ textCode = "
 
     return AphidTokenType.Text;
 ";
+
+shellCode = "
+    state = 0;
+
+    while (NextChar())
+    {
+        if (currentChar == '^')
+        {
+            if (state == 0)
+            {
+                state = 1;
+            }
+            else if (state == 1)
+            {
+                state = 0;
+            }
+        }
+        else if (currentChar == '$')
+        {
+            if (state == 1)
+            {
+                state = 0;
+            }
+            else
+            {
+                charIndex--;
+
+                return AphidTokenType.ShellText;
+            }
+        }
+    }
+
+    return AphidTokenType.ShellText;
+";

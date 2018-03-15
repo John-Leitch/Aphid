@@ -61,6 +61,13 @@ Lexer({
                 { code: textCode },
             ]
         },
+        {
+            mode: "Shell",
+            tokens: [
+                { regex: '$', type: 'AphidExpressionOperator', newMode: "Aphid" },
+                { code: shellCode },
+            ]
+        },
     ],
     ignore: [ 
         //"GatorOpenOperator",

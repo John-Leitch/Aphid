@@ -4629,6 +4629,7 @@ namespace Components.Aphid.Lexer
         AggregateOperator,
         AndOperator,
         AnyOperator,
+        AphidExpressionOperator,
         AssignmentOperator,
         BinaryAndEqualOperator,
         BinaryAndOperator,
@@ -5036,6 +5037,7 @@ namespace Components.Aphid.Lexer
         RightParenthesis,
         SelectManyOperator,
         SelectOperator,
+        ShellText,
         ShiftLeft,
         ShiftLeftEqualOperator,
         ShiftRight,
@@ -12027,6 +12029,61 @@ namespace Components.Aphid.Lexer
                         return AphidTokenType.Unknown;
                     }
                 }
+                else
+                    if (mode == 2)
+                    {
+                        if (charIndex < lastIndex)
+                        {
+                            currentChar = text[++charIndex];
+
+                            switch (currentChar)
+                            {
+                                case '$':
+
+                                    mode = 0;
+                                    return AphidTokenType.AphidExpressionOperator;
+
+                                default:
+
+                                    state = 0;
+
+                                    while (NextChar())
+                                    {
+                                        if (currentChar == '^')
+                                        {
+                                            if (state == 0)
+                                            {
+                                                state = 1;
+                                            }
+                                            else if (state == 1)
+                                            {
+                                                state = 0;
+                                            }
+                                        }
+                                        else if (currentChar == '$')
+                                        {
+                                            if (state == 1)
+                                            {
+                                                state = 0;
+                                            }
+                                            else
+                                            {
+                                                charIndex--;
+
+                                                return AphidTokenType.ShellText;
+                                            }
+                                        }
+                                    }
+
+                                    return AphidTokenType.ShellText;
+
+                                    break;
+
+                            }
+
+                            return AphidTokenType.Unknown;
+                        }
+                    }
 
 
             return AphidTokenType.EndOfFile;

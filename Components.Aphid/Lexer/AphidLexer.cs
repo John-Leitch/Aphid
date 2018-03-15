@@ -16,5 +16,10 @@ namespace Components.Aphid.Lexer
         {
             mode = 1;
         }
+
+        public void SetShellMode()
+        {
+            mode = 2;
+        }
     }
 }

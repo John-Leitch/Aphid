@@ -30,7 +30,7 @@ namespace Components.Aphid.Parser
         }
 
         [System.Diagnostics.DebuggerStepThrough]
-        private bool Match(AphidTokenType tokenType)
+        public bool Match(AphidTokenType tokenType)
         {
             if (_currentToken.TokenType == tokenType)
             {
@@ -43,7 +43,7 @@ namespace Components.Aphid.Parser
             }
         }
 
-        //[System.Diagnostics.DebuggerStepThrough]
+        [System.Diagnostics.DebuggerStepThrough]
         public bool NextToken()
         {
             _tokenIndex++;
@@ -58,6 +58,42 @@ namespace Components.Aphid.Parser
                 var i = _currentToken.Index + _currentToken.Lexeme.Length;
                 _currentToken = default(AphidToken);
                 _currentToken.Index = i;
+                return false;
+            }
+        }
+
+        [System.Diagnostics.DebuggerStepThrough]
+        public bool PreviousToken()
+        {
+            if (_tokens.Count == 0 || _tokenIndex == 0)
+            {
+                _currentToken = default(AphidToken);
+                _currentToken.Index = -1;
+
+                return false;
+            }
+            else
+            {
+                _currentToken = _tokens[--_tokenIndex];
+
+                return true;
+            }
+        }
+
+        [System.Diagnostics.DebuggerStepThrough]
+        public bool SetToken(int index)
+        {
+            _tokenIndex = index;
+
+            if (_tokenIndex < _tokens.Count)
+            {
+                _currentToken = _tokens[_tokenIndex];
+                return true;
+            }
+            else
+            {
+                _currentToken = default(AphidToken);
+                _currentToken.Index = -1;
                 return false;
             }
         }
