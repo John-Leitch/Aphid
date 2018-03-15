@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-    public class AphidFunction
+    public class AphidFunction : IEnumerable<AphidExpression>
     {
         public string[] Args { get; set; }
 
@@ -23,6 +23,16 @@ namespace Components.Aphid.Interpreter
                 Body = Body,
                 ParentScope = ParentScope,
             };
+        }
+
+        public IEnumerator<AphidExpression> GetEnumerator()
+        {
+            return Body.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return ((System.Collections.IEnumerable)Body).GetEnumerator();
         }
     }
 }
