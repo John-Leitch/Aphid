@@ -1,6 +1,7 @@
 ﻿using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -179,7 +180,7 @@ namespace Components.Aphid.Interpreter
 
             if (signatureMatches.Length == 0)
             {
-                throw CreateSignatureException(nameMatches);
+                throw CreateSignatureException(args, nameMatches);
             }
 
             return ResolveCore(signatureMatches, args);
@@ -218,7 +219,7 @@ namespace Components.Aphid.Interpreter
 
             if (methods.Length == 0)
             {
-                throw CreateSignatureException(signatureMatches);
+                throw CreateSignatureException(args, signatureMatches);
             }
 
             return methods.First();
@@ -291,11 +292,49 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private AphidRuntimeException CreateSignatureException(MethodBase[] matches)
+        private AphidRuntimeException CreateSignatureException(object[] args, MethodBase[] matches)
         {
             return Interpreter.CreateRuntimeException(
-                "Call did not match interop signature. Methods found:\r\n{0}",
-                string.Join("\r\n", matches.Select(GetMethodDescription)));
+                "Call did not match interop signature {0}({1}).\r\n\r\n" + 
+                    "Methods found:\r\n{2}\r\n\r\n" + 
+                    "Arguments:\r\n{3}",
+                matches.Length != 0 ? matches[0].Name : "",
+                string.Join(
+                    ", ",
+                    args.Select(x => (x != null ? x.GetType() : typeof(object)).FullName)),
+                string.Join("\r\n", matches.Select(GetMethodDescription)),
+                CreateArgumentString(args));
+        }
+
+        private string CreateArgumentString(object[] args)
+        {
+            var sb = new StringBuilder();
+            IEnumerable enumerable;
+
+            foreach (var arg in args)
+            {
+                sb.AppendFormat("{0}=", AphidType.GetName(arg));
+
+                if (arg == null ||
+                    arg is string ||
+                    (enumerable = arg as IEnumerable) == null)
+                {
+                    sb.AppendFormat("{0}\r\n", arg);
+                }
+                else
+                {
+                    sb.Append("[\r\n");
+
+                    foreach (var element in enumerable)
+                    {
+                        sb.AppendFormat("    {0}={1},\r\n", AphidType.GetName(element), element);
+                    }
+
+                    sb.Append("]\r\n");
+                }
+            }
+
+            return sb.ToString();
         }
 
         public string GetMethodDescription(MethodBase method)
