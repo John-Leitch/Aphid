@@ -17,6 +17,14 @@ namespace Components.Aphid.TypeSystem
 
         public Type TargetType { get; private set; }
 
+        public MethodInfo ImplicitConversionOperator { get; private set; }
+
+        public MethodInfo ExplicitConversionOperator { get; private set; }
+
+        public bool HasImplicitConversion { get; private set; }
+
+        public bool HasExplicitConversion { get; private set; }
+
         public bool IsExactBasicTypeMatch { get; private set; }
 
         public bool IsExactUserReferenceTypeMatch { get; private set; }
@@ -80,6 +88,22 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
+                if (ArgumentType != null)
+                {
+                    if ((ImplicitConversionOperator = ConversionOperator.GetImplicitOperator(
+                        TargetType,
+                        ArgumentType)) != null)
+                    {
+                        HasImplicitConversion = true;
+                    }
+                    else if ((ExplicitConversionOperator = ConversionOperator.GetExplicitOperator(
+                        TargetType,
+                        ArgumentType)) != null)
+                    {
+                        HasExplicitConversion = true;
+                    }
+                }
+
                 IsExactBasicTypeMatch = IsExactUserReferenceTypeMatch = false;
             }
 
