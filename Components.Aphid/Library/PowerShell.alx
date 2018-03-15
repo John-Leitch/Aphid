@@ -1,4 +1,54 @@
-﻿psContext;
+﻿_checkCmdParts = macro(@{
+    if (parts == null || parts.Count == 0 || parts[0] == null) {
+        ret null;
+    }
+});
+
+_initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
+
+_initTraceCore = macro(@(name, fullName) {
+    fullName;
+    fullName = shell.fullName defined && shell.fullName ?
+        @(fmt) print(
+            '{0} Trace: ~Magenta~{1}~R~',
+            name,
+            ($($args.Count)
+                0: '[Nothing]',
+                1: fmt,
+                format(fmt, $args @aq.skip(1)))) :
+        @() {};
+});
+
+_psPartsProgloue = macro(@{
+    _checkCmdParts();
+    _initTrace('PS');
+    isCommand;
+
+    parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
+    isCommand = parts[0] |> psContext.isCommand;
+
+    if (isCommand) {
+        parts[0] |> psContext.engine.AddCommand;
+        parts @aq.skip(1) -> psContext.engine.AddArgument;
+    } else {
+        if (parts.Count > 1) fatal('Too many parts');
+        'Get-Item' |> psContext.engine.AddCommand;
+        parts[0] |> psContext.engine.AddArgument;
+    }
+    r;
+    r = psContext.engine.Invoke();
+    psContext.engine.Commands.Clear();
+
+    if (!isCommand &&
+        parts != null &&
+        parts.Count >= 1 &&
+        (r == null || r.Count == 0) &&
+        parts[0].GetType() != typeof(String)) {
+        r = parts.Count == 1 ? parts[0] : parts;
+    }
+});
+
+psContext;
 
 initPSInterop = @{
     #'std';
@@ -26,10 +76,6 @@ initPSInterop = @{
         importPSResults: @(psResults) psResults->importPSObject,
 
         importPSObject: @(psObj) {
-            //if (psObj == null || psObj.GetType() != psObjectType) {
-                //ret psObj;
-            //}
-
             o;
             o = {PSObject: psObj};
 
@@ -48,6 +94,48 @@ initPSInterop = @{
 
             ret o;
         }
+    };
+
+    psContext.isCommand = @(command) {
+        _initTrace('PS');
+        command @tracePS('checking for command: {0}');
+        ps;
+        ps = command @format('[bool](Get-Command {0} -ErrorAction SilentlyContinue)');
+        ps @tracePS('Running command to perform check: {0}');
+        ps |> psContext.engine.AddScript;
+        r;
+        r = psContext.engine.Invoke();
+        psContext.engine.Commands.Clear();
+        r = r.Count > 0 ? r[0].BaseObject : false;
+        r @tracePS('Is command: {0}');
+
+        ret r;
+    };
+
+    psContext.execPositional = @(parts) {
+        _psPartsProgloue();
+
+        ret r;
+    };
+
+    psContext.execNamed = @(command, params) {
+        if (command == null) {
+            ret null;
+        }
+
+        command |> psContext.engine.AddCommand;
+        params |> keys -> @(n) psContext.engine.AddParameter(n, params.{n});
+        r;
+        r = psContext.engine.Invoke();
+        psContext.engine.Commands.Clear();
+
+        ret r;
+    };
+
+    psContext.outString = @(obj) {
+        _initTrace('PS');
+        tracePS('Dumping result via Out-String');
+        { InputObject: obj } @psContext.psContext.execNamed('Out-String') print;
     };
 
     extend PSObject {
