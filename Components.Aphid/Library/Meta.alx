@@ -298,6 +298,37 @@ extend AphidFrame {
     exp: @(x) x.Expression,
 }
 
+extend AphidParser {
+    dynamic MatchHandler: @(parser, name) {
+        prefix;
+        match;
+        peek;
+        isPeek;
+        exp;
+
+        match = 'Match';
+        peek = 'Peek';
+        isPeek = false;
+
+        if (name.StartsWith(match)) {
+            prefix = match;
+        } else if (name.StartsWith(peek)) {
+            isPeek = true;
+            prefix = peek;
+        } else {
+            fatal('Invalid AphidParser dynamic extension call');
+        }
+
+        exp = 'AphidTokenType.' + name.Substring(prefix.Length) |> evalExp |> parser.Match;
+
+        if (isPeek) {
+            parser.PreviousToken();
+        }
+
+        ret exp;
+    }
+}
+
 #'Query';
 
 extend AphidExpression {
