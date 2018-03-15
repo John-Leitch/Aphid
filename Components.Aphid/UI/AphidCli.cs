@@ -12,6 +12,8 @@ namespace Components.Aphid.UI
 {
     public static class AphidCli
     {
+        public static bool ShowClrStack { get; set; }
+
         public static bool TryAction(AphidInterpreter interpreter, string code, Action action)
         {
             try
@@ -200,7 +202,9 @@ namespace Components.Aphid.UI
             var ex = ExceptionHelper.Unwrap(exception);
 
             return string.Format(
-                "Unexpected exception: {0}\r\n\r\n{1}",
+                ShowClrStack ?
+                    "Unexpected exception: {0}\r\n\r\n{1}\r\n" :
+                    "Unexpected exception: {0}\r\n",
                 ex.Message,
                 ex.StackTrace);
         }
