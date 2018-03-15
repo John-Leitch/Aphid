@@ -410,6 +410,15 @@
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\Shell.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\ProcessTest.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Process.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\PowerShell.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
