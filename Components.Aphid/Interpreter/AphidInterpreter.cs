@@ -19,6 +19,13 @@ namespace Components.Aphid.Interpreter
     // Todo:
     // * Fix all methods that return object instead of AphidObject,
     //   then remove excessive ValueHelper.Wrap/Unwrap and casting.
+    // * Add support for token macros--transform during lexical analysis
+    //   instead of parsing.
+    // * Text mutators as well, akin to C macros
+    // * Add preprocessor looping support
+    //   - Spin up secondary interpreter during preprocessing to easily
+    //     support state, complex filter/projection, etc.
+    // * Add quote support for macros.
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
