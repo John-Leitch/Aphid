@@ -23,14 +23,20 @@ psContext;
 
 initPSInterop = @{
     #'std';
-    load System.Management.Automation;
+    #'meta';
+    cls();
+    psAsm = load System.Management.Automation;
     using System;
-    using System.Linq;   
+    using System.Linq;
     using System.Management.Automation;
 
-    psObjectType = typeof(PSObject);
+    psObject =
+        'System.Management.Automation.PSObject'
+        |> psAsm.GetType;
 
     psContext = {
+        psAsm,
+        psObject,
         engine: PowerShell.Create(),
         
         exec: @(command) {
