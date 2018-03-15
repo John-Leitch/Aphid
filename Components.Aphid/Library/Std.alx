@@ -31,6 +31,7 @@ getIdArg = @(i) _callExp(1).Args[i].Identifier;
 idString = @() getArg(0);
 format = String.Format;
 join = String.Join;
+concat = String.Concat;
 
 @ =< (selector, source) source -> selector;
 @ <| (target, arg) arg |> target;
