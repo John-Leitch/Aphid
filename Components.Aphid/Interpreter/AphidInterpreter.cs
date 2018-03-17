@@ -32,6 +32,9 @@ namespace Components.Aphid.Interpreter
     //   ->
     //   i;
     //   i = 0;
+    // * Add optional 'using' validation controlled via directive.
+    //   - Cache previously loaded asm names at start, subscribe to
+    //     AppDomain events to refresh cache.
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
