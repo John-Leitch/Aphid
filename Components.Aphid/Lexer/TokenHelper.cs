@@ -251,9 +251,19 @@ namespace Components.Aphid.Lexer
 
         public static string GetCodeExcerpt(string code, AphidToken token, int surroundingLines = 4)
         {
-            var matches = Regex.Matches(code, @"(\r\n)|\r|\n").OfType<Match>().ToArray();
-            var firstAfter = matches.FirstOrDefault(x => x.Index > token.Index);
+            return GetCodeExcerpt(code, token.Index, surroundingLines);
+        }
 
+        public static string GetCodeExcerpt(string code, int index, int surroundingLines = 4)
+        {
+            if (string.IsNullOrWhiteSpace(code) || index == -1)
+            {
+                return null;
+            }
+
+            code = code.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n", "\r\n");
+            var matches = Regex.Matches(code, @"\r\n").OfType<Match>().ToArray();
+            var firstAfter = matches.FirstOrDefault(x => x.Index > index);
             int line;
 
             if (firstAfter != null)
@@ -265,7 +275,7 @@ namespace Components.Aphid.Lexer
                 line = matches.Count();
             }
 
-            var lines = code.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n", "\r\n").Split(new[] { "\r\n" }, StringSplitOptions.None);
+            var lines = code.Split(new[] { "\r\n" }, StringSplitOptions.None);
             var sb = new StringBuilder();
 
             for (int i = line - surroundingLines; i < line + surroundingLines + 1; i++)

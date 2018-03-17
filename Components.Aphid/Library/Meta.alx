@@ -18,8 +18,9 @@
 
 using System;
 using Components.Aphid.Lexer;
-using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
+using Components.Aphid.TypeSystem;
+using Components.Aphid.Interpreter;
 
 @`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier;
 

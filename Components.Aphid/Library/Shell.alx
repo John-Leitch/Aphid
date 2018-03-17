@@ -6,6 +6,10 @@
 cls();
 head('Starting AphidShell');
 openRepl = false;
+using System.IO;
+fio = new System.IO.FileInfo('C:\\temp\\test.cmd');
+fio2 = new System.IO.FileInfo('C:\\temp\\test2.txt');
+File.Copy(fio, fio2);
 // openRepl = true;
 // 1/0;
 
@@ -36,32 +40,31 @@ testScript2 = @{ %>
     
     dir c:\staging *.pl
     dir c:\staging *.txt
-    //Invoke-Expression "Get-Help Write-Output -Detailed"
-    Write-Output "Hello world"
-    Set-Alias Write-Output out
-    out "Copying file"
-    copy c:\temp\test.txt c:\temp\test2.txt
-    Write-Output "Done copying file"
-
-<% };
-
-testScript2 = @{ %>
+    Invoke-Expression "Get-Help Write-Output -Detailed"
     Get-Help Get-ChildItem
     Get-ChildItem -Pattern *.txt -Directory d:\staging
+
+<% };
+
+testScript2 = @{ %>
+
+    Get-Help Get-ChildItem
+    Get-ChildItem -Pattern *.txt -Directory d:\staging
+
 <% };
 
 
 
 testScript2 = @{ %>
+
         #'Std'
-        #'IO'
-        #'Meta'
-        x ='foo'
         print "test={0:x} bar={1:x}" 0xdeadbeef 0xcafeababe.GetType()
-        Console.WriteLine "foobar {0} {1}" 0x100 x
+        Console.WriteLine "foobar {0} {1}" 0x100 'test'
+
 <% };
 
 testScript2 = @{ %>
+
         #'Std'
         #'IO'
         #'Meta'
@@ -440,16 +443,21 @@ shell.resolvers = [
                 }
 
                 typeof(AphidInteropMember): {
-                    r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
-                        nameMatches.Members,
-                        signature);
+                    try {
+                        r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
+                            nameMatches.Members,
+                            signature->psContext.unwrap);
+                    } catch(e) {
+                        print('Error resolving method: {0}', e.message);
+                        ret null;
+                    }
                     // signature->print;
                     // exit();
                     r.methodInfo.dir();
                     r.value.dir();
                     
                     head('obj');
-                    psContext.psObject.GetType() |> print;
+                    psContext.psObject |> print;
                     if (r.methodInfo == null) {
                         ret null;
                     }

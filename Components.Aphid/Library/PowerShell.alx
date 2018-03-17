@@ -70,7 +70,13 @@ initPSInterop = @{
                 ->@(m) o.{m.Name} = m.Invoke;
 
             ret o;
-        }
+        },
+
+        unwrap: @(obj)
+            obj != null &&
+            obj.GetType() == psContext.psObject ?
+            obj.BaseObject :
+            obj,
     };
 
     psContext.isCommand = @(command) {
