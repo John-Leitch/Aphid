@@ -388,13 +388,18 @@ namespace Components.Aphid.TypeSystem
             var p = method.GetParameters();
             ParameterInfo lp;
 
-            if (p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute)))
+            if (p.Length == args.Length)
+            {
+                return true;
+            }
+            else if (p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute)))
             {
                 return lp.ParameterType == typeof(object[]) && args.Length >= p.Length - 1;
             }
             else
             {
-                return p.Length == args.Length;
+                return false;
+                //return p.Length == args.Length;
             }
         }
 
@@ -413,7 +418,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return new AphidInteropMethodArg(arg, parameter, false);
             }
-            else if (parameter.ParameterType == typeof(object[]))
+            else if (parameter.ParameterType.IsArray)
             {
                 var p = new object[args.Length - index];
                 Array.Copy(args, index, p, 0, p.Length);
