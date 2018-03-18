@@ -8,18 +8,29 @@ using System.Threading.Tasks;
 using Components.Aphid.Parser;
 using System.IO;
 using Components.Aphid.Lexer;
+using System.Diagnostics;
 
 namespace Components.Aphid.UI
 {
     public static class AphidCli
     {
+        private const string _messageFormat = "[~{0}~{1}~R~] {2}";
+
+        private const char _errorChar = '-';
+
         public static bool ShowClrStack { get; set; }
 
         public static int ExcerptSurroundingLines { get; set; }
 
+        public static Action<string> WriteOut { get; set; }
+
+        public static Action<string> WriteLineOut { get; set; }
+
         static AphidCli()
         {
             ExcerptSurroundingLines = 4;
+            WriteOut = Cli.Write;
+            WriteLineOut = Cli.WriteLine;
         }
 
         public static bool TryAction(AphidInterpreter interpreter, string code, Action action)
@@ -98,14 +109,14 @@ namespace Components.Aphid.UI
 
         public static void DumpException(AphidParserException exception, string code)
         {
-            Cli.WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception, code)));
+            WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception, code)));
         }
 
         public static void DumpException(
             AphidRuntimeException exception,
             AphidInterpreter interpreter)
         {
-            Cli.WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
+            WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
             DumpStackTrace(interpreter);
         }
 
@@ -114,7 +125,7 @@ namespace Components.Aphid.UI
             AphidInterpreter interpreter,
             string code)
         {
-            Cli.WriteErrorMessage(
+            WriteErrorMessage(
                 Cli.StyleEscape(
                     GetErrorMessage(
                         exception,
@@ -127,7 +138,7 @@ namespace Components.Aphid.UI
             Exception exception,
             AphidInterpreter interpreter)
         {
-            Cli.WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
+            WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
             DumpStackTrace(interpreter);
         }
 
@@ -138,19 +149,19 @@ namespace Components.Aphid.UI
 
             if (!Console.IsOutputRedirected)
             {
-                Cli.WriteSubheader("Stack Trace", "~|Blue~~White~");
+                WriteSubheader("Stack Trace", "~|Blue~~White~");
             }
             else
             {
-                Cli.WriteErrorMessage("Stack Trace");
+                WriteErrorMessage("Stack Trace");
             }
 
             foreach (var frame in trace)
             {
-                Cli.WriteLine("[~White~{0:x4}~R~] {1}", i++, Cli.StyleEscape(frame.ToString(true)));
+                WriteLineOut(string.Format("[~White~{0:x4}~R~] {1}", i++, Cli.StyleEscape(frame.ToString(true))));
             }
 
-            Cli.WriteLine();
+            WriteLineOut("");
 
             var statement = interpreter.CurrentStatement;
 
@@ -159,19 +170,20 @@ namespace Components.Aphid.UI
                 return;
             }
 
-            Cli.WriteLine(
-                "Faulting statement: ~Yellow~{0}~R~",
-                Cli.StyleEscape(
-                    statement.Code != null ? 
-                        statement.Code.Substring(statement.Index, statement.Length) :
-                        statement.ToString()));
+            WriteLineOut(
+                string.Format(
+                    "Faulting statement: ~Yellow~{0}~R~",
+                    Cli.StyleEscape(
+                        statement.Code != null ?
+                            statement.Code.Substring(statement.Index, statement.Length) :
+                            statement.ToString())));
 
             DumpExcerpt(statement);
             var file = interpreter.GetScriptFilename();
 
             if (file != null)
             {
-                Cli.WriteLine("Script: ~Yellow~{0}~R~", file);
+                WriteLineOut(string.Format("Script: ~Yellow~{0}~R~", file));
             }
         }
 
@@ -197,7 +209,7 @@ namespace Components.Aphid.UI
 
             if (excerpt != null)
             {
-                Cli.WriteLine("\r\nProgram Excerpt:\r\n{0}", excerpt);
+                WriteLineOut(string.Format("\r\nProgram Excerpt:\r\n{0}", excerpt));
             }
         }
 
@@ -242,6 +254,34 @@ namespace Components.Aphid.UI
                     "Unexpected exception: {0}\r\n",
                 ex.Message,
                 ex.StackTrace);
+        }
+
+        public static void WriteSubheader(string text, string style = "")
+        {
+            WriteLineOut(
+                string.Format(
+                    "{0}  {1}{2}{3}",
+                    style,
+                    Cli.Escape(text),
+                    new string(' ', Console.BufferWidth - text.Length - 3),
+                    "~R~"));
+        }
+
+        public static void WriteErrorMessage(string format, params object[] arg)
+        {
+            WriteMessage(
+                ConsoleColor.Red,
+                _errorChar,
+                format,
+                arg);
+        }
+
+        public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)
+        {
+            WriteLineOut(
+                string.Format(
+                    string.Format(_messageFormat, tokenColor, token, format.Replace("{", "{{").Replace("}", "}}")),
+                    arg));
         }
     }
 }
