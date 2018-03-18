@@ -54,6 +54,19 @@ namespace Components.Aphid.Interpreter
     //          indexOf = @(value :== null -> null :== '' -> -1) { ... }
     //     * Mixed Constraint:
     //          indexOf = @(value -> null :== '' -> -1) { ... }
+    // * Add lazy keyword.
+    //   - Expression support: x = lazy f()
+    //   - Param support: foo = @(lazy arg0) { ... }
+    //   - Op param support:
+    //      @ ?> = @(lazy lhs, lazy rhs) { ... }
+    // * Inline var support e.g.
+    //   isTypeEnumerableOf = @(enumerableType, type)
+    //       (var t = type.GetInterface('IEnumerable`1')) != null &&
+    //       t.GetGenericArguments()[0] == enumerableType;
+    // * Implicit var support e.g.
+    //   isTypeEnumerableOf = @(enumerableType, type)
+    //       (var type.GetInterface('IEnumerable`1')) != null &&
+    //       $&.GetGenericArguments()[0] == enumerableType;
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
