@@ -122,8 +122,8 @@ shell;
 shell = {
     host: Environment.MachineName,
     input: '',
-    interpreter: null,
-    interpret: null,
+    interpreter: new AphidInterpreter(),
+    interpret: interpreter.Interpret,
     waitingForInput: false,
     waitingForOutput: true,
     waitingForExecution: false,
@@ -679,11 +679,6 @@ shell.exec = @(command) {
         '': ret true;
     }
 
-    if (shell.interpreter == null) {
-        shell.interpreter = new AphidInterpreter();
-        shell.interpret = shell.interpreter.Interpret;
-    }
-
     AphidCli.TryAction(
         shell.interpreter,
         command,
@@ -841,35 +836,15 @@ shell.listen = @{
 
 
     shell.out = shell.writeOut;
-    //shell.outLine = shell.writeOut;
     shell.outLine = @(buffer) shell.writeOut(buffer + '\r\n');
     shell.inLine = shell.readInLine;
-
     AphidCli.WriteOut = shell.out;
     AphidCli.WriteLineOut = shell.outLine;
-
-    shell.interpreter = new AphidInterpreter();
-    shell.interpret = shell.interpreter.Interpret;
-
-    shell.runThread = new Thread(@{
-        shell.interpreter = new AphidInterpreter();
-        shell.interpret = shell.interpreter.Interpret;
-        //shell.interpreter.InterpretStream('#"std"; #"meta";');
-        shell.run();
-    });
-
-    // shell.runThread.Start();
 
     ret true;
 };
 
-
-
-
-//AppDomain.CurrentDomain.GetAssemblies() |> psContext.outString;
-
 if (useTracing defined && useTracing) shell.trace();
-//exit();
 
 _shellTry = macro(@(action, friendlyName) {
     try action;
@@ -879,7 +854,6 @@ _shellTry = macro(@(action, friendlyName) {
         e.stack);
 });
 
-
 args;
 args = getCommandLineArgs() |> Enumerable.ToList;
 
@@ -887,34 +861,8 @@ if (args.Contains('Shell.alx')) {
     if (args.Contains('-interactive')) {
         shell.run();
         exit();
-    } else {
+    } else if (args.Contains('-test')) {
         testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execScript;
         testPrologue();
     }
 }
-
-
-// code1 |> tokenizeCommand;
-// code2 |> tokenizeCommand;
-// code3 |> tokenizeCommand;
-code4 = "dir c:\\temp *.txt $'b\\x41r' 0x10 $('foo1234'.ToCharArray()+>@(x,y) x + ', ' + y)b";
-code4 = "dir c:\\source $('*. '.Trim() + 'txt')";
-// commandTokens = code4 |> tokenizeCommand;
-// commandTokens |> print;
-// head('parsed');
-// commandAst = commandTokens |> shell.parseCommand;
-// commandAst |> print;
-// emittedCommand = commandAst |> emitCommand;
-// head('emittedCommand');
-// emittedCommand |> print;
-// head('interpret command');
-// emittedCommand |> shell.dumpObject;
-
-// |> print; exit();
-
-
-
-// shell.exec('k = $this |> keys');
-
-
-

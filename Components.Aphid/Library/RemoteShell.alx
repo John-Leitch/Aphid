@@ -1,4 +1,5 @@
 #'Std';
+#'Query';
 #'Shell';
 #'Remoting';
 using Components;
@@ -6,7 +7,32 @@ using System.Diagnostics;
 using System.Threading;
 
 cmd = getCommand();
-args = getCommandLineArgs();
+args = getCommandLineArgs() |> Enumerable.ToList;
+getLastArg = @() args |> Enumerable.Last;
+parseIntArg = @() getLastArg() |> Int32.Parse;
+isClient = args.Contains('-connect');
+isHost = args.Contains('-listen');
+isWorker = args.Contains('-pid');
+
+_logDate = macro(@{ DateTime.Now.ToString("MM-dd-yy.HH:mm:ss") });
+_logArgs = macro(@{ $args @aq.skip(1) @format($args[0]) });
+log = @() print('[~Cyan~{0}~R~] {1}' :: [ _logDate(), _logArgs() ]);
+
+head('AphidShell remoting{0}' :: [
+    isClient ? ' client' :
+    isWorker ? ' host worker process' :
+    isHost ? ' host' :
+    '' 
+]);
+
+hostRemote = @{
+    log('Starting host');
+
+    while (true) {
+        var p = startChild();
+        p.WaitForExit();
+    }
+};
 
 startChild = @{
     childArgs = "{0} -listen -pid {1}" :: [
@@ -14,7 +40,7 @@ startChild = @{
         Process.GetCurrentProcess().Id
     ];
 
-    print('Starting remote worker process with args ~Cyan~{0}~R~', childArgs);
+    log('Starting remote worker process with args ~Cyan~{0}~R~', childArgs);
     var p = Process.Start(getExe(), childArgs);
 
     ret p;
@@ -22,8 +48,8 @@ startChild = @{
 
 watchParent = @{
     var t = new Thread(@{
-        pId = args[args.Length - 1] |> Int32.Parse;
-        print('Searching for process ~Cyan~{0}~R~', pId);
+        pId = parseIntArg();
+        log('Waiting for parent process ~Cyan~{0}~R~ to exit', pId);
         p = Process.GetProcessById(pId);
 
         if (p != null) {
@@ -36,13 +62,13 @@ watchParent = @{
 };
 
 listen = @{
-    print('Listening on {0}', remote.port);
+    log('Listening on ~Cyan~{0}~R~', remote.port);
     remote.listen();
     Thread.Sleep(-1);
 };
 
 connectShell = @(host) {
-    print('Connecting to remote');
+    log('Connecting to remote ~Cyan~{0}~R~', host);
     var remoteShell = remote.connectProxy(host);
     remoteShell.Eval('#"Shell";');
     remoteShell.BasePath = 'shell';
@@ -67,14 +93,27 @@ runInteractive = @(host) {
         } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
 
         Console.ReadLine() |> remoteShell.writeInLine;
-        remoteShell.execNext();
+        
+        if (!remoteShell.execNext()) {
+            remoteShell.BasePath = 'Environment';
+            remoteShell.Exit(0);
+            break;
+        }
     }
 };
 
-if (cmd.Contains('-listen')) {
-    watchParent();
-    listen();
-} else if (cmd.Contains('-test')) {
+if (isHost) {
+    if (!isWorker) {
+        hostRemote();
+    } else {
+        watchParent();
+        listen();
+    }    
+} else if (isClient) {
+    getLastArg() |> runInteractive;
+} else if (args.Contains('-test')) {
     startChild();
     runInteractive('localhost');    
+} else {
+    print('aphid RemoteShell.alx [-listen] [-connect {host}]');
 }
