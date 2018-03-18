@@ -7,12 +7,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Components.Aphid.Parser;
 using System.IO;
+using Components.Aphid.Lexer;
 
 namespace Components.Aphid.UI
 {
     public static class AphidCli
     {
         public static bool ShowClrStack { get; set; }
+
+        public static int ExcerptSurroundingLines { get; set; }
+
+        static AphidCli()
+        {
+            ExcerptSurroundingLines = 4;
+        }
 
         public static bool TryAction(AphidInterpreter interpreter, string code, Action action)
         {
@@ -158,11 +166,38 @@ namespace Components.Aphid.UI
                         statement.Code.Substring(statement.Index, statement.Length) :
                         statement.ToString()));
 
+            DumpExcerpt(statement);
             var file = interpreter.GetScriptFilename();
 
             if (file != null)
             {
                 Cli.WriteLine("Script: ~Yellow~{0}~R~", file);
+            }
+        }
+
+        private static void DumpExcerpt(AphidExpression statement)
+        {
+            if (statement == null ||
+                string.IsNullOrEmpty(statement.Code) ||
+                statement.Index < 0)
+            {
+                return;
+            }
+
+            string stylePrefix = "~Cyan~", styleSuffix = "~R~";
+
+            var codeCopy = Cli.StyleEscape(statement.Code);
+            codeCopy.Insert(statement.Index + statement.Length, styleSuffix);
+            codeCopy.Insert(statement.Index, stylePrefix);
+
+            var excerpt = TokenHelper.GetCodeExcerpt(
+                codeCopy,
+                statement.Index + stylePrefix.Length,
+                ExcerptSurroundingLines);
+
+            if (excerpt != null)
+            {
+                Cli.WriteLine("\r\nProgram Excerpt:\r\n{0}", excerpt);
             }
         }
 
