@@ -1,0 +1,80 @@
+#'Std';
+#'Shell';
+#'Remoting';
+using Components;
+using System.Diagnostics;
+using System.Threading;
+
+cmd = getCommand();
+args = getCommandLineArgs();
+
+startChild = @{
+    childArgs = "{0} -listen -pid {1}" :: [
+        cmd |> ArgLexer.GetTokenInfo |> Enumerable.First @.EndOffset |> cmd.Substring @() $_.Trim(),
+        Process.GetCurrentProcess().Id
+    ];
+
+    print('Starting remote worker process with args ~Cyan~{0}~R~', childArgs);
+    var p = Process.Start(getExe(), childArgs);
+
+    ret p;
+};
+
+watchParent = @{
+    var t = new Thread(@{
+        pId = args[args.Length - 1] |> Int32.Parse;
+        print('Searching for process ~Cyan~{0}~R~', pId);
+        p = Process.GetProcessById(pId);
+
+        if (p != null) {
+            p.WaitForExit();
+            exit();
+        }
+    });
+
+    t.Start();
+};
+
+listen = @{
+    print('Listening on {0}', remote.port);
+    remote.listen();
+    Thread.Sleep(-1);
+};
+
+connectShell = @(host) {
+    print('Connecting to remote');
+    var remoteShell = remote.connectProxy(host);
+    remoteShell.Eval('#"Shell";');
+    remoteShell.BasePath = 'shell';
+    remoteShell.listen();
+
+    ret remoteShell;
+};
+
+runInteractive = @(host) {
+    var remoteShell = connectShell(host);
+    var buffer;
+
+    while (true) {
+        remoteShell.writePrompt();
+
+        do {
+            buffer = remoteShell.readOut();
+
+            if (buffer != null) {
+                buffer |> Cli.Write;
+            }
+        } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
+
+        Console.ReadLine() |> remoteShell.writeInLine;
+        remoteShell.execNext();
+    }
+};
+
+if (cmd.Contains('-listen')) {
+    watchParent();
+    listen();
+} else if (cmd.Contains('-test')) {
+    startChild();
+    runInteractive('localhost');    
+}

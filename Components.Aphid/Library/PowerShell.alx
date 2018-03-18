@@ -8,7 +8,7 @@ _initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
 
 _initTraceCore = macro(@(name, fullName) {
     fullName;
-    fullName = shell.fullName defined && shell.fullName ?
+    fullName = psContext.fullName defined && psContext.fullName ?
         @(fmt) print(
             '{0} Trace: ~Magenta~{1}~R~',
             name,
@@ -20,11 +20,11 @@ _initTraceCore = macro(@(name, fullName) {
 });
 
 psContext;
+initPSInterop;
 
 initPSInterop = @{
     #'std';
     #'meta';
-    cls();
     psAsm = load System.Management.Automation;
     using System;
     using System.Linq;
@@ -91,8 +91,12 @@ initPSInterop = @{
             });
 
             psObj.Properties
-                -?(@(p) $(p.Name) 'BaseName', 'VersionInfo': false, _notAccessor(p))
-                ->@(p) o.{p.Name} = p.Value;
+                // -?(@(p) $(p.Name) 'Path', 'Company', 'BaseName', 'VersionInfo': false, _notAccessor(p))
+                -?(@(p) _notAccessor(p))
+                ->@(p) {
+                    try o.{p.Name} = p.Value;
+                    catch (e) { }
+                };
 
             psObj.Methods
                 -?(@(m) _notAccessor(m))

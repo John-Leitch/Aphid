@@ -1,15 +1,14 @@
 ﻿#'Std';
 #'Query';
 #'Meta';
-#'Process';
+// #'Process';
 #'Powershell';
-cls();
-head('Starting AphidShell');
+//cls();
+
 using System.IO;
 using Components.Aphid.UI;
-AphidCli.ShowClrStack = false;
-//useTracing = true;
-
+// AphidCli.ShowClrStack = true;
+// useTracing = true;
 
 testScript = @{ %>
 
@@ -107,13 +106,14 @@ _initTraceCore = macro(@(name, fullName) {
     fullName;
     
     fullName = shell.fullName defined && shell.fullName ?
-        @(fmt) print(
-            '{0} Trace: ~Magenta~{1}~R~',
-            name,
-            ($($args.Count)
-                0: '[Nothing]',
-                1: fmt,
-                format(fmt, $args @aq.skip(1)))) :
+        @(fmt) shell.outLine(
+            format(
+                '{0} Trace: ~Magenta~{1}~R~',
+                name,
+                ($($args.Count)
+                    0: '[Nothing]',
+                    1: fmt,
+                    format(fmt, $args @aq.skip(1))))) :
         @() {};
 });
 
@@ -122,8 +122,15 @@ shell;
 shell = {
     host: Environment.MachineName,
     input: '',
+    interpreter: null,
+    interpret: null,
     waitingForInput: false,
-    waitingForCommand: false,
+    waitingForOutput: true,
+    waitingForExecution: false,
+    getState: @() ({
+        waitingForInput: shell.waitingForInput,
+        waitingForOutput: shell.waitingForOutput,
+        waitingForExecution: shell.waitingForExecution }),
     internal: {
         tokenize: @(text, offset) {
             lexer;
@@ -175,18 +182,24 @@ shell = {
     }
 };
 
-shell.run = @{ while (shell.execIn()) {  } };
+shell.run = @{
+    while (shell.execIn()) { }
+};
 
 shell.execIn = @() shell.prompt() |> shell.exec;
 
 shell.prompt = @() {
     shell.writePrompt();
     shell.waitingForInput = true;
+    shell.waitingForExecution = false;
     shell.input = shell.inLine().Trim();
-    shell.waitingForInput = false;
+    shell.waitingForExecution = true;
+    shell.waitingForInput = false;    
 
     ret shell.input;
 };
+
+shell.execNext = @() shell.inLine().Trim() |> shell.exec;
 
 shell.writePrompt = @() {
     using System.IO;
@@ -315,9 +328,6 @@ shell.parseCommand = @(commandTokens)
         shell.token.concat: [ { type: shell.node.concat, node: t.element } ],
         fatal('Uknown token type');
 
-shell.interpreter = new AphidInterpreter();
-shell.interpret = shell.interpreter.Interpret;
-
 shell.emitCommand = @(commandAst) {
     node;
     index;
@@ -405,11 +415,6 @@ shell.interpretCommand = @(commandObj) {
             args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
             resolved = shell.resolveMethod(commandObj.values[0], args);
             if (resolved != null) {
-                //head('Resolving members');
-        
-                //args |> serialize |> print;
-                // args[0][0] |> print;
-                // dumpe(args[0][0]);
                 result = args |> resolved.call;
 
                 if ((tmpCwd = shell.getClrCwd()) != lastCwd) {
@@ -609,7 +614,7 @@ shell.evalCommand =
 
 shell.execCore = @(command) {
     _initTrace('Exec');
-    traceExec('Executing command ~Cyan~{0}~R~', command);
+    traceExec('Executing command {0}', command);
     peekTokens;
     peekTokens = command |> tokenize;
 
@@ -634,15 +639,20 @@ shell.execCore = @(command) {
 
         lhsAst = null;
         opIndex = '=' |> command.IndexOf;
+        traceExec('Assign index: {0}', opIndex);
         lhs = (opIndex |> command.Remove).Trim();
+        traceExec('LHS: {0}', lhs);
         rhs = (opIndex + 1 |> command.Substring).Trim();
+        traceExec('RHS: {0}', rhs);
 
         try lhsAst = AphidParser.Parse(lhs);
         catch (e) traceExec('Error parshing lhs of {0}: {1}', lhs, e.message);
 
         if (lhsAst != null &&
             lhsAst.Count == 1 &&
-            (lhsAst[0].isBinOp() || lhsAst[0].isId())) {
+            // (lhsAst[0].isBinOp() || lhsAst[0].isId())) {
+            (lhsAst[0].Type == AphidExpressionType.BinaryOperatorExpression ||
+                lhsAst[0].Type == AphidExpressionType.IdentifierExpression)) {
             command @traceExec('Executing assign command: {0}');
             key;
             assign;
@@ -667,6 +677,11 @@ shell.exec = @(command) {
     switch (command) {
         'exit': ret false;
         '': ret true;
+    }
+
+    if (shell.interpreter == null) {
+        shell.interpreter = new AphidInterpreter();
+        shell.interpret = shell.interpreter.Interpret;
     }
 
     AphidCli.TryAction(
@@ -725,6 +740,128 @@ _promptStyle = macro(@(value, name) {
     }
 });
 
+shell.listen = @{
+    using System.IO;
+    shell.inStream = new MemoryStream();
+    shell.inReader = new StreamReader(inStream);
+    shell.inWriter = new StreamWriter(inStream);
+    
+    shell.outStream = new MemoryStream();
+    shell.outReader = new StreamReader(outStream);
+    shell.outWriter = new StreamWriter(outStream);
+
+    shell.writeOut = @(buffer) {
+        // ThreadPool.QueueUserWorkItem(@{
+            print('~Cyan~Waiting to write out~R~');
+            Monitor.Enter(outStream);
+            print('~Cyan~Writing out: {0}~R~', Cli.StyleEscape(buffer.ToString()));
+            outWriter.Write(buffer.ToString());
+            outWriter.Flush();
+            shell.waitingForOutput = true;
+            print('~Cyan~Done writing out~R~');
+            Monitor.Exit(outStream);
+        // });
+    };
+
+    shell.readOut = @{
+        print('~Cyan~Waiting to read out~R~');
+        buffer;
+
+        while (true) {
+            Monitor.Enter(outStream);
+
+            if (outStream.Length == 0) {
+                Monitor.Exit(outStream);
+                print('~Cyan~read out sleeping~R~');
+                Thread.Sleep(100);
+                continue;
+            }
+
+            outStream.Position = 0;
+            buffer = outReader.ReadToEnd();
+            print('~Cyan~Done reading out: {0}~R~', Cli.StyleEscape(buffer));
+            outStream.SetLength(0);
+
+            // if (shell.waitingForInput)
+            shell.waitingForOutput = false;
+
+            Monitor.Exit(outStream);
+            break;
+        }
+
+        ret buffer;
+    };
+
+    shell.writeInLine = @(buffer) {
+        // ThreadPool.QueueUserWorkItem(@{
+            Monitor.Enter(inStream);
+            inWriter.Write(buffer + '\r\n');
+            inWriter.Flush();        
+            Monitor.Exit(inStream);
+        // });
+    };
+
+    shell.readInLine = @() {
+        print('~Yellow~Waiting to read inLine~R~');
+        buffer;
+        buffer = null;
+
+        while (true) {
+            Monitor.Enter(inStream);
+            
+
+            if (inStream.Length == 0) {
+                Monitor.Exit(inStream);
+                Thread.Sleep(100);
+                continue;
+            }
+            
+            print('~Yellow~Reading inLine~R~');
+            oldPos = inStream.Position;
+            inStream.Position = 0;
+            buffer = inReader.ReadToEnd();
+            print('~Yellow~Done reading inLine: {0}~R~', Cli.StyleEscape(buffer));
+
+            if (buffer == null || !buffer.EndsWith('\r\n')) {
+                inStream.Position = oldPos;
+                Monitor.Exit(inStream);
+                Thread.Sleep(100);
+                continue;
+            }
+            
+            inStream.Position = 0;
+            inStream.SetLength(0);
+            Monitor.Exit(inStream);
+            print('~Yellow~Done resetting inLine~R~');
+            break;
+        }
+
+        ret buffer;
+    };
+
+
+    shell.out = shell.writeOut;
+    //shell.outLine = shell.writeOut;
+    shell.outLine = @(buffer) shell.writeOut(buffer + '\r\n');
+    shell.inLine = shell.readInLine;
+
+    AphidCli.WriteOut = shell.out;
+    AphidCli.WriteLineOut = shell.outLine;
+
+    shell.interpreter = new AphidInterpreter();
+    shell.interpret = shell.interpreter.Interpret;
+
+    shell.runThread = new Thread(@{
+        shell.interpreter = new AphidInterpreter();
+        shell.interpret = shell.interpreter.Interpret;
+        //shell.interpreter.InterpretStream('#"std"; #"meta";');
+        shell.run();
+    });
+
+    // shell.runThread.Start();
+
+    ret true;
+};
 
 
 
@@ -742,9 +879,18 @@ _shellTry = macro(@(action, friendlyName) {
         e.stack);
 });
 
-if ((getCommandLineArgs() |> Enumerable.ToList).Contains('-interactive')) {
-    shell.run();
-    exit();
+
+args;
+args = getCommandLineArgs() |> Enumerable.ToList;
+
+if (args.Contains('Shell.alx')) {
+    if (args.Contains('-interactive')) {
+        shell.run();
+        exit();
+    } else {
+        testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execScript;
+        testPrologue();
+    }
 }
 
 
@@ -770,6 +916,5 @@ code4 = "dir c:\\source $('*. '.Trim() + 'txt')";
 
 // shell.exec('k = $this |> keys');
 
-testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execScript;
-testPrologue();
+
 

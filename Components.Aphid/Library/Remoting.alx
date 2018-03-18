@@ -1,5 +1,40 @@
 ﻿remote = null;
 
+class RemoteProxy {
+    AphidFunction Connect,
+    Guid RemoteId,
+    String BasePath
+};
+
+extend RemoteProxy {
+    Eval: @(s, code) code |> remote._remoteTable.{s.RemoteId}.eval,
+
+    dynamic handle: @(s, name) {
+        using System.Text;
+        sb = new StringBuilder();
+        sb.Append('ret ');
+        sb.Append(!String.IsNullOrEmpty(s.BasePath) ? s.BasePath + '.' + name : name);
+        sb.Append('(\r\n    ');
+
+        firstArg;
+        firstArg = true;
+
+        $args @aq.skip(1) -> serialize ->@(s) {
+            if (firstArg) {
+                firstArg = false;
+            } else {
+                sb.Append(', ');
+            }
+
+            s |> sb.Append;
+        };
+
+        sb.AppendLine(');');
+        
+        ret (sb.ToString() |> remote._remoteTable.{s.RemoteId}.eval).result;
+    }
+}
+
 @{
     _t;
     #'Query';
@@ -61,6 +96,8 @@
             ctx.listener.Start();
 
             ctx.listenThread = thread(@{
+                aphid;
+                aphid = this.{'$aphid'};
                 while (true) {
                     _t('Waiting for client');
 
@@ -88,9 +125,9 @@
 
                                     _t('Buffer: ~Cyan~{0}~R~', buffer);
 
-                                    try resp = { result: buffer |> c.eval } |> serialize;
+                                    try resp = { result: buffer |> aphid.InterpretStream } |> serialize;
                                     catch (e) {
-                                        _t('Error serializating ressponse: {0}', e.message);
+                                        _t('Error serializating response: {0}', e.message);
                                         this |> serialize |> c.write;
                                     }
 
@@ -140,5 +177,15 @@
 
             ret client;
         },
+        _remoteTable: {},
+        
+        connectProxy: @(server) {
+            proxy;
+            proxy = new RemoteProxy();
+            proxy.RemoteId = Guid.NewGuid();
+            remote._remoteTable.{proxy.RemoteId} = remote.connect(server);
+
+            ret proxy;
+        }
     };
 }();
