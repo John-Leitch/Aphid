@@ -151,7 +151,7 @@ is = @(name, target)
 
 isEnumerableOf = @(enumerableType, target)
     target != null &&
-    target.GetType() @isTypeEnumerableOf(enumerableType);
+    isTypeEnumerableOf(enumerableType, target.GetType());
 
 isTypeEnumerableOf = @(enumerableType, type) {
     t;
