@@ -33,6 +33,10 @@ format = String.Format;
 join = String.Join;
 concat = String.Concat;
 
+@?. (lhs, rhs) lhs != null ?
+    lhs.{this.{'$frames'}[0].Expression.RightOperand.Identifier} :
+    null;
+
 @ =< (selector, source) source -> selector;
 @ <| (target, arg) arg |> target;
 @ :: (fmt, args) String.Format(fmt, args);
@@ -144,6 +148,17 @@ is = @(name, target)
     target.GetType().GetInterface(name) != null || 
     target.GetType().FullName == name ||
     target.GetType().Name == name;
+
+isEnumerableOf = @(enumerableType, target)
+    target != null &&
+    target.GetType() @isTypeEnumerableOf(enumerableType);
+
+isTypeEnumerableOf = @(enumerableType, type) {
+    t;
+
+    ret (t = type.GetInterface('IEnumerable`1')) != null &&
+        t.GetGenericArguments()[0] == enumerableType;
+};
 
 has = @(name, target)
     target.GetType().GetMethod(name) != null ||
