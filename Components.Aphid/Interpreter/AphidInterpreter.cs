@@ -3366,6 +3366,28 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object InterpretStream(string code)
+        {
+            var ast = AphidParser.Parse(code);
+            SetAstCode(ast);
+            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+
+            foreach (var exp in mutatedAst)
+            {
+                InterpretExpression(exp);
+
+                if (_isReturning)
+                {
+                    return GetReturnValue(true);
+                }
+            }
+
+            return null;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Interpret(AphidExpression expression)
         {
             SetAstCode(new List<AphidExpression> { expression });
