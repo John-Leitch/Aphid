@@ -35,6 +35,25 @@ namespace Components.Aphid.Interpreter
     // * Add optional 'using' validation controlled via directive.
     //   - Cache previously loaded asm names at start, subscribe to
     //     AppDomain events to refresh cache.
+    // * Add throw support.
+    // * Add void ret support.
+    // * Expand aphid function capabilities.
+    //   - Add in default values e.g. f = @(x = 10, y = 'test') { /* ... */ }
+    //   - Add in named params: f(y: 'test2');
+    //   - Add tuple support e.g. 'test', x @Console.WriteLine('Foo: {0} {1}')
+    //   - Add decomposition e.g. x, y = f();
+    //     * Support decomposition of tuples and anything that implements IEnumerable
+    //   - Add support for param/return type and constraint declarations.
+    //     * Explicit return type: @(string value, int count : string) { ... }
+    //     * Mixed type (no type for value): @(value, int count : string) { ... }
+    //     * Implicit void return type: @(string msg) { ... }
+    //     * Constraint (if null return null): @(value -> null, int count) { ... }
+    //     * Multi Constraint (if x return x else if y return y etc):
+    //          repeat = @(value -> null -> '', int count) { ... }
+    //     * Pattern Constraint:
+    //          indexOf = @(value :== null -> null :== '' -> -1) { ... }
+    //     * Mixed Constraint:
+    //          indexOf = @(value -> null :== '' -> -1) { ... }
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
