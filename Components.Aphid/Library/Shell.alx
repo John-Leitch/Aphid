@@ -5,15 +5,11 @@
 #'Powershell';
 cls();
 head('Starting AphidShell');
-openRepl = false;
 using System.IO;
-fio = new System.IO.FileInfo('C:\\temp\\test.cmd');
-fio2 = new System.IO.FileInfo('C:\\temp\\test2.txt');
-File.Copy(fio, fio2);
-// openRepl = true;
-// 1/0;
-
+using Components.Aphid.UI;
+AphidCli.ShowClrStack = true;
 useTracing = true;
+
 
 testScript = @{ %>
 
@@ -25,24 +21,27 @@ testScript = @{ %>
 
 <% };
 
-testScript = @{ %>
+testScript2 = @{ %>
 
     using System
     using System.IO
-    Console.WriteLine "Copying file"
-    File.Copy c:\temp\test.cmd c:\temp\test2.txt
-    Console.WriteLine "Done copying file"
-    File.Exists c:\temp\test2.txt
+
+    file = String.Format "{0}.txt" Guid.NewGuid().ToString()
+    dst = Path.Combine c:\temp file
+    Console.WriteLine "Copying file to {0}" dst
+    File.Copy c:\temp\test.cmd dst
+    Console.WriteLine "Done copying file {0}" dst
+
 
 <% };
 
-testScript2 = @{ %>
+testScript = @{ %>
     
     dir c:\staging *.pl
     dir c:\staging *.txt
     Invoke-Expression "Get-Help Write-Output -Detailed"
     Get-Help Get-ChildItem
-    Get-ChildItem -Pattern *.txt -Directory d:\staging
+    Get-ChildItem d:\staging *.alx
 
 <% };
 
@@ -59,7 +58,8 @@ testScript2 = @{ %>
 
         #'Std'
         print "test={0:x} bar={1:x}" 0xdeadbeef 0xcafeababe.GetType()
-        Console.WriteLine "foobar {0} {1}" 0x100 'test'
+        x = 10
+        Console.WriteLine "foobar {0} {1} {2}" 0x100 'test' x
 
 <% };
 
@@ -162,6 +162,7 @@ shell = {
 
     trace: @{
         shell.traceParse = true;
+        shell.traceResolve = true;
         shell.traceTokenize = true;
         shell.traceEmit = true;
         shell.traceExec = true;
@@ -324,63 +325,78 @@ shell.emitCommandNode = @(commandNode)
         shell.node.expression: commandNode.node |> shell.interpret,
         fatal('Invalid command node');
 
-
 shell.interpretCommand = @(commandObj) {
     //commandObj |>dump;
     // commandObj |> keys |> dumpe;
     resolved;
     args;
+    result;
+    _initTrace('Resolve');
     
-    args = (commandObj @aq.skip(1) -> shell.resolveMember);
-    resolved = shell.resolveMethod(commandObj[0], args);
-    resolvedMembers;
-    
-    if (resolved != null) {
-        //head('Resolving members');
+    AphidCli.TryAction(
+        shell.interpreter,
+        commandObj.ToString(),
+        @{
+            args = (commandObj @aq.skip(1) -> shell.resolveMember);
+            resolved = shell.resolveMethod(commandObj[0], args);
+            if (resolved != null) {
+                //head('Resolving members');
         
-        //args |> serialize |> print;
-        // args[0][0] |> print;
-        // dumpe(args[0][0]);
-        ret args |> resolved.call;
-    } else {
-        ret commandObj |> psContext.execPositional;
-    }
+                //args |> serialize |> print;
+                // args[0][0] |> print;
+                // dumpe(args[0][0]);
+                result = args |> resolved.call;
+            } else {
+                result = commandObj |> psContext.execPositional;
+            }
+        });
+
+    ret result;
 };
 
-
-
 shell.resolveImpl = @(isResolvingMethod, path, args) {
-        matches;
-        resolved;
-        resolved = null;
+    _initTrace('Resolve');
+    matches;
+    resolved;
+    resolved = null;
 
-        shell.resolvers for (r) {
-            //isResolvingMethod @print('Resolving path {0}, isMethood: {1}', path);
+    shell.resolvers for (r) {
+        traceResolve(
+            "Resolving {0} '{1}' using {2}",
+            isResolvingMethod ? 'method' : 'member',
+            path,
+            r.name);
 
-            if ((matches = path |> r.resolveName) != null) {
-                if (!isResolvingMethod) {
-                    //matches @print('~Green~Resolved path {0} to {1}~R~', path);
-                    ret matches;                    
-                } else if ((resolved = r.resolveSignature(matches, args)) != null) {
-                    //resolved |>serialize @print('~Green~Resolved signature {0} to {1}~R~', args);
-                    ret resolved;
-                }
+        if ((matches = path |> r.resolveName) != null) {
+            if (!isResolvingMethod) {
+                traceResolve('Resolved path {0} to {1}', path, matches);
+
+                ret matches;                    
+            } else if ((resolved = r.resolveSignature(matches, args)) != null) {
+                traceResolve(
+                    'Resolved signature {0} to {1}',
+                    path,
+                    resolved |> serialize);
+
+                ret resolved;
             }
-        };
-
-        if (isResolvingMethod) {
-            ret null;
         }
+    };
 
-        //path @print('~Yellow~Failed resolving path {0}~R~');
-        psResult;
-        final;
-        psResult = path |> psContext.getItem;
-        //psResult @print('~Yellow~PS backup: {0}~R~');
-        final = (isResolvingMethod ? shell.resolvePSCmd : shell.resolvePSItem)(path, psResult);
-        //final @print('~Yellow~PS backup: {0}~R~');
+    if (isResolvingMethod) {
+        traceResolve('Failed resolving method');
+        ret null;
+    }
 
-        ret final;
+    traceResolve('Failed resolving path {0}, falling back to PS', path);
+    psResult;
+    final;
+    psResult = path |> psContext.getItem;
+    //psResult @print('~Yellow~PS backup: {0}~R~');
+    final = (isResolvingMethod ? shell.resolvePSCmd : shell.resolvePSItem)(path, psResult);
+    //final @print('~Yellow~PS backup: {0}~R~');
+
+    ret final;
 };
 
 shell.resolvePSCmd = @(path, psResult)
@@ -398,6 +414,7 @@ shell.resolveMember = @(path, args) shell.resolveImpl(false, path, args);
 
 shell.resolvers = [
     {
+        name: 'Aphid',
         resolveName: @(name) {
             nameTokens;
             try nameTokens = name |> tokenize;
@@ -406,24 +423,30 @@ shell.resolvers = [
                 nameTokens != null &&
                 nameTokens.Count >= 1) {
                     result;
+
                     try {
-                        result =
-                            AphidParser.Parse(name)[0]
-                            |> shell.interpret;
+                        ast;
+                        ast = AphidParser.Parse(name);
+                        
+                        result = ast != null && ast.Count == 1 ?
+                                ast[0] |> shell.interpret :
+                                null;
 
                         if (result != null) {
                             //result @print('Name match: {0}', result);
                             ret result;
                         }
                     }catch (e) {
+                        _initTrace('Resolve');
+                        traceResolve(
+                            'Aphid resolve failed with exception: {0}',
+                            e |> serialize);
                         //print('~Red~{0}~R~', e);
                     }
                 
             } else {
-                //dump(this);
-                //if (nameTokens != null && nameTokens.Count == 1) {
-                //}
-                //nameTokens[0].TokenType |> print;
+                _initTrace('Resolve');
+                traceResolve('Aphid resolve failed due to invalid command');
             }
                 
             ret null;
@@ -431,11 +454,15 @@ shell.resolvers = [
 
         resolveSignature: @(nameMatches, signature) {
             r;
+            _initTrace('Resolve');
             r = { value: nameMatches };
             switch (nameMatches.GetType()) {
                 typeof(AphidFunction): {
                     r.call =  @(args) {
-                        //nameMatches.ToString() @print('calling aphid function {0}');
+                        traceResolve(
+                            'Calling aphid function {0}',
+                            nameMatches.ToString());
+
                         ret shell.interpreter.CallFunction(nameMatches, args);
                     };
                     
@@ -443,28 +470,40 @@ shell.resolvers = [
                 }
 
                 typeof(AphidInteropMember): {
-                    try {
-                        r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
+                    r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
                             nameMatches.Members,
                             signature->psContext.unwrap);
-                    } catch(e) {
-                        print('Error resolving method: {0}', e.message);
-                        ret null;
+
+                    if (!AphidCli.TryAction(
+                        shell.interpreter,
+                        nameMatches.ToString(),
+                        @{
+                            r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
+                                nameMatches.Members,
+                                signature->psContext.unwrap);
+                        })) {
+                        ret false;
                     }
+
+                        
+                    // } catch(e) {
+                    //     print('Error resolving method: {0}', e.message);
+                    //     ret null;
+                    // }
                     // signature->print;
                     // exit();
-                    r.methodInfo.dir();
-                    r.value.dir();
+                    // r.methodInfo.dir();
+                    // r.value.dir();
                     
-                    head('obj');
-                    psContext.psObject |> print;
+                    // head('obj');
+                    // psContext.psObject |> print;
                     if (r.methodInfo == null) {
                         ret null;
                     }
 
                     r.call =  @(args) {
-                        print('calling interop function {0}', r.value.Expression);
-                        head('test');
+                        // print('calling interop function {0}', r.value.Expression);
+                        // head('test');
                         //exit();
                         
 
@@ -480,6 +519,7 @@ shell.resolvers = [
         },
     },
     {
+        name: 'Powershell',
         resolveName: @(path) path |> psContext.getItem @shell.resolvePSItem(path),
         // resolveSignature: @(nameMatches, signature) ({
         //     value: nameMatches,
@@ -543,8 +583,19 @@ shell.exec = @(command) {
         lhs = opIndex |> command.Remove;
         rhs = opIndex + 1 |> command.Substring;
         
-        try lhsAst = AphidParser.Parse(lhs);
-        catch @(e) { };
+        if (!AphidCli.TryAction(
+            shell.interpreter,
+            lhs,
+            @{ lhsAst = AphidParser.Parse(lhs) })) {
+            ret null;
+        }
+
+        //try lhsAst = AphidParser.Parse(lhs);
+        //catch (e) {
+            //print('Error executing command: ~Yellow~{0}~R~', e);
+            //e |> dump;
+            //ret e;
+        //}
 
         if (lhsAst != null &&
             lhsAst.Count == 1 &&
@@ -581,7 +632,7 @@ shell.parseScript = @(script) script
 shell.style = {
     currentDirectory: { foreground: ConsoleColor.White },
     promptEnd: {
-        token: '#',
+        token: '>',
         foreground: ConsoleColor.Cyan
     },
 };
@@ -615,27 +666,36 @@ shell.writePrompt = @() {
     prompt;
     
     prompt = '';
-    _promptStyle(Directory.GetCurrentDirectory(), currentDirectory);
+    _promptStyle(Directory.GetCurrentDirectory(), currentDirectory);    
     _promptStyle(shell.style.promptEnd.token, promptEnd);
+    prompt += ' ';
     Cli.Write(prompt);
 };
 
- while (false) {
+//AppDomain.CurrentDomain.GetAssemblies() |> psContext.outString;
+
+if (useTracing defined && useTracing) shell.trace();
+//exit();
+
+ while (true) {
      shell.writePrompt();
      cmd;
      cmd = Console.ReadLine();
 
      switch (cmd) {
          'exit': exit();
-
      }
 
      try cmd |> shell.exec;
      catch (e) {
-         print('Error executing command: {0}', e.message);
-         psContext.engine.Commands.Clear();
+         print('Error executing command: {0}', e);         
      }
+
+     try psContext.engine.Commands.Clear();
+     catch (e) { }
 }
+
+
 // code1 |> tokenizeCommand;
 // code2 |> tokenizeCommand;
 // code3 |> tokenizeCommand;
@@ -654,7 +714,7 @@ code4 = "dir c:\\source $('*. '.Trim() + 'txt')";
 
 // |> print; exit();
 
-if (useTracing defined && useTracing) shell.trace();
+
 
 // shell.exec('k = $this |> keys');
 

@@ -37,6 +37,11 @@ initPSInterop = @{
     psContext = {
         psAsm,
         psObject,
+        
+        psObjectCollection = Type
+            .GetType('System.Collections.ObjectModel.Collection`1')
+            .MakeGenericType([ psObject ]),
+
         engine: PowerShell.Create(),
         
         exec: @(command) {
@@ -87,7 +92,13 @@ initPSInterop = @{
         ps @tracePS('Running command to perform check: {0}');
         ps |> psContext.engine.AddScript;
         r;
-        r = psContext.engine.Invoke();
+        try {
+            r = psContext.engine.Invoke();
+        } catch {
+            psContext.engine.Commands.Clear();
+            ret false;
+        }
+
         psContext.engine.Commands.Clear();
         r = r.Count > 0 ? r[0].BaseObject : false;
         r @tracePS('Is command: {0}');
