@@ -67,6 +67,7 @@ namespace Components.Aphid.Interpreter
     //   isTypeEnumerableOf = @(enumerableType, type)
     //       (var type.GetInterface('IEnumerable`1')) != null &&
     //       $&.GetGenericArguments()[0] == enumerableType;
+    // * Operator override for types, via class decl and extend
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
@@ -3380,6 +3381,7 @@ namespace Components.Aphid.Interpreter
 
                 if (_isReturning)
                 {
+                    _isReturning = false;
                     return GetReturnValue(true);
                 }
             }
