@@ -7,7 +7,7 @@ cls();
 head('Starting AphidShell');
 using System.IO;
 using Components.Aphid.UI;
-AphidCli.ShowClrStack = true;
+AphidCli.ShowClrStack = false;
 //useTracing = true;
 
 
@@ -569,7 +569,8 @@ shell.resolvers = [
 // Todo: check for assignments, includes, etc. and handle 
 // accordingly rather than dumping everything to out
 shell.dumpObject = psContext.restorePSObject @> psContext.outString;
-shell.out = Console.Write;
+shell.out = Cli.Write;
+shell.outLine = Cli.WriteLine;
 
 shell.execImpl =
     tokenizeCommand
@@ -685,13 +686,21 @@ shell.writePrompt = @() {
     _promptToken(hostEnd);
     _promptStyle(Directory.GetCurrentDirectory(), cwd);    
     _promptToken(promptEnd);
-    Cli.Write(prompt);
+    shell.out(prompt);
 };
 
 //AppDomain.CurrentDomain.GetAssemblies() |> psContext.outString;
 
 if (useTracing defined && useTracing) shell.trace();
 //exit();
+
+_shellTry = macro(@(action, friendlyName) {
+    try action;
+    catch (e) shell.out(
+        'Error ' + friendlyName + ': {0}\r\n\r\n{1}',
+        e.message,
+        e.stack);
+});
 
 while (true) {
     shell.writePrompt();
@@ -703,13 +712,16 @@ while (true) {
         '': continue;
     }
 
-    try cmd |> shell.exec;
-    catch (e) {
-        print('Error executing command: {0}', e);         
-    }
+    AphidCli.TryAction(
+        shell.interpreter,
+        cmd,
+        @{ cmd |> shell.exec });
 
     try psContext.engine.Commands.Clear();
-    catch (e) { }
+    catch (e) print(
+        'Error clearing PS commands: {0}\r\n\r\n{1}',
+        e.message,
+        e.stack);
 }
 
 
