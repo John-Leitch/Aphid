@@ -35,7 +35,7 @@ testScript2 = @{ %>
 
 <% };
 
-testScript = @{ %>
+testScript2 = @{ %>
     
     dir c:\staging *.pl
     dir c:\staging *.txt
@@ -63,7 +63,7 @@ testScript2 = @{ %>
 
 <% };
 
-testScript = @{ %>
+testScript2 = @{ %>
 
         #'Std'
         #'IO'
@@ -72,16 +72,17 @@ testScript = @{ %>
         Write-Output "Testing PowerShell Interop"
 
         testVar = c:\staging
+        cd $testVar
 
         files = dir $(testVar) *.alx
 
         Write-Output "Filename contains '_'"
-        $files-?@()$_.ToString().Contains('_')
+        $files-?@()$_.Name.Contains('_')
 
         Write-Output "File text 'meta'"
-        $(files-?@()$_.BaseObject.FullName |> File.ReadAllText @(t) t.ToLower().Contains('meta'))
+        $(files-?@()$_.FullName |> File.ReadAllText @(t) t.ToLower().Contains('meta'))
 
-        files2 = $files->@+'-Suffix'
+        files2 = $files->@.FullName->@+'-Suffix'
         testVar2 = dir $testVar
         
         $files2
@@ -97,7 +98,7 @@ testScript = @{ %>
 testPrologue = @{
     scope = shell.interpreter.CurrentScope;
     if (scope.testVar defined) scope.testVar @print('testVar: {0}');
-    if (scope.testVar2 defined) scope.testVar2 +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
+    if (scope.testVar2 defined) scope.testVar2->@.FullName +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
 };
 
 _initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
@@ -120,6 +121,9 @@ shell;
 
 shell = {
     host: Environment.MachineName,
+    input: '',
+    waitingForInput: false,
+    waitingForCommand: false,
     internal: {
         tokenize: @(text, offset) {
             lexer;
@@ -139,21 +143,21 @@ shell = {
             parser = new AphidParser(tokens);
             parser.SetToken(index);
 
-            //if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
-                //traceParse('~Cyan~Skipping left paren~R~');
-                //parser.NextToken();
-                //traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
-                //expression = parser.ParseExpression();
-                //traceParse('Matching right paren');
-                //parser.PeekRightParenthesis();
-                //streamOffset = parser.CurrentToken.Index + 1;
-            //} else {
+            if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
+                traceParse('~Cyan~Skipping left paren~R~');
+                parser.NextToken();
+                traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
+                expression = parser.ParseExpression();
+                traceParse('Matching right paren');
+                parser.PeekRightParenthesis();
+                streamOffset = parser.CurrentToken.Index + 1;
+            } else {
                 traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
                 expression = parser.ParseExpression();
                 traceParse('Index: {0}, Length: {1}', expression.Index, expression.Length);
                 parser.PreviousToken();
                 streamOffset = parser.CurrentToken.Index + parser.CurrentToken.Lexeme.Length;
-            //}
+            }
 
             traceParse('Stream continuing at offset: {0}', streamOffset);
 
@@ -169,6 +173,32 @@ shell = {
         shell.traceExec = true;
         shell.tracePS = true;
     }
+};
+
+shell.run = @{ while (shell.execIn()) {  } };
+
+shell.execIn = @() shell.prompt() |> shell.exec;
+
+shell.prompt = @() {
+    shell.writePrompt();
+    shell.waitingForInput = true;
+    shell.input = shell.inLine().Trim();
+    shell.waitingForInput = false;
+
+    ret shell.input;
+};
+
+shell.writePrompt = @() {
+    using System.IO;
+    using Components.External;
+    prompt;
+    prompt = '';
+    _promptToken(hostBegin);
+    _promptStyle(shell.host, host);
+    _promptToken(hostEnd);
+    _promptStyle(Directory.GetCurrentDirectory(), cwd);    
+    _promptToken(promptEnd);
+    shell.out(prompt);
 };
 
 shell.token = {
@@ -390,10 +420,8 @@ shell.interpretCommand = @(commandObj) {
                 result = commandObj.values |> psContext.execPositional;
 
                 if (!result.success) {
-                    print(
-                        'Error executing command {0}: {1}',
-                        commandObj.values[0],
-                        result.error);
+                    'Error executing command {0}: {1}' :: [ commandObj.values[0], result.error ]
+                    |> shell.outLine;
                 }
 
                 result = result.obj |> psContext.importPSObject;
@@ -569,16 +597,17 @@ shell.resolvers = [
 // Todo: check for assignments, includes, etc. and handle 
 // accordingly rather than dumping everything to out
 shell.dumpObject = psContext.restorePSObject @> psContext.outString;
+shell.inLine = Console.ReadLine;
 shell.out = Cli.Write;
 shell.outLine = Cli.WriteLine;
 
-shell.execImpl =
+shell.evalCommand =
     tokenizeCommand
     @> shell.parseCommand 
     @> shell.emitCommand 
     @> shell.interpretCommand;
 
-shell.exec = @(command) {
+shell.execCore = @(command) {
     _initTrace('Exec');
     traceExec('Executing command ~Cyan~{0}~R~', command);
     peekTokens;
@@ -587,7 +616,7 @@ shell.exec = @(command) {
     _stdExec = macro(@{
         command @traceExec('Executing standard command: {0}');
 
-        ret command |> shell.execImpl |> shell.dumpObject |> shell.out;
+        ret command |> shell.evalCommand |> shell.dumpObject |> shell.out;
     });
 
     if (peekTokens.Count >= 1 &&
@@ -618,7 +647,7 @@ shell.exec = @(command) {
             key;
             assign;
             key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
-            shell.interpreter.CurrentScope.{key} = rhs |> shell.execImpl;
+            shell.interpreter.CurrentScope.{key} = rhs |> shell.evalCommand;
             assign = '{0}=this.{1}; delete {1}' :: [ lhs, key ];
             assign @traceExec('Running assign script: {0}');
             shell.interpret(assign);
@@ -634,13 +663,33 @@ shell.exec = @(command) {
     traceExec('~Red~Error~R~');
 };
 
+shell.exec = @(command) {
+    switch (command) {
+        'exit': ret false;
+        '': ret true;
+    }
+
+    AphidCli.TryAction(
+        shell.interpreter,
+        command,
+        @{ command |> shell.execCore });
+
+    try psContext.engine.Commands.Clear();
+    catch (e) print(
+        'Error clearing PS commands: {0}\r\n\r\n{1}',
+        e.message,
+        e.stack);
+
+    ret true;
+};
+
 // Todo: replace with proper lexing/parsing to allow Aphid expressions
 // that span multiple lines, ops such as |, and ; delimited statements.
 shell.execScript = @(script) script |> shell.parseScript -> shell.exec;
 
 shell.parseScript = @(script) script 
     .Split([ '\r', '\n' ], StringSplitOptions.RemoveEmptyEntries)
-    ->(@() $_.Trim())
+    ->(@() $_.removeAtIndexOf('//').Trim())
     -?(@() !String.IsNullOrEmpty($_));
 
 shell.style = {
@@ -676,18 +725,9 @@ _promptStyle = macro(@(value, name) {
     }
 });
 
-shell.writePrompt = @() {
-    using System.IO;
-    using Components.External;
-    prompt;
-    prompt = '';
-    _promptToken(hostBegin);
-    _promptStyle(shell.host, host);
-    _promptToken(hostEnd);
-    _promptStyle(Directory.GetCurrentDirectory(), cwd);    
-    _promptToken(promptEnd);
-    shell.out(prompt);
-};
+
+
+
 
 //AppDomain.CurrentDomain.GetAssemblies() |> psContext.outString;
 
@@ -702,26 +742,9 @@ _shellTry = macro(@(action, friendlyName) {
         e.stack);
 });
 
-while (true) {
-    shell.writePrompt();
-    cmd;
-    cmd = Console.ReadLine().Trim();
-
-    switch (cmd) {
-        'exit': exit();
-        '': continue;
-    }
-
-    AphidCli.TryAction(
-        shell.interpreter,
-        cmd,
-        @{ cmd |> shell.exec });
-
-    try psContext.engine.Commands.Clear();
-    catch (e) print(
-        'Error clearing PS commands: {0}\r\n\r\n{1}',
-        e.message,
-        e.stack);
+if ((getCommandLineArgs() |> Enumerable.ToList).Contains('-interactive')) {
+    shell.run();
+    exit();
 }
 
 

@@ -78,7 +78,11 @@ initPSInterop = @{
             o;
             o = {
                 isPSInterop: true,
-                psObject: psObj
+                psObject: psObj,
+                TypeNames: psObj.TypeNames,
+                Properties: psObj.Properties,
+                Methods: psObj.Methods,
+                Members: psObj.Members,
             };
 
             _notAccessor = macro(@(n){
@@ -100,18 +104,21 @@ initPSInterop = @{
         },
 
         restorePSObject: @(obj) {
-            //print('Restoring');
+            _initTrace('PSInterop');
+            tracePSInterop('Restoring');
             if (obj != null && obj.GetType() == psObject) {
+                tracePSInterop('No action needed');
                 ret obj;
             } else if (psContext.isImportedPSObj(obj)) {
-                //print('Is imported');
+                tracePSInterop('Returning psObject property');
                 ret obj.psObject;
             } else if (isCollection(obj) &&
                 Enumerable.Any(obj) &&
                 psContext.isImportedPSObj(obj[0])) {
-                //print('Is set');
+                tracePSInterop('Recursing');
                 ret obj->@(o) o.psObject;
             } else {
+                tracePSInterop('No action needed 2');
                 //print('Is other');
                 ret obj;
             }
@@ -163,14 +170,13 @@ initPSInterop = @{
         if (result.isCommand) {
             tracePS('Preparing command {0}', parts[0]);
             parts[0] |> psContext.engine.AddCommand;
-            parts @aq.skip(1) -> psContext.engine.AddArgument;
+            parts @aq.skip(1) ->psContext.restorePSObject->psContext.engine.AddArgument;
             tracePS('Invoking PS');
             result.obj = psContext.engine.Invoke();
             tracePS('Clearing command');
             psContext.engine.Commands.Clear();
         } else {
             if (parts.Count > 1) {
-                
                 result.error = 'Unknown command';
                 tracePS(result.error);
                 //result.error = format('Unknown command');
@@ -179,19 +185,26 @@ initPSInterop = @{
 
                 ret result;
             }
-
+            
+            tracePS('Getting PS item {0}', parts[0]);
             result.isItem = true;
             result.obj = parts[0] |> psContext.getItem;
+
+            if ((result.obj |> isCollection) &&
+                (result.obj |> Enumerable.Count) == 1) {
+                tracePS('Unwrapping PS item');
+                result.obj = result.obj[0];
+            }
         }
 
-        if (!result.isCommand &&
-            parts != null &&
-            parts.Count >= 1 &&
-            (result.obj == null || result.obj.Count == 0) &&
-            parts[0].GetType() != typeof(String)) {
-            tracePS('Unwrapping PS result');
-            result.obj = parts.Count == 1 ? parts[0] : parts;
-        }
+        //if (!result.isCommand &&
+            //parts != null &&
+            //parts.Count >= 1 &&
+            //(result.obj == null || result.obj.Count == 0) &&
+            //parts[0].GetType() != typeof(String)) {
+            //tracePS('Unwrapping PS result');
+            //result.obj = parts.Count == 1 ? parts[0] : parts;
+        //}
 
         tracePS('Done executing command: {0}', result |> serialize);
 
