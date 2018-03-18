@@ -107,7 +107,7 @@ initPSInterop = @{
                 //print('Is imported');
                 ret obj.psObject;
             } else if (isCollection(obj) &&
-                obj.Count > 0 &&
+                Enumerable.Any(obj) &&
                 psContext.isImportedPSObj(obj[0])) {
                 //print('Is set');
                 ret obj->@(o) o.psObject;
