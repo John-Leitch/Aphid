@@ -47,7 +47,7 @@ initPSInterop = @{
         exec: @(command) {
             engine.AddScript(command);
             r;
-            r = engine.Invoke() |> psContext.importPSResults;
+            r = engine.Invoke() |> psContext.importPSObject;
 
             ret r;
         },
@@ -55,11 +55,31 @@ initPSInterop = @{
         execSelect: @(command, selector) command |> exec -> selector,
         execWhere: @(command, predicate) command |> exec -? predicate,
 
-        importPSResults: @(psResults) psResults->importPSObject,
+        unwrap: @(obj)
+            obj != null &&
+            obj.GetType() == psContext.psObject ?
+                obj.BaseObject :
+                obj,
 
         importPSObject: @(psObj) {
+            //print('checking enumerable');
+            
+            if (psObj @isEnumerableOf(psContext.psObject)) {
+                //print('recursing');
+                ret psObj->importPSObject;
+            } else if (
+                psObj == null ||
+                psObj.GetType() != psContext.psObject) {
+                ret psObj;
+            } 
+
+            //print('converting');
+
             o;
-            o = {PSObject: psObj};
+            o = {
+                isPSInterop: true,
+                psObject: psObj
+            };
 
             _notAccessor = macro(@(n){
                 !n.Name.StartsWith('get_') &&
@@ -74,14 +94,34 @@ initPSInterop = @{
                 -?(@(m) _notAccessor(m))
                 ->@(m) o.{m.Name} = m.Invoke;
 
+            //setValue(o, psObj);
+
             ret o;
         },
 
-        unwrap: @(obj)
+        restorePSObject: @(obj) {
+            //print('Restoring');
+            if (obj != null && obj.GetType() == psObject) {
+                ret obj;
+            } else if (psContext.isImportedPSObj(obj)) {
+                //print('Is imported');
+                ret obj.psObject;
+            } else if (isCollection(obj) &&
+                obj.Count > 0 &&
+                psContext.isImportedPSObj(obj[0])) {
+                //print('Is set');
+                ret obj->@(o) o.psObject;
+            } else {
+                //print('Is other');
+                ret obj;
+            }
+        },
+        
+        isImportedPSObj: @(obj)
             obj != null &&
-            obj.GetType() == psContext.psObject ?
-            obj.BaseObject :
-            obj,
+            obj.isPSInterop defined &&
+            obj.isPSInterop &&
+            obj.psObject defined,
     };
 
     psContext.isCommand = @(command) {
@@ -107,33 +147,55 @@ initPSInterop = @{
     };
 
     psContext.execPositional = @(parts) {
-            _checkCmdParts();
-            _initTrace('PS');
-            isCommand;
+        _checkCmdParts();
+        _initTrace('PS');
+        result;
+        result = {
+            parts,
+            isItem: false,
+            success: true,
+            error: null,
+        };
 
-            parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
-            isCommand = parts[0] |> psContext.isCommand;
-            r;
+        parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
+        result.isCommand = parts[0] |> psContext.isCommand;
+        
+        if (result.isCommand) {
+            tracePS('Preparing command {0}', parts[0]);
+            parts[0] |> psContext.engine.AddCommand;
+            parts @aq.skip(1) -> psContext.engine.AddArgument;
+            tracePS('Invoking PS');
+            result.obj = psContext.engine.Invoke();
+            tracePS('Clearing command');
+            psContext.engine.Commands.Clear();
+        } else {
+            if (parts.Count > 1) {
+                
+                result.error = 'Unknown command';
+                tracePS(result.error);
+                //result.error = format('Unknown command');
+                result.obj = null;
+                result.success = false;
 
-            if (isCommand) {
-                parts[0] |> psContext.engine.AddCommand;
-                parts @aq.skip(1) -> psContext.engine.AddArgument;
-                r = psContext.engine.Invoke();
-                psContext.engine.Commands.Clear();
-            } else {
-                if (parts.Count > 1) fatal('Too many parts');
-                r = parts[0]|> psContext.getItem;
+                ret result;
             }
 
-            if (!isCommand &&
-                parts != null &&
-                parts.Count >= 1 &&
-                (r == null || r.Count == 0) &&
-                parts[0].GetType() != typeof(String)) {
-                r = parts.Count == 1 ? parts[0] : parts;
-            }
+            result.isItem = true;
+            result.obj = parts[0] |> psContext.getItem;
+        }
 
-        ret r;
+        if (!result.isCommand &&
+            parts != null &&
+            parts.Count >= 1 &&
+            (result.obj == null || result.obj.Count == 0) &&
+            parts[0].GetType() != typeof(String)) {
+            tracePS('Unwrapping PS result');
+            result.obj = parts.Count == 1 ? parts[0] : parts;
+        }
+
+        tracePS('Done executing command: {0}', result |> serialize);
+
+        ret result;
     };
 
     psContext.getItem = @(path) {
@@ -169,7 +231,7 @@ initPSInterop = @{
     psContext.outString = @(obj) {
         _initTrace('PS');
         tracePS('Dumping result via Out-String');
-        { InputObject: obj } @psContext.psContext.execNamed('Out-String')->Console.Write;
+        ret { InputObject: obj } @psContext.psContext.execNamed('Out-String') |> aq.first;
     };
 
     extend PSObject {
@@ -180,7 +242,7 @@ initPSInterop = @{
                 fatal('Could not find PowerShell method with name "{0}".' :: [ name ]);
             }
 
-            ret methods[0].Invoke($args @aq.skip(1)) |> psContext.importPSResults;
+            ret methods[0].Invoke($args @aq.skip(1)) |> psContext.importPSObject;
         },
 
         toAphidObject: psContext.importPSObject,

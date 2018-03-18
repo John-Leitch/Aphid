@@ -8,7 +8,7 @@ head('Starting AphidShell');
 using System.IO;
 using Components.Aphid.UI;
 AphidCli.ShowClrStack = true;
-useTracing = true;
+//useTracing = true;
 
 
 testScript = @{ %>
@@ -119,6 +119,7 @@ _initTraceCore = macro(@(name, fullName) {
 shell;
 
 shell = {
+    host: Environment.MachineName,
     internal: {
         tokenize: @(text, offset) {
             lexer;
@@ -138,21 +139,21 @@ shell = {
             parser = new AphidParser(tokens);
             parser.SetToken(index);
 
-            if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
-                traceParse('~Cyan~Skipping left paren~R~');
-                parser.NextToken();
-                traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
-                expression = parser.ParseExpression();
-                traceParse('Matching right paren');
-                parser.PeekRightParenthesis();
-                streamOffset = parser.CurrentToken.Index + 1;
-            } else {
+            //if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
+                //traceParse('~Cyan~Skipping left paren~R~');
+                //parser.NextToken();
+                //traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
+                //expression = parser.ParseExpression();
+                //traceParse('Matching right paren');
+                //parser.PeekRightParenthesis();
+                //streamOffset = parser.CurrentToken.Index + 1;
+            //} else {
                 traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
                 expression = parser.ParseExpression();
                 traceParse('Index: {0}, Length: {1}', expression.Index, expression.Length);
                 parser.PreviousToken();
                 streamOffset = parser.CurrentToken.Index + parser.CurrentToken.Lexeme.Length;
-            }
+            //}
 
             traceParse('Stream continuing at offset: {0}', streamOffset);
 
@@ -321,7 +322,7 @@ shell.emitCommand = @(commandAst) {
                     commandObj.values[commandObj.values.Count - 1],
                     appendValue);
 
-                commandObj.values.values[commandObj.values.Count - 1] += appendValue;
+                commandObj.values[commandObj.values.Count - 1] += appendValue;
             }
 
             default: node |> shell.emitCommandNode |> commandObj.values.add
@@ -387,6 +388,15 @@ shell.interpretCommand = @(commandObj) {
                 }
             } else {
                 result = commandObj.values |> psContext.execPositional;
+
+                if (!result.success) {
+                    print(
+                        'Error executing command {0}: {1}',
+                        commandObj.values[0],
+                        result.error);
+                }
+
+                result = result.obj |> psContext.importPSObject;
 
                 if ((tmpCwd = shell.getPSCwd()) != lastCwd) {
                     shell.cwd = tmpCwd;
@@ -558,12 +568,8 @@ shell.resolvers = [
 
 // Todo: check for assignments, includes, etc. and handle 
 // accordingly rather than dumping everything to out
-shell.dumpObject = @(command) {
-    r;
-    r = command |> psContext.outString;
-
-    ret r;
-};
+shell.dumpObject = psContext.restorePSObject @> psContext.outString;
+shell.out = Console.Write;
 
 shell.execImpl =
     tokenizeCommand
@@ -571,20 +577,16 @@ shell.execImpl =
     @> shell.emitCommand 
     @> shell.interpretCommand;
 
-shell.execDumpImpl = shell.execImpl @> shell.dumpObject;
-
 shell.exec = @(command) {
-    //print('Executing command ~Cyan~{0}~R~', command);
-    peekTokens;
-    exec;
-    execDump;
     _initTrace('Exec');
+    traceExec('Executing command ~Cyan~{0}~R~', command);
+    peekTokens;
     peekTokens = command |> tokenize;
 
     _stdExec = macro(@{
         command @traceExec('Executing standard command: {0}');
 
-        ret command |> shell.execDumpImpl;
+        ret command |> shell.execImpl |> shell.dumpObject |> shell.out;
     });
 
     if (peekTokens.Count >= 1 &&
@@ -593,11 +595,7 @@ shell.exec = @(command) {
         command @traceExec('Executing load script command: {0}');
 
         ret shell.interpret(command);
-    }
-    // else if (peekTokens.Count >= 2 &&
-    //     peekTokens[1].TokenType == AphidTokenType.AssignmentOperator) {
-    // }
-    else if (command.Contains('=')) {
+    } else if (!command.Trim().StartsWith('$') && command.Contains('=')) {
         lhs;
         rhs;
         lhsAst;
@@ -606,22 +604,11 @@ shell.exec = @(command) {
 
         lhsAst = null;
         opIndex = '=' |> command.IndexOf;
-        lhs = opIndex |> command.Remove;
-        rhs = opIndex + 1 |> command.Substring;
-        
-        if (!AphidCli.TryAction(
-            shell.interpreter,
-            lhs,
-            @{ lhsAst = AphidParser.Parse(lhs) })) {
-            ret null;
-        }
+        lhs = (opIndex |> command.Remove).Trim();
+        rhs = (opIndex + 1 |> command.Substring).Trim();
 
-        //try lhsAst = AphidParser.Parse(lhs);
-        //catch (e) {
-            //print('Error executing command: ~Yellow~{0}~R~', e);
-            //e |> dump;
-            //ret e;
-        //}
+        try lhsAst = AphidParser.Parse(lhs);
+        catch (e) traceExec('Error parshing lhs of {0}: {1}', lhs, e.message);
 
         if (lhsAst != null &&
             lhsAst.Count == 1 &&
@@ -631,7 +618,7 @@ shell.exec = @(command) {
             assign;
             key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
             shell.interpreter.CurrentScope.{key} = rhs |> shell.execImpl;
-            assign = lhs + (key @format('=this.{0}; delete {0}'));
+            assign = '{0}=this.{1}; delete {1}' :: [ lhs, key ];
             assign @traceExec('Running assign script: {0}');
             shell.interpret(assign);
 
@@ -656,12 +643,14 @@ shell.parseScript = @(script) script
     -?(@() !String.IsNullOrEmpty($_));
 
 shell.style = {
-    currentDirectory: { foreground: ConsoleColor.White },
-    promptEnd: {
-        token: '>',
-        foreground: ConsoleColor.Cyan
-    },
+    cwd: { foreground: ConsoleColor.White },
+    hostBegin: { token: '[', foreground: ConsoleColor.Gray },
+    hostEnd: { token: '] ', foreground: ConsoleColor.Gray },
+    host: { foreground: ConsoleColor.Green },
+    promptEnd: { token: '> ', foreground: ConsoleColor.Gray },
 };
+
+_promptToken = macro(@(name) { _promptStyle(shell.style.name.token, name) });
 
 _promptStyle = macro(@(value, name) {
     id(name, 'HasStyle');
@@ -674,7 +663,7 @@ _promptStyle = macro(@(value, name) {
         }
 
         if (shell.style.name.background defined) {
-            prompt += '~|' + shell.style.name.foreground + '~';
+            prompt += '~|' + shell.style.name.background + '~';
             id(name, 'HasStyle') = true;
         }
     }
@@ -690,11 +679,12 @@ shell.writePrompt = @() {
     using System.IO;
     using Components.External;
     prompt;
-    
     prompt = '';
-    _promptStyle(Directory.GetCurrentDirectory(), currentDirectory);    
-    _promptStyle(shell.style.promptEnd.token, promptEnd);
-    prompt += ' ';
+    _promptToken(hostBegin);
+    _promptStyle(shell.host, host);
+    _promptToken(hostEnd);
+    _promptStyle(Directory.GetCurrentDirectory(), cwd);    
+    _promptToken(promptEnd);
     Cli.Write(prompt);
 };
 
@@ -706,10 +696,11 @@ if (useTracing defined && useTracing) shell.trace();
 while (true) {
     shell.writePrompt();
     cmd;
-    cmd = Console.ReadLine();
+    cmd = Console.ReadLine().Trim();
 
     switch (cmd) {
         'exit': exit();
+        '': continue;
     }
 
     try cmd |> shell.exec;
