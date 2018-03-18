@@ -425,12 +425,14 @@ extend string {
         substring
         |> x.IndexOf
         |> x.Remove,
+
     removeAtIndexOf: @(x, value, offset) {
         i;
         ret ((i = x.IndexOf(value)) < 0) ?
-            value :
+            x :
             x.Remove(i + (offset defined ? offset : 0));
     },
+
     dec: @(x) x |> Decimal.Parse,
 }
 
