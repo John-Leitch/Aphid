@@ -1,14 +1,14 @@
-﻿using System;
+﻿#'Std';
+#'Query';
+using Components.Aphid.UI;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
-#'Std';
-#'Query';
+AphidCli.ShowClrStack = true;
+//openRepl = true;
 aq.empty = @(l) l.Count == 0;
-print = Console.WriteLine;
 args = Environment.GetCommandLineArgs() @aq.skip(2);
-
-
 
 if (args |> aq.empty) {
     print('Aphid Test.alx [script] [directory]');
@@ -18,7 +18,7 @@ if (args |> aq.empty) {
     Environment.Exit(2);
 }
 
-args for print($_);
+// args for print($_);
 
 w = new FileSystemWatcher();
 _n = macro(@(f) { NotifyFilters.f });
@@ -30,13 +30,13 @@ print('Waiting for change');
 
 exe = Assembly.GetEntryAssembly().Location;
 while (true) {
-    
     si = new ProcessStartInfo(exe, args[0]);
     si.UseShellExecute = false;
-    Process.Start(si).WaitForExit();
-
+    p;
+    p = Process.Start(si);
+    p.WaitForExit();
+    print('Process has exited with code ~Cyan~{0}~R~', p.ExitCode);
     w.WaitForChanged(WatcherChangeTypes.All).Name @print("'{0}' changed");
-    
 }
 
 print('Done');
