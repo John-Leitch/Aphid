@@ -63,7 +63,7 @@ testScript2 = @{ %>
 
 <% };
 
-testScript2 = @{ %>
+testScript = @{ %>
 
         #'Std'
         #'IO'
@@ -290,12 +290,24 @@ shell.interpret = shell.interpreter.Interpret;
 shell.emitCommand = @(commandAst) {
     node;
     index;
-    values;
     appendValue;
     _initTrace('Emit');
 
     index = -1;
-    values = [];
+    commandObj;
+    commandObj = {
+        ast: commandAst,
+        code: commandAst != null && commandAst.Count >= 1 ?
+            (commandAst[0].type == shell.node.expression ? 
+                commandAst[0].node.Code : commandAst[0].node.ToString()) :
+            null,
+        values: [],
+        resolved:
+            commandAst != null &&
+            commandAst.Count == 1 &&
+            commandAst[0].type == shell.node.expression,
+    };
+
 
     while (++index < commandAst.Count) {
         node = commandAst[index];
@@ -306,17 +318,17 @@ shell.emitCommand = @(commandAst) {
                 
                 traceEmit(
                     'Appending {0} with {1}',
-                    values[values.Count - 1],
+                    commandObj.values[commandObj.values.Count - 1],
                     appendValue);
 
-                values[values.Count - 1] += appendValue;
+                commandObj.values.values[commandObj.values.Count - 1] += appendValue;
             }
 
-            default: node |> shell.emitCommandNode |> values.add
+            default: node |> shell.emitCommandNode |> commandObj.values.add
         }
     }
 
-    ret values;
+    ret commandObj;
 };
 
 shell.emitCommandNode = @(commandNode)
@@ -325,20 +337,42 @@ shell.emitCommandNode = @(commandNode)
         shell.node.expression: commandNode.node |> shell.interpret,
         fatal('Invalid command node');
 
+shell.initCwd = @(path) {
+    shell.cwd = Directory.GetCurrentDirectory();
+    shell.setPSCwd();
+};
+
+shell.getClrCwd = Directory.GetCurrentDirectory;
+shell.setClrCwd = @() Directory.SetCurrentDirectory(shell.cwd);
+shell.getPSCwd = @() psContext.getItem(".\\")[0].BaseObject.FullName;
+shell.setPSCwd = @() psContext.execPositional([ 'Set-Location', shell.cwd ]);
+
 shell.interpretCommand = @(commandObj) {
     //commandObj |>dump;
     // commandObj |> keys |> dumpe;
     resolved;
     args;
     result;
+    lastCwd;
+    tmpCwd;
     _initTrace('Resolve');
-    
+
+    if (!(shell.cwd defined)) {
+        shell.initCwd();
+    }
+
+    lastCwd = shell.cwd;
+
+    if (commandObj.resolved) {
+        ret commandObj.values[0];
+    }
+
     AphidCli.TryAction(
         shell.interpreter,
-        commandObj.ToString(),
+        commandObj.code,
         @{
-            args = (commandObj @aq.skip(1) -> shell.resolveMember);
-            resolved = shell.resolveMethod(commandObj[0], args);
+            args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
+            resolved = shell.resolveMethod(commandObj.values[0], args);
             if (resolved != null) {
                 //head('Resolving members');
         
@@ -346,8 +380,18 @@ shell.interpretCommand = @(commandObj) {
                 // args[0][0] |> print;
                 // dumpe(args[0][0]);
                 result = args |> resolved.call;
+
+                if ((tmpCwd = shell.getClrCwd()) != lastCwd) {
+                    shell.cwd = tmpCwd;
+                    shell.setPSCwd();
+                }
             } else {
-                result = commandObj |> psContext.execPositional;
+                result = commandObj.values |> psContext.execPositional;
+
+                if ((tmpCwd = shell.getPSCwd()) != lastCwd) {
+                    shell.cwd = tmpCwd;
+                    shell.setClrCwd();
+                }
             }
         });
 
@@ -470,33 +514,15 @@ shell.resolvers = [
                 }
 
                 typeof(AphidInteropMember): {
-                    r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
+                    try {
+                        r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
                             nameMatches.Members,
                             signature->psContext.unwrap);
-
-                    if (!AphidCli.TryAction(
-                        shell.interpreter,
-                        nameMatches.ToString(),
-                        @{
-                            r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
-                                nameMatches.Members,
-                                signature->psContext.unwrap);
-                        })) {
-                        ret false;
+                    } catch(e) {
+                        traceResolve('Error resolving method: {0}', e.message);
+                        ret null;
                     }
 
-                        
-                    // } catch(e) {
-                    //     print('Error resolving method: {0}', e.message);
-                    //     ret null;
-                    // }
-                    // signature->print;
-                    // exit();
-                    // r.methodInfo.dir();
-                    // r.value.dir();
-                    
-                    // head('obj');
-                    // psContext.psObject |> print;
                     if (r.methodInfo == null) {
                         ret null;
                     }
@@ -677,22 +703,22 @@ shell.writePrompt = @() {
 if (useTracing defined && useTracing) shell.trace();
 //exit();
 
- while (true) {
-     shell.writePrompt();
-     cmd;
-     cmd = Console.ReadLine();
+while (true) {
+    shell.writePrompt();
+    cmd;
+    cmd = Console.ReadLine();
 
-     switch (cmd) {
-         'exit': exit();
-     }
+    switch (cmd) {
+        'exit': exit();
+    }
 
-     try cmd |> shell.exec;
-     catch (e) {
-         print('Error executing command: {0}', e);         
-     }
+    try cmd |> shell.exec;
+    catch (e) {
+        print('Error executing command: {0}', e);         
+    }
 
-     try psContext.engine.Commands.Clear();
-     catch (e) { }
+    try psContext.engine.Commands.Clear();
+    catch (e) { }
 }
 
 
