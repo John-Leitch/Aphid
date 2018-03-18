@@ -364,6 +364,12 @@ namespace Components.Aphid.Library
         {
             return obj.Select(x => new AphidObject(x.Key)).ToList();
         }
+
+        [AphidInteropFunction("setValue", PassInterpreter = true, UnwrapParameters = false)]
+        public static void SetValue(AphidInterpreter interpreter, AphidObject dst, object src)
+        {
+            dst.Value = interpreter.ValueHelper.Unwrap(src);
+        }
     }
 }
 
