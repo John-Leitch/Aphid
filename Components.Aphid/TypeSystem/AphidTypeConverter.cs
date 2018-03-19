@@ -32,14 +32,14 @@ namespace Components.Aphid.TypeSystem
         }
             
 
-        public object[] Convert(AphidInteropMethodArg[] args)
+        public object[] Convert(AphidInteropMethodArg[] args, Type[] genericArguments)
         {
-            return args.Select(Convert).ToArray();
+            return args.Select(x => Convert(x, genericArguments)).ToArray();
         }
 
-        public object Convert(AphidInteropMethodArg arg)
+        public object Convert(AphidInteropMethodArg arg, Type[] genericArguments)
         {
-            return Convert(arg.TargetType, arg.Argument);
+            return Convert(arg.TargetType, arg.Argument, genericArguments);
         }
 
         public AphidConversionInfo CanConvert(
@@ -60,7 +60,34 @@ namespace Components.Aphid.TypeSystem
             else if ((valType = val.GetType()) == typeof(AphidFunction) &&
                 target.IsDerivedFrom(typeof(Delegate)))
             {
-                return new AphidConversionInfo(interopArg, true, new Type[0]);
+                var isGeneric = target.IsGenericType;
+
+                if (isGeneric)
+                {
+                    var targetGenericArgs = target.GetGenericArguments();
+                    var valGenericArgs = valType.GetGenericArguments();
+
+                    if (targetGenericArgs.Length > 0 && valGenericArgs.Length == 0)
+                    {
+                        return new AphidConversionInfo(
+                            interopArg,
+                            true,
+                            targetGenericArgs);
+                    }
+
+                    throw this.Interpreter.CreateRuntimeException(
+                        "Converting from generic delegate {0} to {1} not yet supported.",
+                        valType,
+                        target);
+
+                    var zipped = targetGenericArgs
+                        .Zip(valGenericArgs, (x, y) => new[] { x, y })
+                        .ToArray();
+                }
+                else
+                {
+                    return new AphidConversionInfo(interopArg, true, new Type[0]);
+                }
             }
             else
             {
@@ -186,7 +213,7 @@ namespace Components.Aphid.TypeSystem
             return false;
         }
 
-        public object Convert(Type targetType, object srcValue)
+        public object Convert(Type targetType, object srcValue, Type[] genericArguments)
         {
             Type srcType;
 
@@ -196,7 +223,10 @@ namespace Components.Aphid.TypeSystem
             }
             else if (targetType.IsDerivedFrom<Delegate>())
             {
-                return Interpreter.FunctionConverter.Convert(targetType, srcValue);
+                return Interpreter.FunctionConverter.Convert(
+                    targetType,
+                    srcValue,
+                    genericArguments);
             }
             else if ((srcType = srcValue.GetType()) == targetType ||
                 srcType.IsDerivedFromOrImplements(targetType, new List<Type>()))

@@ -49,7 +49,15 @@ namespace Components.External
             }
             else
             {
-                genericArguments.AddRange(type.GetGenericArguments().Where(x => !x.IsGenericParameter));
+                if (!type.ContainsGenericParameters)
+                {
+                    if (genericArguments.Any())
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    genericArguments.AddRange(type.GetGenericArguments().ToArray());
+                }
 
                 return new[] { StripGenericArguments(type), StripGenericArguments(otherType) };
             }

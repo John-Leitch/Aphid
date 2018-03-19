@@ -191,6 +191,7 @@
     <Compile Include="External\Debugging\ProcessExtension.cs" />
     <Compile Include="External\Debugging\StackDumper.cs" />
     <Compile Include="External\EnvironmentHelper.cs" />
+    <Compile Include="External\EnumerableExtension.cs" />
     <Compile Include="External\Json\JsonFormatter.cs" />
     <Compile Include="External\Json\JsonLexer.cs" />
     <Compile Include="External\Json\JsonSerializer.cs" />
@@ -207,9 +208,11 @@
     <Compile Include="External\PInvoke\SetWindowPosFlags.cs" />
     <Compile Include="External\PInvoke\User32.cs" />
     <Compile Include="External\PInvoke\WindowsHookCallback.cs" />
+    <Compile Include="External\RevertibleLazy.cs" />
     <Compile Include="External\StringEnumerableExtension.cs" />
     <Compile Include="External\StringExtension.cs" />
     <Compile Include="External\StringTree.cs" />
+    <Compile Include="External\TypeLoader.cs" />
     <Compile Include="External\XmlObject.cs" />
     <Compile Include="External\XmlSerializerExtension.cs" />
     <Compile Include="IAphidException.cs" />

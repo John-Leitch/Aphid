@@ -138,6 +138,9 @@
     <None Include="Samples\AphidUI.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Samples\ParallelForExample.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Samples\NativeDebuggerExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -210,7 +213,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>::taskkill /im aphid.exe /f</PreBuildEvent>
+    <PreBuildEvent>::taskkill /im aphid.exe /f
+powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

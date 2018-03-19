@@ -17,7 +17,10 @@ namespace Components.Aphid.TypeSystem
 
         }
 
-        public Delegate Convert(Type methodType, object function)
+        public Delegate Convert(
+            Type methodType,
+            object function,
+            Type[] genericArguments)
         {
             var methodInfo = methodType.GetMethod("Invoke");
             var funcObj = Interpreter.ValueHelper.Unwrap(function);
@@ -31,13 +34,14 @@ namespace Components.Aphid.TypeSystem
                     methodInfo.ToString());
             }
 
-            return Convert(methodInfo, methodType, func);
+            return ConvertFunctionWrapper(methodInfo, methodType, func, genericArguments);
         }
 
-        public Delegate Convert(
+        public Delegate ConvertFunctionWrapper(
             MethodInfo method,
             Type delegateType,
-            AphidFunction function)
+            AphidFunction function,
+            Type[] genericArguments)
         {
             var methodParams = method.GetParameters();
             
@@ -60,19 +64,32 @@ namespace Components.Aphid.TypeSystem
                     method);
             }
 
-            if (methodParams.Length == 0)
+            if (genericArguments.Length == 0)
             {
+                if (methodParams.Length > 0)
+                {
+                    var paramTypes = methodParams.Select(x => x.ParameterType);
+
+                    call = call.MakeGenericMethod(
+                            (method.ReturnType == typeof(void) ?
+                            paramTypes :
+                            paramTypes.Concat(new[] { method.ReturnType }))
+                            .ToArray());
+                }
+
                 return call.CreateDelegate(delegateType, wrapper);
             }
 
-            var methodParamTypes = methodParams.Select(x => x.ParameterType).ToArray();
+            call = call.MakeGenericMethod(genericArguments);
 
-            var genericCall = call.MakeGenericMethod(
-                method.ReturnType != typeof(void) ?
-                    methodParamTypes.Concat(new[] { method.ReturnType }).ToArray() :
-                    methodParamTypes);
+            if (delegateType.ContainsGenericParameters)
+            {
+                delegateType = delegateType
+                    .GetGenericTypeDefinition()
+                    .MakeGenericType(genericArguments);
+            }
 
-            return genericCall.CreateDelegate(delegateType, wrapper);
+            return call.CreateDelegate(delegateType, wrapper);
         }
     }
 }

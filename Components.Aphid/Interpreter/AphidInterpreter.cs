@@ -68,6 +68,15 @@ namespace Components.Aphid.Interpreter
     //       (var type.GetInterface('IEnumerable`1')) != null &&
     //       $&.GetGenericArguments()[0] == enumerableType;
     // * Operator override for types, via class decl and extend
+    // * Seamless implicit/explicit operator interop
+    // * AphidShell script monitors build and kills and optionally restarts
+    //   processes that hold blocking file locks.
+    // * Add update-safe loader that moves Aphid to a unique folder immediately
+    //   following build/deploy and forward execution.
+    //   - Forward via aphid.exe stub built using IL header
+    //     * Add inline assembly support (stretch)
+    //   - Use CrossProcessLock to sync bootstrap execution/overwrite.
+    // * Add yield return/break support, possibly infer based on lazy attribute
     public partial class AphidInterpreter
     {
         private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
@@ -830,14 +839,14 @@ namespace Components.Aphid.Interpreter
                     {
                         interopRef.Field.SetValue(
                             interopRef.Object,
-                            TypeConverter.Convert(interopRef.Field.FieldType, v));
+                            TypeConverter.Convert(interopRef.Field.FieldType, v, null));
                     }
                     else
                     {
                         interopRef.Property.SetValue(
                             interopRef.Object,
                             v != null ?
-                                TypeConverter.Convert(interopRef.Property.PropertyType, v) :
+                                TypeConverter.Convert(interopRef.Property.PropertyType, v, null) :
                                 null);
                     }
 
@@ -886,14 +895,14 @@ namespace Components.Aphid.Interpreter
             {
                 interopRef.Field.SetValue(
                     interopRef.Object,
-                    TypeConverter.Convert(interopRef.Field.FieldType, v));
+                    TypeConverter.Convert(interopRef.Field.FieldType, v, null));
             }
             else
             {
                 interopRef.Property.SetValue(
                     interopRef.Object,
                     v != null ?
-                        TypeConverter.Convert(interopRef.Property.PropertyType, v) :
+                        TypeConverter.Convert(interopRef.Property.PropertyType, v, null) :
                         null);
             }
 
@@ -1587,6 +1596,21 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
         {
+            if (OnInterpretObject != null)
+            {
+                AphidExecutionContext<ObjectExpression> ctx = expression;
+                OnInterpretObject(ctx);
+
+                if (ctx.IsHandled)
+                {
+                    return ctx.Result;
+                }
+                else if (ctx.IsModified)
+                {
+                    expression = ctx.Expression;
+                }
+            }
+
             if (expression.Identifier == null ||
                 expression.Identifier.Attributes == null ||
                 !expression.Identifier.Attributes.Any() ||
@@ -1851,14 +1875,20 @@ namespace Components.Aphid.Interpreter
             {
                 var m = (MethodInfo)methodInfo.Method;
 
-                var genArgs = methodInfo.GenericArguments
-                    .Take(m.GetGenericArguments().Length)
-                    .ToArray();
+                if (methodInfo.GenericArguments.Length != m.GetGenericArguments().Length)
+                {
+                    throw CreateRuntimeException(
+                        "Generic type parameter mismatch between {0} and {1}.",
+                        methodInfo.Method.ToString(),
+                        m.ToString());
+                }
 
-                method = m.MakeGenericMethod(genArgs);
+                method = m.MakeGenericMethod(m.GetGenericArguments());
             }
 
-            var convertedArgs = TypeConverter.Convert(methodInfo.Arguments);
+            var convertedArgs = TypeConverter.Convert(
+                methodInfo.Arguments,
+                methodInfo.GenericArguments);
 
             return ValueHelper.Wrap(method.Invoke(null, convertedArgs));
         }
@@ -2094,7 +2124,9 @@ namespace Components.Aphid.Interpreter
                 method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
             }
 
-            var convertedArgs = TypeConverter.Convert(methodInfo.Arguments);
+            var convertedArgs = TypeConverter.Convert(
+                methodInfo.Arguments,
+                methodInfo.GenericArguments);
 
             PushFrame(
                 callExpression,
@@ -2125,7 +2157,9 @@ namespace Components.Aphid.Interpreter
                 method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
             }
 
-            var convertedArgs = TypeConverter.Convert(methodInfo.Arguments);
+            var convertedArgs = TypeConverter.Convert(
+                methodInfo.Arguments,
+                methodInfo.GenericArguments);
 
             PushFrame(
                 callExpression,
@@ -2168,7 +2202,11 @@ namespace Components.Aphid.Interpreter
                     var path = FlattenPath(call.FunctionExpression);
                     var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path, isType: true);
                     var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
-                    var convertedArgs = TypeConverter.Convert(ctor.Arguments);
+                    
+                    var convertedArgs = TypeConverter.Convert(
+                        ctor.Arguments,
+                        ctor.GenericArguments);
+
                     var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
                     var obj = ValueHelper.Wrap(result);
 

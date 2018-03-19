@@ -189,7 +189,7 @@ namespace Components.Aphid.TypeSystem
 
         private AphidInteropMethodInfo ResolveCore(MethodBase[] signatureMatches, object[] args)
         {
-            var methods = signatureMatches
+            var methodArgs = signatureMatches
                 .Select(x => new
                 {
                     Method = x,
@@ -198,6 +198,12 @@ namespace Components.Aphid.TypeSystem
                         .Select((y, i) => CreateMethodArg(y, i, args))
                         .ToArray()
                 })
+#if DEBUG
+                .ToArray()
+#endif
+                ;
+
+            var methodConversionInfo = methodArgs
                 .Select(x => new
                 {
                     x.Method,
@@ -210,16 +216,34 @@ namespace Components.Aphid.TypeSystem
                             y.TargetType))
                         .ToArray()
                 })
+#if DEBUG
+                .ToArray()
+#endif
+                ;
+
+            var canConvert = methodConversionInfo
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))
+#if DEBUG
+                .ToArray()
+#endif
+                ;
+
+            var weighted = canConvert
                 .OrderBy(x => WeightInference(x.Args))
-                .Select(x => new AphidInteropMethodInfo(
-                    x.Method,
-                    x.ConversionInfo
-                        .Where(y => y.GenericArguments != null)
-                        .SelectMany(y => y.GenericArguments)
-                        .Distinct()
-                        .ToArray(),
-                    x.Args))
+#if DEBUG
+                .ToArray()
+#endif
+                ;
+
+            var methods = weighted
+                .SelectMany(x => x.ConversionInfo
+                    .Select(y => y.GenericArguments)
+                    .Distinct()
+                    .DefaultIfEmpty(new Type[0])
+                    .Select(y => new AphidInteropMethodInfo(x.Method, y, x.Args)))
+                .Where(x =>
+                        (!x.Method.IsGenericMethod && x.GenericArguments.Length == 0) ||
+                        x.GenericArguments.Length == x.Method.GetGenericArguments().Length)
                 .ToArray();
 
             if (methods.Length == 0)

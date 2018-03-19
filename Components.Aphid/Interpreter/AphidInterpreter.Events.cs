@@ -18,5 +18,9 @@ namespace Components.Aphid.Interpreter
         public bool OnInterpretBlockExecuting { get; private set; }
 
         public Func<List<AphidExpression>, AphidExecutionContext, List<AphidExpression>> OnInterpretBlock { get; set; }
+
+        public bool OnInterpretObjectExecuting { get; private set; }
+
+        public Action<AphidExecutionContext<ObjectExpression>> OnInterpretObject;
     }
 }

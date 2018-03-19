@@ -1,10 +1,26 @@
-﻿using NUnit.Framework;
+﻿using Components.Aphid.UI;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace Components.Aphid.Tests.Integration
 {
+    public class TestClass
+    {
+        public static bool StaticBoolField;
+
+        public static bool StaticBoolProperty { get; set; }
+    }
+
+    // Todo
+    // * Cover static members accessed via instance path
     [TestFixture(Category = "AphidInterop"), Parallelizable(ParallelScope.Self)]
     public class InteropTests : AphidTests
     {
+        private TypeLoader _loader = new TypeLoader();
+
         [Test]
         public void StaticTest1()
         {
@@ -293,6 +309,107 @@ namespace Components.Aphid.Tests.Integration
                 
                 ret v;
             ");
+        }
+
+        [Test]
+        public void StaticFieldGetBoolTest()
+        {
+            StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
+                false,
+                setExpectedValue: true);
+
+            // Todo: use for sanity check test
+            //Components.Aphid.Tests.Integration.TestClass.StaticBoolField = false;
+            //Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty = false;
+
+            //StaticGetTest(
+            //    "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
+            //    true,
+            //    setExpectedValue: false);
+
+            //StaticGetTest(
+            //    "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
+            //    true,
+            //    setExpectedValue: false);
+        }
+
+        [Test]
+        public void StaticFieldGetBoolTest2()
+        {
+            StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
+                true,
+                setExpectedValue: true);
+        }
+
+        [Test]
+        public void StaticPropertyGetBoolTest()
+        {
+            StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
+                false,
+                setExpectedValue: true);
+        }
+
+        [Test]
+        public void StaticPropertyGetBoolTest2()
+        {
+            StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
+                true,
+                setExpectedValue: true);
+        }
+
+        // Todo: refactor fullMemberName into expression for strong typing
+        private void StaticGetTest<TValue>(
+            string fullMemberName,
+            TValue expectedValue,
+            bool setExpectedValue)
+        {
+            TValue backup = default(TValue);
+
+            var member = (dynamic)GetMember(fullMemberName).Single();
+
+            if (setExpectedValue)
+            {
+                backup = (TValue)member.GetValue(null);
+                member.SetValue(null, expectedValue);
+            }
+
+            try
+            {
+                // Todo: refactor into shared path parsing
+                var fullTypeName = fullMemberName.RemoveAtLastIndexOf('.');
+                var ns = fullTypeName.RemoveAtLastIndexOf('.');
+                var memberPath = fullMemberName.Substring(ns.Length + 1);
+                var script = string.Format("using {0}; ret {1}", ns, memberPath);
+                AssertEquals(expectedValue, script);
+            }
+            finally
+            {
+                if (setExpectedValue)
+                {
+                    member.SetValue(null, backup);
+                }
+            }
+        }
+
+        private MemberInfo[] GetMember(string fullMemberName)
+        {
+            var memberName = fullMemberName.SubstringAtLastIndexOf('.', 1);
+            var fullTypeName = fullMemberName.RemoveAtLastIndexOf('.');
+            var ns = fullTypeName.RemoveAtLastIndexOf('.');
+            var typeName = fullTypeName.SubstringAtLastIndexOf('.', 1);
+            var type = _loader.ResolveFullType(fullTypeName);
+
+            if (type == null)
+            {
+                throw new InvalidOperationException(
+                    string.Format("Could not find type '{0}'.", fullTypeName));
+            }
+
+            return type.GetMember(memberName);
         }
     }
 }

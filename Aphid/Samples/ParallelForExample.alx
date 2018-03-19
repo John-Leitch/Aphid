@@ -1,0 +1,3 @@
+﻿#'Std';
+using System.Threading.Tasks;
+Parallel.ForEach(0x0..0x100, @(x) { print(x) });
