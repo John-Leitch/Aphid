@@ -184,23 +184,38 @@ _get = macro(@(method) {
     ]-<obj.GetType().method)
 });
 
-_en = macro(@(prefix) { !cm.Name.StartsWith(prefix + '_') });
+_en = macro(@(prefix) {
+    !cm.Name.StartsWith(prefix + '_')
+    //&& @{ cm.ToString() |> Console.WriteLine; ret true }()
+});
 
 _dump = macro(@(m) {
     id(get, m) = @(obj) _get(id(Get, m));
-    id(dump, m) = @(obj) {
+    id(dump, m) = @(obj, pattern) {
+        using System.Text.RegularExpressions;
+        
         n;
+        hasPattern;
         hr;
         n = this.{'$frames'}[0].Name;
+        hasPattern = $args.Count == 2;
         hr = '//' * 40;
+        
         print(
-            expressionColor.comment + hr + '\r\n// {0}({1})\r\n' + hr + '~R~',
+            expressionColor.comment + hr + '\r\n// {0}({1}){2}\r\n' + hr + '~R~',
             n,
-            obj != null ? obj.GetType().FullName : 'null');
+            obj != null ? obj.GetType().FullName : 'null',
+            hasPattern ? ' ' + pattern : '');
+            
         obj
             |> id(get, m)
-            -?(@(cm) _en('get') && _en('set') && _en('add') && _en('remove'))
-            ->@prepareMember(false)
+            -?(@(cm)
+                _en('get') &&
+                _en('set') &&
+                _en('add') &&
+                _en('remove') && 
+                (!hasPattern || Regex.IsMatch(cm.ToString(), pattern)))
+            ->(@prepareMember(false))
             @join('\r\n')
             print;
 
@@ -358,11 +373,15 @@ _formatAutoSet = macro(@{
 _alias(Props, Properties);
 _alias(Funcs, Methods);
 
-extend unknown {
-    dir: @(o) o |> dumpMembers,
-    props: @(o) o |> dumpProps,
-    funcs: @(o) o |> dumpFuncs,
-}
+_aliasExt = macro(@(name, func) {
+    extend unknown {
+        name: @(o, p) $args.Count == 1 ? func(o) : func(o, p)
+    }
+});
+
+_aliasExt(dir, dumpMembers);
+_aliasExt(props, dumpProps);
+_aliasExt(funcs, funcs);
 
 getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
 getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
