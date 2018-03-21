@@ -18,6 +18,8 @@ namespace Components.Aphid.Tests.Integration
     [Parallelizable(ParallelScope.All)]
     public class AphidTests
     {
+        private ThreadLocal<AphidInterpreter> _nextInterpreter = new ThreadLocal<AphidInterpreter>();
+
         private static object _cachedStdNodesSync = new object();
 
         private static List<AphidExpression> _cachedStdNodes;
@@ -80,13 +82,28 @@ namespace Components.Aphid.Tests.Integration
             return stage3;
         }
 
-        private AphidObject Execute(string script)
+        protected AphidInterpreter GetNextInterpreter()
         {
-            var interpreter = new AphidInterpreter();
-            interpreter.Loader.SearchPaths.Add(Path.Combine(Environment.CurrentDirectory, "Library"));
+            lock (_nextInterpreter)
+            {
+                return _nextInterpreter.Value != null ?
+                    _nextInterpreter.Value :
+                    _nextInterpreter.Value = new AphidInterpreter();
+            }
+        }
 
-            var ast = ParseScript(interpreter, script);
-            interpreter.Interpret(ast);
+        protected AphidObject Execute(string script)
+        {
+            AphidInterpreter interpreter;
+
+            lock (_nextInterpreter)
+            {
+                interpreter = _nextInterpreter.Value ?? new AphidInterpreter();
+                _nextInterpreter.Value = null;
+            }
+
+            interpreter.Loader.SearchPaths.Add(Path.Combine(Environment.CurrentDirectory, "Library"));
+            interpreter.Interpret(ParseScript(interpreter, script));
             return interpreter.GetReturnValue();
         }
 
@@ -139,6 +156,11 @@ namespace Components.Aphid.Tests.Integration
         public static void NotNull(object value)
         {
             Assert.NotNull(value);
+        }
+
+        public static void IsFail(Action action)
+        {
+            Assert.Catch<AssertionException>(() => action());
         }
 
         protected void AssertEquals(object expected, string script)

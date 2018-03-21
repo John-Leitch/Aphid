@@ -88,6 +88,7 @@
     <Compile Include="AphidTests.cs" />
     <Compile Include="AssignmentTests.cs" />
     <Compile Include="ClassTests.cs" />
+    <Compile Include="InteropTestBase.cs" />
     <Compile Include="PrintTests.cs" />
     <Compile Include="EqualityTests.cs" />
     <Compile Include="GenericsTests.cs" />

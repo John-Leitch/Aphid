@@ -17,10 +17,8 @@ namespace Components.Aphid.Tests.Integration
     // Todo
     // * Cover static members accessed via instance path
     [TestFixture(Category = "AphidInterop"), Parallelizable(ParallelScope.Self)]
-    public class InteropTests : AphidTests
+    public class InteropTests : InteropTestBase
     {
-        private TypeLoader _loader = new TypeLoader();
-
         [Test]
         public void StaticTest1()
         {
@@ -317,7 +315,7 @@ namespace Components.Aphid.Tests.Integration
             StaticGetTest(
                 "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
                 false,
-                setExpectedValue: true);
+                setExpected: true);
 
             // Todo: use for sanity check test
             //Components.Aphid.Tests.Integration.TestClass.StaticBoolField = false;
@@ -340,7 +338,7 @@ namespace Components.Aphid.Tests.Integration
             StaticGetTest(
                 "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
                 true,
-                setExpectedValue: true);
+                setExpected: true);
         }
 
         [Test]
@@ -349,7 +347,7 @@ namespace Components.Aphid.Tests.Integration
             StaticGetTest(
                 "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
                 false,
-                setExpectedValue: true);
+                setExpected: true);
         }
 
         [Test]
@@ -358,58 +356,41 @@ namespace Components.Aphid.Tests.Integration
             StaticGetTest(
                 "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
                 true,
-                setExpectedValue: true);
+                setExpected: true);
         }
 
-        // Todo: refactor fullMemberName into expression for strong typing
-        private void StaticGetTest<TValue>(
-            string fullMemberName,
-            TValue expectedValue,
-            bool setExpectedValue)
+        [Test]
+        public void StaticFieldGetBoolTestFail()
         {
-            TValue backup = default(TValue);
-
-            var member = (dynamic)GetMember(fullMemberName).Single();
-
-            if (setExpectedValue)
-            {
-                backup = (TValue)member.GetValue(null);
-                member.SetValue(null, expectedValue);
-            }
-
-            try
-            {
-                // Todo: refactor into shared path parsing
-                var fullTypeName = fullMemberName.RemoveAtLastIndexOf('.');
-                var ns = fullTypeName.RemoveAtLastIndexOf('.');
-                var memberPath = fullMemberName.Substring(ns.Length + 1);
-                var script = string.Format("using {0}; ret {1}", ns, memberPath);
-                AssertEquals(expectedValue, script);
-            }
-            finally
-            {
-                if (setExpectedValue)
-                {
-                    member.SetValue(null, backup);
-                }
-            }
+            IsFail(() => StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
+                true));
         }
 
-        private MemberInfo[] GetMember(string fullMemberName)
+        [Test]
+        public void StaticFieldGetBoolTestFail2()
         {
-            var memberName = fullMemberName.SubstringAtLastIndexOf('.', 1);
-            var fullTypeName = fullMemberName.RemoveAtLastIndexOf('.');
-            var ns = fullTypeName.RemoveAtLastIndexOf('.');
-            var typeName = fullTypeName.SubstringAtLastIndexOf('.', 1);
-            var type = _loader.ResolveFullType(fullTypeName);
+            IsFail(() => StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
+                true,
+                setExpected: false));
+        }
 
-            if (type == null)
-            {
-                throw new InvalidOperationException(
-                    string.Format("Could not find type '{0}'.", fullTypeName));
-            }
+        [Test]
+        public void StaticPropertyGetBoolTestFail()
+        {
+            IsFail(() => StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
+                true));
+        }
 
-            return type.GetMember(memberName);
+        [Test]
+        public void StaticPropertyGetBoolTestFail2()
+        {
+            IsFail(() => StaticGetTest(
+                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
+                true,
+                setExpected: false));
         }
     }
 }
