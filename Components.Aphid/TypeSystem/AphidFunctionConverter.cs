@@ -64,23 +64,17 @@ namespace Components.Aphid.TypeSystem
                     method);
             }
 
-            if (genericArguments.Length == 0)
+            //Todo: Add support for T Call().
+            if (methodParams.Length > 0)
             {
-                if (methodParams.Length > 0)
-                {
-                    var paramTypes = methodParams.Select(x => x.ParameterType);
+                var paramTypes = methodParams.Select(x => x.ParameterType);
 
-                    call = call.MakeGenericMethod(
-                            (method.ReturnType == typeof(void) ?
-                            paramTypes :
-                            paramTypes.Concat(new[] { method.ReturnType }))
-                            .ToArray());
-                }
-
-                return call.CreateDelegate(delegateType, wrapper);
+                call = call.MakeGenericMethod(
+                        (method.ReturnType == typeof(void) ?
+                        paramTypes :
+                        paramTypes.Concat(new[] { method.ReturnType }))
+                        .ToArray());
             }
-
-            call = call.MakeGenericMethod(genericArguments);
 
             if (delegateType.ContainsGenericParameters)
             {
