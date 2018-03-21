@@ -198,9 +198,9 @@ namespace Components.Aphid.TypeSystem
                         .Select((y, i) => CreateMethodArg(y, i, args))
                         .ToArray()
                 })
-#if DEBUG
+                #if DEBUG
                 .ToArray()
-#endif
+                #endif
                 ;
 
             var methodConversionInfo = methodArgs
@@ -216,33 +216,39 @@ namespace Components.Aphid.TypeSystem
                             y.TargetType))
                         .ToArray()
                 })
-#if DEBUG
+                #if DEBUG
                 .ToArray()
-#endif
+                #endif
                 ;
 
             var canConvert = methodConversionInfo
                 .Where(x => x.ConversionInfo.All(y => y.CanConvert))
-#if DEBUG
+                #if DEBUG
                 .ToArray()
-#endif
+                #endif
                 ;
 
             var weighted = canConvert
                 .OrderBy(x => WeightInference(x.Args))
-#if DEBUG
+                #if DEBUG
                 .ToArray()
-#endif
+                #endif
                 ;
 
-            var methods = weighted
+            var fanned = weighted
                 .SelectMany(x => x.ConversionInfo
                     .Select(y => y.GenericArguments)
                     .Distinct()
                     .DefaultIfEmpty(new Type[0])
                     .Select(y => new AphidInteropMethodInfo(x.Method, y, x.Args)))
+                #if DEBUG
+                .ToArray()
+                #endif
+                ;
+
+            var methods = fanned
                 .Where(x =>
-                        (!x.Method.IsGenericMethod && x.GenericArguments.Length == 0) ||
+                        !x.Method.IsGenericMethod ||
                         x.GenericArguments.Length == x.Method.GetGenericArguments().Length)
                 .ToArray();
 
