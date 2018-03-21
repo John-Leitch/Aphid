@@ -85,19 +85,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidObjectTests.cs" />
-    <Compile Include="AphidTests.cs" />
+    <Compile Include="Shared\AphidTests.cs" />
     <Compile Include="AssignmentTests.cs" />
     <Compile Include="ClassTests.cs" />
-    <Compile Include="InteropTestBase.cs" />
+    <Compile Include="Shared\InteropTestBase.cs" />
     <Compile Include="PrintTests.cs" />
     <Compile Include="EqualityTests.cs" />
     <Compile Include="GenericsTests.cs" />
     <Compile Include="DefinedOperatorTests.cs" />
     <Compile Include="ExtensionMethodTests.cs" />
     <Compile Include="CustomOperatorTests.cs" />
-    <Compile Include="ScriptedTests.cs" />
+    <Compile Include="Shared\ScriptedTests.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="IndexTests.cs" />
+    <Compile Include="Shared\TestClass.cs" />
     <Compile Include="TypeCoercionTests.cs" />
     <Compile Include="StatementModifierTests.cs" />
     <Compile Include="IdDirectiveTests.cs" />

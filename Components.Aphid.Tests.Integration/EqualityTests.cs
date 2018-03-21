@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Tests.Integration.Shared;
 using Components.Aphid.TypeSystem;
 using NUnit.Framework;
 using System;

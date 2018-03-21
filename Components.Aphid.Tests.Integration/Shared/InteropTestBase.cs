@@ -8,10 +8,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Tests.Integration
+namespace Components.Aphid.Tests.Integration.Shared
 {
     public abstract class InteropTestBase : AphidTests
     {
+        private static object _sync = new object();
+
         private TypeLoader _loader = new TypeLoader();
 
         protected TypeLoader Loader
@@ -62,6 +64,18 @@ namespace Components.Aphid.Tests.Integration
         }
 
         protected void StaticPathTest<TValue>(
+            string fullMemberName,
+            Action<TValue> assertActual,
+            Action<AphidInterpreter, MemberInfo> begin = null,
+            Action<AphidInterpreter, MemberInfo> end = null)
+        {
+            lock (_sync)
+            {
+                StaticPathTestUnsafe(fullMemberName, assertActual, begin, end);
+            }
+        }
+
+        protected void StaticPathTestUnsafe<TValue>(
             string fullMemberName,
             Action<TValue> assertActual,
             Action<AphidInterpreter, MemberInfo> begin = null,

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Components.Aphid.Tests.Integration.Shared;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Parser;
+using Components.Aphid.Tests.Integration.Shared;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

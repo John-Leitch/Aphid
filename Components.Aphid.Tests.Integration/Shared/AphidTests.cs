@@ -13,7 +13,7 @@ using System.Dynamic;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 
-namespace Components.Aphid.Tests.Integration
+namespace Components.Aphid.Tests.Integration.Shared
 {
     [Parallelizable(ParallelScope.All)]
     public class AphidTests
@@ -161,6 +161,12 @@ namespace Components.Aphid.Tests.Integration
         public static void IsFail(Action action)
         {
             Assert.Catch<AssertionException>(() => action());
+        }
+
+        public static void AllFail(params Action[] actions)
+        {
+            CollectionAssert.IsNotEmpty(actions);
+            actions.Iter(IsFail);
         }
 
         protected void AssertEquals(object expected, string script)

@@ -1,4 +1,5 @@
-﻿using Components.Aphid.UI;
+﻿using Components.Aphid.Tests.Integration.Shared;
+using Components.Aphid.UI;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,18 +8,16 @@ using System.Linq;
 
 namespace Components.Aphid.Tests.Integration
 {
-    public class TestClass
-    {
-        public static bool StaticBoolField;
-
-        public static bool StaticBoolProperty { get; set; }
-    }
-
     // Todo
     // * Cover static members accessed via instance path
     [TestFixture(Category = "AphidInterop"), Parallelizable(ParallelScope.Self)]
     public class InteropTests : InteropTestBase
     {
+        private const string
+            _testClass = "Components.Aphid.Tests.Integration.Shared.TestClass",
+            _staticBoolField = _testClass + ".StaticBoolField",
+            _staticBoolProperty = _testClass + ".StaticBoolProperty";
+
         [Test]
         public void StaticTest1()
         {
@@ -312,85 +311,41 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void StaticFieldGetBoolTest()
         {
-            StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
-                false,
-                setExpected: true);
-
-            // Todo: use for sanity check test
-            //Components.Aphid.Tests.Integration.TestClass.StaticBoolField = false;
-            //Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty = false;
-
-            //StaticGetTest(
-            //    "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
-            //    true,
-            //    setExpectedValue: false);
-
-            //StaticGetTest(
-            //    "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
-            //    true,
-            //    setExpectedValue: false);
+            StaticGetTest(_staticBoolField, false, setExpected: true);
         }
 
         [Test]
         public void StaticFieldGetBoolTest2()
         {
-            StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
-                true,
-                setExpected: true);
+            StaticGetTest(_staticBoolField, true, setExpected: true);
         }
 
         [Test]
         public void StaticPropertyGetBoolTest()
         {
-            StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
-                false,
-                setExpected: true);
+            StaticGetTest(_staticBoolProperty, false, setExpected: true);
         }
 
         [Test]
         public void StaticPropertyGetBoolTest2()
         {
-            StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
-                true,
-                setExpected: true);
+            StaticGetTest(_staticBoolProperty, true, setExpected: true);
         }
 
         [Test]
         public void StaticFieldGetBoolTestFail()
         {
-            IsFail(() => StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
-                true));
-        }
-
-        [Test]
-        public void StaticFieldGetBoolTestFail2()
-        {
-            IsFail(() => StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolField",
-                true,
-                setExpected: false));
+            AllFail(
+                () => StaticGetTest(_staticBoolField, true),
+                () => StaticGetTest(_staticBoolField, true, setExpected: false));
         }
 
         [Test]
         public void StaticPropertyGetBoolTestFail()
         {
-            IsFail(() => StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
-                true));
-        }
-
-        [Test]
-        public void StaticPropertyGetBoolTestFail2()
-        {
-            IsFail(() => StaticGetTest(
-                "Components.Aphid.Tests.Integration.TestClass.StaticBoolProperty",
-                true,
-                setExpected: false));
+            AllFail(
+                () => StaticGetTest(_staticBoolProperty, true),
+                () => StaticGetTest(_staticBoolProperty, true, setExpected: false));
         }
     }
 }

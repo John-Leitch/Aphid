@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.Tests.Integration
+namespace Components.Aphid.Tests.Integration.Shared
 {
     [TestFixture(Category = "ScriptedTests"), Parallelizable(ParallelScope.Self)]
     public class ScriptedTests : AphidTests
@@ -49,6 +49,7 @@ namespace Components.Aphid.Tests.Integration
 
                         interpreter.Interpret(@"
                             using Components.Aphid.Tests.Integration;
+                            using Components.Aphid.Tests.Integration.Shared;
                             isFoo = AphidTests.IsFoo;
                             is9 = AphidTests.Is9;
                             isNull = AphidTests.IsNull;
