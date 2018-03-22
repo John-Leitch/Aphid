@@ -434,6 +434,7 @@
     <None Include="Library\NativeDebugging.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\Wmi.alx" />
     <None Include="Library\Xml.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
