@@ -476,6 +476,12 @@ extend IntPtr {
         .PadLeft(IntPtr.Size == 0x4 ? 0x8 : 0x10, '0'),
 }
 
-getExe = @() Assembly.GetEntryAssembly().Location;
+getExe = @{
+    asm;
+    asm = Assembly.GetEntryAssembly();
+
+    ret asm != null ? asm.Location : null;
+};
+
 getCommand = @() Environment.CommandLine;
 getCommandLineArgs = @() Environment.GetCommandLineArgs();
