@@ -1,0 +1,163 @@
+﻿#'Std';
+#'Test';
+
+var varIntLocalDecl = @{
+    var x = 9;
+    ret x |> is9;
+};
+
+var varStringLocalDecl = @{
+    var x = 'foo';
+    ret x |> isFoo;
+};
+
+var varStringLocalDeclFault = fault(@{
+    var x = 'foo';
+    ret x |> is9;
+});
+
+var varStringLocalDoubleDeclFault = fault(@{
+    var x = 'foo';
+    var x = 'bar';
+    ret x |> is9;
+});
+
+var varStringClosure = @{
+    var x = 9;
+
+    var y = @{
+        var x = 'foo';
+        ret x;
+    }();
+
+    ret x |> is9;
+};
+
+var varStringClosure2 = @{
+    var y = @{
+        var x = 'foo';
+        ret x;
+    }();
+
+    var x = 9;
+    ret x |> is9;
+};
+
+var varStringClosureCapture = @{
+    var x = 9;
+
+    var y = @{
+        ret x;
+    }();
+
+    ret y |> is9;
+};
+
+var varStringClosureOverwrite = @{
+    var x = 'bar';
+
+    var y = @{
+        var x = 9;
+
+        ret x;
+    }();
+
+    ret y |> is9;
+};
+
+var varStringClosureTeardown = @{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var x = 9;
+
+    ret x |> is9;
+};
+
+var varStringClosureTeardown2 = @{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var y = @{
+        var x = 9;
+        ret x;
+    }();
+
+    ret y |> is9;
+};
+
+var varStringClosureTeardownDefined = @{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var x = 9;
+
+    ret x defined;
+};
+
+var varStringClosureTeardownDefined2 = @{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var y = @{
+        var x = 9;
+        ret x defined;
+    }();
+
+    ret y;
+};
+
+var varStringClosureTeardownUndefined = @{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var y = @{
+        var x = 9;
+        ret x;
+    }();
+
+    ret !(x defined);
+};
+
+var varStringClosureTeardownUndefined2 = @{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var y = @{
+        ret !(x defined);
+    }();
+
+    ret y;
+};
+
+var varStringClosureTeardownUndefinedNullRefFault = fault(@{
+    @{
+        var x = 'bar';
+        ret x;
+    }();
+
+    var y = @{
+        var x = 9;
+        ret x;
+    }();
+
+    ret x.ToString();
+});
+
+//varStringLocalDeclFault2 = fault(@{
+    //var x = 'foo';
+    //ret x |> isFoo;
+//});
+//
