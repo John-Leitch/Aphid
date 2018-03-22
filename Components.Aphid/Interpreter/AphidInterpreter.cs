@@ -715,16 +715,32 @@ namespace Components.Aphid.Interpreter
                 var idExp = destinationExpression.ToIdentifier();
                 var id = idExp.Identifier;
 
-                var destObj = InterpretIdentifierExpression(idExp);
-
-                if (destObj == null)
+                if (!idExp.Attributes.Any(x => x.Identifier == "var"))
                 {
-                    CurrentScope.Add(id, value2);
+                    var destObj = InterpretIdentifierExpression(idExp);
+
+                    if (destObj == null)
+                    {
+                        CurrentScope.Add(id, value2);
+                    }
+                    else
+                    {
+                        var parent = CurrentScope.TryResolveParent(id);
+                        parent[id] = value2;
+                    }
                 }
                 else
                 {
-                    var parent = CurrentScope.TryResolveParent(id);
-                    parent[id] = value2;
+                    if (!CurrentScope.ContainsKey(id))
+                    {
+                        CurrentScope.Add(id, value2);
+                    }
+                    else
+                    {
+                        throw CreateRuntimeException(
+                            "Variable '{0}' has already been defined in the current scope.",
+                            id);
+                    }
                 }
 
                 return value2;
