@@ -1,51 +1,131 @@
-﻿#'Std';
-#'Meta';
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
 
-createAsm = @(name) {
-    asm = AppDomain.CurrentDomain
-        .DefineDynamicAssembly(
-            new AssemblyName(name),
-            AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
+createAsm;
+createProgram;
+importOpcodes;
+asmIL;
+execIL;
+execILBlock;
 
-    module = name |> asm.DefineDynamicModule;
+@{
+    #'Std';
+    #'Meta';
 
-    ret {
-        asm,
-        module,
-        setEntryPoint: asm.SetEntryPoint,
-        createEntryPoint: @(ilCallback) {
-            type = module.DefineType(
-                'Program',
-                TypeAttributes.Class | TypeAttributes.Public);
+    createAsm = @(name) {
+        asm = AppDomain.CurrentDomain
+            .DefineDynamicAssembly(
+                new AssemblyName(name),
+                AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
 
-            method = type.DefineMethod(
-                'Main',
-                MethodAttributes.HideBySig |
-                    MethodAttributes.Public |
-                    MethodAttributes.Static,
-                typeof(Void),
-                [ typeof(String).MakeArrayType() ]);
+        module = name |> asm.DefineDynamicModule;
 
-            method.GetILGenerator() |> ilCallback;
-            type.CreateType();
-            method |> asm.SetEntryPoint;
-        },
-        save: asm.Save,
+        ret {
+            asm,
+            module,
+            setEntryPoint: asm.SetEntryPoint,
+            createEntryPoint: @(ilCallback) {
+                type = module.DefineType(
+                    'Program',
+                    TypeAttributes.Class | TypeAttributes.Public);
+
+                method = type.DefineMethod(
+                    'Main',
+                    MethodAttributes.HideBySig |
+                        MethodAttributes.Public |
+                        MethodAttributes.Static,
+                    typeof(Void),
+                    [ typeof(String).MakeArrayType() ]);
+
+                method.GetILGenerator() |> ilCallback;
+                type.CreateType();
+                method |> asm.SetEntryPoint;
+            },
+            save: asm.Save,
         
+        };
     };
-};
 
-createProgram = @(asmName, ilCallback) {
-    asm = asmName |> createAsm;
-    ilCallback |> asm.createEntryPoint;
-    asmName |> asm.save;
-};
+    createProgram = @(asmName, ilCallback) {
+        asm = asmName |> createAsm;
+        ilCallback |> asm.createEntryPoint;
+        asmName |> asm.save;
+    };
 
-importOpcodes = @()
-    (OpCodes |> typeof)
-        .GetFields()
-        ->(@.Name)
-        ->(@(n) this.{'$parent'}.{'$parent'}.{n} =
-            n @String.Format('OpCodes.{0}') |> evalExp);
+    importOpcodes = @()
+        (OpCodes |> typeof)
+            .GetFields()
+            ->(@.Name)
+            ->(@(n) this.{'$parent'}.{'$parent'}.{n} =
+                n @String.Format('OpCodes.{0}') |> evalExp);
+
+    asmIL = @(il) {
+        emit;
+        emitMnemonic;
+        emitGenerate;
+
+        emit = @(instruction) {
+            if (instruction.isCall()) {
+                ret emitGenerate(
+                    instruction.FunctionExpression,
+                    instruction.Args->@()$_.ToString());
+            } else if (instruction.isString()) {
+                ret emitLsdstr(instruction);
+            } else if (instruction.isId()) {
+                ret emitGenerate(instruction.ToString());
+            }
+        };
+
+        emitLsdstr = @(str)
+            emitGenerate('Ldstr', [ str.ToString() ]);
+
+        emitMnemonic = @(mnemonic) {
+        };
+
+        emitGenerate = @(mnemonic, args)
+            $args.Count > 1 && (args |> Enumerable.Any) ?
+                format('$_.Emit(OpCodes.{0}, {1});', mnemonic, args @join(', ')) :
+                format('$_.Emit(OpCodes.{0});', mnemonic);
+
+        ret il->emit @join('\r\n') @format('@{{\r\n{0}\r\n}}') |> evalExp;
+    };
+
+    execILBlock = @(il) {
+        name;
+        typeName;
+        asm;
+        module;
+        type;
+        methodName;
+        method;
+
+        name = 'InlineIL_' + Guid.NewGuid().ToString();
+        typeName = 'InlineILType';
+        methodName = 'Test';
+
+        asm = AppDomain.CurrentDomain
+            .DefineDynamicAssembly(
+                new AssemblyName(name),
+                AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
+
+        module = name |> asm.DefineDynamicModule;
+        type = module.DefineType(typeName, TypeAttributes.Class | TypeAttributes.Public);
+
+        method = type.DefineMethod(
+            methodName,
+            MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Static,
+            typeof(Void),
+            [  ]);
+
+        method.GetILGenerator() @{
+            importOpcodes();
+            $_ |> il;
+        };
+
+        type.CreateType();
+        asm.Save(name);
+        ret type.GetMethod('Test').Invoke(null, []);
+    };
+
+    execIL = asmIL @> execILBlock;
+}();
