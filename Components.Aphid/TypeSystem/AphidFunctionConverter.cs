@@ -67,25 +67,36 @@ namespace Components.Aphid.TypeSystem
             //Todo: Add support for T Call().
             if (methodParams.Length > 0)
             {
-                var genericParamQueue = new Queue<Type>(genericArguments);
+                var argOffset = 0;
 
                 var paramTypes = methodParams
                     .Select(x => !x.ParameterType.IsGenericParameter ?
                         x.ParameterType :
-                        genericParamQueue.Dequeue());
+                        genericArguments[argOffset++]);
 
                 call = call.MakeGenericMethod(
-                        (method.ReturnType == typeof(void) ?
-                            paramTypes :
-                            paramTypes.Concat(new[] { method.ReturnType }))
-                            .ToArray());
+                    (method.ReturnType == typeof(void) ?
+                        paramTypes :
+                        paramTypes.Concat(new[] { method.ReturnType }))
+                        .ToArray());
             }
 
             if (delegateType.ContainsGenericParameters)
             {
+                var argOffset = 0;
+                var curDelegateArgs = delegateType.GetGenericArguments();
+                var delegateTypeParams = new Type[curDelegateArgs.Length];
+
+                for (var i = 0; i < curDelegateArgs.Length; i++)
+                {
+                    delegateTypeParams[i] = !curDelegateArgs[i].IsGenericParameter ?
+                        curDelegateArgs[i] :
+                        genericArguments[argOffset++];
+                }
+
                 delegateType = delegateType
                     .GetGenericTypeDefinition()
-                    .MakeGenericType(genericArguments);
+                    .MakeGenericType(delegateTypeParams);
             }
 
             return call.CreateDelegate(delegateType, wrapper);
