@@ -46,74 +46,89 @@ _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) 
 
 skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
 
-print = @(fmt, arg0) {
-    _no = macro(@(x, f) { x == null ? 'null' : x.GetType().IsPrimitive ? x : f });
-    _n = macro(@(x1, f1) { _no(x1, f1(x1)) });
-    _na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
-    
-    _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
-    
-    _f = macro(@(x5) { 
-        x5 == null ? 'null' :
-        isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
-        x5.ToString()
-    });
-    
-    _styleEscaped = macro(@(x6) {
-        x6 == null ? 'null' :
-        isObject(x6) ? (x6 |> serialize |> Cli.StyleEscape) :
-        _nonPrimitiveToString(x6)
-    });
+_print(print, Cli.WriteLine);
+_print(out, Cli.Write);
+_print(printMsg, Cli.WriteMessage);
 
-    _nonPrimitiveToString = macro(@(value) {
-        !value.GetType().IsPrimitive ? value.ToString() : value
-    });
+_msg = macro(@(msgName) { _msg2(id(print, msgName), id(Write, msgName, Message)) });
+_msg2 = macro(@(printName, cliMember) { _print(printName, Cli.cliMember) });
+_msg(Info);
+_msg(Query);
+_msg(Success);
+_msg(Error);
+_msg(CriticalError);
 
-    if ($args.Count >= 1 && fmt == null) {
-        _t('null format');
-        _null Cli.WriteLine('null', []);
-    } else if ($args.Count > 1 && isCollection(fmt)) {
-        _t('format collection');
-        args = $args |> skip -> @() _na($_);
-        for (x in fmt) {
-            Cli.WriteLine(_styleEscaped(x), args);
-        }
-    } else {
-        switch ($args.Count) {
-            0: {
-                _t('blank line');
-                Cli.WriteLine();
+_print = macro(@(name, write) {
+    name = @(fmt, arg0) {
+        if ($args.Count >= 1 && fmt == null) {
+            _t('null format');
+            _null write('null', []);
+        } else if ($args.Count > 1 && isCollection(fmt)) {
+            _t('format collection');
+            args = $args |> skip -> @() _na($_);
+            for (x in fmt) {
+                write(_styleEscaped(x), args);
             }
-            1: {
-                if (isObject(fmt)) {
-                    _t('serialized object');
-                    Cli.WriteLine(fmt |> serialize |> Cli.StyleEscape);
-                } else if (isCollection(fmt)) {                    
-                    _t('collection');
-                    fmt->@(x) _styleEscaped(x) |> Cli.WriteLine;
-                } else {
-                    _t('scalar');
-                    _scalarFormat(fmt) |> Cli.WriteLine;
+        } else {
+            switch ($args.Count) {
+                0: {
+                    _t('blank value');
+                    write('');
+                }
+                1: {
+                    if (isObject(fmt)) {
+                        _t('serialized object');
+                        write(fmt |> serialize |> Cli.StyleEscape);
+                    } else if (isCollection(fmt)) {
+                        _t('collection');
+                        fmt->@(x) _styleEscaped(x) |> write;
+                    } else {
+                        _t('scalar');
+                        _scalarFormat(fmt) |> write;
+                    }
+                }
+                2: {
+                    if (arg0 != null && (arg0 |> isCollection)) {
+                        _t('arg collection');
+                        arg0->@() _styleEscaped($_) @write(_f(fmt));
+                    } else {
+                        _t('single format arg');
+                        a = _styleEscaped(arg0);
+                        write(fmt, a);
+                    }
+                }
+                default: {
+                    _t('variadic formatted');
+                    args = $args |> skip ->@() _na($_);
+                    write(_f(fmt), args);
                 }
             }
-            2: {
-                if (arg0 != null && (arg0 |> isCollection)) {
-                    _t('arg collection');
-                    arg0->@() _styleEscaped($_) @Cli.WriteLine(_f(fmt));
-                } else {
-                    _t('single format arg');
-                    a = _styleEscaped(arg0);                    
-                    Cli.WriteLine(fmt, a);
-                }
-            }
-            default: {
-                _t('variadic formatted');
-                args = $args |> skip ->@() _na($_);
-                Cli.WriteLine(_f(fmt), args);
-            }
         }
-    }
-};
+    };
+});
+
+_no = macro(@(x, f) { x == null ? 'null' : x.GetType().IsPrimitive ? x : f });
+_n = macro(@(x1, f1) { _no(x1, f1(x1)) });
+_na = macro(@(x2) { _no(x2, Cli.StyleEscape(x2)) });
+
+_scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
+
+_f = macro(@(x5) {
+    x5 == null ? 'null' :
+    isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
+    x5.ToString()
+});
+
+_styleEscaped = macro(@(x6) {
+    x6 == null ? 'null' :
+    isObject(x6) ? (x6 |> serialize |> Cli.StyleEscape) :
+    _nonPrimitiveToString(x6)
+});
+
+_nonPrimitiveToString = macro(@(value) {
+    !value.GetType().IsPrimitive ? value.ToString() : value
+});
+
 
 cls = Console.Clear;
 
