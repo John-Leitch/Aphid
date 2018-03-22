@@ -11,13 +11,12 @@ extend RemoteProxy {
 
     dynamic handle: @(s, name) {
         using System.Text;
-        sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.Append('ret ');
         sb.Append(!String.IsNullOrEmpty(s.BasePath) ? s.BasePath + '.' + name : name);
         sb.Append('(\r\n    ');
 
-        firstArg;
-        firstArg = true;
+        var firstArg = true;
 
         $args @aq.skip(1) -> serialize ->@(s) {
             if (firstArg) {
@@ -30,8 +29,12 @@ extend RemoteProxy {
         };
 
         sb.AppendLine(');');
+
+        var resp = sb.ToString() |> remote._remoteTable.{s.RemoteId}.eval;
         
-        ret (sb.ToString() |> remote._remoteTable.{s.RemoteId}.eval).result;
+        ret resp != null && resp.result defined ?
+            resp.result :
+            { success: false, result: 'Error', obj: resp };
     }
 }
 

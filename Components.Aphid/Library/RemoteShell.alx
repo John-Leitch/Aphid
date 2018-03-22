@@ -5,18 +5,20 @@
 using Components;
 using System.Diagnostics;
 using System.Threading;
+using System.Text;
 
-cmd = getCommand();
-args = getCommandLineArgs() |> Enumerable.ToList;
-getLastArg = @() args |> Enumerable.Last;
-parseIntArg = @() getLastArg() |> Int32.Parse;
-isClient = args.Contains('-connect');
-isHost = args.Contains('-listen');
-isWorker = args.Contains('-pid');
+var cmd = getCommand();
+var argList = getCommandLineArgs() |> Enumerable.ToList;
+var getLastArg = @() argList |> Enumerable.Last;
+var parseIntArg = @() getLastArg() |> Int32.Parse;
+var flag = { connect: '-connect', listen: '-listen', pid: '-pid' };
+var isClient = argList.Contains(flag.connect);
+var isHost = argList.Contains(flag.listen);
+var isWorker = argList.Contains(flag.pid);
 
 _logDate = macro(@{ DateTime.Now.ToString("MM-dd-yy.HH:mm:ss") });
 _logArgs = macro(@{ $args @aq.skip(1) @format($args[0]) });
-log = @() print('[~Cyan~{0}~R~] {1}' :: [ _logDate(), _logArgs() ]);
+var log = @() print('[~Cyan~{0}~R~] {1}' :: [ _logDate(), _logArgs() ]);
 
 head('AphidShell remoting{0}' :: [
     isClient ? ' client' :
@@ -25,7 +27,7 @@ head('AphidShell remoting{0}' :: [
     '' 
 ]);
 
-hostRemote = @{
+var hostRemote = @{
     log('Starting host');
 
     while (true) {
@@ -34,7 +36,7 @@ hostRemote = @{
     }
 };
 
-startChild = @{
+var startChild = @{
     childArgs = "{0} -listen -pid {1}" :: [
         cmd |> ArgLexer.GetTokenInfo |> Enumerable.First @.EndOffset |> cmd.Substring @() $_.Trim(),
         Process.GetCurrentProcess().Id
@@ -46,7 +48,7 @@ startChild = @{
     ret p;
 };
 
-watchParent = @{
+var watchParent = @{
     var t = new Thread(@{
         pId = parseIntArg();
         log('Waiting for parent process ~Cyan~{0}~R~ to exit', pId);
@@ -61,13 +63,14 @@ watchParent = @{
     t.Start();
 };
 
-listen = @{
+var listen = @{
     log('Listening on ~Cyan~{0}~R~', remote.port);
     remote.listen();
+    log('Sleeping');
     Thread.Sleep(-1);
 };
 
-connectShell = @(host) {
+var connectShell = @(host) {
     log('Connecting to remote ~Cyan~{0}~R~', host);
     var remoteShell = remote.connectProxy(host);
     remoteShell.Eval('#"Shell";');
@@ -77,7 +80,7 @@ connectShell = @(host) {
     ret remoteShell;
 };
 
-runInteractive = @(host) {
+var runInteractive = @(host) {
     var remoteShell = connectShell(host);
     var buffer;
 
@@ -88,6 +91,7 @@ runInteractive = @(host) {
             buffer = remoteShell.readOut();
 
             if (buffer != null) {
+                //dumpe(buffer);
                 buffer |> Cli.Write;
             }
         } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
@@ -102,6 +106,55 @@ runInteractive = @(host) {
     }
 };
 
+var readToPrompt = @(proxy) {
+    var sb = new StringBuilder();
+    var buffer;
+
+    do {
+        if (buffer != (buffer = proxy.readOut())) {
+            buffer |> sb.Append;
+        }
+    } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
+
+    ret sb.ToString();
+};
+
+var execRemoteScript = @(host, scriptFile) {
+    printInfo('Executing script file ~Cyan~{0}~R~', scriptFile);
+    ret scriptFile |> File.ReadAllText @execRemoteScriptBlock(host);
+};
+
+var execRemoteScriptBlock = @(host, script) {
+    var result = { out: null };
+
+    try {
+        var remoteShell = connectShell(host);
+        remoteShell.writePrompt();
+        remoteShell |> readToPrompt;
+        remoteShell.execScript(script);
+        remoteShell.writePrompt();
+        result.out = remoteShell |> readToPrompt;
+        using System.Threading;
+        remoteShell.Eval(
+            'using System; using System.Threading;' +
+            't = new Thread(@{ ' +
+                'Thread.Sleep(250); ' +
+                'Environment.Exit(0) }); ' +
+            't.IsBackground = false;' +
+            't.Start()');
+    } catch (e) {
+        if (e != null) {
+            print('Exception: {0}\r\n{1}', e.message, e.stack);
+        }
+
+        result.error = e;
+    }
+
+    result.success = result.out != null;
+
+    ret result;
+};
+
 if (isHost) {
     if (!isWorker) {
         hostRemote();
@@ -110,10 +163,20 @@ if (isHost) {
         listen();
     }    
 } else if (isClient) {
-    getLastArg() |> runInteractive;
-} else if (args.Contains('-test')) {
+    var i = argList.IndexOf(flag.connect);
+
+    if (i == argList.Count - 2) {
+        getLastArg() |> runInteractive;
+    } else {
+        var result = argList |> Enumerable.Last @execRemoteScript('node3');
+
+        if (result.success defined && result.success && result.out defined) {
+            result.out @print('Result:\r\n{0}');
+        }
+    }
+} else if (argList.Contains('-test')) {
     startChild();
     runInteractive('localhost');    
 } else {
-    print('aphid RemoteShell.alx [-listen] [-connect {host}]');
+    print('aphid RemoteShell.alx [-listen] [-connect {host} {file}]');
 }

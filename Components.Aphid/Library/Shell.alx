@@ -1,14 +1,25 @@
-﻿#'Std';
+﻿// Todo:
+// * Custom lexer for dynamic syntax using shared parser logic/structures.
+//   -Perform iterative trasformations to expand token stream with type
+//    Metadata, inlinined funcs/values, folded constants, etc.
+//   -Bytecode support.
+//    * Memoize static and dynamic code, use hash LUT for dynamic code.
+//      | 0x52 | Type Id (u32) | Type Length (u16) | Type (variable) | Member Count Size (u32) |
+//      | 0x53 | Object Id (u32) | Type Id (u32) | Member Count (variable) | Member Seq (variable) |
+//   -Custom member access override for IEnumerable<PSObject> e.g. $foo.Name -> $foo->@.Name
+#'Std';
 #'Query';
 #'Meta';
-// #'Process';
 #'Powershell';
-//cls();
 
 using System.IO;
 using Components.Aphid.UI;
-// AphidCli.ShowClrStack = true;
-// useTracing = true;
+//AphidCli.ShowClrStack = true;
+//useTracing = true;
+
+testScript = @{ %>
+
+<% };
 
 testScript = @{ %>
 
@@ -17,6 +28,23 @@ testScript = @{ %>
     copy c:\temp\test.cmd c:\temp\test2.txt
     out "Done copying file"
     Test-Path c:\temp\test2.txt
+
+<% };
+
+testScript = @{ %>
+    #'Std'
+    #'Meta'
+    using System.Reflection
+    using System.Runtime.CompilerServices
+    
+    attr = Type.GetType System.Runtime.CompilerServices.CompilerGeneratedAttribute
+    isCompilerType = $@(t) t.IsDefined(attr, false)
+    isUserType = $isCompilerType @> @== false
+
+    bin = C:\source\Aphid\Aphid\bin\Debug
+    modules = dir $(bin) *.dll
+    asms = $modules->@.FullName->Assembly.LoadFrom
+    types = $asms-<@()$_.GetTypes()-?isUserType
 
 <% };
 
@@ -117,9 +145,7 @@ _initTraceCore = macro(@(name, fullName) {
         @() {};
 });
 
-shell;
-
-shell = {
+var shell = {
     host: Environment.MachineName,
     input: '',
     interpreter: new AphidInterpreter(),
@@ -326,7 +352,7 @@ shell.parseCommand = @(commandTokens)
 
         shell.token.expression: [ { type: shell.node.expression, node: t.element } ],
         shell.token.concat: [ { type: shell.node.concat, node: t.element } ],
-        fatal('Uknown token type');
+        fatal('Unknown token type');
 
 shell.emitCommand = @(commandAst) {
     node;
@@ -394,7 +420,6 @@ shell.interpretCommand = @(commandObj) {
     resolved;
     args;
     result;
-    lastCwd;
     tmpCwd;
     _initTrace('Resolve');
 
@@ -402,7 +427,7 @@ shell.interpretCommand = @(commandObj) {
         shell.initCwd();
     }
 
-    lastCwd = shell.cwd;
+    var lastCwd = shell.cwd;
 
     if (commandObj.resolved) {
         ret commandObj.values[0];
@@ -601,7 +626,7 @@ shell.resolvers = [
 
 // Todo: check for assignments, includes, etc. and handle 
 // accordingly rather than dumping everything to out
-shell.dumpObject = psContext.restorePSObject @> psContext.outString;
+shell.dumpObject = psContext.restorePSObject @> psContext.outString;// @> Cli.StyleEscape;
 shell.inLine = Console.ReadLine;
 shell.out = Cli.Write;
 shell.outLine = Cli.WriteLine;
@@ -685,7 +710,7 @@ shell.exec = @(command) {
         @{ command |> shell.execCore });
 
     try psContext.engine.Commands.Clear();
-    catch (e) print(
+    catch (e) Console.WriteLine(
         'Error clearing PS commands: {0}\r\n\r\n{1}',
         e.message,
         e.stack);
@@ -747,34 +772,34 @@ shell.listen = @{
 
     shell.writeOut = @(buffer) {
         // ThreadPool.QueueUserWorkItem(@{
-            print('~Cyan~Waiting to write out~R~');
+            Console.WriteLine('~Cyan~Waiting to write out~R~');
             Monitor.Enter(outStream);
-            print('~Cyan~Writing out: {0}~R~', Cli.StyleEscape(buffer.ToString()));
+            Console.WriteLine('~Cyan~Writing out: {0}~R~', Cli.StyleEscape(buffer.ToString()));
             outWriter.Write(buffer.ToString());
             outWriter.Flush();
             shell.waitingForOutput = true;
-            print('~Cyan~Done writing out~R~');
+            Console.WriteLine('~Cyan~Done writing out~R~');
             Monitor.Exit(outStream);
         // });
     };
 
     shell.readOut = @{
-        print('~Cyan~Waiting to read out~R~');
-        buffer;
+        Console.WriteLine('~Cyan~Waiting to read out~R~');
+        var buffer;
 
         while (true) {
             Monitor.Enter(outStream);
 
             if (outStream.Length == 0) {
                 Monitor.Exit(outStream);
-                print('~Cyan~read out sleeping~R~');
+                Console.WriteLine('~Cyan~read out sleeping~R~');
                 Thread.Sleep(100);
                 continue;
             }
 
             outStream.Position = 0;
             buffer = outReader.ReadToEnd();
-            print('~Cyan~Done reading out: {0}~R~', Cli.StyleEscape(buffer));
+            Console.WriteLine('~Cyan~Done reading out: {0}~R~', Cli.StyleEscape(buffer));
             outStream.SetLength(0);
 
             // if (shell.waitingForInput)
@@ -797,7 +822,7 @@ shell.listen = @{
     };
 
     shell.readInLine = @() {
-        print('~Yellow~Waiting to read inLine~R~');
+        Console.WriteLine('~Yellow~Waiting to read inLine~R~');
         buffer;
         buffer = null;
 
@@ -811,11 +836,11 @@ shell.listen = @{
                 continue;
             }
             
-            print('~Yellow~Reading inLine~R~');
+            Console.WriteLine('~Yellow~Reading inLine~R~');
             oldPos = inStream.Position;
             inStream.Position = 0;
             buffer = inReader.ReadToEnd();
-            print('~Yellow~Done reading inLine: {0}~R~', Cli.StyleEscape(buffer));
+            Console.WriteLine('~Yellow~Done reading inLine: {0}~R~', Cli.StyleEscape(buffer));
 
             if (buffer == null || !buffer.EndsWith('\r\n')) {
                 inStream.Position = oldPos;
@@ -827,7 +852,7 @@ shell.listen = @{
             inStream.Position = 0;
             inStream.SetLength(0);
             Monitor.Exit(inStream);
-            print('~Yellow~Done resetting inLine~R~');
+            Console.WriteLine('~Yellow~Done resetting inLine~R~');
             break;
         }
 
@@ -840,9 +865,20 @@ shell.listen = @{
     shell.inLine = shell.readInLine;
     AphidCli.WriteOut = shell.out;
     AphidCli.WriteLineOut = shell.outLine;
+    using Components.External.ConsolePlus;
+    Cli.WriteHandler = shell.writeOut;
+    Cli.WriteLineHandler = @(buffer) shell.writeOut(buffer + '\r\n');
 
     ret true;
 };
+
+shell.interpreter.CurrentScope.shell = {};
+shell.interpreter.CurrentScope.shell.exec = shell.exec;
+shell.interpreter.CurrentScope.shell.execCore = shell.execCore;
+shell.interpreter.CurrentScope.shell.evalCommand = shell.evalCommand;
+shell.interpreter.CurrentScope.shell.psContext = psContext;
+shell.interpret('@ &| (interopCommand) interopCommand |> shell.evalCommand');
+//shell |> keys -> @(k) shell.interpreter.CurrentScope.shell.{k} = shell.{k};
 
 if (useTracing defined && useTracing) shell.trace();
 

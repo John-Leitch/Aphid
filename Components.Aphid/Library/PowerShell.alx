@@ -62,18 +62,21 @@ initPSInterop = @{
                 obj,
 
         importPSObject: @(psObj) {
-            //print('checking enumerable');
+            _initTrace('PSInterop');
+            tracePSInterop('importPSObject checking enumerable');
             
             if (psObj @isEnumerableOf(psContext.psObject)) {
-                //print('recursing');
+                tracePSInterop('importPSObject recursing');
                 ret psObj->importPSObject;
             } else if (
                 psObj == null ||
                 psObj.GetType() != psContext.psObject) {
+                tracePSInterop('importPSObject returning');
                 ret psObj;
             } 
 
             //print('converting');
+            tracePSInterop('importPSObject converting');
 
             o;
             o = {
@@ -265,7 +268,7 @@ initPSInterop = @{
         toAphidObject: psContext.importPSObject,
     }
 
-    testPSInterop();
+    //testPSInterop();
 };
 
 testPSInterop = macro(@{
