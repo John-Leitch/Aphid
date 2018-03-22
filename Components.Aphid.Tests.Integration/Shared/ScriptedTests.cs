@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.TypeSystem;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -61,9 +62,12 @@ namespace Components.Aphid.Tests.Integration.Shared
                         return interpreter;
                     };
 
-                    var tests = create().CurrentScope.Keys
+                    var scope = create().CurrentScope;
+
+                    var tests = scope.Keys
                         .SkipWhile(x => x != "tests")
                         .Skip(1)
+                        .Where(x => scope[x].Value != null && scope[x].Value is AphidFunction)
                         .ToArray();
 
                     foreach (var t in tests)

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Dynamic;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
+using System.Collections;
 
 namespace Components.Aphid.Tests.Integration.Shared
 {
@@ -261,6 +262,11 @@ namespace Components.Aphid.Tests.Integration.Shared
         protected void AssertExpFalse(string expression)
         {
             AssertFalse(CreateStatement(expression));
+        }
+
+        protected void AssertCollectionIs<TElement>(string script, params TElement[] expected)
+        {
+            CollectionAssert.AreEqual(expected, (IEnumerable)Execute(script).Value);
         }
     }
 }

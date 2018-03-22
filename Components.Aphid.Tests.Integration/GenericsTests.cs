@@ -180,12 +180,61 @@ namespace Components.Aphid.Tests.Integration
             ");
         }
 
+        [Test, Ignore("Fix generic delegate inference/conversion.")]
+        public void EnumerableAphidListSelectTest()
+        {
+            AssertCollectionIs(
+                @"using System.Linq; ret Enumerable.Select(0..3, @(x) x * x)",
+                0,
+                1,
+                4);
+        }
+
         [Test]
         public void EnumerableAphidListWhereTest()
         {
             Assert9(@"
                 using System.Linq;
                 ret Enumerable.Where(0..18, @(x)(x&1)==0) |> Enumerable.Count;
+            ");
+        }
+
+        [Test]
+        public void EnumerableAphidListWherePartialPipeTest()
+        {
+            Assert9(@"
+                using System.Linq;
+                ret (@(x)(x&1)==0) @Enumerable.Where(0..18) |> Enumerable.Count;
+            ");
+        }
+
+        [Test]
+        public void EnumerableAphidListFirstPredicateTest()
+        {
+            Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @(x)(x&1)==1);");
+        }
+
+        [Test]
+        public void EnumerableAphidListFirstPredicateImplicitArgTest()
+        {
+            Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @()($_&1)==1);");
+        }
+
+        [Test]
+        public void EnumerableAphidListFirstPredicateImplicitArgFailTest()
+        {
+            AllFail(
+                () => Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@(x)(x&1)==0);"),
+                () => Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@()($_&1)==0);"));
+        }
+
+        [Test, Ignore("Fix generic delegate inference/conversion.")]
+        public void EnumerableAphidListOrderByTest()
+        {
+            AssertFoo(@"
+                using System.Linq;
+                ret Enumerable.OrderBy(['hello world', 'foo', 'test 1234'], @() $_.Length)
+                    |> Enumerable.First;
             ");
         }
     }

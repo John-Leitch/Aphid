@@ -1,0 +1,29 @@
+﻿#'Std';
+#'Test';
+
+objSet = [
+    { x: 'fo', y: 'abc', a: 'foo', b: '', },
+    { x: 'o', y: 'def', a: '', b: 'foo', }
+];
+
+_id = macro(@(lhs, rhs){ id(partialOperator, lhs, rhs) });
+
+_select = macro(@(tag, wrap, map) {
+    _id(MemberConcat, tag) = wrap(@{ objSet->(map) |> concat |> isFoo })
+});
+
+_select('', success, @.x);
+_select('2', success, @.a);
+_select('3', success, @.b);
+//_select(ToString, success, @.b.ToString());
+_select(Fault, fault, @.y);
+_select(Fault2, fault, @.z);
+
+_sqr = macro(@(tag, wrap, input, check) {
+    _id(BinaryWithImplicitArg, tag) = wrap(@{ sqr = @*$_; input |> sqr |> check });
+    _id(BinaryWithImplicitPipeAndArg, tag) = wrap(@{ input @*$_ |> check });
+});
+
+_sqr('', success, 3, is9);
+_sqr(Fault, fault, 4, is9);
+_sqr(Fault2, fault, 3, isFoo);
