@@ -1641,7 +1641,7 @@ namespace Components.Aphid.Interpreter
                 !expression.Identifier.Attributes.Any() ||
                 expression.Identifier.Attributes[0].Identifier != "class")
             {
-                var obj = new AphidObject(null, CurrentScope);
+                var obj = new AphidObject { Parent = CurrentScope };
                 CurrentScope = obj;
 
                 foreach (var kvp in expression.Pairs)
