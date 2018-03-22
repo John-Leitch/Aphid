@@ -48,7 +48,8 @@ skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
 
 _print(print, Cli.WriteLine);
 _print(out, Cli.Write);
-_print(printMsg, Cli.WriteMessage);
+// Todo: add print*() support for Cli.WriteMessage
+// _print(printMsg, Cli.WriteMessage);
 
 _msg = macro(@(msgName) { _msg2(id(print, msgName), id(Write, msgName, Message)) });
 _msg2 = macro(@(printName, cliMember) { _print(printName, Cli.cliMember) });
