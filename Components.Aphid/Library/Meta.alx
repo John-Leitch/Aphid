@@ -341,6 +341,7 @@ extend AphidExpression {
     isBinOp: @(x) x.is(BinaryOperator),
     isObj: @(x) x.is(Object),
     isExt: @(exp, type) exp.is(Extend) \ exp.extType() == (1`0),
+    isString: @(x) x.is(String),
     isText: @(x) x.is(Text),
 
     init: @(exp) {
