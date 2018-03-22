@@ -107,6 +107,21 @@ namespace Components.Aphid.Tests.Integration.Shared
             return interpreter.GetReturnValue();
         }
 
+        protected void Execute(string script, Action<AphidObject> action)
+        {
+            action(Execute(script));
+        }
+
+        protected void Is(string script, Func<AphidObject, bool> predicate)
+        {
+            Assert.IsTrue(predicate(Execute(script)));
+        }
+
+        protected void Is<TValue>(string script, Func<TValue, bool> predicate)
+        {
+            Assert.IsTrue(predicate((TValue)Execute(script).Value));
+        }
+
         protected List<AphidToken> GetTokens(string script)
         {
             return new AphidLexer(script).GetAllTokens();
@@ -160,13 +175,37 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         public static void IsFail(Action action)
         {
-            Assert.Catch<AssertionException>(() => action());
+            IsThrow<AssertionException>(action);
         }
 
         public static void AllFail(params Action[] actions)
         {
             CollectionAssert.IsNotEmpty(actions);
             actions.Iter(IsFail);
+        }
+
+        public static void IsThrow(Action action)
+        {
+            Assert.Catch(() => action());
+        }
+
+        public static void AllThrow(params Action[] actions)
+        {
+            CollectionAssert.IsNotEmpty(actions);
+            actions.Iter(IsThrow);
+        }
+
+        public static void IsThrow<TException>(Action action)
+            where TException : Exception
+        {
+            Assert.Catch<TException>(() => action());
+        }
+
+        public static void AllThrow<TException>(params Action[] actions)
+            where TException : Exception
+        {
+            CollectionAssert.IsNotEmpty(actions);
+            actions.Iter(IsThrow<TException>);
         }
 
         protected void AssertEquals(object expected, string script)

@@ -7,7 +7,7 @@ namespace Components.Aphid.Tests.Integration
     public class GenericsTests : AphidTests
     {
         [Test]
-        public void GenericTest1()
+        public void EnumerableRangeCountTest()
         {
             Assert9(@"
                 using System.Linq;
@@ -17,7 +17,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericTest2()
+        public void EnumerableRangeLastTest()
         {
             Assert9(@"
                 using System.Linq;
@@ -27,7 +27,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericTest3()
+        public void EnumerableAphidListFirstTest()
         {
             AssertFoo(@"
                 using System.Linq;
@@ -37,7 +37,7 @@ namespace Components.Aphid.Tests.Integration
         }
         
         [Test]
-        public void GenericTest4()
+        public void EnumerableAphidListLastTest()
         {
             AssertFoo(@"
                 using System.Linq;
@@ -47,7 +47,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericTest5()
+        public void EnumerableAphidListSkipFirstTest()
         {
             AssertFoo(@"
                 using System.Linq;
@@ -58,18 +58,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericTest6()
-        {
-            AssertFoo(@"
-                using System.Linq;
-                
-                ret Enumerable.Take([ 'bar', 'a', 'foo', 'b' ], 3)
-                    |> Enumerable.Last;
-            ");
-        }
-
-        [Test]
-        public void GenericTest7()
+        public void EnumerableAphidListSkipFirstTest2()
         {
             Assert9(@"
                 using System.Linq;
@@ -80,7 +69,18 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericTest8()
+        public void EnumerableAphidListTakeLastTest()
+        {
+            AssertFoo(@"
+                using System.Linq;
+                
+                ret Enumerable.Take([ 'bar', 'a', 'foo', 'b' ], 3)
+                    |> Enumerable.Last;
+            ");
+        }
+
+        [Test]
+        public void EnumerableAphidListTakeLastTest2()
         {
             Assert9(@"
                 using System.Linq;
@@ -91,7 +91,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualTest()
+        public void EnumerableAphidListSequenceEqualTest()
         {
             AssertTrue(@"
                 using System.Linq;
@@ -101,7 +101,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualTest2()
+        public void EnumerableAphidListSequenceEqualTest2()
         {
             AssertFalse(@"
                 using System.Linq;
@@ -111,7 +111,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualTest3()
+        public void EnumerableAphidListSequenceEqualTest3()
         {
             AssertFalse(@"
                 using System.Linq;
@@ -121,7 +121,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualPipelineTest()
+        public void EnumerableAphidListSequenceEqualPartialImplicitPipeTest()
         {
             AssertTrue(@"
                 using System.Linq;
@@ -131,7 +131,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualPipelineTest2()
+        public void EnumerableAphidListSequenceEqualPartialImplicitPipeTest2()
         {
             AssertFalse(@"
                 using System.Linq;
@@ -141,7 +141,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualPipelineTest3()
+        public void EnumerableAphidListSequenceEqualPartialImplicitPipeTest3()
         {
             AssertFalse(@"
                 using System.Linq;
@@ -151,7 +151,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualPartialApplicationTest()
+        public void EnumerableAphidListSequenceEqualPartialPipeTest()
         {
             AssertTrue(@"
                 using System.Linq;
@@ -161,7 +161,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualPartialApplicationTest2()
+        public void EnumerableAphidListSequenceEqualPartialPipeTest2()
         {
             AssertFalse(@"
                 using System.Linq;
@@ -171,12 +171,21 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void GenericSequenceEqualPartialApplicationTest3()
+        public void EnumerableAphidListSequenceEqualPartialPipeTest3()
         {
             AssertFalse(@"
                 using System.Linq;
                 p = @Enumerable.SequenceEqual([1, 2, 3]);
                 ret [1, 2, 3, 4] |> p;
+            ");
+        }
+
+        [Test]
+        public void EnumerableAphidListWhereTest()
+        {
+            Assert9(@"
+                using System.Linq;
+                ret Enumerable.Where(0..18, @(x)(x&1)==0) |> Enumerable.Count;
             ");
         }
     }

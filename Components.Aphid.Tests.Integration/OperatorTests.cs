@@ -110,6 +110,12 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void AdditionAndAssignmentRetTest()
+        {
+            Assert9("x = 2; ret x += 7;");
+        }
+
+        [Test]
         public void SubtractionAndAssignmentTest()
         {
             Assert9("x = 11; x -= 2; ret x;");

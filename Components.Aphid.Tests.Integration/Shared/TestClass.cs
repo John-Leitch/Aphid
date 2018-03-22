@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Components.Aphid.TypeSystem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,25 @@ namespace Components.Aphid.Tests.Integration.Shared
 {
     public class TestClass
     {
+        private TestClass()
+        {
+            RootControl = new TextBox("TextBox1")
+            {
+                Position = new Vector3D(10, 20, 5),
+                Width = 20,
+                Height = 30,
+                Value = "Name1",
+                MaxLength = 0x100,
+                IsTrusted = false,
+            };
+        }
+
         public static bool StaticBoolField;
 
         public static bool StaticBoolProperty { get; set; }
+
+        public static AphidObject StaticAphidObjectProperty { get; set; }
+
+        public static UIComponent RootControl { get; set; }
     }
 }
