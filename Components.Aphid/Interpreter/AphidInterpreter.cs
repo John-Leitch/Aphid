@@ -684,16 +684,35 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private object InterpetAssignmentExpression(BinaryOperatorExpression expression, bool returnRef = false)
+        private object InterpetAssignmentExpression(
+            BinaryOperatorExpression expression,
+            bool returnRef = false)
         {
             var value = InterpretExpression(expression.RightOperand);
+            var result = InterpetAssignmentExpression(
+                expression.LeftOperand,
+                value,
+                returnRef,
+                expression);
+
+            return result;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private object InterpetAssignmentExpression(
+            AphidExpression destinationExpression,
+            object value,
+            bool returnRef = false,
+            AphidExpression completeExpression = null)
+        {
+            //var value = InterpretExpression(expression.RightOperand);
             var value2 = ValueHelper.Wrap(value);
             AphidFunction func;
 
 
-            if (expression.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
+            if (destinationExpression.Type == AphidExpressionType.IdentifierExpression)
             {
-                var idExp = expression.LeftOperand.ToIdentifier();
+                var idExp = destinationExpression.ToIdentifier();
                 var id = idExp.Identifier;
 
                 var destObj = InterpretIdentifierExpression(idExp);
@@ -710,9 +729,9 @@ namespace Components.Aphid.Interpreter
 
                 return value2;
             }
-            else if (expression.LeftOperand.Type == AphidExpressionType.ArrayAccessExpression)
+            else if (destinationExpression.Type == AphidExpressionType.ArrayAccessExpression)
             {
-                var arrayAccessExp = (ArrayAccessExpression)expression.LeftOperand;
+                var arrayAccessExp = (ArrayAccessExpression)destinationExpression;
                 var targetObj = InterpretExpression(arrayAccessExp.ArrayExpression);
                 var targetObjUnwrapped = ValueHelper.Unwrap(targetObj);
 
@@ -767,10 +786,10 @@ namespace Components.Aphid.Interpreter
                     }
                 }
             }
-            else if (expression.LeftOperand.Type == AphidExpressionType.BinaryOperatorExpression)
+            else if (destinationExpression.Type == AphidExpressionType.BinaryOperatorExpression)
             {
                 var obj = InterpretBinaryOperatorExpression(
-                    (BinaryOperatorExpression)expression.LeftOperand,
+                    (BinaryOperatorExpression)destinationExpression,
                     true);
 
                 var objRef = obj as AphidRef;
@@ -779,7 +798,7 @@ namespace Components.Aphid.Interpreter
                 {
                     if (objRef.Object == null)
                     {
-                        throw CreateRuntimeException("Undefined variable {0}", expression.LeftOperand);
+                        throw CreateRuntimeException("Undefined variable {0}", destinationExpression);
                     }
                     else if (objRef.Object.ContainsKey(objRef.Name))
                     {
@@ -825,7 +844,7 @@ namespace Components.Aphid.Interpreter
                 {
                     obj = InterpretMemberInteropExpression(
                         null,
-                        (BinaryOperatorExpression)expression.LeftOperand,
+                        (BinaryOperatorExpression)destinationExpression,
                         returnRef: true);
 
                     interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
@@ -875,7 +894,7 @@ namespace Components.Aphid.Interpreter
             {
                 throw CreateRuntimeException(
                     "Invalid left hand side of assignment expression: {0}",
-                    expression);
+                    completeExpression ?? destinationExpression);
             }
 
             return value;
@@ -932,11 +951,17 @@ namespace Components.Aphid.Interpreter
             Func<AphidObject, AphidObject, AphidObject> performOperation,
             BinaryOperatorExpression expression)
         {
-            var left = InterpretExpression(expression.LeftOperand) as AphidObject;
-            var value = performOperation(left, InterpretExpression(expression.RightOperand) as AphidObject);
-            left.Value = value.Value;
+            var value = performOperation(
+                (AphidObject)InterpretExpression(expression.LeftOperand), 
+                (AphidObject)InterpretExpression(expression.RightOperand));
 
-            return left;
+            var result = InterpetAssignmentExpression(
+                expression.LeftOperand,
+                value,
+                returnRef: false,
+                completeExpression: expression);
+
+            return ValueHelper.Wrap(result);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
