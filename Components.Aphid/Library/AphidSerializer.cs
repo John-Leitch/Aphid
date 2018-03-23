@@ -4,6 +4,7 @@ using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using Components.Aphid.TypeSystem;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +34,8 @@ namespace Components.Aphid.Library
         {
             return Regex.Replace(s, @"([\\'])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
         }
+
+        public class FooTest { public string Foo { get; set; } }
 
         private void ObjToString(AphidObject obj, StringBuilder s, int indent)
         {
@@ -83,15 +86,18 @@ namespace Components.Aphid.Library
                 return;
             }
 
+            Type objType;
+
             if (obj.Value != null)
             {
                 if (obj.Value is bool)
                 {
                     s.Append(obj.Value.ToString().ToLower());
                 }
-                else if (obj.Value is decimal)
+                //else if (obj.Value is decimal)
+                else if ((objType = obj.Value.GetType()).IsPrimitive || objType.IsEnum)
                 {
-                    s.Append(obj.Value);
+                    s.Append(obj.Value.ToString());
                 }
                 else if (obj.Value is string)
                 {
@@ -111,9 +117,20 @@ namespace Components.Aphid.Library
 
                     s.AppendFormat("{0}]", new string(' ', indent * 4));
                 }
+                else if (obj.Value is IEnumerable)
+                {
+                    SerializeEnumerable(s, obj.Value, indent);
+                }
                 else
                 {
-                    s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
+                    SerializeToString(s, obj.Value);
+
+                    //var f = new FooTest { Foo = "hello world" };
+
+                    //var s123 = obj.Value.GetType().GetMethod("ToString", new Type[0]);
+                    //var s1234 = f.GetType().GetMethod("ToString", new Type[0]);
+                    
+                    //s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
                 }
             }
             else
@@ -142,6 +159,189 @@ namespace Components.Aphid.Library
                 }
 
                 s.AppendFormat("{0}}}", new string(' ', indent * 4));
+            }
+        }
+
+        private void Serialize(StringBuilder s, object obj, int indent)
+        {
+            var ao = obj as AphidObject;
+
+            if (obj == null)
+            {
+                s.Append("null");
+
+                return;
+            }
+
+            var circular = false;
+
+            Action<object> checkGraph = x =>
+            {
+                if (x == null || !Interpreter.ValueHelper.IsComplexAphidObject(x))
+                {
+                    return;
+                }
+                else if (_traversed.Contains(x))
+                {
+                    s.Append(_traversedPaths[x]);
+                    circular = true;
+                }
+                else
+                {
+                    _traversedPaths.Add(
+                        x,
+                        string.Join(
+                            ".",
+                            _currentPath
+                                .Select(y => !ShouldQuote(y) ? y : string.Format("{{'{0}'}}", y))
+                                .Reverse()));
+                    _traversed.Add(x);
+                }
+            };
+
+            checkGraph(obj);
+
+            if (circular)
+            {
+                return;
+            }
+
+            if (ao != null)
+            {
+                checkGraph(ao.Value);
+
+                if (circular)
+                {
+                    return;
+                }
+            }
+
+            if (ao.Value != null)
+            {
+                SerializeValue(s, ao.Value, indent);
+            }
+            else
+            {
+                s.Append("{\r\n");
+
+                foreach (var kvp in ao)
+                {
+                    if (IgnoreFunctions &&
+                        kvp.Value != null &&
+                        (kvp.Value.Value is AphidFunction ||
+                        kvp.Value.Value is AphidInteropFunction))
+                    {
+                        continue;
+                    }
+
+                    s.AppendFormat(
+                        !ShouldQuote(kvp.Key) ? "{0}{1}: " : "{0}'{1}':",
+                        new string(' ', (indent + 1) * 4),
+                        kvp.Key);
+
+                    _currentPath.Push(kvp.Key);
+                    ObjToString(kvp.Value, s, indent + 1);
+                    _currentPath.Pop();
+                    s.Append(",\r\n");
+                }
+
+                s.AppendFormat("{0}}}", new string(' ', indent * 4));
+            }
+        }
+
+        private void SerializeValue(StringBuilder s, object value, int indent)
+        {
+            if (value == null)
+            {
+                throw new ArgumentException();
+            }
+            var objType = value.GetType();
+
+            if (objType == typeof(AphidObject))
+            {
+                ObjToString((AphidObject)value, s, indent);
+                return;
+            }
+
+            if (value is bool)
+            {
+                s.Append(value.ToString().ToLower());
+            }
+            //else if (value is decimal)
+            else if ((objType = value.GetType()).IsPrimitive || objType.IsEnum)
+            {
+                s.Append(value.ToString());
+            }
+            else if (value is string)
+            {
+                s.Append(string.Format("'{0}'", Escape((string)value)));
+            }
+            else if (value is List<AphidObject>)
+            {
+                var list = (List<AphidObject>)value;
+                s.Append("[\r\n");
+
+                foreach (var x in list)
+                {
+                    s.Append(new string(' ', (indent + 1) * 4));
+                    ObjToString(x, s, indent + 1);
+                    s.Append(",\r\n");
+                }
+
+                s.AppendFormat("{0}]", new string(' ', indent * 4));
+            }
+            else if (value is IEnumerable)
+            {
+                SerializeEnumerable(s, value, indent);
+            }
+            else
+            {
+                SerializeToString(s, value);
+            }
+        }
+
+        private void SerializeEnumerable(StringBuilder s, object value, int indent)
+        {
+            var enumerable = (IEnumerable)value;
+            s.Append("[\r\n");
+
+            foreach (var x in enumerable)
+            {
+                s.Append(new string(' ', (indent + 1) * 4));
+                SerializeValue(s, x, indent + 1);
+                //ObjToString(x, s, indent + 1);
+                s.Append(",\r\n");
+            }
+
+            s.AppendFormat("{0}]", new string(' ', indent * 4));
+        }
+
+        private void SerializeToString(StringBuilder s, object value)
+        {
+            if (value == null)
+            {
+                s.Append("null");
+                
+                return;
+            }
+
+            Type valueType;
+
+            var hasToString =
+                (valueType = value.GetType())
+                .GetMethod("ToString", new Type[0])
+                .DeclaringType == typeof(object);
+
+            if (hasToString ||
+                valueType.IsPrimitive ||
+                valueType.IsEnum ||
+                valueType == typeof(decimal))
+            {
+                s.Append(value.ToString());
+            }
+            else
+            {
+                s.AppendFormat("new {0}()", value.GetType().Name);
             }
         }
 
