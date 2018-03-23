@@ -29,15 +29,21 @@ var wmi;
     extend PropertyDataCollection { toList: _tl() }
     
     wmi = {
+        preserveFixedNames: false,
         query: @(wmiQuery) {
             var searcher = new ManagementObjectSearcher(wmiQuery);
             var results = searcher.Get().toList();
 
             ret results->@(mo) {
                 var ao = { wmiObj: mo };
-                [$_.SystemProperties, $_.Properties]
-                    -<(@()$_.toList())
-                    ->@(p) [ p.Name, wmi.fixName(p.Name) ]
+
+                var allProps = [$_.SystemProperties, $_.Properties]
+                    -<(@()$_.toList());
+
+                allProps
+                    ->@(p) (preserveFixedNames ?
+                        @() [ p.Name, wmi.fixName(p.Name) ] :
+                        @() [ wmi.fixName(p.Name) ])()
                         !?->@(n) ao.{n} = p.Value;
 
                 ret ao;
