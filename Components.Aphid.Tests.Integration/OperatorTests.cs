@@ -196,7 +196,7 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void RangeTest()
         {
-            Assert9("#'std'; ret (0 .. 9).count();");
+            Assert9("ret (0 .. 9).count();");
         }
 
         [Test]
