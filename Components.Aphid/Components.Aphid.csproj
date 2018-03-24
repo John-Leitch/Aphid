@@ -220,6 +220,8 @@
     <Compile Include="External\XmlSerializerExtension.cs" />
     <Compile Include="IAphidException.cs" />
     <Compile Include="Interpreter\AphidInternalException.cs" />
+    <Compile Include="Serialization\AphidObjectThisKeywordMutator.cs" />
+    <Compile Include="Serialization\AphidObjectReferenceVisitor.cs" />
     <Compile Include="TypeSystem\AphidAlias.cs" />
     <Compile Include="TypeSystem\AphidAssemblyBuilder.cs" />
     <Compile Include="TypeSystem\AphidConversionInfo.cs" />
@@ -409,7 +411,7 @@
     <None Include="Aphid.Code.alx" />
     <None Include="Aphid.Tokens.alx" />
     <None Include="Aphid.Tmpl.alx" />
-    <None Include="AphidObject.alx" />
+    <None Include="Serialization\AphidObject.alx" />
     <None Include="App.config" />
     <None Include="AphidCustomOperators.alx" />
     <Resource Include="Compiler\Medusa\LLex\Resources\Lang.CSharp.alx" />

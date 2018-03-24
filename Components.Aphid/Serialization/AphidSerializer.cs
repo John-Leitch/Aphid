@@ -29,7 +29,7 @@ namespace Components.Aphid.Serialization
     //       GZ, etc.
     public class AphidSerializer : AphidRuntimeComponent
     {
-        private const string _root = "obj";
+        public const string Root = "obj";
 
         private List<object> _traversed;
 
@@ -45,12 +45,17 @@ namespace Components.Aphid.Serialization
             IgnoreFunctions = true;
         }
 
-        private string Escape(string s)
+        public string Serialize(AphidObject o)
         {
-            return Regex.Replace(s, @"([\\'])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
-        }
+            _traversedPaths.Clear();
+            _currentPath.Clear();
+            _currentPath.Push("this");
+            _traversed = new List<object>();
+            var sb = new StringBuilder();
+            Serialize(sb, o, 0);
 
-        public class FooTest { public string Foo { get; set; } }
+            return sb.ToString();
+        }
 
         private void Serialize(StringBuilder s, object obj, int indent)
         {
@@ -237,20 +242,7 @@ namespace Components.Aphid.Serialization
                 s.AppendFormat("clrObject({0})", value.GetType().FullName);
             }
         }
-
-        public string Serialize(AphidObject o)
-        {
-            _traversedPaths.Clear();
-            _currentPath.Clear();
-            _currentPath.Push("this");
-            _traversed = new List<object>();
-            var sb = new StringBuilder();
-            //ObjToString(o, sb, 0);
-            Serialize(sb, o, 0);
-
-            return sb.ToString();
-        }
-
+        
         public AphidObject Deserialize(string obj)
         {
             var lexer = new AphidObjectLexer(obj);
@@ -268,7 +260,7 @@ namespace Components.Aphid.Serialization
             }
 
             ast[0] = new BinaryOperatorExpression(
-                new IdentifierExpression(_root).WithPositionFrom(ast[0]),
+                new IdentifierExpression(Root).WithPositionFrom(ast[0]),
                 AphidTokenType.AssignmentOperator,
                 ast[0]);
 
@@ -281,7 +273,7 @@ namespace Components.Aphid.Serialization
             var objInterpreter = new AphidInterpreter();
             objInterpreter.Interpret(ast);
 
-            return objInterpreter.CurrentScope[_root];
+            return objInterpreter.CurrentScope[Root];
         }
 
         private bool ShouldQuote(string key)
@@ -303,141 +295,9 @@ namespace Components.Aphid.Serialization
             }
         }
 
-        private class AphidObjectThisKeywordMutator : AphidMutator
+        private string Escape(string s)
         {
-            protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
-            {
-                if (expression.Type != AphidExpressionType.ThisExpression &&
-                    (expression.Type != AphidExpressionType.IdentifierExpression ||
-                        expression.ToIdentifier().Identifier != "this"))
-                {
-                    hasChanged = false;
-
-                    return null;
-                }
-
-                hasChanged = true;
-
-                return new List<AphidExpression> { new IdentifierExpression(_root) };
-            }
-        }
-
-        private class AphidObjectReferenceVisitor : AphidVisitor
-        {
-            private ObjectExpression _object;
-
-            private ArrayExpression _array;
-
-            private BinaryOperatorExpression _member;
-
-            private Stack<AphidExpression> _currentPath;
-
-            private List<BinaryOperatorExpression> _refAssignments;
-
-            public IEnumerable<BinaryOperatorExpression> FindReferenceAssignments(List<AphidExpression> ast)
-            {
-                Visit(ast);
-
-                return _refAssignments.ToArray();
-            }
-
-            protected override void Visit(AphidExpression expression)
-            {
-                if (_member != null &&_member == expression && IsRef(_member.RightOperand))
-                {
-                    AddMemberReference(expression);
-                }
-            }
-
-            private void AddMemberReference(AphidExpression expression)
-            {
-                AphidExpression lhs = null;
-
-                foreach (var x in _currentPath.Reverse())
-                {
-                    if (lhs != null)
-                    {
-                        lhs = new BinaryOperatorExpression(lhs, AphidTokenType.MemberOperator, x)
-                            .WithPositionFrom(x);
-                    }
-                    else
-                    {
-                        lhs = x;
-                    }
-                }
-
-                _refAssignments.Add(
-                    new BinaryOperatorExpression(
-                        lhs,
-                        AphidTokenType.AssignmentOperator,
-                        _member.RightOperand));
-
-
-                var i = _object.Pairs.IndexOf(_member);
-                _object.Pairs.RemoveAt(i);
-
-                _object.Pairs.Insert(
-                    i,
-                    new BinaryOperatorExpression(
-                        _member.LeftOperand,
-                        _member.Operator,
-                        AphidParser.Parse("null").First()));
-            }
-
-            protected override void BeginVisit(List<AphidExpression> ast)
-            {
-                _currentPath = new Stack<AphidExpression>(
-                    new[] { new IdentifierExpression(_root) });
-
-                _refAssignments = new List<BinaryOperatorExpression>();
-            }
-
-            protected override void BeginVisitNode(AphidExpression expression)
-            {
-                if (IsMember(expression))
-                {
-                    _object = Ancestors.Peek().ToObject();
-                    _member = expression.ToBinaryOperator();
-                    _currentPath.Push(_member.LeftOperand);
-                }
-                else if (IsArray(expression))
-                {
-                    _array = expression.ToArray();
-                }
-            }
-
-            protected override void EndVisitNode(AphidExpression expression)
-            {
-                if (IsMember(expression))
-                {
-                    _currentPath.Pop();
-                    _member = null;
-                    _object = null;
-                }
-                else if (IsArray(expression))
-                {
-                    _array = null;
-                }
-            }
-
-            private bool IsMember(AphidExpression expression)
-            {
-                return expression != null &&
-                    expression.Type == AphidExpressionType.BinaryOperatorExpression &&
-                    Ancestors.Count >= 1 &&
-                    Ancestors.Peek().Type == AphidExpressionType.ObjectExpression;
-            }
-
-            private bool IsArray(AphidExpression expression)
-            {
-                return expression != null && expression.Type == AphidExpressionType.ArrayExpression;
-            }
-
-            private bool IsRef(AphidExpression expression)
-            {
-                return expression.Type == AphidExpressionType.IdentifierExpression ||
-                    expression.Type == AphidExpressionType.BinaryOperatorExpression;
-            }
+            return Regex.Replace(s, @"([\\'])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
         }
     }
 }
