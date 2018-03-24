@@ -168,7 +168,8 @@ if (isHost) {
     if (i == argList.Count - 2) {
         getLastArg() |> runInteractive;
     } else {
-        var result = argList |> Enumerable.Last @execRemoteScript('node3');
+        var script = argList[argList.Count - 2];
+        var result = argList |> Enumerable.Last @execRemoteScript(script);
 
         if (result.success defined && result.success && result.out defined) {
             result.out @print('Result:\r\n{0}');
