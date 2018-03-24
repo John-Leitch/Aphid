@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime;
 using Components.Aphid.Library;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.Serialization;
 
 namespace Components.Aphid.Interpreter
 {
@@ -27,11 +28,6 @@ namespace Components.Aphid.Interpreter
     //   - Spin up secondary interpreter during preprocessing to easily
     //     support state, complex filter/projection, etc.
     // * Add quote support for macros.
-    // * Add var support for inline decl/init e.g.
-    //   var i = 0;
-    //   ->
-    //   i;
-    //   i = 0;
     // * Add optional 'using' validation controlled via directive.
     //   - Cache previously loaded asm names at start, subscribe to
     //     AppDomain events to refresh cache.
@@ -59,29 +55,35 @@ namespace Components.Aphid.Interpreter
     //   - Param support: foo = @(lazy arg0) { ... }
     //   - Op param support:
     //      @ ?> = @(lazy lhs, lazy rhs) { ... }
-    // * Inline var support e.g.
-    //   isTypeEnumerableOf = @(enumerableType, type)
-    //       (var t = type.GetInterface('IEnumerable`1')) != null &&
-    //       t.GetGenericArguments()[0] == enumerableType;
     // * Implicit var support e.g.
     //   isTypeEnumerableOf = @(enumerableType, type)
     //       (var type.GetInterface('IEnumerable`1')) != null &&
     //       $&.GetGenericArguments()[0] == enumerableType;
-    // * Operator override for types, via class decl and extend
+    // * Support Aphid implemented operator override for types, via class decl and 
+    //   extend
     // * Seamless implicit/explicit operator interop
-    // * AphidShell script monitors build and kills and optionally restarts
-    //   processes that hold blocking file locks.
+    // * AphidShell script monitors build, kills and optionally restarts processes 
+    //   that hold blocking file locks.
     // * Add update-safe loader that moves Aphid to a unique folder immediately
     //   following build/deploy and forward execution.
     //   - Forward via aphid.exe stub built using IL header
     //     * Add inline assembly support (stretch)
     //   - Use CrossProcessLock to sync bootstrap execution/overwrite.
     // * Add yield return/break support, possibly infer based on lazy attribute
+    // * Add contextual semantics for | --binary OR for numbers, pipe for callables.
+    // * Add strict mode that requires explicit variable declaration.
     public partial class AphidInterpreter
     {
-        private bool _createLoader, _isReturning, _isContinuing, _isBreaking;
+        private bool
+            _createLoader,
+            _isReturning,
+            _isContinuing,
+            _isBreaking,
+            _isInTryCatchFinally;
 
         private Stack<AphidFrame> _frames;
+
+        private int _queuedFramePops;
 
         private ManualResetEvent _breakpointReset;
 
@@ -1592,11 +1594,15 @@ namespace Components.Aphid.Interpreter
             var funcName = GetCustomOperatorFunction(op, name);
             var funcExp = CurrentScope.Resolve(this, GetCustomOperatorExpressionKey(op));
             PushFrame(customOperatorExpression, (AphidExpression)funcExp.Value, args);
-            //var n = _frames.First().Name;
-            var result = CallFunction(funcName, args);
-            PopFrame();
 
-            return result;
+            try
+            {
+                return CallFunction(funcName, args);
+            }
+            finally
+            {
+                TryPopFrame();
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1732,12 +1738,18 @@ namespace Components.Aphid.Interpreter
         {
             var idExp = new IdentifierExpression(name);
             PushFrame(idExp, idExp, parms);
-            var val = InterpretIdentifierExpression(idExp);
-            var func = ValueHelper.Unwrap(val) as AphidFunction;
-            var result = CallFunction(func, parms);
-            PopFrame();
 
-            return result;
+            try
+            {
+                var val = InterpretIdentifierExpression(idExp);
+                var func = ValueHelper.Unwrap(val) as AphidFunction;
+
+                return CallFunction(func, parms);
+            }
+            finally
+            {
+                TryPopFrame();
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2010,10 +2022,15 @@ namespace Components.Aphid.Interpreter
                     args;
 
                 PushFrame(callExpression, expression, interopArgs);
-                var retVal = ValueHelper.Wrap(func.Invoke(this, interopArgs)); ;
-                PopFrame();
 
-                return retVal;
+                try
+                {
+                    return ValueHelper.Wrap(func.Invoke(this, interopArgs)); ;
+                }
+                finally
+                {
+                    TryPopFrame();
+                }
             }
 
             // Todo: make this use enums rather than slow type casting
@@ -2048,10 +2065,17 @@ namespace Components.Aphid.Interpreter
             if (del != null)
             {
                 PushFrame(callExpression, expression, args);
-                var retVal = del.DynamicInvoke(args.Select(ValueHelper.Unwrap).ToArray());
-                PopFrame();
 
-                return ValueHelper.Wrap(retVal);
+                try
+                {
+                    return ValueHelper.Wrap(
+                        del.DynamicInvoke(
+                            args.Select(ValueHelper.Unwrap).ToArray()));
+                }
+                finally
+                {
+                    TryPopFrame();
+                }
             }
 
             var func2 = funcExp as AphidFunction;
@@ -2059,10 +2083,17 @@ namespace Components.Aphid.Interpreter
             if (func2 != null)
             {
                 PushFrame(callExpression, expression, args);
-                var retVal = CallFunctionCore(func2, args.Select(ValueHelper.Wrap).ToArray());
-                PopFrame();
 
-                return retVal;
+                try
+                {
+                    return CallFunctionCore(
+                        func2,
+                        args.Select(ValueHelper.Wrap).ToArray());
+                }
+                finally
+                {
+                    TryPopFrame();
+                }
             }
 
             var composition = funcExp as AphidFunctionComposition;
@@ -2101,7 +2132,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PushFrame(
+        public void PushFrame(
             AphidExpression callExpression,
             AphidExpression functionExpression,
             IEnumerable<object> args)
@@ -2129,7 +2160,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PushFrame(
+        public void PushFrame(
             AphidExpression callExpression,
             Lazy<string> name,
             IEnumerable<object> args)
@@ -2138,9 +2169,22 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PopFrame()
+        public void PopFrame()
         {
             _frames.Pop();
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void TryPopFrame()
+        {
+            if (!_isInTryCatchFinally)
+            {
+                _frames.Pop();
+            }
+            else
+            {
+                _queuedFramePops++;
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2175,10 +2219,17 @@ namespace Components.Aphid.Interpreter
                     string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name)),
                 convertedArgs);
 
-            var retVal = method.Invoke(interopMembers.Target, convertedArgs);
-            PopFrame();
-
-            return ValueHelper.Wrap(retVal);
+            try
+            {
+                return ValueHelper.Wrap(
+                    method.Invoke(
+                        interopMembers.Target,
+                        convertedArgs));
+            }
+            finally
+            {
+                TryPopFrame();
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2208,10 +2259,17 @@ namespace Components.Aphid.Interpreter
                     string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name)),
                 convertedArgs);
 
-            var retVal = method.Invoke(interopMembers.Target, convertedArgs);
-            PopFrame();
-
-            return ValueHelper.Wrap(retVal);
+            try
+            {
+                return ValueHelper.Wrap(
+                    method.Invoke(
+                        interopMembers.Target,
+                        convertedArgs));
+            }
+            finally
+            {
+                TryPopFrame();
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3304,7 +3362,17 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InterpretTryExpression(TryExpression expression)
         {
-            var frameCount = _frames.Count;
+            bool nested;
+
+            if (!_isInTryCatchFinally)
+            {
+                nested = false;
+                _isInTryCatchFinally = true;
+            }
+            else
+            {
+                nested = true;
+            }
 
             if (expression.FinallyBody == null)
             {
@@ -3344,9 +3412,9 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            while (_frames.Count > frameCount)
+            if (!nested)
             {
-                PopFrame();
+                _isInTryCatchFinally = false;
             }
         }
 
@@ -3478,6 +3546,12 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private object InterpretExpression(AphidExpression expression)
         {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
             CurrentExpression = expression;
             HandleDebugging(expression);
 #if STRICT_INDEX
