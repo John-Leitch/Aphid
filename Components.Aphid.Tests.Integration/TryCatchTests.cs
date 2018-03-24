@@ -12,7 +12,7 @@ namespace Components.Aphid.Tests.Integration
     public class TryCatchTests : AphidTests
     {
         [Test]
-        public void TryCatch()
+        public void TryCatchNoFaultTest()
         {
             Assert9(@"
                 try {
@@ -26,7 +26,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void TryCatch2()
+        public void TryCatchReturnFromTryBlockTest()
         {
             Assert9(@"
                 try {
@@ -41,7 +41,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void TryCatch3()
+        public void TryCatchReturnFromCatchBlockTest()
         {
             Assert9(@"
                 try {
@@ -55,7 +55,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void TryCatch4()
+        public void TryCatchReturnFromArgFreeCatchBlockTest()
         {
             Assert9(@"
                 try {
@@ -69,7 +69,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void TryCatchMessageTest()
+        public void TryCatchDivideByZeroMessageTest()
         {
             AssertTrue(@"
                 try {
@@ -83,7 +83,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void TryCatchStackTest()
+        public void TryCatchExceptionStackTraceNameTest()
         {
             AssertTrue(@"
                 foo = @() 1/0;
@@ -99,7 +99,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void TryCatchStackTest2()
+        public void TryCatchExceptionStackTraceMultiNameTest()
         {
             AssertTrue(@"
                 foo = @() 1/0;
@@ -112,6 +112,29 @@ namespace Components.Aphid.Tests.Integration
                 }
 
                 ret false;                
+            ");
+        }
+
+        [Test]
+        public void TryCatchExceptionStackTraceStaleNameTest()
+        {
+            AssertTrue(@"
+                stale = @() 1/1;
+                foo = @() 1/0;
+                bar = @{
+                    stale();
+                    foo();
+                };
+
+                try {
+                    bar();
+                } catch(e) {
+                    ret e.stack.Contains('foo') &&
+                        e.stack.Contains('bar') &&
+                        !e.stack.Contains('stale');
+                }
+
+                ret false;
             ");
         }
     }
