@@ -44,72 +44,78 @@ namespace Components.Aphid.Parser
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            Interpreter.EnterChildScope();
-            var s = Interpreter.CurrentScope;
-            s.Add("ancestors", new AphidObject(Ancestors));
-            s.Add("isStatement", new AphidObject(IsStatement));
-            s.Add("expression", new AphidObject(expression));
-            s.Add("hasChanged", new AphidObject(false));
+            Interpreter.EnterScope();
 
-            s.Add(
-                "finalize",
-                new AphidObject(new AphidInteropFunction((interpreter, args) =>
-                {
-                    FinalizeMutation();
-
-                    return null;
-                })));
-
-            Interpreter.Interpret(_mutateImplementation.Value);
-            AphidObject hasChangedObj;            
-            List<AphidExpression> mutated = null;
-
-            if (Interpreter.CurrentScope.TryResolve("hasChanged", out hasChangedObj) &&
-                hasChangedObj.GetValueType() == AphidType.Boolean &&
-                hasChangedObj.GetBool())
+            try
             {
-                hasChanged = true;
-                var retVal = Interpreter.GetReturnValue();
+                var s = Interpreter.CurrentScope;
+                s.Add("ancestors", new AphidObject(Ancestors));
+                s.Add("isStatement", new AphidObject(IsStatement));
+                s.Add("expression", new AphidObject(expression));
+                s.Add("hasChanged", new AphidObject(false));
 
-                if (retVal == null || retVal.Value == null)
-                {
-                    throw Interpreter.CreateRuntimeException(
-                        "Mutator implementation returned null, expected expression(s).");
-                }
-                else
-                {
-                    var t = retVal.Value.GetType();
+                s.Add(
+                    "finalize",
+                    new AphidObject(new AphidInteropFunction((interpreter, args) =>
+                    {
+                        FinalizeMutation();
 
-                    if (t == typeof(List<AphidExpression>))
+                        return null;
+                    })));
+
+                Interpreter.Interpret(_mutateImplementation.Value);
+                AphidObject hasChangedObj;
+                List<AphidExpression> mutated = null;
+
+                if (Interpreter.CurrentScope.TryResolve("hasChanged", out hasChangedObj) &&
+                    hasChangedObj.GetValueType() == AphidType.Boolean &&
+                    hasChangedObj.GetBool())
+                {
+                    hasChanged = true;
+                    var retVal = Interpreter.GetReturnValue();
+
+                    if (retVal == null || retVal.Value == null)
                     {
-                        mutated = (List<AphidExpression>)retVal.Value;
-                    }
-                    else if (t == typeof(AphidFunction))
-                    {
-                        mutated = ((AphidFunction)retVal.Value).Body;
-                    }
-                    else if (t.IsDerivedFrom<AphidExpression>())
-                    {
-                        mutated = new List<AphidExpression> { (AphidExpression)retVal.Value };
+                        throw Interpreter.CreateRuntimeException(
+                            "Mutator implementation returned null, expected expression(s).");
                     }
                     else
                     {
-                        throw Interpreter.CreateRuntimeException(
-                            "Mutator returned invalid type, expected expression, block, or function.");
+                        var t = retVal.Value.GetType();
+
+                        if (t == typeof(List<AphidExpression>))
+                        {
+                            mutated = (List<AphidExpression>)retVal.Value;
+                        }
+                        else if (t == typeof(AphidFunction))
+                        {
+                            mutated = ((AphidFunction)retVal.Value).Body;
+                        }
+                        else if (t.IsDerivedFrom<AphidExpression>())
+                        {
+                            mutated = new List<AphidExpression> { (AphidExpression)retVal.Value };
+                        }
+                        else
+                        {
+                            throw Interpreter.CreateRuntimeException(
+                                "Mutator returned invalid type, expected expression, block, or function.");
+                        }
                     }
+
+
+                }
+                else
+                {
+                    hasChanged = false;
+                    mutated = new List<AphidExpression> { expression };
                 }
 
-                
+                return mutated;
             }
-            else
+            finally
             {
-                hasChanged = false;
-                mutated = new List<AphidExpression> { expression };
+                Interpreter.LeaveScope();
             }
-            
-            Interpreter.LeaveChildScope();
-
-            return mutated;
         }
     }
 }

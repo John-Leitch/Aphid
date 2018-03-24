@@ -1,21 +1,23 @@
+//#define TRACE_SCOPE
+#if TRACE_SCOPE
+using Components.Aphid.Debugging;
+#endif
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
+using Components.Aphid.Serialization;
+using Components.Aphid.TypeSystem;
+using Components.External;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Threading;
-using System.Runtime.CompilerServices;
 using System.Runtime;
-using Components.Aphid.Library;
-using Components.Aphid.TypeSystem;
-using Components.Aphid.Serialization;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Components.Aphid.Interpreter
 {
@@ -73,6 +75,23 @@ namespace Components.Aphid.Interpreter
     // * Add yield return/break support, possibly infer based on lazy attribute
     // * Add contextual semantics for | --binary OR for numbers, pipe for callables.
     // * Add strict mode that requires explicit variable declaration.
+    // * Take crash dump of self when unhandled exception encountered.
+    //   - Save not only standard Windows dmp files, but also Aphid specific
+    //     dumps containing serialized scope.
+    // * Create standalone debugger.
+    //   - Build both command-line and graphical interfaces.
+    //   - Add ability to open Aphid-specific crash dumps.
+    //   - Add execution rewind.
+    //   - Add replay of trace dumps.
+    //   - Support editing of code in memory.
+    //   - Act as JIT debugger when Aphid scripts crash.
+    // * Add execution tracing with multiple levels.
+    //   - Levels by granularity, descending: script, func, block, stmt, and expr.
+    // * Create object database system (AphidDB).
+    //   - Compile high performance serializers (must support several TB databases).
+    //   - Persist Aphid bytecode and metadata for use as indexes.
+    //   - Pull pieces from AphidUI for use as generic database management UI.
+    //   - Memoize query bytecode and results for hot paths.
     public partial class AphidInterpreter
     {
         private bool
@@ -91,6 +110,35 @@ namespace Components.Aphid.Interpreter
         private bool _isSingleStepping;
 
         private AutoResetEvent _singleStepReset;
+
+        #if TRACE_SCOPE
+        private AphidTrace _scopeTrace;
+        #endif
+
+        private AphidObject _currentScope;
+
+        public AphidObject CurrentScope
+        {
+            get { return _currentScope; }
+            private set
+            {
+                #if TRACE_SCOPE
+                if (_scopeTrace != null)
+                {
+                    _scopeTrace.Trace("Set scope begin");
+                }
+                #endif
+
+                _currentScope = value;
+
+                #if TRACE_SCOPE
+                if (_scopeTrace != null)
+                {
+                    _scopeTrace.Trace("Set scope end");
+                }
+                #endif
+            }
+        }
 
         public int OwnerThread { get; private set; }
 
@@ -119,8 +167,6 @@ namespace Components.Aphid.Interpreter
         public Func<string, string> GatorEmitFilter { get; set; }
 
         public AphidLoader Loader { get; private set; }
-
-        public AphidObject CurrentScope { get; private set; }
 
         public AphidExpression CurrentStatement { get; private set; }
 
@@ -178,6 +224,28 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Init()
         {
+            #if TRACE_SCOPE
+            _scopeTrace = new AphidTrace(
+                "Scope Trace",
+                PathHelper.GetExecutingPath(
+                    string.Format("AphidScope.{0}.log", Guid.NewGuid())),
+                this)
+                {
+                    Settings = new AphidTraceSettings
+                    {
+                        TraceTimestamp = true,
+                        DefaultMessageTraceLevel = TraceLevel.Info,
+                        TimestampFormat = AphidTraceSettings.DefaultTimestampFormat,
+                        TraceAphidStack = false,
+                        TraceCurrentExpression = false,
+                        TraceCurrentStatement = false,
+                        TraceClrStack = true,
+                    },
+                };
+
+            _scopeTrace.Open();
+            #endif
+
             Out = Console.Out;
             AsmBuilder = new AphidAssemblyBuilder(this);
 
@@ -325,16 +393,32 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnterScope()
         {
+            #if TRACE_SCOPE
+            _scopeTrace.Trace("Enter scope begin");
+            #endif
+
             CurrentScope = new AphidObject(null, CurrentScope);
             CurrentScope.Add(AphidName.Scope, CurrentScope);
             CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
+
+            #if TRACE_SCOPE
+            _scopeTrace.Trace("Enter scope end");
+            #endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool LeaveScope(bool bubbleReturnValue = false)
         {
+            #if TRACE_SCOPE
+            _scopeTrace.Trace("Leave scope begin");
+            #endif
+
             if (CurrentScope.Parent == null)
             {
+                #if TRACE_SCOPE
+                _scopeTrace.Trace("Internal error leaving scope, parent scope is null.");
+                #endif
+
                 throw CreateInternalException(
                     "Internal error leaving scope, parent scope is null.");
             }
@@ -348,6 +432,10 @@ namespace Components.Aphid.Interpreter
                 {
                     SetReturnValue(ret);
 
+                    #if TRACE_SCOPE
+                    _scopeTrace.Trace("Leave scope end");
+                    #endif
+
                     return true;
                 }
             }
@@ -355,6 +443,10 @@ namespace Components.Aphid.Interpreter
             {
                 CurrentScope = CurrentScope.Parent;
             }
+
+            #if TRACE_SCOPE
+            _scopeTrace.Trace("Leave scope end");
+            #endif
 
             return false;
         }
@@ -1677,34 +1769,40 @@ namespace Components.Aphid.Interpreter
                 !expression.Identifier.Attributes.Any() ||
                 expression.Identifier.Attributes[0].Identifier != "class")
             {
-                var obj = new AphidObject { Parent = CurrentScope };
+                var parent = CurrentScope;
+                var obj = new AphidObject { Parent = parent };
                 CurrentScope = obj;
 
-                foreach (var kvp in expression.Pairs)
+                try
                 {
-                    var objectKey = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
-                        kvp.LeftOperand.ToIdentifier().Identifier :
-                        ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
-
-                    var objectValue = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
-
-                    if (objectValue.Value == null)
+                    foreach (var kvp in expression.Pairs)
                     {
-                        obj.Add(objectKey, objectValue);
+                        var objectKey = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
+                            kvp.LeftOperand.ToIdentifier().Identifier :
+                            ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
+
+                        var objectValue = ValueHelper.Wrap(InterpretExpression(kvp.RightOperand));
+
+                        if (objectValue.Value == null)
+                        {
+                            obj.Add(objectKey, objectValue);
+                        }
+                        else
+                        {
+                            obj.Add(objectKey, new AphidObject(objectValue.Value));
+                        }
                     }
-                    else
+
+                    if (CurrentScope.Parent == null)
                     {
-                        obj.Add(objectKey, new AphidObject(objectValue.Value));
+                        throw CreateInternalException(
+                            "Internal error leaving scope, parent scope is null.");
                     }
                 }
-
-                if (CurrentScope.Parent == null)
+                finally
                 {
-                    throw CreateInternalException(
-                        "Internal error leaving scope, parent scope is null.");
+                    CurrentScope = parent;
                 }
-
-                CurrentScope = CurrentScope.Parent;
 
                 return obj;
             }
@@ -1843,13 +1941,19 @@ namespace Components.Aphid.Interpreter
 
             functionScope[AphidName.ImplicitArgs] = new AphidObject(argList);
 
-            var lastScope = CurrentScope;
+            var parent = CurrentScope;
             CurrentScope = functionScope;
-            Interpret(function.Body);
-            var retVal = GetReturnValue(true);
-            CurrentScope = lastScope;
 
-            return retVal;
+            try
+            {
+                Interpret(function.Body);
+
+                return GetReturnValue(true);
+            }
+            finally
+            {
+                CurrentScope = parent;
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3464,7 +3568,7 @@ namespace Components.Aphid.Interpreter
                 catch (Exception e)
                 {
 #if DEBUG
-                    if (e is AphidInternalException && Debugger.IsAttached)
+                    if (e is AphidInternalException)
                     {
                         throw;
                     }
@@ -3481,7 +3585,7 @@ namespace Components.Aphid.Interpreter
                 catch (Exception e)
                 {
 #if DEBUG
-                    if (e is AphidInternalException && Debugger.IsAttached)
+                    if (e is AphidInternalException)
                     {
                         throw;
                     }

@@ -55,11 +55,18 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("eval", PassInterpreter = true)]
         private static object Eval(AphidInterpreter interpreter, string code)
         {
-            interpreter.EnterChildScope();
-            interpreter.Interpret(code);
-            var retVal = interpreter.GetReturnValue();
-            interpreter.LeaveChildScope();
-            return retVal;
+            interpreter.EnterScope();
+
+            try
+            {
+                interpreter.Interpret(code);
+
+                return interpreter.GetReturnValue();
+            }
+            finally
+            {
+                interpreter.LeaveScope();
+            }
         }
 
         [AphidInteropFunction("type")]

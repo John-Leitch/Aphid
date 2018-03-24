@@ -162,6 +162,8 @@
     <Compile Include="Compiler\Medusa\Mantispid\SymbolScope.cs" />
     <Compile Include="Compiler\Medusa\Mantispid\SymbolTable.cs" />
     <Compile Include="Compiler\Medusa\Mantispid\TypeInferenceMutator.cs" />
+    <Compile Include="Debugging\AphidTrace.cs" />
+    <Compile Include="Debugging\AphidTraceSettings.cs" />
     <Compile Include="External\ArgLexer.cs" />
     <Compile Include="External\ByteArrayExtension.cs" />
     <Compile Include="External\ConsolePlus\CliApplication.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="External\ConsolePlus\CommandString.cs" />
     <Compile Include="External\ConsolePlus\Cli.g.cs" />
     <Compile Include="External\ConsolePlus\InteractiveConsole.cs" />
+    <Compile Include="External\CrossProcessLock.cs" />
     <Compile Include="External\Debugging\BreakpointManager.cs" />
     <Compile Include="External\Debugging\Cache.cs" />
     <Compile Include="External\Debugging\DebuggerEventArgs.cs" />
