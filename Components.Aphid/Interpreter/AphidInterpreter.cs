@@ -333,16 +333,15 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool LeaveChildScope(bool bubbleReturnValue = false)
         {
+            if (CurrentScope.Parent == null)
+            {
+                throw CreateInternalException(
+                    "Internal error leaving child scope, parent scope is null.");
+            }
+
             if (bubbleReturnValue)
             {
                 var ret = GetReturnValue(true);
-
-                if (CurrentScope.Parent == null)
-                {
-                    throw CreateInternalException(
-                        "Internal error leaving child scope, parent scope is null.");
-                }
-
                 CurrentScope = CurrentScope.Parent;
 
                 if (ret != null)
