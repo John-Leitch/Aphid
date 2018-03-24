@@ -323,7 +323,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnterChildScope()
+        public void EnterScope()
         {
             CurrentScope = new AphidObject(null, CurrentScope);
             CurrentScope.Add(AphidName.Scope, CurrentScope);
@@ -331,12 +331,12 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool LeaveChildScope(bool bubbleReturnValue = false)
+        public bool LeaveScope(bool bubbleReturnValue = false)
         {
             if (CurrentScope.Parent == null)
             {
                 throw CreateInternalException(
-                    "Internal error leaving child scope, parent scope is null.");
+                    "Internal error leaving scope, parent scope is null.");
             }
 
             if (bubbleReturnValue)
@@ -360,11 +360,18 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void InterpretChild(List<AphidExpression> block)
+        private void InterpretBlock(List<AphidExpression> block)
         {
-            EnterChildScope();
-            Interpret(block, false);
-            LeaveChildScope(true);
+            EnterScope();
+
+            try
+            {
+                Interpret(block, false);
+            }
+            finally
+            {
+                LeaveScope(true);
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1693,8 +1700,8 @@ namespace Components.Aphid.Interpreter
 
                 if (CurrentScope.Parent == null)
                 {
-                    throw CreateRuntimeException(
-                        "Internal error leaving child scope, parent scope is null.");
+                    throw CreateInternalException(
+                        "Internal error leaving scope, parent scope is null.");
                 }
 
                 CurrentScope = CurrentScope.Parent;
@@ -2916,11 +2923,11 @@ namespace Components.Aphid.Interpreter
         {
             if ((bool)ValueHelper.Unwrap(InterpretExpression(expression.Condition)))
             {
-                InterpretChild(expression.Body);
+                InterpretBlock(expression.Body);
             }
             else if (expression.ElseBody != null)
             {
-                InterpretChild(expression.ElseBody);
+                InterpretBlock(expression.ElseBody);
             }
             return null;
         }
@@ -3008,24 +3015,39 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretForExpression(ForExpression expression)
         {
-            EnterChildScope();
-            var init = InterpretExpression(expression.Initialization);
+            var inBodyScope = false;
+            EnterScope();
 
-            while ((bool)(InterpretExpression(expression.Condition) as AphidObject).Value)
+            try
             {
-                EnterChildScope();
-                Interpret(expression.Body, resetIsReturning: false);
-                InterpretExpression(expression.Afterthought);
-                _isContinuing = false;
+                var init = InterpretExpression(expression.Initialization);
 
-                if (LeaveChildScope(true) || _isBreaking)
+                while ((bool)(InterpretExpression(expression.Condition) as AphidObject).Value)
                 {
-                    _isBreaking = false;
-                    break;
+                    EnterScope();
+                    inBodyScope = true;
+                    Interpret(expression.Body, resetIsReturning: false);
+                    InterpretExpression(expression.Afterthought);
+                    _isContinuing = false;
+                    var isReturning = LeaveScope(true);
+                    inBodyScope = false;
+
+                    if (isReturning || _isBreaking)
+                    {
+                        _isBreaking = false;
+                        break;
+                    }
                 }
             }
+            finally
+            {
+                LeaveScope(true);
 
-            LeaveChildScope(true);
+                if (inBodyScope)
+                {
+                    LeaveScope(true);
+                }
+            }
 
             return null;
         }
@@ -3046,26 +3068,35 @@ namespace Components.Aphid.Interpreter
 
             foreach (var element in elements)
             {
-                EnterChildScope();
-                var obj = ValueHelper.Wrap(element);
-                SetImplicitArg(obj);
+                bool isReturning;
+                EnterScope();
 
-                if (elementId != null)
+                try
                 {
-                    if (elementObjScope == null)
+                    var obj = ValueHelper.Wrap(element);
+                    SetImplicitArg(obj);
+
+                    if (elementId != null)
                     {
-                        CurrentScope.Add(elementId, obj);
+                        if (elementObjScope == null)
+                        {
+                            CurrentScope.Add(elementId, obj);
+                        }
+                        else
+                        {
+                            elementObjScope[elementId] = obj;
+                        }
                     }
-                    else
-                    {
-                        elementObjScope[elementId] = obj;
-                    }
+
+                    Interpret(expression.Body, false);
+                    _isContinuing = false;
+                }
+                finally
+                {
+                    isReturning = LeaveScope(true);
                 }
 
-                Interpret(expression.Body, false);
-                _isContinuing = false;
-
-                if (LeaveChildScope(true) || _isBreaking)
+                if (isReturning || _isBreaking)
                 {
                     _isBreaking = false;
                     break;
@@ -3308,11 +3339,20 @@ namespace Components.Aphid.Interpreter
         {
             while ((bool)((AphidObject)(InterpretExpression(expression.Condition))).Value)
             {
-                EnterChildScope();
-                Interpret(expression.Body, false);
-                _isContinuing = false;
+                bool isReturning;
+                EnterScope();
 
-                if (LeaveChildScope(true) || _isBreaking)
+                try
+                {
+                    Interpret(expression.Body, false);
+                    _isContinuing = false;
+                }
+                finally
+                {
+                    isReturning = LeaveScope(true);
+                }
+
+                if (isReturning || _isBreaking)
                 {
                     _isBreaking = false;
                     break;
@@ -3325,11 +3365,20 @@ namespace Components.Aphid.Interpreter
         {
             do
             {
-                EnterChildScope();
-                Interpret(expression.Body, false);
-                _isContinuing = false;
+                bool isReturning;
+                EnterScope();
 
-                if (LeaveChildScope(true) || _isBreaking)
+                try
+                {
+                    Interpret(expression.Body, false);
+                    _isContinuing = false;
+                }
+                finally
+                {
+                    isReturning = LeaveScope(true);
+                }
+
+                if (isReturning || _isBreaking)
                 {
                     _isBreaking = false;
                     break;
@@ -3340,36 +3389,55 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InterpretTryBlock(TryExpression expression)
         {
-            EnterChildScope();
-            Interpret(expression.TryBody, false);
-            LeaveChildScope(true);
+            EnterScope();
+
+            try
+            {
+                Interpret(expression.TryBody, false);
+            }
+            finally
+            {
+                LeaveScope(true);
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InterpretCatchBlock(TryExpression expression, Exception e)
         {
-            LeaveChildScope(true);
-            EnterChildScope();
+            EnterScope();
 
-            if (expression.CatchArg != null)
+            try
             {
-                var ex = new AphidObject();
-                ex.Add("message", new AphidObject(ExceptionHelper.Unwrap(e).Message));
-                ex.Add("exception", new AphidObject(e));
-                ex.Add("stack", new AphidObject(ExceptionHelper.StackTrace(GetStackTrace())));
-                CurrentScope.Add(expression.CatchArg.Identifier, ex);
-            }
+                if (expression.CatchArg != null)
+                {
+                    var ex = new AphidObject();
+                    ex.Add("message", new AphidObject(ExceptionHelper.Unwrap(e).Message));
+                    ex.Add("exception", new AphidObject(e));
+                    ex.Add("stack", new AphidObject(ExceptionHelper.StackTrace(GetStackTrace())));
+                    CurrentScope.Add(expression.CatchArg.Identifier, ex);
+                }
 
-            Interpret(expression.CatchBody, false);
-            LeaveChildScope(true);
+                Interpret(expression.CatchBody, false);
+            }
+            finally
+            {
+                LeaveScope(true);
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InterpretFinallyBlock(TryExpression expression)
         {
-            EnterChildScope();
-            Interpret(expression.FinallyBody, false);
-            LeaveChildScope(false);
+            EnterScope();
+
+            try
+            {
+                Interpret(expression.FinallyBody, false);
+            }
+            finally
+            {
+                LeaveScope(false);
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3522,9 +3590,16 @@ namespace Components.Aphid.Interpreter
                         continue;
                     }
 
-                    EnterChildScope();
-                    Interpret(c.Body, resetIsReturning: false);
-                    LeaveChildScope(bubbleReturnValue: true);
+                    EnterScope();
+
+                    try
+                    {
+                        Interpret(c.Body, resetIsReturning: false);
+                    }
+                    finally
+                    {
+                        LeaveScope(bubbleReturnValue: true);
+                    }
 
                     return;
                 }
@@ -3532,9 +3607,16 @@ namespace Components.Aphid.Interpreter
 
             if (expression.DefaultCase != null)
             {
-                EnterChildScope();
-                Interpret(expression.DefaultCase, resetIsReturning: false);
-                LeaveChildScope(bubbleReturnValue: true);
+                EnterScope();
+
+                try
+                {
+                    Interpret(expression.DefaultCase, resetIsReturning: false);
+                }
+                finally
+                {
+                    LeaveScope(bubbleReturnValue: true);
+                }
             }
         }
 
