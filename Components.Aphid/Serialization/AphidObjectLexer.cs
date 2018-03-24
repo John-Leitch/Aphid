@@ -6,8 +6,9 @@
 
 #pragma warning disable 0162
 
-namespace Components.Aphid.Lexer
+namespace Components.Aphid.Serialization
 {
+    using Components.Aphid.Lexer;
     using System;
     using System.Collections.Generic;
 

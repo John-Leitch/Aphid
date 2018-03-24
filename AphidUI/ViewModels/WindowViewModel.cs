@@ -3,6 +3,7 @@ using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
+using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;

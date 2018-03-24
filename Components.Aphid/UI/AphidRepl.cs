@@ -2,6 +2,7 @@
 using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
+using Components.Aphid.Serialization;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;

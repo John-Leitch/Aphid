@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Components.Aphid.Library
+namespace Components.Aphid.Serialization
 {
     // Todo:
     // * Exploit [Serializable] and [DataContract] by special casing type

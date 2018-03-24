@@ -344,10 +344,10 @@
     <Compile Include="TypeSystem\TypeExtender.cs" />
     <Compile Include="TypeSystem\ValueHelper.cs" />
     <Compile Include="Lexer\AphidLexer.cs" />
-    <Compile Include="Lexer\AphidObjectLexer.cs" />
+    <Compile Include="Serialization\AphidObjectLexer.cs" />
     <Compile Include="Lexer\TokenHelper.cs" />
     <Compile Include="Library\AphidByteConverter.cs" />
-    <Compile Include="Library\AphidSerializer.cs" />
+    <Compile Include="Serialization\AphidSerializer.cs" />
     <Compile Include="Library\Net\Http\HttpServer.cs" />
     <Compile Include="Library\Net\UdpLibrary.cs" />
     <Compile Include="Library\StreamLibrary.cs" />
