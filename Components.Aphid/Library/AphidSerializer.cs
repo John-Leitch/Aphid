@@ -12,6 +12,21 @@ using System.Text.RegularExpressions;
 
 namespace Components.Aphid.Library
 {
+    // Todo:
+    // * Exploit [Serializable] and [DataContract] by special casing type
+    //   decorated as such to use appropriate serializers and embed result.
+    // * Possibly support inline XML, use with aforementioned feature for
+    //   cleaner data.
+    // * Consider XML -> AphidData to use in previous feature.
+    // * Add better binary support.
+    //   - Use base64 or similar to support pure-text scenarios.
+    //   - Support mixed-mode with embedded binary data for improved perf.
+    //     * Append binary data after object expression using %> tag.
+    //     * In object expression, reference data sections using offset and 
+    //       length.
+    //     * Check data integrity using hash function like SHA512.
+    //     * Support different compression modes e.g. run-length encoding,
+    //       GZ, etc.
     public class AphidSerializer : AphidRuntimeComponent
     {
         private const string _root = "obj";
@@ -37,130 +52,130 @@ namespace Components.Aphid.Library
 
         public class FooTest { public string Foo { get; set; } }
 
-        private void ObjToString(AphidObject obj, StringBuilder s, int indent)
-        {
-            if (obj == null)
-            {
-                s.Append("null");
+        //private void ObjToString(AphidObject obj, StringBuilder s, int indent)
+        //{
+        //    if (obj == null)
+        //    {
+        //        s.Append("null");
 
-                return;
-            }
+        //        return;
+        //    }
 
-            var circular = false;
+        //    var circular = false;
 
-            Action<object> checkGraph = x =>
-            {
-                if (x == null || !Interpreter.ValueHelper.IsComplexAphidObject(x))
-                {
-                    return;
-                }
-                else if (_traversed.Contains(x))
-                {
-                    s.Append(_traversedPaths[x]);
-                    circular = true;
-                }
-                else
-                {
-                    _traversedPaths.Add(
-                        x,
-                        string.Join(
-                            ".",
-                            _currentPath
-                                .Select(y => !ShouldQuote(y) ? y : string.Format("{{'{0}'}}", y))
-                                .Reverse()));
-                    _traversed.Add(x);
-                }
-            };
+        //    Action<object> checkGraph = x =>
+        //    {
+        //        if (x == null || !Interpreter.ValueHelper.IsComplexAphidObject(x))
+        //        {
+        //            return;
+        //        }
+        //        else if (_traversed.Contains(x))
+        //        {
+        //            s.Append(_traversedPaths[x]);
+        //            circular = true;
+        //        }
+        //        else
+        //        {
+        //            _traversedPaths.Add(
+        //                x,
+        //                string.Join(
+        //                    ".",
+        //                    _currentPath
+        //                        .Select(y => !ShouldQuote(y) ? y : string.Format("{{'{0}'}}", y))
+        //                        .Reverse()));
+        //            _traversed.Add(x);
+        //        }
+        //    };
 
-            checkGraph(obj);
+        //    checkGraph(obj);
 
-            if (circular)
-            {
-                return;
-            }
+        //    if (circular)
+        //    {
+        //        return;
+        //    }
 
-            checkGraph(obj.Value);
+        //    checkGraph(obj.Value);
 
-            if (circular)
-            {
-                return;
-            }
+        //    if (circular)
+        //    {
+        //        return;
+        //    }
 
-            Type objType;
+        //    Type objType;
 
-            if (obj.Value != null)
-            {
-                if (obj.Value is bool)
-                {
-                    s.Append(obj.Value.ToString().ToLower());
-                }
-                //else if (obj.Value is decimal)
-                else if ((objType = obj.Value.GetType()).IsPrimitive || objType.IsEnum)
-                {
-                    s.Append(obj.Value.ToString());
-                }
-                else if (obj.Value is string)
-                {
-                    s.Append(string.Format("'{0}'", Escape((string)obj.Value)));
-                }
-                else if (obj.Value is List<AphidObject>)
-                {
-                    var list = (List<AphidObject>)obj.Value;
-                    s.Append("[\r\n");
+        //    if (obj.Value != null)
+        //    {
+        //        if (obj.Value is bool)
+        //        {
+        //            s.Append(obj.Value.ToString().ToLower());
+        //        }
+        //        //else if (obj.Value is decimal)
+        //        else if ((objType = obj.Value.GetType()).IsPrimitive || objType.IsEnum)
+        //        {
+        //            s.Append(obj.Value.ToString());
+        //        }
+        //        else if (obj.Value is string)
+        //        {
+        //            s.Append(string.Format("'{0}'", Escape((string)obj.Value)));
+        //        }
+        //        else if (obj.Value is List<AphidObject>)
+        //        {
+        //            var list = (List<AphidObject>)obj.Value;
+        //            s.Append("[\r\n");
 
-                    foreach (var x in list)
-                    {
-                        s.Append(new string(' ', (indent + 1) * 4));
-                        ObjToString(x, s, indent + 1);
-                        s.Append(",\r\n");
-                    }
+        //            foreach (var x in list)
+        //            {
+        //                s.Append(new string(' ', (indent + 1) * 4));
+        //                ObjToString(x, s, indent + 1);
+        //                s.Append(",\r\n");
+        //            }
 
-                    s.AppendFormat("{0}]", new string(' ', indent * 4));
-                }
-                else if (obj.Value is IEnumerable)
-                {
-                    SerializeEnumerable(s, obj.Value, indent);
-                }
-                else
-                {
-                    SerializeToString(s, obj.Value);
+        //            s.AppendFormat("{0}]", new string(' ', indent * 4));
+        //        }
+        //        else if (obj.Value is IEnumerable)
+        //        {
+        //            SerializeEnumerable(s, obj.Value, indent);
+        //        }
+        //        else
+        //        {
+        //            SerializeToString(s, obj.Value);
 
-                    //var f = new FooTest { Foo = "hello world" };
+        //            //var f = new FooTest { Foo = "hello world" };
 
-                    //var s123 = obj.Value.GetType().GetMethod("ToString", new Type[0]);
-                    //var s1234 = f.GetType().GetMethod("ToString", new Type[0]);
+        //            //var s123 = obj.Value.GetType().GetMethod("ToString", new Type[0]);
+        //            //var s1234 = f.GetType().GetMethod("ToString", new Type[0]);
                     
-                    //s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
-                }
-            }
-            else
-            {
-                s.Append("{\r\n");
+        //            //s.AppendFormat("'`{0}`'", obj.Value.GetType().Name);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        s.Append("{\r\n");
 
-                foreach (var kvp in obj)
-                {
-                    if (IgnoreFunctions &&
-                        kvp.Value != null &&
-                        (kvp.Value.Value is AphidFunction ||
-                        kvp.Value.Value is AphidInteropFunction))
-                    {
-                        continue;
-                    }
+        //        foreach (var kvp in obj)
+        //        {
+        //            if (IgnoreFunctions &&
+        //                kvp.Value != null &&
+        //                (kvp.Value.Value is AphidFunction ||
+        //                kvp.Value.Value is AphidInteropFunction))
+        //            {
+        //                continue;
+        //            }
 
-                    s.AppendFormat(
-                        !ShouldQuote(kvp.Key) ? "{0}{1}: " : "{0}'{1}':",
-                        new string(' ', (indent + 1) * 4),
-                        kvp.Key);
+        //            s.AppendFormat(
+        //                !ShouldQuote(kvp.Key) ? "{0}{1}: " : "{0}'{1}':",
+        //                new string(' ', (indent + 1) * 4),
+        //                kvp.Key);
 
-                    _currentPath.Push(kvp.Key);
-                    ObjToString(kvp.Value, s, indent + 1);
-                    _currentPath.Pop();
-                    s.Append(",\r\n");
-                }
+        //            _currentPath.Push(kvp.Key);
+        //            ObjToString(kvp.Value, s, indent + 1);
+        //            _currentPath.Pop();
+        //            s.Append(",\r\n");
+        //        }
 
-                s.AppendFormat("{0}}}", new string(' ', indent * 4));
-            }
-        }
+        //        s.AppendFormat("{0}}}", new string(' ', indent * 4));
+        //    }
+        //}
 
         private void Serialize(StringBuilder s, object obj, int indent)
         {
@@ -240,7 +255,8 @@ namespace Components.Aphid.Library
                         kvp.Key);
 
                     _currentPath.Push(kvp.Key);
-                    ObjToString(kvp.Value, s, indent + 1);
+                    Serialize(s, kvp.Value, indent + 1);
+                    //ObjToString(kvp.Value, s, indent + 1);
                     _currentPath.Pop();
                     s.Append(",\r\n");
                 }
@@ -259,7 +275,8 @@ namespace Components.Aphid.Library
 
             if (objType == typeof(AphidObject))
             {
-                ObjToString((AphidObject)value, s, indent);
+                throw new InvalidOperationException();
+                //ObjToString((AphidObject)value, s, indent);
                 return;
             }
 
@@ -284,7 +301,8 @@ namespace Components.Aphid.Library
                 foreach (var x in list)
                 {
                     s.Append(new string(' ', (indent + 1) * 4));
-                    ObjToString(x, s, indent + 1);
+                    //ObjToString(x, s, indent + 1);
+                    Serialize(s, x, indent + 1);
                     s.Append(",\r\n");
                 }
 
@@ -330,7 +348,7 @@ namespace Components.Aphid.Library
             var hasToString =
                 (valueType = value.GetType())
                 .GetMethod("ToString", new Type[0])
-                .DeclaringType == typeof(object);
+                .DeclaringType != typeof(object);
 
             if (hasToString ||
                 valueType.IsPrimitive ||
@@ -341,7 +359,7 @@ namespace Components.Aphid.Library
             }
             else
             {
-                s.AppendFormat("new {0}()", value.GetType().Name);
+                s.AppendFormat("clrObject({0})", value.GetType().FullName);
             }
         }
 
@@ -352,7 +370,8 @@ namespace Components.Aphid.Library
             _currentPath.Push("this");
             _traversed = new List<object>();
             var sb = new StringBuilder();
-            ObjToString(o, sb, 0);
+            //ObjToString(o, sb, 0);
+            Serialize(sb, o, 0);
 
             return sb.ToString();
         }
