@@ -216,6 +216,7 @@
     <Compile Include="External\XmlObject.cs" />
     <Compile Include="External\XmlSerializerExtension.cs" />
     <Compile Include="IAphidException.cs" />
+    <Compile Include="Interpreter\AphidInternalException.cs" />
     <Compile Include="TypeSystem\AphidAlias.cs" />
     <Compile Include="TypeSystem\AphidAssemblyBuilder.cs" />
     <Compile Include="TypeSystem\AphidConversionInfo.cs" />

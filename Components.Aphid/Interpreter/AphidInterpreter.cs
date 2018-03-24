@@ -15,6 +15,7 @@ using System.Runtime;
 using Components.Aphid.Library;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.Serialization;
+using System.Diagnostics;
 
 namespace Components.Aphid.Interpreter
 {
@@ -335,6 +336,13 @@ namespace Components.Aphid.Interpreter
             if (bubbleReturnValue)
             {
                 var ret = GetReturnValue(true);
+
+                if (CurrentScope.Parent == null)
+                {
+                    throw CreateInternalException(
+                        "Internal error leaving child scope, parent scope is null.");
+                }
+
                 CurrentScope = CurrentScope.Parent;
 
                 if (ret != null)
@@ -1682,6 +1690,12 @@ namespace Components.Aphid.Interpreter
                     {
                         obj.Add(objectKey, new AphidObject(objectValue.Value));
                     }
+                }
+
+                if (CurrentScope.Parent == null)
+                {
+                    throw CreateRuntimeException(
+                        "Internal error leaving child scope, parent scope is null.");
                 }
 
                 CurrentScope = CurrentScope.Parent;
@@ -3382,6 +3396,12 @@ namespace Components.Aphid.Interpreter
                 }
                 catch (Exception e)
                 {
+#if DEBUG
+                    if (e is AphidInternalException && Debugger.IsAttached)
+                    {
+                        throw;
+                    }
+#endif
                     InterpretCatchBlock(expression, e);
                 }
             }
@@ -3393,6 +3413,12 @@ namespace Components.Aphid.Interpreter
                 }
                 catch (Exception e)
                 {
+#if DEBUG
+                    if (e is AphidInternalException && Debugger.IsAttached)
+                    {
+                        throw;
+                    }
+#endif
                     InterpretCatchBlock(expression, e);
                 }
                 finally
@@ -3987,6 +4013,17 @@ namespace Components.Aphid.Interpreter
                     "{0} {1}",
                     message,
                     GetExpressionValueString(expression, obj)),
+                args);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidRuntimeException CreateInternalException(string message, params object[] args)
+        {
+            return new AphidInternalException(
+                CurrentScope,
+                CurrentStatement,
+                CurrentExpression,
+                message,
                 args);
         }
 
