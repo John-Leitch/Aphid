@@ -31,6 +31,12 @@ var wmi;
     wmi = {
         preserveFixedNames: false,
         query: @(wmiQuery) {
+            if (wmiQuery != null &&
+                wmiQuery.GetType() == typeof(AphidFunction)) {
+                var results = wmiQuery |> parseInlineQueries -> wmi.query;
+                ret results.Count == 1 ? results[0] : results;
+            }
+
             var searcher = new ManagementObjectSearcher(wmiQuery);
             var results = searcher.Get().toList();
 
@@ -63,6 +69,12 @@ var wmi;
         fixName: @(name) wmi.isSystemName(name) ?
             wmi.fixSystemName(name) :
             name,
+
+        parseInlineQueries: @(block) block->@(x) x
+            .ToString()
+            .Trim()
+            .TrimStart('@{'.ToCharArray())
+            .TrimEnd('};'.ToCharArray()),
 
         test: @{
             #'Std';
