@@ -137,5 +137,41 @@ namespace Components.Aphid.Tests.Integration
                 ret false;
             ");
         }
+
+        [Test]
+        public void TryCatchNestingExceptionStackTraceStaleNameTest()
+        {
+            AssertTrue(@"
+                stale = @() 1/1;
+                foo = @() 1/0;
+                bar = @{
+                    stale();
+                    foo();
+                };
+
+                var success = false;
+
+                try {
+                    try {
+                        bar();
+                    } catch(e) {
+                        success =
+                            e.stack.Contains('foo') &&
+                            e.stack.Contains('bar') &&
+                            !e.stack.Contains('stale');
+                    }
+                } catch(e) {
+                    success =
+                        success &&
+                        !e.stack.Contains('foo') &&
+                        !e.stack.Contains('bar') &&
+                        !e.stack.Contains('stale');
+                }
+
+                success = success && this.{'$frames'}.Count == 1;
+
+                ret success;
+            ");
+        }
     }
 }
