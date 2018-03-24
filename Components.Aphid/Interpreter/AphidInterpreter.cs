@@ -260,10 +260,7 @@ namespace Components.Aphid.Interpreter
             TypeConverter = new AphidTypeConverter(this);
             FunctionConverter = new AphidFunctionConverter(this);
 
-            _frames = new Stack<AphidFrame>(new[] 
-            { 
-                new AphidFrame(this, CurrentScope, null, new Lazy<string>(() => "[Entrypoint]")),
-            });
+            _frames = new Stack<AphidFrame>(new[] { CreateEntryFrame() });
 
             if (_createLoader)
             {
@@ -284,6 +281,15 @@ namespace Components.Aphid.Interpreter
             {
                 CurrentScope.Add(AphidName.Interpreter, new AphidObject(this));
             }
+        }
+
+        private AphidFrame CreateEntryFrame()
+        {
+            return new AphidFrame(
+                this,
+                CurrentScope,
+                null,
+                new Lazy<string>(() => "[Entrypoint]"));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4058,7 +4064,9 @@ namespace Components.Aphid.Interpreter
             _isReturning = false;
             _isContinuing = false;
             _isBreaking = false;
+            _isInTryCatchFinally = false;
             _frames.Clear();
+            _frames.Push(CreateEntryFrame());
 
             foreach (var k in new[]
             {
