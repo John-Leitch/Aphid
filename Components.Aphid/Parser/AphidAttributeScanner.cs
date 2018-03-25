@@ -20,10 +20,10 @@ namespace Components.Aphid.Parser
 
         public bool Next()
         {
+            CurrentAttribute = null;
+
             if (EndOfStream())
             {
-                CurrentAttribute = null;
-
                 return false;
             }
             else
@@ -63,7 +63,7 @@ namespace Components.Aphid.Parser
 
         public bool EndOfStream()
         {
-            return !_attributes.Any();
+            return !_attributes.Any() && CurrentAttribute == null;
         }
     }
 }

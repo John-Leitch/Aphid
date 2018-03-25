@@ -65,6 +65,8 @@ namespace Components.Aphid.TypeSystem
             scanner.Next();
             string defaultType = "System.Object";
             var defaultTypeSet = false;
+            var interfaces = new List<Type>();
+            Type baseType = null;
 
             do
             {
@@ -88,12 +90,41 @@ namespace Components.Aphid.TypeSystem
                             scanner.Next();
                             break;
                         }
+                        else if (!scanner.EndOfStream())
+                        {
+                            var superType = ResolveBaseType(scanner.CurrentAttribute);
+                            scanner.Next();
+
+                            if (superType == null)
+                            {
+                                throw Interpreter.CreateRuntimeException(
+                                    "Could not resolve base type {0} in class declaration '{1}'.",
+                                    scanner.CurrentAttribute,
+                                    type.ToString());
+                            }
+                            else if (superType.IsInterface)
+                            {
+                                interfaces.Add(superType);
+                            }
+                            else if (baseType == null)
+                            {
+                                baseType = superType;
+                            }
+                            else
+                            {
+                                throw Interpreter.CreateRuntimeException(
+                                    "Type is already subclass of {0}, cannot inherit from {1}.",
+                                    baseType,
+                                    superType);
+                            }
+                        }
                         else
                         {
                             throw Interpreter.CreateRuntimeException(
                                 "Invalid class attribute '{0}'.",
                                 scanner.CurrentAttribute);
                         }
+                        break;
 
                     default:
                         throw Interpreter.CreateRuntimeException(
@@ -109,9 +140,29 @@ namespace Components.Aphid.TypeSystem
 
             var name = type.Identifier.Identifier;
 
-            var typeBuilder = _moduleBuilder.Value.DefineType(
-                name,
-                TypeAttributes.Public);
+            TypeBuilder typeBuilder;
+
+            if (baseType == null && interfaces.Count == 0)
+            {
+                typeBuilder = _moduleBuilder.Value.DefineType(
+                    name,
+                    TypeAttributes.Public);
+            }
+            else if (interfaces.Count == 0)
+            {
+                typeBuilder = _moduleBuilder.Value.DefineType(
+                       name,
+                       TypeAttributes.Public,
+                       baseType);
+            }
+            else
+            {
+                typeBuilder = _moduleBuilder.Value.DefineType(
+                       name,
+                       TypeAttributes.Public,
+                       baseType,
+                       interfaces.ToArray());
+            }
 
             foreach (var kvp in type.Pairs)
             {
@@ -135,6 +186,18 @@ namespace Components.Aphid.TypeSystem
             _types.Add(t.FullName);
 
             return t;
+        }
+
+        private Type ResolveBaseType(string name)
+        {
+            var resolver = Interpreter.InteropTypeResolver;
+
+            var type = resolver.TryResolveType(
+                Interpreter.GetImports().ToArray(),
+                new[] { name },
+                isType: true);
+
+            return type;
         }
 
         private void AddProperty(
