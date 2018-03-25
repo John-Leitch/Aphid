@@ -503,3 +503,9 @@ getExe = @{
 
 getCommand = @() Environment.CommandLine;
 getCommandLineArgs = @() Environment.GetCommandLineArgs();
+
+var repl = @{
+    using Components.Aphid.UI;
+    var repl = new AphidRepl(this.{'$aphid'});
+    repl.Run();
+};
