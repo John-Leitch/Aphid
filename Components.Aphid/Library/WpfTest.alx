@@ -1,0 +1,19 @@
+#'Std';
+#'Wpf';
+
+var items = [
+    { name: 'Foo', number: 10 },
+    { name: 'Bar', number: 20 },
+];
+
+wpf.createApp(@{
+    var dg = $_.createDataGrid();
+    dg.AutoGenerateColumns = false;
+    wpf.dataGrid.addTextColumn(dg, 'Name', '[name].Value');
+    wpf.dataGrid.addTextColumn(dg, 'Number', '[number].Value');
+    dg.ItemsSource = items;
+    $_.window.Content = dg;
+});
+
+printSuccess('WPF app exited, updated data set:');
+dump(items);

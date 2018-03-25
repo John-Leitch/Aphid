@@ -1,0 +1,97 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+
+var wpf;
+
+@{
+    #'Std';
+    load PresentationFramework;
+    load PresentationCore;
+    load System.xaml;
+    load WindowsBase;
+
+    using System;
+    using System.Threading;
+    
+    wpf = {
+        createApp: @(init)
+            ($args.Count > 0 ? createAppAsync(init) : createAppAsync())
+            .waitForExit(),
+
+        createAppAsync: @(init){
+            printInfo('Creating WPF window');
+
+            var wpfApp = {};
+            var dataGrid;
+
+            printInfo('Creating reset event');
+            var uiInitReset = new ManualResetEvent(false);
+
+            try {
+                wpfApp.uiThread = new Thread(@{
+                    wpfApp.app = new Application();
+                    wpfApp.window = new Window();
+                    
+                    
+                    wpfApp.invoke = @(func) {
+                        var result;
+                        printInfo('Invoking WPF with {0}', func);
+                        
+                        wpfApp.window.Dispatcher.Invoke(@{
+                            result = func();
+                            printInfo('Invoke result: {0}', result);
+                        });
+
+                        ret result;
+                    };
+
+                    wpfApp.createDataGrid = @() wpf.createDataGrid(wpfApp);
+
+                    uiInitReset.Set();
+                    wpfApp.app.Run(wpfApp.window);
+                });
+
+                printInfo('Creating thread');
+                wpfApp.uiThread.SetApartmentState(ApartmentState.STA);
+                
+                wpfApp.waitForExit = @{
+                    wpfApp.uiThread.Join();
+
+                    ret wpfApp;
+                };
+                
+                wpfApp.uiThread.Start();
+
+                printQuery('Waiting for WPF to initialize');
+                uiInitReset.WaitOne();
+
+                if ($args.Count > 0) {
+                    wpfApp.invoke(@() init(wpfApp));
+                }
+
+                printSuccess('Initialization complete');
+
+                ret wpfApp;
+            } finally {
+                uiInitReset.Dispose();
+            }
+            
+        },
+
+        createDataGrid: @(app) {
+            printInfo('Creating datagrid');
+            ret app.invoke(@() new DataGrid());
+        },
+
+        dataGrid: {
+            addTextColumn: @(dataGrid, name, binding)
+                dataGrid.Dispatcher.Invoke(@{
+                    var col = new DataGridTextColumn();
+                    col.Header = name;
+                    col.Binding = new Binding(binding);
+                    dataGrid.Columns.Add(col);
+                })
+        }
+    };
+}();
