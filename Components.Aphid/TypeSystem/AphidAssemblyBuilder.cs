@@ -29,6 +29,8 @@ namespace Components.Aphid.TypeSystem
 
         public string AssemblyFilename { get; private set; }
 
+        public AssemblyBuilder Assembly { get; private set; }
+
         public AphidAssemblyBuilder(AphidInterpreter interpreter)
             : this(interpreter, string.Format("AphidModule_{0}", Guid.NewGuid()))
         {
@@ -44,13 +46,53 @@ namespace Components.Aphid.TypeSystem
         {
             AssemblyName = assemblyName;
             AssemblyFilename = assemblyFilename;
+            SetModuleBuilder(AssemblyBuilderAccess.Run);
+        }
 
+        public void SetAssemblyFile(
+            string assemblyName,
+            string assemblyFilename)
+        {
+            SetAssemblyFile(assemblyName, assemblyFilename, null);
+        }
+
+        public void SetAssemblyFile(
+            string assemblyName,
+            string assemblyFilename,
+            string dir)
+        {
+            AssemblyName = assemblyName;
+            AssemblyFilename = assemblyFilename;
+
+            if (dir != null)
+            {
+                SetModuleBuilder(AssemblyBuilderAccess.RunAndSave, dir);
+            }
+            else
+            {
+                SetModuleBuilder(AssemblyBuilderAccess.RunAndSave);
+            }
+        }
+
+        private void SetModuleBuilder(AssemblyBuilderAccess access)
+        {
             _moduleBuilder = new Lazy<ModuleBuilder>(
-                () => AppDomain.CurrentDomain
+                () => (Assembly = AppDomain.CurrentDomain
                     .DefineDynamicAssembly(
                         new AssemblyName(AssemblyName),
-                        AssemblyBuilderAccess.Run)
-                    .DefineDynamicModule(assemblyName));
+                        access))
+                    .DefineDynamicModule(AssemblyName));
+        }
+
+        private void SetModuleBuilder(AssemblyBuilderAccess access, string dir)
+        {
+            _moduleBuilder = new Lazy<ModuleBuilder>(
+                () => (Assembly = AppDomain.CurrentDomain
+                    .DefineDynamicAssembly(
+                        new AssemblyName(AssemblyName),
+                        access,
+                        dir))
+                    .DefineDynamicModule(AssemblyName));
         }
 
         public Type CreateType(ObjectExpression type, IEnumerable<string> imports)
