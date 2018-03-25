@@ -17,6 +17,16 @@ namespace Components.Aphid.UI
     {
         public AphidInterpreter Interpreter { get; set; }
 
+        public AphidRepl()
+        {
+        }
+
+        public AphidRepl(AphidInterpreter interpreter)
+            : this()
+        {
+            Interpreter = interpreter;
+        }
+
         public void Run()
         {
             if (Interpreter == null)
