@@ -92,6 +92,10 @@ namespace Components.Aphid.Interpreter
     //   - Persist Aphid bytecode and metadata for use as indexes.
     //   - Pull pieces from AphidUI for use as generic database management UI.
     //   - Memoize query bytecode and results for hot paths.
+    // * Add enum support.
+    // * Add struct support.
+    //   - Support first-class unions with FieldOffsetAttribute.
+    //   - Add first-class pointer support.
     public partial class AphidInterpreter
     {
         private bool
