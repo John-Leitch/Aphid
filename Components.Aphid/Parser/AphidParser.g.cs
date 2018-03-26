@@ -5065,6 +5065,14 @@ namespace Components.Aphid.Lexer
     [StructLayout(LayoutKind.Explicit)]
     public struct AphidToken
     {
+        // Todo:
+        // * Generate low memory version.
+        //   - Tokenize custom operators as one type value so enum can
+        //     fit in a single byte.
+        //   - Change index size to three bytes (max 16,777,215) to
+        //     pack with TokenType as uint.
+        //   - Make Lexeme optional.
+        // * Investigate generating lexer in C.
         [FieldOffset(0)]
         public AphidTokenType TokenType;
 

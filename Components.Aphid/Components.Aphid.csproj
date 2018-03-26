@@ -305,6 +305,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="TypeSystem\AphidFunctionWrapper.cs" />
+    <Compile Include="TypeSystem\AphidTypeConverter.Numbers.g.cs" />
     <Compile Include="TypeSystem\ConversionOperator.cs" />
     <Compile Include="UI\AphidCli.cs" />
     <Compile Include="Compiler\AphidStringEmitter.cs" />
@@ -411,6 +412,9 @@
     <None Include="Aphid.Code.alx" />
     <None Include="Aphid.Tokens.alx" />
     <None Include="Aphid.Tmpl.alx" />
+    <None Include="Library\Wpf.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Serialization\AphidObject.alx" />
     <None Include="App.config" />
     <None Include="AphidCustomOperators.alx" />

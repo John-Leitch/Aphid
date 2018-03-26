@@ -10,22 +10,8 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
 {
-    public class AphidTypeConverter : AphidRuntimeComponent
+    public partial class AphidTypeConverter : AphidRuntimeComponent
     {
-        private static readonly Type[] _numberTypes = new[]
-        {
-            typeof(byte),
-            typeof(ushort),
-            typeof(uint),
-            typeof(ulong),
-            typeof(sbyte),
-            typeof(short),
-            typeof(int),
-            typeof(long),
-            typeof(float),
-            typeof(double)
-        };
-
         public AphidTypeConverter(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -97,6 +83,16 @@ namespace Components.Aphid.TypeSystem
                     valType == target ? true :
                     interopArg.ImplicitConversionOperator != null ? true :
                     valType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)val, target) :
+                    //valType == typeof(sbyte) ? CanConvertOrBoxSByte((decimal)val, target) :
+                    //valType == typeof(short) ? CanConvertOrBoxShort((decimal)val, target) :
+                    //valType == typeof(int) ? CanConvertOrBoxInt((decimal)val, target) :
+                    //valType == typeof(long) ? CanConvertOrBoxLong((decimal)val, target) :
+                    //valType == typeof(byte) ? CanConvertOrBoxByte((decimal)val, target) :
+                    //valType == typeof(ushort) ? CanConvertOrBoxUShort((decimal)val, target) :
+                    //valType == typeof(uint) ? CanConvertOrBoxUInt((decimal)val, target) :
+                    //valType == typeof(ulong) ? CanConvertOrBoxULong((decimal)val, target) :
+                    //valType == typeof(float) ? CanConvertOrBoxFloat((decimal)val, target) :
+                    //valType == typeof(double) ? CanConvertOrBoxDouble((decimal)val, target) :
                     valType == typeof(string) && target == typeof(char) && ((string)val).Length == 1 ? true :
                     valType.IsDerivedFromOrImplements(target, genericArguments) ? true :
                     target.IsArray ? CanConvertArray(val, valType, target) :
@@ -108,60 +104,6 @@ namespace Components.Aphid.TypeSystem
                     interopArg,
                     canConvert,
                     genericArguments.ToArray());
-            }
-        }
-
-        public static bool CanConvertOrBoxDecimal(decimal value, Type targetType)
-        {
-            return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        }
-
-        public static bool CanConvertDecimal(decimal value, Type targetType)
-        {
-            return IsNumber(targetType) && CanDecimalFit(value, targetType);
-        }
-
-        public static bool CanDecimalFit(decimal value, Type targetType)
-        {
-            if (targetType == typeof(byte))
-            {
-                return byte.MinValue <= value && value <= byte.MaxValue;
-            }
-            else if (targetType == typeof(ushort))
-            {
-                return ushort.MinValue <= value && value <= ushort.MaxValue;
-            }
-            else if (targetType == typeof(uint))
-            {
-                return uint.MinValue <= value && value <= uint.MaxValue;
-            }
-            else if (targetType == typeof(ulong))
-            {
-                return ulong.MinValue <= value && value <= ulong.MaxValue;
-            }
-            else if (targetType == typeof(sbyte))
-            {
-                return sbyte.MinValue <= value && value <= sbyte.MaxValue;
-            }
-            else if (targetType == typeof(short))
-            {
-                return short.MinValue <= value && value <= short.MaxValue;
-            }
-            else if (targetType == typeof(int))
-            {
-                return int.MinValue <= value && value <= int.MaxValue;
-            }
-            else if (targetType == typeof(long))
-            {
-                return long.MinValue <= value && value <= long.MaxValue;
-            }
-            else if (targetType == typeof(float) || targetType == typeof(double))
-            {
-                return true;
-            }
-            else
-            {
-                throw new NotImplementedException("Unknown number type: " + targetType);
             }
         }
 
