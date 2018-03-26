@@ -4620,9 +4620,11 @@ namespace Components.Aphid.Lexer
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("llex", "1")]
-    public enum AphidTokenType : short
+    // Todo: generate ushort automatically using Mantispid.
+    public enum AphidTokenType : ushort
     {
         None,
         AdditionOperator,
@@ -5057,12 +5059,21 @@ namespace Components.Aphid.Lexer
         XorOperator
     }
 
+
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("llex", "1")]
+    // Todo: generate interop attributes automatically using Mantispid.
+    [StructLayout(LayoutKind.Explicit)]
     public struct AphidToken
     {
+        [FieldOffset(0)]
         public AphidTokenType TokenType;
-        public string Lexeme;
+
+        [FieldOffset(4)]
         public int Index;
+
+        [FieldOffset(8)]
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string Lexeme;
 
         public AphidToken(AphidTokenType tokenType, string lexeme, int index)
         {
@@ -5102,6 +5113,17 @@ namespace Components.Aphid.Lexer
                 TokenType == AphidTokenType.tryKeyword ||
                 TokenType == AphidTokenType.catchKeyword ||
                 TokenType == AphidTokenType.finallyKeyword;
+        }
+
+        // Todo: generate operators automatically using Mantispid.
+        public static implicit operator AphidToken(char c)
+        {
+            return AphidLexer.GetToken(c.ToString());
+        }
+
+        public static implicit operator AphidToken(string text)
+        {
+            return AphidLexer.GetToken(text);
         }
     }
 
@@ -12139,6 +12161,8 @@ namespace Components.Aphid.Lexer
 
             return tokens;
         }
+
+
     }
 }
 #pragma warning restore 0162
