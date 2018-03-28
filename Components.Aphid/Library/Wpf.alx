@@ -45,10 +45,12 @@ var wpf;
                         ret result;
                     };
 
+                    wpfApp.shutdown = @() wpfApp.invoke(wpfApp.app.Shutdown);
                     wpfApp.createDataGrid = @() wpf.createDataGrid(wpfApp);
 
                     uiInitReset.Set();
                     wpfApp.app.Run(wpfApp.window);
+                    wpfApp.app.Shutdown();
                 });
 
                 printInfo('Creating thread');
@@ -76,6 +78,19 @@ var wpf;
                 uiInitReset.Dispose();
             }
             
+        },
+
+        createAppFromXaml: @(xaml, init)
+            ($args.Count > 1 ? createAppFromXamlAsync(xaml, init) : createAppFromXamlAsync(xaml))
+            .waitForExit(),
+
+        createAppFromXamlAsync: @(xaml, init){
+            var fn = $args.Count > 1 ? init : @{};
+
+            ret createAppAsync(@{
+                $_.window.Content = xaml |> XamlReader.Parse;
+                fn($_);
+            });
         },
 
         createDataGrid: @(app) {
