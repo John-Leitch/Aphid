@@ -8,6 +8,16 @@ namespace Components.Aphid.Lexer
     // Todo: generate based on Mantispin input
     public partial class AphidLexer
     {
+        public int GetMode()
+        {
+            return mode;
+        }
+
+        public void SetMode(int m)
+        {
+            mode = m;
+        }
+
         public void SetCodeMode()
         {
             mode = 0;
