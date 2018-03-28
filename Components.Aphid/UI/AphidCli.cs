@@ -37,7 +37,9 @@ namespace Components.Aphid.UI
         {
             try
             {
+                var backup = interpreter.SetIsInTryCatchFinally(true);
                 action();
+                interpreter.SetIsInTryCatchFinally(backup);
 
                 return true;
             }

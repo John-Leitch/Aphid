@@ -4240,5 +4240,14 @@ namespace Components.Aphid.Interpreter
                 string.Format("'{0}' of type '{1}'", obj, AphidType.GetName(obj)) :
                 "null";
         }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool SetIsInTryCatchFinally(bool value)
+        {
+            var old = _isInTryCatchFinally;
+            _isInTryCatchFinally = true;
+
+            return old;
+        }
     }
 }
