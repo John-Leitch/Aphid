@@ -28,6 +28,13 @@ namespace Components.Aphid.UI
         {
             var subStr = offset == text.Length ? text : text.Remove(offset);
             var tokens = AphidLexer.GetTokens(subStr);
+
+            var assignIndex = tokens.FindLastIndex(x => x.TokenType == AphidTokenType.AssignmentOperator);
+
+            if (assignIndex >= 0)
+            {
+                tokens = tokens.Skip(assignIndex + 1).ToList();
+            }
             
 
             AphidToken lastToken = default(AphidToken);
