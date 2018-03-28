@@ -45,7 +45,9 @@ namespace Components.Aphid.UI
                 }
                 else
                 {
+                    var backup = Interpreter.SetIsInTryCatchFinally(true);
                     RunCode(code);
+                    Interpreter.SetIsInTryCatchFinally(backup);
                 }
 
                 Interpreter.ResetState();

@@ -4071,6 +4071,7 @@ namespace Components.Aphid.Interpreter
             _isInTryCatchFinally = false;
             _frames.Clear();
             _frames.Push(CreateEntryFrame());
+            _queuedFramePops = 0;
 
             foreach (var k in new[]
             {
