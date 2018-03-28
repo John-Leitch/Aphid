@@ -139,8 +139,19 @@ fixColors = @{
     Console.BackgroundColor = ConsoleColor.Black;
 };
 
-head = @(msg){ Cli.WriteHeader($_, '~|Blue~~White~') };
-header = head;
+var console = {
+    defaultHeaderStyle: '~|Blue~~White~',
+    defaultSubheaderStyle: defaultHeaderStyle,
+};
+
+var head = @(msg){ Cli.WriteHeader($_, console.defaultHeaderStyle) };
+var header = head;
+var subhead = @(msg) { Cli.WriteSubheader(msg, console.defaultSubheaderStyle) };
+var subheader = subhead;
+console.head = head;
+console.header = head;
+console.subhead = subhead;
+console.subheader = subhead;
 
 dump = @(o){
     !isObject(o) && toJson defined ? toJson(o) : serialize(o)

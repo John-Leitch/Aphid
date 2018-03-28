@@ -33,7 +33,6 @@ var wpf;
                     wpfApp.app = new Application();
                     wpfApp.window = new Window();
                     
-                    
                     wpfApp.invoke = @(func) {
                         var result;
                         printInfo('Invoking WPF with {0}', func);
@@ -60,7 +59,7 @@ var wpf;
 
                     ret wpfApp;
                 };
-                
+
                 wpfApp.uiThread.Start();
 
                 printQuery('Waiting for WPF to initialize');
@@ -90,6 +89,7 @@ var wpf;
                     var col = new DataGridTextColumn();
                     col.Header = name;
                     col.Binding = new Binding(binding);
+                    col.Binding.Mode = BindingMode.TwoWay;
                     dataGrid.Columns.Add(col);
                 })
         }

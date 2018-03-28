@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Samples\Benchmark.alx" />
     <None Include="Samples\ConditionalOperatorExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -138,19 +139,15 @@
     <None Include="Samples\AphidUI.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Samples\CustomOperatorBenchmark.alx" />
+    <None Include="Samples\NumberBenchmark.alx" />
     <None Include="Samples\ParallelForExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Samples\NativeDebuggerExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Samples\PerformanceTests.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Samples\CustomOperatorExample.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Samples\CustomOperatorPerfTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Samples\ILMerge.alx">
