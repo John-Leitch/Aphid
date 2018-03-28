@@ -15,6 +15,11 @@ namespace Components
                     .GetAssemblies()
                     .GroupToArrayDictionary(x => x.FullName.RemoveAtIndexOf(',')));
 
+        public IEnumerable<Assembly> GetAssemblies()
+        {
+            return _assemblies.Value.SelectMany(x => x.Value).Distinct();
+        }
+
         public Type ResolveFullType(string fullTypeName)
         {
             var ns = fullTypeName;
@@ -62,7 +67,7 @@ namespace Components
             throw GetResolveException(fullTypeName);
         }
 
-        private Assembly[] TryGetAssemblies(string[] namespaces)
+        public Assembly[] TryGetAssemblies(string[] namespaces)
         {
             var t = _assemblies.Value;
             Assembly[] asms;

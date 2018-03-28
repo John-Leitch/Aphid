@@ -23,7 +23,7 @@ namespace Components.External.ConsolePlus
 
         private bool _autocompleteActive = false;
 
-        private string[] _matches = new string[0];
+        private Autocomplete[] _matches = new Autocomplete[0];
 
         private string _searchBuffer;
 
@@ -41,7 +41,7 @@ namespace Components.External.ConsolePlus
 
         private List<string> _history = new List<string>();
 
-        public int MaxResults { get; set; }
+        public Func<int> GetMaxResults { get; set; }
 
         public int MaxHistoryCount { get; set; }
 
@@ -51,7 +51,7 @@ namespace Components.External.ConsolePlus
             ISyntaxHighlighter highlighter,
             IAutocompletionSource sources)
         {
-            MaxResults = 10;
+            GetMaxResults = () => Console.WindowHeight - 6;
             MaxHistoryCount = 100;
             _prompt = prompt;
             _scanner = scanner;
@@ -151,11 +151,11 @@ namespace Components.External.ConsolePlus
 
                         if (_matches.Length == 1)
                         {
-                            remaining = _matches[0];
+                            remaining = _matches[0].Text;
                         }
                         else if (_matches.Length > 1)
                         {
-                            remaining = _matches[_autocompleteIndex];
+                            remaining = _matches[_autocompleteIndex].Text;
                         }
                         else
                         {
@@ -333,7 +333,7 @@ namespace Components.External.ConsolePlus
             }
 
             var oldTop = Console.CursorTop;
-            _autocompleteWidth = _matches.Length != 0 ? _matches.Max(x => x.Length) : 0;
+            _autocompleteWidth = _matches.Length != 0 ? _matches.Max(x => Cli.StyleEscape(x.View).Length) : 0;
             _autocompleteActive = true;
             _autocompleteLeft = _cursorIndex + _prompt.Length + 0 - _searchBuffer.Length;
 
@@ -346,9 +346,9 @@ namespace Components.External.ConsolePlus
 
             _autocompleteTop = Console.CursorTop + 1;
             //_autocompleteWidth = 0;
-            _autoCompleteHeight = _matches.Length < MaxResults ?
+            _autoCompleteHeight = _matches.Length < GetMaxResults() ?
                 _matches.Length :
-                MaxResults + 1;
+                GetMaxResults() + 1;
 
             int tmpLeft = Console.CursorLeft, tmpRight = Console.CursorTop;
 
@@ -375,13 +375,13 @@ namespace Components.External.ConsolePlus
             {
                 entryNum++;
 
-                if (n.Length > _autocompleteWidth)
+                if (Cli.StyleEscape(n.View).Length > _autocompleteWidth)
                 {
-                    _autocompleteWidth = n.Length;
+                    _autocompleteWidth = Cli.StyleEscape(n.View).Length;
                 }
 
-                if (_autocompleteIndex - entryNum > MaxResults ||
-                    linesDrawn > MaxResults)
+                if (_autocompleteIndex - entryNum > GetMaxResults() ||
+                    linesDrawn > GetMaxResults())
                 {
                     continue;
                 }
@@ -392,7 +392,7 @@ namespace Components.External.ConsolePlus
                         "~White~~|Blue~{0}~R~" :
                         "~Black~~|White~{0}~R~";
 
-                Cli.Write(format, n + new string(' ', _autocompleteWidth - n.Length));
+                Cli.Write(format, n.View + new string(' ', _autocompleteWidth - Cli.StyleEscape(n.View).Length));
                 linesDrawn++;
             }
 
