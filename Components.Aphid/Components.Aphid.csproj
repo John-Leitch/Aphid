@@ -137,6 +137,10 @@
     <Compile Include="Compiler\Medusa\LLex\RegexLexer.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
+    <Compile Include="UI\AphidConsole.cs" />
+    <Compile Include="UI\AphidScanner.cs" />
+    <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
+    <Compile Include="UI\AphidSyntaxHighlighter.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\AddTokenTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\CaseTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\LexicalAnalyzerTemplate.cs" />
@@ -171,9 +175,15 @@
     <Compile Include="External\ConsolePlus\CliArgProperty.cs" />
     <Compile Include="External\ConsolePlus\CliArgReader.cs" />
     <Compile Include="External\ConsolePlus\CliArgWriter.cs" />
+    <Compile Include="External\ConsolePlus\ColoredText.cs" />
     <Compile Include="External\ConsolePlus\CommandString.cs" />
     <Compile Include="External\ConsolePlus\Cli.g.cs" />
+    <Compile Include="External\ConsolePlus\ConsoleAutocomplete.cs" />
+    <Compile Include="External\ConsolePlus\IAutocompletionSource.cs" />
     <Compile Include="External\ConsolePlus\InteractiveConsole.cs" />
+    <Compile Include="External\ConsolePlus\IScanner.cs" />
+    <Compile Include="External\ConsolePlus\ISyntaxHighlighter.cs" />
+    <Compile Include="External\ConsolePlus\ScannerToken.cs" />
     <Compile Include="External\CrossProcessLock.cs" />
     <Compile Include="External\Debugging\BreakpointManager.cs" />
     <Compile Include="External\Debugging\Cache.cs" />
@@ -212,6 +222,7 @@
     <Compile Include="External\PInvoke\User32.cs" />
     <Compile Include="External\PInvoke\WindowsHookCallback.cs" />
     <Compile Include="External\RevertibleLazy.cs" />
+    <Compile Include="External\ConsolePlus\ScannerTokenType.cs" />
     <Compile Include="External\StringEnumerableExtension.cs" />
     <Compile Include="External\StringExtension.cs" />
     <Compile Include="External\StringTree.cs" />

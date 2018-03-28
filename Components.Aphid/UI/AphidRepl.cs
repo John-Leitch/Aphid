@@ -34,10 +34,11 @@ namespace Components.Aphid.UI
                 Interpreter = new AphidInterpreter();
             }
 
+            var console = new AphidConsole(Interpreter);
+
             while (true)
             {
-                Console.Write(">>> ");
-                var code = Console.ReadLine();
+                var code = console.ReadLine();
 
                 if (!Debugger.IsAttached)
                 {
@@ -56,6 +57,11 @@ namespace Components.Aphid.UI
 
         private void RunCode(string code)
         {
+            if (code.Trim() == "")
+            {
+                return;
+            }
+
             var lexer = new AphidLexer(code);
             var tokens = lexer.GetTokens();
             var exp = AphidParser.ParseExpression(tokens, code);
