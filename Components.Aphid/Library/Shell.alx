@@ -9,7 +9,10 @@
     //    * Memoize static and dynamic code, use hash LUT for dynamic code.
     //      | 0x52 | Type Id (u32) | Type Length (u16) | Type (variable) | Member Count Size (u32) |
     //      | 0x53 | Object Id (u32) | Type Id (u32) | Member Count (variable) | Member Seq (variable) |
-    //   -Custom member access override for IEnumerable<PSObject> e.g. $foo.Name -> $foo->@.Name
+    // * Custom member access override for IEnumerable<PSObject> e.g. $foo.Name -> $foo->@.Name
+    // * Add | support to command-line, set $_ to piped value.
+    // * Add -> support to command-line, set $_ to piped value.
+    // * Add ; support to command-line
     #'Std';
     #'Query';
     #'Meta';
