@@ -14,6 +14,8 @@ namespace Components.Aphid.VSPackage
 {
     public class AphidLanguageService : LanguageService
     {
+        private bool _isTest = true;
+
         public override string GetFormatFilterList()
         {
             return "Aphid files (*.alx)\n*.alx\n";
@@ -104,11 +106,11 @@ namespace Components.Aphid.VSPackage
 
             var scope = new AphidAuthoringScope();
 
-            //scope.Identifiers = GetTokens(req.Text)
-            //    .Where(x => x.TokenType == AphidTokenType.Identifier)
-            //    .Select(x => x.Lexeme)
-            //    .Distinct()
-            //    .ToArray();
+            scope.Identifiers = GetTokens(req.Text)
+                .Where(x => x.TokenType == AphidTokenType.Identifier)
+                .Select(x => x.Lexeme)
+                .Distinct()
+                .ToArray();
 
             switch (req.Reason)
             {

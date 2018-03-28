@@ -10,18 +10,20 @@ namespace Components.Aphid.VSPackage
 {
     public class AphidScanner : IScanner
     {
-        private int _index;
+        private int _index, _lexerMode;
         private AphidToken[] _tokens;
 
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
             if (_tokens.Length <= _index)
             {
+                state = -1;
                 return false;
             }
 
-            var t = _tokens[_index++];
+            state++;
 
+            var t = _tokens[_index++];
             tokenInfo.StartIndex = t.Index;
             tokenInfo.EndIndex = t.Index + t.Lexeme.Length - 1;
             tokenInfo.Type = TokenType.Text;
@@ -174,13 +176,22 @@ namespace Components.Aphid.VSPackage
 
         public void SetSource(string source, int offset)
         {
-            _index = 0;
+           _index = 0;
             try
             {
-                _tokens = new AphidLexer(source)
+                var lexer = new AphidLexer(source);
+
+                if (_lexerMode != 0)
+                {
+                    lexer.SetMode(_lexerMode);
+                }
+
+                _tokens = lexer
                     .GetAllTokens()
                     .Where(x => x.TokenType != AphidTokenType.WhiteSpace)
                     .ToArray();
+
+                _lexerMode = lexer.GetMode();
             }
             catch
             {

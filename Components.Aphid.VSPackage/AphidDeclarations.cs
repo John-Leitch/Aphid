@@ -66,8 +66,7 @@ namespace Components.Aphid.VSPackage
                 decls = decls.Where(x => x.Glyph != StandardGlyphGroup.GlyphKeyword);
             }
 
-            //_declarations = decls.OrderBy(x => x.DisplayText.Length).ToArray();
-            _declarations = new AphidDeclaration[0];
+            _declarations = decls.OrderBy(x => x.DisplayText).ToArray();
 
             Debug.WriteLine("Declaration count: {0}", _declarations.Length);
         }
