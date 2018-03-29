@@ -18,7 +18,6 @@ namespace Components.External.ConsolePlus
             _oldTop,
             _cursorIndex = 0;
 
-
         private string _consoleBuffer = "";
 
         private bool _autocompleteActive = false;
@@ -425,20 +424,21 @@ namespace Components.External.ConsolePlus
                 return;
             }
 
-            _cursorIndex--;
-            _consoleBuffer = _consoleBuffer.Remove(_consoleBuffer.Length - 1, 1);
+            _consoleBuffer = _consoleBuffer.Remove(--_cursorIndex, 1);
+            Console.CursorVisible = false;
 
             Console.SetCursorPosition(
-                Console.CursorLeft - 1,
+                _prompt.Length + _consoleBuffer.Length,
                 Console.CursorTop);
 
             Console.Write(" ");
+            DrawText();
 
             Console.SetCursorPosition(
-                Console.CursorLeft - 1,
+                _prompt.Length + _cursorIndex,
                 Console.CursorTop);
 
-            CheckAutocomplete();
+            Console.CursorVisible = true;
         }
 
         private void SetHistoryValue(bool up)
