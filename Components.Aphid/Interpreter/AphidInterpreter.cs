@@ -162,7 +162,11 @@ namespace Components.Aphid.Interpreter
 
         public AphidFunctionConverter FunctionConverter { get; private set; }
 
+        public AphidIpcContext IpcContext { get; private set; }
+
         public Action<AphidExpression> HandleExecutionBreak { get; set; }
+
+        public AphidSerializer Serializer { get; private set; }
 
         public TextWriter Out { get; set; }
 
@@ -263,6 +267,7 @@ namespace Components.Aphid.Interpreter
             InteropTypeResolver = new InteropTypeResolver(this);
             TypeConverter = new AphidTypeConverter(this);
             FunctionConverter = new AphidFunctionConverter(this);
+            Serializer = new AphidSerializer(this);
 
             _frames = new Stack<AphidFrame>(new[] { CreateEntryFrame() });
 
@@ -4249,6 +4254,24 @@ namespace Components.Aphid.Interpreter
             _isInTryCatchFinally = true;
 
             return old;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Type GetIpcContextType()
+        {
+            return typeof(AphidIpcContext);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RegisterIpcServer()
+        {
+            AphidIpcContext.Register(this);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidIpcContext CreateIpcClientContext()
+        {
+            return IpcContext = new AphidIpcContext();
         }
     }
 }

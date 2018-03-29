@@ -1,5 +1,6 @@
 ﻿#'std';
-argList = getCommandLineArgs() |> Enumerable.ToList;
+#'meta';
+var argList = getCommandLineArgs() |> Enumerable.ToList;
 cls();
 using Components;
 using Components.External;
@@ -16,49 +17,14 @@ load mscorlib;
 
 head('IPC Channel Test');
 
+
+
 if (!argList.Contains('-client')) {
-    var asmBuilder = this.{'$asm'};
+    var aphid = this.{'$aphid'};
     
-    asmBuilder.SetAssemblyFile(
-        'AphidIpc',
-        'AphidIpc.dll',
-        PathHelper.GetEntryDirectory());
-
-    var roType = class MarshalByRefObject RemoteObject {
-        int callCount,
-    };
-
-    var saveIpcAsm = @{
-        var remoteDllPath = 'AphidIpc.dll';// |> PathHelper.GetExecutingPath;
-        print('Saving IPC dll as ~Cyan~{0}~R~', remoteDllPath);
-        remoteDllPath |> asmBuilder.Assembly.Save;
-    };
-
-    var getIpcAsm = @{
-        var domain = AppDomain.CurrentDomain;
-        var asms = domain.GetAssemblies();
-        
-        var aphidModule = asms
-            -?(@()$_.ToString().Contains('AphidIpc'))
-            |> Enumerable.FirstOrDefault;
-
-        if (aphidModule == null) {
-            printError(
-                'Could not find IPC modules. Found the following ' + 
-                'modules loaded in current AppDomain:');
-
-            asms->@print('    {0}');
-            exit(0xbad);
-        }
-
-        ret aphidModule;
-    };
     
-    saveIpcAsm();
-    var ipcAsm = getIpcAsm();
-
     printInfo('Starting IPC Channel');
-    var serverChannel=new IpcChannel("localhost:9090");
+    var serverChannel = new IpcChannel("localhost:9090");
     ChannelServices.RegisterChannel(serverChannel);
     printSuccess('Channel name: {0}', serverChannel.ChannelName);
     printSuccess('Channel priority: {0}', serverChannel.ChannelPriority);
@@ -66,80 +32,32 @@ if (!argList.Contains('-client')) {
     var channelData = serverChannel.ChannelData;
     channelData.ChannelUris->@format('The channel URI is {0}');
 
-
-    if (roType == null) {
-        printError('Could not find type RemoteObject.');
-        exit();
-    }
-
     RemotingConfiguration.RegisterWellKnownServiceType(
-        roType,
+        aphid.GetIpcContextType(),
         "RemoteObject.rem", 
         WellKnownObjectMode.Singleton);
 
     urls = serverChannel.GetUrlsForUri("RemoteObject.rem");
     print(urls);
-    var domain = AppDomain.CurrentDomain;
-    var asms = domain.GetAssemblies();
-    //domain.dir('Mod');
-    //domain.dir('Assem');
-    //asms |> dump;
-    
-    // var aphidModule = asms
-    //     -?(@()$_.ToString().Contains('AphidModule_'))
-    //     |> Enumerable.FirstOrDefault;
 
-    // if (aphidModule == null) {
-    //     printError('Could not find AphidModule.');
-    //     exit();
-    // }
+    aphid.RegisterIpcServer();
 
-    // aphidModule |> dump;
-    
-    // aphidModule.dir();
-    //aphidModule.Location |> print;
-    //aphidModule.GetFiles() |> print;
-    // repl();
-    // //aphidModule.GetType() |> print;
-    // //'AphidIpc.dll' |> PathHelper.GetExecutingPath |> aphidModule.Save;
-    // exit();
+    var args = format(
+        '/c {0} {1} -client',
+        getExe(),
+        getCommandLineArgs()[1]);
 
-    printQuery('Starting client process');
-
-    var proc = Process.Start(
-        'cmd',
-        format('/c {0} -client', Environment.CommandLine));
-
+    printQuery('Starting client process with args ~Cyan~{0}~R~', args);
+    var proc = Process.Start('cmd', args);
     printInfo('Waiting for process to exit');
     proc.WaitForExit();
-
     printSuccess('Process has exited');
+    Console.ReadLine();
 
 
 } else {
     try {
-        printInfo('Loading IPC assembly');
-        var ipcDll = 'AphidIpc.dll' |> PathHelper.GetEntryPath;
-        var ipAsm = Assembly.LoadFile(ipcDll);
-
-        if (ipAsm == null) {
-            printError('Could not load IPC assembly from {0}', ipAsm);
-            exit(0xbad01);
-        } else {
-            printSuccess('IPC assembly loaded from ~Green~{0}~R~', ipAsm.Location);
-        }
-
-        var types = ipAsm.GetTypes();
-        types @print('Types: {0}');
-
-        var roType = ipAsm.GetTypes() |> Enumerable.SingleOrDefault;
-
-        if (roType == null) {
-            print('Could not load RemoteObect type from assembly.');
-            Console.ReadKey();
-            exit(0xbad10);
-        }
-
+        var aphid = this.{'$aphid'};
         printInfo('Starting IPC client');
         var clientChannel = new IpcChannel();
 
@@ -149,10 +67,8 @@ if (!argList.Contains('-client')) {
         printInfo('Registering remote type');
 
         var remoteType = new WellKnownClientTypeEntry(
-            roType,
+            aphid.GetIpcContextType(),
             "ipc://localhost:9090/RemoteObject.rem");
-
-    
     
         RemotingConfiguration.RegisterWellKnownClientType(remoteType);
 
@@ -165,11 +81,9 @@ if (!argList.Contains('-client')) {
 
         messageSink |> print;
 
-        using System.Reflection;
-        printInfo('Creating RemoteObject');
-        var ro = new RemoteObject();
+        var ipcContext = aphid.CreateIpcClientContext();
+        ipcContext.Eval('print("Hello world")');
 
-        printSuccess('Created remote object: {0}', ro);
         //var ro = Activator.CreateInstance(roType);
         //ro |> print;
         //var ro = new RemoteObject();
@@ -182,5 +96,6 @@ if (!argList.Contains('-client')) {
     } finally {
         repl();
     }
-    //Console.ReadLine();
+    
+    Console.ReadLine();
 }

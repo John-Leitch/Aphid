@@ -98,17 +98,22 @@ namespace Components.External.ConsolePlus
                 .Select(x => string.Format(
                     "{0}{1}{2}{3}",
                     VT100.Foreground(x.Key),
-                    background ?
-                        VT100.Background(
-                            (byte)~x.Key[0],
-                            (byte)~x.Key[1],
-                            (byte)~x.Key[2]) :
-                        "",
+                    background ? LogBackground(x.Key) : "",
                     x.Value,
                     VT100.Reset))
                 .Join(" ");
 
             Console.WriteLine(str);
+        }
+
+        private static string LogBackground(byte[] background)
+        {
+            var bg = VT100.Background(
+                (byte)~background[0],
+                (byte)~background[1],
+                (byte)~background[2]);
+
+            return bg + bg.Replace("\x1b", "");
         }
 
         static void TestVT100()
