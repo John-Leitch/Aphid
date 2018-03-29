@@ -138,6 +138,9 @@
     <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
+    <Compile Include="External\ConsolePlus\SystemColor.g.cs" />
+    <Compile Include="External\ConsolePlus\VT100.cs" />
+    <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="UI\AphidConsole.cs" />
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
@@ -424,6 +427,7 @@
     <None Include="Aphid.Code.alx" />
     <None Include="Aphid.Tokens.alx" />
     <None Include="Aphid.Tmpl.alx" />
+    <None Include="External\ConsolePlus\SystemColor.alx" />
     <None Include="Library\Wpf.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

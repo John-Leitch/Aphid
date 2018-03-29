@@ -1,0 +1,31 @@
+var asm = load System.Drawing;
+using Components.External.ConsolePlus;
+using System;
+using System.Drawing;
+ 
+var colors =
+    'System.Drawing.KnownColor'
+    |> asm.GetType
+    |> Enum.GetValues
+    -> @() ({ Key: $_, Value: $_ |> Color.FromKnownColor });
+
+%>using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
+namespace Components.External.ConsolePlus
+{
+    public static partial class SystemColor
+    {
+        <% colors->@{ %>
+        public static readonly byte[] <%= $_.Key.ToString() %> = new byte[]
+        {
+            (byte)<%= $_.Value.R %>, (byte)<%= $_.Value.G %>, (byte)<%= $_.Value.B %>
+        };
+        <% }; %>
+    }
+}

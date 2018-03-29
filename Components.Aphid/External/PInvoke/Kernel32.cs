@@ -11,31 +11,31 @@ namespace Components.PInvoke
         [DllImport("kernel32.dll", EntryPoint = "WaitForDebugEvent", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool WaitForDebugEvent(
-            ref DEBUG_EVENT lpDebugEvent, 
+            ref DEBUG_EVENT lpDebugEvent,
             int dwMilliseconds);
 
         [DllImport("kernel32.dll")]
         public static extern bool CreateProcess(
             string lpApplicationName,
-            string lpCommandLine, 
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
-            IntPtr lpThreadAttributes, 
+            IntPtr lpThreadAttributes,
             bool bInheritHandles,
-            ProcessCreationFlags dwCreationFlags, 
-            IntPtr lpEnvironment, 
+            ProcessCreationFlags dwCreationFlags,
+            IntPtr lpEnvironment,
             string lpCurrentDirectory,
             STARTUPINFO lpStartupInfo,
             PROCESS_INFORMATION lpProcessInformation);
 
         [DllImport("kernel32.dll")]
         public static extern bool ContinueDebugEvent(
-            uint dwProcessId, 
+            uint dwProcessId,
             uint dwThreadId,
            ContinueStatus dwContinueStatus);
 
         [DllImport("kernel32.dll")]
         public static extern bool GetThreadContext(
-            IntPtr hThread, 
+            IntPtr hThread,
             [In, Out] ref CONTEXT lpContext);
 
         [DllImport("kernel32.dll")]
@@ -44,8 +44,8 @@ namespace Components.PInvoke
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenThread(
-            ThreadAccess dwDesiredAccess, 
-            bool bInheritHandle, 
+            ThreadAccess dwDesiredAccess,
+            bool bInheritHandle,
             uint dwThreadId);
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -102,5 +102,14 @@ namespace Components.PInvoke
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool SetConsoleMode(IntPtr hConsoleHandle, int mode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool GetConsoleMode(IntPtr handle, out int mode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr GetStdHandle(int handle);
     }
 }

@@ -19,20 +19,20 @@ namespace Components.Aphid.UI
             return highlights;
         }
 
-        private ConsoleColor GetColor(AphidTokenType type)
+        private byte[] GetColor(AphidTokenType type)
         {
             switch (type)
             {
                 case AphidTokenType.String:
-                    return ConsoleColor.DarkCyan;
+                    return SystemColor.Coral;
 
                 case AphidTokenType.Number:
                 case AphidTokenType.HexNumber:
                 case AphidTokenType.BinaryNumber:
-                    return ConsoleColor.DarkYellow;
+                    return SystemColor.PaleGoldenrod;
 
                 case AphidTokenType.Identifier:
-                    return ConsoleColor.White;
+                    return SystemColor.CadetBlue;
 
                 case AphidTokenType.breakKeyword:
                 case AphidTokenType.catchKeyword:
@@ -68,7 +68,7 @@ namespace Components.Aphid.UI
                 case AphidTokenType.LoadScriptOperator:
                 case AphidTokenType.PatternMatchingOperator:
 
-                    return ConsoleColor.Cyan;
+                    return SystemColor.DodgerBlue;
 
                 case AphidTokenType.AdditionOperator:
                 case AphidTokenType.AggregateOperator:
@@ -111,26 +111,26 @@ namespace Components.Aphid.UI
                 case AphidTokenType.WhereOperator:
                 case AphidTokenType.XorEqualOperator:
                 case AphidTokenType.XorOperator:
-                    return ConsoleColor.White;
+                    return SystemColor.Silver;
 
                 case AphidTokenType.LeftBrace:
                 case AphidTokenType.RightBrace:
                 case AphidTokenType.LeftBracket:
                 case AphidTokenType.RightBracket:
-                    return ConsoleColor.Gray;
+                    return SystemColor.LightGray;
 
                 case AphidTokenType.MemberOperator:
-                    return ConsoleColor.White;
+                    return SystemColor.White;
 
                 case AphidTokenType.RightParenthesis:
                 case AphidTokenType.LeftParenthesis:
-                    return ConsoleColor.White;
+                    return SystemColor.LightGray;
 
                 case AphidTokenType.Comment:
-                    return ConsoleColor.Green;
+                    return SystemColor.DarkGreen;
 
                 default:
-                    return ConsoleColor.White;
+                    return SystemColor.White;
             }
         }
     }

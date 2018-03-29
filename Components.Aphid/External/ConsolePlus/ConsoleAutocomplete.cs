@@ -222,16 +222,30 @@ namespace Components.External.ConsolePlus
             var bg = Console.BackgroundColor;
             var fg = Console.ForegroundColor;
 
-            Console.Write("\r{0}", _prompt);
+            var sb = new StringBuilder(string.Format("\r{0}", _prompt));
 
             foreach (var t in _highlighter.Highlight(_consoleBuffer))
             {
-                Console.ForegroundColor = t.Color;
-                Console.Write(t.Text);
+                if (t.ForegroundRgb != null)
+                {
+                    sb.Append(VT100.Foreground(t.ForegroundRgb));
+                }
+
+                if (t.BackgroundRgb != null)
+                {
+                    sb.Append(VT100.Background(t.BackgroundRgb));
+                }
+
+                sb.Append(t.Text);
+                sb.Append(VT100.Reset);
+                //Console.ForegroundColor = t.Color;
+                
             }
 
-            Console.ForegroundColor = fg;
-            Console.BackgroundColor = bg;
+            Console.Write(sb.ToString());
+
+            //Console.ForegroundColor = fg;
+            //Console.BackgroundColor = bg;
 
             if (!skipAutocomplete)
             {
