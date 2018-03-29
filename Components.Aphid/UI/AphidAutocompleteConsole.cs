@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
-    public class AphidConsole : ConsoleAutocomplete, IDisposable
+    public class AphidAutocompleteConsole : AutocompleteConsole, IDisposable
     {
-        public AphidConsole(AphidInterpreter interpreter)
+        public AphidAutocompleteConsole(AphidInterpreter interpreter)
             : base(
                 ">>>",
                 new AphidScanner(),

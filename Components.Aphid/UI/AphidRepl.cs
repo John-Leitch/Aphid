@@ -40,7 +40,7 @@ namespace Components.Aphid.UI
                 Interpreter = new AphidInterpreter();
             }
 
-            using (var console = new AphidConsole(Interpreter))
+            using (var console = new AphidAutocompleteConsole(Interpreter))
             {
                 while (true)
                 {

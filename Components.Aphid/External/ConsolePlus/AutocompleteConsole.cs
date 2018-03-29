@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Components.External.ConsolePlus
 {
-    public class ConsoleAutocomplete
+    public class AutocompleteConsole
     {
         private int
             _autocompleteLeft,
@@ -44,7 +44,7 @@ namespace Components.External.ConsolePlus
 
         public int MaxHistoryCount { get; set; }
 
-        public ConsoleAutocomplete(
+        public AutocompleteConsole(
             string prompt,
             IScanner scanner,
             ISyntaxHighlighter highlighter,

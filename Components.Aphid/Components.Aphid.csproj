@@ -142,7 +142,7 @@
     <Compile Include="External\ConsolePlus\VT100.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
-    <Compile Include="UI\AphidConsole.cs" />
+    <Compile Include="UI\AphidAutocompleteConsole.cs" />
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
@@ -183,7 +183,7 @@
     <Compile Include="External\ConsolePlus\ColoredText.cs" />
     <Compile Include="External\ConsolePlus\CommandString.cs" />
     <Compile Include="External\ConsolePlus\Cli.g.cs" />
-    <Compile Include="External\ConsolePlus\ConsoleAutocomplete.cs" />
+    <Compile Include="External\ConsolePlus\AutocompleteConsole.cs" />
     <Compile Include="External\ConsolePlus\IAutocompletionSource.cs" />
     <Compile Include="External\ConsolePlus\InteractiveConsole.cs" />
     <Compile Include="External\ConsolePlus\IScanner.cs" />
