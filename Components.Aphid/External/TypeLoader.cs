@@ -8,26 +8,49 @@ using System.Threading.Tasks;
 
 namespace Components
 {
-    public class TypeLoader
+    public sealed class TypeLoader : IDisposable
     {
+        private object _cacheSync = new object();
+
         private RevertibleLazy<Dictionary<string, Assembly[]>> _assemblies =
             new RevertibleLazy<Dictionary<string, Assembly[]>>(() =>
                 AppDomain.CurrentDomain
                     .GetAssemblies()
                     .GroupToArrayDictionary(x => x.FullName.RemoveAtIndexOf(',')));
 
-        public IEnumerable<Assembly> GetAssemblies()
-        {
-            return _assemblies.Value.SelectMany(x => x.Value).Distinct();
-        }
-
         private Memoizer<List<string>, IEnumerable<Type>>
             _getAllTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(),
-            _getStaticTypesMemoizer = new Memoizer<List<string>,IEnumerable<Type>>();
+            _getStaticTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>();
+
+        public TypeLoader()
+        {
+            AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
+        }
+
+        void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        {
+            lock (_cacheSync)
+            {
+                _assemblies.Revert();
+                _getAllTypesMemoizer.Clear();
+                _getStaticTypesMemoizer.Clear();
+            }
+        }
+
+        public IEnumerable<Assembly> GetAssemblies()
+        {
+            lock (_cacheSync)
+            {
+                return _assemblies.Value.SelectMany(x => x.Value).Distinct();
+            }
+        }
 
         public IEnumerable<Type> GetAllTypes(List<string> imports)
         {
-            return _getAllTypesMemoizer.Call(GetAllTypesCore, imports);
+            lock (_cacheSync)
+            {
+                return _getAllTypesMemoizer.Call(GetAllTypesCore, imports);
+            }
         }
 
         private IEnumerable<Type> GetAllTypesCore(List<string> imports)
@@ -44,7 +67,10 @@ namespace Components
 
         public IEnumerable<Type> GetStaticTypes(List<string> imports)
         {
-            return _getStaticTypesMemoizer.Call(GetStaticTypesCore, imports);
+            lock (_cacheSync)
+            {
+                return _getStaticTypesMemoizer.Call(GetStaticTypesCore, imports);
+            }
         }
 
         private IEnumerable<Type> GetStaticTypesCore(List<string> imports)
@@ -69,7 +95,7 @@ namespace Components
             var namespaces = namespaceList.ToArray();
             Assembly[] asms;
 
-            lock (_assemblies)
+            lock (_cacheSync)
             {
                 var hadAsms = _assemblies.IsValueCreated;
 
@@ -103,24 +129,33 @@ namespace Components
 
         public Assembly[] TryGetAssemblies(string[] namespaces)
         {
-            var t = _assemblies.Value;
-            Assembly[] asms;
-
-            for (var i = 0; i < namespaces.Length; i++)
+            lock (_cacheSync)
             {
-                if (t.TryGetValue(namespaces[i], out asms))
-                {
-                    return asms;
-                }
-            }
+                var t = _assemblies.Value;
 
-            return null;
+                Assembly[] asms;
+
+                for (var i = 0; i < namespaces.Length; i++)
+                {
+                    if (t.TryGetValue(namespaces[i], out asms))
+                    {
+                        return asms;
+                    }
+                }
+
+                return null;
+            }
         }
 
         private Exception GetResolveException(string name)
         {
             return new InvalidOperationException(
                 string.Format("Could not resolve type '{0}'.", name));
+        }
+
+        public void Dispose()
+        {
+            AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
         }
     }
 }

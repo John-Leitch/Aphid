@@ -40,24 +40,25 @@ namespace Components.Aphid.UI
                 Interpreter = new AphidInterpreter();
             }
 
-            var console = new AphidConsole(Interpreter);
-
-            while (true)
+            using (var console = new AphidConsole(Interpreter))
             {
-                var code = console.ReadLine();
-
-                if (!Debugger.IsAttached)
+                while (true)
                 {
-                    AphidCli.TryAction(Interpreter, code, () => RunCode(code));
-                }
-                else
-                {
-                    var backup = Interpreter.SetIsInTryCatchFinally(true);
-                    RunCode(code);
-                    Interpreter.SetIsInTryCatchFinally(backup);
-                }
+                    var code = console.ReadLine();
 
-                Interpreter.ResetState();
+                    if (!Debugger.IsAttached)
+                    {
+                        AphidCli.TryAction(Interpreter, code, () => RunCode(code));
+                    }
+                    else
+                    {
+                        var backup = Interpreter.SetIsInTryCatchFinally(true);
+                        RunCode(code);
+                        Interpreter.SetIsInTryCatchFinally(backup);
+                    }
+
+                    Interpreter.ResetState();
+                }
             }
         }
 

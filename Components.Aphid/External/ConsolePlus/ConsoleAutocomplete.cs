@@ -27,12 +27,6 @@ namespace Components.External.ConsolePlus
 
         private string _searchBuffer;
 
-        private IScanner _scanner;
-
-        private ISyntaxHighlighter _highlighter;
-
-        private IAutocompletionSource _source;
-
         private string _prompt;
 
         private bool _forceAutocomplete;
@@ -40,6 +34,12 @@ namespace Components.External.ConsolePlus
         private int _historyIndex = 0;
 
         private List<string> _history = new List<string>();
+
+        public IScanner Scanner { get; private set; }
+
+        public ISyntaxHighlighter Highlighter { get; private set; }
+
+        public IAutocompletionSource Source { get; private set; }
 
         public Func<int> GetMaxResults { get; set; }
 
@@ -54,9 +54,9 @@ namespace Components.External.ConsolePlus
             GetMaxResults = () => Console.WindowHeight - 6;
             MaxHistoryCount = 100;
             _prompt = prompt;
-            _scanner = scanner;
-            _highlighter = highlighter;
-            _source = sources;
+            Scanner = scanner;
+            Highlighter = highlighter;
+            Source = sources;
         }
 
         public string ReadLine()
@@ -224,7 +224,7 @@ namespace Components.External.ConsolePlus
 
             var sb = new StringBuilder(string.Format("\r{0}", _prompt));
 
-            foreach (var t in _highlighter.Highlight(_consoleBuffer))
+            foreach (var t in Highlighter.Highlight(_consoleBuffer))
             {
                 if (t.ForegroundRgb != null)
                 {
@@ -296,9 +296,9 @@ namespace Components.External.ConsolePlus
                 _consoleBuffer :
                 _consoleBuffer.Remove(_cursorIndex);
 
-            var tokens = _scanner.Tokenize(curText).ToArray();
+            var tokens = Scanner.Tokenize(curText).ToArray();
             
-            var matches = _source.GetWords(
+            var matches = Source.GetWords(
                 _consoleBuffer,
                 _cursorIndex,
                 _forceAutocomplete,

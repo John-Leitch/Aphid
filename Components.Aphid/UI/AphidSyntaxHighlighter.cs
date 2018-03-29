@@ -19,6 +19,15 @@ namespace Components.Aphid.UI
             return highlights;
         }
 
+        // Todo:
+        // * Move colors into configuration file
+        // * Allow for custom token groups, individual coloring,
+        //   custom rbg, and themes.
+        // * Generate from Mantipsin.
+        // * Configuration builder/editor, possibly using WPF.
+        //   - Use VT100 dump funcs or similar to build color picker.
+        //   - Support custom named colors.
+        //   - Live preview of colors.
         private byte[] GetColor(AphidTokenType type)
         {
             switch (type)

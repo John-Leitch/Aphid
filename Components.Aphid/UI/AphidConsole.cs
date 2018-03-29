@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
-    public class AphidConsole : ConsoleAutocomplete
+    public class AphidConsole : ConsoleAutocomplete, IDisposable
     {
         public AphidConsole(AphidInterpreter interpreter)
             : base(
@@ -17,6 +17,11 @@ namespace Components.Aphid.UI
                 new AphidSyntaxHighlighter(),
                 new AphidScopeObjectAutocompletionSource(interpreter.CurrentScope))
         {
+        }
+
+        public void Dispose()
+        {
+            ((AphidScopeObjectAutocompletionSource)Source).Dispose();
         }
     }
 }

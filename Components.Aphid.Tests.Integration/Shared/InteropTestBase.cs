@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration.Shared
 {
-    public abstract class InteropTestBase : AphidTests
+    public abstract class InteropTestBase : AphidTests, IDisposable
     {
         private static object _sync = new object();
 
@@ -187,6 +187,11 @@ namespace Components.Aphid.Tests.Integration.Shared
             var s = GetMemberExp(expr).ToString();
 
             return TestClassType.FullName.RemoveAtLastIndexOf('.') + "." + s;
+        }
+
+        public void Dispose()
+        {
+            _loader.Dispose();
         }
     }
 }

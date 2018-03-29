@@ -12,9 +12,11 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
-    public class AphidScopeObjectAutocompletionSource : IAutocompletionSource
+    public class AphidScopeObjectAutocompletionSource : IAutocompletionSource, IDisposable
     {
         private AphidObject _currentScope;
+
+        private TypeLoader _loader = new TypeLoader();
 
         public AphidScopeObjectAutocompletionSource(AphidObject currentScope)
         {
@@ -39,7 +41,6 @@ namespace Components.Aphid.UI
             {
                 tokens = tokens.Skip(assignIndex + 1).ToList();
             }
-            
 
             AphidToken lastToken = default(AphidToken);
 
@@ -106,10 +107,6 @@ namespace Components.Aphid.UI
 
             return words.Where(x => !x.Text.StartsWith("$")).OrderBy(x => x.Text);
         }
-
-        //private string GetImports
-
-        private TypeLoader _loader = new TypeLoader();
 
         private IEnumerable<Autocomplete> ResolveAphidObject(AphidToken[] tokens, bool inLastToken)
         {
@@ -263,6 +260,15 @@ namespace Components.Aphid.UI
             }
             else if (obj.Keys.Count > 0)
             {
+                //var objKeys = obj.Keys
+                //    .Select(x => string.Format(
+                //        "{0}{1}{2}",
+                //        VT100.Foreground(SystemColor.AntiqueWhite),
+                //        x,
+                //        VT100.Reset))
+                //    .Join(", ");
+
+                //view += string.Format(" {{ {0} }}", objKeys);
                 view += " { }";
             }
             else if (obj.Value != null)
@@ -346,10 +352,8 @@ namespace Components.Aphid.UI
             }
 
             var imports = (List<string>)importObj.Value;
-
-            var loader = new TypeLoader();
             
-            var types = loader
+            var types = _loader
                 .GetAssemblies()
                 .SelectMany(x => x.GetTypes())
                 .Where(x => imports
@@ -374,6 +378,11 @@ namespace Components.Aphid.UI
             }
 
             return (List<string>)importObj.Value;
+        }
+
+        public void Dispose()
+        {
+            _loader.Dispose();
         }
     }
 }
