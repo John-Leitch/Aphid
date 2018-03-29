@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Components.External;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -20,6 +21,39 @@ namespace Components
             return _assemblies.Value.SelectMany(x => x.Value).Distinct();
         }
 
+        private Memoizer<List<string>, IEnumerable<Type>>
+            _getAllTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(),
+            _getStaticTypesMemoizer = new Memoizer<List<string>,IEnumerable<Type>>();
+
+        public IEnumerable<Type> GetAllTypes(List<string> imports)
+        {
+            return _getAllTypesMemoizer.Call(GetAllTypesCore, imports);
+        }
+
+        private IEnumerable<Type> GetAllTypesCore(List<string> imports)
+        {
+            return this.GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Where(x => imports
+                    .Any(y =>
+                        x.FullName.StartsWith(y) &&
+                        !x.FullName.Substring(y.Length + 1).Contains('.')))
+                .Distinct()
+                .ToArray();
+        }
+
+        public IEnumerable<Type> GetStaticTypes(List<string> imports)
+        {
+            return _getStaticTypesMemoizer.Call(GetStaticTypesCore, imports);
+        }
+
+        private IEnumerable<Type> GetStaticTypesCore(List<string> imports)
+        {
+            return GetAllTypes(imports)
+                .Where(x => x.GetMembers(BindingFlags.Public | BindingFlags.Static).Any())
+                .ToArray();
+        }
+
         public Type ResolveFullType(string fullTypeName)
         {
             var ns = fullTypeName;
@@ -38,7 +72,7 @@ namespace Components
             lock (_assemblies)
             {
                 var hadAsms = _assemblies.IsValueCreated;
-                
+
                 if ((asms = TryGetAssemblies(namespaces)) == null && !hadAsms)
                 {
                     throw GetResolveException(fullTypeName);
