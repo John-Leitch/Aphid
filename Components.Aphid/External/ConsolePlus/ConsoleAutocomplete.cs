@@ -93,125 +93,173 @@ namespace Components.External.ConsolePlus
 
                 switch (k.Key)
                 {
+                    case ConsoleKey.LeftArrow:
+                        InterpretHorizontalArrow(left: true);
+                        break;
+
+                    case ConsoleKey.RightArrow:
+                        InterpretHorizontalArrow(left: false);
+                        break;
+
+                    case ConsoleKey.UpArrow:
+                        InterpretVerticalArrow(up: true);
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                        InterpretVerticalArrow(up: false);
+                        break;
+
+                    case ConsoleKey.Tab:
+                        InterpretTab();
+                        break;
+
+                    case ConsoleKey.Home:
+                        InterpretHome();
+                        break;
+
+                    case ConsoleKey.End:
+                        InterpretEnd();
+                        break;
+
+                    case ConsoleKey.Enter:
+                        return InterpretEnter();
+
                     case ConsoleKey.Backspace:
                         InterpretBackspace();
                         break;
 
-                    case ConsoleKey.LeftArrow:
-                        if (_cursorIndex > 0)
-                        {
-                            _cursorIndex--;
-                            SetCursor();
-                        }
+                    case ConsoleKey.Delete:
+                        InterpretDelete();
                         break;
-
-                    case ConsoleKey.RightArrow:
-                        if (_cursorIndex < _consoleBuffer.Length)
-                        {
-                            _cursorIndex++;
-                            SetCursor();
-                        }
-                        break;
-
-                    case ConsoleKey.UpArrow:
-                        if (_matches.Length == 0)
-                        {
-                            SetHistoryValue(up: true);
-                        }
-                        else
-                        {
-                            if (_autocompleteIndex > 0)
-                            {
-                                _autocompleteIndex--;
-                            }
-
-                            CheckAutocomplete();
-                        }
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                        if (_matches.Length == 0)
-                        {
-                            SetHistoryValue(up: false);
-                        }
-                        else
-                        {
-                            if (_autocompleteIndex < _matches.Length - 1)
-                            {
-                                _autocompleteIndex++;
-                            }
-                        }
-
-                        CheckAutocomplete();
-                        break;
-
-                    case ConsoleKey.Tab:
-                        string remaining = null;
-
-                        if (_matches.Length == 1)
-                        {
-                            remaining = _matches[0].Text;
-                        }
-                        else if (_matches.Length > 1)
-                        {
-                            remaining = _matches[_autocompleteIndex].Text;
-                        }
-                        else
-                        {
-                            _consoleBuffer += "    ";
-                            _cursorIndex += "    ".Length;
-                        }
-
-                        if (remaining != null)
-                        {
-                            if (!string.IsNullOrEmpty(_searchBuffer))
-                            {
-                                remaining = remaining.Substring(_searchBuffer.Length);
-                            }
-
-                            _consoleBuffer += remaining;
-                            _cursorIndex += remaining.Length;
-                            _searchBuffer = "";
-                        }
-
-                        DrawText();
-                        break;
-
-                    case ConsoleKey.Home:
-                        _cursorIndex = 0;
-                        SetCursor();
-                        break;
-
-                    case ConsoleKey.End:
-                        _cursorIndex = _consoleBuffer.Length;
-                        SetCursor();
-                        break;
-
-                    case ConsoleKey.Enter:
-                        Console.WriteLine();
-                        var value = _consoleBuffer;
-                        _history.Insert(0, value);
-
-                        if (_history.Count > MaxHistoryCount)
-                        {
-                            _history.Remove(_history.Last());
-                        }
-
-                        _consoleBuffer = "";
-                        _cursorIndex = 0;
-                        _searchBuffer = "";
-
-                        return value;
 
                     default:
-                        var keyStr = k.KeyChar.ToString();
-                        _consoleBuffer = _consoleBuffer.Insert(_cursorIndex, keyStr);
-                        _cursorIndex++;
-                        DrawText();
-                        SetCursor();
+                        InterpretOther(k);
                         break;
                 }
             }
+        }
+
+        private void InterpretHorizontalArrow(bool left)
+        {
+            if ((left && _cursorIndex > 0) ||
+                (!left && _cursorIndex < _consoleBuffer.Length))
+            {
+                _cursorIndex += left ? -1 : 1;
+                SetCursor();
+            }
+        }
+
+        private void InterpretVerticalArrow(bool up)
+        {
+            if (_matches.Length == 0)
+            {
+                SetHistoryValue(up);
+            }
+            else
+            {
+                if (up && _autocompleteIndex > 0)
+                {
+                    _autocompleteIndex--;
+                }
+                else if (!up && _autocompleteIndex < _matches.Length - 1)
+                {
+                    _autocompleteIndex++;
+                }
+
+                CheckAutocomplete();
+            }
+        }
+
+        private void InterpretTab()
+        {
+            string remaining = null;
+
+            if (_matches.Length == 1)
+            {
+                remaining = _matches[0].Text;
+            }
+            else if (_matches.Length > 1)
+            {
+                remaining = _matches[_autocompleteIndex].Text;
+            }
+            else
+            {
+                _consoleBuffer += "    ";
+                _cursorIndex += "    ".Length;
+            }
+
+            if (remaining != null)
+            {
+                if (!string.IsNullOrEmpty(_searchBuffer))
+                {
+                    remaining = remaining.Substring(_searchBuffer.Length);
+                }
+
+                _consoleBuffer += remaining;
+                _cursorIndex += remaining.Length;
+                _searchBuffer = "";
+            }
+
+            DrawText();
+        }
+
+        private void InterpretHome()
+        {
+            _cursorIndex = 0;
+            SetCursor();
+        }
+
+        private void InterpretEnd()
+        {
+            _cursorIndex = _consoleBuffer.Length;
+            SetCursor();
+        }
+
+        private string InterpretEnter()
+        {
+            Console.WriteLine();
+            var value = _consoleBuffer;
+            _history.Insert(0, value);
+
+            if (_history.Count > MaxHistoryCount)
+            {
+                _history.Remove(_history.Last());
+            }
+
+            _consoleBuffer = "";
+            _cursorIndex = 0;
+            _searchBuffer = "";
+
+            return value;
+        }
+
+        private void InterpretBackspace()
+        {
+            if (_consoleBuffer.Length == 0)
+            {
+                return;
+            }
+
+            EraseChar(--_cursorIndex);
+        }
+
+        private void InterpretDelete()
+        {
+            if (_consoleBuffer.Length == 0 || _cursorIndex == _consoleBuffer.Length)
+            {
+                return;
+            }
+
+            EraseChar(_cursorIndex);
+        }
+
+        private void InterpretOther(ConsoleKeyInfo k)
+        {
+            var keyStr = k.KeyChar.ToString();
+            _consoleBuffer = _consoleBuffer.Insert(_cursorIndex, keyStr);
+            _cursorIndex++;
+            DrawText();
+            SetCursor();
         }
 
         private void DrawText(bool skipAutocomplete = false)
@@ -237,14 +285,9 @@ namespace Components.External.ConsolePlus
 
                 sb.Append(t.Text);
                 sb.Append(VT100.Reset);
-                //Console.ForegroundColor = t.Color;
-                
             }
 
             Console.Write(sb.ToString());
-
-            //Console.ForegroundColor = fg;
-            //Console.BackgroundColor = bg;
 
             if (!skipAutocomplete)
             {
@@ -296,7 +339,7 @@ namespace Components.External.ConsolePlus
                 _consoleBuffer.Remove(_cursorIndex);
 
             var tokens = Scanner.Tokenize(curText).ToArray();
-            
+
             var matches = Source.GetWords(
                 _consoleBuffer,
                 _cursorIndex,
@@ -305,26 +348,10 @@ namespace Components.External.ConsolePlus
 
             if ((!_forceAutocomplete && tokens.Length == 0) || matches == null)
             {
+                _matches = new Autocomplete[0];
+
                 return;
             }
-
-            //ScannerToken lastToken;
-
-            //if (tokens.Length != 0 &&
-            //    (lastToken = tokens[tokens.Length - 1]).Type == ScannerTokenType.Identifier &&
-            //    lastToken.Index + lastToken.Lexeme.Length == _cursorIndex)
-            //{
-            //    matches = matches.Where(x =>
-            //        x != lastToken.Lexeme &&
-            //        x.StartsWith(lastToken.Lexeme));
-
-            //    _searchBuffer = lastToken.Lexeme;
-            //}
-            //else if(!_forceAutocomplete)
-            //{
-            //    _searchBuffer = "";
-            //    return;
-            //}
 
             _matches = matches.ToArray();
 
@@ -349,16 +376,8 @@ namespace Components.External.ConsolePlus
             _autocompleteWidth = _matches.Length != 0 ? _matches.Max(x => Cli.StyleEscape(x.View).Length) : 0;
             _autocompleteActive = true;
             _autocompleteLeft = _cursorIndex + _prompt.Length + 0 - _searchBuffer.Length;
-
-            //if (_searchBuffer != "" ||
-            //    (_consoleBuffer.Length > 0 &&
-            //    char.IsWhiteSpace(_consoleBuffer[_consoleBuffer.Length - 1])))
-            //{
-            //    _autocompleteLeft--;
-            //}
-
             _autocompleteTop = Console.CursorTop + 1;
-            //_autocompleteWidth = 0;
+
             _autoCompleteHeight = _matches.Length < GetMaxResults() ?
                 _matches.Length :
                 GetMaxResults() + 1;
@@ -417,30 +436,6 @@ namespace Components.External.ConsolePlus
             Console.SetCursorPosition(_prompt.Length + _cursorIndex, Console.CursorTop);
         }
 
-        private void InterpretBackspace()
-        {
-            if (_consoleBuffer.Length == 0)
-            {
-                return;
-            }
-
-            _consoleBuffer = _consoleBuffer.Remove(--_cursorIndex, 1);
-            Console.CursorVisible = false;
-
-            Console.SetCursorPosition(
-                _prompt.Length + _consoleBuffer.Length,
-                Console.CursorTop);
-
-            Console.Write(" ");
-            DrawText();
-
-            Console.SetCursorPosition(
-                _prompt.Length + _cursorIndex,
-                Console.CursorTop);
-
-            Console.CursorVisible = true;
-        }
-
         private void SetHistoryValue(bool up)
         {
             int index;
@@ -473,6 +468,25 @@ namespace Components.External.ConsolePlus
             _cursorIndex = _consoleBuffer.Length;
             DrawText(skipAutocomplete: true);
             SetCursor();
+        }
+
+        private void EraseChar(int index)
+        {
+            _consoleBuffer = _consoleBuffer.Remove(index, 1);
+            Console.CursorVisible = false;
+
+            Console.SetCursorPosition(
+                _prompt.Length + _consoleBuffer.Length,
+                Console.CursorTop);
+
+            Console.Write(" ");
+            DrawText();
+
+            Console.SetCursorPosition(
+                _prompt.Length + _cursorIndex,
+                Console.CursorTop);
+
+            Console.CursorVisible = true;
         }
     }
 }
