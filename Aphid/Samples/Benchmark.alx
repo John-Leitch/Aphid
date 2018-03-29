@@ -1,7 +1,7 @@
 ﻿var tests;
 var benchmark;
-var intBenchmarkCount;
-var intBenchmark ;
+var numberBenchmarkRep;
+var numberBenchmark ;
 
 @{
     #'Std';
@@ -110,12 +110,12 @@ var intBenchmark ;
         } |> tests.compileFuncs.add;
     };
 
-    intBenchmarkCount = 1000000;
+    numberBenchmarkRep = 1000000;
 
-    intBenchmark = @(name, func)
+    numberBenchmark = @(name, func)
         benchmark(
             name,
-            intBenchmarkCount,
+            numberBenchmarkRep,
             @{ i = 0x10 },
             func,
             @{ printSuccess('Final value: {0}', i) });
