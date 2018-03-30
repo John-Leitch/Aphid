@@ -96,6 +96,7 @@ namespace Components.Aphid.Interpreter
     // * Add struct support.
     //   - Support first-class unions with FieldOffsetAttribute.
     //   - Add first-class pointer support.
+    // * Add interop-types-as-values support e.g. var f = System.IO.File;
     public partial class AphidInterpreter
     {
         private bool
