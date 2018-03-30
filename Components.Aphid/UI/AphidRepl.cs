@@ -44,7 +44,27 @@ namespace Components.Aphid.UI
             {
                 while (true)
                 {
-                    var code = console.ReadLine();
+                    string code;
+
+                    if (!Debugger.IsAttached)
+                    {
+                        try
+                        {
+                            code = console.ReadLine();
+                        }
+                        catch (Exception e)
+                        {
+                            Cli.WriteCriticalErrorMessage(
+                                "Internal error encountered in autocomplete console:\r\n{0}",
+                                e.Message);
+
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        code = console.ReadLine();
+                    }
 
                     if (!Debugger.IsAttached)
                     {

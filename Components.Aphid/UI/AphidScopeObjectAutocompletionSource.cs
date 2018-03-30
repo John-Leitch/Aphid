@@ -18,6 +18,17 @@ namespace Components.Aphid.UI
 
         private TypeLoader _loader = new TypeLoader();
 
+        private static readonly List<AphidTokenType> _skipTokenTypes = AphidLexer
+            .GetTokens("( ) { } ! @ # $ % ^ & * + - = | \\ ; : '' \"\" < > , / ? \t")
+            .Select(x => x.TokenType)
+            .Concat((AphidTokenType[])Enum
+                .GetValues(typeof(AphidTokenType)))
+                .OfType<AphidTokenType>()
+                .Where(y =>
+                    y != AphidTokenType.MemberOperator &&
+                    y.ToString().EndsWith("Operator"))
+            .ToList();
+
         public AphidScopeObjectAutocompletionSource(AphidObject currentScope)
         {
             _currentScope = currentScope;
@@ -32,14 +43,15 @@ namespace Components.Aphid.UI
             var subStr = offset == text.Length ? text : text.Remove(offset);
             var tokens = AphidLexer.GetTokens(subStr);
 
-            var assignIndex = tokens.FindLastIndex(x =>
-                x.TokenType == AphidTokenType.AssignmentOperator ||
-                x.TokenType == AphidTokenType.LeftParenthesis ||
-                x.TokenType == AphidTokenType.RightParenthesis);
+            var lastSkipTokenIndex = tokens.FindLastIndex(x => _skipTokenTypes.Contains(x.TokenType));
+            //var lastSkipTokenIndex = tokens.FindLastIndex(x =>
+            //    x.TokenType == AphidTokenType.AssignmentOperator ||
+            //    x.TokenType == AphidTokenType.LeftParenthesis ||
+            //    x.TokenType == AphidTokenType.RightParenthesis);
 
-            if (assignIndex >= 0)
+            if (lastSkipTokenIndex >= 0)
             {
-                tokens = tokens.Skip(assignIndex + 1).ToList();
+                tokens = tokens.Skip(lastSkipTokenIndex + 1).ToList();
             }
 
             AphidToken lastToken = default(AphidToken);
@@ -130,7 +142,10 @@ namespace Components.Aphid.UI
                         if (staticTypes.Any(x => x.Name == t.Lexeme))
                         {
                             inStaticClrType = true;
-                            var staticType = staticTypes.Single(x => x.Name == t.Lexeme);
+                            
+                            // First() hack until folding for overlapping types
+                            // is implemented.
+                            var staticType = staticTypes.First(x => x.Name == t.Lexeme);
                             scope = new AphidObject();
 
                             foreach (var m in staticType
@@ -143,6 +158,11 @@ namespace Components.Aphid.UI
                         else if (inStaticClrType)
                         {
                             scope = new AphidObject();
+
+                            if (scope.Value == null)
+                            {
+                                return new Autocomplete[0];
+                            }
 
                             foreach (var m in ((Type)scope.Value)
                                 .GetMembers(BindingFlags.Public | BindingFlags.Static)

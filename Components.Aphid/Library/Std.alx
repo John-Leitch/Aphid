@@ -7,6 +7,12 @@
 // * Add function to hide console.
 // * Add API for scheduled tasks.
 // * Add API for creating windows services.
+// * Add isolation API that copies bins and headers to 
+//   unique temp directory and forwards execution for
+//   easier autoupdate.
+// * Support partial application for custom ops.
+// * Support F# style op to func e.g. (+).
+//   - Implement at tokenization layer for simplicity.
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
@@ -519,8 +525,13 @@ getExe = @{
 getCommand = @() Environment.CommandLine;
 getCommandLineArgs = @() Environment.GetCommandLineArgs();
 
-var repl = @{
-    using Components.Aphid.UI;
-    var repl = new AphidRepl(this.{'$aphid'});
-    repl.Run();
+var repl = {
+    run: @{
+        using Components.Aphid.UI;
+
+        var r = new AphidRepl(this.{'$aphid'});
+
+        try r.Run();
+        finally r.Dispose();
+    }
 };

@@ -223,7 +223,7 @@
 powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(SolutionDir)AphidUI\$(OutDir)AphidUI.exe $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
