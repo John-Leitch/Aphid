@@ -142,6 +142,7 @@
     <Compile Include="External\ConsolePlus\VT100.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
+    <Compile Include="TypeSystem\AphidInteropReferenceType.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
