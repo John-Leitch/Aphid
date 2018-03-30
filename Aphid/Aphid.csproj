@@ -141,6 +141,9 @@
     <None Include="Samples\AphidUI.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Samples\RuntimeErrorExample.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Samples\CustomOperatorBenchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -218,6 +221,9 @@
   <PropertyGroup>
     <PreBuildEvent>::taskkill /im aphid.exe /f
 powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(SolutionDir)AphidUI\$(OutDir)AphidUI.exe $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

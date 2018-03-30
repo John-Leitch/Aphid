@@ -1,0 +1,21 @@
+﻿#'Std';
+
+// Named function test
+var first = @{ second() };
+
+// Anonymous function test
+var second = @{ @{ fourth() }() };
+
+// Partial function application test
+var fourth = @{ (@sixth(0b10000001))() };
+
+// Pipeline test
+var sixth = @{ 0xdeadbeef |> seventh };
+
+// Reverse pipeline (custom operator) test
+var seventh = @{ eighth <| 'Hello world' };
+
+// Faulting function
+var eighth = @{ 1/0 };
+
+first();

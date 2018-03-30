@@ -538,6 +538,9 @@
 ::$(ProjectDir)..\Llex\bin\$(ConfigurationName)\llex.exe $(ProjectDir)\External\Json\json.alx $(ProjectDir)\External\Json\JsonLexer.cs
 ::$(SolutionDir)Aphid\$(OutDir)Aphid.exe $(ProjectDir)External\ConsolePlus\Cli.alx &gt; $(ProjectDir)External\ConsolePlus\Cli.g.cs</PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(SolutionDir)AphidUI\$(OutDir)AphidUI.exe $(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
