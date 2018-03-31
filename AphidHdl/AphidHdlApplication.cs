@@ -1,6 +1,6 @@
 ﻿using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
-using Components.ConsolePlus;
+using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
 using System.IO;

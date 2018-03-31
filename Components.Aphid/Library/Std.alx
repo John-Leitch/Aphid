@@ -50,6 +50,8 @@
 //     add support for WPF controls.
 // * Add automatic crashdump creation, both windows dmp and
 //   proprietary dump of interpreter state.
+// * Create UI automation API.
+// * Add native PInvoke support.
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';

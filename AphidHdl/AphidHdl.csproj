@@ -114,14 +114,6 @@
     <Compile Include="AphidHdlApplication.cs" />
     <Compile Include="AphidHdlArgs.cs" />
     <Compile Include="AphidVerilogEmitter.cs" />
-    <Compile Include="CliArgAttribute.cs" />
-    <Compile Include="CliArgReader.cs" />
-    <Compile Include="CliArgWriter.cs" />
-    <Compile Include="ConsolePlus\Cli.cs" />
-    <Compile Include="ConsolePlus\CliApplication.cs" />
-    <Compile Include="ConsolePlus\CliLexerState.cs" />
-    <Compile Include="ConsolePlus\CliProgressBar.cs" />
-    <Compile Include="ConsolePlus\DumpMode.cs" />
     <Compile Include="DynamicIdentifierMutator.cs" />
     <Compile Include="ForUnrollMutator.cs" />
     <Compile Include="NumberToStringMutator.cs" />
