@@ -100,7 +100,6 @@ namespace Components.Aphid.Interpreter
     public partial class AphidInterpreter
     {
         private bool
-            _createLoader,
             _isReturning,
             _isContinuing,
             _isBreaking,
@@ -119,6 +118,8 @@ namespace Components.Aphid.Interpreter
         #if TRACE_SCOPE
         private AphidTrace _scopeTrace;
         #endif
+
+        private AphidObject _localScope;
 
         private AphidObject _currentScope;
 
@@ -182,58 +183,54 @@ namespace Components.Aphid.Interpreter
         public AphidExpression CurrentExpression { get; private set; }
 
         public AphidInterpreter()
-            : this(true)
+            : this(createLoader: true)
         {
         }
 
         public AphidInterpreter(bool createLoader)
+            : this(new AphidObject(), createLoader)
         {
-            OwnerThread = -1;
-            _createLoader = createLoader;
-            CurrentScope = new AphidObject();
-            CurrentScope.Add(AphidName.Scope, CurrentScope);
-            CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
-            Init();
+            // Optimize by generating all built-in
+            // variables here without having to perform
+            // key existence checks.
         }
 
         public AphidInterpreter(AphidObject currentScope)
+            : this(currentScope, createLoader: true)
         {
-            OwnerThread = -1;
-            _createLoader = true;
-            CurrentScope = currentScope;
-            AphidObject obj;
+        }
 
-            foreach (var kvp in new Dictionary<string, AphidObject>
+        public AphidInterpreter(AphidObject currentScope, bool createLoader)
+            : this(currentScope, createLoader, null)
+        {
+            
+        }
+
+        private AphidInterpreter(AphidLoader loader)
+            : this(new AphidObject(), loader)
+        {
+        }
+
+        private AphidInterpreter(AphidObject currentScope, AphidLoader loader)
+            : this(currentScope, createLoader: false, loader: loader)
+        {
+        }
+
+        private AphidInterpreter(AphidObject currentScope, bool createLoader, AphidLoader loader)
+        {
+            if (createLoader)
             {
-                { AphidName.Scope, currentScope },
-                { AphidName.Parent, currentScope.Parent },
-            })
+                Loader = new AphidLoader(this);
+            }
+            else
             {
-                if (!CurrentScope.TryGetValue(kvp.Key, out obj))
-                {
-                    CurrentScope.Add(kvp.Key, kvp.Value);
-                }
-                else
-                {
-                    CurrentScope[kvp.Key] = kvp.Value;
-                }
+                Loader = loader;
             }
 
-            Init();
-        }
+            CurrentScope = currentScope;
 
-        private AphidInterpreter(AphidLoader loader, AphidObject parentScope)
-        {
-            _createLoader = false;
-            Loader = loader;
-            CurrentScope = new AphidObject(null, parentScope);
-            Init();
-        }
-
-        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Init()
-        {
-            #if TRACE_SCOPE
+            OwnerThread = -1;
+#if TRACE_SCOPE
             _scopeTrace = new AphidTrace(
                 "Scope Trace",
                 PathHelper.GetExecutingPath(
@@ -253,7 +250,7 @@ namespace Components.Aphid.Interpreter
                 };
 
             _scopeTrace.Open();
-            #endif
+#endif
 
             Out = Console.Out;
             AsmBuilder = new AphidAssemblyBuilder(this);
@@ -272,9 +269,14 @@ namespace Components.Aphid.Interpreter
 
             _frames = new Stack<AphidFrame>(new[] { CreateEntryFrame() });
 
-            if (_createLoader)
+            if (!CurrentScope.ContainsKey(AphidName.Scope))
             {
-                Loader = new AphidLoader(this);
+                CurrentScope.Add(AphidName.Scope, CurrentScope);
+            }
+
+            if (!CurrentScope.ContainsKey(AphidName.Parent))
+            {
+                CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
             }
 
             if (!CurrentScope.ContainsKey(AphidName.FramesKey))
@@ -293,14 +295,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private AphidFrame CreateEntryFrame()
-        {
-            return new AphidFrame(
-                this,
-                CurrentScope,
-                null,
-                new Lazy<string>(() => "[Entrypoint]"));
-        }
+        
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)
@@ -465,6 +460,42 @@ namespace Components.Aphid.Interpreter
             #endif
 
             return false;
+        }
+
+        public void EnterSharedScope(AphidObject sharedScope)
+        {
+            EnterSharedScope(sharedScope, createChild: true);
+        }
+
+        public void EnterSharedScope(AphidObject sharedScope, bool createChild)
+        {
+            if (_localScope != null)
+            {
+                throw CreateRuntimeException(
+                    "Already in shared scope, cannot enter another.");
+            }
+
+            _localScope = CurrentScope;
+
+            CurrentScope = !createChild ?
+                sharedScope :
+                new AphidObject(null, sharedScope);
+
+            PushFrame("[Shared Scope]");
+        }
+
+        public void LeaveSharedScope()
+        {
+            PopFrame();
+
+            if (_localScope == null)
+            {
+                throw CreateRuntimeException(
+                    "Leave shared scope failed, not in shared scope.");
+            }
+
+            CurrentScope = _localScope;
+            _localScope = null;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1766,7 +1797,7 @@ namespace Components.Aphid.Interpreter
             }
             finally
             {
-                TryPopFrame();
+                PopFrame();
             }
         }
 
@@ -1925,28 +1956,40 @@ namespace Components.Aphid.Interpreter
             }
             finally
             {
-                TryPopFrame();
+                PopFrame();
             }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunction(AphidFunction function, params object[] parms)
         {
+            return CallFunctionWithScope(function, null, parms);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidObject CallFunctionWithScope(AphidFunction function, AphidObject scope, params object[] parms)
+        {
             var parmsWrapped = parms.Select(ValueHelper.Wrap).ToArray();
 
             if (Thread.CurrentThread.ManagedThreadId == OwnerThread)
             {
-                return CallFunctionCore(function, parmsWrapped);
+                return CallFunctionCore(function, scope, parmsWrapped);
             }
             else
             {
-                var childInterpreter = new AphidInterpreter(Loader, CurrentScope);
-                return childInterpreter.CallFunctionCore(function, parmsWrapped);
+                var childInterpreter = new AphidInterpreter(CurrentScope.CreateChild(), Loader);
+                return childInterpreter.CallFunctionCore(function, scope, parmsWrapped);
             }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject CallFunctionCore(AphidFunction function, AphidObject[] parms)
+        {
+            return CallFunctionCore(function, null, parms);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidObject CallFunctionCore(AphidFunction function, AphidObject scope, AphidObject[] parms)
         {
             AphidObject isExtensionObject;
 
@@ -1999,6 +2042,15 @@ namespace Components.Aphid.Interpreter
             }
 
             functionScope[AphidName.ImplicitArgs] = new AphidObject(argList);
+            AphidObject backupScope = null;
+
+            if (scope != null)
+            {
+                functionScope.CopyTo(scope);
+                scope.Parent = functionScope.Parent;
+                functionScope = scope;
+                backupScope = functionScope;
+            }
 
             var parent = CurrentScope;
             CurrentScope = functionScope;
@@ -2212,7 +2264,7 @@ namespace Components.Aphid.Interpreter
                 }
                 finally
                 {
-                    TryPopFrame();
+                    PopFrame();
                 }
             }
 
@@ -2257,7 +2309,7 @@ namespace Components.Aphid.Interpreter
                 }
                 finally
                 {
-                    TryPopFrame();
+                    PopFrame();
                 }
             }
 
@@ -2275,7 +2327,7 @@ namespace Components.Aphid.Interpreter
                 }
                 finally
                 {
-                    TryPopFrame();
+                    PopFrame();
                 }
             }
 
@@ -2312,6 +2364,12 @@ namespace Components.Aphid.Interpreter
                 this,
                 AphidName.ImplicitArgs,
                 "$args cannot be used outside of function.");
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushFrame(string name)
+        {
+            PushFrame(CreateNameFrame(name));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2352,13 +2410,13 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PopFrame()
+        public void PushFrame(AphidFrame frame)
         {
-            _frames.Pop();
+            _frames.Push(frame);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TryPopFrame()
+        public void PopFrame()
         {
             if (!_isInTryCatchFinally)
             {
@@ -2368,6 +2426,22 @@ namespace Components.Aphid.Interpreter
             {
                 _queuedFramePops++;
             }
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidFrame CreateEntryFrame()
+        {
+            return CreateNameFrame("[Entrypoint]");
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidFrame CreateNameFrame(string name)
+        {
+            return new AphidFrame(
+                this,
+                CurrentScope,
+                CurrentExpression,
+                new Lazy<string>(() => name));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2411,7 +2485,7 @@ namespace Components.Aphid.Interpreter
             }
             finally
             {
-                TryPopFrame();
+                PopFrame();
             }
         }
 
@@ -2451,7 +2525,7 @@ namespace Components.Aphid.Interpreter
             }
             finally
             {
-                TryPopFrame();
+                PopFrame();
             }
         }
 
@@ -2481,46 +2555,55 @@ namespace Components.Aphid.Interpreter
                         .Select(ValueHelper.DeepUnwrap)
                         .ToArray();
 
-                    var path = FlattenPath(call.FunctionExpression);
-                    var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path, isType: true);
-                    var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
-                    
-                    var convertedArgs = TypeConverter.Convert(
-                        ctor.Arguments,
-                        ctor.GenericArguments);
+                    PushFrame(operand, operand, args);
 
-                    var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
-                    var obj = ValueHelper.Wrap(result);
-
-                    var extension = TypeExtender.TryResolve(
-                        CurrentScope,
-                        obj,
-                        TypeExtender.GetCtorName(type.FullName),
-                        false,
-                        isCtor: true,
-                        isDynamic: false,
-                        returnRef: false);
-
-                    if (extension != null)
+                    try
                     {
-                        var func = extension.Value as AphidFunction;
+                        var path = FlattenPath(call.FunctionExpression);
+                        var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path, isType: true);
+                        var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
 
-                        if (func != null)
+                        var convertedArgs = TypeConverter.Convert(
+                            ctor.Arguments,
+                            ctor.GenericArguments);
+
+                        var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
+                        var obj = ValueHelper.Wrap(result);
+
+                        var extension = TypeExtender.TryResolve(
+                            CurrentScope,
+                            obj,
+                            TypeExtender.GetCtorName(type.FullName),
+                            false,
+                            isCtor: true,
+                            isDynamic: false,
+                            returnRef: false);
+
+                        if (extension != null)
                         {
-                            var obj2 = CallFunction(func, obj);
+                            var func = extension.Value as AphidFunction;
 
-                            if (obj2 != null)
+                            if (func != null)
                             {
-                                obj = obj2;
+                                var obj2 = CallFunction(func, obj);
+
+                                if (obj2 != null)
+                                {
+                                    obj = obj2;
+                                }
+                            }
+                            else
+                            {
+                                obj = extension;
                             }
                         }
-                        else
-                        {
-                            obj = extension;
-                        }
-                    }
 
-                    return obj;
+                        return obj;
+                    }
+                    finally
+                    {
+                        PopFrame();
+                    }
 
                 default:
                     throw CreateRuntimeException("Operand not supported in new expression: {0}", operand);
@@ -4014,9 +4097,21 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Interpret(List<AphidExpression> expressions)
         {
-            OwnerThread = Thread.CurrentThread.ManagedThreadId;
-            SetAstCode(expressions);
-            Interpret(expressions, resetIsReturning: true);
+            int tid;
+
+            if (OwnerThread == -1 ||
+                OwnerThread == (tid = Thread.CurrentThread.ManagedThreadId))
+            {
+                OwnerThread = Thread.CurrentThread.ManagedThreadId;
+                SetAstCode(expressions);
+                Interpret(expressions, resetIsReturning: true);
+            }
+            else
+            {
+                var interpreter = new AphidInterpreter(CurrentScope.CreateChild(), Loader);
+
+                interpreter.Interpret(expressions);
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
