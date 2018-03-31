@@ -1,5 +1,38 @@
 ﻿<%
     #'std';
+
+    using System.Net.Mime;
+
+    var html;
+    var plain;
+    var xml;
+    var binary;
+    var json;
+
+    @{
+        
+    }();
+    @ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
+    @ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };
+    @ <! (func) func ?> false;
+    @ <! (source, func) $args.Count == 2 ? (source -? (<! func)) : source ?> false;
+    var asm = load System;
+    var mediaType = asm.GetType('System.Net.Mime.MediaTypeNames');
+    
+    mediaType
+        .GetMembers()
+        <! @.IsNested
+        -<@() $_.GetFields()
+        ->@() this.{$_.Name.ToLower()} = @{
+            contentType = $_.GetValue(null);
+            content = $_;
+        };
+
+    
+    contentType = MediaTypeNames.Text.Xml;
+    content = '
+        <foo></foo>
+    ';
     fib = @(n) n < 2 ? n : fib(n - 1) + fib(n - 2);
     
     if (query.x defined)
@@ -13,7 +46,7 @@
 </head>
     <body>
         <form method="get">
-            <label for="x">Numbers: </label>
+            <label for="x">Numbers 2: </label>
             <input name="x" value="<%= query.x defined ? query.x : '' %>" />
             <input type="submit" />
         </form>

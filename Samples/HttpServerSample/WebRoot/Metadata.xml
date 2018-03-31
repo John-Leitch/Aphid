@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<edmx:Edmx xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+           Version="1.0">
+  <edmx:DataServices xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+                     m:DataServiceVersion="3.0"
+                     m:MaxDataServiceVersion="3.0">
+    <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm"
+            Namespace="ODataDemo">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Rating" Type="Edm.Int16" Nullable="false"/>
+      </EntityType>
+      <EntityContainer Name="DemoService" m:IsDefaultEntityContainer="true">
+        <EntitySet Name="Products" EntityType="ODataDemo.Product"/>
+        <!-- <FunctionImport Name="GetProductsByRating"
+                        ReturnType="Collection(ODataDemo.Product)"
+                        EntitySet="Products" m:HttpMethod="GET">
+          <Parameter Name="rating" Type="Edm.Int16" Nullable="false"/>
+        </FunctionImport> -->
+      </EntityContainer>
+      <!-- <Annotations Target="ODataDemo.DemoService">
+        <ValueAnnotation Term="Org.OData.Display.V1.Description" String="This is a sample OData service with vocabularies"/>
+      </Annotations>
+      <Annotations Target="ODataDemo.Product">
+        <ValueAnnotation Term="Org.OData.Display.V1.Description" String="All Products available in the online store"/>
+      </Annotations> -->
+      <!-- <Annotations Target="ODataDemo.DemoService/Suppliers">
+        <ValueAnnotation Term="Org.OData.Publication.V1.PublisherName" String="Microsoft Corp."/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.PublisherId" String="MSFT"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.Keywords" String="Inventory, Supplier, Advertisers, Sales, Finance"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.AttributionUrl" String="http://www.odata.org/"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.AttributionDescription" String="All rights reserved"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.DocumentationUrl " String="http://www.odata.org/"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.TermsOfUseUrl" String="All rights reserved"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.PrivacyPolicyUrl" String="http://www.odata.org/"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.LastModified" String="4/2/2013"/>
+        <ValueAnnotation Term="Org.OData.Publication.V1.ImageUrl " String="http://www.odata.org/"/>
+    </Annotations> -->
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

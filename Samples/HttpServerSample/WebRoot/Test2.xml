@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<feed xml:base="http://services.odata.org/OData/OData.svc" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+    xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+    xmlns="http://www.w3.org/2005/Atom">
+  <title type="text">Products</title>
+  <id>http://services.odata.org/OData/OData.svc/Products</id>
+  <updated>2010-02-27T20:03:28Z</updated>
+  <Link rel="self" title="Products" href="Products" />
+  <Entry>
+    <Customer>
+      <foo>Hello</foo>
+      <bar>World</bar>
+    </Customer>
+  </Entry>
+  <Entry>
+    <Customer>
+      <foo>test1</foo>
+      <bar>test2</bar>
+    </Customer>
+  </Entry>
+</feed>

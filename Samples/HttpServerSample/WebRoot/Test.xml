@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<service xml:base="http://localhost:8888/Odata.alx/"
+         xmlns:atom="http://www.w3.org/2005/Atom"
+         xmlns:app="http://www.w3.org/2007/app"
+         xmlns="http://www.w3.org/2007/app">
+  <workspace>
+    <atom:title>Default</atom:title>
+    <collection href="ResourceTypes">
+      <atom:title>ResourceTypes</atom:title>
+    </collection>
+    <collection href="ResourceProperties">
+      <atom:title>ResourceProperties</atom:title>
+    </collection>
+    <collection href="ResourceSets">
+      <atom:title>ResourceSets</atom:title>
+    </collection>
+  </workspace>
+</service>

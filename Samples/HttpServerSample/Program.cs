@@ -1,5 +1,6 @@
 ﻿using Components.Aphid.Library.Net;
 using Components.External;
+using System.IO;
 using System.Threading;
 
 namespace HttpServerSample
@@ -10,7 +11,11 @@ namespace HttpServerSample
 
         static void Main(string[] args)
         {
-            var webRoot = PathHelper.GetExecutingPath("WebRoot");
+            var webRoot = Path.GetFullPath(
+                PathHelper.GetExecutingPath(
+                    "..\\",
+                    "..\\",
+                    "WebRoot"));
             var server = new HttpServer(_prefix, webRoot);
             server.Start();
             Thread.Sleep(-1);

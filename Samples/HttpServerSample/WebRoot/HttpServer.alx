@@ -1,0 +1,42 @@
+﻿var html;
+var plain;
+var xml;
+var binary;
+var json;
+var scope = this;
+var sb = '';
+var read;
+var getFileMime;
+var resp;
+
+
+@{
+    #'std';
+    #'meta';
+    var sysAsm = load System;
+    var webAsm = load System.Web;
+
+    using System;
+    using System.IO;
+    using System.Net.Mime;
+    using System.Web;
+
+    getFileMime = MimeMapping.GetMimeMapping;
+    
+    resp = @(type, body) {
+        contentType = type;
+        content = body;
+    };
+
+    read = @(file) file |> ReadAllText
+
+    var mediaType = sysAsm.GetType('System.Net.Mime.MediaTypeNames');
+    mediaType.GetMembers() <! @.IsNested -< @()$_ .GetFields() ->@(o) {
+        sb += o.Name.ToLower() + '\r\n';
+        scope.{o.Name.ToLower()} = 
+            '@{{ contentType = "{0}"; content = $_; }}'
+            :: [ o.GetValue(null) ]
+            |> evalExp;
+    };
+}();
+    

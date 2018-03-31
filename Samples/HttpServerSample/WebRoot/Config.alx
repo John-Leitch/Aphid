@@ -1,0 +1,59 @@
+﻿#'Std';
+#'HttpServer';
+using Components.Aphid.TypeSystem;
+
+class AphidHttpHandler {
+    AphidFunction Predicate,
+    AphidFunction Callback,
+};
+
+var handler = new AphidHttpHandler();
+handler.Predicate = @() true;
+
+var http = {
+    handlers: [
+    ],
+
+    registerHandler: @(opt predicate, req callback) {
+        var handler = new AphidHttpHandler();
+
+        if ($args.Count == 1) {
+            $args.insert(0, @() true);
+        }
+
+        handler.Predicate = $args[0];
+        handler.Callback = $args[1];
+        handlers.add(handler);
+
+        ret handler;
+    },
+};
+
+// Metadata.xml: http://services.odata.org/V3/OData/OData.svc/$metadata
+// Products.xml: http://services.odata.org/V3/OData/OData.svc/Products()
+// ProductsCount.txt: http://services.odata.org/V3/OData/OData.svc/Products()/$count
+// ProductsTop1.xml: http://services.odata.org/V3/OData/OData.svc/Products()?$top=1
+
+http.registerHandler(
+    @(c) c.url.ToString().ToLower().Contains('/odata.alx'),
+    @(c){
+        #'HttpServer';
+        using System.IO;
+
+        var u = c.url
+            .ToString()
+            .ToLower()
+            .TrimEnd('/'.ToCharArray());
+
+        try {
+            if (u.EndsWith('/odata.alx')) {
+                'WebRoot\\Test.xml' |> File.ReadAllText |> xml;
+            } else if (u.EndsWith('$metadata')) {
+                'WebRoot\\Metadata.xml' |> File.ReadAllText |> xml;
+            } else {
+                'Error: invalid url ' + u |> plain;
+            }
+        } catch (e) {
+            e |> serialize |> plain;
+        }
+    });
