@@ -16,6 +16,11 @@ namespace Components.External.ConsolePlus
         ReadingText,
 
         /// <summary>
+        /// Represents the beginning of the token reading state
+        /// </summary>
+        ReadingTokenBeginning,
+
+        /// <summary>
         /// Represents the token reading state
         /// </summary>
         ReadingToken,

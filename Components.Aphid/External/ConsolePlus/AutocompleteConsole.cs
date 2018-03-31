@@ -42,6 +42,8 @@ namespace Components.External.ConsolePlus
 
         public Func<int> GetMaxResults { get; set; }
 
+        public Func<int> GetMaxWidth { get; set; }
+
         public int MaxHistoryCount { get; set; }
 
         public AutocompleteConsole(
@@ -51,6 +53,7 @@ namespace Components.External.ConsolePlus
             IAutocompletionSource sources)
         {
             GetMaxResults = () => Console.WindowHeight - 6;
+            GetMaxWidth = () => Console.WindowHeight - 6;
             MaxHistoryCount = 100;
             _prompt = prompt;
             Scanner = scanner;
@@ -373,7 +376,17 @@ namespace Components.External.ConsolePlus
             }
 
             var oldTop = Console.CursorTop;
-            _autocompleteWidth = _matches.Length != 0 ? _matches.Max(x => Cli.StyleEscape(x.View).Length) : 0;
+            
+            _autocompleteWidth = _matches.Length != 0 ?
+                _matches.Max(x => Cli.EraseStyles(x.View).Length) : 0;
+
+            var maxWidth = GetMaxWidth();
+
+            if (_autocompleteWidth > maxWidth)
+            {
+                _autocompleteWidth = maxWidth;
+            }
+
             _autocompleteActive = true;
             _autocompleteLeft = _cursorIndex + _prompt.Length + 0 - _searchBuffer.Length;
             _autocompleteTop = Console.CursorTop + 1;
@@ -381,6 +394,13 @@ namespace Components.External.ConsolePlus
             _autoCompleteHeight = _matches.Length < GetMaxResults() ?
                 _matches.Length :
                 GetMaxResults() + 1;
+
+            maxWidth = _autocompleteLeft + _autocompleteWidth - 0x3; // Buffer;
+
+            if (maxWidth < _autocompleteWidth)
+            {
+                _autocompleteWidth = maxWidth;
+            }
 
             int tmpLeft = Console.CursorLeft, tmpRight = Console.CursorTop;
 
@@ -407,11 +427,6 @@ namespace Components.External.ConsolePlus
             {
                 entryNum++;
 
-                if (Cli.StyleEscape(n.View).Length > _autocompleteWidth)
-                {
-                    _autocompleteWidth = Cli.StyleEscape(n.View).Length;
-                }
-
                 if (_autocompleteIndex - entryNum > GetMaxResults() ||
                     linesDrawn > GetMaxResults())
                 {
@@ -424,7 +439,12 @@ namespace Components.External.ConsolePlus
                         "~White~~|Blue~{0}~R~" :
                         "~Black~~|White~{0}~R~";
 
-                Cli.Write(format, n.View + new string(' ', _autocompleteWidth - Cli.StyleEscape(n.View).Length));
+                // Hack, until Cli tokenizer is rewritten and exposed
+                // so string can be scanned and truncated precisely.
+                var viewLen = Cli.EraseStyles(n.View).Length;
+
+                var viewStr = viewLen <= maxWidth ? n.View : n.View.Remove(maxWidth);
+                Cli.Write(format, n.View + new string(' ', _autocompleteWidth - viewLen));
                 linesDrawn++;
             }
 

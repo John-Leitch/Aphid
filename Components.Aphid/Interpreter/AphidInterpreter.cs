@@ -97,6 +97,22 @@ namespace Components.Aphid.Interpreter
     //   - Support first-class unions with FieldOffsetAttribute.
     //   - Add first-class pointer support.
     // * Add interop-types-as-values support e.g. var f = System.IO.File;
+    // * Generate new bitwise operator implementations based on
+    //   public AphidObject BinaryAnd(AphidObject x, AphidObject y)
+    // * Look into generating interpreter thunks that handle interpreter
+    //   construction and forwarding when public interpret methods are called
+    //   from non-owner threads.
+    // * Add using keyword support for IDisposable.
+    // * Add scope keyword support for automatic disposal immediately upon leaving
+    //   leaving scope via ascend (not descend) or by breaking scope chain entirely.
+    // * Apply syntax highlighting throughout the CLI e.g. erro code excerpt,
+    //   faulting expression, faulting statement, stack trace, serialization
+    //   AphidExpression.ToString() output.
+    // * Consider pure console IDE.
+    //   -Draw inspiration from edit.com
+    // * Add fan-out support for C# generation e.g.
+    //   AphidCli.*()->AphidCli.Try*()
+    //   AphidCli.*()->$_.Try*
     public partial class AphidInterpreter
     {
         private bool
@@ -294,8 +310,6 @@ namespace Components.Aphid.Interpreter
                 CurrentScope.Add(AphidName.Interpreter, new AphidObject(this));
             }
         }
-
-        
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidRuntimeException CreateUndefinedMemberException(AphidExpression expression, AphidExpression memberExpression)

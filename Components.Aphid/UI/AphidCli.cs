@@ -26,6 +26,8 @@ namespace Components.Aphid.UI
 
         public static Action<string> WriteLineOut { get; set; }
 
+        public static Exception LastException { get; set; }
+
         static AphidCli()
         {
             ExcerptSurroundingLines = 4;
@@ -45,18 +47,22 @@ namespace Components.Aphid.UI
             }
             catch (AphidParserException exception)
             {
+                LastException = exception;
                 AphidCli.DumpException(exception, code);
             }
             catch (AphidLoadScriptException exception)
             {
+                LastException = exception;
                 AphidCli.DumpException(exception, interpreter, code);
             }
             catch (AphidRuntimeException exception)
             {
+                LastException = exception;
                 AphidCli.DumpException(exception, interpreter);
             }
             catch (Exception exception)
             {
+                LastException = exception;
                 AphidCli.DumpException(exception, interpreter);
             }
 
@@ -160,7 +166,35 @@ namespace Components.Aphid.UI
 
             foreach (var frame in trace)
             {
-                WriteLineOut(string.Format("[~White~{0:x4}~R~] {1}", i++, Cli.StyleEscape(frame.ToString(true))));
+                var rawFrameStr = frame.ToString(true);
+                string frameStr;
+
+                if (!"\r\n".Any(rawFrameStr.Contains))
+                {
+                    frameStr = Cli.StyleEscape(rawFrameStr);
+                }
+                else
+                {
+                    frameStr = Cli.StyleEscape(
+                        rawFrameStr
+                            .NormalizeLines()
+                            .SplitLines()
+                            .Select(x => x.Trim())
+                            .Join(" "));
+
+                    // Todo: Move constant into config.
+                    if (frameStr.Length > 40)
+                    {
+                        frameStr = frameStr.Remove(40) + " ~White~...~R~";
+                    }
+                }
+
+                var frameOut = string.Format(
+                    "[~White~{0:x4}~R~] {1}",
+                    i++,
+                    frameStr);
+
+                WriteLineOut(frameOut);
             }
 
             WriteLineOut("");
@@ -265,7 +299,7 @@ namespace Components.Aphid.UI
                     "{0}  {1}{2}{3}",
                     style,
                     Cli.Escape(text),
-                    new string(' ', Console.BufferWidth - text.Length - 3),
+                    new string(' ', Cli.BufferWidth - text.Length - 3),
                     "~R~"));
         }
 

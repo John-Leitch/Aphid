@@ -86,8 +86,15 @@ namespace Components.Aphid.UI
                     tokens :
                     tokens.Take(tokens.Count - 1).ToList();
 
-                exp = AphidParser.Parse(parseTokens, subStr).LastOrDefault();
-                expTokens = tokens.SkipWhile(x => x.Index != exp.Index).ToArray();
+                if (parseTokens.Count > 0)
+                {
+                    exp = AphidParser.Parse(parseTokens, subStr).LastOrDefault();
+                    expTokens = tokens.SkipWhile(x => x.Index != exp.Index).ToArray();
+                }
+                else
+                {
+                    expTokens = tokens.ToArray();
+                }
             }
             catch { }
 

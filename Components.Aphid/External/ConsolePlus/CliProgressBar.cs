@@ -38,7 +38,7 @@ namespace Components.External.ConsolePlus
                     return;
                 }
 
-                var consoleWidth = Console.BufferWidth - 2;
+                var consoleWidth = Cli.BufferWidth - 2;
                 var length = Maximum - Minimum;
                 var segmentLength = ((double)consoleWidth / length);
                 var barLength = (int)Math.Ceiling(Value * segmentLength);

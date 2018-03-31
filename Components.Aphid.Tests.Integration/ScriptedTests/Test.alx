@@ -9,6 +9,7 @@ var getTestKeys;
 var runTests;
 var isStandalone;
 var throw;
+var tryAction;
 
 if (!(global.childCreated defined )) {
     global.childCreated = false;
@@ -18,6 +19,8 @@ if (!(global.childCreated defined )) {
 @{
     #'Std';
     #'Meta';
+
+    using Components.Aphid.UI;
 
     getTestKeys = @{
         var s = global;
@@ -55,6 +58,9 @@ if (!(global.childCreated defined )) {
     using System.IO;
     exe = getExe();
     isStandalone = !String.IsNullOrEmpty(exe) && Path.GetFileName(exe).ToLower() == "aphid.exe";
+    tryAction = @AphidCli.TryAction(this.{'$aphid'}, null);
+
+
 
     if (isStandalone) {
         if (!global.childCreated) {
@@ -74,17 +80,19 @@ if (!(global.childCreated defined )) {
             args.Length == 2 &&
             Path.GetFileName(args[1].ToLower()) == 'test.alx') {
             global.childCreated = true;
-            var scripts =
-                args[1]
-                |> Path.GetFullPath
-                |> Path.GetDirectoryName
-                |> Directory.GetFiles
-                -?(@()
-                    Path.GetFileNameWithoutExtension($_).ToLower() != 'test' &&
-                    $_.EndsWith('.alx'))
-                ->(@() format('@{{ #"{0}"; print() }}', $_.Replace('\\', '\\\\')))
-                ->evalExp
-                ->@()$_();
+            
+            args[1]
+            |> Path.GetFullPath
+            |> Path.GetDirectoryName
+            |> Directory.GetFiles
+            -?(@()
+                Path.GetFileNameWithoutExtension($_).ToLower() != 'test' &&
+                $_.EndsWith('.alx'))
+            ->(@()
+                $_.Replace('\\', '\\\\')
+                @format('@{{ #"{0}"; print() }}')
+                evalExp)
+            ->@()$_();
 
             var failed = global.all.success < global.all.total;
             print();
@@ -120,12 +128,11 @@ if (!(global.childCreated defined )) {
 
         printInfo('Executing tests');
         testResults = testKeys->@(k) {
-            r;
-            r = { key: k, func: scope.{k}, result: null, success: true };
+            var r = { key: k, func: scope.{k}, result: null, success: true };
 
             printQuery('Running test ~Magenta~{0}~R~', k);
-
-            try {
+            //Todo: output exception details when tryAction returns false.
+            if (!tryAction(@{
                 r.result = r.func();
 
                 if (Environment.UserInteractive && !Console.IsOutputRedirected) {
@@ -149,11 +156,9 @@ if (!(global.childCreated defined )) {
                             //global.lastException.exception |> print;
                     }
                 }
-            } catch (e) {
-                printError('Test faulted: {0}', e.message);
-                print(e.stack);
-                r.error = e;
+            })) {
                 r.success = false;
+                r.error = AphidCli.LastException;
             }
 
             ret r;

@@ -1,15 +1,24 @@
-﻿using System;
+﻿//#define UNSAFE_CONSOLE
+#define DEBUG_CONSOLE_OUT
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace Components.External.ConsolePlus
 {
     public static partial class Cli
     {
+        public const int MessageCountStart = 0x10,
+            //MaxMessageBufferLength = 0x1 << 0x1e;
+            MaxMessageBufferLength = 0x1000;
+
+
         private const string _messageFormat = "[~{0}~{1}~R~] {2}";
 
         public const char QueryChar = '?',
@@ -30,6 +39,20 @@ namespace Components.External.ConsolePlus
 
         private static object _syncObject = new object();
 
+#if UNSAFE_CONSOLE
+        private static object _messageSyncObject = new object();
+
+        private static int _messageIndex;
+
+        private static object[][] _argKeepAliveBuffer = new object[MessageCountStart][];
+
+        private static CliWriteMessage[] _messageBuffer = new CliWriteMessage[MessageCountStart];
+
+        private static Thread _cliThread;
+
+        private static bool _isPumpRunning = true;
+#endif
+
         private static bool _useTrace = false;
 
         public static bool UseTrace
@@ -48,6 +71,42 @@ namespace Components.External.ConsolePlus
                 {
                     WriteHandler = Console.Write;
                     WriteLineHandler = Console.WriteLine;
+                }
+            }
+        }
+
+        public static bool Async { get; set; }
+
+        // Todo: some form of static analysis to validate console
+        // buffer width/height are only accessed here due tothe 
+        // exceptions they may cause when IO is redirected. Also 
+        // wrap windo width/height.
+        public static int BufferWidth
+        {
+            get
+            {
+                try
+                {
+                    return Console.BufferWidth;
+                }
+                catch
+                {
+                    return 80;
+                }
+            }
+        }
+
+        public static int BufferHeight
+        {
+            get
+            {
+                try
+                {
+                    return Console.BufferHeight;
+                }
+                catch
+                {
+                    return 40;
                 }
             }
         }
@@ -72,7 +131,7 @@ namespace Components.External.ConsolePlus
 
             try
             {
-                SetLengths(Console.BufferWidth);
+                SetLengths(BufferWidth);
             }
             catch (IOException)
             {
@@ -91,13 +150,17 @@ namespace Components.External.ConsolePlus
         /// </summary>
         /// <param name="format">The format string.</param>
         /// <param name="arg">The arguments.</param>
+#if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
+#endif
         public static void Write(string format, params object[] arg)
         {
             WriteCore(format, false, arg);
         }
 
+#if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
+#endif
         public static void Write(string message)
         {
             WriteCore(message, false, null);
@@ -108,23 +171,29 @@ namespace Components.External.ConsolePlus
         /// </summary>
         /// <param name="format">The format string.</param>
         /// <param name="arg">The arguments.</param>
+#if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
+#endif
         public static void WriteLine(string format, params object[] arg)
         {
             WriteCore(format, true, arg);
         }
 
+#if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
+#endif
         public static void WriteLine(string message)
         {
             WriteCore(message, true, null);
         }
 
+#if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
+#endif
         public static void WriteLine()
         {
             WriteLineHandler("");
-        }        
+        }
 
         public static void DumpTable(IEnumerable<KeyValuePair<string, string>> nameValuePairs)
         {
@@ -167,7 +236,7 @@ namespace Components.External.ConsolePlus
 
             var totalLength = paddingSize * 4 + 3 + longestNameLength + longestValueLength;
 
-            //var newLine = totalLength == Console.BufferWidth ? "" : "\r\n";
+            //var newLine = totalLength == BufferWidth ? "" : "\r\n";
             var newLine = "\r\n";
 
             Func<string, string, bool, string> createRow = (name, value, header) =>
@@ -283,9 +352,9 @@ namespace Components.External.ConsolePlus
         public static void WriteHeader(string text, string style = "")
 #endif
         {
-            var divider = new string('═', Console.BufferWidth - 3).ToCharArray();
+            var divider = new string('═', BufferWidth - 3).ToCharArray();
             var hrTop = "╔" + new string(divider) + "╗\r\n";
-            var hrMiddle = "║" + style + " " + text.PadRight(Console.BufferWidth - 4).Replace("~", "~~") + "~R~║\r\n";
+            var hrMiddle = "║" + style + " " + text.PadRight(BufferWidth - 4).Replace("~", "~~") + "~R~║\r\n";
             var hrBottom = "╚" + new string(divider) + "╝\r\n";
             Write(hrTop + hrMiddle + hrBottom);
         }
@@ -296,9 +365,138 @@ namespace Components.External.ConsolePlus
                 "{0}  {1}{2}{3}",
                 style,
                 Cli.Escape(text),
-                new string(' ', Console.BufferWidth - text.Length - 3),
+                new string(' ', BufferWidth - text.Length - 3),
                 "~R~");
         }
+
+#if UNSAFE_CONSOLE
+        private unsafe static void WriteCore(string format, bool newLine, params object[] arg)
+        {
+            if (Async)
+            {
+                while (true)
+                {
+                    lock (_messageSyncObject)
+                    {
+                        if (_cliThread == null)
+                        {
+                            AppDomain.CurrentDomain.ProcessExit +=
+                                (o, e) => _isPumpRunning = false;
+
+                            _cliThread = new Thread(RunMessagePumpLoop)
+                            {
+                                IsBackground = false,
+                            };
+
+                            _cliThread.Start();
+                        }
+
+                        if (_messageIndex < _messageBuffer.Length || GrowMessageBuffer())
+                        {
+                            _argKeepAliveBuffer[_messageIndex] = arg;
+                            var tr = __makeref(arg);
+                            var p = **(IntPtr**)(&tr);
+
+                            _messageBuffer[_messageIndex++] = new CliWriteMessage
+                            {
+                                Format = format,
+                                NewLine = newLine,
+                                ArgsPointer = p,
+                            };
+
+                            return;
+                        }
+                    }
+
+                    Thread.Sleep(1);
+                }
+            }
+            else
+            {
+                WriteCoreWorker(format, newLine, arg);
+            }
+        }
+
+        private static bool GrowMessageBuffer()
+        {
+            return false;
+
+            if (_messageBuffer.Length == MaxMessageBufferLength)
+            {
+                return false;
+            }
+            else
+            {
+                var count = _messageBuffer.Length << 0x1;
+                Array.Resize(ref _messageBuffer, count);
+                Array.Resize(ref _argKeepAliveBuffer, count);
+
+                return true;
+            }
+        }
+
+        private static unsafe void RunMessagePumpLoop()
+        {
+            CliWriteMessage[] messages = default(CliWriteMessage[]);
+            int count;
+            var messages2 = stackalloc byte[0x4000];
+
+            //// Todo: use fill patterns to detect value offsets in
+            //// memory, detect new modules via checksum and update
+            //// offsets appropriately.
+            //for (var i = 0; i < 0x10; i++)
+            //{
+            //    messages2[i] = 0x52;
+            //}
+
+            while (_isPumpRunning)
+            {
+                Monitor.Enter(_messageSyncObject);
+
+                if ((count = _messageIndex) <= 0)
+                {
+                    Monitor.Exit(_messageSyncObject);
+                    Thread.Sleep(1);
+                    continue;
+                }
+                else
+                {
+                    var padding = 0x10;
+                    var len = (count * CliWriteMessage.Size) + padding;
+                    var dst = (void*)messages2;
+                    var r = __makeref(_messageBuffer);
+                    var src = &((byte*)**(IntPtr**)(&r))[0];
+                    Buffer.MemoryCopy(src, dst, len, len);
+                    var r2 = __makeref(messages);
+                    **(IntPtr**)(&r2) = (IntPtr)(&messages2[0]);
+                    _messageIndex = 0;
+                    Monitor.Exit(_messageSyncObject);
+                }
+
+                for (var i = 0; i < count; i++)
+                {
+                    var msg = messages[i];
+                    var args = default(object[]);
+                    var tr = __makeref(args);
+                    **(IntPtr**)(&tr) = msg.ArgsPointer;
+                    //args = __refvalue( tr, object[]);
+                    WriteCoreWorker(msg.Format, msg.NewLine, args);
+                }
+            }
+        }
+#else
+        private static void WriteCore(string format, bool newLine, params object[] arg)
+        {
+            if (Async)
+            {
+                ThreadPool.QueueUserWorkItem(x => WriteCoreWorker(format, newLine, arg));
+            }
+            else
+            {
+                WriteCoreWorker(format, newLine, arg);
+            }
+        }
+#endif
 
         /// <summary>
         /// The core console write function.
@@ -306,8 +504,10 @@ namespace Components.External.ConsolePlus
         /// <param name="formatOrMsg">The format string.</param>
         /// <param name="newLine">Determines whether to print the message with a new line or not.</param>
         /// <param name="arg">The arguments.</param>
+#if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
-        private static void WriteCore(string formatOrMsg, bool newLine, params object[] arg)
+#endif
+        private static void WriteCoreWorker(string formatOrMsg, bool newLine, params object[] arg)
         {
             lock (_syncObject)
             {
@@ -354,7 +554,7 @@ namespace Components.External.ConsolePlus
                             {
                                 var token = buffer.ToString();
 
-                                #if NET35
+#if NET35
                                 buffer = new StringBuilder();
 #else
                                 buffer.Clear();
@@ -409,11 +609,11 @@ namespace Components.External.ConsolePlus
 
         public static string Escape(string value)
         {
-            return !string.IsNullOrEmpty(value) ? 
+            return !string.IsNullOrEmpty(value) ?
                 value
                     .Replace("{", "{{")
                     .Replace("}", "}}")
-                    .Replace("~", "~~") : 
+                    .Replace("~", "~~") :
                 value;
         }
 
@@ -425,6 +625,91 @@ namespace Components.External.ConsolePlus
         public static string StyleEscape(string value)
         {
             return !string.IsNullOrEmpty(value) ? value.Replace("~", "~~") : value;
+        }
+
+#if !DEBUG_CONSOLE_OUT
+        [DebuggerStepThrough]
+#endif
+        public static string EraseStyles(string text)
+        {
+            var aggr = new StringBuilder();
+            EraseStyles(text, aggr.Append);
+
+            return aggr.ToString();
+        }
+
+#if !DEBUG_CONSOLE_OUT
+        [DebuggerStepThrough]
+#endif
+        public static void EraseStyles(
+            string text,
+            Func<StringBuilder, StringBuilder> callback)
+        {
+            {
+                var buffer = new StringBuilder();
+                var state = CliLexerState.ReadingText;
+
+                for (int i = 0; i < text.Length; i++)
+                {
+                    var c = text[i];
+
+                    switch (state)
+                    {
+                        case CliLexerState.ReadingText:
+                            if (c == '~')
+                            {
+                                state = CliLexerState.ReadingTokenBeginning;
+
+                                if (buffer.Length != 0)
+                                {
+                                    callback(buffer);
+                                    buffer = new StringBuilder();
+                                }
+                            }
+                            else
+                            {
+                                buffer.Append(c);
+                            }
+
+                            break;
+
+                        case CliLexerState.ReadingTokenBeginning:
+                            if (c == '~')
+                            {
+                                buffer.Append('~');
+                                state = CliLexerState.ReadingText;
+                            }
+                            else
+                            {
+                                state = CliLexerState.ReadingToken;
+                            }
+
+                            break;
+
+                        case CliLexerState.ReadingToken:
+                            if (c == '~')
+                            {
+                                state = CliLexerState.ReadingText;
+                            }
+
+                            break;
+
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+
+
+                if (state == CliLexerState.ReadingToken)
+                {
+                    throw new ArgumentException("Invalid token in format string");
+                }
+
+                if (buffer.Length != 0)
+                {
+                    callback(buffer);
+                }
+            }
         }
 
         public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)

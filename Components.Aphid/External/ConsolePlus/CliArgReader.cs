@@ -123,11 +123,15 @@ namespace Components.External.ConsolePlus
                 {
                     getValue = () => long.Parse(Arguments[i]);
                 }
+                else if (propType == typeof(decimal))
+                {
+                    getValue = () => decimal.Parse(Arguments[i]);
+                }
                 else if (propType.IsDerivedFrom(typeof(Enum)))
                 {
                     getValue = () =>
                     {
-                        
+
                         var x = Arguments[i].Trim();
                         object result;
 
@@ -214,7 +218,7 @@ namespace Components.External.ConsolePlus
             SetProperties(args);
 
             return args;
-        }        
+        }
 
         public static CliArgAttribute[] GetAllAttributes<TArgs>()
             where TArgs : new()

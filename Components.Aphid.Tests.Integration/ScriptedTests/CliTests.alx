@@ -1,0 +1,6 @@
+﻿#'Std';
+#'Test';
+using Components.External.ConsolePlus;
+
+//var divideByZero = @() 1/0;
+var eraseStyleSingle = @() 'foo~Red~bar' |> Cli.EraseStyles @== 'foobar';
