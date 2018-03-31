@@ -13,6 +13,36 @@
 // * Support partial application for custom ops.
 // * Support F# style op to func e.g. (+).
 //   - Implement at tokenization layer for simplicity.
+// * Add whitespace support to main language.
+// * Add tailcall elimination.
+// * Add immutable keyword that can be used in place of
+//   var e.g. immutable foo = 'test';
+// * Add private keyword that can be used for locals to
+//   prevent automatic resolution outside of function scope e.g.
+//   private foo = 'test'; 
+//   var func = @{ foo defined @print('defined? {0}') };
+//   func();
+// * Add private get for locals, accessible normally, set only local.
+// * Add protected, other modifiers.
+// * Add type decl support to locals e.g. function foo
+//   - Ensure type aliases are supported e.g. 
+//     AphidFunction -> function, UInt32 -> uint.
+//   - Support in AphidObject. Store type name as well as
+//     flags for modifiers and validate value/member access.
+// * Include and import sequences e.g.
+//   using System + Linq, Reflection
+//   -> using System.Linq; using System.Reflection
+//   using System & Linq, Reflection
+//   -> using System; using System.Linq; using System.Reflection
+// * Add inline path support to # and load e.g. #..\foo\bar.txt
+// * Add pattern support for # and load e.g. load .\Debug\*Mock.dll
+// * Make semicolons optional for: ##, #, using, load
+// * Update query operators to return lazy IEnumerable
+// * Add language integrated PLINQ support
+// * Add support for interfaces (and base types if they don't work)
+//   to the extension system.
+// * Add support for C# extensions in Aphid
+// * Generate Aphid function set and API based on PS Cmdlet metadata
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
