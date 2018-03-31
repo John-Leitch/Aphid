@@ -78,8 +78,7 @@ namespace Components.External.ConsolePlus
 
             if (Environment.GetCommandLineArgs().Length == 1 && props.Any())
             {
-                CliArgWriter.WriteArguments<TArgs>();
-                Environment.Exit(1);
+                WriteDirections();
             }
 
             Arguments = ParseArguments();
@@ -106,6 +105,12 @@ namespace Components.External.ConsolePlus
                     HandleUnexpectedException(e);
                 }
             }
+        }
+
+        protected virtual void WriteDirections()
+        {
+            CliArgWriter.WriteArguments<TArgs>();
+            Environment.Exit(1);
         }
 
         protected virtual TArgs ParseArguments()
