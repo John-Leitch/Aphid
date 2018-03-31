@@ -423,5 +423,10 @@ namespace Components.Aphid.TypeSystem
         {
             return base.Equals(obj);
         }
+
+        public AphidObject CreateChild()
+        {
+            return new AphidObject(null, this);
+        }
     }
 }
