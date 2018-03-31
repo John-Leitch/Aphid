@@ -36,7 +36,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>
     </DocumentationFile>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -74,18 +74,20 @@
     <OutputPath>bin\Release64\</OutputPath>
     <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;AMD64</DefineConstants>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FULL_DBG X86</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -137,6 +139,8 @@
     <Compile Include="Compiler\Medusa\LLex\RegexLexer.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
+    <Compile Include="External\Common\Singleton.cs" />
+    <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
     <Compile Include="External\ConsolePlus\SystemColor.g.cs" />
     <Compile Include="External\ConsolePlus\VT100.cs" />
@@ -144,6 +148,7 @@
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="TypeSystem\AphidInteropReferenceType.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
+    <Compile Include="UI\AphidConfig.cs" />
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
@@ -235,7 +240,7 @@
     <Compile Include="External\Common\TypeLoader.cs" />
     <Compile Include="External\Common\XmlObject.cs" />
     <Compile Include="External\Common\XmlSerializerExtension.cs" />
-    <Compile Include="IAphidException.cs" />
+    <Compile Include="TypeSystem\IAphidException.cs" />
     <Compile Include="Interpreter\AphidInternalException.cs" />
     <Compile Include="Serialization\AphidObjectThisKeywordMutator.cs" />
     <Compile Include="Serialization\AphidObjectReferenceVisitor.cs" />
@@ -429,6 +434,9 @@
     <None Include="Aphid.Code.alx" />
     <None Include="Aphid.Tokens.alx" />
     <None Include="Aphid.Tmpl.alx" />
+    <None Include="UI\Config.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="External\ConsolePlus\SystemColor.alx" />
     <None Include="Library\Wpf.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
