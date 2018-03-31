@@ -32,9 +32,9 @@ using Components.Aphid.Interpreter;
     
 };
 
-mutate;
-mutateFunc;
-transformBlock;
+var mutate;
+var mutateFunc;
+var transformBlock;
 
 @{
     using Components.Aphid.Parser;
@@ -379,6 +379,7 @@ extend AphidExpression {
     hasHeader: @(x, h) getArg(0).matchId(x.body(0)),
 
     matchId: @(x, y)
+        y != null &&
         x.isId() &&
         y.isId() &&
         x.id() == y.id() &&
