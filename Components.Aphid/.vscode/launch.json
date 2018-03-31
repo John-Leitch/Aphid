@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "aphid",
+            "request": "launch",
+            "program": "${workspaceRoot}\\Library\\test.alx",
+            // "cwd": "${workspaceRoot}/Components.Aphid/Library"
+            "cwd": "c:\\source\\Aphid\\Components.Aphid\\Library"
+        },
+        {
+            "name": "Attach",
+            "type": "aphid",
+            "request": "attach",
+            "address": "localhost",
+            "port": 55555
+        }
+    ]
+}
