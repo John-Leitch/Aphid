@@ -1,3 +1,19 @@
+// Todo;
+// *Add locals support to AphidUI.
+//  -Base on templating from watch controls.
+//  -Implement using Aphid and possibly Xaml.
+//  -Extract hierarchical type traversal implementation in VSC debugger 
+//   and use for tree view locals/watch/stack frames.
+//  -Add stack frame browser.
+//  -Add breakpoint support.
+//   *Support breakpoint placement using tree control as well as click
+//    to highlight.
+//   *Support breakpoints on any expression type.
+// *Add instruction tracing support.
+// *Add reverse execution support.
+// *Add ability to edit code at runtime.
+//  -Support different workflows for different levels of granularity:
+//   * Raw String, Tokens, Expressions, Blocks, Scripts
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;

@@ -43,6 +43,13 @@
 //   to the extension system.
 // * Add support for C# extensions in Aphid
 // * Generate Aphid function set and API based on PS Cmdlet metadata
+// * Global hotkeys with windows hook
+//   - Make autocomplete console resolution easily scriptable and 
+//     use with global hooks for fast shortcut resolution.
+//   - Look into low level console API, further abstract API and 
+//     add support for WPF controls.
+// * Add automatic crashdump creation, both windows dmp and
+//   proprietary dump of interpreter state.
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
