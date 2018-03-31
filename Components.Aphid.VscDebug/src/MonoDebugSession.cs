@@ -20,6 +20,8 @@ using System.Collections;
 using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System.Reflection;
+using Components.Aphid.TypeSystem;
+using Components.Aphid.Serialization;
 
 namespace VSCodeDebug
 {
@@ -663,7 +665,7 @@ namespace VSCodeDebug
                 Program.Log(
                     "Frame scope {0}: {1}",
                     kvp.Key,
-                    new AphidSerializer().Serialize(kvp.Value));
+                    new AphidSerializer(_interpreter).Serialize(kvp.Value));
             }
 
             var scopes = new List<Scope>();
@@ -847,6 +849,20 @@ namespace VSCodeDebug
 			SendResponse(response, new VariablesResponseBody(variables));
 		}
 
+        private void HandleException(AphidInterpreter interpreter, Exception exception)
+        {
+            Program.Log("Unhanelded exception: {0}", exception.Message);
+            Stopped();
+
+            SendEvent(
+                new StoppedEvent(
+                    _threadId,
+                    "exception",
+                    exception.Message));
+
+            _resumeEvent.Set();
+        }
+
 		public override void Threads(Response response, dynamic args)
 		{
             if (!_isRunning)
@@ -859,15 +875,31 @@ namespace VSCodeDebug
                         reset.Set();
                         SendEvent(new ThreadEvent("started", _threadId));
 
+                        var backup = _interpreter.SetIsInTryCatchFinally(true);
                         try
                         {
                             _interpreter.Interpret(_ast);
                         }
                         catch (Exception e)
                         {
-                            Cli.WriteErrorMessage("Exception: {0}", e.Message);
-                            AphidCli.DumpStackTrace(_interpreter);
+                            HandleException(_interpreter, e);
+                            //HandleBreak(e.CurrentExpression);
+                            //StackTrace(response, args);
                         }
+                        //catch (Exception e)
+                        //{
+                        //    SendEvent
+                        //        new StoppedEvent(
+                        //            _threadId,
+                        //            "breakpoint",
+                        //            expression.ToString()));
+                        //    HandleBreak(_interpreter.CurrentExpression);
+                        //    StackTrace(response, args);
+                        //    Cli.WriteErrorMessage("Exception: {0}", e.Message);
+                        //    AphidCli.DumpStackTrace(_interpreter);
+                        //}
+
+                        _interpreter.SetIsInTryCatchFinally(false);
 
                         SendEvent(new ThreadEvent("exited", _threadId));
                     }).Start();
@@ -896,7 +928,7 @@ namespace VSCodeDebug
 		{
 			var expression = getString(args, "expression");
             
-            var exp = AphidParser.ParseExpression(expression);
+            var exp = AphidParser.ParseExpression(expression.ToString());
 
             var retExp =
                 exp.Type != AphidExpressionType.UnaryOperatorExpression  ||
@@ -908,7 +940,8 @@ namespace VSCodeDebug
                         .WithPositionFrom(exp) :
                     exp;
 
-            var value = (AphidObject)_interpreter.Interpret(exp);
+            var value = (AphidObject)new AphidInterpreter(_interpreter.CurrentScope).Interpret(exp);
+            //var value = (AphidObject)_interpreter.Interpret(exp);
 
 
             //if (!_interpreter.CurrentScope.TryResolve(, out value))
@@ -922,7 +955,7 @@ namespace VSCodeDebug
                 SendResponse(
                     response,
                     new EvaluateResponseBody(
-                        new AphidSerializer().Serialize(value),
+                        new AphidSerializer(_interpreter).Serialize(value),
                         handle));
             }
 		}
@@ -1057,7 +1090,7 @@ namespace VSCodeDebug
                                 {
                                     new KeyValuePair<string, AphidObject>(
                                         i.ToString(),
-                                        ValueHelper.Wrap(x.Value))
+                                        _interpreter.ValueHelper.Wrap(x.Value))
                                 })
                             .ToArray()));
                 }
@@ -1065,7 +1098,7 @@ namespace VSCodeDebug
                 {
                     return new Variable(
                         v.Key,
-                        new AphidSerializer().Serialize(v.Value),
+                        new AphidSerializer(_interpreter).Serialize(v.Value),
                         v.Value.GetValueType(),
                         0);
                 }
@@ -1083,7 +1116,7 @@ namespace VSCodeDebug
 
                     foreach (var o in (IEnumerable)v.Value.Value)
                     {
-                        l.Add(ValueHelper.Wrap(o));
+                        l.Add(_interpreter.ValueHelper.Wrap(o));
                     }
 
                     return new Variable(
@@ -1116,7 +1149,7 @@ namespace VSCodeDebug
                                 .GetProperties()
                                 .Select((x, i) => new KeyValuePair<string, AphidObject>(
                                     x.Name,
-                                    ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
+                                    _interpreter.ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
                                 .ToArray()));
                     }
                 }

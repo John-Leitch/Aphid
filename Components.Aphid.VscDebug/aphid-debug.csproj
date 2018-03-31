@@ -49,27 +49,6 @@
     <AssemblyName>aphid-debug</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aphid">
-      <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\Aphid.exe</HintPath>
-    </Reference>
-    <Reference Include="Aphid.vshost">
-      <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\Aphid.vshost.exe</HintPath>
-    </Reference>
-    <Reference Include="Components, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\Components.dll</HintPath>
-    </Reference>
-    <Reference Include="Components.Cypress, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\Components.Cypress.dll</HintPath>
-    </Reference>
-    <Reference Include="Components.Math, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\Components.Math.dll</HintPath>
-    </Reference>
-    <Reference Include="Components.Trading">
-      <HintPath>..\..\..\..\..\source\SpringPeeper\Components.Trading\bin\Debug\Components.Trading.dll</HintPath>
-    </Reference>
     <Reference Include="SpringPeeper">
       <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\SpringPeeper.exe</HintPath>
     </Reference>
@@ -120,7 +99,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\source\Aphid\Components.Aphid\Components.Aphid.csproj">
+    <ProjectReference Include="..\..\..\..\..\source\Aphid\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
     </ProjectReference>

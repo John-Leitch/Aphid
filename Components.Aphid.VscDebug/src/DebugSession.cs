@@ -14,11 +14,11 @@ namespace VSCodeDebug
 
     public class Message
     {
-        public int id { get; }
-        public string format { get; }
-        public dynamic variables { get; }
-        public dynamic showUser { get; }
-        public dynamic sendTelemetry { get; }
+        public int id { get; private set; }
+        public string format { get; private set; }
+        public dynamic variables { get; private set; }
+        public dynamic showUser { get; private set; }
+        public dynamic sendTelemetry { get; private set; }
 
         public Message(int id, string format, dynamic variables = null, bool user = true, bool telemetry = false)
         {
@@ -32,12 +32,12 @@ namespace VSCodeDebug
 
     public class StackFrame
     {
-        public int id { get; }
-        public Source source { get; }
-        public int line { get; }
-        public int column { get; }
-        public string name { get; }
-        public string presentationHint { get; }
+        public int id { get; private set; }
+        public Source source { get; private set; }
+        public int line { get; private set; }
+        public int column { get; private set; }
+        public string name { get; private set; }
+        public string presentationHint { get; private set; }
 
         public StackFrame(int id, string name, Source source, int line, int column, string hint)
         {
@@ -55,9 +55,9 @@ namespace VSCodeDebug
 
     public class Scope
     {
-        public string name { get; }
-        public int variablesReference { get; }
-        public bool expensive { get; }
+        public string name { get; private set; }
+        public int variablesReference { get; private set; }
+        public bool expensive { get; private set; }
 
         public Scope(string name, int variablesReference, bool expensive = false)
         {
@@ -69,10 +69,10 @@ namespace VSCodeDebug
 
     public class Variable
     {
-        public string name { get; }
-        public string value { get; }
-        public string type { get; }
-        public int variablesReference { get; }
+        public string name { get; private set; }
+        public string value { get; private set; }
+        public string type { get; private set; }
+        public int variablesReference { get; private set; }
 
         public Variable(string name, string value, string type, int variablesReference = 0)
         {
@@ -85,8 +85,8 @@ namespace VSCodeDebug
 
     public class Thread
     {
-        public int id { get; }
-        public string name { get; }
+        public int id { get; private set; }
+        public string name { get; private set; }
 
         public Thread(int id, string name)
         {
@@ -104,10 +104,10 @@ namespace VSCodeDebug
 
     public class Source
     {
-        public string name { get; }
-        public string path { get; }
-        public int sourceReference { get; }
-        public string presentationHint { get; }
+        public string name { get; private set; }
+        public string path { get; private set; }
+        public int sourceReference { get; private set; }
+        public string presentationHint { get; private set; }
 
         public Source(string name, string path, int sourceReference, string hint)
         {
@@ -120,8 +120,8 @@ namespace VSCodeDebug
 
     public class Breakpoint
     {
-        public bool verified { get; }
-        public int line { get; }
+        public bool verified { get; private set; }
+        public int line { get; private set; }
 
         public Breakpoint(bool verified, int line)
         {
@@ -202,7 +202,7 @@ namespace VSCodeDebug
     public class ErrorResponseBody : ResponseBody
     {
 
-        public Message error { get; }
+        public Message error { get; private set; }
 
         public ErrorResponseBody(Message error)
         {
@@ -212,8 +212,8 @@ namespace VSCodeDebug
 
     public class StackTraceResponseBody : ResponseBody
     {
-        public StackFrame[] stackFrames { get; }
-        public int totalFrames { get; }
+        public StackFrame[] stackFrames { get; private set; }
+        public int totalFrames { get; private set; }
 
         public StackTraceResponseBody(List<StackFrame> frames, int total)
         {
@@ -224,7 +224,7 @@ namespace VSCodeDebug
 
     public class ScopesResponseBody : ResponseBody
     {
-        public Scope[] scopes { get; }
+        public Scope[] scopes { get; private set; }
 
         public ScopesResponseBody(List<Scope> scps)
         {
@@ -234,7 +234,7 @@ namespace VSCodeDebug
 
     public class VariablesResponseBody : ResponseBody
     {
-        public Variable[] variables { get; }
+        public Variable[] variables { get; private set; }
 
         public VariablesResponseBody(List<Variable> vars)
         {
@@ -244,7 +244,7 @@ namespace VSCodeDebug
 
     public class ThreadsResponseBody : ResponseBody
     {
-        public Thread[] threads { get; }
+        public Thread[] threads { get; private set; }
 
         public ThreadsResponseBody(List<Thread> ths)
         {
@@ -254,8 +254,8 @@ namespace VSCodeDebug
 
     public class EvaluateResponseBody : ResponseBody
     {
-        public string result { get; }
-        public int variablesReference { get; }
+        public string result { get; private set; }
+        public int variablesReference { get; private set; }
 
         public EvaluateResponseBody(string value, int reff = 0)
         {
@@ -266,7 +266,7 @@ namespace VSCodeDebug
 
     public class SetBreakpointsResponseBody : ResponseBody
     {
-        public Breakpoint[] breakpoints { get; }
+        public Breakpoint[] breakpoints { get; private set; }
 
         public SetBreakpointsResponseBody(List<Breakpoint> bpts = null)
         {

@@ -83,9 +83,9 @@ namespace VSCodeDebug
 
 	public class Event : ProtocolMessage
 	{
-		[JsonProperty(PropertyName = "event")]
-		public string eventType { get; }
-		public dynamic body { get; }
+        [JsonProperty(PropertyName = "event")]
+        public string eventType { get; private set; }
+        public dynamic body { get; private set; }
 
 		public Event(string type, dynamic bdy = null) : base("event") {
 			eventType = type;
