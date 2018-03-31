@@ -15,6 +15,8 @@ namespace Components.Aphid.Parser
 
         private string _script;
 
+        private AphidObject _parentScope;
+
         public AphidInterpreter Interpreter { get; set; }
 
         public ScriptMutator()
@@ -40,11 +42,12 @@ namespace Components.Aphid.Parser
                 (AphidInterpreter)mutateImplementation.ParentScope.Resolve(null, "$aphid").Value,
                 mutateImplementation.Body)
         {
+            _parentScope = mutateImplementation.ParentScope;
         }
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            Interpreter.EnterScope();
+            Interpreter.EnterSharedScope(_parentScope ?? Interpreter.CurrentScope);
 
             try
             {
@@ -101,8 +104,6 @@ namespace Components.Aphid.Parser
                                 "Mutator returned invalid type, expected expression, block, or function.");
                         }
                     }
-
-
                 }
                 else
                 {
@@ -114,7 +115,7 @@ namespace Components.Aphid.Parser
             }
             finally
             {
-                Interpreter.LeaveScope();
+                Interpreter.LeaveSharedScope();
             }
         }
     }
