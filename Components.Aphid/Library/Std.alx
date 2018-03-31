@@ -52,6 +52,18 @@
 //   proprietary dump of interpreter state.
 // * Create UI automation API.
 // * Add native PInvoke support.
+// * Build AOP API using scripted mutator.
+//   - Add function call tracing via expression injection.
+//   - Add argument, state, etc. tracing with automatic detailed
+//     output for target functions and udner specific conditions
+//     e.g. test assert failed.
+// * Use IPC to create process singleton API for regular operations
+//   that have high init cost but low runtime cost.
+//   - Create remote proxy compatible with IPC channel.
+// * API based on file system watcher with emphasis on
+//   expressiveness and UI.
+//   - Use WPF API to make GUI FSW builder/editor and IO 
+//     visualization controls.
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
@@ -83,14 +95,31 @@ format = String.Format;
 join = String.Join;
 concat = String.Concat;
 
-@?. (lhs, rhs) lhs != null ?
-    lhs.{this.{'$frames'}[0].Expression.RightOperand.Identifier} :
-    null;
 
+// Todo: move ops and other common funcs to core header,
+// autoload using INI setting.
 @ =< (selector, source) source -> selector;
 @ <| (target, arg) arg |> target;
 @ :: (fmt, args) String.Format(fmt, args);
 @ :> (fmt, args) $args.Count == 2 ? print(fmt, args) : print(fmt);
+@ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
+@ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };
+@ <! (func) func ?> false;
+@ <! (source, func) $args.Count == 2 ? (source -? (<! func)) : source ?> false;
+@ -| (source, predicate) { _queryBody(Enumerable.Single) };
+@ -! (source, predicate) { _queryBody(Enumerable.Any @> @== false) };
+@ -# (source, predicate) { _queryBody(Enumerable.Count) };
+@ ?. (lhs, rhs) lhs != null ? lhs.{this.{'$frames'}[0].Expression.RightOperand.Identifier} : null;
+
+_queryBody = macro(@(filter){
+    using System.Linq;
+    ret (source -? predicate |> filter);
+});
+
+// ('foobar' -| @() $_.ToString().ToUpper() == 'R') |> dump;
+// ('foobar' -! @() $_.ToString().ToUpper() == 'R') |> dump;
+// ('foobar' -! @() $_.ToString().ToUpper() == 'Z') |> dump;
+// ('foobar' -# @() $_.ToString().ToUpper() == 'O') |> dump;
 
 _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
