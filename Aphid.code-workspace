@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{ "path": "./Components.Aphid" },
+		{ "path": "./Components.Aphid/Library" },
+		{ "path": "./Components.Aphid/Serialization" },
+		{ "path": "./Components.Aphid.Tests.Integration/ScriptedTests" },	
+		{ "path": "./Aphid/Samples" },	
+		{ "path": "./Samples/HttpServerSample/WebRoot" },
+		{ "path": "./Boxelder" },
+		{ "path": "./AphidHdl" },
+		{ "path": "./Coywolf" },
+		
+	],
+	"settings": {
+        "files.exclude": {
+			"**/*.cs": true,
+			"**/*.csproj": true,
+			"**/*.user": true,
+			"*InlineIL*": true,
+			"**/obj": true,
+			"**/bin": true,
+        }
+    }
+}
