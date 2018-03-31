@@ -32,7 +32,7 @@ namespace Components
             if (Current != null)
             {
                 throw new InvalidOperationException(
-                    string.Format("Can only create one instance of '{0}'.", typeof(T)));
+                    string.Format("Can only create one instance of '{0}'.", Current.ToString()));
             }
 
             Current = this;
