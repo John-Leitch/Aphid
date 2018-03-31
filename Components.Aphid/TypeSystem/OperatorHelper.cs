@@ -104,7 +104,7 @@ namespace Components.Aphid.TypeSystem
                 (yType = y.Value.GetType()).IsEnum)
             {
                 if ((xBaseType = Enum.GetUnderlyingType(xType)) !=
-                (yBaseType = Enum.GetUnderlyingType(yType)))
+                    (yBaseType = Enum.GetUnderlyingType(yType)))
                 {
                     throw Interpreter.CreateRuntimeException(
                         "Enum type mismatch, cannot perform binary operations on " +
