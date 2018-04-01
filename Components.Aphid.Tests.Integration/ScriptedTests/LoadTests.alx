@@ -1,15 +1,7 @@
 ﻿#'Std';
 using System.Linq;
 
-asm = AppDomain.CurrentDomain
-    .GetAssemblies()
-    -?(@()!$_.IsDynamic)
-    ->@.Location
-    -?(@()$_.Contains('Components.Aphid.dll'))
-    |> Enumerable.First;
-
-asmMangled = asm + '.foo';
-asmTruncated = asm.Remove(asm.Length - 4);
+var asm = AppDomain.CurrentDomain.GetAssemblies() ~? 'Components.Aphid' |> Enumerable.First @.Location;
 
 _n = macro(@(n) { id('load', n) });
 _load = macro(@(n, p, f) {
@@ -34,6 +26,10 @@ _null(SystemBad, SystemBad);
 // Todo: enable these once load fallback null ref bug is fixed
 //_null(SystemXmlBad, System.XmlBad);
 //_null(SystemXmlBad2, System.Xml.Bad);
-_notNull(Aphid, asm);
-_null(AphidMangled, asmMangled);
-_null(AphidTruncated, asmTruncated);
+_notNull(AphidString, asm);
+_null(AphidStringMangled, asm.Replace('.', '\\'));
+_null(AphidStringTruncated, asm.Remove(asm.Length - 4));
+_notNull(Aphid, Components.Aphid);
+// Todo: enable these once load fallback null ref bug is fixed
+// _null(AphidMangled, Components.Aphida);
+// _null(AphidTruncated, Components.Ap);

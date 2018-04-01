@@ -1,48 +1,24 @@
 ﻿#'Std';
-#'Meta';
+#'AopTest';
+unsafe navigation group;
 
-@?. (lhs, rhs) lhs != null ? lhs.{frame(1).exp().rhs().id()} : null;
+_p = macro(@{ _pc(foo.bar.x) });
+_ps = macro(@{ _pc(foo?.bar?.x) });
+_pc = macro(@(m){ m |> print });
+_n = macro(@(m){ @{ m = null } });
 
-_prologue = macro(@{
-    foo = {
-        bar: {
-            x: 10
-        }
-    };
-});
+prologue;
+foo = { bar: { x: 10 } };
 
-#'Test';
+    @{ _p() };
+    epilogue;
+    _ps();
+    @{  };
+    _n(foo);
+    _n(foo.bar);
 
-unsafeNavigation = success(@{
-    _prologue();
-    foo.bar.x |> print;
-});
-
-unsafeNavigation2 = fault(@{
-    _prologue();
-    foo.bar = null;
-    foo.bar.x |> print;
-});
-
-unsafeNavigation3 = fault(@{
-    _prologue();
-    foo = null;
-    foo.bar.x |> print;
-});
-
-safeNavigation = success(@{
-    _prologue();
-    foo?.bar?.x |> print;
-});
-
-safeNavigation2 = success(@{
-    _prologue();
-    foo.bar = null;
-    foo?.bar?.x |> print;
-});
-
-safeNavigation3 = success(@{
-    _prologue();
-    foo = null;
-    foo?.bar?.x |> print;
-});
+fault;
+    epilogue;
+    _p();
+    _n(foo);
+    _n(foo.bar);

@@ -1,0 +1,117 @@
+﻿#'TestBase';
+
+@{
+    #'Std';
+    #'Meta';
+    var context = {
+        currentState: 0,
+        names: { },
+        prologue: [],
+        epilogue: [],
+        insert: false,
+        add: false,
+        curList: null,
+        handled: [],
+        group: '',
+        testSet: '',
+        wrap: 'success',
+    };
+
+    var getAttrStr = @(exp) exp
+        .attrs()
+        ->(@()$_.id().Remove(1).ToUpper() + $_.id().Substring(1))
+        |> concat;
+
+    _takeAttr = macro(@(dst){
+        context.dst = getAttrStr(ctx.Expression);
+        ctx.IsHandled = true;
+    });
+
+    var getBase = @()
+        context.group +
+        context.testSet +
+        (context.wrap != 'success' ? context.wrap : '') +
+        'Test' ?:
+        'AphidUnitTest';
+    
+    var nextName = @()
+        getBase() +
+        (context.names.{getBase()} defined ?
+            (context.names.{getBase()}++).ToString() :
+            @{ context.names.{getBase()} = 2; ret '' }());
+
+    var detach = @{ this.{'$aphid'}.OnInterpretStatement = null };
+
+    var updateList = @(action, list) {
+        switch (action) {
+            "set": {
+                list.Clear();
+                context.add = true;
+                context.curList = list;
+            }
+            "push": {
+                context.add = true;
+                context.curList = list;
+            }
+            "insert": {
+                context.insert = true;
+                context.curList = list;
+            }
+            "clear": list.Clear();
+            "pop": if (list.Count > 0) list.RemoveAt(list.Count - 1);
+            "delete": if (list.Count > 0) list.RemoveAt(0);
+        }
+    };
+
+    _updateList = macro(@(l){
+        updateList(
+            (@() ctx.Expression.attrs()[0].id()) ?| 'set',
+            context.l);
+        ctx.IsHandled = true;
+    });
+
+    _wrap = macro(@(n) {
+        context.wrap = n;
+        ctx.IsHandled = true;
+    });
+
+    this.{'$aphid'}.OnInterpretStatement = @(ctx) {
+        if (context.add) {
+            context.curList.add(ctx.Expression);
+            ctx.IsHandled = true;
+            context.add = false;
+        } else if (context.insert) {
+            context.curList.insert(0, ctx.Expression);
+            ctx.IsHandled = true;
+            context.insert = false;
+        } else if (ctx.Expression.isId()) {
+            switch (ctx.Expression.id()) {
+                'group': _takeAttr(group);
+                'begin': _takeAttr(testSet);
+                'prologue': _updateList(prologue);
+                'epilogue': _updateList(epilogue);
+                'success': _wrap('success');
+                'fault': _wrap('fault');
+            }
+        } else if (ctx.Expression.isFunc()) {
+            // print('Exp: {0}', ctx.Expression);
+            var funcExp =
+                format('{0} = {1}(@{{ }})', nextName(), context.wrap)
+                |> parse;
+            
+            [
+                context.prologue,
+                detach.Body,
+                ctx.Expression.Body,
+                context.epilogue
+            ]
+            -<(@()$_)
+            ->funcExp[0].RightOperand.Args[0].Body.Add;
+            
+            context.handled.add(funcExp[0]);
+            this.{'$aphid'}.InsertNext(funcExp);
+        }
+    };
+}();
+
+tests;

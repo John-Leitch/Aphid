@@ -1,18 +1,24 @@
 ﻿#'Std';
-#'Test';
-listAccess = @{ x = [ 9, 'foo' ]; isFoo(x[1]) };
-listAccess2 = @{ x = [ 9, 'foo' ]; is9(x[0]) };
-listAccess3 = @{ x={ y:['foo'] }; isFoo(x.y[0]); };
+#'AopTest';
+list group;
 
-listElementSet = @{ x = [ 'bar' ]; x[0] = 'foo'; isFoo(x[0]); };
-listElementSet2 = @{ x = [ 'foo' ]; y = x[0]; y = 'bar'; isFoo(x[0]); };
-listElementSet3 = @{ x = 'foo'; y = [ 0 ]; y[0] = x; x = 'bar'; isFoo(y[0]); };
-listElementSet4 = @{ x = 'foo'; y = [ x ]; x = 'bar'; isFoo(y[0]); };
+access begin;
+@{ x = [ 9, 'foo' ]; isFoo(x[1]) };
+@{ x = [ 9, 'foo' ]; is9(x[0]) };
+@{ x={ y:['foo'] }; isFoo(x.y[0]); };
 
-listAggregate = @{ a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y) |> isFoo; };
-listAggregate2 = @{ a = 'foo'; a.chars().aggregate(@(x, y)x + y) |> isFoo; };
+element set begin;
+@{ x = [ 'bar' ]; x[0] = 'foo'; isFoo(x[0]); };
+@{ x = [ 'foo' ]; y = x[0]; y = 'bar'; isFoo(x[0]); };
+@{ x = 'foo'; y = [ 0 ]; y[0] = x; x = 'bar'; isFoo(y[0]); };
+@{ x = 'foo'; y = [ x ]; x = 'bar'; isFoo(y[0]); };
 
-listInsert = @{ a = [ 'bar' ]; a.insert(0, 'foo'); a[0] |> isFoo };
-listInsert2 = @{ a = [ 'bar' ]; a.insert(1, 'foo'); a[1] |> isFoo };
-listInsert3 = @{ a = [ 9 ]; a.insert(0, 'foo'); a[1] |> is9 };
-listInsert4 = @{ a = [ 9 ]; a.insert(1, 'foo'); a[0] |> is9 };
+aggregate begin;
+@{ a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y) |> isFoo; };
+@{ a = 'foo'; a.chars().aggregate(@(x, y)x + y) |> isFoo; };
+
+insert begin;
+@{ a = [ 'bar' ]; a.insert(0, 'foo'); a[0] |> isFoo };
+@{ a = [ 'bar' ]; a.insert(1, 'foo'); a[1] |> isFoo };
+@{ a = [ 9 ]; a.insert(0, 'foo'); a[1] |> is9 };
+@{ a = [ 9 ]; a.insert(1, 'foo'); a[0] |> is9 };
