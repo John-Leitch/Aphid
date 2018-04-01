@@ -64,6 +64,7 @@
 //   expressiveness and UI.
 //   - Use WPF API to make GUI FSW builder/editor and IO 
 //     visualization controls.
+// * Add naked functions
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
@@ -95,31 +96,70 @@ format = String.Format;
 join = String.Join;
 concat = String.Concat;
 
+// Todo: make API for exporting custom ops/type extensions/etc.,
+// to other scopes so they can be defined using imports and includes
+// without causing scope pollution.
+using System.IO;
+using System.Text.RegularExpressions;
 
 // Todo: move ops and other common funcs to core header,
 // autoload using INI setting.
-@ =< (selector, source) source -> selector;
-@ <| (target, arg) arg |> target;
 @ :: (fmt, args) String.Format(fmt, args);
 @ :> (fmt, args) $args.Count == 2 ? print(fmt, args) : print(fmt);
+@ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
 @ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
 @ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };
+@ ?? (value, defaultValue) value != null ? value : defaultValue;
 @ <! (func) func ?> false;
 @ <! (source, func) $args.Count == 2 ? (source -? (<! func)) : source ?> false;
+@ -+ (source, delim) source +> @(x, y) x + delim + y;
 @ -| (source, predicate) { _queryBody(Enumerable.Single) };
 @ -! (source, predicate) { _queryBody(Enumerable.Any @> @== false) };
 @ -# (source, predicate) { _queryBody(Enumerable.Count) };
+@ ~= (input, pattern) _re(IsMatch);
+@ ~~ (input, pattern) _re(Matches) @(m) 0..m.Count->@()m[$_];
+@ ~: (input, replace) Regex.Replace(input.ToString(), replace[0], replace[1]);
+@ ~? (input, pattern) _rec();
+@ ~| (input, pattern) _rec() |> Enumerable.Single;
+@ <- (selector, source) source -> selector;
+@ ?- (selector, source) source -? selector;
+@ <| (target, arg) arg |> target;
+@ <@ (f1, f2) f2 @> f1;
+@ &\ (file) _in(ReadAllBytes);
+@ |\ (file) _in(ReadAllText);
+@ \| (text, file) text.ToString() @File.WriteAllText(file.ToString());
+@ \& (buffer, file) buffer @File.WriteAllBytes(file.ToString());
 @ ?. (lhs, rhs) lhs != null ? lhs.{this.{'$frames'}[0].Expression.RightOperand.Identifier} : null;
+
+_re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString()) });
+_rec = macro(@{ input -? @() $_ ~= pattern });
+
+_in = macro(@(f) { file.ToString() |> File.f });
 
 _queryBody = macro(@(filter){
     using System.Linq;
     ret (source -? predicate |> filter);
 });
 
-// ('foobar' -| @() $_.ToString().ToUpper() == 'R') |> dump;
-// ('foobar' -! @() $_.ToString().ToUpper() == 'R') |> dump;
-// ('foobar' -! @() $_.ToString().ToUpper() == 'Z') |> dump;
-// ('foobar' -# @() $_.ToString().ToUpper() == 'O') |> dump;
+// this.{"$block"}.AddRange(@{
+//     using System.Text;
+//     var i = 0;
+//     cls();
+//     [
+//         'foobar' ~= 'foo',
+//         'hello world' ~= 'foo',
+//         'foobar' ~~ 'foo',
+//         'hello world' ~~ 'foo',
+//         'foobar' ~: [ 'oba', '' ],
+//         [ 'foo', 'bar', 'car' ] ~? 'ar' -+ ', ',
+//         // 'Hello world' \| 'c:/temp/test.txt',
+//         ('\x41\x42\x43\x44'->byte) \& 'c:/temp/test.dat',
+//         |\ 'c:/temp/test.txt',
+//         &\ 'c:/temp/test.dat',
+//         |\ 'c:/temp/test.txt' ~= 'Hello',
+//         |\ 'c:/temp/test.txt' ~= 'Hi'
+//     ]->serialize->@print('Test {0}: {1}', ++i);
+// });
 
 _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
