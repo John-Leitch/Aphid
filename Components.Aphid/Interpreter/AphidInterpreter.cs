@@ -48,11 +48,14 @@ namespace Components.Aphid.Interpreter
     //     * Implicit void return type: @(string msg) { ... }
     //     * Constraint (if null return null): @(value -> null, int count) { ... }
     //     * Multi Constraint (if x return x else if y return y etc):
-    //          repeat = @(value -> null -> '', int count) { ... }
+    //          repeat = @(value -> null | '', int count) { ... }
     //     * Pattern Constraint:
-    //          indexOf = @(value :== null -> null :== '' -> -1) { ... }
+    //          indexOf = @(value :== '' -> -1) { ... }
     //     * Mixed Constraint:
     //          indexOf = @(value -> null :== '' -> -1) { ... }
+    //   - Add auto param attribute -- if argument is not explicitly passed, resolves
+    //     by parameter name and passes value e.g.
+    //     var foo = 'test'; var f = @(auto foo) foo @print('Message: {0}');
     // * Add lazy keyword.
     //   - Expression support: x = lazy f()
     //   - Param support: foo = @(lazy arg0) { ... }
@@ -113,6 +116,10 @@ namespace Components.Aphid.Interpreter
     // * Add fan-out support for C# generation e.g.
     //   AphidCli.*()->AphidCli.Try*()
     //   AphidCli.*()->$_.Try*
+    // * Support [] attributes by matching identifier after array decl/access
+    //   to support multiple attrs declared with any expression
+    // * Add jmp/goto support
+    // * Replace foreach, Select, etc. with for.
     public partial class AphidInterpreter
     {
         private bool
@@ -125,15 +132,17 @@ namespace Components.Aphid.Interpreter
 
         private int _queuedFramePops;
 
+        private IEnumerable<AphidExpression> _insertNextBuffer;
+
         private ManualResetEvent _breakpointReset;
 
         private bool _isSingleStepping;
 
         private AutoResetEvent _singleStepReset;
 
-        #if TRACE_SCOPE
+#if TRACE_SCOPE
         private AphidTrace _scopeTrace;
-        #endif
+#endif
 
         private AphidObject _localScope;
 
@@ -144,21 +153,21 @@ namespace Components.Aphid.Interpreter
             get { return _currentScope; }
             private set
             {
-                #if TRACE_SCOPE
+#if TRACE_SCOPE
                 if (_scopeTrace != null)
                 {
                     _scopeTrace.Trace("Set scope begin");
                 }
-                #endif
+#endif
 
                 _currentScope = value;
 
-                #if TRACE_SCOPE
+#if TRACE_SCOPE
                 if (_scopeTrace != null)
                 {
                     _scopeTrace.Trace("Set scope end");
                 }
-                #endif
+#endif
             }
         }
 
@@ -219,7 +228,7 @@ namespace Components.Aphid.Interpreter
         public AphidInterpreter(AphidObject currentScope, bool createLoader)
             : this(currentScope, createLoader, null)
         {
-            
+
         }
 
         private AphidInterpreter(AphidLoader loader)
@@ -418,31 +427,31 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnterScope()
         {
-            #if TRACE_SCOPE
+#if TRACE_SCOPE
             _scopeTrace.Trace("Enter scope begin");
-            #endif
+#endif
 
             CurrentScope = new AphidObject(null, CurrentScope);
             CurrentScope.Add(AphidName.Scope, CurrentScope);
             CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
 
-            #if TRACE_SCOPE
+#if TRACE_SCOPE
             _scopeTrace.Trace("Enter scope end");
-            #endif
+#endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool LeaveScope(bool bubbleReturnValue = false)
         {
-            #if TRACE_SCOPE
+#if TRACE_SCOPE
             _scopeTrace.Trace("Leave scope begin");
-            #endif
+#endif
 
             if (CurrentScope.Parent == null)
             {
-                #if TRACE_SCOPE
+#if TRACE_SCOPE
                 _scopeTrace.Trace("Internal error leaving scope, parent scope is null.");
-                #endif
+#endif
 
                 throw CreateInternalException(
                     "Internal error leaving scope, parent scope is null.");
@@ -457,9 +466,9 @@ namespace Components.Aphid.Interpreter
                 {
                     SetReturnValue(ret);
 
-                    #if TRACE_SCOPE
+#if TRACE_SCOPE
                     _scopeTrace.Trace("Leave scope end");
-                    #endif
+#endif
 
                     return true;
                 }
@@ -469,9 +478,9 @@ namespace Components.Aphid.Interpreter
                 CurrentScope = CurrentScope.Parent;
             }
 
-            #if TRACE_SCOPE
+#if TRACE_SCOPE
             _scopeTrace.Trace("Leave scope end");
-            #endif
+#endif
 
             return false;
         }
@@ -1180,7 +1189,7 @@ namespace Components.Aphid.Interpreter
             BinaryOperatorExpression expression)
         {
             var value = performOperation(
-                (AphidObject)InterpretExpression(expression.LeftOperand), 
+                (AphidObject)InterpretExpression(expression.LeftOperand),
                 (AphidObject)InterpretExpression(expression.RightOperand));
 
             var result = InterpetAssignmentExpression(
@@ -1853,18 +1862,26 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
         {
-            if (OnInterpretObject != null)
+            if (OnInterpretObject != null && !OnInterpretObjectExecuting)
             {
-                AphidExecutionContext<ObjectExpression> ctx = expression;
-                OnInterpretObject(ctx);
+                OnInterpretObjectExecuting = true;
+                try
+                {
+                    AphidExecutionContext<ObjectExpression> ctx = expression;
+                    OnInterpretObject(ctx);
 
-                if (ctx.IsHandled)
-                {
-                    return ctx.Result;
+                    if (ctx.IsHandled)
+                    {
+                        return ctx.Result;
+                    }
+                    else if (ctx.IsModified)
+                    {
+                        expression = ctx.Expression;
+                    }
                 }
-                else if (ctx.IsModified)
+                finally
                 {
-                    expression = ctx.Expression;
+                    OnInterpretObjectExecuting = false;
                 }
             }
 
@@ -3928,6 +3945,29 @@ namespace Components.Aphid.Interpreter
             }
 #endif
 
+            if (OnInterpretExpression != null && !OnInterpretExpressionExecuting)
+            {
+                OnInterpretExpressionExecuting = true;
+                try
+                {
+                    AphidExecutionContext<AphidExpression> ctx = expression;
+                    OnInterpretExpression(ctx);
+
+                    if (ctx.IsHandled)
+                    {
+                        return ctx.Result;
+                    }
+                    else if (ctx.IsModified)
+                    {
+                        expression = ctx.Expression;
+                    }
+                }
+                finally
+                {
+                    OnInterpretExpressionExecuting = false;
+                }
+            }
+
             switch (expression.Type)
             {
                 case AphidExpressionType.BinaryOperatorExpression:
@@ -4134,19 +4174,25 @@ namespace Components.Aphid.Interpreter
             if (OnInterpretBlock != null && !OnInterpretBlockExecuting)
             {
                 OnInterpretBlockExecuting = true;
-                var ctx = new AphidExecutionContext();
-                var result = OnInterpretBlock(expressions, ctx);
-                OnInterpretBlockExecuting = false;
 
-                if (ctx.IsModified)
+                try
                 {
-                    expressions = result;
+                    var ctx = new AphidExecutionContext();
+                    var result = OnInterpretBlock(expressions, ctx);
+
+                    if (ctx.IsModified)
+                    {
+                        expressions = result;
+                    }
+
+                    if (ctx.IsHandled)
+                    {
+                        return;
+                    }
                 }
-
-                if (ctx.IsHandled)
+                finally
                 {
-
-                    return;
+                    OnInterpretBlockExecuting = false;
                 }
             }
 
@@ -4159,8 +4205,38 @@ namespace Components.Aphid.Interpreter
 
             for (var i = 0; i < expressions.Count; i++)
             {
+                if (_insertNextBuffer != null)
+                {
+                    expressions.InsertRange(i, _insertNextBuffer);
+                    _insertNextBuffer = null;
+                }
+
                 var expression = expressions[i];
                 CurrentStatement = CurrentExpression = expression;
+
+                if (OnInterpretStatement != null && !OnInterpretStatementExecuting)
+                {
+                    OnInterpretStatementExecuting = true;
+
+                    try
+                    {
+                        AphidExecutionContext<AphidExpression> ctx = expression;
+                        OnInterpretStatement(ctx);
+
+                        if (ctx.IsHandled)
+                        {
+                            continue;
+                        }
+                        else if (ctx.IsModified)
+                        {
+                            expression = ctx.Expression;
+                        }
+                    }
+                    finally
+                    {
+                        OnInterpretStatementExecuting = false;
+                    }
+                }
 
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
@@ -4385,7 +4461,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string GetExpressionValueString(AphidExpression expression, object obj)
-        { 
+        {
             return string.Format(
                 "{0}, which was evaluated from '{1}'.",
                 GetValueString(obj),
@@ -4425,6 +4501,17 @@ namespace Components.Aphid.Interpreter
         public AphidIpcContext CreateIpcClientContext()
         {
             return IpcContext = new AphidIpcContext();
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InsertNext(IEnumerable<AphidExpression> block)
+        {
+            if (_insertNextBuffer != null)
+            {
+                CreateRuntimeException("Cannot insert block, buffer already set.");
+            }
+
+            _insertNextBuffer = block;
         }
     }
 }
