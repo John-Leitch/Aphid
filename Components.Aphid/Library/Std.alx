@@ -65,6 +65,15 @@
 //   - Use WPF API to make GUI FSW builder/editor and IO 
 //     visualization controls.
 // * Add naked functions
+// * Support <obj>[<string>] style dynamic member access.
+// * Verify Dictionary<T,K> support, improve if necessary.
+// * Generate three char custom operators.
+// * Overhaul query operators.
+//   - Add index operator e.g. ->@(x, i) { }
+//   - Make configurable by passing context options by
+//     special operator.
+//     * Ensure option context support is scope and thread safe.
+//     * Support async, lazy
 ##'Components.Aphid.Library.StandardLibrary';
 #'String';
 #'List';
