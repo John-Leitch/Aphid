@@ -35,6 +35,7 @@ using Components.Aphid.Interpreter;
 var mutate;
 var mutateFunc;
 var transformBlock;
+var transformStream;
 
 @{
     using Components.Aphid.Parser;
@@ -52,6 +53,30 @@ var transformBlock;
     };
 
     transformBlock = @(f) this.{'$aphid'}.OnInterpretBlock = f;
+
+    transformStream = @(depth, after, pattern, replace) {
+        var block = this.{'$frames'}[depth + 1].Scope.{'$block'};
+        var afterBlock = false;
+        
+        block
+            -?(@{
+                if (!afterBlock) {
+                    if (after($_)) {
+                        afterBlock = true;
+                    }
+
+                    ret false;
+                } else {
+                    ret afterBlock && pattern($_);
+                }
+            })
+            ->@{
+                
+                var i = block.IndexOf($_);
+                block.Remove($_);
+                $_ |> replace @block.Insert(i);
+            };
+    };
 }();
 
 frames = @() this.{'$frames'};
