@@ -337,6 +337,7 @@ extend AphidExpression {
     isScript: @(x) x.is(LoadScript),
     isCall: @(x) x.is(Call),
     isId: @(x) x.is(Identifier),
+    isFunc: @(x) x.is(Function),
     isUnOp: @(x) x.is(UnaryOperator),
     isBinOp: @(x) x.is(BinaryOperator),
     isObj: @(x) x.is(Object),
@@ -358,7 +359,7 @@ extend AphidExpression {
         (!(predicate defined) || (x.GetChildren() @aq.any(predicate))),
     
     oneAttr: @(x, a) x.attrs().Count == 1 && x.attr(0).id() == getIdArg(0),
-    firstAttr: @(x, a) x.attrs().Count >= 1 && x.attr(0).id() == getIdArg(0),
+    firstAttr: @(x, a) x.attrs() != null && x.attrs().Count >= 1 && x.attr(0).id() == getIdArg(0),
     noAttrs: @(x) x.attrs().Count == 0,
     
     exp: @(x) x.Expression,
