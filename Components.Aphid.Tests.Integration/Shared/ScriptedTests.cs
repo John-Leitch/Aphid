@@ -36,7 +36,10 @@ namespace Components.Aphid.Tests.Integration.Shared
                     .GetDirectories("ScriptedTests")
                     .Single()
                     .GetFiles("*.alx", SearchOption.AllDirectories)
-                    .Where(x => x.Name.ToLower() != "test.alx");
+                    .Where(x =>
+                        x.Name.ToLower() != "test.alx" &&
+                        x.Name.ToLower() != "testbase.alx" &&
+                        x.Name.ToLower() != "aoptest.alx");
 
                 var testList = new List<TestCaseData>();
 
