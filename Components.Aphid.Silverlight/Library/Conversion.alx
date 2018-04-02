@@ -1,3 +1,0 @@
-﻿strToHex = @(x) x.chars().map(hexb).addAll();
-
-urlEnc = @(x) x.chars().map(@(y) '%' + hexb(y)).addAll();
