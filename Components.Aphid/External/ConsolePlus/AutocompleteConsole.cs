@@ -238,7 +238,7 @@ namespace Components.External.ConsolePlus
 
         private void InterpretBackspace()
         {
-            if (_consoleBuffer.Length == 0)
+            if (_consoleBuffer.Length == 0 || _cursorIndex == 0)
             {
                 return;
             }
