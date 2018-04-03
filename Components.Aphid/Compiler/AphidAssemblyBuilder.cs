@@ -1,6 +1,7 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
+using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Aphid.TypeSystem
+namespace Components.Aphid.Compiler
 {
     public class AphidAssemblyBuilder : AphidRuntimeComponent
     {

@@ -2,6 +2,7 @@
 #if TRACE_SCOPE
 using Components.Aphid.Debugging;
 #endif
+using Components.Aphid.Compiler;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
