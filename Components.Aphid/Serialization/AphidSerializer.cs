@@ -39,6 +39,10 @@ namespace Components.Aphid.Serialization
 
         public bool IgnoreFunctions { get; set; }
 
+        public bool IgnoreSpecialVariables { get; set; }
+
+        public bool QuoteToStringResults { get; set; }
+
         public AphidSerializer(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -121,10 +125,11 @@ namespace Components.Aphid.Serialization
 
                 foreach (var kvp in ao)
                 {
-                    if (IgnoreFunctions &&
+                    if ((IgnoreFunctions &&
                         kvp.Value != null &&
                         (kvp.Value.Value is AphidFunction ||
-                        kvp.Value.Value is AphidInteropFunction))
+                        kvp.Value.Value is AphidInteropFunction)) ||
+                        (IgnoreSpecialVariables && kvp.Key.StartsWith("$")))
                     {
                         continue;
                     }
@@ -219,7 +224,7 @@ namespace Components.Aphid.Serialization
             if (value == null)
             {
                 s.Append("null");
-                
+
                 return;
             }
 
@@ -235,14 +240,29 @@ namespace Components.Aphid.Serialization
                 valueType.IsEnum ||
                 valueType == typeof(decimal))
             {
-                s.Append(value.ToString());
+                if (!QuoteToStringResults)
+                {
+                    s.Append(value.ToString());
+                }
+                else
+                {
+                    s.Append(Quote(value.ToString()));
+                }
             }
             else
             {
-                s.AppendFormat("clrObject({0})", value.GetType().FullName);
+                if (!QuoteToStringResults)
+                {
+                    s.AppendFormat("clrObject({0})", value.GetType().FullName);
+                }
+                else
+                {
+                    s.AppendFormat("{1}clrObject({0}){1}", value.GetType().FullName, "'");
+                }
+
             }
         }
-        
+
         public AphidObject Deserialize(string obj)
         {
             var lexer = new AphidObjectLexer(obj);
@@ -293,6 +313,13 @@ namespace Components.Aphid.Serialization
             {
                 return true;
             }
+        }
+
+        private string Quote(string value)
+        {
+            var escaped = Escape(value).Replace("'", "\\'");
+
+            return string.Format("'{0}'", escaped);
         }
 
         private string Escape(string s)
