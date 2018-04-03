@@ -67,6 +67,8 @@ namespace Components.External.ConsolePlus
             {
                 throw CreateException("kernel32!SetConsoleMode()");
             }
+
+            IsEnabled = true;
         }
 
         private static InvalidOperationException CreateException(string id)
