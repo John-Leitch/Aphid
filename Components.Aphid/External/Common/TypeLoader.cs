@@ -1,4 +1,5 @@
-﻿using Components.External;
+﻿using Components;
+using Components.External;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,6 +146,20 @@ namespace Components
 
                 return null;
             }
+        }
+
+        public static IEnumerable<TPlugin> LoadType<TPlugin>(Assembly asm)
+        {
+            return asm
+                .GetTypes()
+                .Where(x => !x.IsAbstract && x.IsDerivedFromOrImplements(typeof(TPlugin)))
+                .Select(Activator.CreateInstance)
+                .Cast<TPlugin>();
+        }
+
+        public IEnumerable<TPlugin> LoadType<TPlugin>()
+        {
+            return GetAssemblies().SelectMany(LoadType<TPlugin>);
         }
 
         private Exception GetResolveException(string name)
