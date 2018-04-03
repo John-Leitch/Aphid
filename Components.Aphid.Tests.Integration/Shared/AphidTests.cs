@@ -154,6 +154,16 @@ namespace Components.Aphid.Tests.Integration.Shared
             return Token(type, null);
         }
 
+        public static void IsFalse(bool value)
+        {
+            Assert.IsFalse(value);
+        }
+
+        public static void IsTrue(bool value)
+        {
+            Assert.IsTrue(value);
+        }
+
         public static void IsFoo(object value)
         {
             Assert.AreEqual("foo", value);

@@ -15,11 +15,6 @@ namespace Components.Aphid.Library
     {
         public static Encoding Encoding = Encoding.GetEncoding("iso-8859-1");
 
-        private static AphidSerializer CreateSerializer(AphidInterpreter interpreter)
-        {
-            return new AphidSerializer(interpreter) { IgnoreFunctions = true, QuoteToStringResults = true };
-        }
-
         [AphidInteropFunction("extendType", PassInterpreter = true, UnwrapParameters = false)]
         public static void Extend(AphidInterpreter interpreter, AphidObject type, AphidObject extensions)
         {
@@ -31,13 +26,13 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("serialize", UnwrapParameters = false, PassInterpreter = true)]
         public static AphidObject Serialize(AphidInterpreter interpreter, AphidObject obj)
         {
-            return new AphidObject(CreateSerializer(interpreter).Serialize(obj));
+            return new AphidObject(interpreter.Serializer.Serialize(obj));
         }
 
         [AphidInteropFunction("deserialize", UnwrapParameters = false, PassInterpreter = true)]
         public static AphidObject Deserialize(AphidInterpreter interpreter, AphidObject obj)
         {
-            return CreateSerializer(interpreter).Deserialize((string)obj.Value);
+            return interpreter.Serializer.Deserialize((string)obj.Value);
         }
 
         [AphidInteropFunction("ascii.getBytes")]

@@ -1,0 +1,57 @@
+﻿#'Std';
+cls();
+root = this;
+this.foo = { bar: 9, test: 'foo', f: @(x) x * x };
+var s = aphid.Serializer;
+
+var props = @(quote, noFuncs, noSpecials) @{
+    s.QuoteToStringResults = quote;
+    s.IgnoreFunctions = noFuncs;
+    s.IgnoreSpecialVariables = noFuncs;
+};
+
+var roundTrip = @(obj) {
+    var t = obj |> serialize;
+    //t |> Cli.StyleEscape |> print;
+
+    ret t |> deserialize;
+};
+
+c = macro(@(init, obj, check){
+    @{ init; obj |> roundTrip @(obj){ check |> isTrue } }
+});
+
+rt = macro(@(obj, check) {
+        c(props(true, false, false), obj, check);
+        c(props(true, true, false), obj, check);
+        c(props(true, false, true), obj, check);
+        c(props(true, true, true), obj, check);
+});
+
+n = macro(@(obj, check) { @{ c(props(true, true, false), obj, check) } });
+i = macro(@(obj, check) { @{ c(props(true, false, false), obj, check) } });
+
+#'AopTest';
+
+serialize group;
+
+rt(root, true);
+rt(root, $_.cls defined);
+rt(root, $_.foo defined);
+rt(root, $_.foo.bar defined);
+rt(root, $_.foo.bar == 9);
+rt(root, $_.foo.test == 'foo');
+
+func begin;
+
+//i(root, dumpe($_));
+
+fault;
+
+@{ #'Std'; this |> serialize @+ '~!%$' |> deserialize };
+rt(root, false);
+rt(root, $_.cls2 defined);
+rt(root, $_.foo2 defined);
+rt(root, $_.foo.bar2 defined);
+rt(root, $_.foo.bar == 10);
+rt(root, $_.foo.test == 'foo2'); 

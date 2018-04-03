@@ -176,7 +176,7 @@ namespace Components.Aphid.Serialization
             }
             else if (value is string)
             {
-                s.Append(string.Format("'{0}'", Escape((string)value)));
+                s.Append(Quote((string)value));
             }
             else if (value is List<AphidObject>)
             {
@@ -235,10 +235,23 @@ namespace Components.Aphid.Serialization
                 .GetMethod("ToString", new Type[0])
                 .DeclaringType != typeof(object);
 
-            if (hasToString ||
-                valueType.IsPrimitive ||
+            if (valueType.IsPrimitive ||
                 valueType.IsEnum ||
+                valueType == typeof(bool) ||
+                valueType == typeof(sbyte) ||
+                valueType == typeof(short) ||
+                valueType == typeof(int) ||
+                valueType == typeof(long) ||
+                valueType == typeof(byte) ||
+                valueType == typeof(uint) ||
+                valueType == typeof(ulong) ||
+                valueType == typeof(float) ||
+                valueType == typeof(double) ||
                 valueType == typeof(decimal))
+            {
+                s.Append(value.ToString());
+            }
+            else if (hasToString)
             {
                 if (!QuoteToStringResults)
                 {
@@ -317,9 +330,7 @@ namespace Components.Aphid.Serialization
 
         private string Quote(string value)
         {
-            var escaped = Escape(value).Replace("'", "\\'");
-
-            return string.Format("'{0}'", escaped);
+            return string.Format("'{0}'", Escape(value));
         }
 
         private string Escape(string s)

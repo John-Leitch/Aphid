@@ -70,6 +70,8 @@ if (!(global.childCreated defined )) {
 
         makeAssert;
         makeAssert = @(f) f @> @() $_ ? $_ : throw();
+        global.isTrue = makeAssert(@== true);
+        global.isFalse = makeAssert(@== false);
         global.isFoo = makeAssert(@== 'foo');
         global.is9 = makeAssert(@== 9);
         global.isNull = makeAssert(@== null);

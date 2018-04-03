@@ -22,7 +22,20 @@ namespace Components.Aphid.Tests.Integration.Shared
 
             if (result != null && result.Value != null && result.Value.GetType() == typeof(bool))
             {
-                Assert.True(result.GetBool(), "Function {0} returned false.", funcName);
+                var sb = new StringBuilder(string.Format("Function {0} returned false.", funcName));
+
+                AphidObject lastException;
+                
+                if (interpreter.CurrentScope.TryResolve("lastException", out lastException) &&
+                    lastException != null)
+                {
+                    foreach (var kvp in lastException)
+                    {
+                        sb.AppendFormat("{0}: {1}\r\n\r\n", kvp.Key, kvp.Value);
+                    }
+                }
+
+                Assert.True(result.GetBool(), sb.ToString());
             }
         }
 
@@ -54,6 +67,8 @@ namespace Components.Aphid.Tests.Integration.Shared
                         interpreter.Interpret(@"
                             using Components.Aphid.Tests.Integration;
                             using Components.Aphid.Tests.Integration.Shared;
+                            isTrue = AphidTests.IsTrue;
+                            isFalse = AphidTests.IsFalse;
                             isFoo = AphidTests.IsFoo;
                             is9 = AphidTests.Is9;
                             isNull = AphidTests.IsNull;
