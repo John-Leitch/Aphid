@@ -1,24 +1,29 @@
 //#define TRACE_SCOPE
-#if TRACE_SCOPE
+//#define TEXT_FRAME_PERFORMANCE_TRACE
+//#define BINARY_FRAME_PERFORMANCE_TRACE
+
+#if TRACE_SCOPE || TEXT_FRAME_PERFORMANCE_TRACE || BINARY_FRAME_PERFORMANCE_TRACE
 using Components.Aphid.Debugging;
+using Components.External;
+using System.Diagnostics;
 #endif
+
 using Components.Aphid.Compiler;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
-using Components.External;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Threading;
+
 
 namespace Components.Aphid.Interpreter
 {
@@ -143,6 +148,18 @@ namespace Components.Aphid.Interpreter
 
 #if TRACE_SCOPE
         private AphidTrace _scopeTrace;
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+        private AphidTrace _framePerformanceTrace;
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+        private Stack<Tuple<string, Stopwatch>> _frameStopwatchStack = new Stack<Tuple<string, Stopwatch>>();
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+        private BinaryWriter _framePerformanceBinaryWriter;
 #endif
 
         private AphidObject _localScope;
@@ -278,6 +295,50 @@ namespace Components.Aphid.Interpreter
             _scopeTrace.Open();
 #endif
 
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var framePerfGuid = Guid.NewGuid();
+
+            var frameStart = string.Format(
+                "Tracing frame performance beginning at:\r\n{0}\r\n\r\n",
+                new StackTrace().ToString());
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            _framePerformanceTrace = new AphidTrace(
+                "Frame performance Trace",
+                PathHelper.GetExecutingPath(
+                    string.Format("AphidFramePerformance.{0}.log", framePerfGuid)),
+                this)
+                 {
+                    Settings = new AphidTraceSettings
+                    {
+                        TraceTimestamp = false,
+                        DefaultMessageTraceLevel = TraceLevel.Info,
+                        TimestampFormat = AphidTraceSettings.DefaultTimestampFormat,
+                        TraceAphidStack = false,
+                        TraceCurrentExpression = false,
+                        TraceCurrentStatement = false,
+                        TraceClrStack = false,
+                    },
+                };
+
+            _framePerformanceTrace.Open();
+            _framePerformanceTrace.TraceText(frameStart);
+            _framePerformanceTrace.Flush();
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+            _framePerformanceBinaryWriter = new BinaryWriter(
+                File.Create(
+                    PathHelper.GetExecutingPath(
+                        string.Format(
+                            "AphidFramePerformance.{0}.dat",
+                            framePerfGuid))));
+            
+            _framePerformanceBinaryWriter.Write(frameStart);
+            _framePerformanceBinaryWriter.Flush();
+#endif
+
             Out = Console.Out;
             AsmBuilder = new AphidAssemblyBuilder(this);
 
@@ -291,7 +352,13 @@ namespace Components.Aphid.Interpreter
             InteropTypeResolver = new InteropTypeResolver(this);
             TypeConverter = new AphidTypeConverter(this);
             FunctionConverter = new AphidFunctionConverter(this);
-            Serializer = new AphidSerializer(this);
+
+            Serializer = new AphidSerializer(this)
+            {
+                IgnoreSpecialVariables = false,
+                IgnoreFunctions = false,
+                QuoteToStringResults = true,
+            };
 
             _frames = new Stack<AphidFrame>(new[] { CreateEntryFrame() });
 
@@ -2439,17 +2506,81 @@ namespace Components.Aphid.Interpreter
             IEnumerable<object> args)
         {
             _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, args));
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, name.Value);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+            // Todo: Pack enter/leave in as high order bit of thread id
+            _framePerformanceBinaryWriter.Write(id);
+            _framePerformanceBinaryWriter.Write(true);
+            _framePerformanceBinaryWriter.Write(name.Value);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var sw = new Stopwatch();
+            _frameStopwatchStack.Push(Tuple.Create(name.Value, sw));
+            sw.Start();
+#endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushFrame(AphidFrame frame)
         {
             _frames.Push(frame);
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, frame.Name);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+            // Todo: Pack enter/leave in as high order bit of thread id
+            _framePerformanceBinaryWriter.Write(id);
+            _framePerformanceBinaryWriter.Write(true);
+            _framePerformanceBinaryWriter.Write(frame.Name);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var sw = new Stopwatch();
+            _frameStopwatchStack.Push(Tuple.Create(frame.Name, sw));
+            sw.Start();
+#endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopFrame()
         {
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var tup = _frameStopwatchStack.Pop();
+            tup.Item2.Stop();
+            var id = Thread.CurrentThread.ManagedThreadId;
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            _framePerformanceTrace.TraceText(
+                "{0:x8} < {1} - {2:n0} ticks / {2}ms\r\n",
+                id,
+                tup.Item1,
+                tup.Item2.ElapsedTicks,
+                tup.Item2.ElapsedMilliseconds);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+            _framePerformanceBinaryWriter.Write(id);
+            _framePerformanceBinaryWriter.Write(false);
+            _framePerformanceBinaryWriter.Write(tup.Item1);
+            _framePerformanceBinaryWriter.Write(tup.Item2.ElapsedTicks);
+            _framePerformanceBinaryWriter.Write(tup.Item2.ElapsedMilliseconds);
+#endif
             if (!_isInTryCatchFinally)
             {
                 _frames.Pop();
@@ -3394,23 +3525,32 @@ namespace Components.Aphid.Interpreter
                 throw CreateRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
 
-            List<AphidExpression> ast;
-            string scriptDir;
+            PushFrame(file);
 
-            if (expression.Filename != null &&
-                !Loader.SearchPaths.Contains(
-                    scriptDir = Path.GetDirectoryName(expression.Filename)))
+            try
             {
-                Loader.SearchPaths.Add(scriptDir);
-                ast = Loader.LoadScript(file);
-                Loader.SearchPaths.RemoveAt(Loader.SearchPaths.Count - 1);
-            }
-            else
-            {
-                ast = Loader.LoadScript(file);
-            }
+                List<AphidExpression> ast;
+                string scriptDir;
 
-            return new AphidObject(ast);
+                if (expression.Filename != null &&
+                    !Loader.SearchPaths.Contains(
+                        scriptDir = Path.GetDirectoryName(expression.Filename)))
+                {
+                    Loader.SearchPaths.Add(scriptDir);
+                    ast = Loader.LoadScript(file);
+                    Loader.SearchPaths.RemoveAt(Loader.SearchPaths.Count - 1);
+                }
+                else
+                {
+                    ast = Loader.LoadScript(file);
+                }
+
+                return new AphidObject(ast);
+            }
+            finally
+            {
+                PopFrame();
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]

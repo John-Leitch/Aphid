@@ -11,11 +11,11 @@ namespace Components.Aphid.Debugging
 {
     public sealed class AphidTrace : AphidRuntimeComponent, IDisposable
     {
-        private Stream _outputStream;
+        private bool _isDisposed;
+
+        private Stream _stream;
 
         private StreamWriter _writer;
-
-        private bool _isDisposed;
 
         private AphidTraceSettings _settings = AphidTraceSettings.Default;
 
@@ -31,6 +31,10 @@ namespace Components.Aphid.Debugging
 
         public bool IsOpened { get; private set; }
 
+        public bool MultiprocessSafe { get; set; }
+
+        public bool ThreadSafe { get; set; }
+
         public AphidTrace(string name, string outputFile, AphidInterpreter interpreter)
             : this(name, interpreter)
         {
@@ -40,13 +44,14 @@ namespace Components.Aphid.Debugging
         public AphidTrace(string name, Stream outputStream, AphidInterpreter interpreter)
             : this(name, interpreter)
         {
-            _writer = new StreamWriter(_outputStream = outputStream);
+            _writer = new StreamWriter(_stream = outputStream);
             IsOpened = true;
         }
 
         private AphidTrace(string name, AphidInterpreter interpreter)
             : base(interpreter)
         {
+            ThreadSafe = true;
             Name = name;
         }
 
@@ -59,13 +64,13 @@ namespace Components.Aphid.Debugging
                     throw new InvalidOperationException("AphidTrace already opened.");
                 }
 
-                _outputStream = File.Open(
+                _stream = File.Open(
                     OutputFile,
                     FileMode.OpenOrCreate,
                     FileAccess.Write,
                     FileShare.ReadWrite);
 
-                _writer = new StreamWriter(_outputStream);
+                _writer = new StreamWriter(_stream);
                 IsOpened = true;
             }
         }
@@ -87,7 +92,21 @@ namespace Components.Aphid.Debugging
 
         public void Trace(TraceLevel level, string message)
         {
-            using (new CrossProcessLock(GetLockName()))
+            if (MultiprocessSafe)
+            {
+                using (new CrossProcessLock(GetLockName()))
+                {
+                    TraceUnsafe(level, message);
+                }
+            }
+            else if (ThreadSafe)
+            {
+                lock(this)
+                {
+                    TraceUnsafe(level, message);
+                }
+            }
+            else
             {
                 TraceUnsafe(level, message);
             }
@@ -153,6 +172,38 @@ namespace Components.Aphid.Debugging
             _writer.Flush();
         }
 
+        public void TraceText(string format, params object[] args)
+        {
+            TraceText(string.Format(format, args));
+        }
+
+        public void TraceText(string message)
+        {
+            if (MultiprocessSafe)
+            {
+                using (new CrossProcessLock(GetLockName()))
+                {
+                    TraceTextUnsafe(message);
+                }
+            }
+            else if (ThreadSafe)
+            {
+                lock(this)
+                {
+                    TraceTextUnsafe(message);
+                }
+            }
+            else
+            {
+                TraceTextUnsafe(message);
+            }
+        }
+
+        private void TraceTextUnsafe(string message)
+        {
+            _writer.Write(message);
+        }
+
         private string GetLockName()
         {
             return string.Format(
@@ -169,15 +220,20 @@ namespace Components.Aphid.Debugging
                     throw new InvalidOperationException("AphidTrace already disposed.");
                 }
 
-                if (_outputStream != null)
+                if (_stream != null)
                 {
-                    _outputStream.Dispose();
-                    _outputStream = null;
+                    _stream.Dispose();
+                    _stream = null;
                     _writer = null;
                 }
 
                 _isDisposed = true;
             }
+        }
+
+        public void Flush()
+        {
+            _stream.Flush();
         }
     }
 }
