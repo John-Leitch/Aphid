@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Components.External.ConsolePlus
 {
-    public abstract class CliApplication<TArgs>
-        where TArgs : new()
+    public abstract class CliApplication<TArgs> : Singleton<CliApplication<TArgs>>
+        where TArgs : class, new()
     {
         private const string _defaultHeaderStyle = "~|Blue~~White~", 
             _defaultErrorHeaderStyle = "~|Red~~White~",
@@ -81,7 +81,7 @@ namespace Components.External.ConsolePlus
                 WriteDirections();
             }
 
-            Arguments = ParseArguments();
+            Arguments = SetArguments();
 
             if (Debugger.IsAttached)
             {
@@ -111,6 +111,11 @@ namespace Components.External.ConsolePlus
         {
             CliArgWriter.WriteArguments<TArgs>();
             Environment.Exit(1);
+        }
+
+        public TArgs SetArguments()
+        {
+            return Arguments ?? (Arguments = ParseArguments());
         }
 
         protected virtual TArgs ParseArguments()
@@ -240,7 +245,7 @@ namespace Components.External.ConsolePlus
     }
 
     public abstract class CliApplication<TArgs, TConfig> : CliApplication<TArgs>
-        where TArgs : new()
+        where TArgs : class, new()
         where TConfig : new()
     {
         public TConfig Config { get; private set; }
