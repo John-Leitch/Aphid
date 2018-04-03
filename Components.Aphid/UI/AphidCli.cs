@@ -9,6 +9,8 @@ using Components.Aphid.Parser;
 using System.IO;
 using Components.Aphid.Lexer;
 using System.Diagnostics;
+using Components.Aphid.TypeSystem;
+using Components.Aphid.Serialization;
 
 namespace Components.Aphid.UI
 {
@@ -82,6 +84,34 @@ namespace Components.Aphid.UI
         public static void ExecuteCode(string code, bool isTextDocument)
         {
             ExecuteCode(new AphidInterpreter(), code, isTextDocument);
+        }
+
+        public static AphidObject ExecuteExpression(string code)
+        {
+            return ExecuteExpression(new AphidInterpreter(), code);
+        }
+
+        public static AphidObject ExecuteExpression(AphidInterpreter interpreter, string code)
+        {
+            if (code.Trim() == "")
+            {
+                return null;
+            }
+
+            var lexer = new AphidLexer(code);
+            var tokens = lexer.GetTokens();
+            var exp = AphidParser.ParseExpression(tokens, code);
+            var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
+            new AphidCodeVisitor(code).VisitExpression(retExp);
+            interpreter.Interpret(retExp);
+            var value = interpreter.GetReturnValue();
+
+            if (value != null && (value.Value != null || value.Any()))
+            {
+                Console.WriteLine(new AphidSerializer(interpreter).Serialize(value));
+            }
+
+            return value;
         }
 
         public static void ExecuteCode(

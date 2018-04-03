@@ -1,6 +1,6 @@
 {
 	"folders": [
-		{ "path": "./Components.Aphid" },
+		// { "path": "./Components.Aphid" },
 		{ "path": "./Components.Aphid/Library" },
 		{ "path": "./Components.Aphid/Serialization" },
 		{ "path": "./Components.Aphid.Tests.Integration/ScriptedTests" },	

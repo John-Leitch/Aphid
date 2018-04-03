@@ -17,7 +17,7 @@ namespace Components.Aphid.Library
 
         private static AphidSerializer CreateSerializer(AphidInterpreter interpreter)
         {
-            return new AphidSerializer(interpreter) { IgnoreFunctions = true };
+            return new AphidSerializer(interpreter) { IgnoreFunctions = true, QuoteToStringResults = true };
         }
 
         [AphidInteropFunction("extendType", PassInterpreter = true, UnwrapParameters = false)]

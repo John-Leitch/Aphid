@@ -3,6 +3,7 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.Aphid.Serialization;
+using Components.Aphid.TypeSystem;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
@@ -15,16 +16,36 @@ namespace Components.Aphid.UI
 {
     public class AphidRepl
     {
+        private bool _isSerializerShared = false;
+
+        private AphidSerializer _serializer;
+
+        public AphidSerializer Serializer
+        {
+            get { return _serializer; }
+            set
+            {
+                _serializer = value;
+                _isSerializerShared = false;
+            }
+        }
+
         public AphidInterpreter Interpreter { get; set; }
 
         public AphidRepl()
+            : this(null)
         {
         }
 
         public AphidRepl(AphidInterpreter interpreter)
-            : this()
+            : this(interpreter, null)
         {
-            Interpreter = interpreter;
+        }
+
+        public AphidRepl(AphidInterpreter interpreter, AphidSerializer serializer)
+        {
+            Interpreter = interpreter ?? new AphidInterpreter();
+            Serializer = serializer ?? new AphidSerializer(Interpreter) { IgnoreSpecialVariables = true, };
         }
 
         public void Run()
@@ -44,6 +65,22 @@ namespace Components.Aphid.UI
             {
                 while (true)
                 {
+                    var isDumpDefined = Interpreter.CurrentScope.IsDefined(AphidName.DumpSerializer);
+
+                    if (!_isSerializerShared || !isDumpDefined)
+                    {
+                        if (isDumpDefined)
+                        {
+                            Interpreter.CurrentScope.Remove(AphidName.DumpSerializer);
+                        }
+
+                        Interpreter.CurrentScope.Add(
+                            AphidName.DumpSerializer,
+                            new AphidObject(Serializer));
+
+                        _isSerializerShared = true;
+                    }
+
                     string code;
 
                     if (!Debugger.IsAttached)
@@ -99,7 +136,9 @@ namespace Components.Aphid.UI
 
             if (value != null && (value.Value != null || value.Any()))
             {
-                Console.WriteLine(new AphidSerializer(Interpreter).Serialize(value));
+                Console.WriteLine(
+                    (Serializer != null ? Serializer : new AphidSerializer(Interpreter))
+                        .Serialize(value));
             }
         }
     }
