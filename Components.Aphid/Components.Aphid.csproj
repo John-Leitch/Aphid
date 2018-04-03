@@ -146,7 +146,7 @@
     <Compile Include="External\ConsolePlus\VT100.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
-    <Compile Include="TypeSystem\AphidInteropReferenceType.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
     <Compile Include="UI\AphidConfig.cs" />
     <Compile Include="UI\AphidScanner.cs" />
@@ -245,10 +245,10 @@
     <Compile Include="Serialization\AphidObjectThisKeywordMutator.cs" />
     <Compile Include="Serialization\AphidObjectReferenceVisitor.cs" />
     <Compile Include="TypeSystem\AphidAlias.cs" />
-    <Compile Include="TypeSystem\AphidAssemblyBuilder.cs" />
+    <Compile Include="Compiler\AphidAssemblyBuilder.cs" />
     <Compile Include="TypeSystem\AphidConversionInfo.cs" />
     <Compile Include="Interpreter\AphidExecutionContext.cs" />
-    <Compile Include="TypeSystem\AphidFunctionConverter.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidFunctionConverter.cs" />
     <Compile Include="Interpreter\AphidRuntimeComponent.cs" />
     <Compile Include="Interpreter\AphidLoadScriptException.cs" />
     <Compile Include="Interpreter\AphidName.cs" />
@@ -326,8 +326,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="TypeSystem\AphidFunctionWrapper.cs" />
-    <Compile Include="TypeSystem\AphidTypeConverter.Numbers.g.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidFunctionWrapper.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidTypeConverter.Numbers.g.cs" />
     <Compile Include="TypeSystem\ConversionOperator.cs" />
     <Compile Include="UI\AphidCli.cs" />
     <Compile Include="Compiler\AphidStringEmitter.cs" />
@@ -344,15 +344,15 @@
     <Compile Include="External\Common\TypeExtension.cs" />
     <Compile Include="Interpreter\AphidFrame.cs" />
     <Compile Include="TypeSystem\AphidFunctionComposition.cs" />
-    <Compile Include="TypeSystem\AphidInteropMember.cs" />
-    <Compile Include="TypeSystem\AphidInteropMethodArg.cs" />
-    <Compile Include="TypeSystem\AphidInteropMethodInfo.cs" />
-    <Compile Include="TypeSystem\AphidInteropPartialFunction.cs" />
-    <Compile Include="TypeSystem\AphidInteropReference.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropMember.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropMethodArg.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropMethodInfo.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropPartialFunction.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropReference.cs" />
     <Compile Include="Interpreter\AphidInterpreter.g.cs" />
     <Compile Include="TypeSystem\AphidObjectEqualityComparer.cs" />
     <Compile Include="TypeSystem\AphidOperationException.cs" />
-    <Compile Include="TypeSystem\AphidPropertyAttribute.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidPropertyAttribute.cs" />
     <Compile Include="TypeSystem\AphidObject.g.cs" />
     <Compile Include="TypeSystem\AphidPropertyInfo.cs" />
     <Compile Include="TypeSystem\AphidPropertyValuePair.cs" />
@@ -361,11 +361,11 @@
     <Compile Include="Interpreter\AphidRuntimeException.cs" />
     <Compile Include="Interpreter\AphidScriptOptimizer.cs" />
     <Compile Include="TypeSystem\AphidType.cs" />
-    <Compile Include="TypeSystem\AphidTypeConverter.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidTypeConverter.cs" />
     <Compile Include="Interpreter\ExceptionHelper.cs" />
     <Compile Include="TypeSystem\IAphidBindable.cs" />
-    <Compile Include="TypeSystem\InteropMethodResolver.cs" />
-    <Compile Include="TypeSystem\InteropTypeResolver.cs" />
+    <Compile Include="TypeSystem\ClrInterop\InteropMethodResolver.cs" />
+    <Compile Include="TypeSystem\ClrInterop\InteropTypeResolver.cs" />
     <Compile Include="Interpreter\InterpreterException.cs" />
     <Compile Include="TypeSystem\AphidFunction.cs" />
     <Compile Include="TypeSystem\AphidObjectConverter.cs" />
@@ -406,7 +406,7 @@
     <Compile Include="Parser\AphidExpression.cs" />
     <Compile Include="Parser\FunctionExpression.cs" />
     <Compile Include="Parser\IdentifierExpression.cs" />
-    <Compile Include="TypeSystem\AphidInteropFunction.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropFunction.cs" />
     <Compile Include="Interpreter\AphidInterpreter.cs" />
     <Compile Include="TypeSystem\AphidObject.cs" />
     <Compile Include="TypeSystem\AphidRef.cs" />
@@ -424,7 +424,7 @@
     <Compile Include="Parser\StringExpression.cs" />
     <Compile Include="Parser\NumberExpression.cs" />
     <Compile Include="Library\IOLibrary.cs" />
-    <Compile Include="TypeSystem\AphidInteropFunctionAttribute.cs" />
+    <Compile Include="TypeSystem\ClrInterop\AphidInteropFunctionAttribute.cs" />
     <Compile Include="Interpreter\AphidLoader.cs" />
     <Compile Include="Library\StandardLibrary.cs" />
     <Compile Include="Interpreter\AphidLibraryAttribute.cs" />
