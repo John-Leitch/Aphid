@@ -1,4 +1,13 @@
-﻿remote = null;
+﻿var remote = null;
+
+using Components.Aphid.TypeSystem;
+using Components.Aphid.Serialization;
+using System;
+
+this.{'$aphid'}.Serializer.QuoteToStringResults = true;
+//var remotingSerializer = new AphidSerializer();
+//remotingSerializer.QuoteToStringResults = true;
+//using Components.
 
 class RemoteProxy {
     AphidFunction Connect,
