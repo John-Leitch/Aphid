@@ -2567,7 +2567,7 @@ namespace Components.Aphid.Interpreter
 
 #if TEXT_FRAME_PERFORMANCE_TRACE
             _framePerformanceTrace.TraceText(
-                "{0:x8} < {1} - {2:n0} ticks / {2}ms\r\n",
+                "{0:x8} < {1} - {2:n0} ticks / {3:n0}ms\r\n",
                 id,
                 tup.Item1,
                 tup.Item2.ElapsedTicks,
