@@ -30,9 +30,10 @@
     var getBase = @()
         context.group +
         context.testSet +
-        (context.wrap != 'success' ? context.wrap : '') +
-        'Test' ?:
-        'AphidUnitTest';
+        (context.wrap != 'success' && context.wrap.Length > 0 ?
+            context.wrap.Remove(1).ToUpper() + context.wrap.Substring(1) :
+            '') ?:
+        'Unnamed Script Aphid ';
     
     var nextName = @()
         getBase() +
