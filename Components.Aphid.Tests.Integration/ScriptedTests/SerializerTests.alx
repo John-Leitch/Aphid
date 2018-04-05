@@ -1,57 +1,52 @@
 ﻿#'Std';
-cls();
+
 root = this;
-this.foo = { bar: 9, test: 'foo', f: @(x) x * x };
+foo = { bar: 9, test: 'foo', f: @(x) x * x };
+
+var roundTrip = serialize @> deserialize;
 var s = aphid.Serializer;
 
-var props = @(quote, noFuncs, noSpecials) @{
+var p = @(quote, noFuncs, noSpecials) @{
     s.QuoteToStringResults = quote;
     s.IgnoreFunctions = noFuncs;
     s.IgnoreSpecialVariables = noFuncs;
 };
 
-var roundTrip = @(obj) {
-    var t = obj |> serialize;
-    //t |> Cli.StyleEscape |> print;
-
-    ret t |> deserialize;
-};
-
-c = macro(@(init, obj, check){
-    @{ init; obj |> roundTrip @(obj){ check |> isTrue } }
+c = macro(@(name, init, obj, check){
+    name begin;
+    @{ init; obj |> roundTrip @{ check |> isTrue } }
 });
 
-rt = macro(@(obj, check) {
-        c(props(true, false, false), obj, check);
-        c(props(true, true, false), obj, check);
-        c(props(true, false, true), obj, check);
-        c(props(true, true, true), obj, check);
+r = macro(@(obj, check) {
+    c(noQuote, p(false, false, false), obj, check);
+    c(quote, p(true, false, false), obj, check);
+    c(funcs, p(true, true, false), obj, check);
+    c(specials, p(true, false, true), obj, check);
+    c(funcsAndSpecials, p(true, true, true), obj, check);
 });
-
-n = macro(@(obj, check) { @{ c(props(true, true, false), obj, check) } });
-i = macro(@(obj, check) { @{ c(props(true, false, false), obj, check) } });
 
 #'AopTest';
 
 serialize group;
-
-rt(root, true);
-rt(root, $_.cls defined);
-rt(root, $_.foo defined);
-rt(root, $_.foo.bar defined);
-rt(root, $_.foo.bar == 9);
-rt(root, $_.foo.test == 'foo');
-
-func begin;
-
-//i(root, dumpe($_));
+r(1, $_ == 1);
+r('test', $_ == 'test');
+r(false, !$_);
+r(null, $_ == null);
+r(root, true);
+r(root, $_.foo defined);
+r(root, $_.foo.bar defined);
+r(root, $_.foo.bar == 9);
+r(root, $_.foo.test == 'foo');
 
 fault;
 
 @{ #'Std'; this |> serialize @+ '~!%$' |> deserialize };
-rt(root, false);
-rt(root, $_.cls2 defined);
-rt(root, $_.foo2 defined);
-rt(root, $_.foo.bar2 defined);
-rt(root, $_.foo.bar == 10);
-rt(root, $_.foo.test == 'foo2'); 
+r(1, $_ == 2);
+r('test', $_ == 'testa');
+r(false, $_);
+r(null, $_ != null);
+r(root, false);
+r(root, $_.foo2 defined);
+r(root, $_.foo.bar2 defined);
+r(root, $_.foo.bar == 10);
+r(root, $_.foo.test == 'foo2'); 
