@@ -92,6 +92,7 @@ namespace Components.Aphid.TypeSystem
             switch (name)
             {
                 case "string": return "System.String";
+                case "bool": return "System.Boolean";
                 case "byte": return "System.Byte";
                 case "ushort": return "System.UInt16";
                 case "uint": return "System.UInt32";
