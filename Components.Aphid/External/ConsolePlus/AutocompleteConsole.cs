@@ -53,7 +53,7 @@ namespace Components.External.ConsolePlus
             IAutocompletionSource sources)
         {
             GetMaxResults = () => Console.WindowHeight - 6;
-            GetMaxWidth = () => Console.WindowHeight - 6;
+            GetMaxWidth = () => Console.WindowWidth - _autocompleteLeft - 1;
             MaxHistoryCount = 100;
             _prompt = prompt;
             Scanner = scanner;
@@ -395,8 +395,6 @@ namespace Components.External.ConsolePlus
                 _matches.Length :
                 GetMaxResults() + 1;
 
-            maxWidth = _autocompleteLeft + _autocompleteWidth - 0x3; // Buffer;
-
             if (maxWidth < _autocompleteWidth)
             {
                 _autocompleteWidth = maxWidth;
@@ -443,8 +441,8 @@ namespace Components.External.ConsolePlus
                 // so string can be scanned and truncated precisely.
                 var viewLen = Cli.EraseStyles(n.View).Length;
                 var viewStr = viewLen <= maxWidth ? n.View : n.View.Remove(maxWidth);
-                var space = _autocompleteWidth - viewLen;
-                Cli.Write(format, n.View + (space > 0 ? new string(' ', space) : ""));
+                var space = _autocompleteWidth - (viewLen <= maxWidth ? viewLen : maxWidth);
+                Cli.Write(format, viewStr + (space > 0 ? new string(' ', space) : ""));
                 linesDrawn++;
             }
 
