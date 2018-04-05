@@ -32,6 +32,10 @@ namespace Components.Aphid.UI
 
         public AphidInterpreter Interpreter { get; set; }
 
+        public List<AphidExpression> Prologue { get; set; }
+
+        public List<AphidExpression> Epilogue { get; set; }
+
         public AphidRepl()
             : this(null)
         {
@@ -46,6 +50,8 @@ namespace Components.Aphid.UI
         {
             Interpreter = interpreter ?? new AphidInterpreter();
             Serializer = serializer ?? new AphidSerializer(Interpreter) { IgnoreSpecialVariables = true, };
+            Prologue = new List<AphidExpression>();
+            Epilogue = new List<AphidExpression>();
         }
 
         public void Run()
@@ -78,6 +84,14 @@ namespace Components.Aphid.UI
                             AphidName.DumpSerializer,
                             new AphidObject(Serializer));
 
+                        Interpreter.CurrentScope.Add(
+                            "prologue",
+                            new AphidObject(Prologue));
+
+                        Interpreter.CurrentScope.Add(
+                            "epilogue",
+                            new AphidObject(Epilogue));
+
                         _isSerializerShared = true;
                     }
 
@@ -105,16 +119,41 @@ namespace Components.Aphid.UI
 
                     if (!Debugger.IsAttached)
                     {
+                        RunBlock(Prologue, handleExceptions: true);
                         AphidCli.TryAction(Interpreter, code, () => RunCode(code));
+                        RunBlock(Epilogue, handleExceptions: true);
                     }
                     else
                     {
                         var backup = Interpreter.SetIsInTryCatchFinally(true);
+                        RunBlock(Prologue, handleExceptions: false);
                         RunCode(code);
+                        RunBlock(Epilogue, handleExceptions: false);
                         Interpreter.SetIsInTryCatchFinally(backup);
                     }
 
                     Interpreter.ResetState();
+                }
+            }
+        }
+
+        private void RunBlock(List<AphidExpression> block, bool handleExceptions)
+        {
+            if (block != null)
+            {
+                if (handleExceptions)
+                {
+                    AphidCli.TryAction(
+                        Interpreter,
+                        block
+                            .Select(x => x.Code)
+                            .Where(x => x != null)
+                            .FirstOrDefault(),
+                        () => Interpreter.Interpret(block));
+                }
+                else
+                {
+                    Interpreter.Interpret(block);
                 }
             }
         }
