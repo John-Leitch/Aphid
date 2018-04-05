@@ -442,9 +442,9 @@ namespace Components.External.ConsolePlus
                 // Hack, until Cli tokenizer is rewritten and exposed
                 // so string can be scanned and truncated precisely.
                 var viewLen = Cli.EraseStyles(n.View).Length;
-
                 var viewStr = viewLen <= maxWidth ? n.View : n.View.Remove(maxWidth);
-                Cli.Write(format, n.View + new string(' ', _autocompleteWidth - viewLen));
+                var space = _autocompleteWidth - viewLen;
+                Cli.Write(format, n.View + (space > 0 ? new string(' ', space) : ""));
                 linesDrawn++;
             }
 
