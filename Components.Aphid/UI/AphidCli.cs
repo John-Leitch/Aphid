@@ -86,32 +86,40 @@ namespace Components.Aphid.UI
             ExecuteCode(new AphidInterpreter(), code, isTextDocument);
         }
 
-        public static AphidObject ExecuteExpression(string code)
+        public static AphidObject DumpExpression(string code)
         {
-            return ExecuteExpression(new AphidInterpreter(), code);
+            return DumpExpression(new AphidInterpreter(), code);
         }
 
-        public static AphidObject ExecuteExpression(AphidInterpreter interpreter, string code)
+        public static AphidObject DumpExpression(AphidInterpreter interpreter, string code)
         {
-            if (code.Trim() == "")
-            {
-                return null;
-            }
+            AphidObject result = null;
 
-            var lexer = new AphidLexer(code);
-            var tokens = lexer.GetTokens();
-            var exp = AphidParser.ParseExpression(tokens, code);
-            var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
-            new AphidCodeVisitor(code).VisitExpression(retExp);
-            interpreter.Interpret(retExp);
-            var value = interpreter.GetReturnValue();
+            TryAction(
+                interpreter,
+                code,
+                () =>
+                {
+                    if (code.Trim() == "")
+                    {
+                        return;
+                    }
 
-            if (value != null && (value.Value != null || value.Any()))
-            {
-                Console.WriteLine(new AphidSerializer(interpreter).Serialize(value));
-            }
+                    var lexer = new AphidLexer(code);
+                    var tokens = lexer.GetTokens();
+                    var exp = AphidParser.ParseExpression(tokens, code);
+                    var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
+                    new AphidCodeVisitor(code).VisitExpression(retExp);
+                    interpreter.Interpret(retExp);
+                    result = interpreter.GetReturnValue();
 
-            return value;
+                    if (result != null && (result.Value != null || result.Any()))
+                    {
+                        Console.WriteLine(new AphidSerializer(interpreter).Serialize(result));
+                    }
+                });
+
+            return result;
         }
 
         public static void ExecuteCode(

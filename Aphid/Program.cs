@@ -24,7 +24,23 @@ namespace Aphid
             {
                 RunRepl();
             }
-            else if (!File.Exists(args[0]))
+            else if (args[0][0] == '?')
+            {
+                RunExpression(args);
+            }
+            else if (args[0][0] == '*')
+            {
+                RunStatements(args);
+            }
+            else
+            {
+                RunScript(args);
+            }
+        }
+
+        static void RunScript(string[] args)
+        {
+            if (!File.Exists(args[0]))
             {
                 Console.WriteLine("Could not find {0}", args[0]);
                 Environment.Exit(1);
@@ -36,7 +52,39 @@ namespace Aphid
             EnvironmentLibrary.SetEnvArgs(true);
             var interpreter = new AphidInterpreter();
             interpreter.SetScriptFilename(Path.GetFullPath(args[0]));
+            ExecuteCode(interpreter, code, isTextDocument);
+        }
 
+        static void RunExpression(string[] args)
+        {
+            AphidCli.DumpExpression(GetInlineCode('?'));
+        }
+
+        static void RunStatements(string[] args)
+        {
+            AphidCli.ExecuteCode(GetInlineCode('*'));
+        }
+
+        static string GetInlineCode(char startToken)
+        {
+            var index = Environment.CommandLine.IndexOf(startToken);
+
+            return index != -1 ? Environment.CommandLine.Substring(index + 1) : null;
+        }
+
+        static void RunRepl()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+
+            Cli.WriteHeader(
+                string.Format("Aphid Programming Language {0}", version),
+                "~White~~|Blue~");
+
+            new AphidRepl().Run();
+        }
+
+        private static void ExecuteCode(AphidInterpreter interpreter, string code, bool isTextDocument)
+        {
             if (!Debugger.IsAttached)
             {
                 AphidCli.TryAction(
@@ -53,17 +101,6 @@ namespace Aphid
             {
                 new AphidRepl { Interpreter = interpreter }.Run();
             }
-        }
-
-        static void RunRepl()
-        {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-
-            Cli.WriteHeader(
-                string.Format("Aphid Programming Language {0}", version),
-                "~White~~|Blue~");
-
-            new AphidRepl().Run();
         }
     }
 }
