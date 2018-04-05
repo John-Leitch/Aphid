@@ -19,7 +19,7 @@ if (!(global.childCreated defined )) {
 @{
     #'Std';
     #'Meta';
-    
+    #'IL';
 
     using Components.Aphid.UI;
 
@@ -61,15 +61,12 @@ if (!(global.childCreated defined )) {
     isStandalone = !String.IsNullOrEmpty(exe) && Path.GetFileName(exe).ToLower() == "aphid.exe";
     tryAction = @AphidCli.TryAction(this.{'$aphid'}, null);
 
-
-
     if (isStandalone) {
         if (!global.childCreated) {
             head('Aphid Test Framework');
         }
 
-        makeAssert;
-        makeAssert = @(f) f @> @() $_ ? $_ : throw();
+        var makeAssert = @(f) f @> @() $_ ? $_ : throw();
         global.isTrue = makeAssert(@== true);
         global.isFalse = makeAssert(@== false);
         global.isFoo = makeAssert(@== 'foo');
@@ -119,7 +116,6 @@ if (!(global.childCreated defined )) {
     }
 
     throw = @{
-        #'IL';
         @{
             Newobj(typeof(InvalidOperationException).GetConstructor([ ]));
             Throw;

@@ -12,6 +12,9 @@ execILBlock;
     #'Std';
     #'Meta';
 
+    using System;
+    using System.Threading;
+
     createAsm = @(name) {
         asm = AppDomain.CurrentDomain
             .DefineDynamicAssembly(
@@ -90,28 +93,40 @@ execILBlock;
         ret il->emit @join('\r\n') @format('@{{\r\n{0}\r\n}}') |> evalExp;
     };
 
+    var ilModuleSync = new Object();
+    var ilModuleName = null;
+    var ilModule = null;
+
+    var getILModule = @{
+        Monitor.Enter(ilModuleSync);
+
+        try {
+            if (ilModule == null) {
+                ilModuleName = 'InlineIL_' + Guid.NewGuid().ToString();
+
+                var asm = AppDomain.CurrentDomain.DefineDynamicAssembly(
+                    new AssemblyName(ilModuleName),
+                    AssemblyBuilderAccess.Run);
+
+                ilModule = name |> asm.DefineDynamicModule;
+            }
+
+            ret ilModule;
+        } finally {
+            Monitor.Exit(ilModuleSync);
+        }
+
+        
+    };
+
     execILBlock = @(il) {
-        name;
-        typeName;
-        asm;
-        module;
-        type;
-        methodName;
-        method;
+        var methodName = 'Test';
 
-        name = 'InlineIL_' + Guid.NewGuid().ToString();
-        typeName = 'InlineILType';
-        methodName = 'Test';
+        var type = getILModule().DefineType(
+            'InlineIL_' + Guid.NewGuid().ToString(),
+            TypeAttributes.Class | TypeAttributes.Public);
 
-        asm = AppDomain.CurrentDomain
-            .DefineDynamicAssembly(
-                new AssemblyName(name),
-                AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
-
-        module = name |> asm.DefineDynamicModule;
-        type = module.DefineType(typeName, TypeAttributes.Class | TypeAttributes.Public);
-
-        method = type.DefineMethod(
+        var method = type.DefineMethod(
             methodName,
             MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Static,
             typeof(Void),
@@ -123,8 +138,8 @@ execILBlock;
         };
 
         type.CreateType();
-        asm.Save(name);
-        ret type.GetMethod('Test').Invoke(null, []);
+
+        ret type.GetMethod(methodName).Invoke(null, []);
     };
 
     execIL = asmIL @> execILBlock;
