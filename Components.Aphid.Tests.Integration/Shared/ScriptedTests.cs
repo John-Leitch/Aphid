@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using NUnit.Framework;
 using System;
@@ -15,9 +16,9 @@ namespace Components.Aphid.Tests.Integration.Shared
     public class ScriptedTests : AphidTests
     {
         [Test, TestCaseSource("Tests")]
-        public void RunTestScript(Func<AphidInterpreter> createInterpreter, string funcName)
+        public void RunTestScript(AphidInterpreter interpreter, string funcName)
         {
-            var interpreter = createInterpreter();
+            interpreter.TakeOwnership();
             var result = interpreter.CallFunction(funcName);
 
             if (result != null && result.Value != null && result.Value.GetType() == typeof(bool))
@@ -25,7 +26,7 @@ namespace Components.Aphid.Tests.Integration.Shared
                 var sb = new StringBuilder(string.Format("Function {0} returned false.", funcName));
 
                 AphidObject lastException;
-                
+
                 if (interpreter.CurrentScope.TryResolve("lastException", out lastException) &&
                     lastException != null)
                 {
@@ -38,6 +39,19 @@ namespace Components.Aphid.Tests.Integration.Shared
                 Assert.True(result.GetBool(), sb.ToString());
             }
         }
+
+        private static bool _isLibraryUpdated = false;
+
+        private static readonly List<AphidExpression> _prologueAst = AphidParser.Parse(@"
+            using Components.Aphid.Tests.Integration;
+            using Components.Aphid.Tests.Integration.Shared;
+            isTrue = AphidTests.IsTrue;
+            isFalse = AphidTests.IsFalse;
+            isFoo = AphidTests.IsFoo;
+            is9 = AphidTests.Is9;
+            isNull = AphidTests.IsNull;
+            notNull = AphidTests.NotNull;
+        ");
 
         public static IEnumerable Tests
         {
@@ -56,31 +70,16 @@ namespace Components.Aphid.Tests.Integration.Shared
 
                 var testList = new List<TestCaseData>();
 
+                var asm = System.Reflection.Assembly.GetExecutingAssembly();
+
                 foreach (var s in testScripts)
                 {
-                    Func<AphidInterpreter> create = () =>
-                    {
-                        var interpreter = new AphidInterpreter();
-                        interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
-                        interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
-
-                        interpreter.Interpret(@"
-                            using Components.Aphid.Tests.Integration;
-                            using Components.Aphid.Tests.Integration.Shared;
-                            isTrue = AphidTests.IsTrue;
-                            isFalse = AphidTests.IsFalse;
-                            isFoo = AphidTests.IsFoo;
-                            is9 = AphidTests.Is9;
-                            isNull = AphidTests.IsNull;
-                            notNull = AphidTests.NotNull;
-                        ");
-
-                        interpreter.Interpret(File.ReadAllText(s.FullName));
-
-                        return interpreter;
-                    };
-
-                    var scope = create().CurrentScope;
+                    var interpreter = new AphidInterpreter();
+                    interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
+                    interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
+                    interpreter.Interpret(_prologueAst);
+                    interpreter.Interpret(File.ReadAllText(s.FullName));
+                    var scope = interpreter.CurrentScope;
 
                     var tests = scope.Keys
                         .SkipWhile(x => x != "tests")
@@ -90,10 +89,10 @@ namespace Components.Aphid.Tests.Integration.Shared
 
                     foreach (var t in tests)
                     {
-                        yield return new TestCaseData(create, t)
+                        yield return new TestCaseData(interpreter, t)
                             .SetCategory(Path.GetFileNameWithoutExtension(s.Name))
                             .SetName(FormatTestName(t));
-                        
+
                     }
                 }
             }
