@@ -1,4 +1,7 @@
-﻿var html;
+﻿#'Std';
+#'Meta';
+
+var html;
 var plain;
 var xml;
 var binary;
@@ -11,8 +14,8 @@ var resp;
 
 
 @{
-    #'std';
-    #'meta';
+    //#'std';
+    
     var sysAsm = load System;
     var webAsm = load System.Web;
 
@@ -31,7 +34,7 @@ var resp;
     read = @(file) file |> ReadAllText
 
     var mediaType = sysAsm.GetType('System.Net.Mime.MediaTypeNames');
-    mediaType.GetMembers() <! @.IsNested -< @()$_ .GetFields() ->@(o) {
+    MediaTypeNames.GetMembers() <! @.IsNested -< @()$_ .GetFields() ->@(o) {
         sb += o.Name.ToLower() + '\r\n';
         scope.{o.Name.ToLower()} = 
             '@{{ contentType = "{0}"; content = $_; }}'

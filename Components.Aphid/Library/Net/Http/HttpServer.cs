@@ -114,10 +114,24 @@ namespace Components.Aphid.Library.Net
             }
             else
             {
-                resp = CreateResponse(context);
+                try
+                {
+                    resp = CreateResponse(context);
+                }
+                catch (FileNotFoundException)
+                {
+                    resp = SetError(context, 404, "404 not found: {0}", context.Request.Url);
+                }
             }
 
-            WriteResponse(context, resp);
+            try
+            {
+                WriteResponse(context, resp);
+            }
+            catch (HttpListenerException e)
+            {
+                Cli.WriteErrorMessage("Error writing response: {0}", e.Message);
+            }
         }
 
         private byte[] SetError(HttpListenerContext context, int error, string format, params object[] args)
@@ -339,10 +353,10 @@ namespace Components.Aphid.Library.Net
             var lastWrite = (DateTime)lastWriteObj.Value;
             var config = GetConfigFile();
 
-            if (config.LastWriteTime == lastWrite)
-            {
-                return;
-            }
+            //if (config.LastWriteTime == lastWrite)
+            //{
+            //    return;
+            //}
 
             var interpreter = new AphidInterpreter();
             interpreter.InterpretFile(config.FullName);

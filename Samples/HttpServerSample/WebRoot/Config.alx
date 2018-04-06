@@ -1,14 +1,8 @@
-﻿#'Std';
-#'HttpServer';
+﻿
+#'HttpServer'; 
 using Components.Aphid.TypeSystem;
 
-class AphidHttpHandler {
-    AphidFunction Predicate,
-    AphidFunction Callback,
-};
-
-var handler = new AphidHttpHandler();
-handler.Predicate = @() true;
+class of AphidFunction AphidHttpHandler { Predicate, Callback };
 
 var http = {
     handlers: [
@@ -54,6 +48,9 @@ http.registerHandler(
                 'Error: invalid url ' + u |> plain;
             }
         } catch (e) {
-            e |> serialize |> plain;
+            contentType = 'text/plain';
+            content = e |> serialize;
+            content += this |> serialize;
+
         }
     });
