@@ -13,7 +13,7 @@
 </head>
     <body>
         <form method="get">
-            <label for="x">Numbers 2: </label>
+            <label for="x">Numbers: </label>
             <input name="x" value="<%= query.x defined ? query.x : '' %>" />
             <input type="submit" />
         </form>

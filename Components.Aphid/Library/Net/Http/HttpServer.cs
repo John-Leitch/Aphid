@@ -411,7 +411,7 @@ namespace Components.Aphid.Library.Net
             HttpListenerContext context,
             AphidObject session)
         {
-            SetupInterpreterScope(interpreter, codeFile, context, interpreter.CurrentScope);
+            SetupInterpreterScope(interpreter, interpreter.CurrentScope, codeFile, context, session);
         }
 
         private void SetupInterpreterScope(
