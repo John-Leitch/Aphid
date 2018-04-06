@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNSAFE_CONSOLE
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -41,3 +42,4 @@ namespace Components.External.ConsolePlus
     }
 #endif
 }
+#endif

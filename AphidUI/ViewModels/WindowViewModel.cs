@@ -46,6 +46,10 @@ namespace AphidUI.ViewModels
 
         private Thread _interpreterThread;
 
+        private Action _callback;
+
+        private AutoResetEvent _interpreterReset = new AutoResetEvent(false);
+
         private Thread _autoSaveThread;
 
         private object _autoSaveSync = new object();
@@ -347,8 +351,6 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            
-
             var exp = ast.First();
             var unary = exp as UnaryOperatorExpression;
 
@@ -370,6 +372,7 @@ namespace AphidUI.ViewModels
             try
             {
                 _interpreter.ResetState();
+                _interpreter.TakeOwnership();
                 _interpreter.Interpret(ast);
             }
             catch (AphidRuntimeException ex)
@@ -446,6 +449,7 @@ namespace AphidUI.ViewModels
             try
             {
                 _interpreter.ResetState();
+                _interpreter.TakeOwnership();
                 _interpreter.Interpret(ast);
             }
             catch (AphidRuntimeException ex)
@@ -483,30 +487,49 @@ namespace AphidUI.ViewModels
             IsExecuting = true;
             Status = "Running script...";
 
+            if (_interpreterThread == null)
+            {
+                CreateInterpreterThread();
+            }
+
+            _callback = callback;
+            _interpreterReset.Set();
+        }
+
+        private void CreateInterpreterThread()
+        {
             _interpreterThread = new Thread(() =>
             {
-                if (IsMultiLine)
+                while (true)
                 {
-                    ExecuteStatements();
-                }
-                else
-                {
-                    ExecuteExpression();
-                    InvokeDispatcher(() => Code = "");
-                }
+                    _interpreterReset.WaitOne();
 
-                InvokeDispatcher(() =>
-                {
-                    Status = "Done";
-                    IsExecuting = false;
-
-                    if (callback != null)
+                    if (IsMultiLine)
                     {
-                        callback();
+                        ExecuteStatements();
                     }
-                });
+                    else
+                    {
+                        ExecuteExpression();
+                        InvokeDispatcher(() => Code = "");
+                    }
 
-            });
+                    InvokeDispatcher(() =>
+                    {
+                        Status = "Done";
+                        IsExecuting = false;
+
+                        if (_callback != null)
+                        {
+                            _callback();
+                        }
+                    });
+                }
+
+            })
+            {
+                IsBackground = true
+            };
 
             _interpreterThread.Start();
         }
@@ -537,6 +560,7 @@ namespace AphidUI.ViewModels
             try
             {
                 _interpreter.ResetState();
+                _interpreter.TakeOwnership();
                 _interpreter.Interpret("ret " + vm.Expression + ";");
             }
             catch (AphidRuntimeException e)

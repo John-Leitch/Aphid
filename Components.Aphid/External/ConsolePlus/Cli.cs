@@ -1,5 +1,4 @@
-﻿//#define UNSAFE_CONSOLE
-#define DEBUG_CONSOLE_OUT
+﻿//#define DEBUG_CONSOLE_OUT
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

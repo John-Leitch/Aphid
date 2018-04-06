@@ -356,7 +356,7 @@ namespace Components.Aphid.Library
 
         private static bool _ignoreCase = false;
 
-        [AphidInteropFunction("string.ignoreCase")]
+        [AphidInteropFunction("__string.ignoreCase")]
         private static void StringIgnoreCase(bool ignoreCase)
         {
             _ignoreCase = ignoreCase;

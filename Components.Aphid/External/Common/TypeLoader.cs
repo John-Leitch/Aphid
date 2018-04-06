@@ -20,8 +20,11 @@ namespace Components
                     .GroupToArrayDictionary(x => x.FullName.RemoveAtIndexOf(',')));
 
         private Memoizer<List<string>, IEnumerable<Type>>
-            _getAllTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(),
-            _getStaticTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>();
+            _getAllTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(
+                new NamespaceEqualityComparer()),
+
+            _getStaticTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(
+                new NamespaceEqualityComparer());
 
         public TypeLoader()
         {

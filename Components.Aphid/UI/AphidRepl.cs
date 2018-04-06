@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -108,6 +109,15 @@ namespace Components.Aphid.UI
                             Cli.WriteCriticalErrorMessage(
                                 "Internal error encountered in autocomplete console:\r\n{0}",
                                 e.Message);
+
+                            if (e is ReflectionTypeLoadException)
+                            {
+                                var loaderExceptions = ((ReflectionTypeLoadException)e).LoaderExceptions;
+
+                                Cli.WriteCriticalErrorMessage(
+                                    "Loader exceptions:\r\n{0}",
+                                    loaderExceptions.Select(x => x.Message).JoinLines());
+                            }
 
                             continue;
                         }

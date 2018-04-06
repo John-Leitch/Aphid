@@ -1,4 +1,6 @@
-﻿#'IL';
+﻿//#'DebugDeploy';
+#'Std';
+#'IL';
 #'Query';
 using Components.Aphid.Interpreter;
 using System.IO;
@@ -11,7 +13,7 @@ args = Environment.GetCommandLineArgs()->@() $_;
 if (args.Count >= 1) {
     n = Path.GetFileName(args[0]).ToLower();
 
-    if (n == 'aphid' || n == 'aphid.exe') {
+    if (n == 'aphid' || n == 'aphid.exe' || n == 'aphid.vshost.exe') {
         args = args @aq.skip(2);
     } else {
         args = args @aq.skip(1);
@@ -34,31 +36,30 @@ asmName = args.Count == 2 ?
     Path.ChangeExtension(args[0], 'exe');
 
 print('Creating module {0} for {1}', asmName, script);
-aphid = AphidInterpreter |> typeof;
-asmType = Assembly |> typeof;
-pathType = Path |> typeof;
-boolType = Boolean |> typeof;
-strType = String |> typeof;
-
-pathCombine = pathType.GetMethod(
-    'Combine',
-    [ strType, strType ]);
 
 importOpcodes();
 
 @{
     e = $_.Emit;
     e(Ldc_I4_1);
-    e(Newobj, [ Boolean |> typeof ] |> aphid.GetConstructor);
-    e(Call, asmType.GetMethod('GetExecutingAssembly'));
-    e(Callvirt, asmType.GetMethod('get_Location'));
-    e(Call, pathType.GetMethod('GetDirectoryName'));
+    e(Newobj, AphidInterpreter.GetConstructor([ bool ]));
+    e(Call, Assembly.GetMethod('GetExecutingAssembly'));
+    e(Callvirt, Assembly.GetMethod('get_Location'));
+    e(Call, Path.GetMethod('GetDirectoryName'));
     e(Ldstr, script);
-    e(Call, pathCombine);
+    e(Call, Path.GetMethod('Combine', [ string, string ]));
     e(Ldc_I4_0);
-    e(Call, aphid.GetMethod('InterpretFile', [ strType, boolType ]));
+    e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));
     e(Ret);
 }
 @createProgram(asmName);
+
+//var si = new ProcessStartInfo(
+    //'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v8.0A\\bin\\NETFX 4.0 Tools\\ildasm.exe',
+    //'/text /pub ' + Path.GetFullPath('FibonacciExample.exe'));
+//
+//si.UseShellExecute = false;
+//
+//Process.Start(si);
 
 print('Done');

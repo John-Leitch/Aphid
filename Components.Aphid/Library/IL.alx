@@ -1,12 +1,13 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
 
-createAsm;
-createProgram;
-importOpcodes;
-asmIL;
-execIL;
-execILBlock;
+var createAsm;
+var createProgram;
+var importOpcodes;
+var asmIL;
+var execIL;
+var execILBlock;
+var ilImportScope = this;
 
 @{
     #'Std';
@@ -37,8 +38,8 @@ execILBlock;
                     MethodAttributes.HideBySig |
                         MethodAttributes.Public |
                         MethodAttributes.Static,
-                    typeof(Void),
-                    [ typeof(String).MakeArrayType() ]);
+                    void,
+                    [ string.MakeArrayType() ]);
 
                 method.GetILGenerator() |> ilCallback;
                 type.CreateType();
@@ -55,12 +56,13 @@ execILBlock;
         asmName |> asm.save;
     };
 
+    var scope = ilImportScope;
+
     importOpcodes = @()
-        (OpCodes |> typeof)
+        OpCodes
             .GetFields()
             ->(@.Name)
-            ->(@(n) this.{'$parent'}.{'$parent'}.{n} =
-                n @String.Format('OpCodes.{0}') |> evalExp);
+            ->(@(n) scope.{n} = n @String.Format('OpCodes.{0}') |> evalExp);
 
     asmIL = @(il) {
         emit;
@@ -129,7 +131,7 @@ execILBlock;
         var method = type.DefineMethod(
             methodName,
             MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Static,
-            typeof(Void),
+            void,
             [  ]);
 
         method.GetILGenerator() @{
@@ -144,3 +146,5 @@ execILBlock;
 
     execIL = asmIL @> execILBlock;
 }();
+
+delete ilImportScope;

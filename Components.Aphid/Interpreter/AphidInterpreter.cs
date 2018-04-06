@@ -734,9 +734,7 @@ namespace Components.Aphid.Interpreter
                 if (members.Length == 1 &&
                     (nestedTypeInfo = members[0] as TypeInfo) != null)
                 {
-                    var val = new AphidInteropReference(nestedTypeInfo);
-
-                    return new AphidObject(val);
+                    return new AphidObject(nestedTypeInfo);
                 }
             }
 
@@ -758,24 +756,36 @@ namespace Components.Aphid.Interpreter
         {
             if (members.Length == 1)
             {
-                var propInfo = members.First() as PropertyInfo;
+                var propInfo = members[0] as PropertyInfo;
 
                 if (propInfo != null)
                 {
-                    return ValueHelper.Wrap(
-                        !returnRef ?
-                            propInfo.GetValue(lhs) :
-                            new AphidInteropReference(lhs, propInfo));
+                    if (!returnRef)
+                    {
+                        return propInfo.PropertyType != typeof(AphidObject) ?
+                            new AphidObject(propInfo.GetValue(lhs)) :
+                            (AphidObject)propInfo.GetValue(lhs);
+                    }
+                    else
+                    {
+                        return new AphidObject(new AphidInteropReference(lhs, propInfo));
+                    }
                 }
 
-                var fieldInfo = members.First() as FieldInfo;
+                var fieldInfo = members[0] as FieldInfo;
 
                 if (fieldInfo != null)
                 {
-                    return ValueHelper.Wrap(
-                        !returnRef ?
-                        fieldInfo.GetValue(lhs) :
-                        new AphidInteropReference(lhs, fieldInfo));
+                    if (!returnRef)
+                    {
+                        return fieldInfo.FieldType != typeof(AphidObject) ?
+                            new AphidObject(fieldInfo.GetValue(lhs)) :
+                            (AphidObject)fieldInfo.GetValue(lhs);
+                    }
+                    else
+                    {
+                        return new AphidObject(new AphidInteropReference(lhs, fieldInfo));
+                    }
                 }
             }
             else if (members.Length == 0)
@@ -792,7 +802,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return ValueHelper.Wrap(new AphidInteropMember(expression, lhs, members));
+            return new AphidObject(new AphidInteropMember(expression, lhs, members));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -808,6 +818,16 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MemberInfo[] GetInteropInstanceMembers(object target, string name)
+        {
+            return target
+                .GetType()
+                .GetMembers()
+                .Where(x => x.Name == name)
+                .ToArray();
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetInteropStaticMembers(Type type, string[] path)
         {
             var member = path.Last();
@@ -819,36 +839,112 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MemberInfo[] GetInteropStaticMembers(Type type, string name)
+        {
+            return type
+                .GetMembers(BindingFlags.Static | BindingFlags.Public)
+                .Where(x => x.Name == name)
+                .ToArray();
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
 
-            AphidInteropReference interopRef;
+            Type type;
 
-            if (obj != null &&
-                ((interopRef = obj.Value as AphidInteropReference) != null) &&
-                interopRef.ReferenceType == AphidInteropReferenceType.NestedType)
+            if (obj != null && ((type = obj.Value as Type) != null))
             {
-                var members = GetInteropStaticMembers(
-                    interopRef.NestedType,
-                    FlattenPath(expression.RightOperand));
+                var name = ((IdentifierExpression)expression.RightOperand).Identifier;
 
-                return InterpretMemberInteropExpression(
-                    null,
-                    members,
-                    expression,
-                    returnRef,
-                    null);
+                if (!type.Assembly.IsDynamic)
+                {
+                    var members = GetInteropStaticMembers(type, name);
+
+                    if (members.Length != 0)
+                    {
+                        var nestedType = members[0] as Type;
+
+                        return nestedType == null ?
+                            InterpretMemberInteropExpression(
+                                null,
+                                members,
+                                expression,
+                                returnRef,
+                                null) :
+                                new AphidObject(nestedType);
+                    }
+
+                    members = GetInteropInstanceMembers(type, name);
+
+                    if (members.Length != 0)
+                    {
+                        return InterpretMemberInteropExpression(
+                            type,
+                            members,
+                            expression,
+                            returnRef,
+                            null);
+                    }
+                }
+                else
+                {
+                    var members = GetInteropInstanceMembers(type, name);
+
+                    if (members.Length != 0)
+                    {
+                        return InterpretMemberInteropExpression(
+                            type,
+                            members,
+                            expression,
+                            returnRef,
+                            null);
+                    }
+
+                    members = GetInteropStaticMembers(type, name);
+
+                    if (members.Length != 0)
+                    {
+                        var nestedType = members[0] as Type;
+
+                        return nestedType == null ?
+                            InterpretMemberInteropExpression(
+                                null,
+                                members,
+                                expression,
+                                returnRef,
+                                null) :
+                                new AphidObject(nestedType);
+                    }
+                }
+
+                var ext = TypeExtender.TryResolve(
+                    CurrentScope,
+                    type,
+                    key: ((IdentifierExpression)expression.RightOperand).Identifier,
+                    isAphidType: false,
+                    isCtor: false,
+                    isDynamic: false,
+                    returnRef: returnRef);
+
+                if (ext != null)
+                {
+                    return ext;
+                }
             }
 
-            var interopMethod = InteropMethodResolver.TryResolveMember(
-                expression,
-                obj,
-                returnRef);
-
-            if (interopMethod != null)
+            if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
             {
-                return interopMethod;
+                var interopMember = InteropMethodResolver.TryResolveMember(
+                    expression,
+                    obj,
+                    returnRef);
+
+                if (interopMember != null)
+                {
+                    return interopMember;
+                }
             }
 
             string key;
@@ -1001,12 +1097,12 @@ namespace Components.Aphid.Interpreter
 
             if (destinationExpression.Type == AphidExpressionType.IdentifierExpression)
             {
-                var idExp = destinationExpression.ToIdentifier();
+                var idExp = (IdentifierExpression)destinationExpression;
                 var id = idExp.Identifier;
 
-                if (!idExp.Attributes.Any(x => x.Identifier == "var"))
+                if (idExp.Attributes.Count == 0 || idExp.Attributes[0].Identifier != "var")
                 {
-                    var destObj = InterpretIdentifierExpression(idExp);
+                    var destObj = InterpretIdentifierExpression(idExp, canResolveType: false);
 
                     if (destObj == null)
                     {
@@ -1076,7 +1172,7 @@ namespace Components.Aphid.Interpreter
                             .Select(x => new { Property = x, Params = x.GetIndexParameters() })
                             .Single(x =>
                                 x.Params.Length == 1 &&
-                                x.Params.First().ParameterType == typeof(int));
+                                x.Params[0].ParameterType == typeof(int));
 
                         index.Property.SetValue(
                             targetObjUnwrapped,
@@ -2013,6 +2109,14 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretIdentifierExpression(IdentifierExpression expression)
         {
+            return InterpretIdentifierExpression(expression, canResolveType: true);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidObject InterpretIdentifierExpression(
+            IdentifierExpression expression,
+            bool canResolveType)
+        {
             AphidObject obj;
             Type t;
 
@@ -2020,13 +2124,14 @@ namespace Components.Aphid.Interpreter
             {
                 return obj;
             }
-            //else if ((t = InteropTypeResolver.TryResolveType(
-            //    GetImports(), 
-            //    new[] { expression.Identifier },
-            //    isType: true)) != null)
-            //{
-            //    return new AphidObject(t);
-            //}
+            else if (canResolveType && 
+                (t = InteropTypeResolver.TryResolveType(
+                    GetImports().ToArray(),
+                    new[] { expression.Identifier },
+                    isType: true)) != null)
+            {
+                return new AphidObject(t);
+            }
             else
             {
 
@@ -4042,7 +4147,9 @@ namespace Components.Aphid.Interpreter
         public object InterpretStream(string code)
         {
             var ast = AphidParser.Parse(code);
+#if APHID_SET_CODE_VAR
             SetAstCode(ast);
+#endif
             var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
             mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
             mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
@@ -4064,7 +4171,9 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Interpret(AphidExpression expression)
         {
+#if APHID_SET_CODE_VAR
             SetAstCode(new List<AphidExpression> { expression });
+#endif
             return InterpretExpression(expression);
         }
 
@@ -4281,7 +4390,9 @@ namespace Components.Aphid.Interpreter
         private void Interpret(string code, string filename, bool isTextDocument)
         {
             var ast = AphidParser.Parse(code, filename, isTextDocument);
+#if APHID_SET_CODE_VAR
             SetAstCode(ast);
+#endif
             var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
             mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
             mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
@@ -4292,20 +4403,25 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Interpret(List<AphidExpression> expressions)
         {
-            int tid;
-
-            if (OwnerThread == -1 ||
-                OwnerThread == (tid = Thread.CurrentThread.ManagedThreadId))
+            if (OwnerThread == -1)
             {
                 OwnerThread = Thread.CurrentThread.ManagedThreadId;
+#if APHID_SET_CODE_VAR
                 SetAstCode(expressions);
+#endif
+                Interpret(expressions, resetIsReturning: true);
+            }
+            else if (OwnerThread == Thread.CurrentThread.ManagedThreadId)
+            {
+                
+#if APHID_SET_CODE_VAR
+                SetAstCode(expressions);
+#endif
                 Interpret(expressions, resetIsReturning: true);
             }
             else
             {
-                var interpreter = new AphidInterpreter(CurrentScope.CreateChild(), Loader);
-
-                interpreter.Interpret(expressions);
+                new AphidInterpreter(CurrentScope.CreateChild(), Loader).Interpret(expressions);
             }
         }
 
@@ -4337,9 +4453,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            AphidObject document;
-
-            if (!CurrentScope.TryGetValue(AphidName.Block, out document))
+            if (!CurrentScope.ContainsKey(AphidName.Block))
             {
                 CurrentScope.Add(AphidName.Block, new AphidObject(expressions));
             }
@@ -4418,6 +4532,7 @@ namespace Components.Aphid.Interpreter
             return _frames.ToArray();
         }
 
+#if APHID_SET_CODE_VAR
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetAstCode(List<AphidExpression> ast)
         {
@@ -4429,6 +4544,7 @@ namespace Components.Aphid.Interpreter
             var node = ast.FirstOrDefault(x => x.Code != null);
             CurrentScope.Add(AphidName.Code, new AphidObject(node != null ? node.Code : null));
         }
+#endif
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetState()
@@ -4448,19 +4564,27 @@ namespace Components.Aphid.Interpreter
             _frames.Push(CreateEntryFrame());
             _queuedFramePops = 0;
 
-            foreach (var k in new[]
+            if (CurrentScope.ContainsKey(AphidName.Return))
             {
-                AphidName.Return,
-                AphidName.Block,
-                AphidName.Script,
-                AphidName.Code
-            })
-            {
-                if (CurrentScope.ContainsKey(k))
-                {
-                    CurrentScope.Remove(k);
-                }
+                CurrentScope.Remove(AphidName.Return);
             }
+
+            if (CurrentScope.ContainsKey(AphidName.Block))
+            {
+                CurrentScope.Remove(AphidName.Block);
+            }
+
+            if (CurrentScope.ContainsKey(AphidName.Script))
+            {
+                CurrentScope.Remove(AphidName.Script);
+            }
+
+#if APHID_SET_CODE_VAR
+            if (CurrentScope.ContainsKey(AphidName.Code))
+            {
+                CurrentScope.Remove(AphidName.Code);
+            }
+#endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4653,6 +4777,12 @@ namespace Components.Aphid.Interpreter
             }
 
             _insertNextBuffer = block;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void TakeOwnership()
+        {
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
         }
     }
 }

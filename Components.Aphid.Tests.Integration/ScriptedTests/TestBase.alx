@@ -36,7 +36,7 @@ if (!(global.childCreated defined )) {
             -? (@(x)
                 !x.StartsWith('$') &&
                 s.{x} != null &&
-                s.{x}.GetType() == typeof(AphidFunction))
+                s.{x}.GetType() == AphidFunction)
             |> Enumerable.ToArray;
     };
 
@@ -117,7 +117,7 @@ if (!(global.childCreated defined )) {
 
     throw = @{
         @{
-            Newobj(typeof(InvalidOperationException).GetConstructor([ ]));
+            Newobj(InvalidOperationException.GetConstructor([ ]));
             Throw;
         } |> execIL;
     };
@@ -148,7 +148,7 @@ if (!(global.childCreated defined )) {
                     Console.CursorLeft = len + 4;
                 }
 
-                if (r.result == null || r.result.GetType() != typeof(Boolean) || r.result) {
+                if (r.result == null || r.result.GetType() != bool || r.result) {
                     print(' -> ~Green~Successful~R~');
                 } else {
                     r.success = false;

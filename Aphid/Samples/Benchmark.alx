@@ -100,7 +100,7 @@ var numberBenchmark ;
     
             ArrayList
                 .Repeat(actionStmt, iterations)
-                .ToArray(typeof(AphidExpression))
+                .ToArray(AphidExpression)
                 |> actionBlock.Body.AddRange;
 
             benchmarkFunc.Body.replaceId('placeholder', actionBlock);

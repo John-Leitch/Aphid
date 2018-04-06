@@ -372,7 +372,7 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 extend " + targetType + @" {" + 
                     @"isFunc: @(" + paramDecl + @")" + paramRef + @".GetType()" + 
-                        @"==(FunctionExpression|>typeof)}
+                        @"== FunctionExpression}
                 ret @{@{ }}.Body[0].isFunc();
             ");
         }

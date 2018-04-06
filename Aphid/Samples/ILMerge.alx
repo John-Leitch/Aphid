@@ -43,15 +43,15 @@ _facade = macro(@(f) {
 
 
 asms = [
-    'Microsoft.CSharp.dll',
-    'System.Data.Linq.dll',
-    'System.Xml.Linq.dll',
-    'System.Web.dll',
-    'System.Web.Extensions.dll',
-    'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.dll',
-    'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Expressions.dll',
-    'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Parallel.dll',
-    'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Queryable.dll',
+    // 'Microsoft.CSharp.dll',
+    // 'System.Data.Linq.dll',
+    // 'System.Xml.Linq.dll',
+    // 'System.Web.dll',
+    // 'System.Web.Extensions.dll',
+    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.dll',
+    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Expressions.dll',
+    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Parallel.dll',
+    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Queryable.dll',
 ] !?;
 
 flags = '/ndebug /zeroPeKind';

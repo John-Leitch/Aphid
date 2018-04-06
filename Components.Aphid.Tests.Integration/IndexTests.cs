@@ -323,7 +323,7 @@ namespace Components.Aphid.Tests.Integration
             return string.Format(
                 "#'Std';\r\n" +
                 "#'Meta';\r\n" +
-                "a = Array.CreateInstance('{0}' |> typeof, {1});\r\n" +
+                "a = Array.CreateInstance({0}, {1});\r\n" +
                 "{2}",
                 typeof(TElement).Name,
                 size,

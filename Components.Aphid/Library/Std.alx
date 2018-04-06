@@ -83,15 +83,15 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-byte = Convert.ToByte;
-uint = Convert.ToUInt32;
-ulong = Convert.ToUInt64;
-sbyte = Convert.ToSByte;
-int = Convert.ToInt32;
-long = Convert.ToInt64;
-float = Convert.ToSingle;
-double = Convert.ToDouble;
-decimal = Convert.ToDecimal;
+//byte = Convert.ToByte;
+//uint = Convert.ToUInt32;
+//ulong = Convert.ToUInt64;
+//sbyte = Convert.ToSByte;
+//int = Convert.ToInt32;
+//long = Convert.ToInt64;
+//float = Convert.ToSingle;
+//double = Convert.ToDouble;
+//decimal = Convert.ToDecimal;
 
 aphid = this.{'$aphid'};
 getBlock = @() this.{'$parent'}.{'$block'};
@@ -101,9 +101,9 @@ getArgs = @() _callExp(1).Args;
 getArg = @(i) _callExp(1).Args[i];
 getIdArg = @(i) _callExp(1).Args[i].Identifier;
 idString = @() getArg(0);
-format = String.Format;
-join = String.Join;
-concat = String.Concat;
+format = string.Format;
+join = string.Join;
+concat = string.Concat;
 
 // Todo: make API for exporting custom ops/type extensions/etc.,
 // to other scopes so they can be defined using imports and includes
@@ -113,7 +113,7 @@ using System.Text.RegularExpressions;
 
 // Todo: move ops and other common funcs to core header,
 // autoload using INI setting.
-@ :: (fmt, args) String.Format(fmt, args);
+@ :: (fmt, args) string.Format(fmt, args);
 @ :> (fmt, args) $args.Count == 2 ? print(fmt, args) : print(fmt);
 @ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
 @ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
@@ -406,8 +406,8 @@ extend RuntimePropertyInfo {
 
         matches = a
             -? (@(x)
-                (getSetter && x.ReturnType == typeof(Void)) ||
-                (!getSetter && x.ReturnType != typeof(Void)))
+                (getSetter && x.ReturnType == void) ||
+                (!getSetter && x.ReturnType != void))
             -? (@(x)
                 (access == memberAccess.private && x.IsPrivate) ||
                 (access == memberAccess.protected && x.IsFamily) ||
@@ -445,17 +445,17 @@ var prepareClrMember = @(useFullNames, m)
         '{0}{1}~R~ ',
         expressionColor.modifier,
         ($(m.GetType())
-            typeof(RuntimeMethodInfo),
-            typeof(RuntimeConstructorInfo),            
-            typeof(ConstructorInfo),
-            typeof(RuntimeConstructorInfo),
-            typeof(FieldInfo),
-            typeof(RuntimeFieldInfo),
-            typeof(RtFieldInfo):
+            RuntimeMethodInfo,
+            RuntimeConstructorInfo,            
+            ConstructorInfo,
+            RuntimeConstructorInfo,
+            FieldInfo,
+            RuntimeFieldInfo,
+            RtFieldInfo:
                 m.IsPublic,
-            typeof(PropertyInfo), typeof(RuntimePropertyInfo):
+            PropertyInfo, RuntimePropertyInfo:
                 m.hasPublicGetter(),
-            typeof(EventInfo), typeof(RuntimeEventInfo):
+            EventInfo, RuntimeEventInfo:
                 m.AddMethod != null && m.AddMethod.IsPublic,
             false) ?
             'public' :
@@ -464,17 +464,17 @@ var prepareClrMember = @(useFullNames, m)
         format('{0}static~R~ ', expressionColor.modifier) :
         '') +
     ($(m.GetType())
-        typeof(EventInfo), typeof(RuntimeEventInfo):
+        EventInfo, RuntimeEventInfo:
             format('{0}event~R~ ', expressionColor.modifier),
         '') +
     ($(m.GetType())
-        typeof(ConstructorInfo), typeof(RuntimeConstructorInfo):
+        ConstructorInfo, RuntimeConstructorInfo:
             format(
                 '{0}{1}~R~({2});',
                 expressionColor.type,
                 _pn(m.DeclaringType),
                 _formatParams()),
-        typeof(MethodInfo), typeof(RuntimeMethodInfo):
+        MethodInfo, RuntimeMethodInfo:
             format(
                 '{0}{1}~R~ {2}{3}~R~({4});',
                 expressionColor.type,
@@ -482,14 +482,14 @@ var prepareClrMember = @(useFullNames, m)
                 expressionColor.methodName,
                 m.Name,
                 _formatParams()),
-        typeof(FieldInfo), typeof(RuntimeFieldInfo), typeof(RtFieldInfo):
+        FieldInfo, RuntimeFieldInfo, RtFieldInfo:
             format(
                 '{0}{1}~R~ {2}{3}~R~;',
                 expressionColor.type,
                 _pn(m.FieldType),
                 expressionColor.propertyName,
                 m.Name),
-        typeof(PropertyInfo), typeof(RuntimePropertyInfo):
+        PropertyInfo, RuntimePropertyInfo:
             format(
                 '{0}{1}~R~ {2}{3}~R~ {{ {4}get~R~;{5} }}',
                 expressionColor.type,
@@ -498,7 +498,7 @@ var prepareClrMember = @(useFullNames, m)
                 m.Name,
                 expressionColor.keyword,
                 _formatAutoSet()),
-        typeof(EventInfo), typeof(RuntimeEventInfo):
+        EventInfo, RuntimeEventInfo:
             format(
                 '{0}{1}~R~ {2}{3}~R~;',
                 expressionColor.type,
@@ -556,14 +556,8 @@ _aliasExt(funcs, funcs);
 
 getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
 getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
-getEnums = @(name) 0 |> getIdArg |> typeof |> Enum.GetValues;
+getEnums = @(type) type |> Enum.GetValues;
 getFullNames = @(name) this.{'$imports'}->@+('.' + name);
-
-typeof = @(name){
-    n = name == null ? getIdArg(0) : name;
-    t = (n |> getFullNames)->Type.GetType-?@!= null;
-    ret t.Count == 1 ? t[0] : null;
-};
 
 map = @(mapping, obj) {
     m = {};
@@ -581,7 +575,7 @@ isObject = keys @> Enumerable.Any;
 isCollection = @(x)
     x != null &&
     !isObject(x) &&
-    x.GetType() != typeof('String') &&
+    x.GetType() != string &&
     x.GetType().GetInterface('IEnumerable') != null;
 
 mix = @(src, dst) {
@@ -605,7 +599,7 @@ getMember = @(obj, path) {
 loadFile = @(asmFile) asmFile
     |> Path.GetFullPath
     @() $_.Replace('\\', '\\\\')
-    @String.Format('load "{0}"')
+    @format('load "{0}"')
     |> evalExp;
 
 
@@ -627,7 +621,7 @@ extend string {
 }
 
 extend IntPtr {
-    toHex: @(p) '0x' + String
+    toHex: @(p) '0x' + string
         .Format("{0:x}", p.ToInt64())
         .PadLeft(IntPtr.Size == 0x4 ? 0x8 : 0x10, '0'),
 }

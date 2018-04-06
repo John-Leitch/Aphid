@@ -16,7 +16,7 @@ if (asmName |> File.Exists) {
 
     $_.Emit(
         OpCodes.Call, 
-        typeof(Console).GetMethod('WriteLine', [ typeof(String) ]));
+        Console.GetMethod('WriteLine', [ String ]));
 
     $_.Emit(OpCodes.Ret);
 }

@@ -17,79 +17,92 @@ load mscorlib;
 
 head('IPC Channel Test');
 
+_initTrace = macro(@{
+    var trace = ipc.trace ? print : @{ };
+    var traceInfo = ipc.trace ? printInfo : @{ };
+    var traceSuccess = ipc.trace ? printSuccess : @{ };
+    var traceQuery = ipc.trace ? printQuery : @{ };
+});
 
+var ipc = {
+    trace: true,
+    listen: @(uri) {
+        _initTrace();
+        var u = $args.Count > 0 ? uri : "localhost:9090";
+        traceInfo('Starting IPC Channel on {0}', u);
+        
+        var serverChannel = new IpcChannel(u);
+        ChannelServices.RegisterChannel(serverChannel);
+        traceSuccess('Channel name: {0}', serverChannel.ChannelName);
+        traceSuccess('Channel priority: {0}', serverChannel.ChannelPriority);
 
-if (!argList.Contains('-client')) {
-    var aphid = this.{'$aphid'};
-    
-    
-    printInfo('Starting IPC Channel');
-    var serverChannel = new IpcChannel("localhost:9090");
-    ChannelServices.RegisterChannel(serverChannel);
-    printSuccess('Channel name: {0}', serverChannel.ChannelName);
-    printSuccess('Channel priority: {0}', serverChannel.ChannelPriority);
-
-    var channelData = serverChannel.ChannelData;
-    channelData.ChannelUris->@format('The channel URI is {0}');
-
-    RemotingConfiguration.RegisterWellKnownServiceType(
-        aphid.GetIpcContextType(),
-        "RemoteObject.rem", 
-        WellKnownObjectMode.Singleton);
-
-    urls = serverChannel.GetUrlsForUri("RemoteObject.rem");
-    print(urls);
-
-    aphid.RegisterIpcServer();
-
-    var args = format(
-        '/c {0} {1} -client',
-        getExe(),
-        getCommandLineArgs()[1]);
-
-    printQuery('Starting client process with args ~Cyan~{0}~R~', args);
-    var proc = Process.Start('cmd', args);
-    printInfo('Waiting for process to exit');
-    proc.WaitForExit();
-    printSuccess('Process has exited');
-    Console.ReadLine();
-
-
-} else {
-    try {
+        var channelData = serverChannel.ChannelData;
+        channelData.ChannelUris->@format('The channel URI is {0}');
         var aphid = this.{'$aphid'};
-        printInfo('Starting IPC client');
+
+        RemotingConfiguration.RegisterWellKnownServiceType(
+            aphid.GetIpcContextType(),
+            "RemoteObject.rem", 
+            WellKnownObjectMode.Singleton);
+
+        urls = serverChannel.GetUrlsForUri("RemoteObject.rem");
+        trace(urls);
+        aphid.RegisterIpcServer();
+    },
+    
+    // Todo: add host, port, and obj args
+    connect: @() {
+        _initTrace();
+        traceInfo('Starting IPC client');
         var clientChannel = new IpcChannel();
-
-        printInfo('Registering channel');
+        traceInfo('Registering channel');
         ChannelServices.RegisterChannel(clientChannel);
-
-        printInfo('Registering remote type');
+        traceInfo('Registering remote type');
+        var aphid = this.{'$aphid'};
 
         var remoteType = new WellKnownClientTypeEntry(
             aphid.GetIpcContextType(),
             "ipc://localhost:9090/RemoteObject.rem");
     
         RemotingConfiguration.RegisterWellKnownClientType(remoteType);
-
-        remoteType |> print;
+        remoteType |> trace;
 
         var messageSink = clientChannel.CreateMessageSink(
             "ipc://localhost:9090/RemoteObject.rem",
             null,
             null);
 
-        messageSink |> print;
-
+        messageSink |> trace;
         var ipcContext = aphid.CreateIpcClientContext();
-        ipcContext.Eval('print("Hello world")');
 
-        //var ro = Activator.CreateInstance(roType);
-        //ro |> print;
-        //var ro = new RemoteObject();
-        //ro |> print;
+        ret ipcContext;
+    },
+};
 
-    
+
+
+if (!argList.Contains('-client')) {
+    _initTrace();
+
+    ipc.listen();
+
+    var args = format(
+        '/c {0} {1} -client',
+        getExe(),
+        getCommandLineArgs()[1]);
+
+    traceQuery('Starting client process with args ~Cyan~{0}~R~', args);
+    var proc = Process.Start('cmd', args);
+    traceInfo('Waiting for process to exit');
+    proc.WaitForExit();
+    traceSuccess('Process has exited');
+    // Console.ReadLine();
+
+
+} else {
+    try {
+        var ctx = ipc.connect();
+        ctx.Eval('trace("Hello world")');
         Thread.Sleep(1500);
     } catch (e) {
         dump(e);
@@ -97,5 +110,5 @@ if (!argList.Contains('-client')) {
         repl();
     }
     
-    Console.ReadLine();
+    // Console.ReadLine();
 }
