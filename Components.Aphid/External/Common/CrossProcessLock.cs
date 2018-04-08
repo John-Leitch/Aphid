@@ -9,14 +9,33 @@ namespace Components
 {
     public sealed class CrossProcessLock : IDisposable
     {
+        public const string DefaultName = "Components.CrossProcessLock";
+
+        public const bool DefaultInitialState = false;
+
         public EventWaitHandle Handle { get; private set; }
 
+        public CrossProcessLock()
+            : this(DefaultInitialState)
+        {
+        }
+
         public CrossProcessLock(string name)
+            : this(name, DefaultInitialState)
+        {
+        }
+
+        public CrossProcessLock(bool initialState)
+            : this(DefaultName, initialState)
+        {
+        }
+
+        public CrossProcessLock(string name, bool initialState)
         {
             bool isHandleNew;
 
             Handle = new EventWaitHandle(
-                false,
+                initialState,
                 EventResetMode.AutoReset,
                 name,
                 out isHandleNew);
@@ -25,11 +44,6 @@ namespace Components
             {
                 Handle.WaitOne();
             }
-        }
-
-        public CrossProcessLock()
-            : this("Components.CrossProcessLock")
-        {
         }
 
         public void Dispose()
