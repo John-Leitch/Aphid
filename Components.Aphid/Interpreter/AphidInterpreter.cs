@@ -14,6 +14,7 @@ using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
+using Components.External.ConsolePlus;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -4694,7 +4695,9 @@ namespace Components.Aphid.Interpreter
             params object[] args)
         {
             return CreateRuntimeException(
-                string.Format("{0} {1}", message, GetValueString(obj)),
+                string.Format("{0} {1}",
+                    message,
+                    Cli.FormatEscape(GetValueString(obj))),
                 args);
         }
 
@@ -4709,7 +4712,7 @@ namespace Components.Aphid.Interpreter
                 string.Format(
                     "{0} {1}",
                     message,
-                    GetExpressionValueString(expression, obj)),
+                    Cli.FormatEscape(GetExpressionValueString(expression, obj))),
                 args);
         }
 

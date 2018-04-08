@@ -616,6 +616,16 @@ namespace Components.External.ConsolePlus
                 value;
         }
 
+        public static string FormatEscape(string value)
+        {
+            return value.Replace("{", "{{").Replace("}", "}}");
+        }
+
+        public static string FormatEscape(object value)
+        {
+            return FormatEscape(value.ToString());
+        }
+
         public static string StyleEscape(object value)
         {
             return StyleEscape(value.ToString());
