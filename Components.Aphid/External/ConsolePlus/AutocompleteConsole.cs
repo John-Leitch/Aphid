@@ -63,7 +63,7 @@ namespace Components.External.ConsolePlus
 
         public string ReadLine()
         {
-            DrawText();
+            DrawText(skipAutocomplete: true);
 
             while (true)
             {
