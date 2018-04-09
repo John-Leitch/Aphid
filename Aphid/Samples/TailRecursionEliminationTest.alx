@@ -1,0 +1,36 @@
+using System;
+Console.Clear();
+// #'debugdeploy';
+#'std';
+
+var obj = { id:10, parent: { id:123, parent: { id: 1, parent: null } } };
+var root = @(node) node.parent == null ? node : node.parent |> root;
+obj |> root |> dump;
+
+#'C:\\source\\Aphid\\Components.Aphid\\Library\\Meta.alx';
+var pattern2 = @{ var foo };
+var target2 =  @{ @{ var foo = 0x123 } };
+var replaceIdMatch = @(pattern, target) mutate(
+    @{
+        if ($args.Count == 0) {
+            print('foo');
+            // fatal('test');
+            // exit(1);
+        } else {
+            print('Piping');
+            pattern.GetType() |> print;
+            dump(pattern);
+            pattern[0] |> expression.matchId |> dump
+        }
+    },
+    target.Body);
+replaceIdMatch(pattern2, target2);
+// var replaceId = @(pattern) mutate(@(ctx, node) { expression.matchId(pattern[0]) |> dump  }, @{ @{ var foo = 0x123 } }.Body);
+// replaceId(@{ var foo });
+// var replaceId = @(pattern, replacement, target) mutate(@{ expression.matchId(pattern) |> dump  }, target.Body);
+
+
+// replaceId(
+//     @{ var foo }[0],
+//     @{ var newName },
+//     @{ @{ var foo = 0x123 } });
