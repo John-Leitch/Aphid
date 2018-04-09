@@ -90,7 +90,6 @@
     <Compile Include="InteropTests\InteropTests.Math.cs" />
     <Compile Include="InteropTests\InteropTests.String.Format.cs" />
     <Compile Include="Shared\AphidTests.cs" />
-    <Compile Include="AssignmentTests.cs" />
     <Compile Include="ClassTests.cs" />
     <Compile Include="Shared\ValueUpdateEventArgs.cs" />
     <Compile Include="Shared\UIComponent.cs" />
@@ -150,6 +149,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ScriptedTests\CliTests.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ScriptedTests\AssignmentTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ScriptedTests\NestedTypeTests.alx">

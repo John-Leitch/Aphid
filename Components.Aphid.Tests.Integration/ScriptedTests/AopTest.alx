@@ -109,8 +109,9 @@
             -<(@()$_)
             ->funcExp[0].RightOperand.Args[0].Body.Add;
             
+            ctx.Expression = funcExp[0];
+            ctx.IsModified = true;
             context.handled.add(funcExp[0]);
-            this.{'$aphid'}.InsertNext(funcExp);
         }
     };
 }();

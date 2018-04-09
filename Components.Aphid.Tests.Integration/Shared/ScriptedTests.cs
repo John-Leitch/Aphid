@@ -74,11 +74,12 @@ namespace Components.Aphid.Tests.Integration.Shared
 
                 foreach (var s in testScripts)
                 {
+                    var script = File.ReadAllText(s.FullName);
                     var interpreter = new AphidInterpreter();
                     interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
                     interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
                     interpreter.Interpret(_prologueAst);
-                    interpreter.Interpret(File.ReadAllText(s.FullName));
+                    interpreter.Interpret(script);
                     var scope = interpreter.CurrentScope;
 
                     var tests = scope.Keys

@@ -4459,7 +4459,7 @@ namespace Components.Aphid.Interpreter
                 CurrentScope.Add(AphidName.Block, new AphidObject(expressions));
             }
 
-            for (var i = 0; i < expressions.Count; i++)
+            for (var i = 0; i < expressions.Count || _insertNextBuffer != null; i++)
             {
                 if (_insertNextBuffer != null)
                 {

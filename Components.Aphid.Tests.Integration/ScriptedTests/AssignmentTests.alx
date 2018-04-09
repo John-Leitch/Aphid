@@ -1,0 +1,7 @@
+﻿#'AopTest';
+assignment group;
+
+@{ x = 1; x == 1 |> isTrue };
+@{ x = 1; y = x; y = 9; x == 1 && y == 9 |> isTrue };
+@{ x = 'foo'; x |> isFoo };
+@{ x = 'bar'; x = 'foo'; x |> isFoo };

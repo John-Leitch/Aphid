@@ -20,18 +20,6 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void AssignmentTest()
-        {
-            AssertFoo("x='foo'; ret x;");
-        }
-
-        [Test]
-        public void AssignmentTest2()
-        {
-            AssertFoo("x='bar'; x='foo'; ret x;");
-        }
-
-        [Test]
         public void StringConcatTest()
         {
             AssertFoo("ret 'fo'+'o';");
