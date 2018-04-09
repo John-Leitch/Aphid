@@ -575,7 +575,7 @@
                 _initTrace('Resolve');
                 r = { value: nameMatches };
                 switch (nameMatches.GetType()) {
-                    typeof(AphidFunction): {
+                    AphidFunction: {
                         r.call =  @(args) {
                             traceResolve(
                                 'Calling aphid function {0}',
@@ -587,7 +587,7 @@
                         ret r;
                     }
 
-                    typeof(AphidInteropMember): {
+                    AphidInteropMember: {
                         try {
                             r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
                                 nameMatches.Members,

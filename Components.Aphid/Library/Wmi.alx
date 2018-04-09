@@ -32,7 +32,7 @@ var wmi;
         preserveFixedNames: false,
         query: @(wmiQuery) {
             if (wmiQuery != null &&
-                wmiQuery.GetType() == typeof(AphidFunction)) {
+                wmiQuery.GetType() == AphidFunction) {
                 var results = wmiQuery |> parseInlineQueries -> wmi.query;
                 ret results.Count == 1 ? results[0] : results;
             }

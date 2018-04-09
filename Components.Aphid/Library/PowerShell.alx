@@ -208,7 +208,7 @@ initPSInterop = @{
             //parts != null &&
             //parts.Count >= 1 &&
             //(result.obj == null || result.obj.Count == 0) &&
-            //parts[0].GetType() != typeof(String)) {
+            //parts[0].GetType() != String) {
             //tracePS('Unwrapping PS result');
             //result.obj = parts.Count == 1 ? parts[0] : parts;
         //}

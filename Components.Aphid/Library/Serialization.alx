@@ -41,7 +41,7 @@ dumpJsonDataContract;
                 s,
                 Activator.CreateInstance(
                     p.PropertyType,
-                    [ Convert.ChangeType(1, typeof(Int32)) ]));
+                    [ Convert.ChangeType(1, Int32) ]));
 
             ret @() JsonConvert.SerializeObject($_, s);
         }();
