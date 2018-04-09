@@ -117,6 +117,15 @@ namespace LLex
                     {
                         tokenTable.AddCode(token.Code);
                     }
+                    else if (token.TokenType != null)
+                    {
+                        tokenTable.AddCode("return {TokenType}." + token.TokenType + ";\r\n");
+                    }
+                    else
+                    {
+                        throw new NotImplementedException(
+                            "Token with no regex, code, or type not supported.");
+                    }
                 }
 
                 foreach (var keyword in mode.Keywords ?? new string[0])

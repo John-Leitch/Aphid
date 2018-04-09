@@ -204,7 +204,7 @@ namespace LLex
                         .SelectMany(y => y.Value)
                         .Where(y => y.Code != null)
                         .SelectMany(y => Regex
-                            .Matches(y.Code, @"TokenType\s*.\s*([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)")
+                            .Matches(y.Code, @"TokenType\}?\s*.\s*([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)")
                             .OfType<Match>()
                             .Select(z => z.Groups[1].Value)))
                     .Distinct()
@@ -216,8 +216,7 @@ namespace LLex
                 .Select(x => @"
                     if (mode == " + x.Key + @")
                     {
-                        " + EmitState(GroupTokens(x.Value), true,
-                            x.Value.Where(y => y.Lexeme == null).Select(y => y.Code)) + @"
+                        " + EmitState(GroupTokens(x.Value), true, GetDefaults(x.Value)) + @"
                     }
                     ")
                 .Aggregate((x, y) => x + "else " + y);
@@ -238,6 +237,11 @@ namespace LLex
                 .Replace("{Body}", Components.Aphid.Properties.Resources.AddTokenTemplate)
                 .Replace("{AllBody}", Components.Aphid.Properties.Resources.AddTokenTemplate)
                 .Replace("PreviousChar();", "charIndex--;");
+        }
+
+        private IEnumerable<string> GetDefaults(List<TokenEntry> tokens)
+        {
+            return tokens.Where(y => y.Lexeme == null).Select(y => y.Code);
         }
     }
 }

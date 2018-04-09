@@ -1,0 +1,15 @@
+﻿#'Benchmark';
+
+var custopOpCount = 20000;
+
+benchmark(
+    'custom operator extension method',
+    custopOpCount,
+    @{ @`(depth, num) this.{'$frames'}[depth].exp().args()[num].id() },
+    @{ @{ (1`0).ToString() }(foo, bar) });
+
+benchmark(
+    'custom operator direct property access',
+    custopOpCount,
+    @{ @`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier },
+    @{ @{ (1`0).ToString() }(foo, bar) });

@@ -1,0 +1,7 @@
+﻿#'Benchmark';
+_ = macro(@(name, count, exp) { benchmark(name, count, @{  }, @{ exp }) });
+
+_('include script', 100, @{ #'std' }());
+_('include library', 100000, ##'Components.Aphid.Library.Net.TcpLibrary');
+_('import namespace', 1000000, using System.IO);
+_('load assembly', 500, load System.Xml.Linq);
