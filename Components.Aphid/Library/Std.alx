@@ -379,7 +379,12 @@ _dump = macro(@(m) {
 
         var matches = members
             ->(@(x) x |> prepared)
-            -?(@(x) !hasPattern || Regex.IsMatch(Cli.StyleEscape(x.ToString()), pattern))
+            -?(@(x)
+                !hasPattern ||
+                Regex.IsMatch(
+                    Cli.StyleEscape(x.ToString()),
+                    pattern,
+                    RegexOptions.IgnoreCase))
             ->(@(o) o)
             @join('\r\n')
             print;
