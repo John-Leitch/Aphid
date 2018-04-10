@@ -1,19 +1,8 @@
-﻿var remote = null;
-
-using Components.Aphid.TypeSystem;
+﻿using Components.Aphid.TypeSystem;
 using Components.Aphid.Serialization;
 using System;
 
-this.{'$aphid'}.Serializer.QuoteToStringResults = true;
-//var remotingSerializer = new AphidSerializer();
-//remotingSerializer.QuoteToStringResults = true;
-//using Components.
-
-class RemoteProxy {
-    AphidFunction Connect,
-    Guid RemoteId,
-    String BasePath
-};
+class RemoteProxy { AphidFunction Connect, Guid RemoteId, string BasePath };
 
 extend RemoteProxy {
     Eval: @(s, code) code |> remote._remoteTable.{s.RemoteId}.eval,
@@ -24,7 +13,6 @@ extend RemoteProxy {
         sb.Append('ret ');
         sb.Append(!String.IsNullOrEmpty(s.BasePath) ? s.BasePath + '.' + name : name);
         sb.Append('(\r\n    ');
-
         var firstArg = true;
 
         $args @aq.skip(1) -> serialize ->@(s) {
@@ -38,7 +26,6 @@ extend RemoteProxy {
         };
 
         sb.AppendLine(');');
-
         var resp = sb.ToString() |> remote._remoteTable.{s.RemoteId}.eval;
         
         ret resp != null && resp.result defined ?
@@ -47,86 +34,82 @@ extend RemoteProxy {
     }
 }
 
+var remote = null;
+
 @{
-    _t;
-    #'Query';
-    _t = traceRemoting defined ?
-        @(f){
-            if ($args.Count == 0) print('');
-            else if ($args.Count == 1) print($args[0]);
-            else  print($args[0], $args @aq.skip(1));
-        } :
-        @{ };
     using System;
     using System.IO;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
     #'Threading';
-
+    #'Query';
+    #'Std';
+    
     extend TcpClient {
         isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
     }
 
-    utf8 = new UTF8Encoding();
+    var _t = traceRemoting defined ? Cli.WriteLine : @{ };
+    var utf8 = new UTF8Encoding();
 
-    createClient = @(tcp) ({
+    var createClient = @(tcp) ({
         socket: tcp,
         stream: tcp.GetStream(),
         
-        
         read: @{
-            reader = new BinaryReader(tcp.GetStream());
-            len = reader.ReadUInt32();
+            var reader = new BinaryReader(tcp.GetStream());
+            var len = reader.ReadUInt32();
             _t('Receiving {0:n0} bytes', len);
-            buf = len |> Convert.ToInt32 |> reader.ReadBytes;
+            var buf = len |> Convert.ToInt32 |> reader.ReadBytes;
             _t('{0:n0} bytes read', buf.Length);
 
             ret new AphidObject(buf |> utf8.GetString);
         },
 
         write: @(b) {
-            buf;
-            buf = b |> utf8.GetBytes;
-            writer = new BinaryWriter(tcp.GetStream());
-            buf.Length |> Convert.ToUInt32 |> writer.Write;
-            buf |> writer.Write;
+            var buf = b |> utf8.GetBytes;
+            var writer = new BinaryWriter(tcp.GetStream());
+            [ buf.Length |> Convert.ToUInt32, buf ]->writer.Write;
         },
     });
 
     _isAlive = macro(@(client) { client.Connected });
 
+    _initSerializer = macro(@(a){
+        a.Serializer.QuoteToStringResults = true;
+        a.Serializer.IgnoreFunctions = true;
+        a.Serializer.IgnoreSpecialVariables = true;
+    });
+
     remote = {
         port: 0x5230,
 
-        listen: @{
-            ctx;
-            _t('Creating listener on port {0}', remote.port);
-            ctx = { listener: new TcpListener(remote.port), clients: [] };
+        listen: @(port){
+            var actualPort = port ?? remote.port;
+            _t('Creating listener on port {0}', actualPort);
+            var ctx = { listener: new TcpListener(actualPort), clients: [] };
             _t('Starting listener');
-            l = ctx.listener;
+            var l = ctx.listener;
             ctx.listener.Start();
+            _initSerializer(this.{'$aphid'});
 
             ctx.listenThread = thread(@{
-                aphid;
-                aphid = this.{'$aphid'};
+                var aphid = this.{'$aphid'};
+                
                 while (true) {
                     _t('Waiting for client');
 
                     try {
-                        tcp;
-                        c;
-
-                        tcp = ctx.listener.AcceptTcpClient();
+                        var tcp = ctx.listener.AcceptTcpClient();
                         _t('Client connected');
-                        c = createClient(tcp);
+                        var c = createClient(tcp);
 
                         c.thread = thread(@{
-                            buffer;
-                            resp;
+                            var buffer;
+                            var resp;
                             _t('Creating client thread');
 
-                            // while (n.socket.isConnected()) {
                             try {
                                 while (c.socket.Connected) {
                                     try buffer = c.read();
@@ -137,8 +120,10 @@ extend RemoteProxy {
 
                                     _t('Buffer: ~Cyan~{0}~R~', buffer);
 
-                                    try resp = { result: buffer |> aphid.InterpretStream } |> serialize;
-                                    catch (e) {
+                                    try {
+                                        var o = buffer |> aphid.InterpretStream;
+                                        resp = { result: o } |> serialize;
+                                    } catch (e) {
                                         _t('Error serializating response: {0}', e.message);
                                         this |> serialize |> c.write;
                                     }
@@ -162,26 +147,22 @@ extend RemoteProxy {
             ret ctx;
         },
 
-        connect: @(server){
-            tcp;
-            client;
-
+        connect: @(server, port){
             if (!(server defined) || server == null) {
-                fata('Server must be specified');
+                fatal('Server must be specified');
             }
 
             _t('Connecting to remote session {0}', server);
-            tcp = new TcpClient();
-            tcp.Connect(server, 0x5230);        
-            client = createClient(tcp);
+            var tcp = new TcpClient();
+            tcp.Connect(server, port ?? remote.port);        
+            var client = createClient(tcp);
 
             client.eval = @(exp) {
                 _t('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
-                //this |> keys |> dump;
                 write(exp);
                 _t('Reading command');
-                buf = read();
-                _t('Server response: {0}', buf.Replace('~', '~~'));
+                var buf = read();
+                _t('Server response:\r\n~Magenta~{0}~R~\r\n\r\n', buf |> Cli.StyleEscape);
                 ret buf |> deserialize;
             };
 
@@ -192,8 +173,7 @@ extend RemoteProxy {
         _remoteTable: {},
         
         connectProxy: @(server) {
-            proxy;
-            proxy = new RemoteProxy();
+            var proxy = new RemoteProxy();
             proxy.RemoteId = Guid.NewGuid();
             remote._remoteTable.{proxy.RemoteId} = remote.connect(server);
 
