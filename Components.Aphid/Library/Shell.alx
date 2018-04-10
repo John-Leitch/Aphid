@@ -147,14 +147,18 @@
                     ($($args.Count)
                         0: '[Nothing]',
                         1: fmt,
-                        format(fmt, $args @aq.skip(1))))) :
+                        format(fmt, $args @aq.skip(1))) |> Cli.StyleEscape)) :
             @() {};
     });
 
     shell = {
         host: Environment.MachineName,
         input: '',
-        interpreter: new AphidInterpreter(),
+        interpreter: @{
+            var a = new AphidInterpreter();
+            a.Serializer = this.{'$aphid'}.Serializer;
+            ret a 
+        }(),
         interpret: interpreter.Interpret,
         waitingForInput: false,
         waitingForOutput: true,
@@ -571,10 +575,17 @@
             },
 
             resolveSignature: @(nameMatches, signature) {
-                r;
                 _initTrace('Resolve');
-                r = { value: nameMatches };
-                switch (nameMatches.GetType()) {
+                var r = { value: nameMatches };
+
+                // Todo: handle Aphid objects
+                var type = (@() nameMatches.GetType()) ?| null;
+
+                if (type == null) {
+                    ret null;
+                }
+
+                switch (type) {
                     AphidFunction: {
                         r.call =  @(args) {
                             traceResolve(
@@ -632,7 +643,7 @@
 
     // Todo: check for assignments, includes, etc. and handle 
     // accordingly rather than dumping everything to out
-    shell.dumpObject = psContext.restorePSObject @> psContext.outString;// @> Cli.StyleEscape;
+    shell.dumpObject = psContext.restorePSObject @> psContext.outString @> Cli.StyleEscape;
     shell.inLine = Console.ReadLine;
     shell.out = Cli.Write;
     shell.outLine = Cli.WriteLine;
@@ -778,19 +789,23 @@
 
         shell.writeOut = @(buffer) {
             // ThreadPool.QueueUserWorkItem(@{
-                Console.WriteLine('~Cyan~Waiting to write out~R~');
+                Console.WriteLine('~Cyan~Waiting to write out~R~' |> Cli.EraseStyles);
                 Monitor.Enter(outStream);
-                Console.WriteLine('~Cyan~Writing out: {0}~R~', Cli.StyleEscape(buffer.ToString()));
+                
+                Console.WriteLine(
+                    '~Cyan~Writing out: {0}~R~' |> Cli.EraseStyles,
+                    Cli.StyleEscape(buffer.ToString() |> Cli.EraseStyles));
+
                 outWriter.Write(buffer.ToString());
                 outWriter.Flush();
                 shell.waitingForOutput = true;
-                Console.WriteLine('~Cyan~Done writing out~R~');
+                Console.WriteLine('~Cyan~Done writing out~R~' |> Cli.EraseStyles);
                 Monitor.Exit(outStream);
             // });
         };
 
         shell.readOut = @{
-            Console.WriteLine('~Cyan~Waiting to read out~R~');
+            Console.WriteLine('~Cyan~Waiting to read out~R~' |> Cli.EraseStyles);
             var buffer;
 
             while (true) {
@@ -798,14 +813,18 @@
 
                 if (outStream.Length == 0) {
                     Monitor.Exit(outStream);
-                    Console.WriteLine('~Cyan~read out sleeping~R~');
+                    Console.WriteLine('~Cyan~read out sleeping~R~' |> Cli.EraseStyles);
                     Thread.Sleep(100);
                     continue;
                 }
 
                 outStream.Position = 0;
                 buffer = outReader.ReadToEnd();
-                Console.WriteLine('~Cyan~Done reading out: {0}~R~', Cli.StyleEscape(buffer));
+                
+                Console.WriteLine(
+                    '~Cyan~Done reading out: {0}~R~' |> Cli.EraseStyles,
+                    Cli.StyleEscape(buffer |> Cli.EraseStyles));
+
                 outStream.SetLength(0);
 
                 // if (shell.waitingForInput)
@@ -828,7 +847,7 @@
         };
 
         shell.readInLine = @() {
-            Console.WriteLine('~Yellow~Waiting to read inLine~R~');
+            Console.WriteLine('~Yellow~Waiting to read inLine~R~' |> Cli.EraseStyles);
             buffer;
             buffer = null;
 
@@ -842,11 +861,14 @@
                     continue;
                 }
             
-                Console.WriteLine('~Yellow~Reading inLine~R~');
+                Console.WriteLine('~Yellow~Reading inLine~R~' |> Cli.EraseStyles);
                 oldPos = inStream.Position;
                 inStream.Position = 0;
                 buffer = inReader.ReadToEnd();
-                Console.WriteLine('~Yellow~Done reading inLine: {0}~R~', Cli.StyleEscape(buffer));
+                
+                Console.WriteLine(
+                    '~Yellow~Done reading inLine: {0}~R~' |> Cli.EraseStyles,
+                    Cli.StyleEscape(buffer |> Cli.EraseStyles));
 
                 if (buffer == null || !buffer.EndsWith('\r\n')) {
                     inStream.Position = oldPos;
@@ -858,7 +880,7 @@
                 inStream.Position = 0;
                 inStream.SetLength(0);
                 Monitor.Exit(inStream);
-                Console.WriteLine('~Yellow~Done resetting inLine~R~');
+                Console.WriteLine('~Yellow~Done resetting inLine~R~' |> Cli.EraseStyles);
                 break;
             }
 
@@ -901,6 +923,7 @@
 
     if (args.Contains('Shell.alx')) {
         if (args.Contains('-interactive')) {
+            //shell.trace();
             shell.run();
             exit();
         } else if (args.Contains('-test')) {
