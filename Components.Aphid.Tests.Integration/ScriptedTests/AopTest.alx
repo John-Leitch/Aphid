@@ -3,6 +3,8 @@
 @{
     #'Std';
     #'Meta';
+    #'Query';
+
     var context = {
         currentState: 0,
         names: { },
@@ -15,6 +17,7 @@
         group: '',
         testSet: '',
         wrap: 'success',
+        wrapLast: null,
     };
 
     var getAttrStr = @(exp) exp
@@ -27,13 +30,20 @@
         ctx.IsHandled = true;
     });
 
+    var capitalize = @(word) !string.IsNullOrEmpty(word) ?
+        word.Remove(1).ToUpper() + word.Substring(1) :
+        word;
+
+    var c = context;
+
     var getBase = @()
-        context.group +
-        context.testSet +
-        (context.wrap != 'success' && context.wrap.Length > 0 ?
-            context.wrap.Remove(1).ToUpper() + context.wrap.Substring(1) :
-            '') ?:
-        'Unnamed Script Aphid ';
+        concat(
+            c.group,
+            c.testSet,
+            c.wrapLast != null && c.wrapLast.Length > 0 ? capitalize(c.wrapLast) : '',
+            c.wrap != 'success' && c.wrap.Length > 0 ? capitalize(c.wrap) : '',
+            'Test') ?:
+        'UnnamedScriptedAphidTest';
     
     var nextName = @()
         getBase() +
@@ -76,6 +86,11 @@
         ctx.IsHandled = true;
     });
 
+    _wrapLast = macro(@(n) {
+        context.wrapLast = n;
+        ctx.IsHandled = true;
+    });
+
     this.{'$aphid'}.OnInterpretStatement = @(ctx) {
         if (context.add) {
             context.curList.add(ctx.Expression);
@@ -93,25 +108,29 @@
                 'epilogue': _updateList(epilogue);
                 'success': _wrap('success');
                 'fault': _wrap('fault');
+                'isFoo': _wrapLast('isFoo');
+                'isTrue': _wrapLast('isTrue');
+                'isFalse': _wrapLast('isFalse');
+                'is9': _wrapLast('is9');
             }
         } else if (ctx.Expression.isFunc()) {
-            // print('Exp: {0}', ctx.Expression);
-            var funcExp =
-                format('{0} = {1}(@{{ }})', nextName(), context.wrap)
-                |> parse;
             
-            [
-                context.prologue,
-                detach.Body,
-                ctx.Expression.Body,
-                context.epilogue
-            ]
-            -<(@()$_)
-            ->funcExp[0].RightOperand.Args[0].Body.Add;
-            
-            ctx.Expression = funcExp[0];
+            var f = '{0} = {1}(@{{  }})' :: [ nextName(), context.wrap ] |> parse;
+            var b = f[0].RightOperand.Args[0].Body;
+            [ context.prologue, detach.Body, ctx.Expression.Body, ] -<(@()$_) ->b.Add;
+
+            if (context.wrapLast != null) {
+                var l = b |> aq.last;
+                b.Remove(l);
+                var exp = parseExp('{0}()' :: [ context.wrapLast ]);
+                exp.Args.Add(l);
+                b.Add(exp);
+            }
+
+            context.epilogue->b.Add;
+            ctx.Expression = f[0];
             ctx.IsModified = true;
-            context.handled.add(funcExp[0]);
+            context.handled.add(f[0]);
         }
     };
 }();

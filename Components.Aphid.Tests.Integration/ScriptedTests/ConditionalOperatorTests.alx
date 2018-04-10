@@ -1,12 +1,15 @@
 ﻿#'AopTest';
-
 conditional operator group;
-@{ true ? 9 : 0 |> is9; };
-@{ false ? 0 : 9|> is9; };
-@{ true ? 'foo' : 'bar' |> isFoo; };
-@{ false ? 'bar' : 'foo' |> isFoo; };
-@{ false ? 9 : 'foo' |> isFoo; };
-@{ false ? 'foo' : 9 |> is9; };
+
+is9;
+@{ true ? 9 : 0; };
+@{ false ? 0 : 9; };
+@{ false ? 'foo' : 9; };
+
+isFoo;
+@{ true ? 'foo' : 'bar'};
+@{ false ? 'bar' : 'foo'; };
+@{ false ? 9 : 'foo'; };
 
 fault;
 @{ 'test' ? 'foo' : 9; };

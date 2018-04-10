@@ -129,9 +129,9 @@ if (!(global.childCreated defined )) {
         printQuery('Searching for tests');
         testKeys = getTestKeys(scope);
 
-        printSuccess('Found ~Cyan~{0}~R~ tests:\r\n', testKeys.Length);
-        testKeys->@format('  ~Cyan~-~R~ {0}') @join('\r\n') |> print;
-        print();
+        printSuccess('Found ~Cyan~{0}~R~ tests', testKeys.Length);
+        //printSuccess('Found ~Cyan~{0}~R~ tests:\r\n', testKeys.Length);
+        //testKeys->@format('  ~Cyan~-~R~ {0}') @join('\r\n') |> print;
 
         printInfo('Executing tests');
         testResults = testKeys->@(k) {

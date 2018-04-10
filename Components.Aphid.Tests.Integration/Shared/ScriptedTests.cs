@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration.Shared
@@ -101,6 +102,11 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         private static string FormatTestName(string funcName)
         {
+            if (Regex.IsMatch(funcName, @"Test\d*$"))
+            {
+                return funcName;
+            }
+
             var n = funcName[0].ToString().ToUpper() + funcName.Substring(1);
             var digits = n.Where(char.IsDigit).ToArray();
 

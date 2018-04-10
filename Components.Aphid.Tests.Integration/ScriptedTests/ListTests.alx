@@ -3,22 +3,27 @@
 list group;
 
 access begin;
-@{ x = [ 9, 'foo' ]; isFoo(x[1]) };
-@{ x = [ 9, 'foo' ]; is9(x[0]) };
-@{ x={ y:['foo'] }; isFoo(x.y[0]); };
+is9;
+@{ x = [ 9, 'foo' ]; x[0] };
+
+isFoo;
+@{ x = [ 9, 'foo' ]; x[1] };
+@{ x={ y:['foo'] }; x.y[0]; };
 
 element set begin;
-@{ x = [ 'bar' ]; x[0] = 'foo'; isFoo(x[0]); };
-@{ x = [ 'foo' ]; y = x[0]; y = 'bar'; isFoo(x[0]); };
-@{ x = 'foo'; y = [ 0 ]; y[0] = x; x = 'bar'; isFoo(y[0]); };
-@{ x = 'foo'; y = [ x ]; x = 'bar'; isFoo(y[0]); };
+@{ x = [ 'bar' ]; x[0] = 'foo'; x[0]; };
+@{ x = [ 'foo' ]; y = x[0]; y = 'bar'; x[0]; };
+@{ x = 'foo'; y = [ 0 ]; y[0] = x; x = 'bar'; y[0]; };
+@{ x = 'foo'; y = [ x ]; x = 'bar'; y[0]; };
 
 aggregate begin;
-@{ a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y) |> isFoo; };
-@{ a = 'foo'; a.chars().aggregate(@(x, y)x + y) |> isFoo; };
+@{ a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y); };
+@{ a = 'foo'; a.chars().aggregate(@(x, y)x + y); };
 
 insert begin;
-@{ a = [ 'bar' ]; a.insert(0, 'foo'); a[0] |> isFoo };
-@{ a = [ 'bar' ]; a.insert(1, 'foo'); a[1] |> isFoo };
-@{ a = [ 9 ]; a.insert(0, 'foo'); a[1] |> is9 };
-@{ a = [ 9 ]; a.insert(1, 'foo'); a[0] |> is9 };
+@{ a = [ 'bar' ]; a.insert(0, 'foo'); a[0] };
+@{ a = [ 'bar' ]; a.insert(1, 'foo'); a[1] };
+
+is9;
+@{ a = [ 9 ]; a.insert(0, 'foo'); a[1] };
+@{ a = [ 9 ]; a.insert(1, 'foo'); a[0] };
