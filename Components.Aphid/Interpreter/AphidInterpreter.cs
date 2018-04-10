@@ -212,7 +212,7 @@ namespace Components.Aphid.Interpreter
 
         public Action<AphidExpression> HandleExecutionBreak { get; set; }
 
-        public AphidSerializer Serializer { get; private set; }
+        public AphidSerializer Serializer { get; set; }
 
         public TextWriter Out { get; set; }
 
@@ -2182,8 +2182,8 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var childInterpreter = new AphidInterpreter(CurrentScope.CreateChild(), Loader);
-                return childInterpreter.CallFunctionCore(function, scope, parmsWrapped);
+                return new AphidInterpreter(CurrentScope.CreateChild(), Loader) { Serializer = Serializer }
+                    .CallFunctionCore(function, scope, parmsWrapped);
             }
         }
 
@@ -4422,7 +4422,8 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                new AphidInterpreter(CurrentScope.CreateChild(), Loader).Interpret(expressions);
+                new AphidInterpreter(CurrentScope.CreateChild(), Loader) { Serializer = Serializer }
+                    .Interpret(expressions);
             }
         }
 

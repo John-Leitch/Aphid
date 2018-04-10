@@ -14,7 +14,11 @@ namespace Components.Aphid.Library
         private static ManualResetEvent ThreadCore(AphidInterpreter interpreter, Action<Action> start, AphidFunction function, params object[] parms)
         {
             var reset = new ManualResetEvent(false);
-            var interpreter2 = new AphidInterpreter(interpreter.CurrentScope);
+
+            var interpreter2 = new AphidInterpreter(interpreter.CurrentScope)
+            {
+                Serializer = interpreter.Serializer
+            };
             
             Action call = () =>
             {
