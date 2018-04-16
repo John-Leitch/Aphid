@@ -9,8 +9,14 @@ isTrue;
 @{ var l = new List[string](); l.Add('foo'); l != null && l.Count == 1 && l[0] == 'foo' };
 @{ List[string] == List[string] };
 @{ List[string] != List[int] };
+@{ var d = new Dictionary[string, string](); d.Add('foo', 'bar'); d.get_Item('foo') == 'bar' };
+@{ Dictionary[string, string] == Dictionary[string, string] };
+@{ Dictionary[string, string] != Dictionary[int, string] };
 
 fault;
 @{ var l = new List[string](); l[0] == 'foo' };
-@{ var l = new List[BadType](); };
-
+@{ new List[BadType]() != null; };
+@{ var d = new Dictionary[string, string](); d.Add('foo', 'bar'); d.get_Item('bar') == 'bar' };
+@{ new Dictionary[string]() != null };
+@{ new Dictionary[BadType, string]() != null };
+@{ new Dictionary[string, BadType]() != null };

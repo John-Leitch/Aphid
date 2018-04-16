@@ -230,7 +230,7 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(new ArrayAccessExpression(
                         Mutate(arrayAccessExp.ArrayExpression).Single(),
-                        Mutate(arrayAccessExp.KeyExpression).Single()));
+                        arrayAccessExp.KeyExpressions.Select(x => Mutate(x).Single()).ToList()));
 
                     break;
 

@@ -1142,8 +1142,18 @@ namespace Components.Aphid.Interpreter
                 var targetObj = InterpretExpression(arrayAccessExp.ArrayExpression);
                 var targetObjUnwrapped = ValueHelper.Unwrap(targetObj);
 
-                var keyObj = ValueHelper.Unwrap(
-                    InterpretExpression(arrayAccessExp.KeyExpression));
+
+                var keyObjects = arrayAccessExp.KeyExpressions
+                    .Select(InterpretExpression)
+                    .Select(ValueHelper.Unwrap)
+                    .ToArray();
+
+                if (keyObjects.Length != 1)
+                {
+                    throw CreateRuntimeException("Multi-dimensional arrays not yet supported.");
+                }
+
+                var keyObj = keyObjects[0];
 
                 Array targetArray;
                 List<AphidObject> targetAphidList;
@@ -3596,19 +3606,15 @@ namespace Components.Aphid.Interpreter
             ArrayAccessExpression expression,
             out bool isTypeArgument)
         {
-            if (expression.ToString().Contains("List"))
-            {
-                Console.Write("");
-            }
-            var indexExpressions = Flatten(expression.KeyExpression, AphidTokenType.Comma);
+            var indexExpressions = expression.KeyExpressions;
             isTypeArgument = false;    
 
-            if (indexExpressions.Length == 0)
+            if (indexExpressions.Count == 0)
             {
                 return new AphidObject[0];
             }
 
-            var indexes = new AphidObject[indexExpressions.Length];
+            var indexes = new AphidObject[indexExpressions.Count];
 
             for (var i = 0; i < indexes.Length; i++)
             {

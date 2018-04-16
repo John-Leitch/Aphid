@@ -80,7 +80,7 @@ Lexer({
 ////////////////////////////////////////////////////////////////
 // Types
 ////////////////////////////////////////////////////////////////
-ArrayAccessExpression = { ArrayExpression, KeyExpression };
+ArrayAccessExpression = { ArrayExpression, list KeyExpressions };
 ArrayExpression = { list Elements };
 BinaryOperatorExpression = { LeftOperand, AphidTokenType Operator, RightOperand };
 BinaryOperatorBodyExpression = { AphidTokenType Operator, FunctionExpression Function };
@@ -743,9 +743,9 @@ ParseArrayAccessExpression = @{
 
     while (LeftBracket) {
         NextToken;
-        key ParseExpression;
+        keys ParseTuple;
         RightBracket;
-        exp = ArrayAccessExpression(exp, key);
+        exp = ArrayAccessExpression(exp, keys);
         ParseMemberBody(exp);
         ParseCallBody(exp);
     }

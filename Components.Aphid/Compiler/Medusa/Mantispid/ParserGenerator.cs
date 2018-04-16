@@ -984,7 +984,7 @@ namespace Mantispid
         {
             return new CodeArrayIndexerExpression(
                 GenerateImperativeExpression(node.ArrayExpression),
-                GenerateImperativeExpression(node.KeyExpression));
+                node.KeyExpressions.Select(x => GenerateImperativeExpression(x)).ToArray());
         }
 
         private CodeExpression GenerateImperativeExpression(NumberExpression node)
