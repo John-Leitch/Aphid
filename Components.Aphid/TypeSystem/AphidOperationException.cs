@@ -10,15 +10,18 @@ namespace Components.Aphid.TypeSystem
     public class AphidOperationException : AphidRuntimeException
     {
         public AphidOperationException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression, 
             string op)
             : base(
+                interpreter,
                 exceptionScope,
                 currentStatement,
                 currentExpression,
-                "Cannot perform {0} operation on null.", op)
+                "Cannot perform {0} operation on null.",
+                op)
         {
         }
     }

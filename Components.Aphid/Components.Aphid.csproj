@@ -109,6 +109,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
@@ -140,12 +141,15 @@
     <Compile Include="Compiler\Medusa\LLex\RegexLexer.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
+    <Compile Include="Debugging\AphidMemoryDump.cs" />
+    <Compile Include="Debugging\AphidErrorReporter.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
     <Compile Include="External\Common\Singleton.cs" />
     <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
     <Compile Include="External\ConsolePlus\SystemColor.g.cs" />
     <Compile Include="External\ConsolePlus\VT100.cs" />
+    <Compile Include="External\Debugging\MemoryDump.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />

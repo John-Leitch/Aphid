@@ -128,7 +128,10 @@ namespace Components.Aphid.Serialization
                     if ((IgnoreFunctions &&
                         kvp.Value != null &&
                         (kvp.Value.Value is AphidFunction ||
-                        kvp.Value.Value is AphidInteropFunction)) ||
+                        kvp.Value.Value is AphidInteropFunction ||
+                        kvp.Value.Value is AphidInteropPartialFunction ||
+                        kvp.Value.Value is BinaryOperatorBodyExpression ||
+                        kvp.Value.Value is AphidFunctionComposition)) ||
                         (IgnoreSpecialVariables && kvp.Key.StartsWith("$")))
                     {
                         continue;

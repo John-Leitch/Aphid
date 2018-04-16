@@ -9,6 +9,7 @@ using System.Diagnostics;
 #endif
 
 using Components.Aphid.Compiler;
+using Components.Aphid.Debugging;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
@@ -264,6 +265,8 @@ namespace Components.Aphid.Interpreter
 
         private AphidInterpreter(AphidObject currentScope, bool createLoader, AphidLoader loader)
         {
+            AphidErrorReporter.Init();
+
             if (createLoader)
             {
                 Loader = new AphidLoader(this);
@@ -4693,7 +4696,13 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidRuntimeException CreateRuntimeException(string message, params object[] args)
         {
-            return new AphidRuntimeException(CurrentScope, CurrentStatement, CurrentExpression, message, args);
+            return new AphidRuntimeException(
+                this,
+                CurrentScope,
+                CurrentStatement,
+                CurrentExpression,
+                message,
+                args);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4745,6 +4754,7 @@ namespace Components.Aphid.Interpreter
         public AphidRuntimeException CreateInternalException(string message, params object[] args)
         {
             return new AphidInternalException(
+                this,
                 CurrentScope,
                 CurrentStatement,
                 CurrentExpression,

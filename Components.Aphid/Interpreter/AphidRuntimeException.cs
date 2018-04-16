@@ -14,25 +14,22 @@ namespace Components.Aphid.Interpreter
             get { return AphidExceptionType.RuntimeException; }
         }
 
+        public AphidInterpreter Interpreter { get; set; }
+
         public AphidObject ExceptionScope { get; set; }
 
         public AphidExpression CurrentStatement { get; set; }
 
         public AphidExpression CurrentExpression { get; set; }
 
-        //public AphidRuntimeException(
-        //    AphidExpression currentStatement,
-        //    AphidExpression currentExpression)
-        //    : this(currentStatement, currentExpression, null)
-        //{
-        //}
-
         public AphidRuntimeException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             Exception innerException)
             : this(
+                interpreter,
                 exceptionScope,
                 string.Format(
                     "Runtime exception when evaluating expression {0}.",
@@ -44,23 +41,26 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidRuntimeException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string message,
             params object[] args)
-            : this(exceptionScope, string.Format(message, args))
+            : this(interpreter, exceptionScope, string.Format(message, args))
         {
             CurrentStatement = currentStatement;
             CurrentExpression = currentExpression;
         }
 
         private AphidRuntimeException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             string message,
             Exception innerException = null)
             : base(message, innerException)
         {
+            Interpreter = interpreter;
             ExceptionScope = exceptionScope;
         }
     }

@@ -11,6 +11,7 @@ using Components.Aphid.Lexer;
 using System.Diagnostics;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.Serialization;
+using Components.Aphid.Debugging;
 
 namespace Components.Aphid.UI
 {
@@ -41,6 +42,15 @@ namespace Components.Aphid.UI
 
         public static bool TryAction(AphidInterpreter interpreter, string code, Action action)
         {
+            return TryAction(interpreter, code, action, allowErrorReporting: false);
+        }
+
+        public static bool TryAction(
+            AphidInterpreter interpreter,
+            string code,
+            Action action,
+            bool allowErrorReporting)
+        {
             try
             {
                 var backup = interpreter.SetIsInTryCatchFinally(true);
@@ -57,7 +67,7 @@ namespace Components.Aphid.UI
             catch (AphidLoadScriptException exception)
             {
                 LastException = exception;
-                AphidCli.DumpException(exception, interpreter, code);
+                AphidCli.DumpException(exception, interpreter);
             }
             catch (AphidRuntimeException exception)
             {
@@ -68,6 +78,11 @@ namespace Components.Aphid.UI
             {
                 LastException = exception;
                 AphidCli.DumpException(exception, interpreter);
+            }
+
+            if (allowErrorReporting)
+            {
+                AphidErrorReporter.SaveErrorInformation(LastException, interpreter);
             }
 
             return false;
@@ -140,7 +155,7 @@ namespace Components.Aphid.UI
             }
             catch (AphidLoadScriptException exception)
             {
-                AphidCli.DumpException(exception, interpreter, code);
+                AphidCli.DumpException(exception, interpreter);
                 Environment.Exit((int)AphidExitCode.LoadScriptError);
             }
             catch (AphidRuntimeException exception)
@@ -170,8 +185,7 @@ namespace Components.Aphid.UI
 
         public static void DumpException(
             AphidLoadScriptException exception,
-            AphidInterpreter interpreter,
-            string code)
+            AphidInterpreter interpreter)
         {
             WriteErrorMessage(
                 Cli.StyleEscape(
@@ -187,7 +201,11 @@ namespace Components.Aphid.UI
             AphidInterpreter interpreter)
         {
             WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
-            DumpStackTrace(interpreter);
+
+            if (interpreter != null)
+            {
+                DumpStackTrace(interpreter);
+            }
         }
 
         public static void DumpStackTrace(AphidInterpreter interpreter)

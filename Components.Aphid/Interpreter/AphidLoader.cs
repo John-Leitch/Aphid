@@ -170,6 +170,7 @@ namespace Components.Aphid.Interpreter
                 catch (AphidParserException e)
                 {
                     throw new AphidLoadScriptException(
+                        Interpreter,
                         Interpreter.CurrentScope,
                         Interpreter.CurrentStatement,
                         Interpreter.CurrentExpression,
@@ -179,6 +180,7 @@ namespace Components.Aphid.Interpreter
                 catch (AphidRuntimeException e)
                 {
                     throw new AphidLoadScriptException(
+                        Interpreter,
                         Interpreter.CurrentScope,
                         Interpreter.CurrentStatement,
                         Interpreter.CurrentExpression,
@@ -188,6 +190,7 @@ namespace Components.Aphid.Interpreter
                 catch (Exception e)
                 {
                     throw new AphidLoadScriptException(
+                        Interpreter,
                         Interpreter.CurrentScope,
                         Interpreter.CurrentStatement,
                         Interpreter.CurrentExpression,

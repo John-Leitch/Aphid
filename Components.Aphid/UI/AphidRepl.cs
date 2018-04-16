@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Interpreter;
+﻿using Components.Aphid.Debugging;
+using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
@@ -103,6 +104,8 @@ namespace Components.Aphid.UI
                             Cli.WriteCriticalErrorMessage(
                                 "Internal error encountered in autocomplete console:\r\n{0}",
                                 e.Message);
+
+                            AphidErrorReporter.SaveErrorInformation(e, Interpreter);
 
                             if (e is ReflectionTypeLoadException)
                             {

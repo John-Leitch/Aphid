@@ -733,7 +733,4 @@ Global
 		{CEFC631B-3F81-4BA7-84EF-74655CAC704F} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 		{61FFC3B9-5275-41B9-8380-1E370EF67A63} = {FC3DFE0E-8A86-48C8-B2AC-8897C6A12D5A}
 	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 EndGlobal

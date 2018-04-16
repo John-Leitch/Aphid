@@ -35,12 +35,14 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoadScriptException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string scriptFile,
             AphidParserException parserException)
             : this(
+                interpreter,
                 exceptionScope,
                 currentStatement,
                 currentExpression,
@@ -51,12 +53,14 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoadScriptException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string scriptFile,
             AphidRuntimeException runtimeException)
             : this(
+                interpreter,
                 exceptionScope,
                 currentStatement,
                 currentExpression,
@@ -67,12 +71,14 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoadScriptException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string scriptFile,
             Exception runtimeException)
             : this(
+                interpreter,
                 exceptionScope,
                 currentStatement,
                 currentExpression,
@@ -83,12 +89,14 @@ namespace Components.Aphid.Interpreter
         }
 
         private AphidLoadScriptException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             Exception innerException,
             string scriptFile)
             : base(
+                interpreter,
                 exceptionScope,
                 currentStatement,
                 currentExpression,
@@ -98,12 +106,14 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoadScriptException(
+            AphidInterpreter interpreter,
             AphidObject exceptionScope,
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             string message,
             params object[] args)
             : base(
+                interpreter,
                 exceptionScope,
                 currentStatement,
                 currentExpression,

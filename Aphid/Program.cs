@@ -95,7 +95,8 @@ namespace Aphid
                 AphidCli.TryAction(
                     interpreter,
                     code,
-                    () => interpreter.Interpret(code, isTextDocument));
+                    () => interpreter.Interpret(code, isTextDocument),
+                    allowErrorReporting: true);
             }
             else
             {
