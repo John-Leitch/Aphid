@@ -208,41 +208,33 @@ namespace Components.Aphid.UI
             foreach (var frame in trace)
             {
                 var rawFrameStr = frame.ToString(true);
-                string frameStr;
-                var truncated = false;
 
-                if (!"\r\n".Any(rawFrameStr.Contains))
-                {
-                    //new AphidSyntaxHighlighter().Highlight(
-                    frameStr = Cli.StyleEscape(rawFrameStr);
-                }
-                else
-                {
-                    
-                    frameStr = Cli.StyleEscape(
+                var frameStr = Cli.StyleEscape(
+                    !"\r\n".Any(rawFrameStr.Contains) ?
+                        rawFrameStr :
                         rawFrameStr
                             .NormalizeLines()
                             .SplitLines()
                             .Select(x => x.Trim())
                             .Join(" "));
+                
+                var truncated = false;
+                int maxWidth;
 
+                try
+                {
+                    maxWidth = Console.WindowWidth - 12;
+                }
+                catch
+                {
                     // Todo: Move constant into config.
-                    int maxWidth;
+                    maxWidth = 80;
+                }
 
-                    try
-                    {
-                        maxWidth = Console.WindowWidth - 10;
-                    }
-                    catch
-                    {
-                        maxWidth = 80;
-                    }
-
-                    if (frameStr.Length > maxWidth)
-                    {
-                        frameStr = frameStr.Remove(maxWidth);
-                        truncated = true;
-                    }
+                if (frameStr.Length > maxWidth)
+                {
+                    frameStr = frameStr.Remove(maxWidth);
+                    truncated = true;
                 }
 
                 frameStr = Highlight(frameStr);
