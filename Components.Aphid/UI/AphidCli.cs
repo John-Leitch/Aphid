@@ -297,7 +297,7 @@ namespace Components.Aphid.UI
                     statement.Index + stylePrefix.Length,
                     ExcerptSurroundingLines));
 
-            if (excerpt != null)
+            if (!string.IsNullOrEmpty(excerpt.Trim()))
             {
                 WriteLineOut(string.Format("\r\nProgram Excerpt:\r\n{0}", excerpt));
             }
@@ -376,7 +376,7 @@ namespace Components.Aphid.UI
 
         private static string Highlight(string code)
         {
-            return VT100.GetString(_highlighter.Highlight(code));
+            return code.Trim().Any() ? VT100.GetString(_highlighter.Highlight(code)) : code;
         }
     }
 }
