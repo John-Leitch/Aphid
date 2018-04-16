@@ -1,10 +1,10 @@
-﻿#'Std';
+﻿#'DebugDeploy';
+#'Std';
 #'StringEmitter';
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 
-cls();
-e = strEmitter;
+var e = strEmitter;
 e.inNamespace = false;
 e.inClass = false;
 
@@ -32,13 +32,6 @@ e.emitUnaryOperatorExpression = @(exp) {
         emitExpression(exp.Operand, false);
         append(';\r\n');
     }
-    //if (exp.IsPostfix) {
-        //emitExpression(exp.Operand);
-        //exp.Operator |> opStr.unaryPostfix.get |> append;
-    //} else {
-        //exp.Operator |> opStr.unaryPrefix.get |> append;
-        //emitExpression(exp.Operand);
-    //}
 };
 
 e.emitBinaryOperatorExpression = @(exp, isStatement) {
@@ -112,8 +105,6 @@ e.endNamespace = @{
 };
 
 e.beginClass = @(object) {
-    //boolConverter = {};
-    //boolConverterNames = [];
     lastPropertyName = null;
     lastOnChangeName = null;
     onChangeMap = [];
@@ -134,6 +125,7 @@ e.beginClass = @(object) {
 e.emitObjectExpression = @(object, isStatement) {
     beginClass(object, isStatement);
     object.Pairs->emitProperty;
+    
     onChangeMap->@(m){
         appendLine('private void ' + m.func + '()');
         appendLine('{');
@@ -141,8 +133,6 @@ e.emitObjectExpression = @(object, isStatement) {
         
         onChangeStatements-?(@(s) s.func == m.func)->@(s){
             c = boolConverter.{s.converter};
-            // s |> serialize |> print;
-            // c |> serialize |> print;
 
             append(margin());
             append('{0} = {1} ? ', s.dst, s.condition);
@@ -150,16 +140,13 @@ e.emitObjectExpression = @(object, isStatement) {
             append(' : ');
             emitExpression(c[1], false);
             append(';\r\n');
-            //exit(0);
         };
         unindent();
         appendLine('}');
         appendLine('');
-        //$_ |> serialize |> print;
-        //exit(0);
     };
+
     endClass(object, isStatement);
-    // onChangeStatements |> serialize |> print;
 };
 
 e.endClass = @{
@@ -250,7 +237,7 @@ e.emitEnd = @{
     if (inNamespace) endNamespace();
 };
 
-getLexer = @(stream) {
+var getLexer = @(stream) {
     l = {
         index: -1,
         token: null,
@@ -307,9 +294,9 @@ getLexer = @(stream) {
     ret l;
 };
 
-lastAttrTree = null;
+var lastAttrTree = null;
 
-parseAttributes = @(exp) {
+var parseAttributes = @(exp) {
     if (exp.Attributes.Count == 0)
         ret lastAttrTree;
 

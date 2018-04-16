@@ -177,7 +177,7 @@
     <None Include="Samples\InteropExample.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Samples\StringEmitterTest.alx">
+    <None Include="Samples\ViewModelCompiler.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Samples\TestLoop.alx">
