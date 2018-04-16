@@ -18,13 +18,13 @@
     libDirTmp;
     do
     {
-        libDirTmp = dir.FullName\'Components.Aphid'\'Library';
+        libDirTmp = dir.FullName \ 'Components.Aphid' \ 'Library';
 
         if (deployVerbosity > 1) {
             libDirTmp @_print('Checking dir: ~Cyan~{0}~R~');
         }
 
-        if (libDirTmp\'Std.alx' |> File.Exists) {
+        if (libDirTmp \ 'Std.alx' |> File.Exists) {
             libDir = libDirTmp;
         }
 
@@ -40,7 +40,7 @@
 
     Directory.GetFiles(libDir, '*.alx')->@ (src){
         srcFilename = src |> Path.GetFileName;
-        dst = scriptDir.FullName\'Library'\srcFilename;
+        dst = scriptDir.FullName \ 'Library' \ srcFilename;
 
         if (deployVerbosity > 1) {
             _print('Copying ~Cyan~{0}~R~ to ~Cyan~{1}~R~', src, dst);
