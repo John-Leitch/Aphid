@@ -12,36 +12,6 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
-    public class SelectorComparer<T, K> : IEqualityComparer<T>
-        //where T : IEquatable<T>
-    {
-        private Func<T, K> _selector;
-
-        public SelectorComparer(Func<T, K> selector)
-        {
-            _selector = selector;
-        }
-
-        public bool Equals(T x, T y)
-        {
-            return _selector(x).Equals(_selector(y));
-        }
-
-        public int GetHashCode(T obj)
-        {
-            return _selector(obj).GetHashCode();
-        }
-    }
-
-    public static class SelectorComparer
-    {
-        public static SelectorComparer<K, T> Create<K, T>(Func<K, T> selector)
-            //where T : IEquatable<T>
-        {
-            return new SelectorComparer<K, T>(selector);
-        }
-    }
-
     public class AphidScopeObjectAutocompletionSource : IAutocompletionSource, IDisposable
     {
         private AphidObject _currentScope;
@@ -60,6 +30,7 @@ namespace Components.Aphid.UI
             "$",
             "get_",
             "set_",
+            "op_",
         };
 
         private static readonly List<AphidTokenType> _skipTokenTypes = AphidLexer
@@ -437,13 +408,11 @@ namespace Components.Aphid.UI
 
         private IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words)
         {
-            var comparer = new SelectorComparer<Autocomplete, string>(x => x.View);
-
             return words
                 .Where(x =>
                     _wordContainsIgnore.None(y => x.Text.Contains(y)) &&
                     _wordStartsWithIgnore.None(y => x.Text.StartsWith(y)))
-                .Distinct(comparer)
+                .Distinct(x => x.View)
                 .OrderBy(x => x.Text);
         }
 

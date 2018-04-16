@@ -144,6 +144,7 @@
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
+    <Compile Include="External\Common\SelectorComparer.cs" />
     <Compile Include="External\Common\Singleton.cs" />
     <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />

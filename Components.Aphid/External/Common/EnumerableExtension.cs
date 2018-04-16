@@ -10,95 +10,9 @@ namespace Components
 {
     public static class EnumerableExtension
     {
-        [DebuggerStepThrough]
-        public static void Iter<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            foreach (var item in source)
-            {
-                action(item);
-            }
-        }
-
-        [DebuggerStepThrough]
-        public static IEnumerable<IEnumerable<T>> GroupEvery<T>(this IEnumerable<T> source, int groupSize)
-        {
-            return Enumerable
-                .Range(0, (int)Math.Ceiling((double)source.Count() / groupSize))
-                .Select(x => source.Skip(x * groupSize).Take(groupSize));
-        }
-
-        [DebuggerStepThrough]
-        public static void AsyncIter<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            var resets = new List<ManualResetEvent>();
-
-            foreach (var item in source)
-            {
-                var i = item;
-                var reset = new ManualResetEvent(false);
-
-                resets.Add(reset);
-
-                ThreadPool.QueueUserWorkItem(x =>
-                {
-                    action(i);
-                    reset.Set();
-                });
-            }
-
-            foreach (var reset in resets)
-            {
-                reset.WaitOne();
-            }
-        }
-
-        private static Random _random = new Random();
-
-        [DebuggerStepThrough]
-        public static T TakeRandom<T>(this IEnumerable<T> source)
-        {
-            lock (_random)
-            {
-                return source.ElementAt(_random.Next(0, source.Count()));
-            }
-        }
-
-        //[DebuggerStepThrough] 
-        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> source, int count)
-        {
-            lock (_random)
-            {
-                var sourceList = source.ToList();
-                var dstList = new List<T>();
-
-                var taken = 0;
-
-                while (taken < count && sourceList.Count != 0)
-                {
-                    var item = sourceList.TakeRandom();
-                    sourceList.Remove(item);
-                    dstList.Add(item);
-                    taken++;
-                }
-                // 
-                return dstList;
-            }
-        }
-
-        //[DebuggerStepThrough]
-        //public static IEnumerable<TSource> SelectManyValues<TKey, TSource>(
-        //    this Dictionary<TKey, IEnumerable<TSource>> source)
-        //{
-        //    return source.SelectMany(x => x.Value);
-        //}
-
-        //[DebuggerStepThrough]
-        //public static IEnumerable<TSource> SelectManyValues<TKey, TSource>(
-        //    this IEnumerable<KeyValuePair<TKey, IEnumerable<TSource>>> source)
-        //{
-        //    return source.SelectMany(x => x.Value);
-        //}
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // None
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
         public static bool None<T>(this IEnumerable<T> source)
         {
@@ -171,6 +85,9 @@ namespace Components
             return source.ToDictionary(x => x.Key, x => x.Value);
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // WhereDictionary
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
         public static Dictionary<TKey, TElement> WhereDictionary<TKey, TElement>(
             this IEnumerable<KeyValuePair<TKey, TElement>> source,
@@ -180,30 +97,30 @@ namespace Components
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // ToValues
+        // JoinValues
         ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
-        public static IEnumerable<TElement> ToValues<TKey, TElement>(
+        public static IEnumerable<TElement> JoinValues<TKey, TElement>(
             this IEnumerable<Dictionary<TKey, TElement>> source)
         {
             return source.SelectMany(x => x.Values);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // ToKeys
+        // JoinKeys
         ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
-        public static IEnumerable<TKey> ToKeys<TKey, TElement>(
+        public static IEnumerable<TKey> JoinKeys<TKey, TElement>(
             this IEnumerable<Dictionary<TKey, TElement>> source)
         {
             return source.SelectMany(x => x.Keys);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // ToKeys
+        // DistinctKeys
         ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
-        public static IEnumerable<TKey> ToDistinctKeys<TKey, TElement>(
+        public static IEnumerable<TKey> DistinctKeys<TKey, TElement>(
             this IEnumerable<Dictionary<TKey, TElement>> source)
         {
             return source.SelectMany(x => x.Keys).Distinct();
@@ -232,10 +149,10 @@ namespace Components
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // KeyOf
+        // AsKeyFor
         ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
-        public static Dictionary<TKey, TElement> KeyOf<TKey, TElement>(
+        public static Dictionary<TKey, TElement> AsKeyFor<TKey, TElement>(
             this IEnumerable<TKey> source,
             Func<TKey, TElement> elementSelector)
         {
@@ -258,6 +175,24 @@ namespace Components
             this IEnumerable<IEnumerable<TElement>> source)
         {
             return source.Where(x => x.Any());
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // WhereNone
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static IEnumerable<IEnumerable<TElement>> WhereNone<TElement>(
+            this IEnumerable<IEnumerable<TElement>> source,
+            Func<TElement, bool> predicate)
+        {
+            return source.Where(x => x.None(predicate));
+        }
+
+        [DebuggerStepThrough]
+        public static IEnumerable<IEnumerable<TElement>> WhereNone<TElement>(
+            this IEnumerable<IEnumerable<TElement>> source)
+        {
+            return source.Where(x => x.None());
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -499,6 +434,125 @@ namespace Components
             where TSource : class
         {
             return source.Where(x => x != null);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // Distinct
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static IEnumerable<TSource> Distinct<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector)
+        {
+            return source.Distinct(new SelectorComparer<TSource, TKey>(keySelector));
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // GroupEvery
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static IEnumerable<IEnumerable<T>> GroupEvery<T>(this IEnumerable<T> source, int groupSize)
+        {
+            return Enumerable
+                .Range(0, (int)Math.Ceiling((double)source.Count() / groupSize))
+                .Select(x => source.Skip(x * groupSize).Take(groupSize));
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // TakeLast
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static IEnumerable<TSource> TakeLast<TSource>(this IEnumerable<TSource> source, int count)
+        {
+            return source.Skip(source.Count() - count);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // Iter
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static void Iter<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (var item in source)
+            {
+                action(item);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // AsyncIter
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static void AsyncIter<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            var resets = new List<ManualResetEvent>();
+
+            foreach (var item in source)
+            {
+                var i = item;
+                var reset = new ManualResetEvent(false);
+
+                resets.Add(reset);
+
+                ThreadPool.QueueUserWorkItem(x =>
+                {
+                    action(i);
+                    reset.Set();
+                });
+            }
+
+            foreach (var reset in resets)
+            {
+                reset.WaitOne();
+            }
+        }
+
+        private static Random _random = new Random();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // TakeRandom
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source)
+        {
+            lock (_random)
+            {
+                return source.OrderBy(x => _random.NextDouble());
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // TakeRandom
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        [DebuggerStepThrough]
+        public static T TakeRandom<T>(this IEnumerable<T> source)
+        {
+            lock (_random)
+            {
+                return source.ElementAt(_random.Next(0, source.Count()));
+            }
+        }
+
+        [DebuggerStepThrough]
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> source, int count)
+        {
+            lock (_random)
+            {
+                var sourceList = source.ToList();
+                var dstList = new List<T>();
+
+                var taken = 0;
+
+                while (taken < count && sourceList.Count != 0)
+                {
+                    var item = sourceList.TakeRandom();
+                    sourceList.Remove(item);
+                    dstList.Add(item);
+                    taken++;
+                }
+                // 
+                return dstList;
+            }
         }
     }
 }
