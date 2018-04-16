@@ -58,7 +58,7 @@ namespace Components.Aphid.Interpreter
         public string ToString(bool showParams)
         {
             return showParams ?
-                string.Format("{0}({1})", Name, CreateArgString()) :
+                string.Format("{0}({1})", Name, CreateParamTupleString()) :
                 Name;
         }
 
