@@ -1,7 +1,9 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace Components.Aphid.Parser
 {
+    [Serializable, DataContract(IsReference = true)]
     public abstract class AphidExpression : AphidNode
     {
         private int _index = -1;

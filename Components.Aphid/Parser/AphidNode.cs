@@ -1,7 +1,9 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace Components.Aphid.Parser
 {
+    [Serializable, DataContract(IsReference = true)]
     public abstract class AphidNode
     {
         public abstract AphidExpressionType Type { get; }
