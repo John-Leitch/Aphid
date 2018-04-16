@@ -11,11 +11,39 @@ namespace Components.External.ConsolePlus
 {
     public static class VT100
     {
-        private static object _sync = new object();
-
         public const string Reset = "\x1b[0m";
 
         public static bool IsEnabled { get; private set; }
+
+        public static string GetString(ColoredText coloredText)
+        {
+            return Append(new StringBuilder(), coloredText).ToString();
+        }
+
+        public static StringBuilder Append(StringBuilder sb, ColoredText coloredText)
+        {
+            if (IsEnabled)
+            {
+                if (coloredText.ForegroundRgb != null)
+                {
+                    sb.Append(VT100.Foreground(coloredText.ForegroundRgb));
+                }
+
+                if (coloredText.BackgroundRgb != null)
+                {
+                    sb.Append(VT100.Background(coloredText.BackgroundRgb));
+                }
+
+                sb.Append(coloredText.Text);
+                sb.Append(VT100.Reset);
+            }
+            else
+            {
+                sb.Append(coloredText.Text);
+            }
+
+            return sb;
+        }
 
         public static string Rgb(bool bg, byte r, byte g, byte b)
         {

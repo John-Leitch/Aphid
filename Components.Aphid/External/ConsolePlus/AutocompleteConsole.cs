@@ -276,18 +276,7 @@ namespace Components.External.ConsolePlus
 
             foreach (var t in Highlighter.Highlight(_consoleBuffer))
             {
-                if (t.ForegroundRgb != null)
-                {
-                    sb.Append(VT100.Foreground(t.ForegroundRgb));
-                }
-
-                if (t.BackgroundRgb != null)
-                {
-                    sb.Append(VT100.Background(t.BackgroundRgb));
-                }
-
-                sb.Append(t.Text);
-                sb.Append(VT100.Reset);
+                VT100.Append(sb, t);
             }
 
             Console.Write(sb.ToString());
