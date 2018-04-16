@@ -227,9 +227,20 @@ namespace Components.Aphid.UI
                             .Join(" "));
 
                     // Todo: Move constant into config.
-                    if (frameStr.Length > 40)
+                    int maxWidth;
+
+                    try
                     {
-                        frameStr = frameStr.Remove(40);
+                        maxWidth = Console.WindowWidth - 10;
+                    }
+                    catch
+                    {
+                        maxWidth = 80;
+                    }
+
+                    if (frameStr.Length > maxWidth)
+                    {
+                        frameStr = frameStr.Remove(maxWidth);
                         truncated = true;
                     }
                 }

@@ -58,7 +58,7 @@ namespace Components.Aphid.Interpreter
         public string ToString(bool showParams)
         {
             return showParams ?
-                string.Format("{0}({1})", Name, CreateParamTupleString()) :
+                string.Format("{0}({1})", Name, CreateArgString()) :
                 Name;
         }
 
@@ -98,10 +98,11 @@ namespace Components.Aphid.Interpreter
 
             if (aphidObj != null)
             {
-                return aphidObj.Any() ?
-                    _serializer.Serialize(aphidObj) :
-                    aphidObj.Value != null ? aphidObj.Value.ToString() :
-                    "null";
+                return _serializer.Serialize(aphidObj);
+                //return aphidObj.Any() ?
+                //    _serializer.Serialize(aphidObj) :
+                //    aphidObj.Value != null ? aphidObj.Value.ToString() :
+                //    "null";
             }
             else
             {
