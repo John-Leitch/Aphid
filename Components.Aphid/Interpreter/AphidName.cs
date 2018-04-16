@@ -24,6 +24,7 @@ namespace Components.Aphid.Interpreter
             Code = "$code",
             Interpreter = "$aphid",
             OpenRepl = "openRepl",
-            DumpSerializer = "dumpSerializer";
+            DumpSerializer = "dumpSerializer",
+            Var = "var";
     }
 }

@@ -226,6 +226,8 @@ namespace Components.Aphid.Interpreter
 
         public AphidExpression CurrentExpression { get; private set; }
 
+        public bool StrictMode { get; set; }
+
         public AphidInterpreter()
             : this(createLoader: true)
         {
@@ -1101,13 +1103,21 @@ namespace Components.Aphid.Interpreter
                 var idExp = (IdentifierExpression)destinationExpression;
                 var id = idExp.Identifier;
 
-                if (idExp.Attributes.Count == 0 || idExp.Attributes[0].Identifier != "var")
+                if (idExp.Attributes.Count == 0 ||
+                    idExp.Attributes[0].Identifier != AphidName.Var)
                 {
                     var destObj = InterpretIdentifierExpression(idExp, canResolveType: false);
 
                     if (destObj == null)
                     {
-                        CurrentScope.Add(id, value2);
+                        if (!StrictMode)
+                        {
+                            CurrentScope.Add(id, value2);
+                        }
+                        else
+                        {
+                            throw CreateStrictModeException(id);
+                        }
                     }
                     else
                     {
@@ -4498,11 +4508,18 @@ namespace Components.Aphid.Interpreter
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
                     HandleDebugging(expression);
-                    var id = expression.ToIdentifier().Identifier;
+                    var idExp = (IdentifierExpression)expression;
+                    var id = idExp.Identifier;
 
                     if (CurrentScope.ContainsKey(id))
                     {
                         throw CreateRuntimeException("Duplicated variable declaration: {0}", id);
+                    }
+                    else if (StrictMode &&
+                        (idExp.Attributes.Count == 0 ||
+                        idExp.Attributes[0].Identifier != AphidName.Var))
+                    {
+                        throw CreateStrictModeException(id);
                     }
 
                     CurrentScope.Add(id, new AphidObject());
@@ -4715,6 +4732,13 @@ namespace Components.Aphid.Interpreter
                     message,
                     Cli.FormatEscape(GetExpressionValueString(expression, obj))),
                 args);
+        }
+
+        private AphidRuntimeException CreateStrictModeException(string id)
+        {
+            throw CreateRuntimeException(
+                "Variable '{0}' must first be declared using var when running in strict mode.",
+                id);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
