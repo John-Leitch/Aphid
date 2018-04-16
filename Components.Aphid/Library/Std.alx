@@ -83,16 +83,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-//byte = Convert.ToByte;
-//uint = Convert.ToUInt32;
-//ulong = Convert.ToUInt64;
-//sbyte = Convert.ToSByte;
-//int = Convert.ToInt32;
-//long = Convert.ToInt64;
-//float = Convert.ToSingle;
-//double = Convert.ToDouble;
-//decimal = Convert.ToDecimal;
-
 aphid = this.{'$aphid'};
 getBlock = @() this.{'$parent'}.{'$block'};
 _callExp = macro(@(i){ this.{'$frames'}[i].Expression });
@@ -172,8 +162,6 @@ _queryBody = macro(@(filter){
 
 _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
-skip = @() Enumerable.Skip($_, 1) |> Enumerable.ToArray;
-
 _print(print, Cli.WriteLine);
 _print(out, Cli.Write);
 // Todo: add print*() support for Cli.WriteMessage
@@ -189,12 +177,14 @@ _msg(CriticalError);
 
 _print = macro(@(name, write) {
     name = @(fmt, arg0) {
+        var skip = @() Enumerable.Skip($_, 1);
+        
         if ($args.Count >= 1 && fmt == null) {
             _t('null format');
             _null write('null', []);
         } else if ($args.Count > 1 && isCollection(fmt)) {
             _t('format collection');
-            args = $args |> skip -> @() _na($_);
+            var args = $args |> skip -> @() _na($_);
             for (x in fmt) {
                 write(_styleEscaped(x), args);
             }
@@ -222,13 +212,13 @@ _print = macro(@(name, write) {
                         arg0->@() _styleEscaped($_) @write(_f(fmt));
                     } else {
                         _t('single format arg');
-                        a = _styleEscaped(arg0);
+                        var a = _styleEscaped(arg0);
                         write(fmt, a);
                     }
                 }
                 default: {
                     _t('variadic formatted');
-                    args = $args |> skip ->@() _na($_);
+                    var args = $args |> skip ->@() _na($_);
                     write(_f(fmt), args);
                 }
             }

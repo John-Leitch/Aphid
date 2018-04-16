@@ -143,7 +143,7 @@ if (!(global.childCreated defined )) {
                 r.result = r.func();
 
                 if (Environment.UserInteractive && !Console.IsOutputRedirected) {
-                    len = format('Running test {0}', k).Length;
+                    var len = format('Running test {0}', k).Length;
                     Console.CursorTop = Console.CursorTop - 1;
                     Console.CursorLeft = len + 4;
                 }
