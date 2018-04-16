@@ -1,6 +1,6 @@
 set mode=debug
 set outPath=..\%mode%
-set nunit="c:\Program Files (x86)\NUnit.org\nunit-console\nunit3-console.exe"
+set nunit="c:\nunit\nunit-console\nunit3-console.exe"
 
 mkdir ..\Archive
 
