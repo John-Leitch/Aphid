@@ -271,7 +271,7 @@ namespace Components.Aphid.Compiler
         {
             Emit(expression.ArrayExpression);
             Append("[");
-            Emit(expression.KeyExpression);
+            EmitTuple(expression.KeyExpressions);
             Append("]");
         }
 

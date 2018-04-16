@@ -161,7 +161,7 @@ namespace AphidHdl
         {
             Emit(node.ArrayExpression);
             AppendUnindented("[");
-            Emit(node.KeyExpression);
+            EmitTuple(node.KeyExpressions.ToArray(), Emit, multiline: false);
             AppendUnindented("]");
         }
 
