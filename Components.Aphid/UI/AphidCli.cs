@@ -377,7 +377,7 @@ namespace Components.Aphid.UI
                     arg));
         }
 
-        private static string Highlight(string code)
+        public static string Highlight(string code)
         {
             return code.Trim().Any() ? VT100.GetString(_highlighter.Highlight(code)) : code;
         }

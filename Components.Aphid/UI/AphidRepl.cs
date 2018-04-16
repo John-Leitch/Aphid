@@ -179,9 +179,10 @@ namespace Components.Aphid.UI
 
             if (value != null && (value.Value != null || value.Any()))
             {
-                Console.WriteLine(
-                    (Serializer != null ? Serializer : new AphidSerializer(Interpreter))
-                        .Serialize(value));
+                var o = (Serializer != null ? Serializer : new AphidSerializer(Interpreter))
+                        .Serialize(value);
+
+                Console.WriteLine(AphidCli.Highlight(o));
             }
         }
     }
