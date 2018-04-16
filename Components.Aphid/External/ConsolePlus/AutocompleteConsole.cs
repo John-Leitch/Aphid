@@ -84,7 +84,7 @@ namespace Components.External.ConsolePlus
                     k.Key == ConsoleKey.Spacebar)
                 {
                     _forceAutocomplete = true;
-                    CheckAutocomplete();
+                    UpdateAutocomplete();
                     continue;
                 }
                 else if (k.Key != ConsoleKey.UpArrow &&
@@ -169,7 +169,7 @@ namespace Components.External.ConsolePlus
                     _autocompleteIndex++;
                 }
 
-                CheckAutocomplete();
+                UpdateAutocomplete(clearMatches: false);
             }
         }
 
@@ -294,7 +294,7 @@ namespace Components.External.ConsolePlus
 
             if (!skipAutocomplete)
             {
-                CheckAutocomplete();
+                UpdateAutocomplete();
             }
 
             Console.CursorVisible = backup;
@@ -335,28 +335,36 @@ namespace Components.External.ConsolePlus
             Console.CursorVisible = backup;
         }
 
-        private void CheckAutocomplete()
+        private void UpdateAutocomplete()
         {
-            var curText = _cursorIndex == _consoleBuffer.Length ?
-                _consoleBuffer :
-                _consoleBuffer.Remove(_cursorIndex);
+            UpdateAutocomplete(clearMatches: true);
+        }
 
-            var tokens = Scanner.Tokenize(curText).ToArray();
-
-            var matches = Source.GetWords(
-                _consoleBuffer,
-                _cursorIndex,
-                _forceAutocomplete,
-                out _searchBuffer);
-
-            if ((!_forceAutocomplete && tokens.Length == 0) || matches == null)
+        private void UpdateAutocomplete(bool clearMatches)
+        {
+            if (clearMatches)
             {
-                _matches = new Autocomplete[0];
+                var curText = _cursorIndex == _consoleBuffer.Length ?
+                    _consoleBuffer :
+                    _consoleBuffer.Remove(_cursorIndex);
 
-                return;
+                var tokens = Scanner.Tokenize(curText).ToArray();
+
+                var matches = Source.GetWords(
+                    _consoleBuffer,
+                    _cursorIndex,
+                    _forceAutocomplete,
+                    out _searchBuffer);
+
+                if ((!_forceAutocomplete && tokens.Length == 0) || matches == null)
+                {
+                    _matches = new Autocomplete[0];
+
+                    return;
+                }
+
+                _matches = matches.ToArray();
             }
-
-            _matches = matches.ToArray();
 
             if (_matches.Length != 0)
             {

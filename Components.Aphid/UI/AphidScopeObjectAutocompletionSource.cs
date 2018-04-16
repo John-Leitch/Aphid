@@ -12,11 +12,55 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
+    public class SelectorComparer<T, K> : IEqualityComparer<T>
+        //where T : IEquatable<T>
+    {
+        private Func<T, K> _selector;
+
+        public SelectorComparer(Func<T, K> selector)
+        {
+            _selector = selector;
+        }
+
+        public bool Equals(T x, T y)
+        {
+            return _selector(x).Equals(_selector(y));
+        }
+
+        public int GetHashCode(T obj)
+        {
+            return _selector(obj).GetHashCode();
+        }
+    }
+
+    public static class SelectorComparer
+    {
+        public static SelectorComparer<K, T> Create<K, T>(Func<K, T> selector)
+            //where T : IEquatable<T>
+        {
+            return new SelectorComparer<K, T>(selector);
+        }
+    }
+
     public class AphidScopeObjectAutocompletionSource : IAutocompletionSource, IDisposable
     {
         private AphidObject _currentScope;
 
         private TypeLoader _loader = new TypeLoader();
+
+        private static readonly string[] _wordContainsIgnore = new[]
+        {
+            "`",
+            "<",
+        };
+
+        private static readonly string[] _wordStartsWithIgnore = new[]
+        {
+            ".ctor",
+            "$",
+            "get_",
+            "set_",
+        };
 
         private static readonly List<AphidTokenType> _skipTokenTypes = AphidLexer
             .GetTokens("( ) { } ! @ # $ % ^ & * + - = | \\ ; : '' \"\" < > , / ? \t")
@@ -44,10 +88,6 @@ namespace Components.Aphid.UI
             var tokens = AphidLexer.GetTokens(subStr);
 
             var lastSkipTokenIndex = tokens.FindLastIndex(x => _skipTokenTypes.Contains(x.TokenType));
-            //var lastSkipTokenIndex = tokens.FindLastIndex(x =>
-            //    x.TokenType == AphidTokenType.AssignmentOperator ||
-            //    x.TokenType == AphidTokenType.LeftParenthesis ||
-            //    x.TokenType == AphidTokenType.RightParenthesis);
 
             if (lastSkipTokenIndex >= 0)
             {
@@ -67,14 +107,14 @@ namespace Components.Aphid.UI
             {
                 searchBuffer = "";
                 
-                return CreateTypeAutocomplete(null);
+                return FilterAndSortWords(CreateTypeAutocomplete(null));
             }
             else if (tokens.Count >= 2 &&
                 tokens[tokens.Count - 2].TokenType == AphidTokenType.newKeyword)
             {
                 searchBuffer = tokens[tokens.Count - 1].Lexeme;
                 
-                return CreateTypeAutocomplete(searchBuffer);
+                return FilterAndSortWords(CreateTypeAutocomplete(searchBuffer));
             }
 
             AphidExpression exp = null;
@@ -124,7 +164,7 @@ namespace Components.Aphid.UI
                 }
             }
 
-            return words.Where(x => !x.Text.StartsWith("$")).OrderBy(x => x.Text);
+            return FilterAndSortWords(words);
         }
 
         private IEnumerable<Autocomplete> ResolveAphidObject(AphidToken[] tokens, bool inLastToken)
@@ -351,7 +391,7 @@ namespace Components.Aphid.UI
             }
             else if (member is PropertyInfo)
             {
-                view += "{ ";
+                view += " { ";
                 var accessors = (member as PropertyInfo).GetAccessors();
                 if (accessors.Any(x => x.ReturnType != typeof(void)))
                 {
@@ -393,6 +433,18 @@ namespace Components.Aphid.UI
             return types
                 .Where(x => match != null ? x.Name.StartsWith(match) : true)
                 .Select(x => new Autocomplete(x.Name + "()", x.Name));
+        }
+
+        private IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words)
+        {
+            var comparer = new SelectorComparer<Autocomplete, string>(x => x.View);
+
+            return words
+                .Where(x =>
+                    _wordContainsIgnore.None(y => x.Text.Contains(y)) &&
+                    _wordStartsWithIgnore.None(y => x.Text.StartsWith(y)))
+                .Distinct(comparer)
+                .OrderBy(x => x.Text);
         }
 
         private List<string> GetImports()
