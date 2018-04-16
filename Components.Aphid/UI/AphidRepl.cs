@@ -57,12 +57,6 @@ namespace Components.Aphid.UI
 
         public void Run()
         {
-            try
-            {
-                VT100.Enable();
-            }
-            catch { }
-
             if (Interpreter == null)
             {
                 Interpreter = new AphidInterpreter();

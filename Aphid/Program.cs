@@ -1,6 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
-using Components.Aphid.Parser;
 using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System;
@@ -20,6 +19,12 @@ namespace Aphid
 
         static void Main(string[] args)
         {
+            try
+            {
+                VT100.Enable();
+            }
+            catch { }
+
             if (args.Length == 0)
             {
                 RunRepl();

@@ -15,6 +15,18 @@ namespace Components.External.ConsolePlus
 
         public static bool IsEnabled { get; private set; }
 
+        public static string GetString(IEnumerable<ColoredText> coloredTextCollection)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var ct in coloredTextCollection)
+            {
+                Append(sb, ct);
+            }
+
+            return sb.ToString();
+        }
+
         public static string GetString(ColoredText coloredText)
         {
             return Append(new StringBuilder(), coloredText).ToString();

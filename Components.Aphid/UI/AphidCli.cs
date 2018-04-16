@@ -20,6 +20,8 @@ namespace Components.Aphid.UI
 
         private const char _errorChar = '-';
 
+        private static AphidSyntaxHighlighter _highlighter = new AphidSyntaxHighlighter();
+
         public static bool ShowClrStack { get; set; }
 
         public static int ExcerptSurroundingLines { get; set; }
@@ -190,6 +192,7 @@ namespace Components.Aphid.UI
 
         public static void DumpStackTrace(AphidInterpreter interpreter)
         {
+            
             var trace = interpreter.GetStackTrace();
             var i = 0;
 
@@ -206,13 +209,16 @@ namespace Components.Aphid.UI
             {
                 var rawFrameStr = frame.ToString(true);
                 string frameStr;
+                var truncated = false;
 
                 if (!"\r\n".Any(rawFrameStr.Contains))
                 {
+                    //new AphidSyntaxHighlighter().Highlight(
                     frameStr = Cli.StyleEscape(rawFrameStr);
                 }
                 else
                 {
+                    
                     frameStr = Cli.StyleEscape(
                         rawFrameStr
                             .NormalizeLines()
@@ -223,8 +229,16 @@ namespace Components.Aphid.UI
                     // Todo: Move constant into config.
                     if (frameStr.Length > 40)
                     {
-                        frameStr = frameStr.Remove(40) + " ~White~...~R~";
+                        frameStr = frameStr.Remove(40);
+                        truncated = true;
                     }
+                }
+
+                frameStr = Highlight(frameStr);
+
+                if (truncated)
+                {
+                    frameStr += " ~White~...~R~";
                 }
 
                 var frameOut = string.Format(
@@ -246,11 +260,12 @@ namespace Components.Aphid.UI
 
             WriteLineOut(
                 string.Format(
-                    "Faulting statement: ~Yellow~{0}~R~",
-                    Cli.StyleEscape(
-                        statement.Code != null ?
-                            statement.Code.Substring(statement.Index, statement.Length) :
-                            statement.ToString())));
+                    "Faulting statement: {0}",
+                    Highlight(
+                        Cli.StyleEscape(
+                            statement.Code != null ?
+                                statement.Code.Substring(statement.Index, statement.Length) :
+                                statement.ToString()))));
 
             DumpExcerpt(statement);
             var file = interpreter.GetScriptFilename();
@@ -276,10 +291,11 @@ namespace Components.Aphid.UI
             codeCopy.Insert(statement.Index + statement.Length, styleSuffix);
             codeCopy.Insert(statement.Index, stylePrefix);
 
-            var excerpt = TokenHelper.GetCodeExcerpt(
-                codeCopy,
-                statement.Index + stylePrefix.Length,
-                ExcerptSurroundingLines);
+            var excerpt = Highlight(
+                TokenHelper.GetCodeExcerpt(
+                    codeCopy,
+                    statement.Index + stylePrefix.Length,
+                    ExcerptSurroundingLines));
 
             if (excerpt != null)
             {
@@ -356,6 +372,11 @@ namespace Components.Aphid.UI
                 string.Format(
                     string.Format(_messageFormat, tokenColor, token, format.Replace("{", "{{").Replace("}", "}}")),
                     arg));
+        }
+
+        private static string Highlight(string code)
+        {
+            return VT100.GetString(_highlighter.Highlight(code));
         }
     }
 }
