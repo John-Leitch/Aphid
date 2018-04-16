@@ -136,6 +136,10 @@
     <Compile Include="TryCatchTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Aphid\Aphid.csproj">
+      <Project>{efde894b-fa3d-4202-9a08-c9f69c0b0799}</Project>
+      <Name>Aphid</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
@@ -152,6 +156,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ScriptedTests\AssignmentTests.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ScriptedTests\ExplicitGenericTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ScriptedTests\StrictModeTests.alx">
