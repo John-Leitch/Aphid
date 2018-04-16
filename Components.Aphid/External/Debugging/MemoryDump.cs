@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Components.Cypress
@@ -27,14 +28,37 @@ namespace Components.Cypress
         {
             using (var s = File.Create(filename))
             {
-                var result = DbgHelp.MiniDumpWriteDump(
-                    process.Handle,
-                    (uint)process.Id,
-                    s.SafeFileHandle.DangerousGetHandle(),
-                    MiniDumpType.MiniDumpWithFullMemory,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
-                    IntPtr.Zero);
+                var ptrs = System.Runtime.InteropServices.Marshal.GetExceptionPointers();
+
+                bool result;
+
+                if (ptrs == IntPtr.Zero)
+                {
+                    result = DbgHelp.MiniDumpWriteDump(
+                        process.Handle,
+                        (uint)process.Id,
+                        s.SafeFileHandle.DangerousGetHandle(),
+                        MiniDumpType.MiniDumpWithFullMemory,
+                        IntPtr.Zero,
+                        IntPtr.Zero,
+                        IntPtr.Zero);
+                }
+                else
+                {
+                    MINIDUMP_EXCEPTION_INFORMATION mei;
+                    mei.ClientPointers = false;
+                    mei.ExceptionPointers = ptrs;
+                    mei.ThreadId = Kernel32.GetCurrentThreadId();
+
+                    result = DbgHelp.MiniDumpWriteDump(
+                        process.Handle,
+                        (uint)process.Id,
+                        s.SafeFileHandle.DangerousGetHandle(),
+                        MiniDumpType.MiniDumpWithFullMemory,
+                        ref mei,
+                        IntPtr.Zero,
+                        IntPtr.Zero);
+                }
 
                 if (!result)
                 {

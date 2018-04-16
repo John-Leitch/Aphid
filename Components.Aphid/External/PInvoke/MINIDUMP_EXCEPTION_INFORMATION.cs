@@ -6,11 +6,12 @@ using System.Text;
 
 namespace Components.PInvoke
 {
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct MINIDUMP_EXCEPTION_INFORMATION
     {
         public uint ThreadId;
         public IntPtr ExceptionPointers;
-        public int ClientPointers;
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool ClientPointers;
     }
 }

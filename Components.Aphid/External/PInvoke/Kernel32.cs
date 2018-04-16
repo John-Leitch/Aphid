@@ -111,5 +111,8 @@ namespace Components.PInvoke
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr GetStdHandle(int handle);
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetCurrentThreadId();
     }
 }
