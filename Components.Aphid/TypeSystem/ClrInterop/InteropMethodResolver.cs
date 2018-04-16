@@ -448,6 +448,12 @@ namespace Components.Aphid.TypeSystem
             {
                 return new AphidInteropMethodArg(arg, parameter, false);
             }
+            else if (args.Length > index &&
+                (arg = args[index]).GetType() == typeof(string) &&
+                parameter.ParameterType == typeof(char[]))
+            {
+                return new AphidInteropMethodArg(arg, parameter);
+            }
             else if (parameter.ParameterType.IsArray)
             {
                 var p = new object[args.Length - index];

@@ -93,7 +93,9 @@ namespace Components.Aphid.TypeSystem
                     //valType == typeof(ulong) ? CanConvertOrBoxULong((decimal)val, target) :
                     //valType == typeof(float) ? CanConvertOrBoxFloat((decimal)val, target) :
                     //valType == typeof(double) ? CanConvertOrBoxDouble((decimal)val, target) :
-                    valType == typeof(string) && target == typeof(char) && ((string)val).Length == 1 ? true :
+                    valType == typeof(string) &&
+                        (target == typeof(char[]) ||
+                        (target == typeof(char) && ((string)val).Length == 1)) ? true :
                     valType.IsDerivedFromOrImplements(target, genericArguments) ? true :
                     target.IsArray ? CanConvertArray(val, valType, target) :
                     interopArg.ExplicitConversionOperator != null ? true :

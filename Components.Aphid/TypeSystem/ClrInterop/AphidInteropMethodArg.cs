@@ -84,9 +84,16 @@ namespace Components.Aphid.TypeSystem
             else if ((ArgumentType == typeof(string) &&
                     TargetType == typeof(char) &&
                     ((string)Argument).Length == 1) ||
-                (ArgumentType == typeof(char) && TargetType == typeof(string)))
+                (ArgumentType == typeof(char) &&
+                    TargetType == typeof(string)))
             {
                 IsExactBasicTypeMatch = true;
+                IsExactUserReferenceTypeMatch = false;
+                HasToStringConversion = TargetType == typeof(string);
+            }
+            else if (ArgumentType == typeof(string) && TargetType == typeof(char[]))
+            {
+                IsExactBasicTypeMatch = false;
                 IsExactUserReferenceTypeMatch = false;
                 HasToStringConversion = TargetType == typeof(string);
             }
