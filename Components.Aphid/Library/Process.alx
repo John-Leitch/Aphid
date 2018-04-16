@@ -1,6 +1,6 @@
-﻿system;
-startProcess;
-prepareCommand;
+﻿var system;
+var startProcess;
+var prepareCommand;
 
 @{
     #'Std';
@@ -12,20 +12,18 @@ prepareCommand;
     using System.Threading;
 
     startProcess = @(exe, args, onLine) {
-        proc;
-        si;
         print('Starting process');
-        si = new ProcessStartInfo(exe, args);
+        var si = new ProcessStartInfo(exe, args);
         si.UseShellExecute = false;
         si.CreateNoWindow = false;
         si.RedirectStandardOutput = true;
         si.RedirectStandardError = true;
-        proc = Process.Start(si);
+        var proc = Process.Start(si);
 
         procThread = new Thread(@{
             try {
                 while (!proc.StandardOutput.EndOfStream) {
-                    line = proc.StandardOutput.ReadLine();
+                    var line = proc.StandardOutput.ReadLine();
 
                     if (line == null) {
                         continue;
