@@ -85,10 +85,6 @@ namespace Components.Aphid.Interpreter
     //   - Use CrossProcessLock to sync bootstrap execution/overwrite.
     // * Add yield return/break support, possibly infer based on lazy attribute
     // * Add contextual semantics for | --binary OR for numbers, pipe for callables.
-    // * Add strict mode that requires explicit variable declaration.
-    // * Take crash dump of self when unhandled exception encountered.
-    //   - Save not only standard Windows dmp files, but also Aphid specific
-    //     dumps containing serialized scope.
     // * Create standalone debugger.
     //   - Build both command-line and graphical interfaces.
     //   - Add ability to open Aphid-specific crash dumps.
@@ -107,7 +103,6 @@ namespace Components.Aphid.Interpreter
     // * Add struct support.
     //   - Support first-class unions with FieldOffsetAttribute.
     //   - Add first-class pointer support.
-    // * Add interop-types-as-values support e.g. var f = System.IO.File;
     // * Generate new bitwise operator implementations based on
     //   public AphidObject BinaryAnd(AphidObject x, AphidObject y)
     // * Look into generating interpreter thunks that handle interpreter
@@ -116,9 +111,6 @@ namespace Components.Aphid.Interpreter
     // * Add using keyword support for IDisposable.
     // * Add scope keyword support for automatic disposal immediately upon leaving
     //   leaving scope via ascend (not descend) or by breaking scope chain entirely.
-    // * Apply syntax highlighting throughout the CLI e.g. erro code excerpt,
-    //   faulting expression, faulting statement, stack trace, serialization
-    //   AphidExpression.ToString() output.
     // * Consider pure console IDE.
     //   -Draw inspiration from edit.com
     // * Add fan-out support for C# generation e.g.
@@ -2425,14 +2417,29 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidExpression[] Flatten(AphidExpression exp)
         {
+            return Flatten(exp, AphidTokenType.MemberOperator);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidExpression[] Flatten(AphidExpression exp, AphidTokenType sequenceOperator)
+        {
             var expressions = new List<AphidExpression>();
 
             switch (exp.Type)
             {
                 case AphidExpressionType.BinaryOperatorExpression:
                     var binOpExp = (BinaryOperatorExpression)exp;
-                    expressions.AddRange(Flatten(binOpExp.LeftOperand));
-                    expressions.Add(binOpExp.RightOperand);
+
+                    if (binOpExp.Operator == sequenceOperator)
+                    {
+                        expressions.AddRange(Flatten(binOpExp.LeftOperand));
+                        expressions.Add(binOpExp.RightOperand);
+                    }
+                    else
+                    {
+                        expressions.Add(exp);
+                    }
+
                     break;
 
                 default:
@@ -2841,8 +2848,17 @@ namespace Components.Aphid.Interpreter
 
                     try
                     {
-                        var path = FlattenPath(call.FunctionExpression);
-                        var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path, isType: true);
+                        var typeObj = ValueHelper.Unwrap(InterpretExpression(call.FunctionExpression));
+
+                        if (typeObj == null || !typeof(Type).IsAssignableFrom(typeObj.GetType()))
+                        {
+                            throw CreateRuntimeException(
+                                "Expression '{0}' resolved to '{1}', expected type.",
+                                call.FunctionExpression,
+                                typeObj);
+                        }
+
+                        var type = (Type)typeObj;
                         var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
 
                         var convertedArgs = TypeConverter.Convert(
@@ -3469,62 +3485,151 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretArrayAccessExpression(ArrayAccessExpression expression)
         {
-            var val = ValueHelper.Unwrap(InterpretExpression(expression.ArrayExpression));
-            var index = Convert.ToInt32(ValueHelper.Unwrap(InterpretExpression(expression.KeyExpression)));
-            var array = val as List<AphidObject>;
-            string str;
-            IList list;
-            IEnumerable enumerable;
+            bool isTypeArgument;
+            var indexes = InterpretArrayAccessIndexes(expression, out isTypeArgument);
 
-            if (array != null)
+            if (isTypeArgument)
             {
-                if (index < 0 || index >= array.Count)
+                if (expression.ArrayExpression.Type != AphidExpressionType.IdentifierExpression)
                 {
-                    throw CreateRuntimeException("Index out of range: {0}.", index);
+                    throw CreateRuntimeException("Expected identifier in generic type expression.");
+                }
+                
+                var id = ((IdentifierExpression)expression.ArrayExpression).Identifier;
+
+                var genericType = InteropTypeResolver.TryResolveType(
+                    GetImports().ToArray(),
+                    new[] { string.Format("{0}`{1}", id, indexes.Length) },
+                    isType: true);
+
+                if (genericType == null)
+                {
+                    throw CreateRuntimeException("Could not resolve generic type {0}<>", id);
                 }
 
-                return array[index];
-            }
-            else if ((str = val as string) != null)
-            {
-                if (index < 0 || index >= str.Length)
-                {
-                    throw CreateOutOfBoundsException(expression, val, index, str.Length);
-                }
+                var typeParams = new Type[indexes.Length];
 
-                return new AphidObject(str[index].ToString());
-            }
-            else if ((list = val as IList) != null)
-            {
-                if (index < 0 || index >= list.Count)
+                for (var i = 0; i < indexes.Length; i++)
                 {
-                    throw CreateOutOfBoundsException(expression, val, index, list.Count);
-                }
+                    typeParams[i] = indexes[i].Value as Type;
 
-                return ValueHelper.Wrap(list[index]);
-            }
-            else if ((enumerable = val as IEnumerable) != null)
-            {
-                var i = 0;
-
-                foreach (var o in enumerable)
-                {
-                    if (i++ == index)
+                    if (typeParams[i] == null)
                     {
-                        return new AphidObject(o);
+                        throw CreateRuntimeException(
+                            "Invalid type parameter '{0}'.", 
+                            indexes[i].Value);
                     }
                 }
 
-                throw CreateOutOfBoundsException(expression, val, index, i - 1);
+                var constructedGenericType = genericType.MakeGenericType(typeParams);
+
+                return new AphidObject(constructedGenericType);
+                
             }
             else
             {
-                throw CreateExpressionException(
-                    expression.ArrayExpression,
-                    val,
-                    "Array access not supported by");
+                if (indexes.Length != 1)
+                {
+                    throw CreateRuntimeException("Multi-dimensional arrays not yet supported.");
+                }
+
+                var val = ValueHelper.Unwrap(InterpretExpression(expression.ArrayExpression));
+                var index = Convert.ToInt32(indexes[0].Value);
+                var array = val as List<AphidObject>;
+                string str;
+                IList list;
+                IEnumerable enumerable;
+
+                if (array != null)
+                {
+                    if (index < 0 || index >= array.Count)
+                    {
+                        throw CreateRuntimeException("Index out of range: {0}.", index);
+                    }
+
+                    return array[index];
+                }
+                else if ((str = val as string) != null)
+                {
+                    if (index < 0 || index >= str.Length)
+                    {
+                        throw CreateOutOfBoundsException(expression, val, index, str.Length);
+                    }
+
+                    return new AphidObject(str[index].ToString());
+                }
+                else if ((list = val as IList) != null)
+                {
+                    if (index < 0 || index >= list.Count)
+                    {
+                        throw CreateOutOfBoundsException(expression, val, index, list.Count);
+                    }
+
+                    return ValueHelper.Wrap(list[index]);
+                }
+                else if ((enumerable = val as IEnumerable) != null)
+                {
+                    var i = 0;
+
+                    foreach (var o in enumerable)
+                    {
+                        if (i++ == index)
+                        {
+                            return new AphidObject(o);
+                        }
+                    }
+
+                    throw CreateOutOfBoundsException(expression, val, index, i - 1);
+                }
+                else
+                {
+                    throw CreateExpressionException(
+                        expression.ArrayExpression,
+                        val,
+                        "Array access not supported by");
+                }
             }
         }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidObject[] InterpretArrayAccessIndexes(
+            ArrayAccessExpression expression,
+            out bool isTypeArgument)
+        {
+            if (expression.ToString().Contains("List"))
+            {
+                Console.Write("");
+            }
+            var indexExpressions = Flatten(expression.KeyExpression, AphidTokenType.Comma);
+            isTypeArgument = false;    
+
+            if (indexExpressions.Length == 0)
+            {
+                return new AphidObject[0];
+            }
+
+            var indexes = new AphidObject[indexExpressions.Length];
+
+            for (var i = 0; i < indexes.Length; i++)
+            {
+                var index = InterpretExpression(indexExpressions[i]);
+
+                if (i == 0)
+                {
+                    var obj = ValueHelper.Unwrap(index);
+                    Type t;
+                    isTypeArgument = obj != null &&
+                        (((t = obj.GetType()) == typeof(Type)) ||
+                        (t.BaseType == typeof(Type)) ||
+                        (t.BaseType != null && t.BaseType.BaseType == typeof(Type)));
+                }
+
+                indexes[i] = ValueHelper.Wrap(index);
+            }
+
+            return indexes;
+        }
+
 
         private AphidRuntimeException CreateOutOfBoundsException(
             AphidExpression expression,

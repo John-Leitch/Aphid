@@ -48,8 +48,6 @@
 //     use with global hooks for fast shortcut resolution.
 //   - Look into low level console API, further abstract API and 
 //     add support for WPF controls.
-// * Add automatic crashdump creation, both windows dmp and
-//   proprietary dump of interpreter state.
 // * Create UI automation API.
 // * Add native PInvoke support.
 // * Build AOP API using scripted mutator.
