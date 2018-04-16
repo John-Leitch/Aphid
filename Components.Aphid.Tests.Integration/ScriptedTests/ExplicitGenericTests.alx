@@ -10,8 +10,13 @@ isTrue;
 @{ List[string] == List[string] };
 @{ List[string] != List[int] };
 @{ var d = new Dictionary[string, string](); d.Add('foo', 'bar'); d.get_Item('foo') == 'bar' };
+@{ var d = new Dictionary[string, List[string]](); d.Add('foo', new List[string]()); d.get_Item('foo').Add('bar'); d.get_Item('foo')[0] == 'bar' };
 @{ Dictionary[string, string] == Dictionary[string, string] };
 @{ Dictionary[string, string] != Dictionary[int, string] };
+@{ Dictionary[Dictionary[string, string], string] == Dictionary[Dictionary[string, string], string] };
+@{ Dictionary[Dictionary[string, string], string] != Dictionary[string, Dictionary[string, string]] };
+@{ Dictionary[Dictionary[string, string], List[string]] == Dictionary[Dictionary[string, string], List[string]] };
+@{ Dictionary[Dictionary[string, string], List[string]] != Dictionary[List[string], Dictionary[string, string]] };
 
 fault;
 @{ var l = new List[string](); l[0] == 'foo' };
