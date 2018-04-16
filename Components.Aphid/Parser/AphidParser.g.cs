@@ -5,88 +5,130 @@ namespace Components.Aphid.Parser
     using System.Collections.Generic;
 
 
+    [System.Runtime.Serialization.DataContractAttribute(Name = "AphidExpressionType")]
     public enum AphidExpressionType
     {
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ArrayAccessExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ArrayExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         BinaryOperatorExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         BinaryOperatorBodyExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         BooleanExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         BreakExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         CallExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ContinueExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         DoWhileExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         DynamicMemberExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ExtendExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ForEachExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ForExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         FunctionExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         GatorOpenExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         GatorCloseExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         GatorEmitExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         IdentifierExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         IfExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ImplicitArgumentExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ImplicitArgumentsExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         LoadLibraryExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         LoadScriptExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         NullExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         NumberExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ObjectExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         PartialFunctionExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         PartialOperatorExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         PatternExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         PatternMatchingExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         UnaryOperatorExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         StringExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         SwitchCase,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         SwitchExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         TernaryOperatorExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         TextExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         ThisExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         TryExpression,
 
+        [System.Runtime.Serialization.EnumMemberAttribute()]
         WhileExpression,
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ArrayAccessExpression : AphidExpression, IParentNode
     {
 
@@ -100,6 +142,11 @@ namespace Components.Aphid.Parser
             _keyExpression = keyExpression;
         }
 
+        private ArrayAccessExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression ArrayExpression
         {
             get
@@ -108,6 +155,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression KeyExpression
         {
             get
@@ -132,6 +180,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ArrayExpression : AphidExpression, IParentNode
     {
 
@@ -142,6 +192,11 @@ namespace Components.Aphid.Parser
             _elements = elements;
         }
 
+        private ArrayExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Elements
         {
             get
@@ -164,6 +219,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class BinaryOperatorExpression : AphidExpression, IParentNode
     {
 
@@ -180,6 +237,11 @@ namespace Components.Aphid.Parser
             _rightOperand = rightOperand;
         }
 
+        private BinaryOperatorExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression LeftOperand
         {
             get
@@ -188,6 +250,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -196,6 +259,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression RightOperand
         {
             get
@@ -220,6 +284,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class BinaryOperatorBodyExpression : AphidExpression, IParentNode
     {
 
@@ -233,6 +299,11 @@ namespace Components.Aphid.Parser
             _function = function;
         }
 
+        private BinaryOperatorBodyExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -241,6 +312,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public FunctionExpression Function
         {
             get
@@ -264,6 +336,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class BooleanExpression : AphidExpression
     {
 
@@ -274,6 +348,11 @@ namespace Components.Aphid.Parser
             _value = value;
         }
 
+        private BooleanExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public bool Value
         {
             get
@@ -291,6 +370,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class BreakExpression : AphidExpression
     {
 
@@ -307,6 +388,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class CallExpression : AphidExpression, IParentNode
     {
 
@@ -327,6 +410,11 @@ namespace Components.Aphid.Parser
             }
         }
 
+        private CallExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression FunctionExpression
         {
             get
@@ -335,6 +423,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Args
         {
             get
@@ -358,6 +447,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ContinueExpression : AphidExpression
     {
 
@@ -374,6 +465,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class DoWhileExpression : AphidExpression, IParentNode
     {
 
@@ -387,6 +480,11 @@ namespace Components.Aphid.Parser
             _body = body;
         }
 
+        private DoWhileExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Condition
         {
             get
@@ -395,6 +493,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -418,6 +517,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class DynamicMemberExpression : AphidExpression, IParentNode
     {
 
@@ -428,6 +529,11 @@ namespace Components.Aphid.Parser
             _memberExpression = memberExpression;
         }
 
+        private DynamicMemberExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression MemberExpression
         {
             get
@@ -451,6 +557,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ExtendExpression : AphidExpression, IParentNode
     {
 
@@ -464,6 +572,11 @@ namespace Components.Aphid.Parser
             _object = @object;
         }
 
+        private ExtendExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public IdentifierExpression ExtendType
         {
             get
@@ -472,6 +585,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public ObjectExpression Object
         {
             get
@@ -496,6 +610,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ForEachExpression : AphidExpression, IParentNode
     {
 
@@ -512,6 +628,11 @@ namespace Components.Aphid.Parser
             _element = element;
         }
 
+        private ForEachExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Collection
         {
             get
@@ -520,6 +641,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -528,6 +650,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Element
         {
             get
@@ -552,6 +675,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ForExpression : AphidExpression, IParentNode
     {
 
@@ -571,6 +696,11 @@ namespace Components.Aphid.Parser
             _body = body;
         }
 
+        private ForExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Initialization
         {
             get
@@ -579,6 +709,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Condition
         {
             get
@@ -587,6 +718,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Afterthought
         {
             get
@@ -595,6 +727,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -620,6 +753,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class FunctionExpression : AphidExpression, IParentNode
     {
 
@@ -633,6 +768,11 @@ namespace Components.Aphid.Parser
             _body = body;
         }
 
+        private FunctionExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Args
         {
             get
@@ -641,6 +781,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -663,6 +804,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class GatorOpenExpression : AphidExpression
     {
 
@@ -679,6 +822,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class GatorCloseExpression : AphidExpression
     {
 
@@ -695,6 +840,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class GatorEmitExpression : AphidExpression, IParentNode
     {
 
@@ -705,6 +852,11 @@ namespace Components.Aphid.Parser
             _expression = expression;
         }
 
+        private GatorEmitExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Expression
         {
             get
@@ -728,6 +880,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class IdentifierExpression : AphidExpression, IParentNode
     {
 
@@ -748,6 +902,11 @@ namespace Components.Aphid.Parser
             }
         }
 
+        private IdentifierExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Identifier
         {
             get
@@ -756,6 +915,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<IdentifierExpression> Attributes
         {
             get
@@ -778,6 +938,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class IfExpression : AphidExpression, IParentNode
     {
 
@@ -794,6 +956,11 @@ namespace Components.Aphid.Parser
             _elseBody = elseBody;
         }
 
+        private IfExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Condition
         {
             get
@@ -802,6 +969,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -810,6 +978,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> ElseBody
         {
             get
@@ -833,6 +1002,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ImplicitArgumentExpression : AphidExpression
     {
 
@@ -843,6 +1014,11 @@ namespace Components.Aphid.Parser
             _operator = @operator;
         }
 
+        private ImplicitArgumentExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -860,6 +1036,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ImplicitArgumentsExpression : AphidExpression
     {
 
@@ -870,6 +1048,11 @@ namespace Components.Aphid.Parser
             _operator = @operator;
         }
 
+        private ImplicitArgumentsExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -887,6 +1070,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class LoadLibraryExpression : AphidExpression, IParentNode
     {
 
@@ -897,6 +1082,11 @@ namespace Components.Aphid.Parser
             _libraryExpression = libraryExpression;
         }
 
+        private LoadLibraryExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression LibraryExpression
         {
             get
@@ -920,6 +1110,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class LoadScriptExpression : AphidExpression, IParentNode
     {
 
@@ -930,6 +1122,11 @@ namespace Components.Aphid.Parser
             _fileExpression = fileExpression;
         }
 
+        private LoadScriptExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression FileExpression
         {
             get
@@ -953,6 +1150,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class NullExpression : AphidExpression
     {
 
@@ -969,6 +1168,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class NumberExpression : AphidExpression
     {
 
@@ -979,6 +1180,11 @@ namespace Components.Aphid.Parser
             _value = value;
         }
 
+        private NumberExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public decimal Value
         {
             get
@@ -996,6 +1202,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ObjectExpression : AphidExpression, IParentNode
     {
 
@@ -1009,6 +1217,11 @@ namespace Components.Aphid.Parser
             _identifier = identifier;
         }
 
+        private ObjectExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<BinaryOperatorExpression> Pairs
         {
             get
@@ -1017,6 +1230,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public IdentifierExpression Identifier
         {
             get
@@ -1040,6 +1254,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class PartialFunctionExpression : AphidExpression, IParentNode
     {
 
@@ -1050,6 +1266,11 @@ namespace Components.Aphid.Parser
             _call = call;
         }
 
+        private PartialFunctionExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public CallExpression Call
         {
             get
@@ -1073,6 +1294,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class PartialOperatorExpression : AphidExpression, IParentNode
     {
 
@@ -1086,6 +1309,11 @@ namespace Components.Aphid.Parser
             _operand = operand;
         }
 
+        private PartialOperatorExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -1094,6 +1322,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Operand
         {
             get
@@ -1117,6 +1346,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class PatternExpression : AphidExpression, IParentNode
     {
 
@@ -1137,6 +1368,11 @@ namespace Components.Aphid.Parser
             }
         }
 
+        private PatternExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Value
         {
             get
@@ -1145,6 +1381,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Patterns
         {
             get
@@ -1168,6 +1405,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class PatternMatchingExpression : AphidExpression, IParentNode
     {
 
@@ -1181,6 +1420,11 @@ namespace Components.Aphid.Parser
             _patterns = patterns;
         }
 
+        private PatternMatchingExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression TestExpression
         {
             get
@@ -1189,6 +1433,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<PatternExpression> Patterns
         {
             get
@@ -1212,6 +1457,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class UnaryOperatorExpression : AphidExpression, IParentNode
     {
 
@@ -1228,6 +1475,11 @@ namespace Components.Aphid.Parser
             _isPostfix = isPostfix;
         }
 
+        private UnaryOperatorExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -1236,6 +1488,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Operand
         {
             get
@@ -1244,6 +1497,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsPostfix
         {
             get
@@ -1267,6 +1521,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class StringExpression : AphidExpression
     {
 
@@ -1277,6 +1533,11 @@ namespace Components.Aphid.Parser
             _value = value;
         }
 
+        private StringExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Value
         {
             get
@@ -1294,6 +1555,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class SwitchCase : AphidExpression, IParentNode
     {
 
@@ -1307,6 +1570,11 @@ namespace Components.Aphid.Parser
             _body = body;
         }
 
+        private SwitchCase()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Cases
         {
             get
@@ -1315,6 +1583,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -1337,6 +1606,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class SwitchExpression : AphidExpression, IParentNode
     {
 
@@ -1353,6 +1624,11 @@ namespace Components.Aphid.Parser
             _defaultCase = defaultCase;
         }
 
+        private SwitchExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Expression
         {
             get
@@ -1361,6 +1637,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<SwitchCase> Cases
         {
             get
@@ -1369,6 +1646,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> DefaultCase
         {
             get
@@ -1392,6 +1670,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class TernaryOperatorExpression : AphidExpression, IParentNode
     {
 
@@ -1411,6 +1691,11 @@ namespace Components.Aphid.Parser
             _thirdOperand = thirdOperand;
         }
 
+        private TernaryOperatorExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidTokenType Operator
         {
             get
@@ -1419,6 +1704,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression FirstOperand
         {
             get
@@ -1427,6 +1713,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression SecondOperand
         {
             get
@@ -1435,6 +1722,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression ThirdOperand
         {
             get
@@ -1460,6 +1748,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class TextExpression : AphidExpression
     {
 
@@ -1470,6 +1760,11 @@ namespace Components.Aphid.Parser
             _text = text;
         }
 
+        private TextExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Text
         {
             get
@@ -1487,6 +1782,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class ThisExpression : AphidExpression
     {
 
@@ -1503,6 +1800,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class TryExpression : AphidExpression, IParentNode
     {
 
@@ -1522,6 +1821,11 @@ namespace Components.Aphid.Parser
             _finallyBody = finallyBody;
         }
 
+        private TryExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> TryBody
         {
             get
@@ -1530,6 +1834,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public IdentifierExpression CatchArg
         {
             get
@@ -1538,6 +1843,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> CatchBody
         {
             get
@@ -1546,6 +1852,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> FinallyBody
         {
             get
@@ -1569,6 +1876,8 @@ namespace Components.Aphid.Parser
         }
     }
 
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
     public partial class WhileExpression : AphidExpression, IParentNode
     {
 
@@ -1582,6 +1891,11 @@ namespace Components.Aphid.Parser
             _body = body;
         }
 
+        private WhileExpression()
+        {
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public AphidExpression Condition
         {
             get
@@ -1590,6 +1904,7 @@ namespace Components.Aphid.Parser
             }
         }
 
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AphidExpression> Body
         {
             get
@@ -5058,7 +5373,6 @@ namespace Components.Aphid.Lexer
         XorEqualOperator,
         XorOperator
     }
-
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("llex", "1")]
     // Todo: generate interop attributes automatically using Mantispid.
@@ -12169,8 +12483,6 @@ namespace Components.Aphid.Lexer
 
             return tokens;
         }
-
-
     }
 }
 #pragma warning restore 0162

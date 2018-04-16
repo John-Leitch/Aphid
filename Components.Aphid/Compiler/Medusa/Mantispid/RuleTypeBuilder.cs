@@ -4,6 +4,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -95,11 +96,30 @@ namespace Mantispid
                 IsPartial = true,
             };
 
+            decl.CustomAttributes.Add(
+                new CodeAttributeDeclaration(
+                    CodeHelper.TypeRef<SerializableAttribute>()));
+
+            decl.CustomAttributes.Add(
+                new CodeAttributeDeclaration(
+                    CodeHelper.TypeRef<DataContractAttribute>(),
+                    new CodeAttributeArgument("IsReference", CodeHelper.True())));
+
             decl.BaseTypes.Add(CodeHelper.TypeRef(rule.BaseName));
             var properties = CreateProperties(rule);
             decl.Members.AddRange(properties);
             decl.Members.AddRange(CreateFields(properties));
-            decl.Members.Add(CreateConstructor(rule, properties));
+            var ctor = CreateConstructor(rule, properties);
+            decl.Members.Add(ctor);
+
+            if (ctor.Parameters.Count != 0)
+            {
+                decl.Members.Add(new CodeConstructor
+                {
+                    Attributes = MemberAttributes.Private
+                });
+            }
+            
             AddGetChildrenMethod(rule, decl);
             AddTypeProperty(rule, decl);
 
@@ -115,6 +135,12 @@ namespace Mantispid
                     Attributes = MemberAttributes.Public | MemberAttributes.Final,
                     Type = ParserCode.GetTypeRef(x),
                     HasGet = true,
+                    CustomAttributes = new CodeAttributeDeclarationCollection(
+                        new[]
+                        {
+                            new CodeAttributeDeclaration(
+                                CodeHelper.TypeRef<DataMemberAttribute>())
+                        }),
                 })
                 .ToArray();
 

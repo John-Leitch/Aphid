@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Components.Aphid.Compiler;
+using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,7 +30,24 @@ namespace Mantispid
         {
             var name = GetEnumName();
             var decl = new CodeTypeDeclaration(name) { IsEnum = true };
-            decl.Members.AddRange(_ruleTypes.Select(x => new CodeMemberField(name, x)).ToArray());
+            
+            decl.CustomAttributes.Add(
+                new CodeAttributeDeclaration(
+                    CodeHelper.TypeRef<DataContractAttribute>(),
+                    new CodeAttributeArgument("Name", CodeHelper.Value(name))));
+
+            decl.Members.AddRange(
+                _ruleTypes
+                .Select(x => new CodeMemberField(name, x)
+                {
+                    CustomAttributes = new CodeAttributeDeclarationCollection(
+                        new[]
+                        {
+                            new CodeAttributeDeclaration(
+                                CodeHelper.TypeRef<EnumMemberAttribute>())
+                        })
+                })
+                .ToArray());
 
             return decl;
         }
