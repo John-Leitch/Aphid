@@ -1,0 +1,23 @@
+﻿var strict = @(x) this.{'$aphid'}.StrictMode = x;
+#'AopTest';
+strict mode group;
+
+prologue;
+strict(false);
+@{ testVar };
+@{ var testVar };
+@{ testVar = 10 };
+@{ var testVar = 10 };
+
+prologue;
+strict(true);
+@{ var testVar };
+@{ var testVar = 10 };
+
+fault;
+@{ testVar };
+@{ testVar = 10 };
+
+reset strict mode begin;
+success;
+@{ strict(false) };

@@ -622,8 +622,7 @@ extend IntPtr {
 }
 
 getExe = @{
-    asm;
-    asm = Assembly.GetEntryAssembly();
+    var asm = Assembly.GetEntryAssembly();
 
     ret asm != null ? asm.Location : null;
 };

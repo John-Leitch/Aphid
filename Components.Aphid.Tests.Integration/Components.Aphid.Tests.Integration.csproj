@@ -154,6 +154,9 @@
     <None Include="ScriptedTests\AssignmentTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ScriptedTests\StrictModeTests.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ScriptedTests\NestedTypeTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

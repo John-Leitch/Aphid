@@ -135,4 +135,4 @@
     };
 }();
 
-tests;
+var tests;

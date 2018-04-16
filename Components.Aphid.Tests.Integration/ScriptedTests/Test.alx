@@ -1,2 +1,2 @@
 ﻿#'TestBase';
-tests;
+var tests;
