@@ -555,7 +555,7 @@
 ::$(SolutionDir)Aphid\$(OutDir)Aphid.exe $(ProjectDir)External\ConsolePlus\Cli.alx &gt; $(ProjectDir)External\ConsolePlus\Cli.g.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>::copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
