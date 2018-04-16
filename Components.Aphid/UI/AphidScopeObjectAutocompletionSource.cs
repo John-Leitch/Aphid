@@ -340,10 +340,9 @@ namespace Components.Aphid.UI
         {
             var scope = new List<Autocomplete>();
 
-            foreach (var m in type.GetMembers().GroupBy(x => x.Name))
+            foreach (var m in type.GetMembers(BindingFlags.Instance | BindingFlags.Public))
             {
-                var ac = CreateMemberAutocomplete(m.First());
-                scope.Add(ac);
+                scope.Add(CreateMemberAutocomplete(m));
             }
 
             return scope;
@@ -353,12 +352,15 @@ namespace Components.Aphid.UI
         {
             var view = member.Name;
 
-            if (member is ConstructorInfo)
+            if (member is ConstructorInfo || member is MethodBase)
             {
-            }
-            else if (member is MethodBase)
-            {
-                view += "()";
+                var methodParams = ((MethodBase)member).GetParameters();
+                
+                var tup = methodParams
+                    .Select(x => string.Format("{0} {1}", x.ParameterType.Name, x.Name))
+                    .Join(", ");
+
+                view += string.Format("({0})", tup);
             }
             else if (member is PropertyInfo)
             {
