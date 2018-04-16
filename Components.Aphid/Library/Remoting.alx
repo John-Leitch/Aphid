@@ -50,7 +50,7 @@ var remote = null;
         isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
     }
 
-    var _t = traceRemoting defined ? Cli.WriteLine : @{ };
+    var _rt = traceRemoting defined ? Cli.WriteLine : @{ };
     var utf8 = new UTF8Encoding();
 
     var createClient = @(tcp) ({
@@ -60,9 +60,9 @@ var remote = null;
         read: @{
             var reader = new BinaryReader(tcp.GetStream());
             var len = reader.ReadUInt32();
-            _t('Receiving {0:n0} bytes', len);
+            _rt('Receiving {0:n0} bytes', len);
             var buf = len |> Convert.ToInt32 |> reader.ReadBytes;
-            _t('{0:n0} bytes read', buf.Length);
+            _rt('{0:n0} bytes read', buf.Length);
 
             ret new AphidObject(buf |> utf8.GetString);
         },
@@ -87,9 +87,9 @@ var remote = null;
 
         listen: @(port){
             var actualPort = port ?? remote.port;
-            _t('Creating listener on port {0}', actualPort);
+            _rt('Creating listener on port {0}', actualPort);
             var ctx = { listener: new TcpListener(actualPort), clients: [] };
-            _t('Starting listener');
+            _rt('Starting listener');
             var l = ctx.listener;
             ctx.listener.Start();
             _initSerializer(this.{'$aphid'});
@@ -98,48 +98,48 @@ var remote = null;
                 var aphid = this.{'$aphid'};
                 
                 while (true) {
-                    _t('Waiting for client');
+                    _rt('Waiting for client');
 
                     try {
                         var tcp = ctx.listener.AcceptTcpClient();
-                        _t('Client connected');
+                        _rt('Client connected');
                         var c = createClient(tcp);
 
                         c.thread = thread(@{
                             var buffer;
                             var resp;
-                            _t('Creating client thread');
+                            _rt('Creating client thread');
 
                             try {
                                 while (c.socket.Connected) {
                                     try buffer = c.read();
                                     catch (e) {
-                                        _t('Error reading buffer: {0}', e.message);
+                                        _rt('Error reading buffer: {0}', e.message);
                                         continue;
                                     }
 
-                                    _t('Buffer: ~Cyan~{0}~R~', buffer);
+                                    _rt('Buffer: ~Cyan~{0}~R~', buffer);
 
                                     try {
                                         var o = buffer |> aphid.InterpretStream;
                                         resp = { result: o } |> serialize;
                                     } catch (e) {
-                                        _t('Error serializating response: {0}', e.message);
+                                        _rt('Error serializating response: {0}', e.message);
                                         this |> serialize |> c.write;
                                     }
 
                                     resp |> c.write;
                                 }
                             } catch (e) {
-                                _t('Client connection error: {0}', e.message);
+                                _rt('Client connection error: {0}', e.message);
                             }
 
-                            _t('Client disconnected');
+                            _rt('Client disconnected');
                         });
 
                         ctx.clients.add(c);
                     } catch (e) {
-                        _t('Error accepting client: {0}', e.message);
+                        _rt('Error accepting client: {0}', e.message);
                     }
                 }            
             });
@@ -152,21 +152,21 @@ var remote = null;
                 fatal('Server must be specified');
             }
 
-            _t('Connecting to remote session {0}', server);
+            _rt('Connecting to remote session {0}', server);
             var tcp = new TcpClient();
             tcp.Connect(server, port ?? remote.port);        
             var client = createClient(tcp);
 
             client.eval = @(exp) {
-                _t('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
+                _rt('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
                 write(exp);
-                _t('Reading command');
+                _rt('Reading command');
                 var buf = read();
-                _t('Server response:\r\n~Magenta~{0}~R~\r\n\r\n', buf |> Cli.StyleEscape);
+                _rt('Server response:\r\n~Magenta~{0}~R~\r\n\r\n', buf |> Cli.StyleEscape);
                 ret buf |> deserialize;
             };
 
-            _t('Connected to remote session');
+            _rt('Connected to remote session');
 
             ret client;
         },
