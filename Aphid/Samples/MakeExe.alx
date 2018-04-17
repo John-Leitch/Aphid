@@ -8,10 +8,10 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 
-args = Environment.GetCommandLineArgs()->@() $_;
+var args = Environment.GetCommandLineArgs()->@() $_;
 
 if (args.Count >= 1) {
-    n = Path.GetFileName(args[0]).ToLower();
+    var n = Path.GetFileName(args[0]).ToLower();
 
     if (n == 'aphid' || n == 'aphid.exe' || n == 'aphid.vshost.exe') {
         args = args @aq.skip(2);
@@ -20,7 +20,7 @@ if (args.Count >= 1) {
     }
 }
 
-usage = 'MakeExe [script name] {exe name}';
+var usage = 'MakeExe [script name] {exe name}';
 
 if (args.Count == 0) {
     print(usage);
@@ -29,9 +29,9 @@ if (args.Count == 0) {
     fatal('Invalid arguments, expected {0}', usage);
 }
 
-script = args[0];
+var script = args[0];
 
-asmName = args.Count == 2 ?
+var asmName = args.Count == 2 ?
     args[1] :
     Path.ChangeExtension(args[0], 'exe');
 
@@ -40,7 +40,7 @@ print('Creating module {0} for {1}', asmName, script);
 importOpcodes();
 
 @{
-    e = $_.Emit;
+    var e = $_.Emit;
     e(Ldc_I4_1);
     e(Newobj, AphidInterpreter.GetConstructor([ bool ]));
     e(Call, Assembly.GetMethod('GetExecutingAssembly'));

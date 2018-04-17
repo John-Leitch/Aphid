@@ -17,23 +17,23 @@ var ilImportScope = this;
     using System.Threading;
 
     createAsm = @(name) {
-        asm = AppDomain.CurrentDomain
+        var asm = AppDomain.CurrentDomain
             .DefineDynamicAssembly(
                 new AssemblyName(name),
                 AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
 
-        module = name |> asm.DefineDynamicModule;
+        var module = name |> asm.DefineDynamicModule;
 
         ret {
             asm,
             module,
             setEntryPoint: asm.SetEntryPoint,
             createEntryPoint: @(ilCallback) {
-                type = module.DefineType(
+                var type = module.DefineType(
                     'Program',
                     TypeAttributes.Class | TypeAttributes.Public);
 
-                method = type.DefineMethod(
+                var method = type.DefineMethod(
                     'Main',
                     MethodAttributes.HideBySig |
                         MethodAttributes.Public |
@@ -51,7 +51,7 @@ var ilImportScope = this;
     };
 
     createProgram = @(asmName, ilCallback) {
-        asm = asmName |> createAsm;
+        var asm = asmName |> createAsm;
         ilCallback |> asm.createEntryPoint;
         asmName |> asm.save;
     };
@@ -65,11 +65,7 @@ var ilImportScope = this;
             ->(@(n) scope.{n} = n @String.Format('OpCodes.{0}') |> evalExp);
 
     asmIL = @(il) {
-        emit;
-        emitMnemonic;
-        emitGenerate;
-
-        emit = @(instruction) {
+        var emit = @(instruction) {
             if (instruction.isCall()) {
                 ret emitGenerate(
                     instruction.FunctionExpression,
@@ -81,13 +77,10 @@ var ilImportScope = this;
             }
         };
 
-        emitLsdstr = @(str)
-            emitGenerate('Ldstr', [ str.ToString() ]);
+        var emitLsdstr = @(str) emitGenerate('Ldstr', [ str.ToString() ]);
+        var emitMnemonic = @(mnemonic) { };
 
-        emitMnemonic = @(mnemonic) {
-        };
-
-        emitGenerate = @(mnemonic, args)
+        var emitGenerate = @(mnemonic, args)
             $args.Count > 1 && (args |> Enumerable.Any) ?
                 format('$_.Emit(OpCodes.{0}, {1});', mnemonic, args @join(', ')) :
                 format('$_.Emit(OpCodes.{0});', mnemonic);

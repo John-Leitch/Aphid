@@ -3,15 +3,15 @@
 if (!getCommand().EndsWith('-crash')) {
     #'NativeDebugging';
     print('Starting process under debugger');
-    cmd = getCommand() + ' -crash';
-    getOp = @() $($_) 0: 'read', 1: 'write', 8: 'execute', 'unknown';
+    var cmd = getCommand() + ' -crash';
+    var getOp = @() $($_) 0: 'read', 1: 'write', 8: 'execute', 'unknown';
 
     debugCommand(
         cmd,
         {
             exception: @(sender, e) {
-                fmt = '~Red~{0}~R~ encountered at ~Yellow~0x{1:x8}~R~';
-                er = e.DebugEvent.Exception.ExceptionRecord;
+                var fmt = '~Red~{0}~R~ encountered at ~Yellow~0x{1:x8}~R~';
+                var er = e.DebugEvent.Exception.ExceptionRecord;
 
                 if (er.ExceptionCode != 0xc0000005) {
                     print(fmt, e.ToString(), er.ExceptionAddress);
@@ -29,12 +29,12 @@ if (!getCommand().EndsWith('-crash')) {
     print('~Green~Done~R~');
 } else {
     using System.Runtime.InteropServices;
-    a = 0xdeadbeef;
+    var a = 0xdeadbeef;
     a |> Convert.ToUInt32 @print('Crashing with write to address ~Cyan~0x{0:x8}~R~');
 
     // Hack to bypass .NET checks and create 32-bit IntPtr greater than 0x7fffffff so
     // 0xdeadbeef can be used
-    p = 0x4 |> Marshal.AllocHGlobal;
+    var p = 0x4 |> Marshal.AllocHGlobal;
     Marshal.Copy(a |> Convert.ToUInt32 |> BitConverter.GetBytes, 0, p, 4);
 
     // Trigger write access violation

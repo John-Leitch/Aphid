@@ -39,8 +39,8 @@ e.emitBinaryOperatorExpression = @(exp, isStatement) {
         if (exp.Operator != AphidTokenType.MemberOperator)
             fatal('Invalid op: {0}', exp.Operator);
 
-        parts = exp.GetChildren();
-        badParts = parts-?(@() $_.Type != AphidExpressionType.IdentifierExpression);
+        var parts = exp.GetChildren();
+        var badParts = parts-?(@() $_.Type != AphidExpressionType.IdentifierExpression);
     
         if (badParts.Count != 0) {
             fatal('Invalid namespace decl: {0}', exp);
@@ -62,12 +62,9 @@ e.emitTernaryOperatorExpression = @(exp, isStatement) {
         fatal('Invalid exp: {0}', exp);
 
     //exp |> dumpProps;     
-    n = exp.FirstOperand.Identifier.ToString();
+    var n = exp.FirstOperand.Identifier.ToString();
     boolConverterNames.add(n);
-    boolConverter.{n} = [
-        exp.SecondOperand,
-        exp.ThirdOperand
-    ];
+    boolConverter.{n} = [ exp.SecondOperand, exp.ThirdOperand ];
 
     { boolConverterNames, boolConverter }
     |> serialize
@@ -132,8 +129,7 @@ e.emitObjectExpression = @(object, isStatement) {
         indent();
         
         onChangeStatements-?(@(s) s.func == m.func)->@(s){
-            c = boolConverter.{s.converter};
-
+            var c = boolConverter.{s.converter};
             append(margin());
             append('{0} = {1} ? ', s.dst, s.condition);
             emitExpression(c[0], false);
@@ -156,8 +152,8 @@ e.endClass = @{
 };
 
 e.emitProperty = @(p) {
-    lhs = p.LeftOperand;
-    a = lhs.Attributes;
+    var lhs = p.LeftOperand;
+    var a = lhs.Attributes;
 
     if (a.Count == 1) {
         a[0] @print('[?] Checking for bool converter "{0}"');
@@ -177,9 +173,9 @@ e.emitProperty = @(p) {
         }
     }
 
-    attrs = lhs |> parseAttributes;
-    name = lhs.Identifier;
-    field = '_' + name;
+    var attrs = lhs |> parseAttributes;
+    var name = lhs.Identifier;
+    var field = '_' + name;
 
     append(margin());
     append('private ');
@@ -213,7 +209,7 @@ e.emitProperty = @(p) {
     appendLine('{');
     indent();
     appendLine(field + ' = value;');
-    onChangeName = 'On' + name + 'Changed';
+    var onChangeName = 'On' + name + 'Changed';
     onChangeMap.add({ prop: name, func: onChangeName });
     appendLine(onChangeName + '();');
     //appendLine('');
@@ -238,7 +234,7 @@ e.emitEnd = @{
 };
 
 var getLexer = @(stream) {
-    l = {
+    var l = {
         index: -1,
         token: null,
         count: stream.Count,
@@ -268,7 +264,7 @@ var getLexer = @(stream) {
         },
         
         take: @() {
-            t = token;
+            var t = token;
             if (!eos) next();
 
             ret t;
@@ -304,9 +300,9 @@ var parseAttributes = @(exp) {
     //print('= Attributes');
     //print('='*40);
 
-    lexer = exp.Attributes->@.Identifier |> getLexer;
+    var lexer = exp.Attributes->@.Identifier |> getLexer;
     
-    attrTree = {
+    var attrTree = {
         access = lexer.oneOrNone(['private', 'public'], 'public'),
         type = lexer.take(),
         silent = lexer.match('silent'),

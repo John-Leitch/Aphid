@@ -81,17 +81,19 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-aphid = this.{'$aphid'};
-getBlock = @() this.{'$parent'}.{'$block'};
+delete print;
+
+var aphid = this.{'$aphid'};
+var getBlock = @() this.{'$parent'}.{'$block'};
 _callExp = macro(@(i){ this.{'$frames'}[i].Expression });
-getCall = @() _callExp(1);
-getArgs = @() _callExp(1).Args;
-getArg = @(i) _callExp(1).Args[i];
-getIdArg = @(i) _callExp(1).Args[i].Identifier;
-idString = @() getArg(0);
-format = string.Format;
-join = string.Join;
-concat = string.Concat;
+var getCall = @() _callExp(1);
+var getArgs = @() _callExp(1).Args;
+var getArg = @(i) _callExp(1).Args[i];
+var getIdArg = @(i) _callExp(1).Args[i].Identifier;
+var idString = @() getArg(0);
+var format = string.Format;
+var join = string.Join;
+var concat = string.Concat;
 
 // Todo: make API for exporting custom ops/type extensions/etc.,
 // to other scopes so they can be defined using imports and includes
@@ -158,12 +160,18 @@ _queryBody = macro(@(filter){
 //     ]->serialize->@print('Test {0}: {1}', ++i);
 // });
 
-_t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
+var _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 
-_print(print, Cli.WriteLine);
-_print(out, Cli.Write);
+_print(var print, Cli.WriteLine);
+_print(var out, Cli.Write);
 // Todo: add print*() support for Cli.WriteMessage
 // _print(printMsg, Cli.WriteMessage);
+
+var printInfo;
+var printQuery;
+var printSuccess;
+var printError;
+var printCriticalError;
 
 _msg = macro(@(msgName) { _msg2(id(print, msgName), id(Write, msgName, Message)) });
 _msg2 = macro(@(printName, cliMember) { _print(printName, Cli.cliMember) });
@@ -247,9 +255,9 @@ _nonPrimitiveToString = macro(@(value) {
 });
 
 
-cls = Console.Clear;
+var cls = Console.Clear;
 
-fixColors = @{
+var fixColors = @{
     Console.ForegroundColor = ConsoleColor.Gray;
     Console.BackgroundColor = ConsoleColor.Black;
 };
@@ -268,46 +276,46 @@ console.header = head;
 console.subhead = subhead;
 console.subheader = subhead;
 
-dump = @(o){
+var dump = @(o){
     !isObject(o) && toJson defined ? toJson(o) : serialize(o)
     |> Console.WriteLine;
 };
 
-exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
+var exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
-dumpe = @{ 
+var dumpe = @{ 
     $_ |> dump;
     exit(0);
 };
 
-fatal = @{
+var fatal = @{
     f = $args[0];
     a = $args |> skip;
     print('Fatal error: ' + f, a);
     Environment.Exit(0);
 };
 
-is = @(name, target)
+var is = @(name, target)
     target.GetType().GetInterface(name) != null || 
     target.GetType().FullName == name ||
     target.GetType().Name == name;
 
-isEnumerableOf = @(enumerableType, target)
+var isEnumerableOf = @(enumerableType, target)
     target != null &&
     isTypeEnumerableOf(enumerableType, target.GetType());
 
-isTypeEnumerableOf = @(enumerableType, type) {
-    t;
+var isTypeEnumerableOf = @(enumerableType, type) {
+    var t;
 
     ret (t = type.GetInterface('IEnumerable`1')) != null &&
         t.GetGenericArguments()[0] == enumerableType;
 };
 
-has = @(name, target)
+var has = @(name, target)
     target.GetType().GetMethod(name) != null ||
     target.GetType().GetProperty(name) != null;
 
-expressionColor = {
+var expressionColor = {
     comment: '~DarkGreen~',
     modifier: '~DarkCyan~',
     keyword: modifier,
@@ -381,11 +389,18 @@ _dump = macro(@(m) {
     };
 });
 
+var getMembers;
+var dumpMembers;
+var getProperties;
+var dumpProperties;
+var getMethods;
+var dumpMethods;
+
 _dump(Members);
 _dump(Properties);
 _dump(Methods);
 
-memberAccess = { private = 0x1, protected = 0x2, public = 0x4 };
+var memberAccess = { private = 0x1, protected = 0x2, public = 0x4 };
 
 extend RuntimePropertyInfo {
     getAccessor: @(m, access, getSetter) {
@@ -531,6 +546,11 @@ _formatAutoSet = macro(@{
     ''
 });
 
+var getProps;
+var dumpProps;
+var getFuncs;
+var dumpFuncs;
+
 _alias(Props, Properties);
 _alias(Funcs, Methods);
 
@@ -547,40 +567,40 @@ _aliasExt(dir, dumpMembers);
 _aliasExt(props, dumpProps);
 _aliasExt(funcs, funcs);
 
-getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
-getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
-getEnums = @(type) type |> Enum.GetValues;
-getFullNames = @(name) this.{'$imports'}->@+('.' + name);
+var getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
+var getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
+var getEnums = @(type) type |> Enum.GetValues;
+var getFullNames = @(name) this.{'$imports'}->@+('.' + name);
 
-map = @(mapping, obj) {
-    m = {};
+var map = @(mapping, obj) {
+    var m = {};
 
     mapping |> keys for {
-        k = mapping.{$_};
+        var k = mapping.{$_};
         m.{$_} = obj.{k} defined ? obj.{k} : null;
     };
 
     ret m;
 };
 
-isObject = keys @> Enumerable.Any;
+var isObject = keys @> Enumerable.Any;
 
-isCollection = @(x)
+var isCollection = @(x)
     x != null &&
     !isObject(x) &&
     x.GetType() != string &&
     x.GetType().GetInterface('IEnumerable') != null;
 
-mix = @(src, dst) {
+var mix = @(src, dst) {
 	for (m in keys(src)) {
 		dst.{m} = src.{m};
 		mix(src.{m}, dst.{m});
 	}
 };
 
-getMember = @(obj, path) {	
-	val = obj;
-	parts = path.split('.');
+var getMember = @(obj, path) {	
+	var val = obj;
+	var parts = path.split('.');
 
 	for (p in parts) {		
 		val = val.{p};
@@ -589,13 +609,11 @@ getMember = @(obj, path) {
 	ret val;
 };
 
-loadFile = @(asmFile) asmFile
+var loadFile = @(asmFile) asmFile
     |> Path.GetFullPath
     @() $_.Replace('\\', '\\\\')
     @format('load "{0}"')
     |> evalExp;
-
-
 
 extend string {
     removeAt: @(x, substring)
@@ -619,14 +637,14 @@ extend IntPtr {
         .PadLeft(IntPtr.Size == 0x4 ? 0x8 : 0x10, '0'),
 }
 
-getExe = @{
+var getExe = @{
     var asm = Assembly.GetEntryAssembly();
 
     ret asm != null ? asm.Location : null;
 };
 
-getCommand = @() Environment.CommandLine;
-getCommandLineArgs = @() Environment.GetCommandLineArgs();
+var getCommand = @() Environment.CommandLine;
+var getCommandLineArgs = @() Environment.GetCommandLineArgs();
 
 var repl = {
     run: @{

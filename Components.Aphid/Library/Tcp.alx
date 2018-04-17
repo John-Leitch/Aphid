@@ -1,11 +1,11 @@
-﻿tcp;
+﻿var tcp;
 
 @(){
 	##'Components.Aphid.Library.Net.TcpLibrary';
 	##'Components.Aphid.Library.StreamLibrary';	
 	tcp = {
 		connect: @(host, port) {
-			stream = __tcp.connect(host, port);
+			var stream = __tcp.connect(host, port);
 		
 			ret {
 				stream,

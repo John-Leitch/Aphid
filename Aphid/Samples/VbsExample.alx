@@ -1,6 +1,5 @@
 ﻿#'Std';
 #'Meta';
-#'Query';
 
 @{
     As VBS;
@@ -58,25 +57,30 @@ extend AphidExpression {
     isSubEnd: @(x) x.isId() && x.oneAttr(End) && x.id() == 'Sub',
 }
 
-vbNullString = "";
+var Name;
+var Admin;
+var ExpectedDepth;
+
+var vbNullString = "";
 
 load System.Windows.Forms;
 using System.Windows.Forms;
-MsgBox = MessageBox.Show;
+var MsgBox = MessageBox.Show;
 
 load Microsoft.VisualBasic;
 using Microsoft.VisualBasic;
 
-InputBox = Interaction.InputBox;
+var InputBox = Interaction.InputBox;
 
-Depth = 0;
-Indent = @() (++Depth) * '';
-Unindent = @() (Depth--) * '';
-Margin = @() Depth * '    ';
+var Depth = 0;
+var Indent = @() (++Depth) * '';
+var Unindent = @() (Depth--) * '';
+var Margin = @() Depth * '    ';
 
 using System;
 using Components.External.ConsolePlus;
-Debug = {
+
+var Debug = {
     Print: @() {
         switch ($args.Count) {
             0: Cli.WriteLine();
@@ -86,37 +90,26 @@ Debug = {
     }
 };
 
-root = this.{'$scope'};
-vbsContext = { sub: null, nodes: [], };
+var root = this.{'$scope'};
+var vbsContext = { sub: null, nodes: [], };
 
-evalVbsBlocks = @{
+var evalVbsBlocks = @{
     getVbsBlocks() 
-        -> @(b) [
-            replaceAndOperators,
-            replaceNamedArguments,
-            replaceIf,
-            parseVbsBlock
-        ] 
+        -> @(b) [ replaceAndOperators, replaceNamedArguments, replaceIf, parseVbsBlock ] 
         -> @()$_(b);
     
     print('Done parsing, evaluating VB\r\n');    
-    [
-        
-        instrumentBlocks,
-        evalAst 
-    ]->@() vbsContext.nodes |> $_;
+    [ instrumentBlocks, evalAst ]->@() vbsContext.nodes |> $_;
 };
 
-getVbsBlocks = @() this.{'$parent'}.{'$block'}-?@(x) x.isVbs();
+var getVbsBlocks = @() this.{'$parent'}.{'$block'}-?@(x) x.isVbs();
 
-replaceIf = @(block){
+var replaceIf = @(block){
     head('Replace if');
+    var op = getToken('=');
+    var lastStatement = null;
 
-    
-    op = getToken('=');
-    lastStatement = null;
-
-    ifContext = {
+    var ifContext = {
         inIf: false,
         inElse: false,
         depth: 0,
@@ -142,7 +135,7 @@ replaceIf = @(block){
             ret null;
         }
 
-        addNode = @(n){
+        var addNode = @(n){
             if (ifContext.inIf || ifContext.inElse) {
                 fatal('Cannot add in if');
             }
@@ -151,7 +144,7 @@ replaceIf = @(block){
             context.isHandled = true;
         };
 
-        addBodyNode = @(n) {
+        var addBodyNode = @(n) {
             if (!ifContext.inIf && !ifContext.inElse) {
                 fatal('Cannot add outside if');
             }
@@ -178,15 +171,15 @@ replaceIf = @(block){
                 ifContext.inIf = true;
                 ifContext.ifBody = [];
                 ifContext.elseBody = [];
-                attrs = node.LeftOperand.attrIds();
+                var attrs = node.LeftOperand.attrIds();
                 attrs.Reverse();            
-                stack = new Stack(attrs);
+                var stack = new Stack(attrs);
                 stack.Pop();
 
                 switch (stack.Count) {
                     0: {}
                     1: {
-                        p = stack.Pop();
+                        var p = stack.Pop();
 
                         if (p == 'Not') {
                             ifContext.negate = true;
@@ -229,11 +222,11 @@ replaceIf = @(block){
 
             if (ifContext.depth == 0) {
                 print('[+] End If');                        
-                t = parse('if(0){}else{}')[0];
+                var t = parse('if(0){}else{}')[0];
                 ifContext.ifBody->t.Body.Add;
                 ifContext.elseBody->t.ElseBody.Add;
                 
-                ifExp = new IfExpression(
+                var ifExp = new IfExpression(
                     ifContext.condition,
                     t.Body,
                     t.ElseBody);
@@ -266,7 +259,7 @@ replaceIf = @(block){
     ifContext.nodes->block.Body.Add;
 };
 
-replaceAndOperators = @{
+var replaceAndOperators = @{
     print('[R] Replacing & operators');
 
     $_.Body @ast.walk(@(node, context) {
@@ -290,10 +283,10 @@ replaceAndOperators = @{
     })
 };
 
-replaceNamedArguments = @{
+var replaceNamedArguments = @{
     
     using System.Collections;            
-    op = getToken(':=');
+    var op = getToken(':=');
     
     $_.Body @ast.walk(@(node, context) {
         if (!context.isRoot &&
@@ -302,7 +295,7 @@ replaceNamedArguments = @{
             node.func().isId() &&
             node.func().id() == 'InputBox') {
 
-            argObj = {
+            var argObj = {
                 Prompt: parseExp("''"),
                 Title: parseExp("''"),
                 DefaultResponse: parseExp("''"),
@@ -310,9 +303,9 @@ replaceNamedArguments = @{
                 YPos: parseExp("-1")
             };
 
-            params = argObj |> keys;
+            var params = argObj |> keys;
             params.Reverse();
-            stack = new Stack(params);
+            var stack = new Stack(params);
 
             node.args()->@{                
                 if ($_.isId()) {
@@ -336,8 +329,8 @@ replaceNamedArguments = @{
     })
 };
 
-parseVbsBlock = @{
-    inHeader = true;
+var parseVbsBlock = @{
+    var inHeader = true;
     $_.Body @ast.walk(@(node, context) {
         if (context.isRoot || context.isBlock) {
             ret null;
@@ -355,7 +348,7 @@ parseVbsBlock = @{
             print('Parsing Sub: {0}', vbsContext.sub);
             
             print('Validating Sub arguments');
-            badParams = node.Args-?@() !$_.isId();
+            var badParams = node.Args-?@() !$_.isId();
 
             if (badParams.Count != 0) {
                 fatal('Expected identifiers for Sub params');
@@ -373,7 +366,7 @@ parseVbsBlock = @{
                 fatal('Unexpected End Sub');
             } 
 
-            funcDecl = vbsContext.sub @String.Format('{0} = @(){{}}') |> parseExp;
+            var funcDecl = vbsContext.sub @String.Format('{0} = @(){{}}') |> parseExp;
             vbsContext.subArgs->funcDecl.RightOperand.Args.Add;
             vbsContext.subBody->funcDecl.RightOperand.Body.Add;
             vbsContext.nodes.add(funcDecl);            
@@ -388,8 +381,8 @@ parseVbsBlock = @{
     })
 };
 
-instrumentBlocks = @{
-    lastId = null;
+var instrumentBlocks = @{
+    var lastId = null;
     $_ @ast.walk(@(node, context) {
         if (context.isRoot || context.isBlock) {
             ret null;
@@ -414,7 +407,7 @@ instrumentBlocks = @{
                         "Debug.Print(Unindent() + '[~Cyan~<~R~] Exiting ~Cyan~{0} Sub~R~')"))[0]);
             
         } else if (node.is(If)) {
-            n = node.Condition.LeftOperand.id();
+            var n = node.Condition.LeftOperand.id();
             
             node.Body.Insert(
                 0,

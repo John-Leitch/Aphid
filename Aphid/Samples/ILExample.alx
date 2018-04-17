@@ -4,7 +4,7 @@ using System.IO;
 using System.Diagnostics;
 
 print('Creating module');
-asmName = 'foo.exe';
+var asmName = 'foo.exe';
 
 if (asmName |> File.Exists) {
     print('Removing old assembly');
@@ -23,6 +23,6 @@ if (asmName |> File.Exists) {
 @createProgram(asmName);
 
 print('Starting process');
-si = new ProcessStartInfo(asmName);
+var si = new ProcessStartInfo(asmName);
 si.UseShellExecute = false;
 si |> Process.Start @() $_.WaitForExit();

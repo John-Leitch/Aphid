@@ -1,5 +1,5 @@
 ﻿#'Std';
 
-getColor = @(x) $(x) 0: 'red', 1: 'green', 2: 'blue', 'unknown';
+var getColor = @(x) $(x) 0: 'red', 1: 'green', 2: 'blue', 'unknown';
 
 for (x in [ 0, 2, 5 ]) print(getColor(x));

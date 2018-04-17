@@ -1,4 +1,4 @@
 ﻿#'Std';
 
-x = 10;
+var x = 10;
 print(x == 10 ? 'x is 10' : 'x is not 10');

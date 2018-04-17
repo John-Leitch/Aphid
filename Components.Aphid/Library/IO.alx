@@ -1,9 +1,9 @@
 ﻿##'Components.Aphid.Library.IOLibrary';
 using System.IO;
 
-getFsos = @(f, dir, opt) {
-	filter = '*';
-	recurse = false;
+var getFsos = @(f, dir, opt) {
+	var filter = '*';
+	var recurse = false;
 
 	if (opt defined) {
 		if (opt.filter defined) filter = opt.filter;

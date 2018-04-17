@@ -8,7 +8,7 @@ using System.Diagnostics;
 AphidCli.ShowClrStack = true;
 //openRepl = true;
 aq.empty = @(l) l.Count == 0;
-args = Environment.GetCommandLineArgs() @aq.skip(2);
+var args = Environment.GetCommandLineArgs() @aq.skip(2);
 
 if (args |> aq.empty) {
     print('Aphid Test.alx [script] [directory]');
@@ -20,7 +20,7 @@ if (args |> aq.empty) {
 
 // args for print($_);
 
-w = new FileSystemWatcher();
+var w = new FileSystemWatcher();
 _n = macro(@(f) { NotifyFilters.f });
 w.NotifyFilter = _n(LastWrite);
 w.Filter = "*";
@@ -28,12 +28,12 @@ w.Path = args[1];
 w.EnableRaisingEvents = true;
 print('Waiting for change');
 
-exe = Assembly.GetEntryAssembly().Location;
+var exe = Assembly.GetEntryAssembly().Location;
+
 while (true) {
-    si = new ProcessStartInfo(exe, args[0]);
+    var si = new ProcessStartInfo(exe, args[0]);
     si.UseShellExecute = false;
-    p;
-    p = Process.Start(si);
+    var p = Process.Start(si);
     p.WaitForExit();
     print('Process has exited with code ~Cyan~{0}~R~', p.ExitCode);
     w.WaitForChanged(WatcherChangeTypes.All).Name @print("'{0}' changed");

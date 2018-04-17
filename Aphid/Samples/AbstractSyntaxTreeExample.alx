@@ -1,12 +1,12 @@
-﻿#'Std';
-#'Meta';
+﻿#'Std.alx';
+#'Meta.alx';
 
-someFunc = @{
+var someFunc = @{
     using System;
     using System.IO;
 
     // A child function
-    someChildFunc = @(foo, bar) {
+    var someChildFunc = @(foo, bar) {
         print('Hello world');
     };
 

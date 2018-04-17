@@ -1,7 +1,6 @@
 #'Std';
 #'Meta';
 #'List';
-#'Query';
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
@@ -42,7 +41,7 @@ _facade = macro(@(f) {
 });
 
 
-asms = [
+var asms = [
     // 'Microsoft.CSharp.dll',
     // 'System.Data.Linq.dll',
     // 'System.Xml.Linq.dll',
@@ -54,15 +53,15 @@ asms = [
     // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Queryable.dll',
 ] !?;
 
-flags = '/ndebug /zeroPeKind';
+var flags = '/ndebug /zeroPeKind';
 
 //dumpe(asms);
 
-getILMerge = @() Directory
+var getILMerge = @() Directory
     .GetFiles('.\\', 'ilmerge.exe', SearchOption.AllDirectories)
     |> Enumerable.FirstOrDefault;
     
-ilmergeExe = getILMerge();
+var ilmergeExe = getILMerge();
 
 if (ilmergeExe == null) {
     print('Loading NuGet.Core');
@@ -74,8 +73,8 @@ if (ilmergeExe == null) {
     using NuGet;
 
     print('Connecting to repository');
-    repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
-    packageManager = new PackageManager(repo, '.\\');
+    var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+    var packageManager = new PackageManager(repo, '.\\');
 
     print('Installing package ILMerge');
     packageManager.InstallPackage('ILMerge');
@@ -92,12 +91,10 @@ if (ilmergeExe == null) {
 
 //asms = AppDomain.CurrentDomain.GetAssemblies()-<(@() $_.GetReferencedAssemblies())->@.Codebase;
 
-out = 'AphidPortable.exe';
+var outExe = 'AphidPortable.exe';
 
-#'Query';
-#'List';
 using System.Linq;
-asmList = asms
+var asmList = asms
     // -?(@()
     //     //!$_.Location.Contains('Aphid.exe')) //&& 
     //     !$_.Location.Contains('mscorlib') &&
@@ -111,17 +108,18 @@ asmList |> dump;
 head('Getting asm list');
 print('~Cyan~Asms:~R~ {0}', asmList);
 
-libPaths = (asms->Path.GetDirectoryName!?->@() '/lib:"{0}"' :: $_) @join(' ');
+var libPaths = (asms->Path.GetDirectoryName!?->@() '/lib:"{0}"' :: $_) @join(' ');
 libPaths = '';
 //dotNetDir = asms-?(@()$_.Contains('Windows')) |> aq.first |> Path.GetDirectoryName;
     
-systemPath = 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6';
+var systemPath = 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6';
 
 File.WriteAllText('c:\\temp\\log.txt', '');
-args =
+
+var args =
     '/out:{0} Aphid.exe /target:{1} {2} /targetplatform:v4.5,"C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6" Components.Aphid.dll {3} {4} /log:c:\\temp\\log.txt' :: [
-        out,
-        Path.GetExtension(out).Substring(1),
+        outExe,
+        Path.GetExtension(outExe).Substring(1),
         libPaths,
         flags,
         asms
@@ -132,14 +130,14 @@ args =
 
 args @print('Starting ilmerge.exe with args ~Magenta~{0}~R~');
 
-si = new ProcessStartInfo(ilmergeExe, args);   
+var si = new ProcessStartInfo(ilmergeExe, args);   
 si.UseShellExecute = false;
-p = Process.Start(si);
+var p = Process.Start(si);
 p.WaitForExit();
 
 
 
-failure = 
+var failure = 
     'c:\\temp\\log.txt'
     |> File.ReadAllText
     @()

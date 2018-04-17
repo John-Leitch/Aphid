@@ -13,7 +13,7 @@ var strEmitter;
     });
 
     opStr = {
-        unaryPrefix = {
+        unaryPrefix: {
             usingKeyword: 'using ',
             retKeyword: 'ret ',
             NotOperator: "!",
@@ -25,14 +25,14 @@ var strEmitter;
             get: @(token) opStr.unaryPrefix.{token},
         },
 
-        unaryPostfix = {
+        unaryPostfix: {
             IncrementOperator: '++',
             DecrementOperator: '--',
 
             get: @(token) opStr.unaryPostfix.{token},
         },
 
-        binary = {
+        binary: {
             AdditionOperator: " + ",
             MinusOperator: " - ",
             MultiplicationOperator: " * ",
@@ -129,7 +129,7 @@ var strEmitter;
             expression |> beginExpression;
         
             [ 'begin', 'emit', 'end' ]->@{
-                n = $_ + expression.Type;
+                var n = $_ + expression.Type;
                 //n @print('Looking for {0}');
                 if (this.{n} defined) {
                     this.{n}(expression, isStatement);
@@ -197,9 +197,9 @@ var strEmitter;
         },
 
         emitTuple: @(items) {
-            first = true;
-            prefix = '';
-            suffix = '';
+            var first = true;
+            var prefix = '';
+            var suffix = '';
 
             if ($args.Count >= 2) prefix = $args[1];
             if ($args.Count >= 3) suffix = $args[2];

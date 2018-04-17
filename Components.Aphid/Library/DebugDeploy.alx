@@ -4,23 +4,24 @@
     using System;
     using System.IO;
     using System.Reflection;
-    deployVerbosity = deployVerbosity defined ? deployVerbosity : 1;
+    var dv = deployVerbosity defined ? deployVerbosity : 1;
     // cls();
-    _print = deployVerbosity != 0 ? print : @{};
+    var _print = dv != 0 ? print : @{};
     //_print = @{};
-    scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;
-    dir = scriptDir;
+    var scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;
+    var dir = scriptDir;
 
     if (aphidSource defined) dir = new DirectoryInfo(aphidSource);
 
     dir @_print('Script dir: ~Green~{0}~R~');
-    libDir;
-    libDirTmp;
+    var libDir;
+    var libDirTmp;
+
     do
     {
         libDirTmp = dir.FullName \ 'Components.Aphid' \ 'Library';
 
-        if (deployVerbosity > 1) {
+        if (dv > 1) {
             libDirTmp @_print('Checking dir: ~Cyan~{0}~R~');
         }
 
@@ -39,12 +40,12 @@
     _print('[~Green~+~R~] Updating standard headers');
 
     Directory.GetFiles(libDir, '*.alx')->@ (src){
-        srcFilename = src |> Path.GetFileName;
-        dst = scriptDir.FullName \ 'Library' \ srcFilename;
+        var srcFilename = src |> Path.GetFileName;
+        var dst = scriptDir.FullName \ 'Library' \ srcFilename;
 
-        if (deployVerbosity > 1) {
+        if (dv > 1) {
             _print('Copying ~Cyan~{0}~R~ to ~Cyan~{1}~R~', src, dst);
-        } else if (deployVerbosity == 1) {
+        } else if (dv == 1) {
             _print('Copying ~Cyan~{0}~R~', srcFilename);
         }
 

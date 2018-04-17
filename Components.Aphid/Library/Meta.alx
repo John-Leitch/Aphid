@@ -16,18 +16,21 @@
 //   formats used by intellisense/autocomplete, etc.
 // * Support output formats definitions via EBNF-style grammar.
 
-using System;
+
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.Interpreter;
+using System;
+using System.Collections.Generic;
 
 @`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier;
 
 @\ (lhs, rhs) {
-    s = this.{'$frames'}[0].Scope;
-    args = s.{'$args'};
-    i = s.argIndex defined ? s.argIndex++ : s.argIndex = 1;
+    var s = this.{'$frames'}[0].Scope;
+    var args = s.{'$args'};
+    var i = s.argIndex defined ? s.argIndex++ : s.argIndex = 1;
+
     ret args.Count < i ? lhs : lhs && rhs;
     
 };
@@ -44,8 +47,7 @@ var transformStream;
     mutateFunc = @(mutateBody, func) {
         using Components.Aphid.Interpreter;
         using System.Reflection;
-        r;
-        r = func.Body @mutate(mutateBody);
+        var r = func.Body @mutate(mutateBody);
         func.Body.Clear();
         r->func.Body.Add;
 
@@ -79,50 +81,52 @@ var transformStream;
     };
 }();
 
-frames = @() this.{'$frames'};
-frame = @(i) this.{'$frames'}[i];
+var frames = @() this.{'$frames'};
+var frame = @(i) this.{'$frames'}[i];
 
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 
-tokenize = @(text) (new AphidLexer(text)).GetTokens();
-getToken = @(text) tokenize(text)[0].TokenType;
+var tokenize = @(text) (new AphidLexer(text)).GetTokens();
+var getToken = @(text) tokenize(text)[0].TokenType;
 
-parse = @(code) AphidParser.Parse(code);
-parseExp = @(exp) parse(exp)[0];
+var parse = @(code) AphidParser.Parse(code);
+var parseExp = @(exp) parse(exp)[0];
 
-parseFunc = @(code) {
-    f = @{ };
+var parseFunc = @(code) {
+    var f = @{ };
     f.Body.Clear();
-    (code |> parse)->f.Body.Add;
+    code |> parse -> f.Body.Add;
     
     ret f;
 };
 
-evalBlock = @(code) parseFunc(code)();
-evalExp = @(code) parseFunc('ret ' + code)();
+var evalBlock = @(code) parseFunc(code)();
+var evalExp = @(code) parseFunc('ret ' + code)();
 
-evalNode = @(node) {
-    templateFunc = @{ };
+var evalNode = @(node) {
+    var templateFunc = @{ };
     (ast.isRet($_) ? $_ : ast.makeRet($_)) |> templateFunc.Body.Add;
-    r = templateFunc();
+    var r = templateFunc();
     templateFunc.Body.Clear();
 
     ret r;
 };
 
-evalAst = @(ast) {
-    templateFunc = @{ };
+var evalAst = @(ast) {
+    var templateFunc = @{ };
     ast->templateFunc.Body.Add;
-    r = templateFunc();
+    var r = templateFunc();
     templateFunc.Body.Clear();
 
     ret r;
 };
 
-makeFluent = @(obj) {
-    n = getIdArg(0);
-    (obj |> keys)
+var makeFluent = @(obj) {
+    var n = getIdArg(0);
+
+    obj
+    |> keys
     -> (@() obj.{$_})
     -? (@has('Body'))
     -> (@{
@@ -141,7 +145,7 @@ if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
     class VisitorFrame { node, context };
 }
 
-ast = {
+var ast = {
     op: @() $_.Operator,
     hasOp: @(op, node) @has('Operator') && isOp(op),
     isOp: @(op, node) node.Operator == op,
@@ -169,7 +173,7 @@ ast = {
     indent: @() ' ' * ast.depth * 2,
 
     walk: @(visit, node, context) {
-        c = null;
+        var c = null;
 
         if (context defined) {
             c = context;
@@ -179,7 +183,7 @@ ast = {
             c.push = @(n) {
                 if (n defined && n != null) {
                     // print('Pushing {0}', [ n.ToString() ] );
-                    f = new VisitorFrame();
+                    var f = new VisitorFrame();
                     f.node = n;
                     f.context = f;
                     c.stack.Push(f);
@@ -190,7 +194,7 @@ ast = {
             c.pop = @() c.stack.Pop();            
         }
 
-        context = c;
+        //context = c;
 
         c.isRoot = ast.depth == 0;
         c.isBlock = node @is('IEnumerable');
@@ -199,7 +203,8 @@ ast = {
         c.push(node);        
         visit(node, c);
         c.pop();
-        next = @(node) {
+
+        var next = @(node) {
             if (node != null) {
                 c.push(node);
                 ast.walk(visit, node, c);
@@ -249,7 +254,7 @@ ast = {
 
     id: @(name, attrs) $args.Count == 2 ?
         (new IdentifierExpression(name, attrs)) :
-        (new IdentifierExpression(name, expList('IdentifierExpression'))),
+        (new IdentifierExpression(name, new List[IdentifierExpression]())),
 
     unOp: @(operator, operand, postfix) new UnaryOperatorExpression(operator, operand, false),
     preUnOp: @(operator, operand) unOp(operator, operand, false),
@@ -268,17 +273,7 @@ ast = {
     makeRet: @(operand) preUnOp(token.return, operand),
     return: makeRet,
     
-    expList: @(type) []
-        .GetType()
-        .GetGenericTypeDefinition()
-        .MakeGenericType([
-            type 
-            @String.Format('Components.Aphid.Parser.{0}')
-            |> Type.GetType
-        ])
-        |> Activator.CreateInstance,
-
-    block: @expList('AphidExpression'),
+    block: @() new List[AphidExpression](),
 
     first: @(predicate, rootNode) {
         match = null;
@@ -301,7 +296,7 @@ ast = {
             !c.isBlock && !c.isRoot && predicate(n, c))
 };
 
-nodeType = { };
+var nodeType = { };
 
 @{
     id Identifier;
@@ -316,7 +311,7 @@ nodeType = { };
         evalExp
 };
 
-token = {
+var token = {
     return: AphidTokenType.retKeyword
 };
 
@@ -326,15 +321,10 @@ extend AphidFrame {
 
 extend AphidParser {
     dynamic MatchHandler: @(parser, name) {
-        prefix;
-        match;
-        peek;
-        isPeek;
-        exp;
-
-        match = 'Match';
-        peek = 'Peek';
-        isPeek = false;
+        var prefix;
+        var match = 'Match';
+        var peek = 'Peek';
+        var isPeek = false;
 
         if (name.StartsWith(match)) {
             prefix = match;
@@ -345,7 +335,7 @@ extend AphidParser {
             fatal('Invalid AphidParser dynamic extension call');
         }
 
-        exp = 'AphidTokenType.' + name.Substring(prefix.Length) |> evalExp |> parser.Match;
+        var exp = 'AphidTokenType.' + name.Substring(prefix.Length) |> evalExp |> parser.Match;
 
         if (isPeek) {
             parser.PreviousToken();
@@ -425,8 +415,8 @@ extend AphidFunction { map: @(f, selector) f.Body->selector }
 //         text.Text.Replace(search, replacement) |> ast.text @() $_.WithPositionFrom(text),
 // }
 
-getLexer = @(stream) {
-    l = {
+var getLexer = @(stream) {
+    var l = {
         index: -1,
         token: null,
         count: stream.Count,
@@ -456,7 +446,7 @@ getLexer = @(stream) {
         },
         
         take: @() {
-            t = token;
+            var t = token;
             if (!eos) next();
 
             ret t;
@@ -483,7 +473,7 @@ getLexer = @(stream) {
 };
 
 
-dumpAst = @(node) {
+var dumpAst = @(node) {
     node @ast.walk(@(node, context) {
         if (context.isRoot) {
             print('Root');
@@ -495,7 +485,7 @@ dumpAst = @(node) {
     });
 };
 
-dumpAstJson = @(node){
+var dumpAstJson = @(node){
     #'Std';
     #'Serialization';
     node @ast.walk(@(node, context) {

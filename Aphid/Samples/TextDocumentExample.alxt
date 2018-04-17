@@ -2,7 +2,7 @@
 <% 
     #'Std';
 	print('Hello world');
-    x = 10;
+    var x = 10;
 %>
 A var ref: <%= x %>
 An arithmetic exp: <%= 0x10 >> 4 %>

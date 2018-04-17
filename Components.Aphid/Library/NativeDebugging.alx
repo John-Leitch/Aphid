@@ -1,6 +1,6 @@
-﻿scanMemory;
-debugCommand;
-catchExceptions;
+﻿var scanMemory;
+var debugCommand;
+var catchExceptions;
 
 
 // ================================================================
@@ -28,12 +28,11 @@ catchExceptions;
     using Components.PInvoke;
     using System;
     using System.ComponentModel;
-    debugGlobals;
-    debugGlobals = {};
+    var debugGlobals = {};
 
     catchExceptions = @(command, callback) {
-        dbg;
-        dbg = new NativeDebugger();
+        var dbg = new NativeDebugger();
+        
         dbg.add_DebugEventReceived(@(sender, e){
             switch (e.DebugEvent.dwDebugEventCode) {
                 DebugEventType.EXCEPTION_DEBUG_EVENT: {
@@ -53,8 +52,6 @@ catchExceptions;
     };
 
     debugCommand = @(command, eventMap) {
-        dbg;
-        handler;
 
         if (!(debugGlobals.eventMap defined)) {
             // Workaround until scope bug fixed.
@@ -62,7 +59,7 @@ catchExceptions;
         }
 
         
-        handler = '@(sender, e) { };' |> parseExp |> evalNode;
+        var handler = '@(sender, e) { };' |> parseExp |> evalNode;
 
         _de = macro(@(_em, _f) {
             if (debugGlobals.eventMap._f defined) {
@@ -85,7 +82,7 @@ catchExceptions;
         _de(RIP_EVENT, ripEvent);
         _de(UNLOAD_DLL_DEBUG_EVENT, unloadDll);
         handler.Body.Add(@{ e.DebugEvent.ContinueUnhandled() }.Body[0]);
-        dbg = new NativeDebugger();
+        var dbg = new NativeDebugger();
         dbg.add_DebugEventReceived(handler);
         dbg.StartProcess(command);
 
@@ -94,21 +91,18 @@ catchExceptions;
 
     scanMemory = @(memory, start, end, step) {
         using System;
-        i;
-        intPtrType;
-        blocks;
-        start = start defined ? start : 0x0;
-        end = end defined ? end : 0x7fff0000;
-        step = step defined ? step : 0x1000;
-    
-        intPtrType = Type.GetType('System.IntPtr');
-        blocks = [];
-        i = start;
+        
+        var start = start defined ? start : 0x0;
+        var end = end defined ? end : 0x7fff0000;
+        var step = step defined ? step : 0x1000;
+        var intPtrType = Type.GetType('System.IntPtr');
+        var blocks = [];
+        var i = start;
     
         //#'serialization';
         do {
-            addr = i |> Convert.ToInt64;
-            mem = new IntPtr(addr) |> memory.ReadMemoryInfo;
+            var addr = i |> Convert.ToInt64;
+            var mem = new IntPtr(addr) |> memory.ReadMemoryInfo;
 
             if (mem.Protect != AllocationProtect.None &&
                 (mem.Protect & AllocationProtect.PAGE_NOACCESS) !=

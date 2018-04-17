@@ -3,23 +3,26 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Interpreter;
 
-code = 
+var code = 
     '#"Std";' +
     'print("hello, world");';
 
-lexer = new AphidLexer(code);
-tokens = lexer.GetTokens();
+var lexer = new AphidLexer(code);
+var tokens = lexer.GetTokens();
 
 print("Tokens");
+
 for (x in tokens)
     print(x);
 
-ast = AphidParser.Parse(tokens, code);
+var ast = AphidParser.Parse(tokens, code);
 
 print("\r\nStatements");
+
 for (node in ast)
     printf("Type: {0}", node.Type);
 
 print("\r\nInterpreting script");
-intepreter = new AphidInterpreter(true);
+
+var intepreter = new AphidInterpreter(true);
 intepreter.Interpret(ast);

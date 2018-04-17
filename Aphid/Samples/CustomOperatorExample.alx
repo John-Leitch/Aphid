@@ -3,7 +3,7 @@
 
 @?. (lhs, rhs) lhs != null ? lhs.{frame(1).exp().rhs().id()} : null;
 
-foo = {
+var foo = {
     bar: {
         x: 10
     }
@@ -12,6 +12,7 @@ foo = {
 foo?.bar?.x |> print;
 
 foo.bar = null;
+
 foo?.bar?.x |> print;
 
 foo = null;

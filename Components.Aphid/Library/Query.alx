@@ -1,21 +1,19 @@
 ﻿_p = macro(@{
-    x;
-    y;
-    x = [];
+    var x = [];
+    var y;
 });
 
 _p2 = macro(@{
     _p();
-    z;
+    var z;
 });
 
 _p3 = macro(@{
     _p();
-    i;
-    i = 0;
+    var i = 0;
 });
 
-aphidQuery = {
+var aphidQuery = {
     where: @(predicate, list) {
         _p();
         for (y in list) if (predicate(y)) x.add(y);
@@ -35,25 +33,24 @@ aphidQuery = {
     },
 
     any: @(predicate, list) {
-        x;
+        var x;
         for (x in list) if (predicate(x)) ret true;
         ret false;
     },
 
     first: @(predicate, list) {
         if ($args.Count == 2) {
-            x;
+            var x;
             for (x in list) if (predicate(x)) ret x;
         } else {
-            x;
+            var x;
             for (x in predicate) ret x;
         }
     },
 
     last: @(predicate, list) {
-        x;
-        last;
-        last = null;
+        var x;
+        var last = null;
 
         if ($args.Count == 2) {
             for (x in list) if (predicate(x)) last = x;
@@ -71,12 +68,12 @@ aphidQuery = {
     },
 
     iter: @(action, list) {
-        x;
+        var x;
         for (x in list) action(x);
     },
 
     all: @(predicate, list) {
-        x;
+        var x;
         for (x in list) if (!predicate(x)) ret false;
         ret true;
     },
@@ -113,8 +110,7 @@ aphidQuery = {
     },
 
     takeWhile: @(predicate, list) {
-        x;
-        x = [];
+        var x = [];
 
         list for {
             if (predicate($_)) {
@@ -130,10 +126,10 @@ aphidQuery = {
     aggr: @(acc, list) {
         if (list.count() == 1) ret list[0];
         else {
-            s;
-            x;
-            s = list[0];
+            var x;
+            var s = list[0];
             for (x in list.skip(1)) s = acc(s, x);
+
             ret s;
         }
     },
@@ -141,4 +137,4 @@ aphidQuery = {
     add: @(list) aq.aggr(@(x, y)x + y, list),
 };
 
-aq = aphidQuery;
+var aq = aphidQuery;

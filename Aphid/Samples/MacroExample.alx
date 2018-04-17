@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 
 _flip = macro(@(f1, f2) { f1 = @(arg1, arg2) f2(arg2, arg1) });
-_flip(take, Enumerable.Take);
-_flip(skip, Enumerable.Skip);
-range = Enumerable.Range;
-join = String.Join;
-writeLine = Console.WriteLine;
+_flip(var take, Enumerable.Take);
+_flip(var skip, Enumerable.Skip);
+var range = Enumerable.Range;
+var join = String.Join;
+var writeLine = Console.WriteLine;
 
 range(0, 10) @skip(1) @take(4) -> @writeLine('Number: {0}');

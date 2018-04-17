@@ -1,5 +1,5 @@
 ﻿#'Std';
 
-square = @(x) x * x;
-cube = @(x) x * x * x;
+var square = @(x) x * x;
+var cube = @(x) x * x * x;
 2 |> square |> cube |> print;
