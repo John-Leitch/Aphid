@@ -23,8 +23,8 @@ psContext;
 initPSInterop;
 
 initPSInterop = @{
-    #'std';
-    #'meta';
+    //#'std';
+    //#'meta';
     psAsm = load System.Management.Automation;
     using System;
     using System.Linq;

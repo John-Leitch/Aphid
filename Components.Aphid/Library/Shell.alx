@@ -14,7 +14,7 @@
     // * Add -> support to command-line, set $_ to piped value.
     // * Add ; support to command-line
     #'Std';
-    #'Query';
+    //#'Query';
     #'Meta';
     #'Powershell';
 

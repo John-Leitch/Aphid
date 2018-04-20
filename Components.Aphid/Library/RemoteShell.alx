@@ -72,6 +72,7 @@ var listen = @{
 
 var connectShell = @(host) {
     log('Connecting to remote ~Cyan~{0}~R~', host);
+    
     var remoteShell = remote.connectProxy(host);
     remoteShell.Eval('#"Shell";');
     remoteShell.BasePath = 'shell';

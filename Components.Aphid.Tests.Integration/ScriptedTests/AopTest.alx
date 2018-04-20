@@ -3,7 +3,6 @@
 @{
     #'Std';
     #'Meta';
-    #'Query';
 
     var context = {
         currentState: 0,

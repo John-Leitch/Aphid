@@ -43,8 +43,8 @@ var remote = null;
     using System.Net.Sockets;
     using System.Text;
     #'Threading';
-    #'Query';
-    #'Std';
+    //#'Query';
+    //#'Std';
     
     extend TcpClient {
         isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
@@ -172,10 +172,10 @@ var remote = null;
         },
         _remoteTable: {},
         
-        connectProxy: @(server) {
+        connectProxy: @(server, port) {
             var proxy = new RemoteProxy();
             proxy.RemoteId = Guid.NewGuid();
-            remote._remoteTable.{proxy.RemoteId} = remote.connect(server);
+            remote._remoteTable.{proxy.RemoteId} = remote.connect(server, port);
 
             ret proxy;
         }
