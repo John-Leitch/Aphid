@@ -10,13 +10,13 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropFunction
     {
-        Func<AphidInterpreter, object[], object> _invoke;
+        public Func<AphidInterpreter, object[], object> InvokeDelegate { get; private set; }
 
         public bool UnwrapParameters { get; private set; }
 
         public object Invoke(AphidInterpreter interpreter, params object[] parms)
         {
-            return _invoke(interpreter, parms);
+            return InvokeDelegate(interpreter, parms);
         }
 
         private object[] PrefixScope(AphidInterpreter interpreter, object[] parms)
@@ -39,11 +39,11 @@ namespace Components.Aphid.TypeSystem
             {
                 if (!attribute.PassInterpreter)
                 {
-                    _invoke = (callerScope, x) => method.Invoke(null, x);
+                    InvokeDelegate = (callerScope, x) => method.Invoke(null, x);
                 }
                 else
                 {
-                    _invoke = (callerScope, x) => method.Invoke(null, PrefixScope(callerScope, x));                    
+                    InvokeDelegate = (callerScope, x) => method.Invoke(null, PrefixScope(callerScope, x));                    
                 }
             }
             else
@@ -55,7 +55,7 @@ namespace Components.Aphid.TypeSystem
                     paramCount--;
                 }
 
-                _invoke = (callerScope, x) =>
+                InvokeDelegate = (callerScope, x) =>
                 {
                     object[] parameters2;
                     if (x.Length < paramCount)
@@ -87,7 +87,7 @@ namespace Components.Aphid.TypeSystem
 
         public AphidInteropFunction(Func<AphidInterpreter, object[], object> function)
         {
-            _invoke = function;
+            InvokeDelegate = function;
         }
 
         public AphidInteropFunction(AphidInteropFunctionAttribute attribute, MethodInfo method)

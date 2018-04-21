@@ -322,7 +322,7 @@ namespace Components.Aphid.UI
 
                 if (interopFunc != null)
                 {
-                    view += "()";
+                    view += CreateArgTuple(interopFunc.InvokeDelegate.Method);
                 }
 
                 if (func == null && interopFunc == null)
@@ -354,13 +354,7 @@ namespace Components.Aphid.UI
 
             if (member is ConstructorInfo || member is MethodBase)
             {
-                var methodParams = ((MethodBase)member).GetParameters();
-                
-                var tup = methodParams
-                    .Select(x => string.Format("{0} {1}", x.ParameterType.Name, x.Name))
-                    .Join(", ");
-
-                view += string.Format("({0})", tup);
+                view += CreateArgTuple((MethodBase)member);
             }
             else if (member is PropertyInfo)
             {
@@ -380,6 +374,21 @@ namespace Components.Aphid.UI
             }
 
             return new Autocomplete(view, member.Name);
+        }
+
+        private string CreateArgTuple(MethodBase method)
+        {
+            var methodParams = method.GetParameters();
+
+            var tup = methodParams
+                .Select(x => string.Format("{0} {1}", x.ParameterType.Name, x.Name))
+                .Join(", ");
+
+            var methodInfo = method as MethodInfo;
+
+            return methodInfo != null ?
+                string.Format("({0}) -> {1}", tup, methodInfo.ReturnType.Name) :
+                string.Format("({0})", tup);
         }
 
         private IEnumerable<Autocomplete> CreateTypeAutocomplete(string match = null)
