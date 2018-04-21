@@ -2923,15 +2923,13 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretFunctionExpression(FunctionExpression expression)
         {
-            return new AphidObject(new AphidFunction()
-            {
-                Args = expression.Args
-                    .Select(x => ((IdentifierExpression)x).Identifier)
-                    .ToArray(),
-
-                Body = expression.Body,
-                ParentScope = CurrentScope,
-            });
+            return new AphidObject(
+                new AphidFunction(
+                    expression.Args
+                        .Select(x => ((IdentifierExpression)x).Identifier)
+                        .ToArray(),
+                        expression.Body,
+                        CurrentScope));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3851,24 +3849,22 @@ namespace Components.Aphid.Interpreter
                 var partialArgCount = func.Args.Length - expression.Call.Args.Count();
                 var partialArgs = func.Args.Skip(partialArgCount).ToArray();
 
-                var partialFunc = new AphidFunction()
-                {
-                    Args = partialArgs,
-                    Body = new List<AphidExpression> 
-                    {
-                        new UnaryOperatorExpression(AphidTokenType.retKeyword,
-                            new CallExpression(
-                                expression.Call.FunctionExpression, 
-                                expression.Call.Args
-                                    .Concat(partialArgs
-                                        .Select((x, i) => (IdentifierExpression)new IdentifierExpression(x)
-                                        .WithPositionFrom(expression.Call.Args[i])))
-                                    .ToList())
-                                .WithPositionFrom(expression.Call))
-                            .WithPositionFrom(expression.Call),
-                    },
-                    ParentScope = CurrentScope,
-                };
+                var partialFunc = new AphidFunction(
+                        partialArgs,
+                        new List<AphidExpression> 
+                        {
+                            new UnaryOperatorExpression(AphidTokenType.retKeyword,
+                                new CallExpression(
+                                    expression.Call.FunctionExpression, 
+                                    expression.Call.Args
+                                        .Concat(partialArgs
+                                            .Select((x, i) => (IdentifierExpression)new IdentifierExpression(x)
+                                            .WithPositionFrom(expression.Call.Args[i])))
+                                        .ToList())
+                                    .WithPositionFrom(expression.Call))
+                                .WithPositionFrom(expression.Call),
+                        },
+                        CurrentScope);
 
                 return new AphidObject(partialFunc);
             }
@@ -3907,24 +3903,22 @@ namespace Components.Aphid.Interpreter
         {
             var name = "$po";
 
-            var func = new AphidFunction()
-            {
-                Args = new[] { name },
-                Body = new List<AphidExpression> 
-                {
-                    new UnaryOperatorExpression(
-                        AphidTokenType.retKeyword,
-                        new BinaryOperatorExpression(
-                            new IdentifierExpression(name)
-                                .WithPositionFrom(expression),
-                            expression.Operator,
-                            expression.Operand)
-                            .WithPositionFrom(expression))
-                        .WithPositionFrom(expression)
-                },
-            };
-
-            return new AphidObject(func);
+            return new AphidObject(
+                new AphidFunction(
+                    new[] { name },
+                    new List<AphidExpression> 
+                    {
+                        new UnaryOperatorExpression(
+                            AphidTokenType.retKeyword,
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(name)
+                                    .WithPositionFrom(expression),
+                                expression.Operator,
+                                expression.Operand)
+                                .WithPositionFrom(expression))
+                            .WithPositionFrom(expression)
+                    },
+                    CurrentScope));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]

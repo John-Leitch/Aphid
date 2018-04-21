@@ -15,24 +15,35 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject ParentScope { get; set; }
 
+        public AphidFunction()
+            : this(new string[0], new List<AphidExpression>(), null)
+        {
+        }
+
+        public AphidFunction(string[] args, List<AphidExpression> body, AphidObject parentScope)
+        {
+            Args = args;
+            Body = body;
+            ParentScope = parentScope;
+        }
+
         public AphidFunction Clone()
         {
-            return new AphidFunction()
-            {
-                Args = Args,
-                Body = Body,
-                ParentScope = ParentScope,
-            };
+            return new AphidFunction(Args, Body, ParentScope);
         }
 
         public IEnumerator<AphidExpression> GetEnumerator()
         {
-            return Body.GetEnumerator();
+            return Body != null ?
+                Body.GetEnumerator() :
+                ((IEnumerable<AphidExpression>)new AphidExpression[0]).GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return ((System.Collections.IEnumerable)Body).GetEnumerator();
+            return Body != null ?
+                ((System.Collections.IEnumerable)Body).GetEnumerator() :
+                new AphidExpression[0].GetEnumerator();
         }
     }
 }
