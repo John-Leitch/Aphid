@@ -1,0 +1,43 @@
+﻿#'std';
+using System;
+using System.IO;
+using System.Collections.Generic;
+
+#'AopTest';
+disposable group;
+
+isTrue;
+
+_b = macro(@{
+    var w = new StreamWriter(s);
+    w.Write('foo');
+    w.Flush();
+    var r = new StreamReader(s);
+    s.Position = 0;
+    x = r.ReadToEnd();
+});
+
+@{
+    var x;
+    using (var s = new MemoryStream()) _b();
+    
+    x == 'foo';
+};
+
+@{
+    var f = @{
+        using (var s = new MemoryStream()) {
+            var x;
+            _b();
+
+            ret x;
+        }
+    };
+
+    f() == 'foo';
+};
+
+
+fault;
+@{ using (null) { } };
+@{ using (var x = 'test') { } };
