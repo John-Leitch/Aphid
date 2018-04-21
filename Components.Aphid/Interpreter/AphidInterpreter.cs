@@ -2197,8 +2197,10 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                return new AphidInterpreter(CurrentScope.CreateChild(), Loader) { Serializer = Serializer }
-                    .CallFunctionCore(function, scope, parmsWrapped);
+                var child = new AphidInterpreter(CurrentScope.CreateChild()) { Serializer = Serializer };
+                child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
+
+                return child.CallFunctionCore(function, scope, parmsWrapped);
             }
         }
 
@@ -4570,8 +4572,9 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                new AphidInterpreter(CurrentScope.CreateChild(), Loader) { Serializer = Serializer }
-                    .Interpret(expressions);
+                var child = new AphidInterpreter(CurrentScope.CreateChild()) { Serializer = Serializer };
+                child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
+                child.Interpret(expressions);
             }
         }
 
