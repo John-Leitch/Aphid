@@ -11,51 +11,14 @@ head('Merging .NET Program');
 
 [ 'AphidPortable', 'ildasm' ]->@()Process.GetProcessesByName($_)->@() { $_.Kill(); $_.WaitForExit() };
 
-// ignore = [
-//     'Aphid.exe',
-//     'Components.Aphid.dll',
-//     'mscorlib.dll',
-//     'System.dll',
-//     //'System.Web.Extensions.dll',
-//     //'System.Web.dll',    
-//     'System.Xml.dll',
-//     //'System.Core.dll',
-// ];
-//dumpe('foo');
-//AppDomain.CurrentDomain.GetAssemblies()->@.Location |> dumpe;
-//
-//asms = Assembly
-    //.GetExecutingAssembly()
-    //.GetReferencedAssemblies()
-    //->(@() $_.FullName |> Assembly.Load @.Location)
-    //@aq.concat(AppDomain.CurrentDomain.GetAssemblies()->@.Location)
-    //-?(@(a) !ignore.any(@()a.ToLower().Contains($_.ToLower())))
-    //!?
-    //->Path.GetFileName;
-//
-    //dumpe(asms);
-
-
 _facade = macro(@(f) {
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\Facades\\' + f
 });
 
 
-var asms = [
-    // 'Microsoft.CSharp.dll',
-    // 'System.Data.Linq.dll',
-    // 'System.Xml.Linq.dll',
-    // 'System.Web.dll',
-    // 'System.Web.Extensions.dll',
-    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.dll',
-    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Expressions.dll',
-    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Parallel.dll',
-    // 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6\\Facades\\System.Linq.Queryable.dll',
-] !?;
+var asms = [] !?;
 
 var flags = '/ndebug /zeroPeKind';
-
-//dumpe(asms);
 
 var getILMerge = @() Directory
     .GetFiles('.\\', 'ilmerge.exe', SearchOption.AllDirectories)
@@ -89,28 +52,16 @@ if (ilmergeExe == null) {
     :> 'ILMerge already installed';
 }
 
-//asms = AppDomain.CurrentDomain.GetAssemblies()-<(@() $_.GetReferencedAssemblies())->@.Codebase;
-
 var outExe = 'AphidPortable.exe';
 
 using System.Linq;
-var asmList = asms
-    // -?(@()
-    //     //!$_.Location.Contains('Aphid.exe')) //&& 
-    //     !$_.Location.Contains('mscorlib') &&
-    //     $_.Location.Contains('System'))
-        //0xdeadb);
-    ->(@() '"{0}"' :: $_)
-    !?;
-
-asmList |> dump;
+var asmList = asms ->(@() '"{0}"' :: $_) !?;
 
 head('Getting asm list');
 print('~Cyan~Asms:~R~ {0}', asmList);
 
 var libPaths = (asms->Path.GetDirectoryName!?->@() '/lib:"{0}"' :: $_) @join(' ');
 libPaths = '';
-//dotNetDir = asms-?(@()$_.Contains('Windows')) |> aq.first |> Path.GetDirectoryName;
     
 var systemPath = 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6';
 

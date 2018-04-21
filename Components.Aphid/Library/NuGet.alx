@@ -1,0 +1,22 @@
+var installPackage;
+
+@{
+    #'Std';
+
+    installPackage = @(package) {
+        print('Loading NuGet.Core');
+    
+        if (load NuGet.Core == null) {
+            fatal('Failed loading Nuget.Core');
+        }
+
+        using NuGet;
+
+        print('Connecting to repository');
+        var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+        var packageManager = new PackageManager(repo, '.\\');
+
+        print('Installing package {0}' :: [ package ]);
+        ret packageManager.InstallPackage(package);
+    }
+}();

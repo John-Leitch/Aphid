@@ -1,8 +1,4 @@
-﻿#'std';
-#'meta';
-var argList = getCommandLineArgs() |> Enumerable.ToList;
-cls();
-using Components;
+﻿using Components;
 using Components.External;
 using System;
 using System.Diagnostics;
@@ -14,8 +10,6 @@ using System.Security.Permissions;
 using System.Threading;
 load System.Runtime.Remoting;
 load mscorlib;
-
-head('IPC Channel Test');
 
 _initTrace = macro(@{
     var trace = ipc.trace ? print : @{ };
@@ -80,35 +74,44 @@ var ipc = {
 };
 
 
+ipc.test = @{
+    var argList = getCommandLineArgs() |> Enumerable.ToList;
+    head('IPC Channel Test');
 
-if (!argList.Contains('-client')) {
-    _initTrace();
+    if (!argList.Contains('-client')) {
+        _initTrace();
 
-    ipc.listen();
+        ipc.listen();
 
-    var args = format(
-        '/c {0} {1} -client',
-        getExe(),
-        getCommandLineArgs()[1]);
+        var exe = 'c:\\source\\aphid\\aphid\\bin\\debug\\Aphid.exe';
+        var script = 'C:\\source\\aphid\\Components.Aphid\\Library\\Ipc.alx';
 
-    traceQuery('Starting client process with args ~Cyan~{0}~R~', args);
-    var proc = Process.Start('cmd', args);
-    traceInfo('Waiting for process to exit');
-    proc.WaitForExit();
-    traceSuccess('Process has exited');
-    // Console.ReadLine();
+        var args = format(
+            '/c {0} {1} -client',
+            exe,
+            script);
+            //getExe(),
+            //getCommandLineArgs()[1]);
+
+        traceQuery('Starting client process with args ~Cyan~{0}~R~', args);
+        var proc = Process.Start('cmd', args);
+        traceInfo('Waiting for process to exit');
+        proc.WaitForExit();
+        traceSuccess('Process has exited');
+        // Console.ReadLine();
 
 
-} else {
-    try {
-        var ctx = ipc.connect();
-        ctx.Eval('trace("Hello world")');
-        Thread.Sleep(1500);
-    } catch (e) {
-        dump(e);
-    } finally {
-        repl();
+    } else {
+        try {
+            var ctx = ipc.connect();
+            ctx.Eval('trace("Hello world")');
+            Thread.Sleep(1500);
+        } catch (e) {
+            dump(e);
+        } finally {
+            repl();
+        }
+        
+        // Console.ReadLine();
     }
-    
-    // Console.ReadLine();
-}
+};

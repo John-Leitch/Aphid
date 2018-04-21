@@ -444,10 +444,13 @@
     <None Include="Library\Benchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Ipc.alx">
+    <None Include="Library\NuGet.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="UI\Config.ini">
+    <None Include="Library\ILMerge.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Ipc.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="External\ConsolePlus\SystemColor.alx" />
