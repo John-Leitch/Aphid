@@ -2,7 +2,9 @@
 using Components.Aphid.Serialization;
 using System;
 
-class RemoteProxy { AphidFunction Connect, Guid RemoteId, string BasePath };
+if (!this.{'$aphid'}.AsmBuilder.IsTypeDefined('RemoteProxy')) {
+    class RemoteProxy { AphidFunction Connect, Guid RemoteId, string BasePath };
+}
 
 extend RemoteProxy {
     Eval: @(s, code) code |> remote._remoteTable.{s.RemoteId}.eval,
