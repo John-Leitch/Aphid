@@ -377,7 +377,13 @@ namespace Components.External.ConsolePlus
             _autocompleteWidth = _matches.Length != 0 ?
                 _matches.Max(x => Cli.EraseStyles(x.View).Length) : 0;
 
-            var maxWidth = GetMaxWidth();
+
+            var maxWidth = Console.WindowWidth - _prompt.Length - _cursorIndex + _searchBuffer.Length;
+
+            if (maxWidth < 0)
+            {
+                maxWidth = 0;
+            }
 
             if (_autocompleteWidth > maxWidth)
             {
