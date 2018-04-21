@@ -14,10 +14,6 @@ namespace Components.Aphid.UI
 {
     public class AphidScopeObjectAutocompletionSource : IAutocompletionSource, IDisposable
     {
-        private AphidObject _currentScope;
-
-        private TypeLoader _loader = new TypeLoader();
-
         private static readonly string[] _wordContainsIgnore = new[]
         {
             "`",
@@ -33,8 +29,11 @@ namespace Components.Aphid.UI
             "op_",
         };
 
+        private const string _skipTokens =
+            "( ) { } ! @ # $ % ^ & * + - = | \\ ; : ' \" < > , / ? \t";
+
         private static readonly List<AphidTokenType> _skipTokenTypes = AphidLexer
-            .GetTokens("( ) { } ! @ # $ % ^ & * + - = | \\ ; : '' \"\" < > , / ? \t")
+            .GetTokens(_skipTokens)
             .Select(x => x.TokenType)
             .Concat((AphidTokenType[])Enum
                 .GetValues(typeof(AphidTokenType)))
@@ -43,6 +42,10 @@ namespace Components.Aphid.UI
                     y != AphidTokenType.MemberOperator &&
                     y.ToString().EndsWith("Operator"))
             .ToList();
+
+        private AphidObject _currentScope;
+
+        private TypeLoader _loader = new TypeLoader();
 
         public AphidScopeObjectAutocompletionSource(AphidObject currentScope)
         {
@@ -409,12 +412,23 @@ namespace Components.Aphid.UI
                     .Any(y =>
                         x.FullName.StartsWith(y) &&
                         !x.FullName.Substring(y.Length + 1).Contains('.')))
+                .SelectMany(x => x.GetConstructors())
                 .Distinct()
                 .ToArray();
 
-            return types
-                .Where(x => match != null ? x.Name.StartsWith(match) : true)
-                .Select(x => new Autocomplete(x.Name + "()", x.Name));
+            var typeMatches = types
+                .Where(x =>
+                    match != null ? x.DeclaringType.Name.StartsWith(match) : true)
+                .Select(x => new Autocomplete(
+                    x.DeclaringType.Name + CreateArgTuple(x),
+                    x.DeclaringType.Name));
+
+            //if (System.Diagnostics.Debugger.IsAttached)
+            //{
+            //    var typeMatchesArray = typeMatches.ToArray();
+            //}
+
+            return typeMatches;
         }
 
         private IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words)
