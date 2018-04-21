@@ -3746,6 +3746,27 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidObject InterpretUsingExpression(UsingExpression expression)
+        {
+            var result = ValueHelper.Unwrap(InterpretExpression(expression.Disposable));
+            var disposable = result as IDisposable;
+
+            if (disposable == null)
+            {
+                throw CreateRuntimeException(
+                    "{0} does not implement IDisposable.",
+                    result ?? "null");
+            }
+
+            using (disposable)
+            {
+                InterpretBlock(expression.Body);
+            }
+
+            return null;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadScriptExpression(LoadScriptExpression expression)
         {
             var file = ValueHelper.Unwrap(InterpretExpression(expression.FileExpression)) as string;
@@ -4389,6 +4410,9 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.ForExpression:
                     return InterpretForExpression((ForExpression)expression);
+
+                case AphidExpressionType.UsingExpression:
+                    return InterpretUsingExpression((UsingExpression)expression);
 
                 case AphidExpressionType.LoadScriptExpression:
                     return InterpretLoadScriptExpression((LoadScriptExpression)expression);

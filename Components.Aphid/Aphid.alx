@@ -111,6 +111,7 @@ PartialOperatorExpression = { AphidTokenType Operator, Operand };
 PatternExpression = { opt list Patterns, Value };
 PatternMatchingExpression = { TestExpression, list PatternExpression Patterns };
 UnaryOperatorExpression = { AphidTokenType Operator, Operand, opt bool IsPostfix };
+UsingExpression = { Disposable, list Body };
 StringExpression = { string Value };
 SwitchCase = { list Cases, list Body };
 SwitchExpression = { Expression, list SwitchCase Cases, list DefaultCase };
@@ -201,6 +202,8 @@ _ParseStatement = macro(@(_requireEos) {
             extendKeyword: exp ParseExtendExpression;
             tryKeyword: exp ParseTryExpression;
             switchKeyword: exp ParseSwitchExpression;
+            usingKeyword: exp ParseUsingExpression;
+
             Text: exp ParseTextExpression;
             GatorOpenOperator: { exp = GatorOpenExpression(); NextToken; }
             GatorCloseOperator: { exp = GatorCloseExpression(); NextToken; }
@@ -392,7 +395,6 @@ ParsePrefixUnaryOperatorExpression = @{
         MultiplicationOperator,
         ComplementOperator,
         InteropOperator,
-        usingKeyword,
         newKeyword,
         loadKeyword,
         // CustomOperatorTup Begin
@@ -954,6 +956,23 @@ list ParseTuple = @{
 
         if (Comma) NextToken;
         else ret tuple;
+    }
+};
+
+ParseUsingExpression = @{
+    NextToken;
+
+    if (LeftParenthesis) {
+        NextToken;
+        exp ParseExpression;
+        RightParenthesis;
+
+        ret UsingExpression(exp, ParseBlock());
+    } else {
+        exp ParseMemberExpression;
+        EndOfStatement;
+
+        ret UnaryOperatorExpression(usingKeyword, exp);
     }
 };
 

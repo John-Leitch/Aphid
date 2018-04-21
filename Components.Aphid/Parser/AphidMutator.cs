@@ -340,6 +340,17 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.UsingExpression:
+                    var usingExp = (UsingExpression)expression;
+
+                    expanded.Add(
+                        new UsingExpression(
+                            Mutate(usingExp.Disposable).Single(),
+                            usingExp.Body.SelectMany(Mutate).ToList()));
+
+                    break;
+
+
                 default:
                     if (expression is IParentNode)
                     {
