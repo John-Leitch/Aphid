@@ -970,7 +970,8 @@ ParseUsingExpression = @{
         ret UsingExpression(exp, ParseBlock());
     } else {
         exp ParseMemberExpression;
-        EndOfStatement;
+
+        if (EndOfStatement) NextToken;
 
         ret UnaryOperatorExpression(usingKeyword, exp);
     }

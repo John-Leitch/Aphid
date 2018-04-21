@@ -3980,7 +3980,10 @@ namespace Components.Aphid.Parser
                     exp.Index = index0035;
                     exp.Length = (_currentToken.Index - index0035);
                 }
-                Match(AphidTokenType.EndOfStatement);
+                if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                {
+                    NextToken();
+                }
                 return new UnaryOperatorExpression(AphidTokenType.usingKeyword, exp);
             }
         }
