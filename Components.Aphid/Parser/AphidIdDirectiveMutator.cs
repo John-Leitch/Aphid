@@ -14,10 +14,11 @@ namespace Components.Aphid.Parser
             out bool hasChanged)
         {
             CallExpression callExp;
+            IdentifierExpression id;
 
             if (expression.Type != AphidExpressionType.CallExpression ||
                 ((callExp = expression.ToCall()).FunctionExpression.Type != AphidExpressionType.IdentifierExpression) ||
-                callExp.FunctionExpression.ToIdentifier().Identifier != "id")
+                (id = (IdentifierExpression)callExp.FunctionExpression).Identifier != "id")
             {
                 hasChanged = false;
 
@@ -29,7 +30,8 @@ namespace Components.Aphid.Parser
             return new List<AphidExpression>
             {
                 new IdentifierExpression(
-                    string.Join("", callExp.Args.Select(ParseArgument))),
+                    string.Join("", callExp.Args.Select(ParseArgument)),
+                    id.Attributes),
             };
         }
 
