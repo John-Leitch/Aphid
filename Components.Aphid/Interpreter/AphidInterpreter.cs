@@ -1095,7 +1095,6 @@ namespace Components.Aphid.Interpreter
             var value2 = ValueHelper.Wrap(value);
             AphidFunction func;
 
-
             if (destinationExpression.Type == AphidExpressionType.IdentifierExpression)
             {
                 var idExp = (IdentifierExpression)destinationExpression;
@@ -1127,7 +1126,14 @@ namespace Components.Aphid.Interpreter
                 {
                     if (!CurrentScope.ContainsKey(id))
                     {
-                        CurrentScope.Add(id, value2);
+                        if (ValueHelper.IsComplexAphidObject(value2))
+                        {
+                            CurrentScope.Add(id, value2);
+                        }
+                        else
+                        {
+                            CurrentScope.Add(id, new AphidObject(value2.Value));
+                        }
                     }
                     else
                     {
@@ -1145,11 +1151,13 @@ namespace Components.Aphid.Interpreter
                 var targetObj = InterpretExpression(arrayAccessExp.ArrayExpression);
                 var targetObjUnwrapped = ValueHelper.Unwrap(targetObj);
 
+                var keyObjects = new object[arrayAccessExp.KeyExpressions.Count];
 
-                var keyObjects = arrayAccessExp.KeyExpressions
-                    .Select(InterpretExpression)
-                    .Select(ValueHelper.Unwrap)
-                    .ToArray();
+                for (var i = 0; i < keyObjects.Length; i++)
+                {
+                    keyObjects[i] = ValueHelper.Unwrap(
+                        InterpretExpression(arrayAccessExp.KeyExpressions[i]));
+                }
 
                 if (keyObjects.Length != 1)
                 {
@@ -1165,7 +1173,7 @@ namespace Components.Aphid.Interpreter
                 {
                     targetArray.SetValue(
                         Convert.ChangeType(
-                            ValueHelper.Unwrap(value),
+                            value2.Value,
                             targetArray.GetType().GetElementType()),
                         Convert.ToInt32(keyObj));
                 }
@@ -1196,7 +1204,7 @@ namespace Components.Aphid.Interpreter
                         index.Property.SetValue(
                             targetObjUnwrapped,
                             Convert.ChangeType(
-                                ValueHelper.Unwrap(value),
+                                value2.Value,
                                 index.Property.PropertyType),
                             new object[] { Convert.ToInt32(keyObj) });
                     }
@@ -1226,9 +1234,7 @@ namespace Components.Aphid.Interpreter
                         {
                             var v = (AphidObject)value;
 
-                            func = ValueHelper.Unwrap(value) as AphidFunction;
-
-                            if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                            if ((func = value2.Value as AphidFunction) != null)
                             {
                                 func.ParentScope = v;
                             }
@@ -1237,19 +1243,27 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                            if ((func = value2.Value as AphidFunction) != null)
                             {
                                 func.ParentScope = objRef.Object;
                             }
 
-                            objRef.Object[objRef.Name].Value = ValueHelper.Unwrap(value);
+                            //objRef.Object[objRef.Name] = new AphidObject(ValueHelper.Unwrap(value));
+                            objRef.Object[objRef.Name].Value = value2.Value;
                         }
                     }
                     else
                     {
-                        objRef.Object.Add(objRef.Name, ValueHelper.Wrap(value));
+                        if (ValueHelper.IsComplexAphidObject(value))
+                        {
+                            objRef.Object.Add(objRef.Name, value2);
+                        }
+                        else
+                        {
+                            objRef.Object.Add(objRef.Name, new AphidObject(value2.Value));
+                        }
 
-                        if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                        if ((func = value2.Value as AphidFunction) != null)
                         {
                             func.ParentScope = objRef.Object;
                         }
@@ -1272,7 +1286,7 @@ namespace Components.Aphid.Interpreter
 
                 if (interopRef != null)
                 {
-                    var v = ValueHelper.Unwrap(value);
+                    var v = value2.Value;
 
                     if (interopRef.Field != null)
                     {
@@ -1289,7 +1303,7 @@ namespace Components.Aphid.Interpreter
                                 null);
                     }
 
-                    if ((func = ValueHelper.Unwrap(value) as AphidFunction) != null)
+                    if ((func = value2.Value as AphidFunction) != null)
                     {
                         var o = interopRef.Object;
 
@@ -2943,9 +2957,23 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretArrayExpression(ArrayExpression expression)
         {
-            var list = new AphidObject(expression.Elements.Select(InterpretExpression).OfType<AphidObject>().ToList());
+            var list = new List<AphidObject>(expression.Elements.Count);
 
-            return list;
+            for (var i = 0; i < expression.Elements.Count; i++)
+            {
+                var element = InterpretExpression(expression.Elements[i]);
+
+                if (ValueHelper.IsComplexAphidObject(element))
+                {
+                    list.Add((AphidObject)element);
+                }
+                else
+                {
+                    list.Add(new AphidObject(ValueHelper.Unwrap(element)));
+                }
+            }
+
+            return new AphidObject(list);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]

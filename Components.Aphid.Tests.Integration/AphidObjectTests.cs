@@ -48,9 +48,21 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
+        public void ObjectVarValueTypeReassignTest()
+        {
+            AssertTrue("var i = 0; var f = @() ++i; var a = f(); var b = 0; b = f(); ret a != b");
+        }
+
+        [Test]
         public void ObjectMemberValueTypeAssignTest()
         {
             AssertTrue("var i = 0; var f = @() ++i; var o = {}; o.a = f(); o.b = f(); ret o.a != o.b");
+        }
+
+        [Test]
+        public void ObjectArrayValueTypeAssignTest()
+        {
+            AssertTrue("var i = 0; var f = @() ++i; var a = [ f(), 123 ]; a[1] = f(); ret a[0] != a[1]");
         }
     }
 }
