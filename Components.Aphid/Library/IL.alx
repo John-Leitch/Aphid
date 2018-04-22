@@ -17,12 +17,43 @@ var ilImportScope = this;
     using System.Threading;
 
     createAsm = @(name) {
+        var props = isObject(name) ? name : { name };
+        var an = new AssemblyName(props.name);
+        
+        if (props.version defined) {
+            an.Version = new Version(props.version);
+        }
+
         var asm = AppDomain.CurrentDomain
             .DefineDynamicAssembly(
-                new AssemblyName(name),
+                an,
                 AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
 
-        var module = name |> asm.DefineDynamicModule;
+        _v = macro(@(t, v) {
+            new CustomAttributeBuilder(t.GetConstructor([ string ]), [ v ])
+            |> asm.SetCustomAttribute;
+        });
+
+        if (props.version defined) {
+            _v(AssemblyVersionAttribute, props.version);
+            _v(AssemblyFileVersionAttribute, props.version);
+        }
+
+        if (props.title defined) {
+            _v(AssemblyTitleAttribute, props.title);
+            _v(AssemblyProductAttribute, props.title);
+        }
+
+        if (props.company defined) {
+            _v(AssemblyCompanyAttribute, props.company);
+        }
+
+        if (props.copyright defined) {
+            _v(AssemblyCopyrightAttribute, props.copyright);
+        }
+
+        var module = props.name |> asm.DefineDynamicModule;
+        asm.DefineVersionInfoResource();
 
         ret {
             asm,
@@ -53,7 +84,7 @@ var ilImportScope = this;
     createProgram = @(asmName, ilCallback) {
         var asm = asmName |> createAsm;
         ilCallback |> asm.createEntryPoint;
-        asmName |> asm.save;
+        (isObject(asmName) ? asmName.name : asmName) |> asm.save;
     };
 
     var scope = ilImportScope;
@@ -110,8 +141,6 @@ var ilImportScope = this;
         } finally {
             Monitor.Exit(ilModuleSync);
         }
-
-        
     };
 
     execILBlock = @(il) {

@@ -1,7 +1,7 @@
 ﻿//#'DebugDeploy';
 #'Std';
+#'Meta';
 #'IL';
-#'Query';
 using Components.Aphid.Interpreter;
 using System.IO;
 using System.Diagnostics;
@@ -35,7 +35,23 @@ var asmName = args.Count == 2 ?
     args[1] :
     Path.ChangeExtension(args[0], 'exe');
 
-print('Creating module {0} for {1}', asmName, script);
+var properties = {
+    name: asmName,
+    title: asmName |> Path.GetFileNameWithoutExtension,
+    version: '1.0.0.0',
+};
+
+var scriptAst = script |> AphidParser.ParseFile;
+if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
+    var p = scriptAst[0] |> evalNode;
+    p |> keys -> @() properties.{$_} = p.{$_};
+}
+
+printInfo('Assembly attributes:');
+properties |> keys -> @() print('    [{0}] ~White~{1}~R~', $_, properties.{$_});
+print();
+
+printInfo('Creating module {0} for {1}', asmName, script);
 
 importOpcodes();
 
@@ -52,14 +68,6 @@ importOpcodes();
     e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));
     e(Ret);
 }
-@createProgram(asmName);
+@createProgram(properties);
 
-//var si = new ProcessStartInfo(
-    //'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v8.0A\\bin\\NETFX 4.0 Tools\\ildasm.exe',
-    //'/text /pub ' + Path.GetFullPath('FibonacciExample.exe'));
-//
-//si.UseShellExecute = false;
-//
-//Process.Start(si);
-
-print('Done');
+printSuccess('Done');
