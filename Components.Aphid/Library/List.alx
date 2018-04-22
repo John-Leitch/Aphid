@@ -1,9 +1,9 @@
-﻿_p = macro(@{
+﻿_lp = macro(@{
     var x = [];
     var y;
 });
 
-_p2 = macro(@{
+_lp2 = macro(@{
     var x = [];
     var y;
     var i = 0;
@@ -29,13 +29,13 @@ extend list {
 	contains: @(l, item) __list.contains(l, item),
 
 	select: @(l, selector) {
-		_p();
+		_lp();
 		for (y in l) __list.add(x, selector(y));
 		ret x;
 	},
 
 	where: @(l, predicate) { 
-		_p();
+		_lp();
 		for (y in l) if (predicate(y)) __list.add(x, y);
 		ret x;
 	},
@@ -46,13 +46,13 @@ extend list {
 	},
 
 	selectMany: @(l, selector) {
-		_p();
+		_lp();
 		for (y in l) for (z in selector(y)) x.add(z);
 		ret x;
 	},
 
 	distinct: @(l) {
-		_p();
+		_lp();
 		for (y in l) if (!__list.contains(x, y)) x.add(y);
 		ret x;
 	},
@@ -74,14 +74,14 @@ extend list {
 	},
 
 	concat: @(l, second) {
-		_p();
+		_lp();
 		for (y in l) x.add(y);
 		for (y in second) x.add(y);
 		ret x;
 	},
 
 	skip: @(l, count) {
-		_p2();
+		_lp2();
 		for (y in l) {
 			if (i >= count) x.add(y);
 			i++;
@@ -90,7 +90,7 @@ extend list {
 	},
 
 	take: @(l, count) {
-		_p2();
+		_lp2();
 		for (y in l) {
 			if (i < count) x.add(y);
 			i++;
@@ -115,7 +115,7 @@ extend list {
 	addAll: @(l) l.aggregate(@(x, y)x + y),
 
 	clone: @(l) {
-		_p();
+		_lp();
 		l.iter(x.add);
 		ret x;
 	},

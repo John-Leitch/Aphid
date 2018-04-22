@@ -1,33 +1,33 @@
-﻿_p = macro(@{
+﻿_qp = macro(@{
     var x = [];
     var y;
 });
 
-_p2 = macro(@{
-    _p();
+_qp2 = macro(@{
+    _qp();
     var z;
 });
 
-_p3 = macro(@{
-    _p();
+_qp3 = macro(@{
+    _qp();
     var i = 0;
 });
 
 var aphidQuery = {
     where: @(predicate, list) {
-        _p();
+        _qp();
         for (y in list) if (predicate(y)) x.add(y);
         ret x;
     },
 
     select: @(selector, list) {
-        _p();
+        _qp();
         for (y in list) y |> selector |> x.add;
         ret x;
     },
 
     selectMany: @(selector, list) {
-        _p2();
+        _qp2();
         for (y in list) for (z in selector(y)) x.add(z);
         ret x;
     },
@@ -62,7 +62,7 @@ var aphidQuery = {
     },
 
     distinct: @(list) {
-        _p();
+        _qp();
         for (y in list) if (!__list.contains(x, y)) x.add(y);
         ret x;
     },
@@ -81,14 +81,14 @@ var aphidQuery = {
     count: @(list) __list.count(list),
 
     concat: @(list, otherList) {
-        _p();
+        _qp();
         for (y in otherList) x.add(y);
         for (y in list) x.add(y);
         ret x;
     },
 
     skip: @(count, list) {
-        _p3();
+        _qp3();
 
         for (y in list) {
             if (i >= count) x.add(y);
@@ -99,7 +99,7 @@ var aphidQuery = {
     },
 
     take: @(count, list) {
-        _p3();
+        _qp3();
 
         for (y in list) {
             if (i < count) x.add(y);
