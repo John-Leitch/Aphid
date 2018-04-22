@@ -450,7 +450,7 @@
     <None Include="Library\NuGet.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\ILMerge.alx">
+    <None Include="Tools\ILMerge.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Ipc.alx">
@@ -463,6 +463,18 @@
     <None Include="Serialization\AphidObject.alx" />
     <None Include="App.config" />
     <None Include="AphidCustomOperators.alx" />
+    <None Include="Tools\AphidUI.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Tools\MakeExe.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Tools\TestLoop.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Tools\ViewModelCompiler.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Resource Include="Compiler\Medusa\LLex\Resources\Lang.CSharp.alx" />
     <None Include="External\ConsolePlus\Cli.alx" />
     <None Include="External\Json\Json.alx" />
