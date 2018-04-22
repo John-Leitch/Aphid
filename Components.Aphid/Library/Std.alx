@@ -405,15 +405,13 @@ var memberAccess = { private = 0x1, protected = 0x2, public = 0x4 };
 
 extend RuntimePropertyInfo {
     getAccessor: @(m, access, getSetter) {
-        a;
-        matches;
-        a = m.GetAccessors(false);
+        var a = m.GetAccessors(false);
 
         if (a == null || a.Length == 0) {
             ret null;
         }
 
-        matches = a
+        var matches = a
             -? (@(x)
                 (getSetter && x.ReturnType == void) ||
                 (!getSetter && x.ReturnType != void))
