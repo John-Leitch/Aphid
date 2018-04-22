@@ -116,12 +116,12 @@ namespace Components.Aphid.Compiler
                 switch (state)
                 {
                     case ClassAttributeScanState.Starting:
-                        scanner.Require("class");
+                        scanner.Require(AphidName.Class);
                         state = ClassAttributeScanState.InClass;
                         break;
 
                     case ClassAttributeScanState.InClass:
-                        if (scanner.Match("of"))
+                        if (scanner.Match(AphidName.Of))
                         {
                             if (defaultTypeSet || scanner.CurrentAttribute == null)
                             {

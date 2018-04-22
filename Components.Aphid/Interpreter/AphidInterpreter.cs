@@ -2068,7 +2068,7 @@ namespace Components.Aphid.Interpreter
             if (expression.Identifier == null ||
                 expression.Identifier.Attributes == null ||
                 !expression.Identifier.Attributes.Any() ||
-                expression.Identifier.Attributes[0].Identifier != "class")
+                expression.Identifier.Attributes[0].Identifier != AphidName.Class)
             {
                 var parent = CurrentScope;
                 var obj = new AphidObject { Parent = parent };
