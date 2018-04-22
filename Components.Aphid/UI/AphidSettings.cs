@@ -10,6 +10,8 @@ namespace Components.Aphid.UI
     {
         public const string
             SaveErrors = "saveErrors",
-            StrictMode = "strict";
+            StrictMode = "strict",
+            AutoImport = "autoImport",
+            AutoInclude = "autoInclude";
     }
 }

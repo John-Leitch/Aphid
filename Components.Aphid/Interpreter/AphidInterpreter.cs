@@ -417,7 +417,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var list = new List<string>();
+                var list = new List<string>(AphidConfig.Current.Imports);
                 CurrentScope.Add(AphidName.Imports, new AphidObject(list));
 
                 return list;

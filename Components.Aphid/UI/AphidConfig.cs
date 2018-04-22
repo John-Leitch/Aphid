@@ -20,7 +20,28 @@ namespace Components.Aphid.UI
         private Lazy<bool> _strictMode = GetBool(AphidSettings.StrictMode),
             _saveErrors = GetBool(AphidSettings.SaveErrors);
 
-        public string[] Imports { get; set; }
+        private Lazy<string[]> _imports = GetArray(AphidSettings.AutoImport),
+            _includes = GetArray(AphidSettings.AutoInclude);
+
+        public string[] Imports
+        {
+            get { return _imports.Value; }
+        }
+
+        //public string[] Includes
+        //{
+        //    get { return _includes.Value; }
+        //}
+
+        public bool StrictMode
+        {
+            get { return _strictMode.Value; }
+        }
+
+        public bool SaveErrors
+        {
+            get { return _saveErrors.Value; }
+        }
 
         public bool ExceptionHandlingDisabled { get; set; }
 
@@ -38,16 +59,6 @@ namespace Components.Aphid.UI
 
         public bool ConsoleAsync { get; set; }
 
-        public bool StrictMode
-        {
-            get { return _strictMode.Value; }
-        }
-
-        public bool SaveErrors
-        {
-            get { return _saveErrors.Value; }
-        }
-
         public AphidConfig()
             : base()
         {
@@ -57,6 +68,14 @@ namespace Components.Aphid.UI
         private static Lazy<bool> GetBool(string name)
         {
             return new Lazy<bool>(() => Convert.ToBoolean(GetSetting(name)));
+        }
+
+        private static Lazy<string[]> GetArray(string name)
+        {
+            return new Lazy<string[]>(() => (GetSetting(name) ?? "")
+                .Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .ToArray());
         }
 
         private static string GetSetting(string name)
