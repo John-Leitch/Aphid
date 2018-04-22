@@ -3,8 +3,9 @@
 
 _f = macro(@(fmt) { fmt :: [ $_ ] });
 
-l = @() [ _f('Components.Aphid\\Library\\{0}.alx'), _f('Library\\{0}.alx') ];
-s = @() [ _f('Aphid\\Samples\\{0}'), _f('Samples\\{0}') ];
+var l = @() [ _f('Components.Aphid\\Library\\{0}.alx'), _f('Library\\{0}.alx') ];
+var t = @() [ _f('Components.Aphid\\Tools\\{0}.alx'), _f('Tools\\{0}.alx') ];
+var s = @() [ _f('Aphid\\Samples\\{0}'), _f('Samples\\{0}') ];
 
 ////////////////////////////////////////////////////////////////
 package({
@@ -13,30 +14,35 @@ package({
     root: '..',
     mainModule: 'Aphid\\bin\\{config}\\Aphid.exe',
     files: [
+        'README.md',
+
         'Aphid\\bin\\{config}\\Aphid.pdb',
         'AphidUI\\bin\\{config}\\AphidUI.exe',
         'AphidUI\\bin\\{config}\\AphidUI.pdb',
         'Components.Aphid\\bin\\{config}\\Components.Aphid.dll',
         'Components.Aphid\\bin\\{config}\\Components.Aphid.pdb',
+        
         [ 'AphidHdl\\bin\\{config}\\av.exe', 'Aphid2Verilog\\av.exe' ],
         [ 'AphidHdl\\bin\\{config}\\av.pdb', 'Aphid2Verilog\\av.pdb' ],
+        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.dll', 'Aphid2Verilog\\Components.Aphid.dll' ],
+        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.pdb', 'Aphid2Verilog\\Components.Aphid.pdb' ],
+
         [ 'Coywolf\\bin\\{config}\\cw.exe', 'Aphid2Php\\cw.exe' ],
         [ 'Coywolf\\bin\\{config}\\cw.pdb', 'Aphid2Php\\cw.pdb' ],
+        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.dll', 'Aphid2Php\\Components.Aphid.dll' ],
+        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.pdb', 'Aphid2Php\\Components.Aphid.pdb' ],
+
         [ 'Boxelder\\bin\\{config}\\be.exe', 'Aphid2Python\\be.exe' ],
         [ 'Boxelder\\bin\\{config}\\be.pdb', 'Aphid2Python\\be.pdb' ],
-        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.dll', 'AphidHdl\\Components.Aphid.dll' ],
-        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.dll', 'Aphid2Php\\Components.Aphid.dll' ],
         [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.dll', 'Aphid2Python\\Components.Aphid.dll' ],
-        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.pdb', 'AphidHdl\\Components.Aphid.pdb' ],
-        [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.pdb', 'Aphid2Php\\Components.Aphid.pdb' ],
         [ 'Components.Aphid\\bin\\{config}\\Components.Aphid.pdb', 'Aphid2Python\\Components.Aphid.pdb' ],
+
         l('Benchmark'),
         l('Conversion'),
         l('Dbg'),
         l('DebugDeploy'),
         l('Env'),
         l('IL'),
-        l("ILMerge"),
         l('IO'),
         l('Ipc'),
         l('List'),
@@ -60,6 +66,11 @@ package({
         l('Wmi'),
         l('Wpf'),
         l('Xml'),
+        t('AphidUI'),
+        t('ILMerge'),
+        t('MakeExe'),
+        t('TestLoop'),
+        t('ViewModelCompiler'),
         s("AbstractSyntaxTreeExample.alx"),
         s("ConditionalOperatorExample.alx"),
         s("CustomOperatorExample.alx"),
@@ -70,7 +81,6 @@ package({
         s("InteropExample.alx"),
         s("LambdaExample.alx"),
         s("MacroExample.alx"),
-        s("MakeExe.alx"),
         s("NativeDebuggerExample.alx"),
         s("ParallelForExample.alx"),
         s("PartialFunctionExample.alx"),
@@ -78,7 +88,6 @@ package({
         s("PipeliningExample.alx"),
         s("RuntimeErrorExample.alx"),
         s("TcpExample.alx"),
-        s("TestLoop.alx"),
         s("TextDocumentExample.alxt"),
         s("VbsExample.alx"),
     ]

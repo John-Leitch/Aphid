@@ -234,7 +234,7 @@ var ast = {
     },
 
     where: @(predicate, node) {
-        matches = [];
+        var matches = [];
         node @walk(@(innerNode, context) {
             if (predicate(innerNode, context)) {
                 print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
@@ -276,7 +276,7 @@ var ast = {
     block: @() new List[AphidExpression](),
 
     first: @(predicate, rootNode) {
-        match = null;
+        var match = null;
         rootNode @ast.walk(@(node, context){
             if (match != null) {
                 context.isHandled = true;

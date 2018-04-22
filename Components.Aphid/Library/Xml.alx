@@ -2,9 +2,9 @@
 
 @{
     #'Std';
-    #'Query';
     #'Meta';
     load System.Xml.Linq;
+    using System.Linq;
     using System.Xml.Linq;
 
     var extendXElement = @{ 
@@ -41,7 +41,7 @@
             dynamic dispatch: @(element, action) {
                 var e = element;
                 [ e.attr, e.element, e.descendant ] for {
-                    a = $_(action);
+                    var a = $_(action);
 
                     if (a != null) {
                         ret a;
@@ -67,7 +67,7 @@
         };
     };
 
-    initXml = @{
+    var initXml = @{
         var xdExtend = (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XDocument)));
         (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XElement))).obj().pairs()->@(p){
             var ext = p.lhs().id();
