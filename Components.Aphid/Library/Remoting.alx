@@ -45,6 +45,7 @@ var remote = null;
     using System.Net.Sockets;
     using System.Text;
     #'Threading';
+    #'Compression';
     //#'Query';
     //#'Std';
     
@@ -63,14 +64,14 @@ var remote = null;
             var reader = new BinaryReader(tcp.GetStream());
             var len = reader.ReadUInt32();
             _rt('Receiving {0:n0} bytes', len);
-            var buf = len |> Convert.ToInt32 |> reader.ReadBytes;
+            var buf = len |> Convert.ToInt32 |> reader.ReadBytes |> remote.decode;
             _rt('{0:n0} bytes read', buf.Length);
 
             ret new AphidObject(buf |> utf8.GetString);
         },
 
         write: @(b) {
-            var buf = b |> utf8.GetBytes;
+            var buf = b |> utf8.GetBytes |> remote.encode;
             var writer = new BinaryWriter(tcp.GetStream());
             [ buf.Length |> Convert.ToUInt32, buf ]->writer.Write;
         },
@@ -86,6 +87,9 @@ var remote = null;
 
     remote = {
         port: 0x5230,
+
+        encode: deflate.compress,
+        decode: deflate.decompress,
 
         listen: @(port){
             var actualPort = port ?? remote.port;
