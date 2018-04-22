@@ -3,7 +3,7 @@ using System.Linq;
 
 var asm = AppDomain.CurrentDomain.GetAssemblies() ~? 'Components.Aphid' |> Enumerable.First @.Location;
 
-_n = macro(@(n) { id('load', n) });
+_n = macro(@(n) { var id('load', n) });
 _load = macro(@(n, p, f) {
     _n(n) = @() {
         try ret load p |> f;

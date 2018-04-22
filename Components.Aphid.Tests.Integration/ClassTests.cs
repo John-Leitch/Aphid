@@ -16,7 +16,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo(@"
                 class Test { A };
-                x = new Test();
+                var x = new Test();
                 x.A = 'foo';
                 ret x.A;
             ");
@@ -27,7 +27,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo(@"
                 class Test2 { string A };
-                x = new Test2();
+                var x = new Test2();
                 x.A = 'foo';
                 ret x.A;
             ");
@@ -38,7 +38,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo(@"
                 class Test3 { string A, string B };
-                x = new Test3();
+                var x = new Test3();
                 x.A = 'fo';
                 x.B = 'o';
                 ret x.A + x.B;
@@ -52,7 +52,7 @@ namespace Components.Aphid.Tests.Integration
                 0xdeadbeef,
                 @"
                     class Test4 { uint A };
-                    x = new Test4();
+                    var x = new Test4();
                     x.A = 0xdeadbeef;
                     ret x.A;
             ");
@@ -65,7 +65,7 @@ namespace Components.Aphid.Tests.Integration
                 0xff,
                 @"
                     class Test5 { byte A };
-                    x = new Test5();
+                    var x = new Test5();
                     x.A = 0xff;
                     ret x.A;
             ");
@@ -78,7 +78,7 @@ namespace Components.Aphid.Tests.Integration
                 0x00,
                 @"
                     class Test6 { byte A };
-                    x = new Test6();
+                    var x = new Test6();
                     x.A = 0x00;
                     ret x.A;
             ");
@@ -91,7 +91,7 @@ namespace Components.Aphid.Tests.Integration
                 false,
                 @"
                     class Test7 { byte A };
-                    x = new Test7();
+                    var x = new Test7();
                     try { x.A = 0x100 } catch { ret false }
                     ret true;
             ");

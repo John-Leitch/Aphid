@@ -2,12 +2,11 @@
 #'Test';
 using System.Threading;
 
-threadLocal = @{
-    x = 'foo';
+var threadLocal = @{
+    var x = 'foo';
 
-    thread = new Thread(@{
-        x;
-        x = 9;
+    var thread = new Thread(@{
+        var x = 9;
     });
 
     thread.Start();
@@ -15,27 +14,27 @@ threadLocal = @{
     isFoo(x)
 };
 
-threadClosure = @{
-    x = 'foo';
-    thread = new Thread(@{ x = 9 });
+var threadClosure = @{
+    var x = 'foo';
+    var thread = new Thread(@{ x = 9 });
     isFoo(x);
     thread.Start();
     thread.Join();
     is9(x)
 };
 
-threadClosureLambda = @{
-    x = 'foo';    
-    thread = new Thread(@() x = 9);
+var threadClosureLambda = @{
+    var x = 'foo';    
+    var thread = new Thread(@() x = 9);
     isFoo(x);
     thread.Start();
     thread.Join();
     is9(x)
 };
 
-threadClosureSleepJoin = @{
-    x = 'foo';
-    thread = new Thread(@{
+var threadClosureSleepJoin = @{
+    var x = 'foo';
+    var thread = new Thread(@{
         Thread.Sleep(100);
         x = 9;
     });
@@ -44,29 +43,28 @@ threadClosureSleepJoin = @{
     is9(x)
 };
 
-threadClosureDefined = @{
-    x = 'foo';
-    thread = new Thread(@{ x = 9 });
+var threadClosureDefined = @{
+    var x = 'foo';
+    var thread = new Thread(@{ x = 9 });
     thread.Start();
     thread.Join();
     ret x defined;
 };
 
-threadClosureNotDefined = @{
-    thread = new Thread(@{ x = 9 });
+var threadClosureNotDefined = @{
+    var thread = new Thread(@{ var x = 9 });
     thread.Start();
     thread.Join();
     ret !(x defined);
 };
 
-threadPoolLocal = @{
-    x = 'foo';
+var threadPoolLocal = @{
+    var x = 'foo';
     isFoo(x);
-    r = new ManualResetEvent(false);
+    var r = new ManualResetEvent(false);
 
     ThreadPool.QueueUserWorkItem(@{
-        x;
-        x = 'bar';
+        var x = 'bar';
         r.Set();
     });
 
@@ -75,10 +73,10 @@ threadPoolLocal = @{
     isFoo(x);
 };
 
-threadPoolClosure = @{
-    x = 'foo';
+var threadPoolClosure = @{
+    var x = 'foo';
     isFoo(x);
-    r = new ManualResetEvent(false);
+    var r = new ManualResetEvent(false);
 
     ThreadPool.QueueUserWorkItem(@{
         x = 9;

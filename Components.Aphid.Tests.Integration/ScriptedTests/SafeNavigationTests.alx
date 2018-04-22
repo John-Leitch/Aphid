@@ -8,7 +8,7 @@ _pc = macro(@(m){ m |> print });
 _n = macro(@(m){ @{ m = null } });
 
 prologue;
-foo = { bar: { x: 10 } };
+var foo = { bar: { x: 10 } };
 
     @{ _p() };
     epilogue;

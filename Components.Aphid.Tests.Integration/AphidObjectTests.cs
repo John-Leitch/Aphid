@@ -14,31 +14,31 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void MemberGetTest()
         {
-            AssertFoo("x = { y: 'foo' }; ret x.y;");
+            AssertFoo("var x = { y: 'foo' }; ret x.y;");
         }
 
         [Test]
         public void MemberGetTest2()
         {
-            AssertFoo("x = { y = 'foo' }; ret x.y;");
+            AssertFoo("var x = { y = 'foo' }; ret x.y;");
         }
 
         [Test]
         public void MemberShortHandTest()
         {
-            AssertFoo("y = 'foo'; x = { y }; ret x.y;");
+            AssertFoo("var y = 'foo'; var x = { y }; ret x.y;");
         }
 
         [Test]
         public void ObjectMemberSetTest1()
         {
-            AssertFoo("x='foo'; a={x}; a.x='bar'; ret x;");
+            AssertFoo("var x='foo'; var a={x}; a.x='bar'; ret x;");
         }
 
         [Test]
         public void ObjectMemberSetTest2()
         {
-            AssertTrue("x='foo'; a={x}; a.x='bar'; ret x=='foo' && a.x=='bar';");
+            AssertTrue("var x='foo'; var a={x}; a.x='bar'; ret x=='foo' && a.x=='bar';");
         }        
     }
 }

@@ -155,7 +155,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertTrue(@"
                 using System.Linq;
-                p = @Enumerable.SequenceEqual([1, 2, 3]);
+                var p = @Enumerable.SequenceEqual([1, 2, 3]);
                 ret [1, 2, 3] |> p;
             ");
         }
@@ -165,7 +165,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFalse(@"
                 using System.Linq;
-                p = @Enumerable.SequenceEqual([1, 2, 3]);
+                var p = @Enumerable.SequenceEqual([1, 2, 3]);
                 ret [1, 2, 4] |> p;
             ");
         }
@@ -175,7 +175,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFalse(@"
                 using System.Linq;
-                p = @Enumerable.SequenceEqual([1, 2, 3]);
+                var p = @Enumerable.SequenceEqual([1, 2, 3]);
                 ret [1, 2, 3, 4] |> p;
             ");
         }

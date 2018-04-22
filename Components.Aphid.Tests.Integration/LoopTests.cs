@@ -19,45 +19,45 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void ForTest()
         {
-            AssertFoo("c=['f','o','o']; s=''; for(x = 0; x < c.count(); x++){s = s + c[x];} ret s;");
+            AssertFoo("var c=['f','o','o']; var s=''; for(var x = 0; x < c.count(); x++){s = s + c[x];} ret s;");
         }
 
         [Test]
         public void ForTest2()
         {
-            AssertFoo("c=['f','o','o']; s=''; for(x = 0; x < c.count(); x++) s = s + c[x]; ret s;");
+            AssertFoo("var c=['f','o','o']; var s=''; for(var x = 0; x < c.count(); x++) s = s + c[x]; ret s;");
         }
 
         [Test]
         public void ForEachTest()
         {
-            AssertFoo("c=['f','o','o']; s=''; for(x in c){s = s + x;} ret s;");
+            AssertFoo("var c=['f','o','o']; var s=''; for(x in c){s = s + x;} ret s;");
         }
 
         [Test]
         public void ForEachTest2()
         {
-            AssertFoo("c=['f','o','o']; s=''; for(x in c)s = s + x; ret s;");
+            AssertFoo("var c=['f','o','o']; var s=''; for(x in c)s = s + x; ret s;");
         }
 
         [Test]
         public void ForEachTest3()
         {
-            AssertFoo("c=['f','o','o']; s=''; for(x in c)s = s + $_; ret s;");
+            AssertFoo("var c=['f','o','o']; var s=''; for(x in c)s = s + $_; ret s;");
         }
 
         [Test]
         public void ForEachTest4()
         {
-            AssertFoo("c=['f','o','o']; s=''; for(c)s = s + $_; ret s;");
+            AssertFoo("var c=['f','o','o']; var s=''; for(c)s = s + $_; ret s;");
         }
 
         [Test]
         public void ForEachTest5()
         {
             Assert9(@"
-                a = 0;
-                b = 0;
+                var a = 0;
+                var b = 0;
 
                 for(x in 0..100) {
                     if (x > 3) continue;
@@ -77,8 +77,8 @@ namespace Components.Aphid.Tests.Integration
         public void ForEachTest6()
         {
             Assert9(@"
-                a = 0;
-                b = 0;
+                var a = 0;
+                var b = 0;
 
                 for(x in 0..100) {
                     if (x > 3) break;
@@ -97,20 +97,20 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void WhileTest()
         {
-            Assert9("x = 0; while (x < 9) x++; ret x;");
+            Assert9("var x = 0; while (x < 9) x++; ret x;");
         }
 
         [Test]
         public void WhileTest2()
         {
-            Assert9("x = 0; while (x < 50) { x++; if (x == 9) break; } ret x;");
+            Assert9("var x = 0; while (x < 50) { x++; if (x == 9) break; } ret x;");
         }
 
         [Test]
         public void DoWhileTest()
         {
             Assert9(@"
-                x = 0;
+                var x = 0;
                 do {
                     x++;
                 } while (x < 9);
@@ -123,7 +123,7 @@ namespace Components.Aphid.Tests.Integration
         public void DoWhileTest2()
         {
             Assert9(@"
-                x = 0;
+                var x = 0;
                 do {
                     x++;
                     if (x == 9) break;

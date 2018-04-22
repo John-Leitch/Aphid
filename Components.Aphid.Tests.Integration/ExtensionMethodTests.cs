@@ -20,7 +20,7 @@ namespace Components.Aphid.Tests.Integration
                     square: @(l) l * l
                 }
 
-                x = 3;
+                var x = 3;
                 ret x.square();
             ");
         }
@@ -109,7 +109,7 @@ namespace Components.Aphid.Tests.Integration
                     },
                 }
 
-                b = @{ a; b; c; d; e; f; g; h; i; };
+                var b = @{ a; b; c; d; e; f; g; h; i; };
                 ret b.Body.whereId().Count;
             ");
         }
@@ -138,7 +138,7 @@ namespace Components.Aphid.Tests.Integration
                     },
                 }
 
-                b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
+                var b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
                 ret b.Body.whereId().Count;
             ");
         }
@@ -167,7 +167,7 @@ namespace Components.Aphid.Tests.Integration
                     },
                 }
 
-                b = @{ a; b; c; d; e; f; g; h; i; };
+                var b = @{ a; b; c; d; e; f; g; h; i; };
                 ret b.Body.whereId().Count == 8;
             ");
         }
@@ -196,7 +196,7 @@ namespace Components.Aphid.Tests.Integration
                     },
                 }
 
-                b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
+                var b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
                 ret b.Body.whereId().Count == 8;
             ");
         }
@@ -588,7 +588,7 @@ namespace Components.Aphid.Tests.Integration
                     Return: @(fmt, a, b, c, d /*...*/) 8 + b,
                 }
 
-                f = Cli.Return;
+                var f = Cli.Return;
 
                 ret f(2, 4, 1, 12);
             ");
@@ -604,8 +604,8 @@ namespace Components.Aphid.Tests.Integration
                     Return: @(fmt, a, b, c, d /*...*/) 8 + b,
                 }
 
-                f = Cli.Return;
-                x = f;
+                var f = Cli.Return;
+                var x = f;
 
                 ret x(2, 4, 1, 12);
             ");

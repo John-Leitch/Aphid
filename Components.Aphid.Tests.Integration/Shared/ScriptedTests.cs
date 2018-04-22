@@ -46,12 +46,12 @@ namespace Components.Aphid.Tests.Integration.Shared
         private static readonly List<AphidExpression> _prologueAst = AphidParser.Parse(@"
             using Components.Aphid.Tests.Integration;
             using Components.Aphid.Tests.Integration.Shared;
-            isTrue = AphidTests.IsTrue;
-            isFalse = AphidTests.IsFalse;
-            isFoo = AphidTests.IsFoo;
-            is9 = AphidTests.Is9;
-            isNull = AphidTests.IsNull;
-            notNull = AphidTests.NotNull;
+            var isTrue = AphidTests.IsTrue;
+            var isFalse = AphidTests.IsFalse;
+            var isFoo = AphidTests.IsFoo;
+            var is9 = AphidTests.Is9;
+            var isNull = AphidTests.IsNull;
+            var notNull = AphidTests.NotNull;
         ");
 
         public static IEnumerable Tests

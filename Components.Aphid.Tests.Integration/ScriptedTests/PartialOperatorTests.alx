@@ -1,15 +1,15 @@
 ﻿#'Std';
 #'Test';
 
-objSet = [
+var objSet = [
     { x: 'fo', y: 'abc', a: 'foo', b: '', },
     { x: 'o', y: 'def', a: '', b: 'foo', }
 ];
 
-_id = macro(@(lhs, rhs){ id(partialOperator, lhs, rhs) });
+_id = macro(@(lhs, rhs){ var id(partialOperator, lhs, rhs) });
 
 _select = macro(@(tag, wrap, map) {
-    _id(MemberConcat, tag) = wrap(@{ objSet->(map) |> concat |> isFoo })
+    _id(MemberConcat, tag) = wrap(@{ objSet -> map |> concat |> isFoo })
 });
 
 _select('', success, @.x);
@@ -20,7 +20,7 @@ _select(Fault, fault, @.y);
 _select(Fault2, fault, @.z);
 
 _sqr = macro(@(tag, wrap, input, check) {
-    _id(BinaryWithImplicitArg, tag) = wrap(@{ sqr = @*$_; input |> sqr |> check });
+    _id(BinaryWithImplicitArg, tag) = wrap(@{ var sqr = @*$_; input |> sqr |> check });
     _id(BinaryWithImplicitPipeAndArg, tag) = wrap(@{ input @*$_ |> check });
 });
 

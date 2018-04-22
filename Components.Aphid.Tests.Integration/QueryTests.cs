@@ -20,14 +20,14 @@ namespace Components.Aphid.Tests.Integration
 
         protected override List<AphidExpression> ParseScript(AphidInterpreter interpreter, string script)
         {
-            return base.ParseScript(interpreter, "#'Query'; l = [ 1, 1, 2, 3, ]; l2 = [ 4, ];" + script);
+            return base.ParseScript(interpreter, "#'Query'; var l = [ 1, 1, 2, 3, ]; var l2 = [ 4, ];" + script);
         }
 
         [Test]
         public void WhereTest()
         {
             AssertTrue(@"
-                x = [ 1, 2, 3, 4] |> @aq.where(@(x) x % 2 == 0);
+                var x = [ 1, 2, 3, 4] |> @aq.where(@(x) x % 2 == 0);
                 ret x.count() == 2 && x[0] == 2 && x[1] == 4;
             ");
         }
@@ -48,7 +48,7 @@ namespace Components.Aphid.Tests.Integration
         public void SelectManyTest()
         {
             AssertTrue(@"
-                x = [ 1, 2 ] |> @aq.selectMany(@(x) [ x, x * x ]); 
+                var x = [ 1, 2 ] |> @aq.selectMany(@(x) [ x, x * x ]); 
                 ret x.count() == 4 && x[0] == 1 && x[1] == 1 && x[2] == 2 && x[3] == 4;
             ");
         }
@@ -57,7 +57,7 @@ namespace Components.Aphid.Tests.Integration
         public void DistinctTest()
         {
             AssertTrue(@"
-                x = [ 1, 1, 2 ] |> aq.distinct; 
+                var x = [ 1, 1, 2 ] |> aq.distinct; 
                 ret x.count() == 2 && x[0] == 1 && x[1] == 2;
             ");
         }
@@ -84,7 +84,7 @@ namespace Components.Aphid.Tests.Integration
         public void ConcatTest()
         {
             AssertTrue(@"
-                x = [ 1, 2 ] |> @aq.concat([ 3, 4 ]);
+                var x = [ 1, 2 ] |> @aq.concat([ 3, 4 ]);
                 ret x.count() == 4 && x[0] == 1 && x[1] == 2 && x[2] == 3 && x[3] == 4;
             ");
         }
@@ -93,7 +93,7 @@ namespace Components.Aphid.Tests.Integration
         public void SkipTest()
         {
             AssertTrue(@"
-                x = [ 1, 2 ] |> @aq.concat([ 3, 4 ]);
+                var x = [ 1, 2 ] |> @aq.concat([ 3, 4 ]);
                 ret x.count() == 4 && x[0] == 1 && x[1] == 2 && x[2] == 3 && x[3] == 4;
             ");
         }
@@ -102,7 +102,7 @@ namespace Components.Aphid.Tests.Integration
         public void TakeTest()
         {
             AssertTrue(@"
-                x = l |> @aq.take(3); 
+                var x = l |> @aq.take(3); 
                 ret x.count() == 3 && x[0] == 1 && x[1] == 1 && x[2] == 2;
             ");
         }
@@ -111,7 +111,7 @@ namespace Components.Aphid.Tests.Integration
         public void TakeTest2()
         {
             AssertTrue(@"
-                x = l @aq.take(3);
+                var x = l @aq.take(3);
                 ret x.count() == 3 && x[0] == 1 && x[1] == 1 && x[2] == 2;
             ");
         }

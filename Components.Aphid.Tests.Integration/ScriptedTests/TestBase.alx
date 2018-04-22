@@ -57,7 +57,7 @@ if (!(global.childCreated defined )) {
     fault = _try(false);
 
     using System.IO;
-    exe = getExe();
+    var exe = getExe();
     isStandalone = !String.IsNullOrEmpty(exe) && Path.GetFileName(exe).ToLower() == "aphid.exe";
     tryAction = @AphidCli.TryAction(this.{'$aphid'}, null);
 
@@ -123,18 +123,15 @@ if (!(global.childCreated defined )) {
     };
 
     runTests = @(scope){
-        testKeys;
-        testResults;
-
         printQuery('Searching for tests');
-        testKeys = getTestKeys(scope);
+        var testKeys = getTestKeys(scope);
 
         printSuccess('Found ~Cyan~{0}~R~ tests', testKeys.Length);
         //printSuccess('Found ~Cyan~{0}~R~ tests:\r\n', testKeys.Length);
         //testKeys->@format('  ~Cyan~-~R~ {0}') @join('\r\n') |> print;
 
         printInfo('Executing tests');
-        testResults = testKeys->@(k) {
+        var testResults = testKeys->@(k) {
             var r = { key: k, func: scope.{k}, result: null, success: true };
 
             printQuery('Running test ~Magenta~{0}~R~', k);

@@ -42,7 +42,7 @@ namespace Components.Aphid.Tests.Integration
                 print('foo test', 'bar');
                 print('foo {0} test {1} 2 {2} {3} {4}', 'bar', 1, 2, 3, 4);
 
-                exp = ""print('long {0} test {1} 2 {2} {3} {4}', 'bar', 1"" + "", 2, 3, 4"" * 128 + "")"";
+                var exp = ""print('long {0} test {1} 2 {2} {3} {4}', 'bar', 1"" + "", 2, 3, 4"" * 128 + "")"";
                 print(exp);
                 exp |> evalExp;
 

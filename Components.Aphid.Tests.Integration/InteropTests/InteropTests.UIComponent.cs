@@ -18,7 +18,7 @@ namespace Components.Aphid.Tests.Integration
         public void TextBoxDefaultCtorTest()
         {
             Is<TextBox>(
-                _init + "t = new TextBox(); ret t;",
+                _init + "var t = new TextBox(); ret t;",
                 x => x.Name == null && x.Width == 300 && x.Height == 200);
         }
 
@@ -26,7 +26,7 @@ namespace Components.Aphid.Tests.Integration
         public void TextBoxCtorArgTest()
         {
             Is<TextBox>(
-                _init + "t = new TextBox('TextBoxName'); ret t;",
+                _init + "var t = new TextBox('TextBoxName'); ret t;",
                 x => x.Name == "TextBoxName" && x.Width == 300 && x.Height == 200);
         }
 
@@ -34,7 +34,7 @@ namespace Components.Aphid.Tests.Integration
         public void TextBoxValueSetTest()
         {
             Is<TextBox>(
-                _init + "t = new TextBox('TextBoxName'); t.Value = 'hello world'; ret t;",
+                _init + "var t = new TextBox('TextBoxName'); t.Value = 'hello world'; ret t;",
                 x => x.Value == "hello world");
         }
 
@@ -42,7 +42,7 @@ namespace Components.Aphid.Tests.Integration
         public void TextBoxValueGetSetTest()
         {
             Is<TextBox>(
-                _init + "t = new TextBox('TextBoxName'); t.Value = 'hello '; t.Value += 'world'; ret t;",
+                _init + "var t = new TextBox('TextBoxName'); t.Value = 'hello '; t.Value += 'world'; ret t;",
                 x => 
                     x.Value == "hello world");
         }
@@ -51,7 +51,7 @@ namespace Components.Aphid.Tests.Integration
         public void WindowDefaultCtorTest()
         {
             Is<Window>(
-                _init + "t = new Window(); ret t;",
+                _init + "var t = new Window(); ret t;",
                 x => x.Children.Count == 0);
         }
 
@@ -59,7 +59,7 @@ namespace Components.Aphid.Tests.Integration
         public void WindowCtorArgTest()
         {
             Is<Window>(
-                _init + "t = new Window('WindowName'); ret t;",
+                _init + "var t = new Window('WindowName'); ret t;",
                 x => x.Name == "WindowName" && x.Children.Count == 0);
         }
 
@@ -67,7 +67,7 @@ namespace Components.Aphid.Tests.Integration
         public void WindowAddChildTest()
         {
             Is<Window>(
-                _init + "t = new Window('TextBoxName'); t.Children.Add(new TextBox()); ret t;",
+                _init + "var t = new Window('TextBoxName'); t.Children.Add(new TextBox()); ret t;",
                 x =>
                     x.Children.Count == 1 &&
                     x.Children.OfType<TextBox>().SingleOrDefault() != null);

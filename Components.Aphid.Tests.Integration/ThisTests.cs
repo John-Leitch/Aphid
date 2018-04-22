@@ -16,15 +16,15 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void ThisTest1()
         {
-            Assert9("x=9; f=@(a)a.x; ret f(this);");
+            Assert9("var x=9; var f=@(a)a.x; ret f(this);");
         }
 
         [Test]
         public void ThisTest2()
         {
             Assert9(@"
-                f=@() {
-	                x = 9;
+                var f=@() {
+	                var x = 9;
 	                ret this;
                 };
                 ret f().x;                
@@ -35,11 +35,11 @@ namespace Components.Aphid.Tests.Integration
         public void ThisTest3()
         {
             Assert9(@"
-                x = 8;
+                var x = 8;
 
-                f=@() {
+                var f=@() {
 
-                    f2=@() {
+                    var f2=@() {
                         ret this;
                     };
 	                
@@ -54,14 +54,14 @@ namespace Components.Aphid.Tests.Integration
         public void ThisTest4()
         {
             Assert9(@"
-                f = @() {
-                    z = 8;
+                var f = @() {
+                    var z = 8;
                     ret this;
                 };
 
-                f2=@(y) {
+                var f2=@(y) {
 
-                    f3=@(x) {
+                    var f3=@(x) {
                         ret this;
                     };
 	                

@@ -31,7 +31,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                sqrt = Math.Sqrt;
+                var sqrt = Math.Sqrt;
                 ret sqrt(81);
             ");
         }
@@ -41,7 +41,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                sqrt = Math.Sqrt;
+                var sqrt = Math.Sqrt;
                 ret 81 |> sqrt;
             ");
         }
@@ -51,7 +51,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                math = { sqrt: Math.Sqrt };
+                var math = { sqrt: Math.Sqrt };
                 ret math.sqrt(81);
             ");
         }
@@ -61,7 +61,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                math = { sqrt: Math.Sqrt };
+                var math = { sqrt: Math.Sqrt };
                 ret 81 |> math.sqrt;
             ");
         }
@@ -98,7 +98,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = Math.Pow;
+                var pow = Math.Pow;
                 ret 2 @pow(3);
             ");
         }
@@ -108,7 +108,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = Math.Pow;
+                var pow = Math.Pow;
                 ret 2 |> @pow(3);
             ");
         }
@@ -118,7 +118,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = Math.Pow;
+                var pow = Math.Pow;
                 ret (@pow(3))(2);
             ");
         }
@@ -128,8 +128,8 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = Math.Pow;
-                f = @pow(3);
+                var pow = Math.Pow;
+                var f = @pow(3);
                 ret f(2); 
             ");
         }
@@ -139,8 +139,8 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 using System;
-                pow = Math.Pow;
-                f = @pow(3);
+                var pow = Math.Pow;
+                var f = @pow(3);
                 ret 2 |> f; 
             ");
         }

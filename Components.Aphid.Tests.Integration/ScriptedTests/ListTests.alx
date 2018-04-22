@@ -4,26 +4,26 @@ list group;
 
 access begin;
 is9;
-@{ x = [ 9, 'foo' ]; x[0] };
+@{ var x = [ 9, 'foo' ]; x[0] };
 
 isFoo;
-@{ x = [ 9, 'foo' ]; x[1] };
-@{ x={ y:['foo'] }; x.y[0]; };
+@{ var x = [ 9, 'foo' ]; x[1] };
+@{ var x = { y:['foo'] }; x.y[0]; };
 
 element set begin;
-@{ x = [ 'bar' ]; x[0] = 'foo'; x[0]; };
-@{ x = [ 'foo' ]; y = x[0]; y = 'bar'; x[0]; };
-@{ x = 'foo'; y = [ 0 ]; y[0] = x; x = 'bar'; y[0]; };
-@{ x = 'foo'; y = [ x ]; x = 'bar'; y[0]; };
+@{ var x = [ 'bar' ]; x[0] = 'foo'; x[0]; };
+@{ var x = [ 'foo' ]; var y = x[0]; y = 'bar'; x[0]; };
+@{ var x = 'foo'; var y = [ 0 ]; y[0] = x; x = 'bar'; y[0]; };
+@{ var x = 'foo'; var y = [ x ]; x = 'bar'; y[0]; };
 
 aggregate begin;
-@{ a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y); };
-@{ a = 'foo'; a.chars().aggregate(@(x, y)x + y); };
+@{ var a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y); };
+@{ var a = 'foo'; a.chars().aggregate(@(x, y)x + y); };
 
 insert begin;
-@{ a = [ 'bar' ]; a.insert(0, 'foo'); a[0] };
-@{ a = [ 'bar' ]; a.insert(1, 'foo'); a[1] };
+@{ var a = [ 'bar' ]; a.insert(0, 'foo'); a[0] };
+@{ var a = [ 'bar' ]; a.insert(1, 'foo'); a[1] };
 
 is9;
-@{ a = [ 9 ]; a.insert(0, 'foo'); a[1] };
-@{ a = [ 9 ]; a.insert(1, 'foo'); a[0] };
+@{ var a = [ 9 ]; a.insert(0, 'foo'); a[1] };
+@{ var a = [ 9 ]; a.insert(1, 'foo'); a[0] };

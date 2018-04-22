@@ -33,8 +33,8 @@ namespace Components.Aphid.Tests.Integration
         public void StringFormatImplicitParamsTest4()
         {
             AssertFoo(@"
-                x = 'f';
-                y = 'o';
+                var x = 'f';
+                var y = 'o';
                 ret %%System.String.Format('{0}o{1}', x, y);
             ");
         }
@@ -44,7 +44,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo(@"
                 using System;
-                x=['f','o'];
+                var x=['f','o'];
                 ret %%String.Format('{0}o{1}', x[0], x[1]);
             ");
         }
@@ -53,7 +53,7 @@ namespace Components.Aphid.Tests.Integration
         public void StringFormatExplicitParamsTest2()
         {
             AssertFoo(@"
-                x=['f','o'];
+                var x=['f','o'];
                 ret string.Format('{0}o{1}', x[0], x[1]);
             ");
         }

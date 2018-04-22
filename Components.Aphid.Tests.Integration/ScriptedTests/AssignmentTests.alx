@@ -2,9 +2,9 @@
 assignment group;
 
 isTrue;
-@{ x = 1; x == 1 };
-@{ x = 1; y = x; y = 9; x == 1 && y == 9 };
+@{ var x = 1; x == 1 };
+@{ var x = 1; var y = x; y = 9; x == 1 && y == 9 };
 
 isFoo;
-@{ x = 'foo'; };
-@{ x = 'bar'; x = 'foo'; };
+@{ var x = 'foo'; };
+@{ var x = 'bar'; x = 'foo'; };

@@ -1,15 +1,12 @@
 ﻿_p = macro(@{
-    x;
-    y;
-    x = [];
+    var x = [];
+    var y;
 });
 
 _p2 = macro(@{
-    x;
-    y;
-    i;
-    x = [];
-    i = 0;
+    var x = [];
+    var y;
+    var i = 0;
 });
 
 extend list { 
@@ -62,7 +59,7 @@ extend list {
 
 	any: @(l, predicate) {
 		if (predicate defined) {
-            x;
+            var x;
 			for (x in l) if (predicate(x)) ret true;
 			ret false;
 		} else {
@@ -71,7 +68,7 @@ extend list {
 	},
 
 	all: @(l, predicate) {
-        x;
+        var x;
 		for (x in l) if (!predicate(x)) ret false;
 		ret true;
 	},
@@ -104,9 +101,8 @@ extend list {
 	aggregate: @(l, acc) {
 		if (l.count() == 1) ret l[0];
 		else {
-            s;
-            x;
-			s = l[0];
+            var x;
+			var s = l[0];
 			for (x in l.skip(1)) s = acc(s, x);
 			ret s;
 		}

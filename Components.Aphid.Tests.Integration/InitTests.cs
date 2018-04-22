@@ -16,13 +16,13 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void LengthTest1()
         {
-            Assert9("a={b:'aaaaaaaaa'}; x={y:'a'}; x.{'y'}=a.{'b'}; ret x.y.length();");
+            Assert9("var a={b:'aaaaaaaaa'}; var x={y:'a'}; x.{'y'}=a.{'b'}; ret x.y.length();");
         }
 
         [Test]
         public void LengthTest2()
         {
-            Assert9("x='aaaaaaaaa'; y='a'; y=this.{'x'}; ret y.length();");
+            Assert9("var x='aaaaaaaaa'; var y='a'; y=this.{'x'}; ret y.length();");
         }
 
         [Test]

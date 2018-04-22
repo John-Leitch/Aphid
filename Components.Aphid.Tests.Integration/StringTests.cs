@@ -16,7 +16,7 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void CharsTest()
         {
-            AssertFoo("c='foo'.chars(); ret c[0] + c[1] + c[2];");
+            AssertFoo("var c='foo'.chars(); ret c[0] + c[1] + c[2];");
         }
 
         [Test]

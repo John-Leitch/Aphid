@@ -296,7 +296,13 @@ namespace Components.Aphid.Serialization
             }
 
             ast[0] = new BinaryOperatorExpression(
-                new IdentifierExpression(Root).WithPositionFrom(ast[0]),
+                new IdentifierExpression(
+                    Root,
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(AphidName.Var)
+                    })
+                    .WithPositionFrom(ast[0]),
                 AphidTokenType.AssignmentOperator,
                 ast[0]);
 

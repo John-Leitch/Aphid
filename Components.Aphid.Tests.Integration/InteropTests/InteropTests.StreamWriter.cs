@@ -18,8 +18,8 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 using System.IO;
 
-                s = new MemoryStream();
-                w = new StreamWriter(s);
+                var s = new MemoryStream();
+                var w = new StreamWriter(s);
                 w.Write('*********');
                 w.Flush();
                 
@@ -34,8 +34,8 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 using System.IO;
 
-                s = new MemoryStream();
-                w = new StreamWriter(s);
+                var s = new MemoryStream();
+                var w = new StreamWriter(s);
                 w.Write('****************');
                 w.Flush();
                 s.Position = 9;
@@ -51,7 +51,7 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 using System.IO;
 
-                w = new StreamWriter(new MemoryStream());
+                var w = new StreamWriter(new MemoryStream());
                 w.Write('****************');
                 w.Flush();
                 w.BaseStream.Position = 9;
@@ -67,14 +67,14 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 using System.IO;
 
-                s = new MemoryStream();
-                w = new StreamWriter(s);
+                var s = new MemoryStream();
+                var w = new StreamWriter(s);
                 w.Write('foo');
                 w.Flush();
                 Console.WriteLine('Stream position: {0}', s.Position);
                 s.Position = 0;
-                r = new StreamReader(s);
-                v = r.ReadToEnd();
+                var r = new StreamReader(s);
+                var v = r.ReadToEnd();
                 Console.WriteLine('Value: {0}', v);
 
                 ret v;
@@ -88,14 +88,14 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 using System.IO;
 
-                s = new MemoryStream();
-                w = new StreamWriter(s);
-                f = @w.Write('f{0}');
+                var s = new MemoryStream();
+                var w = new StreamWriter(s);
+                var f = @w.Write('f{0}');
                 f('oo');
                 w.Flush();
                 s.Position = 0;
-                r = new StreamReader(s);
-                v = r.ReadToEnd();
+                var r = new StreamReader(s);
+                var v = r.ReadToEnd();
                 
                 ret v;
             ");
@@ -108,13 +108,13 @@ namespace Components.Aphid.Tests.Integration
                 using System;
                 using System.IO;
 
-                s = new MemoryStream();
-                w = new StreamWriter(s);
+                var s = new MemoryStream();
+                var w = new StreamWriter(s);
                 'oo' @w.Write('f{0}');
                 w.Flush();
                 s.Position = 0;
-                r = new StreamReader(s);
-                v = r.ReadToEnd();
+                var r = new StreamReader(s);
+                var v = r.ReadToEnd();
                 
                 ret v;
             ");

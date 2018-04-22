@@ -14,25 +14,25 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void TestArrayAccessCall1()
         {
-            AssertFoo("x = [ @()'foo' ]; y = x[0](); ret y;");
+            AssertFoo("var x = [ @()'foo' ]; var y = x[0](); ret y;");
         }
 
         [Test]
         public void TestArrayAccessCall2()
         {
-            AssertFoo("x = [ @()'foo' ]; ret x[0]();");
+            AssertFoo("var x = [ @()'foo' ]; ret x[0]();");
         }
 
         [Test]
         public void TestArrayAccessInstanceCall1()
         {
-            AssertFoo("x = [ { y: @()'foo' } ]; z = x[0].y; ret z();");
+            AssertFoo("var x = [ { y: @()'foo' } ]; var z = x[0].y; ret z();");
         }
 
         [Test]
         public void TestArrayAccessInstanceCall2()
         {
-            AssertFoo("x = [ { y: @()'foo' } ]; ret x[0].y();");
+            AssertFoo("var x = [ { y: @()'foo' } ]; ret x[0].y();");
         }
     }
 }

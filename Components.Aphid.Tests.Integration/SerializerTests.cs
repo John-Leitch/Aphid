@@ -20,7 +20,7 @@ namespace Components.Aphid.Tests.Integration
         private void AssertSerialization(object expected, string objectDecl, string code)
         {
             var script = string.Format(
-                "o = ({0}) |> serialize |> deserialize;\r\n{1}",
+                "var o = ({0}) |> serialize |> deserialize;\r\n{1}",
                 objectDecl,
                 code);
 
@@ -163,7 +163,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestCircularSerialization()
         {
             AssertTrueDeserialization(
-                "@{ a = { isActive: false }; a.self = a; ret a }()",
+                "@{ var a = { isActive: false }; a.self = a; ret a }()",
                 "ret !o.self.isActive");
         }
 
@@ -171,7 +171,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestCircularSerialization2()
         {
             AssertTrueDeserialization(
-                "@{ a = { isActive: false }; a.self = a; ret a }()",
+                "@{ var a = { isActive: false }; a.self = a; ret a }()",
                 "ret !o.self.self.self.self.self.self.self.isActive");
         }
 
@@ -180,7 +180,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9Deserialization(
                 @"@{
-                    a = { position: { x: 10, y: 9 }, context: { objectModel: { } } };
+                    var a = { position: { x: 10, y: 9 }, context: { objectModel: { } } };
                     a.context.objectModel.selfPosition = a.position;
                     ret a;
                 }()",
@@ -192,7 +192,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9Deserialization(
                 @"@{
-                    a = { x: 10, y: 20 };
+                    var a = { x: 10, y: 20 };
                     a.window = { title: 'Test Window', resizable: false };
                     a.context = { datasource: [ 1, 2, 3, 4, 9 ], metadata = { ref: a, bar: {} } };
                     a.context.list = [ 5, 6, a ];
@@ -208,7 +208,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9Deserialization(
                 @"@{
-                    a = { x: 10, y: 20 };
+                    var a = { x: 10, y: 20 };
                     a.window = { title: 'Test Window', resizable: false };
                     a.context = { datasource: [ 1, 2, 3, 4, 9 ], metadata = { ref: a, bar: {} } };
                     a.context.list = [ 5, 6, a ];
@@ -281,7 +281,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestDynamicMemberCircularSerialization()
         {
             AssertTrueDeserialization(
-                "@{ a = { isActive: false }; a.{'$self'} = a; ret a }()",
+                "@{ var a = { isActive: false }; a.{'$self'} = a; ret a }()",
                 "ret !o.{'$self'}.isActive");
         }
 
@@ -289,7 +289,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestDynamicMemberCircularSerialization2()
         {
             AssertFalseDeserialization(
-                "@{ a = { isActive: true }; a.{'$self'} = a; ret a }()",
+                "@{ var a = { isActive: true }; a.{'$self'} = a; ret a }()",
                 "ret !o.{'$self'}.{'$self'}.{'$self'}.{'$self'}.{'$self'}.{'$self'}.isActive");
         }
 
@@ -298,7 +298,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertTrueDeserialization(
                 @"@{
-                    a = { isActive: true, '$internal': { } };
+                    var a = { isActive: true, '$internal': { } };
                     a.{'$internal'}.{'$self'} = a;
                     ret a;
                 }()",
@@ -310,7 +310,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertTrueDeserialization(
                 @"@{
-                    a = { isActive: true, '~!@': { } };
+                    var a = { isActive: true, '~!@': { } };
                     a.{'~!@'}.{'$self'} = a;
                     ret a;
                 }()",

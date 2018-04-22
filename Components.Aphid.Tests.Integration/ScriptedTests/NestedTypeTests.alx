@@ -2,9 +2,9 @@
 using System.Net.Mime;
 
 _nt = macro(@(type, wrapper, member) {
-    id(nestedType, type, MemberAccess) = wrapper(@() MediaTypeNames.Text.member == "text/html");
+    var id(nestedType, type, MemberAccess) = wrapper(@() MediaTypeNames.Text.member == "text/html");
 
-    id(nestedType, type, RefMemberAccess) = wrapper(@{
+    var id(nestedType, type, RefMemberAccess) = wrapper(@{
         var t = MediaTypeNames.Text;
     
         ret t.member == "text/html";
@@ -14,4 +14,4 @@ _nt = macro(@(type, wrapper, member) {
 _nt('', success, Html);
 _nt(Invalid, fault, HtmlFoo);
 
-nestedTypeInvalid = fault(@() MediaTypeNamesBad.Text.Html);
+var nestedTypeInvalid = fault(@() MediaTypeNamesBad.Text.Html);

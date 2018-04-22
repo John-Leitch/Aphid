@@ -114,7 +114,7 @@
             }
         } else if (ctx.Expression.isFunc()) {
             
-            var f = '{0} = {1}(@{{  }})' :: [ nextName(), context.wrap ] |> parse;
+            var f = 'var {0} = {1}(@{{  }})' :: [ nextName(), context.wrap ] |> parse;
             var b = f[0].RightOperand.Args[0].Body;
             [ context.prologue, detach.Body, ctx.Expression.Body, ] -<(@()$_) ->b.Add;
 

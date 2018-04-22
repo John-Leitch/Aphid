@@ -68,7 +68,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 @:% (x) { ret x * x; };
-                foo = @{ @:% (x) x * x * x };
+                var foo = @{ @:% (x) x * x * x };
                 foo();
                 ret :% 3;
             ");
@@ -78,7 +78,7 @@ namespace Components.Aphid.Tests.Integration
         public void CustomUnaryOperatorScopeTest2()
         {
             Assert9(@"
-                foo = @{ @:% (x) x * x * x };
+                var foo = @{ @:% (x) x * x * x };
                 foo();
                 @:% (x) { ret x * x; };
                 ret :% 3;
@@ -90,7 +90,7 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 @:% (x) { ret x * x * x; };
-                foo = @{ @:% (x) x * x; ret :% 3 };
+                var foo = @{ @:% (x) x * x; ret :% 3 };
                 ret foo();
             ");
         }
@@ -99,7 +99,7 @@ namespace Components.Aphid.Tests.Integration
         public void CustomUnaryOperatorScopeTest4()
         {
             Assert9(@"
-                foo = @{ @:% (x) x * x; ret :% 3 };
+                var foo = @{ @:% (x) x * x; ret :% 3 };
                 ret foo();
             ");
         }
@@ -109,7 +109,7 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFoo(@"
                 @:% (x) { ret 'f' + x; };
-                foo = @{ @:% (x) x + 'o'; ret :% $_ };
+                var foo = @{ @:% (x) x + 'o'; ret :% $_ };
                 ret (:% 'o') |> foo;
             ");
         }
@@ -127,7 +127,7 @@ namespace Components.Aphid.Tests.Integration
         public void CustomUnaryOperatorScopeTest7()
         {
             AssertTrue(@"
-                foo = @{ @:% (x) x * x * x };
+                var foo = @{ @:% (x) x * x * x };
                 foo();
                 try { :% 3; ret false } catch { ret true }
             ");

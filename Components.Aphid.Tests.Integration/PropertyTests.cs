@@ -14,31 +14,31 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void PropertyGetTest()
         {
-            AssertFoo("x={y:'foo'}; ret x.y;");
+            AssertFoo("var x={y:'foo'}; ret x.y;");
         }
 
         [Test]
         public void PropertyGetTest2()
         {
-            AssertFoo("x={y:{z:{a:{b:{c:'foo'}}}}}; ret x.y.z.a.b.c;");
+            AssertFoo("var x={y:{z:{a:{b:{c:'foo'}}}}}; ret x.y.z.a.b.c;");
         }
 
         [Test]
         public void PropertySetTest()
         {
-            AssertFoo("x={}; x.y='foo'; ret x.y;");
+            AssertFoo("var x={}; x.y='foo'; ret x.y;");
         }
 
         [Test]
         public void PropertySetTest2()
         {
-            AssertFoo("x={y:'bar'}; x.y='foo'; ret x.y;");
+            AssertFoo("var x={y:'bar'}; x.y='foo'; ret x.y;");
         }
 
         [Test]
         public void PropertySetTest3()
         {
-            AssertFoo("x={y:{z:{}}}; x.y.z.a='foo'; ret x.y.z.a;");
+            AssertFoo("var x={y:{z:{}}}; x.y.z.a='foo'; ret x.y.z.a;");
         }
     }
 }

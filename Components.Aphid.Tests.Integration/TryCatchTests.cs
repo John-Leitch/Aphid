@@ -86,7 +86,7 @@ namespace Components.Aphid.Tests.Integration
         public void TryCatchExceptionStackTraceNameTest()
         {
             AssertTrue(@"
-                foo = @() 1/0;
+                var foo = @() 1/0;
 
                 try {
                     foo();
@@ -102,8 +102,8 @@ namespace Components.Aphid.Tests.Integration
         public void TryCatchExceptionStackTraceMultiNameTest()
         {
             AssertTrue(@"
-                foo = @() 1/0;
-                bar = @() foo();
+                var foo = @() 1/0;
+                var bar = @() foo();
 
                 try {
                     bar();
@@ -119,9 +119,9 @@ namespace Components.Aphid.Tests.Integration
         public void TryCatchExceptionStackTraceStaleNameTest()
         {
             AssertTrue(@"
-                stale = @() 1/1;
-                foo = @() 1/0;
-                bar = @{
+                var stale = @() 1/1;
+                var foo = @() 1/0;
+                var bar = @{
                     stale();
                     foo();
                 };
@@ -142,9 +142,9 @@ namespace Components.Aphid.Tests.Integration
         public void TryCatchNestingExceptionStackTraceStaleNameTest()
         {
             AssertTrue(@"
-                stale = @() 1/1;
-                foo = @() 1/0;
-                bar = @{
+                var stale = @() 1/1;
+                var foo = @() 1/0;
+                var bar = @{
                     stale();
                     foo();
                 };

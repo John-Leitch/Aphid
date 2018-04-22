@@ -62,13 +62,13 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void NullTest9()
         {
-            AssertTrue("x = { foo: 'bar' }; ret x != null;");
+            AssertTrue("var x = { foo: 'bar' }; ret x != null;");
         }
 
         [Test]
         public void NullTest10()
         {
-            AssertFalse("x = { foo: 'bar' }; ret x == null;");
+            AssertFalse("var x = { foo: 'bar' }; ret x == null;");
         }
     }
 }

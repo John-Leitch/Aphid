@@ -14,85 +14,85 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void DefinedTest()
         {
-            AssertTrue("x; ret x defined;");
+            AssertTrue("var x; ret x defined;");
         }
 
         [Test]
         public void DefinedTest2()
         {
-            AssertFalse("test=@(){x='foo'; ret x;}; test(); ret x defined;");
+            AssertFalse("var test=@(){var x='foo'; ret x;}; test(); ret x defined;");
         }
 
         [Test]
         public void DefinedTest3()
         {
-            AssertFalse("test=@()x='foo'; test(); ret x defined;");
+            AssertFalse("var test=@()var x='foo'; test(); ret x defined;");
         }
 
         [Test]
         public void DefinedTest4()
         {
-            AssertTrue("x='foo'; ret x defined;");
+            AssertTrue("var x='foo'; ret x defined;");
         }
 
         [Test]
         public void DefinedTest5()
         {
-            AssertFalse("if (true) { x = 1; } ret x defined;");
+            AssertFalse("if (true) { var x = 1; } ret x defined;");
         }
 
         [Test]
         public void DefinedTest6()
         {
-            AssertTrue("x = 0; if (true) { x = 1; } ret x defined;");
+            AssertTrue("var x = 0; if (true) { x = 1; } ret x defined;");
         }
 
         [Test]
         public void DefinedMemberTest()
         {
-            AssertTrue("x = { y: 10 }; ret x.y defined;");
+            AssertTrue("var x = { y: 10 }; ret x.y defined;");
         }
 
         [Test]
         public void DefinedMemberTest2()
         {
-            AssertTrue("x = { y: { z: 10 } }; ret x.y.z defined;");
+            AssertTrue("var x = { y: { z: 10 } }; ret x.y.z defined;");
         }
 
         [Test]
         public void DefinedMemberTest3()
         {
-            AssertTrue("x = { y: { z: 10 } }; ret x.y defined;");
+            AssertTrue("var x = { y: { z: 10 } }; ret x.y defined;");
         }
 
         [Test]
         public void DefinedMemberTest4()
         {
-            AssertTrue("x = { y: { z: 10 } }; ret x defined;");
+            AssertTrue("var x = { y: { z: 10 } }; ret x defined;");
         }
 
         [Test]
         public void DefinedMemberAssignTest()
         {
-            AssertTrue("x = { }; x.y = 10; ret x.y defined;");
+            AssertTrue("var x = { }; x.y = 10; ret x.y defined;");
         }
 
         [Test]
         public void DefinedMemberAssignTest2()
         {
-            AssertTrue("x = { }; x.y = {}; x.y.z = 10; ret x.y.z defined;");
+            AssertTrue("var x = { }; x.y = {}; x.y.z = 10; ret x.y.z defined;");
         }
 
         [Test]
         public void DefinedMemberAssignTest3()
         {
-            AssertTrue("x = { }; x.y = {}; x.y.z = 10; ret x.y defined;");
+            AssertTrue("var x = { }; x.y = {}; x.y.z = 10; ret x.y defined;");
         }
 
         [Test]
         public void DefinedMemberAssignTest4()
         {
-            AssertTrue("x = { }; x.y = {}; x.y.z = 10; ret x defined;");
+            AssertTrue("var x = { }; x.y = {}; x.y.z = 10; ret x defined;");
         }
     }
 }

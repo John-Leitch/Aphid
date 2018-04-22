@@ -1,7 +1,7 @@
 ﻿#'Std';
 
-root = this;
-foo = { bar: 9, test: 'foo', f: @(x) x * x };
+var root = this;
+var foo = { bar: 9, test: 'foo', f: @(x) x * x };
 
 var roundTrip = serialize @> deserialize;
 var s = aphid.Serializer;
@@ -9,7 +9,7 @@ var s = aphid.Serializer;
 var p = @(quote, noFuncs, noSpecials) @{
     s.QuoteToStringResults = quote;
     s.IgnoreFunctions = noFuncs;
-    s.IgnoreSpecialVariables = noFuncs;
+    s.IgnoreSpecialVariables = noSpecials;
 };
 
 c = macro(@(name, init, obj, check){

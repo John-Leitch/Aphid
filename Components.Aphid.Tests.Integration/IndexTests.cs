@@ -53,37 +53,37 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void TestListIndexSetGet()
         {
-            AssertFoo(@"x = [ 'bar' ]; x[0] = 'foo'; ret x[0]");
+            AssertFoo(@"var x = [ 'bar' ]; x[0] = 'foo'; ret x[0]");
         }
 
         [Test]
         public void TestListIndexSetGet2()
         {
-            AssertFoo(@"x = [ 'bar' ]; ret x[0] = 'foo'");
+            AssertFoo(@"var x = [ 'bar' ]; ret x[0] = 'foo'");
         }
 
         [Test]
         public void TestListIndexSetGet3()
         {
-            AssertFoo(@"x = [ 'bar' ]; x[0] = 'fo'; x[0] += 'o'; ret x[0]");
+            AssertFoo(@"var x = [ 'bar' ]; x[0] = 'fo'; x[0] += 'o'; ret x[0]");
         }
 
         [Test]
         public void TestListIndexSetGet4()
         {
-            AssertFoo(@"x = [ 'bar' ]; x[0] = 'fo'; ret x[0] += 'o'");
+            AssertFoo(@"var x = [ 'bar' ]; x[0] = 'fo'; ret x[0] += 'o'");
         }
 
         [Test]
         public void TestListIndexSetGet5()
         {
-            AssertFoo(@"x = [ '', 'o' ]; x[0] = 'fo'; ret x[0] + x[1]");
+            AssertFoo(@"var x = [ '', 'o' ]; x[0] = 'fo'; ret x[0] + x[1]");
         }
 
         [Test]
         public void TestListIndexSetGet6()
         {
-            AssertFoo(@"x = [ '', '' ]; x[0] = 'fo'; ret x[0] + (x[1] += 'o')");
+            AssertFoo(@"var x = [ '', '' ]; x[0] = 'fo'; ret x[0] + (x[1] += 'o')");
         }
 
         [Test]
@@ -323,7 +323,7 @@ namespace Components.Aphid.Tests.Integration
             return string.Format(
                 "#'Std';\r\n" +
                 "#'Meta';\r\n" +
-                "a = Array.CreateInstance({0}, {1});\r\n" +
+                "var a = Array.CreateInstance({0}, {1});\r\n" +
                 "{2}",
                 typeof(TElement).Name,
                 size,

@@ -15,7 +15,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestIdDirective()
         {
             Assert9(@"
-                id(foo, bar) = 9;
+                var id(foo, bar) = 9;
                 ret foobar;
             ");
         }
@@ -24,7 +24,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestIdDirective2()
         {
             Assert9(@"
-                foobar = 9;
+                var foobar = 9;
                 ret id(foo, bar);
             ");
         }
@@ -33,7 +33,7 @@ namespace Components.Aphid.Tests.Integration
         public void TestIdDirective3()
         {
             Assert9(@"
-                id(foo, bar) = 9;
+                var id(foo, bar) = 9;
                 ret id(foo, bar);
             ");
         }

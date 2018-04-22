@@ -14,31 +14,31 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void DynamicMemberTest()
         {
-            AssertFoo("x = { y: 'foo' }; ret x.{'y'};");
+            AssertFoo("var x = { y: 'foo' }; ret x.{'y'};");
         }
 
         [Test]
         public void DynamicMemberTest2()
         {
-            AssertFoo("x = { y: { z: 'foo' } }; ret x.{'y'}.z;");
+            AssertFoo("var x = { y: { z: 'foo' } }; ret x.{'y'}.z;");
         }
 
         [Test]
         public void DynamicMemberTest3()
         {
-            AssertFoo("x = { y: { z: 'foo' } }; ret x.{'y'}.{'z'};");
+            AssertFoo("var x = { y: { z: 'foo' } }; ret x.{'y'}.{'z'};");
         }
 
         [Test]
         public void DynamicMemberTest4()
         {
-            AssertFoo("x = { y: { z: 'bar' } }; x.{'y'}.{'z'} = 'foo'; ret x.y.z;");
+            AssertFoo("var x = { y: { z: 'bar' } }; x.{'y'}.{'z'} = 'foo'; ret x.y.z;");
         }
 
         [Test]
         public void DynamicMemberTest5()
         {
-            AssertFoo("x = { y: { z: 'bar' } }; x.{'y'}.{'z'} = 'foo'; ret x.{'y'}.{'z'};");
+            AssertFoo("var x = { y: { z: 'bar' } }; x.{'y'}.{'z'} = 'foo'; ret x.{'y'}.{'z'};");
         }
     }
 }

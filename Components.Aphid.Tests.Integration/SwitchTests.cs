@@ -15,8 +15,8 @@ namespace Components.Aphid.Tests.Integration
         public void SwitchTest()
         {
             Assert9(@"
-                x = 0;
-                y = 'bar';
+                var x = 0;
+                var y = 'bar';
 
                 switch (y) {
                     'foo': x = 0;
@@ -33,8 +33,8 @@ namespace Components.Aphid.Tests.Integration
         public void SwitchTest2()
         {
             Assert9(@"
-                x = 0;
-                y = 'hello world';
+                var x = 0;
+                var y = 'hello world';
 
                 switch (y) {
                     'foo': x = 0;
@@ -51,8 +51,8 @@ namespace Components.Aphid.Tests.Integration
         public void SwitchTest3()
         {
             Assert9(@"
-                x = 0;
-                y = 'bar';
+                var x = 0;
+                var y = 'bar';
 
                 switch (y) {
                     'foo': ret 0;
@@ -69,8 +69,8 @@ namespace Components.Aphid.Tests.Integration
         public void SwitchTest4()
         {
             Assert9(@"
-                x = 0;
-                y = 'abc';
+                var x = 0;
+                var y = 'abc';
 
                 switch (y) {
                     'foo': 0;

@@ -94,67 +94,67 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void AdditionAndAssignmentTest()
         {
-            Assert9("x = 2; x += 7; ret x;");
+            Assert9("var x = 2; x += 7; ret x;");
         }
 
         [Test]
         public void AdditionAndAssignmentRetTest()
         {
-            Assert9("x = 2; ret x += 7;");
+            Assert9("var x = 2; ret x += 7;");
         }
 
         [Test]
         public void SubtractionAndAssignmentTest()
         {
-            Assert9("x = 11; x -= 2; ret x;");
+            Assert9("var x = 11; x -= 2; ret x;");
         }
 
         [Test]
         public void MultiplicationAndAssignmentTest()
         {
-            Assert9("x = 4.5; x *= 2; ret x;");
+            Assert9("var x = 4.5; x *= 2; ret x;");
         }
 
         [Test]
         public void DivisionAndAssignmentTest()
         {
-            Assert9("x = 18; x /= 2; ret x;");
+            Assert9("var x = 18; x /= 2; ret x;");
         }
 
         [Test]
         public void ModulusAndAssignmentTest()
         {
-            Assert9("x = 19; x %= 10; ret x;");
+            Assert9("var x = 19; x %= 10; ret x;");
         }
 
         [Test]
         public void BinaryAndAssignmentTest()
         {
-            Assert9("x = 9; x &= 11; ret x;");
+            Assert9("var x = 9; x &= 11; ret x;");
         }
 
         [Test]
         public void BinaryOrAssignmentTest()
         {
-            Assert9("x = 9; x |= 1; ret x;");
+            Assert9("var x = 9; x |= 1; ret x;");
         }
 
         [Test]
         public void BinaryXorAssignmentTest()
         {
-            Assert9("x = 32; x ^= 41; ret x;");
+            Assert9("var x = 32; x ^= 41; ret x;");
         }
 
         [Test]
         public void BinaryShiftLeftAssignmentTest()
         {
-            Assert9("x = 4; x <<= 1; ret ++x;");
+            Assert9("var x = 4; x <<= 1; ret ++x;");
         }
 
         [Test]
         public void BinaryShiftRightAssignmentTest()
         {
-            Assert9("x = 36; x >>= 2; ret x;");
+            Assert9("var x = 36; x >>= 2; ret x;");
         }
 
         [Test]
@@ -202,25 +202,25 @@ namespace Components.Aphid.Tests.Integration
         [Test]
         public void PrefixIncrementTest()
         {
-            Assert9("x = 8; x++; ret x;");
+            Assert9("var x = 8; x++; ret x;");
         }
 
         [Test]
         public void PrefixIncrementTest2()
         {
-            Assert9("x = 9; ret x++;");
+            Assert9("var x = 9; ret x++;");
         }
 
         [Test]
         public void PostfixIncrementTest()
         {
-            Assert9("x = 8; ++x; ret x;");
+            Assert9("var x = 8; ++x; ret x;");
         }
 
         [Test]
         public void PostfixIncrementTest2()
         {
-            Assert9("x = 8; ret ++x;");
+            Assert9("var x = 8; ret ++x;");
         }
 
         [Test]
