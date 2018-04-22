@@ -22,7 +22,6 @@ namespace Components.External.ConsolePlus
         public static CliArgProperty[] GetAll<TArgs>()
         {
             return typeof(TArgs)
-                .GetType()
                 .GetProperties()
                 .Select(x => new CliArgProperty(
                     x,
