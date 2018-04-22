@@ -13,25 +13,20 @@ namespace Components.Aphid.UI
     // *Save embedded default config to disk if none present.
     public class AphidConfig : DefaultSingleton<AphidConfig>
     {
-        private static Lazy<Configuration> _config = new Lazy<Configuration>(() =>
-            ConfigurationManager.OpenExeConfiguration(
-                typeof(AphidConfig).Assembly.Location));
+        private static Lazy<Configuration> _config = new Lazy<Configuration>(LoadConfig);
 
-        private Lazy<bool> _strictMode = GetBool(AphidSettings.StrictMode),
-            _saveErrors = GetBool(AphidSettings.SaveErrors);
+        private Lazy<bool>
+            _strictMode = GetBool(AphidSettings.StrictMode, defaultValue: true),
+            _saveErrors = GetBool(AphidSettings.SaveErrors, defaultValue: false);
 
-        private Lazy<string[]> _imports = GetArray(AphidSettings.AutoImport),
-            _includes = GetArray(AphidSettings.AutoInclude);
+        private Lazy<string[]>
+            _imports = GetArray(AphidSettings.AutoImport, defaultValue: new string[0]),
+            _includes = GetArray(AphidSettings.AutoInclude, defaultValue: new string[0]);
 
         public string[] Imports
         {
             get { return _imports.Value; }
         }
-
-        //public string[] Includes
-        //{
-        //    get { return _includes.Value; }
-        //}
 
         public bool StrictMode
         {
@@ -65,17 +60,21 @@ namespace Components.Aphid.UI
 
         }
 
-        private static Lazy<bool> GetBool(string name)
+        private static Lazy<bool> GetBool(string name, bool defaultValue = false)
         {
-            return new Lazy<bool>(() => Convert.ToBoolean(GetSetting(name)));
+            return _config.Value != null ?
+                new Lazy<bool>(() => Convert.ToBoolean(GetSetting(name))) :
+                new Lazy<bool>(() => defaultValue);
         }
 
-        private static Lazy<string[]> GetArray(string name)
+        private static Lazy<string[]> GetArray(string name, string[] defaultValue = null)
         {
-            return new Lazy<string[]>(() => (GetSetting(name) ?? "")
-                .Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim())
-                .ToArray());
+            return _config.Value != null ? 
+                new Lazy<string[]>(() => (GetSetting(name) ?? "")
+                    .Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToArray()) :
+                new Lazy<string[]>(() => defaultValue);
         }
 
         private static string GetSetting(string name)
@@ -83,6 +82,19 @@ namespace Components.Aphid.UI
             var setting = _config.Value.AppSettings.Settings[name];
 
             return setting != null ? setting.Value : null;
+        }
+
+        private static Configuration LoadConfig()
+        {
+            try
+            {
+                return ConfigurationManager.OpenExeConfiguration(
+                    typeof(AphidConfig).Assembly.Location);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

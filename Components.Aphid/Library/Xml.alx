@@ -1,4 +1,4 @@
-﻿p = this.{'$scope'};
+﻿var p = this.{'$scope'};
 
 @{
     #'Std';
@@ -7,7 +7,7 @@
     load System.Xml.Linq;
     using System.Xml.Linq;
 
-    extendXElement = @{ 
+    var extendXElement = @{ 
         xnCall = macro(@(target) { name |> XName.Get |> target });
 
         _parse = macro(@(type){
@@ -39,7 +39,7 @@
                 null,
 
             dynamic dispatch: @(element, action) {
-                e = element;
+                var e = element;
                 [ e.attr, e.element, e.descendant ] for {
                     a = $_(action);
 
@@ -58,7 +58,7 @@
 
         extend XDocument {  }
 
-        _p = print;
+        var _p = print;
         _p = @{};
 
         this |> keys -?(@(k)k.StartsWith('$ext')) ->@(k){
@@ -68,13 +68,14 @@
     };
 
     initXml = @{
-        xdExtend = (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XDocument)));
+        var xdExtend = (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XDocument)));
         (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XElement))).obj().pairs()->@(p){
-            ext = p.lhs().id();
+            var ext = p.lhs().id();
             // ext @print('Adding XDocument extension {0}');
-            argList = ast.block();
+            var argList = ast.block();
             p.rhs().args() @aq.skip(1)->argList.Add;
-            funcBody = ast.block();
+            var funcBody = ast.block();
+
             funcBody.Add(
                 ast.return(
                     ast.call(

@@ -20,7 +20,7 @@ var prepareCommand;
         si.RedirectStandardError = true;
         var proc = Process.Start(si);
 
-        procThread = new Thread(@{
+        var procThread = new Thread(@{
             try {
                 while (!proc.StandardOutput.EndOfStream) {
                     var line = proc.StandardOutput.ReadLine();
@@ -48,7 +48,7 @@ var prepareCommand;
     system = @(cmd) cmd ~> print @() try $_.WaitForExit(); catch(e) { };
 
     prepareCommand = @(cmd)
-        cmd == null  ? null :
+        cmd == null ? null :
         !cmd.GetType().IsArray ? cmd |> ArgLexer.Tokenize |> prepareCommand :
         $(cmd.Length)
             0: null,

@@ -1,5 +1,4 @@
 ﻿#'Std';
-#'Query';
 #'Meta';
 using System.IO;
 using System.Reflection;
@@ -7,16 +6,16 @@ using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
 
-sandbox = {};
+var sandbox = {};
 sandbox.exec = @(userScript) {
-    sandboxRoot = Assembly.GetExecutingAssembly().Location |> Path.GetDirectoryName;
+    var sandboxRoot = Assembly.GetExecutingAssembly().Location |> Path.GetDirectoryName;
     sandboxRoot = 'c:\\temp\\untrusted';
-    sandboxDir = Path.Combine(sandboxRoot, 'Sandbox', Guid.NewGuid().ToString());
-    getSandboxPath = @() $args |> Path.Combine @Path.Combine(sandboxDir);    
-    sandboxExe = 'Aphid.exe' |> getSandboxPath;
+    var sandboxDir = Path.Combine(sandboxRoot, 'Sandbox', Guid.NewGuid().ToString());
+    var getSandboxPath = @() $args |> Path.Combine @Path.Combine(sandboxDir);    
+    var sandboxExe = 'Aphid.exe' |> getSandboxPath;
     
     aq.concat(
-        [ 'Aphid.exe', 'Components.Aphid.dll', userScript ]->getEntryPath,
+        [ 'Aphid.exe', 'Components.Aphid.dll', 'Components.Aphid.dll.config', userScript ]->getEntryPath,
         [ 'Library' ]->getEntryPath-<Directory.GetFiles)
     ->(@() [ $_, $_.Substring(getEntryDir().Length + 1) |> getSandboxPath ])
     ->(@(x) {
@@ -24,7 +23,7 @@ sandbox.exec = @(userScript) {
         File.Copy(x[0], x[1]);
     });
 
-    ps = new PermissionSet(PermissionState.None);
+    var ps = new PermissionSet(PermissionState.None);
 
     [ 
         new SecurityPermission(SecurityPermissionFlag.Execution),
@@ -34,17 +33,17 @@ sandbox.exec = @(userScript) {
         new UIPermission(PermissionState.Unrestricted),
     ]->ps.AddPermission;
 
-    ads = new AppDomainSetup();
+    var ads = new AppDomainSetup();
     ads.ApplicationBase = sandboxDir;
 
-    ad = AppDomain.CreateDomain(
+    var ad = AppDomain.CreateDomain(
         'Sandbox',
         new Evidence([ new Zone(SecurityZone.Internet) ], []),
         ads,
         ps,
         []);
 
-    oldCwd = Directory.GetCurrentDirectory();
+    var oldCwd = Directory.GetCurrentDirectory();
     sandboxDir |> Directory.SetCurrentDirectory;
     ad.ExecuteAssembly(sandboxExe, [ userScript ]);
     ad |> AppDomain.Unload;
@@ -53,8 +52,8 @@ sandbox.exec = @(userScript) {
 };
 
 sandbox.eval = @(code) {
-    tmp = Guid.NewGuid().ToString() @String.Format("Sandboxed_{0}.alx");
-    tmpFull = tmp |> getEntryPath;
+    var tmp = Guid.NewGuid().ToString() @String.Format("Sandboxed_{0}.alx");
+    var tmpFull = tmp |> getEntryPath;
     File.WriteAllText(tmpFull, code);    
     tmp |> sandbox.exec;
     File.Delete(tmpFull);

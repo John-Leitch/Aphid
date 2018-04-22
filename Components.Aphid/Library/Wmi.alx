@@ -31,8 +31,7 @@ var wmi;
     wmi = {
         preserveFixedNames: false,
         query: @(wmiQuery) {
-            if (wmiQuery != null &&
-                wmiQuery.GetType() == AphidFunction) {
+            if (wmiQuery != null && wmiQuery.GetType() == AphidFunction) {
                 var results = wmiQuery |> parseInlineQueries -> wmi.query;
                 ret results.Count == 1 ? results[0] : results;
             }
@@ -80,9 +79,9 @@ var wmi;
             #'Std';
             var wmiResults = wmi.query("SELECT ProcessId, ExecutablePath, CommandLine FROM Win32_Process");
             wmiResults
-            -?(@() $_.CommandLine!= null)
-            ->(@.CommandLine)
-            |>print;
+                -?(@() $_.CommandLine!= null)
+                ->(@.CommandLine)
+                |>print;
             //wmiResults |> dumpe;
             exit();
         },

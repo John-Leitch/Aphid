@@ -41,7 +41,7 @@ extend list {
 	},
 
 	first: @(l, predicate) {
-        x;
+        var x;
 		for (x in l) if (predicate(x)) ret x;
 	},
 

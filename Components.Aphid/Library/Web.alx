@@ -1,14 +1,14 @@
 ﻿using System.Net;
 
-makeUrl = @(baseUrl, queryObj) {
-    q = makeQueryString(queryObj);
+var makeUrl = @(baseUrl, queryObj) {
+    var q = makeQueryString(queryObj);
 
     ret q != '' ? format('{0}?{1}', baseUrl, q) : q;
 };
 
-makeQueryString = @(obj) {    
-    u = WebUtility.UrlEncode;
-    k = obj |> keys;
+var makeQueryString = @(obj) {    
+    var u = WebUtility.UrlEncode;
+    var k = obj |> keys;
 
     if (k.Count == 0) {
         ret '';
@@ -19,4 +19,4 @@ makeQueryString = @(obj) {
         +> @(x, y) x + '&' + y;
 };
 
-httpGet = @(url, query) makeUrl(url, query) |> (new WebClient()).DownloadString;
+var httpGet = @(url, query) makeUrl(url, query) |> (new WebClient()).DownloadString;

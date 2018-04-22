@@ -4,10 +4,9 @@
     }
 });
 
-_initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
+_initTrace = macro(@(name) { _initTraceCore(name, var id(trace, name)) });
 
 _initTraceCore = macro(@(name, fullName) {
-    fullName;
     fullName = psContext.fullName defined && psContext.fullName ?
         @(fmt) print(
             '{0} Trace: ~Magenta~{1}~R~',
@@ -19,18 +18,17 @@ _initTraceCore = macro(@(name, fullName) {
         @() {};
 });
 
-psContext;
-initPSInterop;
+var psContext;
 
-initPSInterop = @{
+var initPSInterop = @{
     //#'std';
     //#'meta';
-    psAsm = load System.Management.Automation;
+    var psAsm = load System.Management.Automation;
     using System;
     using System.Linq;
     using System.Management.Automation;
 
-    psObject =
+    var psObject =
         'System.Management.Automation.PSObject'
         |> psAsm.GetType;
 
@@ -78,8 +76,7 @@ initPSInterop = @{
             //print('converting');
             tracePSInterop('importPSObject converting');
 
-            o;
-            o = {
+            var o = {
                 isPSInterop: true,
                 psObject: psObj,
                 TypeNames: psObj.TypeNames,
@@ -141,11 +138,10 @@ initPSInterop = @{
     psContext.isCommand = @(command) {
         _initTrace('PS');
         command @tracePS('checking for command: {0}');
-        ps;
-        ps = command @format('[bool](Get-Command {0} -ErrorAction SilentlyContinue)');
+        var ps = command @format('[bool](Get-Command {0} -ErrorAction SilentlyContinue)');
         ps @tracePS('Running command to perform check: {0}');
         ps |> psContext.engine.AddScript;
-        r;
+        var r;
         try {
             r = psContext.engine.Invoke();
         } catch {
@@ -163,8 +159,8 @@ initPSInterop = @{
     psContext.execPositional = @(parts) {
         _checkCmdParts();
         _initTrace('PS');
-        result;
-        result = {
+        
+        var result = {
             parts,
             isItem: false,
             success: true,
@@ -219,7 +215,7 @@ initPSInterop = @{
     };
 
     psContext.getItem = @(path) {
-        r;
+        var r;
 
         try {
             'Get-Item' |> psContext.engine.AddCommand;
@@ -241,8 +237,7 @@ initPSInterop = @{
 
         command |> psContext.engine.AddCommand;
         params |> keys -> @(n) psContext.engine.AddParameter(n, params.{n});
-        r;
-        r = psContext.engine.Invoke();
+        var r = psContext.engine.Invoke();
         psContext.engine.Commands.Clear();
 
         ret r;
@@ -277,9 +272,9 @@ testPSInterop = macro(@{
     }
 
     cls();
-    h = @(c) head('Testing PowerShell Script "{0}"' :: [ c ]);
+    var h = @(c) head('Testing PowerShell Script "{0}"' :: [ c ]);
     
-    psExp = 'dir';
+    var psExp = 'dir';
     h(psExp);
 
     using System.IO;

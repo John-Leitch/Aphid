@@ -23,7 +23,7 @@
     //AphidCli.ShowClrStack = true;
     //useTracing = true;
 
-    testScript = @{ %>
+    var testScript = @{ %>
 
     <% };
 
@@ -54,7 +54,7 @@
 
     <% };
 
-    testScript2 = @{ %>
+    var testScript2 = @{ %>
 
         using System
         using System.IO
@@ -128,17 +128,15 @@
     //         Console.WriteLine "foo"
     // <% };
 
-    testPrologue = @{
-        scope = shell.interpreter.CurrentScope;
+    var testPrologue = @{
+        var scope = shell.interpreter.CurrentScope;
         if (scope.testVar defined) scope.testVar @print('testVar: {0}');
         if (scope.testVar2 defined) scope.testVar2->@.FullName +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
     };
 
-    _initTrace = macro(@(name) { _initTraceCore(name, id(trace, name)) });
+    _initTrace = macro(@(name) { _initTraceCore(name, var id(trace, name)) });
 
     _initTraceCore = macro(@(name, fullName) {
-        fullName;
-    
         fullName = shell.fullName defined && shell.fullName ?
             @(fmt) shell.outLine(
                 format(
@@ -169,8 +167,7 @@
             waitingForExecution: shell.waitingForExecution }),
         internal: {
             tokenize: @(text, offset) {
-                lexer;
-                lexer = new AphidLexer(offset |> text.Substring);
+                var lexer = new AphidLexer(offset |> text.Substring);
                 lexer.SetShellMode();
 
                 ret lexer.GetTokens();
@@ -178,12 +175,11 @@
 
             parse: @(tokens, index) {
                 using System.Linq;
-                parser;
-                expression;
-                streamOffset;
+                var expression;
+                var streamOffset;
                 _initTrace('Parse');
 
-                parser = new AphidParser(tokens);
+                var parser = new AphidParser(tokens);
                 parser.SetToken(index);
 
                 if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
@@ -240,8 +236,7 @@
     shell.writePrompt = @() {
         using System.IO;
         using Components.External;
-        prompt;
-        prompt = '';
+        var prompt = '';
         _promptToken(hostBegin);
         _promptStyle(shell.host, host);
         _promptToken(hostEnd);
@@ -256,28 +251,18 @@
         concat: 0x03
     };
 
-    tokenizeCommand = @(text) {
+    var tokenizeCommand = @(text) {
         using System.Text;
-        offset;
-        index;
-        tokens;
-        streamOffset;
-        shellTokens;
-        afterExpression;
-        baseOffset;
-        lastToken;
-        addToken;
         _initTrace('Tokenize');
-
         //head('Testing shell parser');
         traceTokenize('Building command from "{0}"', text);
-        shellTokens = [];
-        afterExpression = false;
-        baseOffset = 0;
+        var shellTokens = [];
+        var afterExpression = false;
+        var baseOffset = 0;
+        var lastToken;
 
-        addToken = @(type, element) {
-            n;
-            n = {
+        var addToken = @(type, element) {
+            var n = {
                 type,
                 element,
             
@@ -296,12 +281,12 @@
             lastToken = n;
         };
 
-        addConcat = @() addToken(shell.token.concat, '+');
-        tokens = shell.internal.tokenize(text, 0);
-        streamOffset = null;
+        var addConcat = @() addToken(shell.token.concat, '+');
+        var tokens = shell.internal.tokenize(text, 0);
+        var streamOffset = null;
 
-        for (index = 0; index < tokens.Count; index++) {
-            token = tokens[index];
+        for (var index = 0; index < tokens.Count; index++) {
+            var token = tokens[index];
 
             if (streamOffset != null) {
                 index = 0;
@@ -320,7 +305,7 @@
             traceTokenize('Scanning token: {0} "{1}"', token.TokenType, token.Lexeme);
 
             if (token.TokenType == AphidTokenType.AphidExpressionOperator) {
-                result = shell.internal.parse(tokens, index + 1);
+                var result = shell.internal.parse(tokens, index + 1);
                 result.expression |> traceTokenize;      
                 streamOffset = result.streamOffset;
 
@@ -365,14 +350,9 @@
             fatal('Unknown token type');
 
     shell.emitCommand = @(commandAst) {
-        node;
-        index;
-        appendValue;
         _initTrace('Emit');
 
-        index = -1;
-        commandObj;
-        commandObj = {
+        var commandObj = {
             ast: commandAst,
             code: commandAst != null && commandAst.Count >= 1 ?
                 (commandAst[0].type == shell.node.expression ? 
@@ -385,13 +365,14 @@
                 commandAst[0].type == shell.node.expression,
         };
 
+        var index = -1;
 
         while (++index < commandAst.Count) {
-            node = commandAst[index];
+            var node = commandAst[index];
 
             switch (node.type) {
                 shell.node.concat: { 
-                    appendValue = commandAst[++index] |> shell.emitCommandNode;
+                    var appendValue = commandAst[++index] |> shell.emitCommandNode;
                 
                     traceEmit(
                         'Appending {0} with {1}',
@@ -427,10 +408,8 @@
     shell.interpretCommand = @(commandObj) {
         //commandObj |>dump;
         // commandObj |> keys |> dumpe;
-        resolved;
-        args;
-        result;
-        tmpCwd;
+        var result;
+
         _initTrace('Resolve');
 
         if (!(shell.cwd defined)) {
@@ -447,8 +426,9 @@
             shell.interpreter,
             commandObj.code,
             @{
-                args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
-                resolved = shell.resolveMethod(commandObj.values[0], args);
+                var tmpCwd;
+                var args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
+                var resolved = shell.resolveMethod(commandObj.values[0], args);
                 if (resolved != null) {
                     result = args |> resolved.call;
 
@@ -478,9 +458,8 @@
 
     shell.resolveImpl = @(isResolvingMethod, path, args) {
         _initTrace('Resolve');
-        matches;
-        resolved;
-        resolved = null;
+        var matches;
+        var resolved = null;
 
         shell.resolvers for (r) {
             traceResolve(
@@ -511,11 +490,9 @@
         }
 
         traceResolve('Failed resolving path {0}, falling back to PS', path);
-        psResult;
-        final;
-        psResult = path |> psContext.getItem;
+        var psResult = path |> psContext.getItem;
         //psResult @print('~Yellow~PS backup: {0}~R~');
-        final = (isResolvingMethod ? shell.resolvePSCmd : shell.resolvePSItem)(path, psResult);
+        var final = (isResolvingMethod ? shell.resolvePSCmd : shell.resolvePSItem)(path, psResult);
         //final @print('~Yellow~PS backup: {0}~R~');
 
         ret final;
@@ -538,19 +515,16 @@
         {
             name: 'Aphid',
             resolveName: @(name) {
-                nameTokens;
+                var nameTokens;
                 try nameTokens = name |> tokenize;
                 catch {} //nameTokens = null;
                 if (nameTokens defined &&
                     nameTokens != null &&
                     nameTokens.Count >= 1) {
-                        result;
-
                         try {
-                            ast;
-                            ast = AphidParser.Parse(name);
+                            var ast = AphidParser.Parse(name);
                         
-                            result = ast != null && ast.Count == 1 ?
+                            var result = ast != null && ast.Count == 1 ?
                                     ast[0] |> shell.interpret :
                                     null;
 
@@ -657,8 +631,7 @@
     shell.execCore = @(command) {
         _initTrace('Exec');
         traceExec('Executing command {0}', command);
-        peekTokens;
-        peekTokens = command |> tokenize;
+        var peekTokens = command |> tokenize;
 
         _stdExec = macro(@{
             command @traceExec('Executing standard command: {0}');
@@ -673,18 +646,12 @@
 
             ret shell.interpret(command);
         } else if (!command.Trim().StartsWith('$') && command.Contains('=')) {
-            lhs;
-            rhs;
-            lhsAst;
-            opIndex;
-            value;
-
-            lhsAst = null;
-            opIndex = '=' |> command.IndexOf;
+            var lhsAst = null;
+            var opIndex = '=' |> command.IndexOf;
             traceExec('Assign index: {0}', opIndex);
-            lhs = (opIndex |> command.Remove).Trim();
+            var lhs = (opIndex |> command.Remove).Trim();
             traceExec('LHS: {0}', lhs);
-            rhs = (opIndex + 1 |> command.Substring).Trim();
+            var rhs = (opIndex + 1 |> command.Substring).Trim();
             traceExec('RHS: {0}', rhs);
 
             try lhsAst = AphidParser.Parse(lhs);
@@ -696,11 +663,9 @@
                 (lhsAst[0].Type == AphidExpressionType.BinaryOperatorExpression ||
                     lhsAst[0].Type == AphidExpressionType.IdentifierExpression)) {
                 command @traceExec('Executing assign command: {0}');
-                key;
-                assign;
-                key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
+                var key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
                 shell.interpreter.CurrentScope.{key} = rhs |> shell.evalCommand;
-                assign = '{0}=this.{1}; delete {1}' :: [ lhs, key ];
+                var assign = '{0}=this.{1}; delete {1}' :: [ lhs, key ];
                 assign @traceExec('Running assign script: {0}');
                 shell.interpret(assign);
 
@@ -755,8 +720,7 @@
     _promptToken = macro(@(name) { _promptStyle(shell.style.name.token, name) });
 
     _promptStyle = macro(@(value, name) {
-        id(name, 'HasStyle');
-        id(name, 'HasStyle') = false;
+        var id(name, 'HasStyle') = false;
 
         if (shell.style.name defined) {
             if (shell.style.name.foreground defined) {
@@ -848,12 +812,10 @@
 
         shell.readInLine = @() {
             Console.WriteLine('~Yellow~Waiting to read inLine~R~' |> Cli.EraseStyles);
-            buffer;
-            buffer = null;
+            var buffer = null;
 
             while (true) {
                 Monitor.Enter(inStream);
-            
 
                 if (inStream.Length == 0) {
                     Monitor.Exit(inStream);
@@ -862,7 +824,7 @@
                 }
             
                 Console.WriteLine('~Yellow~Reading inLine~R~' |> Cli.EraseStyles);
-                oldPos = inStream.Position;
+                var oldPos = inStream.Position;
                 inStream.Position = 0;
                 buffer = inReader.ReadToEnd();
                 
@@ -918,8 +880,7 @@
             e.stack);
     });
 
-    args;
-    args = getCommandLineArgs() |> Enumerable.ToList;
+    var args = getCommandLineArgs() |> Enumerable.ToList;
 
     if (args.Contains('Shell.alx')) {
         if (args.Contains('-interactive')) {

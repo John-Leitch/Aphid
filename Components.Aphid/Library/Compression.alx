@@ -1,7 +1,6 @@
 ﻿var deflate;
 var gzip;
 
-
 @{
     #'std';
     using System.IO;

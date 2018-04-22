@@ -1,5 +1,4 @@
-﻿
-udp;
+﻿var udp;
 
 @(){
 	##'Components.Aphid.Library.Net.UdpLibrary';

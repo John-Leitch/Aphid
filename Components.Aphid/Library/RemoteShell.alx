@@ -37,7 +37,7 @@ var hostRemote = @{
 };
 
 var startChild = @{
-    childArgs = "{0} -listen -pid {1}" :: [
+    var childArgs = "{0} -listen -pid {1}" :: [
         cmd |> ArgLexer.GetTokenInfo |> Enumerable.First @.EndOffset |> cmd.Substring @() $_.Trim(),
         Process.GetCurrentProcess().Id
     ];
@@ -50,9 +50,9 @@ var startChild = @{
 
 var watchParent = @{
     var t = new Thread(@{
-        pId = parseIntArg();
+        var pId = parseIntArg();
         log('Waiting for parent process ~Cyan~{0}~R~ to exit', pId);
-        p = Process.GetProcessById(pId);
+        var p = Process.GetProcessById(pId);
 
         if (p != null) {
             p.WaitForExit();
