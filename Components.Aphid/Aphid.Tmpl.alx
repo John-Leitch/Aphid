@@ -1,4 +1,4 @@
-﻿keywordHelperTmpl = "
+﻿var keywordHelperTmpl = "
     if (!NextChar())
 	{{
 		return AphidTokenType.{0};
@@ -37,9 +37,9 @@
     }}
 ";
 
-getKeywordHelper = @(type) sprintf(keywordHelperTmpl, type);
+var getKeywordHelper = @(type) sprintf(keywordHelperTmpl, type);
 
-stringTmpl = "
+var stringTmpl = "
     {0} escaped = false;
 
     while (NextChar())
@@ -53,12 +53,12 @@ stringTmpl = "
     return AphidTokenType.String;
 ";
 
-firstStr = true;
+var firstStr = true;
 
-getString = @(delim) {
-    regex;
-    escapedDelim;
-    escapedType;
+var getString = @(delim) {
+    var regex;
+    var escapedDelim;
+    var escapedType;
 
     if (delim == '"') {
         regex = '"';
@@ -78,7 +78,7 @@ getString = @(delim) {
 };
 
 
-numberTmpl = "
+var numberTmpl = "
 	{0}
 
     do
@@ -139,6 +139,6 @@ numberTmpl = "
     {1}
 ";
 
-getNumber = @(prologue, epilogue) prologue defined ?
+var getNumber = @(prologue, epilogue) prologue defined ?
 	sprintf(numberTmpl, prologue, epilogue) :
 	sprintf(numberTmpl, 'state = 0;', epilogue);

@@ -1,4 +1,4 @@
-﻿idCode = "
+﻿var idCode = "
     state = 0;
 
     do
@@ -35,7 +35,7 @@
     }
 ";
 
-zeroXCode = "
+var zeroXCode = "
 	if (!NextChar())
 	{
 		return AphidTokenType.Unknown;
@@ -68,7 +68,7 @@ zeroXCode = "
 	return AphidTokenType.HexNumber;
 ";
 
-zeroBCode = "
+var zeroBCode = "
 	if (!NextChar())
 	{
 		return AphidTokenType.Unknown;
@@ -98,7 +98,7 @@ zeroBCode = "
 	return AphidTokenType.BinaryNumber;
 ";
 
-singleLineCommentCode = "
+var singleLineCommentCode = "
     state = 0;
     while (NextChar())
     {
@@ -117,7 +117,7 @@ singleLineCommentCode = "
     return AphidTokenType.Comment;
 ";
 
-commentCode = "
+var commentCode = "
     state = 0;
 
     while (NextChar())
@@ -133,7 +133,7 @@ commentCode = "
     return AphidTokenType.Comment;
 ";
 
-textCode = " 
+var textCode = " 
     while (NextChar())
     {
         if (currentChar == '<')
@@ -147,7 +147,7 @@ textCode = "
     return AphidTokenType.Text;
 ";
 
-shellCode = "
+var shellCode = "
     state = 0;
 
     while (NextChar())

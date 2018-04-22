@@ -11,7 +11,7 @@ namespace FunctionSample
             interpreter.Interpret(@"
                 #'Std';
 
-                add = @(x, y) {
+                var add = @(x, y) {
                     ret x + y;
                 };
 

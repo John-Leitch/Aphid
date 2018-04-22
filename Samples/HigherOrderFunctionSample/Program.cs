@@ -10,8 +10,8 @@ namespace HigherOrderFunctionSample
 
             interpreter.Interpret(@"
                 #'Std';
-                call = @(func) func();
-                foo = @() print('foo() called');                
+                var call = @(func) func();
+                var foo = @() print('foo() called');                
                 call(foo);
             ");
         }

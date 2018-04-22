@@ -10,7 +10,7 @@ namespace LambdaSample
 
             interpreter.Interpret(@"
                 #'Std';
-                add = @(x, y) x + y;
+                var add = @(x, y) x + y;
                 print(add(3, 7));
             ");
         }

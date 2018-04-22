@@ -8,7 +8,7 @@ namespace ListSample
         {
             new AphidInterpreter().Interpret(@"
                 #'std';
-                list = [ 10, 20, 'foo' ];
+                var list = [ 10, 20, 'foo' ];
                 list.add('bar');
 
                 printf(

@@ -12,9 +12,9 @@ namespace SeamlessInteropSample3
                 load System.Web.Extensions;
                 using System;
                 using System.Web.Script.Serialization;
-                serializer = new JavaScriptSerializer();
+                var serializer = new JavaScriptSerializer();
                 
-                obj = 
+                var obj = 
                     '{ ""x"":52, ""y"":30 }' 
                     |> serializer.DeserializeObject;
                 

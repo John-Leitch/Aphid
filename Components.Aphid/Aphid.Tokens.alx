@@ -1,6 +1,6 @@
 ﻿using System;
 
-tokens = [
+var tokens = [
     { regex: '%>', type: 'GatorCloseOperator', newMode: "Text" },
 
     { regex: "#", type: "LoadScriptOperator" },
@@ -94,7 +94,7 @@ tokens = [
 
 Console.WriteLine('Adding custom operators');
 
-tokenChars = [ 
+var tokenChars = [ 
     '`', '~', '!', /*'@',*/ '#', '%', '^',
     '&', '*', '-', /*'_',*/ '=', '\\\\', '+', ':',
     '<', '>', '.', '|', '/', '?'
@@ -102,7 +102,7 @@ tokenChars = [
 
 using System.Text.RegularExpressions;
 
-usedTokens = tokens
+var usedTokens = tokens
     .where(@() $_.regex defined)    
     .select(@() $_.regex);
 
@@ -115,11 +115,11 @@ extend string {
     e: @(s, value) s.replace(value, '\\' + value),
 }
 
-regexEscape = @() $_.e('+').e('*').e('|').e('?').e('(').e(')').e('[').e(']');
+var regexEscape = @() $_.e('+').e('*').e('|').e('?').e('(').e(')').e('[').e(']');
 
-customTokenNumber = 0;
+var customTokenNumber = 0;
 
-addToken = @(t) {
+var addToken = @(t) {
     if (!usedTokens.contains(t)) {
         Console.WriteLine('  {0}', t);
         tokens.add({ regex: t, type: "CustomOperator" + str(customTokenNumber++).PadLeft(3, '0') });

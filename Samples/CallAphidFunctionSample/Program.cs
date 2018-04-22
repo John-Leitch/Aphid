@@ -8,7 +8,7 @@ namespace CallAphidFunctionSample
         static void Main(string[] args)
         {
             var interpreter = new AphidInterpreter();
-            interpreter.Interpret("add = @(x, y) x + y;");
+            interpreter.Interpret("var add = @(x, y) x + y;");
             var x = interpreter.CallFunction("add", 3, 7).Value;
             Console.WriteLine(x);
         }

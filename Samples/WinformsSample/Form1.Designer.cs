@@ -30,8 +30,8 @@
         {
             this.EditorSplitContainer = new System.Windows.Forms.SplitContainer();
             this.CodeSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.RunButton = new System.Windows.Forms.Button();
             this.CodeTextBox = new System.Windows.Forms.TextBox();
+            this.RunButton = new System.Windows.Forms.Button();
             this.OutputPanel = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.EditorSplitContainer)).BeginInit();
             this.EditorSplitContainer.Panel1.SuspendLayout();
@@ -79,16 +79,6 @@
             this.CodeSplitContainer.SplitterDistance = 343;
             this.CodeSplitContainer.TabIndex = 0;
             // 
-            // RunButton
-            // 
-            this.RunButton.Location = new System.Drawing.Point(0, 0);
-            this.RunButton.Name = "RunButton";
-            this.RunButton.Size = new System.Drawing.Size(75, 23);
-            this.RunButton.TabIndex = 0;
-            this.RunButton.Text = "Run";
-            this.RunButton.UseVisualStyleBackColor = true;
-            this.RunButton.Click += new System.EventHandler(this.RunButton_Click);
-            // 
             // CodeTextBox
             // 
             this.CodeTextBox.AcceptsReturn = true;
@@ -99,8 +89,18 @@
             this.CodeTextBox.Name = "CodeTextBox";
             this.CodeTextBox.Size = new System.Drawing.Size(288, 343);
             this.CodeTextBox.TabIndex = 0;
-            this.CodeTextBox.Text = "using System.Windows.Forms;\r\n\r\nlbl = new Label();\r\nlbl.Text = \'Label1\';\r\nroot.Con" +
-    "trols.Add(lbl);";
+            this.CodeTextBox.Text = "using System.Windows.Forms;\r\n\r\nvar lbl = new Label();\r\nlbl.Text = \'Label1\';\r\nroot" +
+    ".Controls.Add(lbl);";
+            // 
+            // RunButton
+            // 
+            this.RunButton.Location = new System.Drawing.Point(0, 0);
+            this.RunButton.Name = "RunButton";
+            this.RunButton.Size = new System.Drawing.Size(75, 23);
+            this.RunButton.TabIndex = 0;
+            this.RunButton.Text = "Run";
+            this.RunButton.UseVisualStyleBackColor = true;
+            this.RunButton.Click += new System.EventHandler(this.RunButton_Click);
             // 
             // OutputPanel
             // 

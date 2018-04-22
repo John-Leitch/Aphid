@@ -11,7 +11,7 @@ namespace SeamlessInteropSample2
             interpreter.Interpret(@"
                 using System;
                 using System.Text;
-                sb = new StringBuilder('Hello');
+                var sb = new StringBuilder('Hello');
                 sb.Append(' world');
                 
                 Console.WriteLine(

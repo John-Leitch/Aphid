@@ -8,7 +8,7 @@ namespace VariableGetSample
         static void Main(string[] args)
         {
             var interpreter = new AphidInterpreter();
-            interpreter.Interpret("x = 'foo';");
+            interpreter.Interpret("var x = 'foo';");
             Console.WriteLine(interpreter.CurrentScope["x"].Value);
         }
     }
