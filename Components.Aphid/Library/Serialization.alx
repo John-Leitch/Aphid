@@ -61,7 +61,7 @@ dumpJsonDataContract;
             serializer.WriteObject(s, o);
             s.Position = 0;
             // s.Length |> print;
-            r = s.GetBuffer() |> Encoding.UTF8.GetString;
+            r = s.ToArray() |> Encoding.UTF8.GetString;
             s.Dispose();
             ret r;
         };
