@@ -42,7 +42,18 @@ namespace AphidHdl
             var interpreter = new AphidInterpreter();
             interpreter.Interpret(new List<AphidExpression> { initExp });
 
-            var key = "$condition";
+            var key = "$condition_" + Guid.NewGuid().ToString().Replace('-', '_');
+
+            interpreter.Interpret(
+                new List<AphidExpression>
+                {
+                    new IdentifierExpression(
+                        key,
+                        new List<IdentifierExpression> 
+                        {
+                            new IdentifierExpression(AphidName.Var)
+                        })
+                });
 
             var condition = new BinaryOperatorExpression(
                 new IdentifierExpression(key).WithPositionFrom(forExp.Condition),
