@@ -156,6 +156,10 @@ namespace Components.Aphid.Parser
             {
                 return _arrayExpression;
             }
+            set
+            {
+                _arrayExpression = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -164,6 +168,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _keyExpressions;
+            }
+            set
+            {
+                _keyExpressions = value;
             }
         }
 
@@ -204,6 +212,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _elements;
+            }
+            set
+            {
+                _elements = value;
             }
         }
 
@@ -250,6 +262,10 @@ namespace Components.Aphid.Parser
             {
                 return _leftOperand;
             }
+            set
+            {
+                _leftOperand = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -259,6 +275,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -267,6 +287,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _rightOperand;
+            }
+            set
+            {
+                _rightOperand = value;
             }
         }
 
@@ -312,6 +336,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -320,6 +348,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _function;
+            }
+            set
+            {
+                _function = value;
             }
         }
 
@@ -360,6 +392,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _value;
+            }
+            set
+            {
+                _value = value;
             }
         }
 
@@ -423,6 +459,10 @@ namespace Components.Aphid.Parser
             {
                 return _functionExpression;
             }
+            set
+            {
+                _functionExpression = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -431,6 +471,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _args;
+            }
+            set
+            {
+                _args = value;
             }
         }
 
@@ -493,6 +537,10 @@ namespace Components.Aphid.Parser
             {
                 return _condition;
             }
+            set
+            {
+                _condition = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -501,6 +549,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _body;
+            }
+            set
+            {
+                _body = value;
             }
         }
 
@@ -541,6 +593,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _memberExpression;
+            }
+            set
+            {
+                _memberExpression = value;
             }
         }
 
@@ -585,6 +641,10 @@ namespace Components.Aphid.Parser
             {
                 return _extendType;
             }
+            set
+            {
+                _extendType = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -593,6 +653,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _object;
+            }
+            set
+            {
+                _object = value;
             }
         }
 
@@ -641,6 +705,10 @@ namespace Components.Aphid.Parser
             {
                 return _collection;
             }
+            set
+            {
+                _collection = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -650,6 +718,10 @@ namespace Components.Aphid.Parser
             {
                 return _body;
             }
+            set
+            {
+                _body = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -658,6 +730,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _element;
+            }
+            set
+            {
+                _element = value;
             }
         }
 
@@ -709,6 +785,10 @@ namespace Components.Aphid.Parser
             {
                 return _initialization;
             }
+            set
+            {
+                _initialization = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -717,6 +797,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _condition;
+            }
+            set
+            {
+                _condition = value;
             }
         }
 
@@ -727,6 +811,10 @@ namespace Components.Aphid.Parser
             {
                 return _afterthought;
             }
+            set
+            {
+                _afterthought = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -735,6 +823,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _body;
+            }
+            set
+            {
+                _body = value;
             }
         }
 
@@ -781,6 +873,10 @@ namespace Components.Aphid.Parser
             {
                 return _args;
             }
+            set
+            {
+                _args = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -789,6 +885,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _body;
+            }
+            set
+            {
+                _body = value;
             }
         }
 
@@ -865,6 +965,10 @@ namespace Components.Aphid.Parser
             {
                 return _expression;
             }
+            set
+            {
+                _expression = value;
+            }
         }
 
         public override AphidExpressionType Type
@@ -915,6 +1019,10 @@ namespace Components.Aphid.Parser
             {
                 return _identifier;
             }
+            set
+            {
+                _identifier = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -923,6 +1031,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _attributes;
+            }
+            set
+            {
+                _attributes = value;
             }
         }
 
@@ -969,6 +1081,10 @@ namespace Components.Aphid.Parser
             {
                 return _condition;
             }
+            set
+            {
+                _condition = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -978,6 +1094,10 @@ namespace Components.Aphid.Parser
             {
                 return _body;
             }
+            set
+            {
+                _body = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -986,6 +1106,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _elseBody;
+            }
+            set
+            {
+                _elseBody = value;
             }
         }
 
@@ -1027,6 +1151,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         public override AphidExpressionType Type
@@ -1061,6 +1189,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         public override AphidExpressionType Type
@@ -1094,6 +1226,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _libraryExpression;
+            }
+            set
+            {
+                _libraryExpression = value;
             }
         }
 
@@ -1134,6 +1270,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _fileExpression;
+            }
+            set
+            {
+                _fileExpression = value;
             }
         }
 
@@ -1193,6 +1333,10 @@ namespace Components.Aphid.Parser
             {
                 return _value;
             }
+            set
+            {
+                _value = value;
+            }
         }
 
         public override AphidExpressionType Type
@@ -1230,6 +1374,10 @@ namespace Components.Aphid.Parser
             {
                 return _pairs;
             }
+            set
+            {
+                _pairs = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1238,6 +1386,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _identifier;
+            }
+            set
+            {
+                _identifier = value;
             }
         }
 
@@ -1278,6 +1430,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _call;
+            }
+            set
+            {
+                _call = value;
             }
         }
 
@@ -1322,6 +1478,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1330,6 +1490,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _operand;
+            }
+            set
+            {
+                _operand = value;
             }
         }
 
@@ -1381,6 +1545,10 @@ namespace Components.Aphid.Parser
             {
                 return _value;
             }
+            set
+            {
+                _value = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1389,6 +1557,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _patterns;
+            }
+            set
+            {
+                _patterns = value;
             }
         }
 
@@ -1433,6 +1605,10 @@ namespace Components.Aphid.Parser
             {
                 return _testExpression;
             }
+            set
+            {
+                _testExpression = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1441,6 +1617,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _patterns;
+            }
+            set
+            {
+                _patterns = value;
             }
         }
 
@@ -1488,6 +1668,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1497,6 +1681,10 @@ namespace Components.Aphid.Parser
             {
                 return _operand;
             }
+            set
+            {
+                _operand = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1505,6 +1693,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _isPostfix;
+            }
+            set
+            {
+                _isPostfix = value;
             }
         }
 
@@ -1549,6 +1741,10 @@ namespace Components.Aphid.Parser
             {
                 return _disposable;
             }
+            set
+            {
+                _disposable = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1557,6 +1753,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _body;
+            }
+            set
+            {
+                _body = value;
             }
         }
 
@@ -1598,6 +1798,10 @@ namespace Components.Aphid.Parser
             {
                 return _value;
             }
+            set
+            {
+                _value = value;
+            }
         }
 
         public override AphidExpressionType Type
@@ -1635,6 +1839,10 @@ namespace Components.Aphid.Parser
             {
                 return _cases;
             }
+            set
+            {
+                _cases = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1643,6 +1851,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _body;
+            }
+            set
+            {
+                _body = value;
             }
         }
 
@@ -1689,6 +1901,10 @@ namespace Components.Aphid.Parser
             {
                 return _expression;
             }
+            set
+            {
+                _expression = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1698,6 +1914,10 @@ namespace Components.Aphid.Parser
             {
                 return _cases;
             }
+            set
+            {
+                _cases = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1706,6 +1926,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _defaultCase;
+            }
+            set
+            {
+                _defaultCase = value;
             }
         }
 
@@ -1756,6 +1980,10 @@ namespace Components.Aphid.Parser
             {
                 return _operator;
             }
+            set
+            {
+                _operator = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1764,6 +1992,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _firstOperand;
+            }
+            set
+            {
+                _firstOperand = value;
             }
         }
 
@@ -1774,6 +2006,10 @@ namespace Components.Aphid.Parser
             {
                 return _secondOperand;
             }
+            set
+            {
+                _secondOperand = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1782,6 +2018,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _thirdOperand;
+            }
+            set
+            {
+                _thirdOperand = value;
             }
         }
 
@@ -1824,6 +2064,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _text;
+            }
+            set
+            {
+                _text = value;
             }
         }
 
@@ -1886,6 +2130,10 @@ namespace Components.Aphid.Parser
             {
                 return _tryBody;
             }
+            set
+            {
+                _tryBody = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1894,6 +2142,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _catchArg;
+            }
+            set
+            {
+                _catchArg = value;
             }
         }
 
@@ -1904,6 +2156,10 @@ namespace Components.Aphid.Parser
             {
                 return _catchBody;
             }
+            set
+            {
+                _catchBody = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1912,6 +2168,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _finallyBody;
+            }
+            set
+            {
+                _finallyBody = value;
             }
         }
 
@@ -1956,6 +2216,10 @@ namespace Components.Aphid.Parser
             {
                 return _condition;
             }
+            set
+            {
+                _condition = value;
+            }
         }
 
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1964,6 +2228,10 @@ namespace Components.Aphid.Parser
             get
             {
                 return _body;
+            }
+            set
+            {
+                _body = value;
             }
         }
 

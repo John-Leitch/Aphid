@@ -3,6 +3,7 @@ token AphidTokenType;
 base AphidExpression;
 node AphidNodeType;
 parser AphidParser;
+mutable;
 
 Lexer({
     init: @() {
