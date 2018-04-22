@@ -46,7 +46,7 @@ importOpcodes();
     e(Call, Assembly.GetMethod('GetExecutingAssembly'));
     e(Callvirt, Assembly.GetMethod('get_Location'));
     e(Call, Path.GetMethod('GetDirectoryName'));
-    e(Ldstr, script);
+    e(Ldstr, script |> Path.GetFileName @Path.Combine('Scripts'));
     e(Call, Path.GetMethod('Combine', [ string, string ]));
     e(Ldc_I4_0);
     e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));

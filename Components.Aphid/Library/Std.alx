@@ -289,9 +289,10 @@ var dumpe = @{
 };
 
 var fatal = @{
-    f = $args[0];
-    a = $args |> skip;
-    print('Fatal error: ' + f, a);
+    #'Query';
+    var f = $args[0];
+    var a = $args @aq.skip(1);
+    printCriticalError('Fatal error: ' + f, a);
     Environment.Exit(0);
 };
 
