@@ -33,18 +33,6 @@ namespace Mantispid
     //   // }
     public class ParserGenerator
     {
-        private const string
-            _nodeLocal = "node",
-            _tokenAttribute = "token",
-            _baseAttribute = "base",
-            _nodeAttribute = "node",
-            _namespaceAttribute = "namespace",
-            _parserAttribute = "parser",
-            _currentTokenType = "TokenType",
-            _currentLexeme = "Lexeme",
-            _nextTokenFunc = "NextToken",
-            _matchFunc = "Match";
-
         private Dictionary<string, string> _locals = new Dictionary<string, string>();
 
         private string[] _ruleNames;
@@ -225,11 +213,11 @@ namespace Mantispid
         private void ParseDirectives(List<AphidExpression> nodes)
         {
             _config = new ParserGeneratorConfig(
-                ParseDirective(nodes, _tokenAttribute),
-                ParseDirective(nodes, _baseAttribute),
-                ParseDirective(nodes, _nodeAttribute),
-                ParseDirectiveArray(nodes, _namespaceAttribute),
-                ParseDirective(nodes, _parserAttribute));
+                ParseDirective(nodes, ParserGeneratorDirective.TokenAttribute),
+                ParseDirective(nodes, ParserGeneratorDirective.BaseAttribute),
+                ParseDirective(nodes, ParserGeneratorDirective.NodeAttribute),
+                ParseDirectiveArray(nodes, ParserGeneratorDirective.NamespaceAttribute),
+                ParseDirective(nodes, ParserGeneratorDirective.ParserAttribute));
         }
 
         private string ParseDirective(List<AphidExpression> nodes, string directive)
@@ -548,15 +536,15 @@ namespace Mantispid
 
                     switch (name)
                     {
-                        case _nextTokenFunc:
+                        case ParserGeneratorDirective.NextTokenFunc:
                             return new CodeStatementCollection(new[] { GetNextTokenStatement() });
 
-                        case _matchFunc:
+                        case ParserGeneratorDirective.MatchFunc:
                             return new CodeStatementCollection(new[]
                             {
                                 CodeHelper.Stmt(
                                     CodeHelper.Invoke(
-                                        _matchFunc, 
+                                        ParserGeneratorDirective.MatchFunc, 
                                         GenerateImperativeExpression(node.Args.Single())))
                             });
 
@@ -825,10 +813,10 @@ namespace Mantispid
         {
             switch (node.Identifier)
             {
-                case _currentTokenType:
+                case ParserGeneratorDirective.CurrentTokenType:
                     return GetCurrentTokenType();
 
-                case _currentLexeme:
+                case ParserGeneratorDirective.CurrentLexeme:
                     return GetCurrentLexeme();
 
                 default:
@@ -994,12 +982,12 @@ namespace Mantispid
 
         private CodePropertyReferenceExpression GetCurrentTokenType()
         {
-            return GetCurrentTokenProp(_currentTokenType);
+            return GetCurrentTokenProp(ParserGeneratorDirective.CurrentTokenType);
         }
 
         private CodePropertyReferenceExpression GetCurrentLexeme()
         {
-            return GetCurrentTokenProp(_currentLexeme);
+            return GetCurrentTokenProp(ParserGeneratorDirective.CurrentLexeme);
         }
 
         private CodePropertyReferenceExpression GetCurrentTokenProp(string propertyName)

@@ -141,6 +141,7 @@
     <Compile Include="Compiler\Medusa\LLex\RegexLexer.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ParserGeneratorNames.cs" />
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
