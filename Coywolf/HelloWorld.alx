@@ -1,0 +1,5 @@
+﻿<%
+    #'CoywolfQuery';
+    square = @(x) x * x;    
+    [ 0, 1, 3, 4 ] @select(square) @concat(', ') |> echo;
+%>
