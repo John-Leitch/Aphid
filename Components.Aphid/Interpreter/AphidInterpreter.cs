@@ -15,6 +15,7 @@ using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
 using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections;
@@ -258,6 +259,7 @@ namespace Components.Aphid.Interpreter
         private AphidInterpreter(AphidObject currentScope, bool createLoader, AphidLoader loader)
         {
             AphidErrorReporter.Init();
+            StrictMode = AphidConfig.Current.StrictMode;
 
             if (createLoader)
             {

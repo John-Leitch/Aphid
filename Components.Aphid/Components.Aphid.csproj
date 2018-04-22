@@ -144,6 +144,7 @@
     <Compile Include="Compiler\Medusa\Mantispid\ParserGeneratorDirective.cs" />
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
+    <Compile Include="External\Common\DefaultSingleton.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
     <Compile Include="External\Common\SelectorComparer.cs" />
     <Compile Include="External\Common\Singleton.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
+    <Compile Include="UI\AphidSettings.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\AddTokenTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\CaseTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\LexicalAnalyzerTemplate.cs" />
@@ -462,7 +464,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Serialization\AphidObject.alx" />
-    <None Include="App.config" />
+    <None Include="Components.Aphid.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="AphidCustomOperators.alx" />
     <None Include="Tools\AphidUI.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

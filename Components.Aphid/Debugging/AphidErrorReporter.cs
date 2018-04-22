@@ -30,7 +30,7 @@ namespace Components.Aphid.Debugging
                 {
                     if (!_isEnabledSet)
                     {
-                        _isEnabled = Convert.ToBoolean(ConfigurationManager.AppSettings["saveErrors"]);
+                        _isEnabled = AphidConfig.Current.SaveErrors;
                         _isEnabledSet = true;
                     }
                 }
