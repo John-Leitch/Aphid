@@ -4,16 +4,17 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 
-println = Console.WriteLine;
+var println = Console.WriteLine;
 
-init = @{
+var init = @{
     initReleasePath();
 };
 
-id;
-releasePath;
+var id;
+var release;
+var releasePath;
 
-initReleasePath = @{
+var initReleasePath = @{
     id = Guid.NewGuid().ToString();
     releasePath = getReleasePath();
 
@@ -23,11 +24,11 @@ initReleasePath = @{
     }
 };
 
-getReleasePath = @() Path.Combine(release.root, 'release', id);
-toPath = @() $_.Replace('{config}', release.config) @Path.Combine(release.root);
-getVersion = @() $_ |> Assembly.LoadFrom @(a) a.GetName().Version;
+var getReleasePath = @() Path.Combine(release.root, 'release', id);
+var toPath = @() $_.Replace('{config}', release.config) @Path.Combine(release.root);
+var getVersion = @() $_ |> Assembly.LoadFrom @(a) a.GetName().Version;
 
-getArchive = @()
+var getArchive = @()
     string.Format(
         '{0}-{1}-{2}.zip',
         $_.name,
@@ -35,9 +36,9 @@ getArchive = @()
         $_.config)
     @Path.Combine($_.root, 'release');
 
-copyFile = @{
-    start = @{
-        p = $_ |> toPath;
+var copyFile = @{
+    var start = @{
+        var p = $_ |> toPath;
 
         if (!File.Exists(p)) {
             println('Could not find {0}', p);
@@ -50,12 +51,12 @@ copyFile = @{
     };
 
     if ($_.GetType().Name == 'String') {
-        p = $_ |> start;
+        var p = $_ |> start;
         $_ |> Path.GetFileName @Path.Combine(releasePath) @File.Copy(p);
     } else {
-        p = $_[0] |> start;
-        dst = $_[1] @Path.Combine(releasePath);
-        dstDir = dst |> Path.GetDirectoryName;
+        var p = $_[0] |> start;
+        var dst = $_[1] @Path.Combine(releasePath);
+        var dstDir = dst |> Path.GetDirectoryName;
         
         if (!Directory.Exists(dstDir))
         {
@@ -67,15 +68,13 @@ copyFile = @{
     }
 };
 
-release;
-
-package = @{
+var package = @{
     release = $_;
     init();
     println('Packaging {0}', release.name);
     copyFile(release.mainModule);
     release.files for copyFile($_);
-    zip = release |> getArchive;
+    var zip = release |> getArchive;
     println('Creating zip {0}', zip);
 
     if (File.Exists(zip)) {
@@ -90,6 +89,6 @@ package = @{
     Environment.Exit(0);
 };
 
-cleanup = @{
+var cleanup = @{
     Directory.Delete(releasePath, true);
 };
