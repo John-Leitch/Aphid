@@ -2,21 +2,21 @@
 
 items = 
     range(0, 100)
-    |> @where(@(x) x < 10 || x > 50)
-    |> @select(@(x) x * 2)
-    |> @selectMany(@(x) [ x, x * x ]);
+    @where(@(x) x < 10 || x > 50)
+    @select(@(x) x * 2)
+    @selectMany(@(x) [ x, x * x ]);
 
 items |> print;
 
 f = @(x) { items |> x |> print; };
 
-items |> @first(@(x) x > 100) |> print;
-items |> @all(@(x) x > -1) |> print;
-items |> @all(@(x) x > 10) |> print;
+items @first(@(x) x > 100) print;
+items @all(@(x) x > -1) print;
+items @all(@(x) x > 10) print;
 items |> count |> print;
-items |> @take(4) |> print;
-items |> @skip(4) |> @take(4) |> print;
-items |> @concat([ 111, 222]) |> print;
+items @take(4) print;
+items @skip(4) @take(4) print;
+items @concat([ 111, 222]) print;
 
-[ 'foo', 'ba', 'r' ] |> add |> print;
+[ 'foo', 'ba', 'r' ] |> addAll |> print;
 '0x%x' % (0x10 << 4) |> print;
