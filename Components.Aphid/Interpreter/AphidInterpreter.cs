@@ -2197,7 +2197,12 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var child = new AphidInterpreter(CurrentScope.CreateChild()) { Serializer = Serializer };
+                var child = new AphidInterpreter(CurrentScope.CreateChild())
+                {
+                    Serializer = Serializer,
+                    StrictMode = StrictMode,
+                };
+
                 child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
 
                 return child.CallFunctionCore(function, scope, parmsWrapped);
@@ -4566,7 +4571,12 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var child = new AphidInterpreter(CurrentScope.CreateChild()) { Serializer = Serializer };
+                var child = new AphidInterpreter(CurrentScope.CreateChild())
+                {
+                    Serializer = Serializer,
+                    StrictMode = StrictMode,
+                };
+
                 child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
                 child.Interpret(expressions);
             }
