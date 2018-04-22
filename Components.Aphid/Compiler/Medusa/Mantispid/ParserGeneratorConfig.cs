@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Mantispid
 {
-    public class ParserGeneratorConfig
+    public class ParserGeneratorConfig : Singleton<ParserGeneratorConfig>
     {
         public string TokenType { get; private set; }
 
@@ -18,6 +19,8 @@ namespace Mantispid
 
         public string ParserClass { get; private set; }
 
+        public bool IsAstMutable { get; private set; }
+
         public string ExceptionClass
         {
             get { return ParserClass + "Exception"; }
@@ -28,13 +31,15 @@ namespace Mantispid
             string baseClass,
             string nodeType,
             string[] @namespace,
-            string parserclass)
+            string parserclass,
+            bool isAstMutable)
         {
             TokenType = tokenType;
             BaseClass = baseClass;
             NodeType = nodeType;
             Namespace = @namespace;
             ParserClass = parserclass;
+            IsAstMutable = isAstMutable;
         }
     }
 }

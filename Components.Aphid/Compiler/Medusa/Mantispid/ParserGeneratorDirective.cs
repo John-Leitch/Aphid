@@ -10,6 +10,7 @@ namespace Mantispid
             NodeAttribute = "node",
             NamespaceAttribute = "namespace",
             ParserAttribute = "parser",
+            MutableAttribute = "mutable",
             CurrentTokenType = "TokenType",
             CurrentLexeme = "Lexeme",
             NextTokenFunc = "NextToken",

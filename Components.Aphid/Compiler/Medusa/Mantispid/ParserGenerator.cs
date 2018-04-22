@@ -100,14 +100,14 @@ namespace Mantispid
             nodes = AddIndexTracking(nodes);
 
             var ruleTypeBuilder = new RuleTypeBuilder(
-                _config.BaseClass, 
+                _config.BaseClass,
                 _ruleTypes.Select(x => x.Value));
 
             var typeClasses = ruleTypeBuilder.CreateRuleTypeClasses();
 
             var enumBuilder = new EnumBuilder(_config.BaseClass, _ruleTypes.Select(x => x.Key));
             var enumDecl = enumBuilder.CreateEnum();
-            
+
             var ns = new CodeNamespace(
                 string.Join(".", _config.Namespace.Concat(new[] { "Parser" })));
 
@@ -165,8 +165,8 @@ namespace Mantispid
 
             nodes.Remove(lexerCall);
             var ast = new List<AphidExpression>();
-            
-            var initKvp = lexerObj.Pairs.SingleOrDefault(x => 
+
+            var initKvp = lexerObj.Pairs.SingleOrDefault(x =>
                 x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
                 x.LeftOperand.ToIdentifier().Identifier == "init");
 
@@ -191,7 +191,7 @@ namespace Mantispid
             var lexerCode = AlxFile.From(interpreter.GetReturnValue());
 
             var tokenTypeEnum = Regex.Match(
-                lexerCode, 
+                lexerCode,
                 @"public\s+enum\s+" + _config.TokenType + @"(.|\s)*?\{((.|\s)*?)\}");
 
             if (!tokenTypeEnum.Success)
@@ -217,7 +217,8 @@ namespace Mantispid
                 ParseDirective(nodes, ParserGeneratorDirective.BaseAttribute),
                 ParseDirective(nodes, ParserGeneratorDirective.NodeAttribute),
                 ParseDirectiveArray(nodes, ParserGeneratorDirective.NamespaceAttribute),
-                ParseDirective(nodes, ParserGeneratorDirective.ParserAttribute));
+                ParseDirective(nodes, ParserGeneratorDirective.ParserAttribute),
+                ParseBooleanDirective(nodes, ParserGeneratorDirective.MutableAttribute));
         }
 
         private string ParseDirective(List<AphidExpression> nodes, string directive)
@@ -264,6 +265,24 @@ namespace Mantispid
                 .Cast<IdentifierExpression>()
                 .Select(x => x.Identifier)
                 .ToArray();
+        }
+
+        private bool ParseBooleanDirective(List<AphidExpression> nodes, string directive)
+        {
+            var exp = nodes
+                .OfType<IdentifierExpression>()
+                .SingleOrDefault(x => x.Attributes.Count == 0 && x.Identifier == directive);
+
+            if (exp == null)
+            {
+                return false;
+            }
+            else
+            {
+                nodes.Remove(exp);
+
+                return true;
+            }
         }
 
         private AphidExpression[] Flatten(AphidExpression exp)
@@ -334,7 +353,7 @@ namespace Mantispid
                 _ruleTypes.Add(t);
             }
         }
-        
+
         private CodeMethodInvokeExpression GetNextToken()
         {
             return CodeHelper.Invoke("NextToken");

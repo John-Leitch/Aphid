@@ -128,6 +128,8 @@ namespace Mantispid
 
         private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
         {
+            var isMutable = ParserGeneratorConfig.Current.IsAstMutable;
+
             var properties = ruleType.Properties
                 .Select(x => new CodeMemberProperty()
                 {
@@ -135,6 +137,7 @@ namespace Mantispid
                     Attributes = MemberAttributes.Public | MemberAttributes.Final,
                     Type = ParserCode.GetTypeRef(x),
                     HasGet = true,
+                    HasSet = isMutable,
                     CustomAttributes = new CodeAttributeDeclarationCollection(
                         new[]
                         {
@@ -147,6 +150,14 @@ namespace Mantispid
             foreach (var p in properties)
             {
                 p.GetStatements.Add(CodeHelper.Return(GetFieldName(p.Name)));
+
+                if (isMutable)
+                {
+                    p.SetStatements.Add(
+                        CodeHelper.Assign(
+                            GetFieldName(p.Name),
+                            CodeHelper.VarRef("value")));
+                }
             }
 
             return properties;
