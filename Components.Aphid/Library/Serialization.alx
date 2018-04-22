@@ -54,13 +54,14 @@ dumpJsonDataContract;
 
     _tdc = macro(@(id, name) {
         id = @(o) {
+            using System.IO;
             using System.Runtime.Serialization;
             using System.Runtime.Serialization.Json;
+            using System.Text;
             s = new MemoryStream();
             serializer = new name(o.GetType());
             serializer.WriteObject(s, o);
             s.Position = 0;
-            // s.Length |> print;
             r = s.ToArray() |> Encoding.UTF8.GetString;
             s.Dispose();
             ret r;
