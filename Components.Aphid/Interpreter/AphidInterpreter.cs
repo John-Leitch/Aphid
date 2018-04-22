@@ -1069,12 +1069,13 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private object InterpetAssignmentExpression(
+        private object InterpretAssignmentExpression(
             BinaryOperatorExpression expression,
             bool returnRef = false)
         {
             var value = InterpretExpression(expression.RightOperand);
-            var result = InterpetAssignmentExpression(
+
+            var result = InterpretAssignmentExpression(
                 expression.LeftOperand,
                 value,
                 returnRef,
@@ -1084,7 +1085,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private object InterpetAssignmentExpression(
+        private object InterpretAssignmentExpression(
             AphidExpression destinationExpression,
             object value,
             bool returnRef = false,
@@ -1374,7 +1375,7 @@ namespace Components.Aphid.Interpreter
                 (AphidObject)InterpretExpression(expression.LeftOperand),
                 (AphidObject)InterpretExpression(expression.RightOperand));
 
-            var result = InterpetAssignmentExpression(
+            var result = InterpretAssignmentExpression(
                 expression.LeftOperand,
                 value,
                 returnRef: false,
@@ -1412,7 +1413,7 @@ namespace Components.Aphid.Interpreter
                     return InterpretMemberExpression(expression, returnRef);
 
                 case AphidTokenType.AssignmentOperator:
-                    return InterpetAssignmentExpression(expression, returnRef);
+                    return InterpretAssignmentExpression(expression, returnRef);
 
                 case AphidTokenType.PlusEqualOperator:
                     return InterprentOperatorAndAssignmentExpression(OperatorHelper.Add, expression);

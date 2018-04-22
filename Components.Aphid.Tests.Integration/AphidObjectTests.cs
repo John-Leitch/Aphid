@@ -39,6 +39,18 @@ namespace Components.Aphid.Tests.Integration
         public void ObjectMemberSetTest2()
         {
             AssertTrue("var x='foo'; var a={x}; a.x='bar'; ret x=='foo' && a.x=='bar';");
-        }        
+        }
+
+        [Test]
+        public void ObjectVarValueTypeAssignTest()
+        {
+            AssertTrue("var i = 0; var f = @() ++i; var a = f(); var b = f(); ret a != b");
+        }
+
+        [Test]
+        public void ObjectMemberValueTypeAssignTest()
+        {
+            AssertTrue("var i = 0; var f = @() ++i; var o = {}; o.a = f(); o.b = f(); ret o.a != o.b");
+        }
     }
 }
