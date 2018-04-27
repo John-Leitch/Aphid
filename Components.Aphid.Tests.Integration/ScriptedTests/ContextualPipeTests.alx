@@ -1,0 +1,76 @@
+﻿using System;
+using System.Reflection;
+var f = BindingFlags;
+#'AopTest';
+
+contextual pipe group;
+
+_fun = macro(@(l, r) {
+    equal begin;
+    @{ (l | r) == (l |> r) };
+    
+    lhs assign begin;
+    @{ var x = (l | r); x == (l |> r) };
+
+    rhs assign begin;
+    @{ var x = (l |> r); (l | r) == x };
+
+    both assign begin;
+    @{ var x = (l | r); var y = (l |> r); x == y };
+});
+
+isTrue;
+_fun(10, Convert.ToUInt32);
+_fun(BindingFlags.DeclaredOnly, Convert.ToUInt32);
+_fun(BindingFlags.DeclaredOnly | BindingFlags.CreateInstance, Convert.ToUInt32);
+_fun(f.DeclaredOnly, Convert.ToUInt32);
+_fun(f.DeclaredOnly | BindingFlags.CreateInstance, Convert.ToUInt32);
+_fun(BindingFlags.DeclaredOnly | f.CreateInstance, Convert.ToUInt32);
+_fun(f.DeclaredOnly | f.CreateInstance, Convert.ToUInt32);
+
+_flag = macro(@(x, y, z) {
+    equal to self begin;
+    @{ x == x && y == y };
+
+    not equal to other begin;
+    @{ x != y && y != x };
+
+    single or equal begin;
+    @{ x | y == x | y };
+
+    single or reverse equal begin;
+    @{ x | y == y | x };
+
+    self or equal begin;
+    @{ x | x == x | x && y | y == y | y && x | x | x == x | x | x && y | y | y == y | y | y };
+
+    multi or equal begin;
+    @{ x | y | z == x | y | z && z | y | x == x | y | z && z | x | y == y | x | z };
+
+    multi or equal with func begin;
+
+    @{
+        x | y | z | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 &&
+        z | y | x | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 &&
+        z | x | y | Convert.ToUInt32 == y | x | z | Convert.ToUInt32
+    };
+
+    mixed func test begin;
+    @{ (x | Convert.ToUInt32 @Enum.ToObject(BindingFlags)) == x };
+    // Todo: fix
+    //@{ (x | Convert.ToUInt32) | (y | Convert.ToUInt32) == x | y | Convert.ToUInt32 };
+    @{ (x | Convert.ToDecimal) | (y | Convert.ToDecimal) == x | y | Convert.ToDecimal };
+    @{
+        ((x | Convert.ToDecimal) | (y | Convert.ToDecimal) @Enum.ToObject(BindingFlags)) ==
+        (x | y | Convert.ToDecimal | @Enum.ToObject(BindingFlags))
+    };
+});
+
+_flag(BindingFlags.DeclaredOnly, BindingFlags.CreateInstance, BindingFlags.ExactBinding);
+_flag(f.DeclaredOnly, BindingFlags.CreateInstance, BindingFlags.ExactBinding);
+_flag(BindingFlags.DeclaredOnly, f.CreateInstance, BindingFlags.ExactBinding);
+_flag(f.DeclaredOnly, BindingFlags.CreateInstance, f.ExactBinding);
+_flag(f.DeclaredOnly, f.CreateInstance, BindingFlags.ExactBinding);
+_flag(f.DeclaredOnly, BindingFlags.CreateInstance, f.ExactBinding);
+_flag(BindingFlags.DeclaredOnly, f.CreateInstance, f.ExactBinding);
+_flag(f.DeclaredOnly, f.CreateInstance, f.ExactBinding);
