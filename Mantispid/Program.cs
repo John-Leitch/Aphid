@@ -1,4 +1,6 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Parser;
+using Components.Aphid.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -44,46 +46,60 @@ namespace Mantispid
             //    Environment.Exit(0);
             //}
 
-            string code = "";
-            
-            //try
-            //{
-                var dir = Path.GetDirectoryName(Path.GetFullPath(args[0]));
-                code = File.ReadAllText(args[0]);
-                Console.WriteLine("Parsing input file");
-                var ast = AphidParser.Parse(code);
-                var includeMutator = new IncludeMutator(dir);
-                var idMutator = new AphidIdDirectiveMutator();
-                var macroMutator = new AphidMacroMutator();
-                var pipelineMutator = new PipelineToCallMutator();
+            var dir = Path.GetDirectoryName(Path.GetFullPath(args[0]));
+            var code = File.ReadAllText(args[0]);
 
-                ast = idMutator.MutateRecursively(
-                        macroMutator.MutateRecursively(
-                            pipelineMutator.Mutate(
-                                includeMutator.MutateRecursively(ast))));
+            if (!Debugger.IsAttached)
+            {
+                try
+                {
+                    GenerateParser(code, dir, args[1]);
+                    Environment.Exit(0);
+                }
+                catch (AphidParserException exception)
+                {
+                    AphidCli.DumpException(exception, code);
+                }
+                catch (AphidLoadScriptException exception)
+                {
+                    AphidCli.DumpException(exception, exception.Interpreter);
+                }
+                catch (AphidRuntimeException exception)
+                {
+                    AphidCli.DumpException(exception, exception.Interpreter);
+                }
+                catch (Exception exception)
+                {
+                    AphidCli.DumpException(exception, null);
+                }
 
-                Console.WriteLine("Generating parser");
-                var parserGenerator = new ParserGenerator();
-                var s = parserGenerator.Generate(ast, code);
-                File.WriteAllText(args[1], s);
-                Console.WriteLine("Parser written to '{0}'", args[1]);
-            //}
-            //catch (AphidParserException exception)
-            //{
-            //    Console.WriteLine(ParserErrorMessage.Create(code, exception));
-            //}
-            //catch (Exception exception)
-            //{
-            //    if (Debugger.IsAttached)
-            //    {
-            //        throw;
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("Unexpected exception\r\n\r\n{0}\r\n", exception.Message);
-            //        Environment.Exit(3);
-            //    }
-            //}
+                Environment.Exit(0xbad);
+            }
+            else
+            {
+                GenerateParser(code, dir, args[1]);
+            }
+        }
+
+        private static void GenerateParser(string code, string dir, string outFile)
+        {
+            Console.WriteLine("Parsing input file");
+            var ast = AphidParser.Parse(code);
+            var includeMutator = new IncludeMutator(dir);
+            var idMutator = new AphidIdDirectiveMutator();
+            var macroMutator = new AphidMacroMutator();
+            var pipelineMutator = new PipelineToCallMutator();
+
+            ast = idMutator.MutateRecursively(
+                macroMutator.MutateRecursively(
+                    pipelineMutator.Mutate(
+                        includeMutator.MutateRecursively(ast))));
+
+            Console.WriteLine("Generating parser");
+            var parserGenerator = new ParserGenerator();
+            var s = parserGenerator.Generate(ast, code);
+            File.WriteAllText(outFile, s);
+            Console.WriteLine("Parser written to '{0}'", outFile);
         }
     }
 }
