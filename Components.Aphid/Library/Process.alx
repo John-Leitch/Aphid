@@ -11,8 +11,10 @@ var prepareCommand;
     using System.Diagnostics;
     using System.Threading;
 
+    var _tp = traceProcess defined && traceProcess ? print : @{ };
+
     startProcess = @(exe, args, onLine) {
-        print('Starting process');
+        _tp('Starting process');
         var si = new ProcessStartInfo(exe, args);
         si.UseShellExecute = false;
         si.CreateNoWindow = false;
@@ -32,15 +34,15 @@ var prepareCommand;
                     [ onLine, Console.WriteLine]->@(x)x(line);
                 }
             } catch(e) {
-                print('[x] Thread error: ~Yellow~{0}~R~', e.message);
+                _tp('[x] Thread error: ~Yellow~{0}~R~', e.message);
             }
         });
 
         procThread.Start();
 
-        print('[?] Waiting for thread');
+        _tp('[?] Waiting for thread');
         procThread.Join();
-        print('[+] Done');
+        _tp('[+] Done');
 
         ret proc;
     };
@@ -59,3 +61,14 @@ var prepareCommand;
 }();
 
 @ ~> (cmd, onLine) cmd |> prepareCommand @() startProcess($_[0], $_[1], onLine);
+
+@ #> (cmd) {
+    using System.Diagnostics;
+    var c = cmd |> prepareCommand;
+    var si = new ProcessStartInfo(c[0], c[1]);
+    si.UseShellExecute = false;
+    var p = Process.Start(si);
+    p.WaitForExit();
+
+    ret p.ExitCode;
+};
