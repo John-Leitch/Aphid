@@ -1502,9 +1502,16 @@ namespace Components.Aphid.Interpreter
                         InterpretExpression(expression.RightOperand) as AphidObject);
 
                 case AphidTokenType.BinaryOrOperator:
-                    return OperatorHelper.BinaryOr(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                    AphidObject pipeLhs = InterpretExpression(expression.LeftOperand) as AphidObject,
+                        pipeRhs = InterpretExpression(expression.RightOperand) as AphidObject;
+
+                        return pipeRhs.Value is IAphidCallable ? 
+                            InterpretCallExpression(
+                                expression,
+                                expression.RightOperand,
+                                pipeRhs.Value,
+                                new object[] { pipeLhs.Value }) :
+                            OperatorHelper.BinaryOr(pipeLhs, pipeRhs);
 
                 case AphidTokenType.XorOperator:
                     return OperatorHelper.Xor(
@@ -1531,7 +1538,7 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .UnwrapAndBoxCollection(collection))
                         .Select(x => ValueHelper.Wrap(
-                            InterpretFunctionExpression(
+                            InterpretCallExpression(
                                 expression,
                                 expression.RightOperand,
                                 func,
@@ -1545,7 +1552,7 @@ namespace Components.Aphid.Interpreter
                         .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .SelectMany(x =>
                             (IEnumerable<object>)(ValueHelper.Unwrap(
-                                InterpretFunctionExpression(
+                                InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
                                     func,
@@ -1560,7 +1567,7 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Aggregate((x, y) => ValueHelper.Wrap(
-                            InterpretFunctionExpression(
+                            InterpretCallExpression(
                                 expression,
                                 expression.RightOperand,
                                 func,
@@ -1572,7 +1579,7 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Any(x => (bool)ValueHelper.Unwrap(
-                            InterpretFunctionExpression(
+                            InterpretCallExpression(
                                 expression,
                                 expression.RightOperand,
                                 func,
@@ -1584,7 +1591,7 @@ namespace Components.Aphid.Interpreter
                     return ((IEnumerable<object>)ValueHelper
                         .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
                         .Where(x => (bool)ValueHelper.Unwrap(
-                            InterpretFunctionExpression(
+                            InterpretCallExpression(
                                 expression,
                                 expression.RightOperand,
                                 func,
@@ -2497,13 +2504,13 @@ namespace Components.Aphid.Interpreter
 
             var args = expression.Args.Select(InterpretExpression).ToArray();
 
-            return InterpretFunctionExpression(expression, expression.FunctionExpression, funcExp, args);
+            return InterpretCallExpression(expression, expression.FunctionExpression, funcExp, args);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretFunctionExpression(
+        private AphidObject InterpretCallExpression(
             AphidExpression callExpression,
-            AphidExpression expression,
+            AphidExpression functionExpression,
             object funcExp,
             object[] args)
         {
@@ -2515,7 +2522,7 @@ namespace Components.Aphid.Interpreter
                     args.Select(ValueHelper.Unwrap).ToArray() :
                     args;
 
-                PushFrame(callExpression, expression, interopArgs);
+                PushFrame(callExpression, functionExpression, interopArgs);
 
                 try
                 {
@@ -2534,7 +2541,7 @@ namespace Components.Aphid.Interpreter
             {
                 return InterpretInteropCallExpression(
                     callExpression,
-                    expression,
+                    functionExpression,
                     args.Select(ValueHelper.DeepUnwrap).ToArray(),
                     interopMembers);
             }
@@ -2547,7 +2554,7 @@ namespace Components.Aphid.Interpreter
 
                 return InterpretInteropCallExpression(
                     callExpression,
-                    expression,
+                    functionExpression,
                     interopPartial.Applied
                         .Concat(curArgs)
                         .ToArray(),
@@ -2558,7 +2565,7 @@ namespace Components.Aphid.Interpreter
 
             if (del != null)
             {
-                PushFrame(callExpression, expression, args);
+                PushFrame(callExpression, functionExpression, args);
 
                 try
                 {
@@ -2576,7 +2583,7 @@ namespace Components.Aphid.Interpreter
 
             if (func2 != null)
             {
-                PushFrame(callExpression, expression, args);
+                PushFrame(callExpression, functionExpression, args);
 
                 try
                 {
@@ -2594,20 +2601,20 @@ namespace Components.Aphid.Interpreter
 
             if (composition != null)
             {
-                var retVal = InterpretFunctionExpression(
+                var retVal = InterpretCallExpression(
                     callExpression,
                     composition.LeftExpression,
                     composition.LeftFunction,
                     args);
 
-                return InterpretFunctionExpression(
+                return InterpretCallExpression(
                     callExpression,
                     composition.RightExpression,
                     composition.RightFunction,
                     new[] { retVal });
             }
 
-            throw CreateRuntimeException("Could not find function {0}", expression);
+            throw CreateRuntimeException("Could not find function {0}", functionExpression);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]

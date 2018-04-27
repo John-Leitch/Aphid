@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
 {
-    public class AphidInteropFunction
+    public class AphidInteropFunction : IAphidCallable
     {
         public Func<AphidInterpreter, object[], object> InvokeDelegate { get; private set; }
 

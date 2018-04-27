@@ -156,6 +156,7 @@
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
+    <Compile Include="TypeSystem\IAphidCallable.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
     <Compile Include="UI\AphidConfig.cs" />
     <Compile Include="UI\AphidScanner.cs" />

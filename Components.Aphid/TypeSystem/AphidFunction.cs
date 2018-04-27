@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
 {
-    public class AphidFunction : IEnumerable<AphidExpression>
+    public class AphidFunction : IEnumerable<AphidExpression>, IAphidCallable
     {
         public string[] Args { get; set; }
 

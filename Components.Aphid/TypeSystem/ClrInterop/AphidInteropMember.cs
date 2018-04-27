@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
 {
-    public class AphidInteropMember
+    public class AphidInteropMember : IAphidCallable
     {
         public AphidExpression Expression { get; private set; }
 

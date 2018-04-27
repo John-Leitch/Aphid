@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
 {
-    public class AphidInteropPartialFunction
+    public class AphidInteropPartialFunction : IAphidCallable
     {
         public AphidInteropMember Member { get; private set; }
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
 {
-    public class AphidFunctionComposition
+    public class AphidFunctionComposition : IAphidCallable
     {
         public AphidExpression LeftExpression { get; private set; }
 
