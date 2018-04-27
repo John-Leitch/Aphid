@@ -39,7 +39,7 @@
         concat(
             c.group,
             c.testSet,
-            c.wrapLast != null && c.wrapLast.Length > 0 ? capitalize(c.wrapLast) : '',
+            c.wrapLast != null && c.wrap != 'fault' && c.wrapLast.Length > 0 ? capitalize(c.wrapLast) : '',
             c.wrap != 'success' && c.wrap.Length > 0 ? capitalize(c.wrap) : '',
             'Test') ?:
         'UnnamedScriptedAphidTest';
