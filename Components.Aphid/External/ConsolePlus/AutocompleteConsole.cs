@@ -436,19 +436,28 @@ namespace Components.External.ConsolePlus
 
                 var top = Console.CursorTop + 1;
                 Console.SetCursorPosition(_autocompleteLeft, top);
-                var format = _autocompleteIndex == entryNum ?
-                        "~White~~|Blue~{0}~R~" :
-                        "~Black~~|White~{0}~R~";
+
+                if (_autocompleteIndex != entryNum)
+                {
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.BackgroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.Blue;
+                }
 
                 // Hack, until Cli tokenizer is rewritten and exposed
                 // so string can be scanned and truncated precisely.
                 var viewLen = Cli.EraseStyles(n.View).Length;
                 var viewStr = viewLen <= maxWidth ? n.View : n.View.Remove(maxWidth);
                 var space = _autocompleteWidth - (viewLen <= maxWidth ? viewLen : maxWidth);
-                Cli.Write(format, viewStr + (space > 0 ? new string(' ', space) : ""));
+                Console.Write(viewStr + (space > 0 ? new string(' ', space) : ""));
                 linesDrawn++;
             }
 
+            Console.ResetColor();
             Console.SetCursorPosition(_prompt.Length + _cursorIndex, oldTop);
         }
 
