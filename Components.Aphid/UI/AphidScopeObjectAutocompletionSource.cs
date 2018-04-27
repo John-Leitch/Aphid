@@ -5,6 +5,7 @@ using Components.Aphid.TypeSystem;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -77,11 +78,14 @@ namespace Components.Aphid.UI
 
             var isMemberAccess = lastToken.TokenType == AphidTokenType.MemberOperator;
 
+            // Todo: eliminate repetition
             if (lastToken.TokenType == AphidTokenType.newKeyword)
             {
                 searchBuffer = "";
-                
-                return FilterAndSortWords(CreateTypeAutocomplete(null));
+
+                return text[text.Length - 1] != 'w' ?
+                    FilterAndSortWords(CreateTypeAutocomplete(null)) :
+                    new Autocomplete[0];
             }
             else if (tokens.Count >= 2 &&
                 tokens[tokens.Count - 2].TokenType == AphidTokenType.newKeyword)
@@ -89,6 +93,20 @@ namespace Components.Aphid.UI
                 searchBuffer = tokens[tokens.Count - 1].Lexeme;
                 
                 return FilterAndSortWords(CreateTypeAutocomplete(searchBuffer));
+            }
+            else if (lastToken.TokenType == AphidTokenType.usingKeyword)
+            {
+                searchBuffer = "";
+
+                return text[text.Length - 1] != 'g' ?
+                    FilterAndSortWords(CreateNamespaceAutocomplete(null)) :
+                    new Autocomplete[0];
+            }
+            else if (tokens.Count >= 2 && tokens[0].TokenType == AphidTokenType.usingKeyword)
+            {
+                searchBuffer = tokens.Skip(1).Select(x => x.Lexeme).Join();
+                
+                return FilterAndSortWords(CreateNamespaceAutocomplete(searchBuffer));
             }
 
             AphidExpression exp = null;
@@ -429,6 +447,28 @@ namespace Components.Aphid.UI
             //}
 
             return typeMatches;
+        }
+
+        private IEnumerable<Autocomplete> CreateNamespaceAutocomplete(string match = null)
+        {
+            return _loader
+                .GetAssemblies()
+                .SelectMany(x => x.GetTypes())
+                .Select(x => new
+                {
+                    Namespace = x.FullName.Contains('.') ?
+                        x.FullName.RemoveAtLastIndexOf('.') :
+                        x.FullName,
+                    Assembly = x.Assembly,
+                })
+                .Where(x => match == null || x.Namespace.StartsWith(match))
+                .GroupToDictionary(x => x.Namespace, x => x.Select(y => y.Assembly).Distinct())
+                .Select(x => new Autocomplete(
+                    string.Format(
+                        "{0} -> {1}",
+                        x.Key,
+                        x.Value.Select(y => Path.GetFileName(y.Location)).Join(", ")),
+                    x.Key));
         }
 
         private IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words)
