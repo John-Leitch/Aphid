@@ -83,7 +83,7 @@ using System.Reflection;
 
 delete print;
 
-var aphid = this.{'$aphid'};
+var aphid = this.{'$aphid'} defined ? this.{'$aphid'} : null;
 var getBlock = @() this.{'$parent'}.{'$block'};
 _callExp = macro(@(i){ this.{'$frames'}[i].Expression });
 var getCall = @() _callExp(1);
