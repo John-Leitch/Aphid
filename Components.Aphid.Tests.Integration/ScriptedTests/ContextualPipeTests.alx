@@ -45,7 +45,7 @@ _flag = macro(@(x, y, z) {
     @{ z != x };
     @{ z != y };
 
-    single or equal begin;
+    single bitwise or equal begin;
     @{ x | y == x | y };
     @{ x | z == x | z };
     @{ y | x == y | x };
@@ -53,7 +53,7 @@ _flag = macro(@(x, y, z) {
     @{ z | x == z | x };
     @{ z | y == z | y };
 
-    single or reverse equal begin;
+    single bitwise or reverse equal begin;
     @{ x | y == y | x };
     @{ x | z == z | x };
     @{ y | x == x | y };
@@ -61,7 +61,7 @@ _flag = macro(@(x, y, z) {
     @{ z | x == x | z };
     @{ z | y == y | z };
 
-    self or equal begin;
+    self bitwise or equal begin;
     @{ x | x == x | x };
     @{ y | y == y | y };
     @{ z | z == z | z };
@@ -69,12 +69,12 @@ _flag = macro(@(x, y, z) {
     @{ y | y | y == y | y | y };
     @{ z | z | z == z | z | z };
 
-    multi or equal begin;
+    multi bitwise or equal begin;
     @{ x | y | z == x | y | z };
     @{ z | y | x == x | y | z };
     @{ z | x | y == y | x | z };
 
-    multi or equal with func begin;
+    multi bitwise or equal with func begin;
 
     @{ x | y | z | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 };
     @{ z | y | x | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 };
