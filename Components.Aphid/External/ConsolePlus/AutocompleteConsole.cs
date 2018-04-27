@@ -378,7 +378,8 @@ namespace Components.External.ConsolePlus
                 Console.WindowWidth -
                 _prompt.Length -
                 _cursorIndex +
-                _searchBuffer.Length;
+                _searchBuffer.Length -
+                1;
 
             if (maxWidth < 0)
             {
