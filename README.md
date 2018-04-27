@@ -189,3 +189,78 @@ The other dialects offer similar enhancements to their target languages.
 ## Visual Studio Extension
 
 Beyond compiler frontends, an early version of a Visual Studio extension can be found at VisualStudioExtension\AphidPackage.vsix. This package should be compatible with the full range of Visual Studio editions from 2012 to 2017. Note that the plugin is considered an early Alpha, and currently only offers syntax highlighting, error checking, and limited intellisense.
+
+## Change Log
+
+### Current
+* Added REPL namespace autocomplete for using statements.
+* Improved autocomplete performance, decreased flickering.
+* Added REPL autocomplete max list size.
+
+### 0.6.6686.31055 - April 22, 2017
+* Improved support for sharing resources across thread-boundaries.
+* Direct type references are now supported, so typeof(StringBuilder) can instead be written as StringBuilder. This feature was added while retaining support for both System.Type instance members and type declared static members. For example, File.GetMethods() works as expected, as does File.ReadAllText(),
+* Added support for explicit generics, so classes like List and Dictionary<TKey, TValue> can be instantiated without using reflection.
+* Extensive type conversion updates, including the ability to automatically pass Aphid functions as .NET delegates without any explicit type information.
+* Rewrote type system, adding powerful type inference with support for generics.
+* Major updates to REPL, including syntax highlighting and extensive autocomplete.
+* Overhauled extension support with static extension methods, extension properties, extension constructors, and dynamic extension members.
+* Added shell support, with command-line style syntax, PowerShell Cmdlet interop, and remoting.
+* C#-style using statements are now supported for handling IDisposable instances.
+* Added support for hundreds of new custom operators.
+* Support for block-level performance profiling.
+* Optional strict mode that requires variables be explicitly declared using the var attribute.
+* Replaced Common Compiler Infrastructure-based ILWeave with Medusa-based view-model compiler for far more concise view-model definitions.
+* Added remoting, with ability to serialize abstract syntax trees and lexical state to send over the wire.
+* Added tools to build executables without Visual Studio or other external tools.
+* Added Medusa, powerful new metaprogramming/white-box language system.
+* Improved runtime error checking.
+* Several fixes and updates to serialization.
+* Improved array interop support.
+* Added debugging and syntax highlighting extension for Visual Studio Code.
+* Several updates to Visual Studio Plugin, including support for Visual Studio 2013 to 2017.
+* Numerous fixes to lexical scope support.
+* Major performance improvements due to optimizations that include rewritten hot paths and type memoization.
+
+### 0.6.6392.20366 - July 2, 2017
+* Overhauled .NET interop support, making Aphid closer to a first class .NET language.
+* Added REPL to aphid.exe.
+* Added implicit args to functions ($_ = first arg, $args = arg array).
+* Added custom unary and binary operator support.
+* Added stack information to exception objects.
+* Added id() directive for dynamic identifiers.
+* Improved for support to make 'in' optional.
+* Added 'for' statement modifier.
+* Added 'continue' support for loops.
+* Numerous bug fixes.
+
+### 0.5.5959.38558 - April 26, 2016
+* Fixed document mode.
+* Added several sample projects.
+
+### 0.5.5945.37718 - April 12, 2016
+* Added function composition support.
+* Added support for try/catch without exception arg.
+* Added class support to Coywolf.
+* Added ofType() to Coywolf query library.
+* Added try/catch/finally support to Boxelder.
+* Improved exception handling.
+* Fixed conditional operator support in Boxelder.
+
+### 0.5.5928.35781 - March 25, 2016
+* Fixed single line comment parser bug.
+* Fixed conditional operator support in Boxelder.
+
+### 0.5.5925.35108 - March 22, 2016
+
+### 0.5.5918.40952 - March 16, 2016
+* Fixed \_\_BUILD\_\_ const.
+
+### 0.5.5917.36822 - March 15, 2016
+* Numeric equality fix.
+
+### 0.5.5916.27928 - March 13, 2016
+* Added winform sample.
+
+### 0.5.5914.41449 - March 12, 2016
+* Exception handling improvements.
