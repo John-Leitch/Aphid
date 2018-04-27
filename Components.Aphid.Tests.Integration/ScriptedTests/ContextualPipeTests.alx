@@ -5,18 +5,21 @@ var f = BindingFlags;
 
 contextual pipe group;
 
-_fun = macro(@(l, r) {
+_fun = macro(@(flag, fun) {
     equal begin;
-    @{ (l | r) == (l |> r) };
+    @{ (flag | fun) == (flag |> fun) };
+
+    call equal begin;
+    @{ (flag | fun) == fun(flag) };
     
-    lhs assign begin;
-    @{ var x = (l | r); x == (l |> r) };
+    lhs ref begin;
+    @{ var x = (flag | fun); x == (flag |> fun) };
 
-    rhs assign begin;
-    @{ var x = (l |> r); (l | r) == x };
+    rhs ref begin;
+    @{ var x = (flag |> fun); (flag | fun) == x };
 
-    both assign begin;
-    @{ var x = (l | r); var y = (l |> r); x == y };
+    both ref begin;
+    @{ var x = (flag | fun); var y = (flag |> fun); x == y };
 });
 
 isTrue;
@@ -30,35 +33,59 @@ _fun(f.DeclaredOnly | f.CreateInstance, Convert.ToUInt32);
 
 _flag = macro(@(x, y, z) {
     equal to self begin;
-    @{ x == x && y == y };
+    @{ x == x };
+    @{ y == y };
+    @{ z == z };
 
     not equal to other begin;
-    @{ x != y && y != x };
+    @{ x != y };
+    @{ x != z };
+    @{ y != x };
+    @{ y != z };
+    @{ z != x };
+    @{ z != y };
 
     single or equal begin;
     @{ x | y == x | y };
+    @{ x | z == x | z };
+    @{ y | x == y | x };
+    @{ y | z == y | z };
+    @{ z | x == z | x };
+    @{ z | y == z | y };
 
     single or reverse equal begin;
     @{ x | y == y | x };
+    @{ x | z == z | x };
+    @{ y | x == x | y };
+    @{ y | z == z | y };
+    @{ z | x == x | z };
+    @{ z | y == y | z };
 
     self or equal begin;
-    @{ x | x == x | x && y | y == y | y && x | x | x == x | x | x && y | y | y == y | y | y };
+    @{ x | x == x | x };
+    @{ y | y == y | y };
+    @{ z | z == z | z };
+    @{ x | x | x == x | x | x };
+    @{ y | y | y == y | y | y };
+    @{ z | z | z == z | z | z };
 
     multi or equal begin;
-    @{ x | y | z == x | y | z && z | y | x == x | y | z && z | x | y == y | x | z };
+    @{ x | y | z == x | y | z };
+    @{ z | y | x == x | y | z };
+    @{ z | x | y == y | x | z };
 
     multi or equal with func begin;
 
-    @{
-        x | y | z | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 &&
-        z | y | x | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 &&
-        z | x | y | Convert.ToUInt32 == y | x | z | Convert.ToUInt32
-    };
+    @{ x | y | z | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 };
+    @{ z | y | x | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 };
+    @{ z | x | y | Convert.ToUInt32 == y | x | z | Convert.ToUInt32 };
 
     mixed func test begin;
     @{ (x | Convert.ToUInt32 @Enum.ToObject(BindingFlags)) == x };
+    
     // Todo: fix
     //@{ (x | Convert.ToUInt32) | (y | Convert.ToUInt32) == x | y | Convert.ToUInt32 };
+    
     @{ (x | Convert.ToDecimal) | (y | Convert.ToDecimal) == x | y | Convert.ToDecimal };
     @{
         ((x | Convert.ToDecimal) | (y | Convert.ToDecimal) @Enum.ToObject(BindingFlags)) ==
