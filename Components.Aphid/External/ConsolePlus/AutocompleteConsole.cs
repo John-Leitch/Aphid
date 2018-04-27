@@ -34,15 +34,13 @@ namespace Components.External.ConsolePlus
 
         private List<string> _history = new List<string>();
 
+        public int MaxListSize { get; set; }
+
         public IScanner Scanner { get; private set; }
 
         public ISyntaxHighlighter Highlighter { get; private set; }
 
         public IAutocompletionSource Source { get; private set; }
-
-        public Func<int> GetMaxResults { get; set; }
-
-        public Func<int> GetMaxWidth { get; set; }
 
         public int MaxHistoryCount { get; set; }
 
@@ -52,8 +50,7 @@ namespace Components.External.ConsolePlus
             ISyntaxHighlighter highlighter,
             IAutocompletionSource sources)
         {
-            GetMaxResults = () => Console.WindowHeight - 6;
-            GetMaxWidth = () => Console.WindowWidth - _autocompleteLeft - 1;
+            MaxListSize = 10;
             MaxHistoryCount = 100;
             _prompt = prompt;
             Scanner = scanner;
@@ -377,8 +374,11 @@ namespace Components.External.ConsolePlus
             _autocompleteWidth = _matches.Length != 0 ?
                 _matches.Max(x => Cli.EraseStyles(x.View).Length) : 0;
 
-
-            var maxWidth = Console.WindowWidth - _prompt.Length - _cursorIndex + _searchBuffer.Length;
+            var maxWidth =
+                Console.WindowWidth -
+                _prompt.Length -
+                _cursorIndex +
+                _searchBuffer.Length;
 
             if (maxWidth < 0)
             {
@@ -508,6 +508,16 @@ namespace Components.External.ConsolePlus
                 Console.CursorTop);
 
             Console.CursorVisible = true;
+        }
+
+        private int GetMaxResults()
+        {
+            return Math.Min(Console.WindowHeight - 6, MaxListSize);
+        }
+
+        private int GetMaxWidth()
+        {
+            return Console.WindowWidth - _autocompleteLeft - 1;
         }
     }
 }
