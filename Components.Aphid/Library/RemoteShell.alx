@@ -81,7 +81,10 @@ var connectShell = @(host) {
     ret remoteShell;
 };
 
-var runInteractive = @(host) {
+var runInteractive = @(host)
+    run(host, @(remoteShell) Console.ReadLine());
+
+var run = @(host, nextLine) {
     var remoteShell = connectShell(host);
     var buffer;
 
@@ -92,13 +95,16 @@ var runInteractive = @(host) {
             buffer = remoteShell.readOut();
 
             if (buffer != null) {
-                //dumpe(buffer);
                 buffer |> Cli.Write;
             }
         } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
-
-        Console.ReadLine() |> remoteShell.writeInLine;
         
+        var line = nextLine(remoteShell);
+
+        if (line != null) {
+            line |> remoteShell.writeInLine;
+        }
+
         if (!remoteShell.execNext()) {
             remoteShell.BasePath = 'Environment';
             remoteShell.Exit(0);
@@ -106,6 +112,7 @@ var runInteractive = @(host) {
         }
     }
 };
+
 
 var readToPrompt = @(proxy) {
     var sb = new StringBuilder();
@@ -121,39 +128,24 @@ var readToPrompt = @(proxy) {
 };
 
 var execRemoteScript = @(host, scriptFile) {
+    using System.Collections.Generic;
     printInfo('Executing script file ~Cyan~{0}~R~', scriptFile);
-    ret scriptFile |> File.ReadAllText @execRemoteScriptBlock(host);
-};
-
-var execRemoteScriptBlock = @(host, script) {
-    var result = { out: null };
+    var queue = new Queue[string](scriptFile |> File.ReadAllLines);
+    queue.Enqueue('using System');
+    queue.Enqueue('Environment.Exit 0');
 
     try {
-        var remoteShell = connectShell(host);
-        remoteShell.writePrompt();
-        remoteShell |> readToPrompt;
-        remoteShell.execScript(script);
-        remoteShell.writePrompt();
-        result.out = remoteShell |> readToPrompt;
-        using System.Threading;
-        remoteShell.Eval(
-            'using System; using System.Threading;' +
-            't = new Thread(@{ ' +
-                'Thread.Sleep(250); ' +
-                'Environment.Exit(0) }); ' +
-            't.IsBackground = false;' +
-            't.Start()');
-    } catch (e) {
-        if (e != null) {
-            print('Exception: {0}\r\n{1}', e.message, e.stack);
-        }
+        run(
+            host,
+            @{
+                var cmd = queue.Count > 0 ? queue.Dequeue() : null;
+                Console.WriteLine();
 
-        result.error = e;
+                ret cmd;
+            });
+    } catch {
+
     }
-
-    result.success = result.out != null;
-
-    ret result;
 };
 
 if (isHost) {
