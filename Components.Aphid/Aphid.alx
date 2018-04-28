@@ -18,37 +18,31 @@ Lexer({
             mode: "Aphid",
             tokens: tokens,
             keywords: [
-                "true",
-                "false",
-                "null",
-
-                "if",
-                "else",
-                "switch",
-                "default",
-                "while",
-                "do",
-                "for",
-                "in",
-
-                "continue",
-                "break",
-
-                "ret",
-
-                "this",
-
-                "new",
-                "using",
-                "load",
-
-                "defined",
-                "delete",
-                "extend",
-
-                "try",
-                "catch",
-                "finally",
+                'break',
+                'catch',
+                'continue',
+                'default',
+                'defined',
+                'delete',
+                'do',
+                'else',
+                'extend',
+                'false',
+                'finally',
+                'for',
+                'if',
+                'in',
+                'load',
+                'lock',
+                'new',
+                'null',
+                'ret',
+                'switch',
+                'this',
+                'true',
+                'try',
+                'using',
+                'while',
             ],
             keywordDefault: getKeywordHelper('Identifier'),
             keywordTail: getKeywordHelper('{Keyword}')            
@@ -104,6 +98,7 @@ ImplicitArgumentExpression = { AphidTokenType Operator };
 ImplicitArgumentsExpression = { AphidTokenType Operator };
 LoadLibraryExpression = { LibraryExpression };
 LoadScriptExpression = { FileExpression };
+LockExpression = { list Expressions, list Body };
 NullExpression = { };
 NumberExpression = { decimal Value, };
 ObjectExpression = { list BinaryOperatorExpression Pairs, opt IdentifierExpression Identifier };
@@ -171,6 +166,14 @@ ParseBinOpExp = macro(@(_parse, _ops) {
     };
 });
 
+CommaOrBreak = macro(@{
+    if (Comma) {
+        NextToken;
+    } else {
+        break;
+    }
+});
+
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
@@ -204,6 +207,7 @@ _ParseStatement = macro(@(_requireEos) {
             tryKeyword: exp ParseTryExpression;
             switchKeyword: exp ParseSwitchExpression;
             usingKeyword: exp ParseUsingExpression;
+            lockKeyword: exp ParseLockExpression;
 
             Text: exp ParseTextExpression;
             GatorOpenOperator: { exp = GatorOpenExpression(); NextToken; }
@@ -978,6 +982,62 @@ ParseUsingExpression = @{
     }
 };
 
+ParseLockExpression = @{
+    NextToken;
+    exps = list AphidExpression;
+
+    while (true) {
+        if (LeftParenthesis) {
+            NextToken;
+            exps += ParseExpression();
+            RightParenthesis;
+        } else if (Identifier) {
+            AphidExpression exp;
+            exp = IdentifierExpression(Lexeme);
+            NextToken;
+
+            while (MemberOperator) {
+                NextToken;
+                memberExp;
+
+                switch (TokenType) {
+                    Identifier: {
+                        memberExp = IdentifierExpression(Lexeme);
+                        NextToken;
+                    }
+
+                    LeftBrace: {
+                        NextToken;
+                        memberExp = DynamicMemberExpression(ParseExpression());
+                        RightBrace;
+                    }
+
+                    default: Error;
+                }
+
+                exp = BinaryOperatorExpression(exp, MemberOperator, memberExp);
+            }
+
+            exps += exp;
+        }
+
+        CommaOrBreak();
+    }
+
+    //Todo: support eos here for scope lock e..g
+    // var fun = @{
+    //     if (foo.bar) {
+    //         lock some.var;
+    //         if (some.var) { /* ... */ }
+    //         /* some.var lock is released here */
+    //     }
+    // }
+    // 
+    // Todo: support function attr e.g. var fun = lock some.var @{ /* ... */ };
+
+    ret LockExpression(exps, ParseBlock());
+};
+
 ParseLoadScriptExpression = SkipThen(LoadScriptExpression(ParseExpression()));
 ParseLoadLibraryExpression = SkipThen(LoadLibraryExpression(ParseExpression()));
 
@@ -1144,8 +1204,7 @@ FunctionExpression ParseFunctionDeclaration = @{
 
                 args += argExp;
 
-                if (Comma) NextToken;
-                else break;
+                CommaOrBreak();
             } else {
                 Error;
             }
@@ -1559,8 +1618,7 @@ ParsePatternMatchingExpression = @{
             // Todo: add list support for varName funcName syntax
             tuple += ParseExpression();
 
-            if (Comma) NextToken;
-            else break;
+            CommaOrBreak();
         }
 
         valueExp;
@@ -1577,8 +1635,7 @@ ParsePatternMatchingExpression = @{
             patterns += PatternExpression(tuple[0]);
         }
 
-        if (Comma) NextToken;
-        else break;
+        CommaOrBreak();
     }
     
     ret PatternMatchingExpression(testExp, patterns);

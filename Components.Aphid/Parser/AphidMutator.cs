@@ -350,6 +350,15 @@ namespace Components.Aphid.Parser
 
                     break;
 
+                case AphidExpressionType.LockExpression:
+                    var lockExp = (LockExpression)expression;
+
+                    expanded.Add(
+                        new LockExpression(
+                            lockExp.Expressions.SelectMany(Mutate).ToList(),
+                            lockExp.Body.SelectMany(Mutate).ToList()));
+
+                    break;
 
                 default:
                     if (expression is IParentNode)

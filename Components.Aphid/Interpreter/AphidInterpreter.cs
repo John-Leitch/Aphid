@@ -3810,6 +3810,79 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AphidObject InterpretLockExpression(LockExpression expression)
+        {
+            object[] references;
+
+            if (expression.Expressions.Count > 0)
+            {
+                references = new object[expression.Expressions.Count];
+
+                for (var i = 0; i < references.Length; i++)
+                {
+                    var obj = InterpretExpression(expression.Expressions[i]);
+                    
+                    if (ValueHelper.IsComplexAphidObject(obj))
+                    {
+                        references[i] = obj;
+                    }
+                    else
+                    {
+                        references[i] = ((AphidObject)obj).Value;
+
+                        if (references[i] == null)
+                        {
+                            throw CreateMonitorException(
+                                "null",
+                                expression.Expressions[i]);
+                        }
+                        if (references[i].GetType().IsValueType)
+                        {
+                            // Todo: possibly support locking value types using internal
+                            // sync object table.
+                            throw CreateMonitorException(
+                                string.Format("value type '{0}'", references[i]),
+                                expression.Expressions[i]);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                references = new object[] { InterpretThisExpression() };
+            }
+
+            for (var i = 0; i < references.Length; i++)
+            {
+                Monitor.Enter(references[i]);
+            }
+
+            try
+            {
+                InterpretBlock(expression.Body);
+            }
+            finally
+            {
+                for (var i = 0; i < references.Length; i++)
+                {
+                    Monitor.Exit(references[i]);
+                }
+            }
+
+            return null;
+        }
+
+        private AphidRuntimeException CreateMonitorException(
+            string description,
+            AphidExpression expression)
+        {
+            return CreateRuntimeException(
+                "Cannot lock {0} evaluated from '{1}'.",
+                description,
+                expression);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadScriptExpression(LoadScriptExpression expression)
         {
             var file = ValueHelper.Unwrap(InterpretExpression(expression.FileExpression)) as string;
@@ -4452,6 +4525,9 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.UsingExpression:
                     return InterpretUsingExpression((UsingExpression)expression);
+
+                case AphidExpressionType.LockExpression:
+                    return InterpretLockExpression((LockExpression)expression);
 
                 case AphidExpressionType.LoadScriptExpression:
                     return InterpretLoadScriptExpression((LoadScriptExpression)expression);
