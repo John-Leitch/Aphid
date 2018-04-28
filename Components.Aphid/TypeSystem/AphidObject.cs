@@ -262,18 +262,23 @@ namespace Components.Aphid.TypeSystem
 
         public void CopyTo(AphidObject obj)
         {
-            obj.Value = Value;
-
-            foreach (var nvp in this)
+            if (obj.IsComplex)
             {
-                if (obj.ContainsKey(nvp.Key))
+                foreach (var nvp in this)
                 {
-                    obj[nvp.Key] = nvp.Value;
+                    if (obj.ContainsKey(nvp.Key))
+                    {
+                        obj[nvp.Key] = nvp.Value;
+                    }
+                    else
+                    {
+                        obj.Add(nvp.Key, nvp.Value);
+                    }
                 }
-                else
-                {
-                    obj.Add(nvp.Key, nvp.Value);
-                }
+            }
+            else
+            {
+                obj.Value = Value;
             }
         }
 
