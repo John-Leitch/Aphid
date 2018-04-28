@@ -162,7 +162,7 @@ namespace AphidUI.ViewModels
                 Thread.Sleep(_autoSaveTimer);
 
 
-                var root = new AphidObject();
+                var root = AphidObject.Complex();
 
                 //foreach (var nvp in table)
                 //{
@@ -297,7 +297,7 @@ namespace AphidUI.ViewModels
 
         private void AddIsRepl()
         {
-            _interpreter.CurrentScope.Add(IsReplName, new AphidObject(true));
+            _interpreter.CurrentScope.Add(IsReplName, AphidObject.Scalar(true));
         }
 
         private void InitInterpreter()
@@ -305,7 +305,7 @@ namespace AphidUI.ViewModels
             AddIsRepl();
             LoadLibrary();
 
-            _interpreter.CurrentScope.Add(ViewModelName, new AphidObject(this));
+            _interpreter.CurrentScope.Add(ViewModelName, AphidObject.Scalar(this));
         }
 
         private void ExecuteExpression()
