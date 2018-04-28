@@ -139,7 +139,7 @@ var execRemoteScript = @(host, scriptFile) {
             host,
             @{
                 var cmd = queue.Count > 0 ? queue.Dequeue() : null;
-                Console.WriteLine();
+                Console.WriteLine(cmd);
 
                 ret cmd;
             });
