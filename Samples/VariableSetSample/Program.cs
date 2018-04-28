@@ -9,7 +9,7 @@ namespace VariableSetSample
         static void Main(string[] args)
         {
             var interpreter = new AphidInterpreter();
-            interpreter.CurrentScope.Add("x", new AphidObject("foo"));
+            interpreter.CurrentScope.Add("x", AphidObject.Scalar("foo"));
 
             interpreter.Interpret(@"
                 #'Std';
