@@ -468,7 +468,11 @@ namespace Components.Aphid.UI
                     string.Format(
                         "{0} -> {1}",
                         x.Key,
-                        x.Value.Select(y => Path.GetFileName(y.Location)).Join(", ")),
+                        x.Value
+                            .Select(y => !y.IsDynamic ?
+                                Path.GetFileName(y.Location) :
+                                y.GetName().Name)
+                            .Join(", ")),
                     x.Key));
         }
 
