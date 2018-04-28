@@ -28,8 +28,8 @@ namespace Components.Aphid.Tests.Integration
         private void AssertEquality(object lhs, object rhs, bool areEqual)
         {
             var interpreter = new AphidInterpreter();
-            interpreter.CurrentScope.Add("lhs", new AphidObject(lhs));
-            interpreter.CurrentScope.Add("rhs", new AphidObject(rhs));
+            interpreter.CurrentScope.Add("lhs", AphidObject.Scalar(lhs));
+            interpreter.CurrentScope.Add("rhs", AphidObject.Scalar(rhs));
             interpreter.Interpret("ret lhs == rhs");
             var result = interpreter.GetReturnValue().GetBool();
 

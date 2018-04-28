@@ -23,7 +23,7 @@ namespace Components.Aphid.TypeSystem
             }
             else if (x.Value is decimal && y.Value is decimal)
             {
-                return new AphidObject((decimal)x.Value + (decimal)y.Value);
+                return AphidObject.Scalar((decimal)x.Value + (decimal)y.Value);
             }
             else if ((x.Value is sbyte ||
                 x.Value is short ||
@@ -48,11 +48,11 @@ namespace Components.Aphid.TypeSystem
                 y.Value is double ||
                 y.Value is decimal))
             {
-                return new AphidObject(Convert.ToDecimal(x.Value) + Convert.ToDecimal(y.Value));
+                return AphidObject.Scalar(Convert.ToDecimal(x.Value) + Convert.ToDecimal(y.Value));
             }            
             else
             {
-                return new AphidObject(Convert.ToString(x.Value) + Convert.ToString(y.Value));
+                return AphidObject.Scalar(Convert.ToString(x.Value) + Convert.ToString(y.Value));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new AphidObject(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
+                return AphidObject.Scalar(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
             }
         }
 
@@ -78,7 +78,7 @@ namespace Components.Aphid.TypeSystem
             }
             else if (!(t = x.Value.GetType()).IsEnum)
             {
-                return new AphidObject((decimal)((long)(decimal)x.Value | (long)(decimal)y.Value));
+                return AphidObject.Scalar((decimal)((long)(decimal)x.Value | (long)(decimal)y.Value));
             }
             else
             {
@@ -88,7 +88,7 @@ namespace Components.Aphid.TypeSystem
                     t,
                     Convert.ToUInt64(x.Value) | Convert.ToUInt64(y.Value));
 
-                return new AphidObject(o);
+                return AphidObject.Scalar(o);
             }
         }
 
@@ -114,56 +114,56 @@ namespace Components.Aphid.TypeSystem
                 }
                 else if (xBaseType == typeof(byte))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (byte)x.Value & (byte)y.Value));
                 }
                 else if (xBaseType == typeof(ushort))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (ushort)x.Value & (ushort)y.Value));
                 }
                 else if (xBaseType == typeof(uint))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (uint)x.Value & (uint)y.Value));
                 }
                 else if (xBaseType == typeof(ulong))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (ulong)x.Value & (ulong)y.Value));
                 }
                 else if (xBaseType == typeof(sbyte))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (sbyte)x.Value & (sbyte)y.Value));
                 }
                 else if (xBaseType == typeof(short))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (short)x.Value & (short)y.Value));
                 }
                 else if (xBaseType == typeof(int))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (int)x.Value & (int)y.Value));
                 }
                 else if (xBaseType == typeof(long))
                 {
-                    return new AphidObject(
+                    return AphidObject.Scalar(
                         Enum.ToObject(
                             xType,
                             (long)x.Value & (long)y.Value));
@@ -179,7 +179,7 @@ namespace Components.Aphid.TypeSystem
             {
                 // Todo: Perform proper type checking and conversion by
                 // branching on both lhs and rhs type.
-                return new AphidObject((decimal)((long)(decimal)x.Value & (long)(decimal)y.Value));
+                return AphidObject.Scalar((decimal)((long)(decimal)x.Value & (long)(decimal)y.Value));
             }
         }
 
@@ -191,7 +191,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new AphidObject((decimal)((int)(decimal)x.Value << (int)(decimal)y.Value));
+                return AphidObject.Scalar((decimal)((int)(decimal)x.Value << (int)(decimal)y.Value));
             }
         }
 
@@ -203,7 +203,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new AphidObject((decimal)((int)(decimal)x.Value >> (int)(decimal)y.Value));
+                return AphidObject.Scalar((decimal)((int)(decimal)x.Value >> (int)(decimal)y.Value));
             }
         }
 
@@ -215,7 +215,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new AphidObject((decimal)((int)(decimal)x.Value ^ (int)(decimal)y.Value));
+                return AphidObject.Scalar((decimal)((int)(decimal)x.Value ^ (int)(decimal)y.Value));
             }
         }
 
@@ -227,7 +227,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new AphidObject(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
+                return AphidObject.Scalar(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
             }
         }
 
@@ -240,7 +240,7 @@ namespace Components.Aphid.TypeSystem
                 sb.Append(value);
             }
 
-            return new AphidObject(sb.ToString());  
+            return AphidObject.Scalar(sb.ToString());  
         }
 
         public AphidObject Multiply(AphidObject x, AphidObject y)
@@ -271,10 +271,10 @@ namespace Components.Aphid.TypeSystem
                     // throw the following exception.
                     // throw new AphidRuntimeException("Could not multiply type");
 
-                    return new AphidObject(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));                    
+                    return AphidObject.Scalar(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));                    
                 }
 
-                return new AphidObject(val);
+                return AphidObject.Scalar(val);
             }
         }
 
@@ -286,7 +286,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new AphidObject(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
+                return AphidObject.Scalar(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
             }
         }
 
@@ -298,10 +298,10 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                var r = new AphidObject(
+                var r = AphidObject.Scalar(
                     Enumerable
                         .Range(Convert.ToInt32(x.Value), Convert.ToInt32(y.Value))
-                        .Select(z => new AphidObject((decimal)z))
+                        .Select(z => AphidObject.Scalar((decimal)z))
                         .ToList());
                 
                 return r;
@@ -317,12 +317,12 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject Equals(AphidObject x, AphidObject y)
         {
-            return new AphidObject(EqualsCore(x, y));
+            return AphidObject.Scalar(EqualsCore(x, y));
         }
 
         public AphidObject NotEqual(AphidObject x, AphidObject y)
         {
-            return new AphidObject(!EqualsCore(x, y));
+            return AphidObject.Scalar(!EqualsCore(x, y));
         }
 
         private AphidOperationException CreateOperationException(string op)

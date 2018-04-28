@@ -2,23 +2,16 @@
 #'AopTest';
 unsafe navigation group;
 
-_p = macro(@{ _pc(foo.bar.x) });
-_ps = macro(@{ _pc(foo?.bar?.x) });
-_pc = macro(@(m){ m |> print });
-_n = macro(@(m){ @{ m = null } });
-
 prologue;
 var foo = { bar: { x: 10 } };
 
-    @{ _p() };
-    epilogue;
-    _ps();
-    @{  };
-    _n(foo);
-    _n(foo.bar);
+@{ foo.bar.x |> print };
+@{ foo?.bar?.x |> print };
+@{ foo.bar = null; foo?.bar?.x |> print };
+@{ foo = null; foo?.bar?.x |> print };
 
 fault;
-    epilogue;
-    _p();
-    _n(foo);
-    _n(foo.bar);
+
+@{ foo.bar = null; foo.bar.x |> print };
+@{ foo = null; foo.bar.x |> print };
+

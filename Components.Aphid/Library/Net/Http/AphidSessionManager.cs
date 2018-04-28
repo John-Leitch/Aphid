@@ -50,7 +50,7 @@ namespace Components.Aphid.Library.Net.Http
         {
             lock (_sessions)
             {
-                var session = new AphidObject();
+                var session = AphidObject.Scope();
                 _sessions.Add(id, session);
 
                 return session;

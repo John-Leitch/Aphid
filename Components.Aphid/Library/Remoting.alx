@@ -52,7 +52,7 @@ var remote = null;
     extend TcpClient {
         isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
     }
-
+    //var traceRemoting = true;
     var _rt = traceRemoting defined ? Cli.WriteLine : @{ };
     var utf8 = new UTF8Encoding();
 
@@ -67,7 +67,7 @@ var remote = null;
             var buf = len |> Convert.ToInt32 |> reader.ReadBytes |> remote.decode;
             _rt('{0:n0} bytes read', buf.Length);
 
-            ret new AphidObject(buf |> utf8.GetString);
+            ret AphidObject.Scalar(buf |> utf8.GetString);
         },
 
         write: @(b) {

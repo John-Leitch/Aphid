@@ -31,7 +31,7 @@ namespace Components.Aphid.Library.Net
 
         private AphidSessionManager _sessionManager = new AphidSessionManager();
 
-        private AphidObject _globals = new AphidObject();
+        private AphidObject _globals = AphidObject.Scope();
 
         private string _config = "Config.alx";
 
@@ -178,7 +178,7 @@ namespace Components.Aphid.Library.Net
             AphidObject session)
         {
             
-            var scope = new AphidObject();
+            var scope = AphidObject.Scope();
             var oldLoaderPaths = handlerInterpreter.Loader.SearchPaths.ToArray();
             SetupInterpreterScope(handlerInterpreter, scope, null, context, session);
 
@@ -251,9 +251,9 @@ namespace Components.Aphid.Library.Net
 
             var table = s.Keys
                 .OfType<string>()
-                .ToDictionary(x => x, x => new AphidObject(s[x]));
+                .ToDictionary(x => x, x => AphidObject.Scalar(s[x]));
 
-            var obj = new AphidObject();
+            var obj = AphidObject.Complex();
 
             foreach (var kvp in table)
             {
@@ -347,7 +347,7 @@ namespace Components.Aphid.Library.Net
             {
                 session.Add(
                     _configCacheTime,
-                    lastWriteObj = new AphidObject(DateTime.MinValue));
+                    lastWriteObj = AphidObject.Scalar(DateTime.MinValue));
             }
 
             var lastWrite = (DateTime)lastWriteObj.Value;
@@ -366,14 +366,14 @@ namespace Components.Aphid.Library.Net
 
         private void CacheConfig(AphidObject session)
         {
-            session[_configCacheTime] = new AphidObject(DateTime.Now);
+            session[_configCacheTime] = AphidObject.Scalar(DateTime.Now);
         }
 
         private void SetSessionInterpreter(
             AphidObject session,
             AphidInterpreter interpreter)
         {
-            var obj = new AphidObject(interpreter);
+            var obj = AphidObject.Scalar(interpreter);
 
             if (session.ContainsKey(AphidName.Interpreter))
             {
@@ -431,23 +431,23 @@ namespace Components.Aphid.Library.Net
                 }
             }
 
-            scope.Add("url", new AphidObject(context.Request.Url));
-            scope.Add("request", new AphidObject(context.Request));
-            scope.Add("response", new AphidObject(context.Response));
-            scope.Add("context", new AphidObject(context));
+            scope.Add("url", AphidObject.Scalar(context.Request.Url));
+            scope.Add("request", AphidObject.Scalar(context.Request));
+            scope.Add("response", AphidObject.Scalar(context.Response));
+            scope.Add("context", AphidObject.Scalar(context));
             scope.Add("query", CreateQueryObject(context));
             scope.Add("session", session);
-            scope.Add("body", new AphidObject(body));
+            scope.Add("body", AphidObject.Scalar(body));
             scope.Add("globals", _globals);
-            scope.Add("content", new AphidObject(null));
-            scope.Add("contentType", new AphidObject(null));
+            scope.Add("content", AphidObject.Null());
+            scope.Add("contentType", AphidObject.Null());
 
             scope.Add(
                 "post",
                 context.Request.ContentType != null &&
                 context.Request.ContentType.StartsWith(_formUrlEncoded) ?
                     CreateQueryObject(body) :
-                    new AphidObject());
+                    AphidObject.Complex());
 
             if (codeFile != null)
             {

@@ -41,7 +41,7 @@ namespace Components.Aphid.Interpreter
         {
             var result = _interpreter.InterpretStream(block);
 
-            return _interpreter.Serializer.Serialize(new AphidObject(result));
+            return _interpreter.Serializer.Serialize(AphidObject.Scalar(result));
         }
 
         public static void Register(AphidInterpreter interpreter)

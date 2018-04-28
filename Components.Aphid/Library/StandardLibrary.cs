@@ -26,7 +26,7 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("serialize", UnwrapParameters = false, PassInterpreter = true)]
         public static AphidObject Serialize(AphidInterpreter interpreter, AphidObject obj)
         {
-            return new AphidObject(interpreter.Serializer.Serialize(obj));
+            return AphidObject.Scalar(interpreter.Serializer.Serialize(obj));
         }
 
         [AphidInteropFunction("deserialize", UnwrapParameters = false, PassInterpreter = true)]
@@ -38,7 +38,7 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("ascii.getBytes")]
         public static List<AphidObject> GetBytes(string value)
         {
-            return Encoding.GetBytes(value).Select(x => new AphidObject((decimal)x)).ToList();
+            return Encoding.GetBytes(value).Select(x => AphidObject.Scalar((decimal)x)).ToList();
         }
 
         [AphidInteropFunction("ascii.getString")]
@@ -204,7 +204,7 @@ namespace Components.Aphid.Library
         {
             return Enumerable
                 .Range((int)start, (int)count)
-                .Select(x => new AphidObject((decimal)x))
+                .Select(x => AphidObject.Scalar((decimal)x))
                 .ToList();
         }
 
@@ -266,7 +266,7 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("__string.getChars")]
         private static List<AphidObject> StringGetChars(string str)
         {
-            return str.Select(x => new AphidObject(x.ToString())).ToList();
+            return str.Select(x => AphidObject.Scalar(x.ToString())).ToList();
         }
 
         [AphidInteropFunction("__string.remove")]
@@ -326,7 +326,7 @@ namespace Components.Aphid.Library
 
             return str
                 .Split(s, StringSplitOptions.None)
-                .Select(x => new AphidObject(x))
+                .Select(AphidObject.Scalar)
                 .ToList();
         }
 
@@ -365,7 +365,7 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("keys", UnwrapParameters = false)]
         public static List<AphidObject> Keys(AphidObject obj)
         {
-            return obj.Select(x => new AphidObject(x.Key)).ToList();
+            return obj.Select(x => AphidObject.Scalar(x.Key)).ToList();
         }
 
         [AphidInteropFunction("setValue", PassInterpreter = true, UnwrapParameters = false)]

@@ -218,17 +218,51 @@ namespace Components.Aphid.Interpreter
 
             var currentObj = scope;
 
-            foreach (var m in members)
+            for (var i = 0; i < members.Length; i++)
             {
-                if (!currentObj.ContainsKey(m))
-                {
-                    currentObj.Add(m, new AphidObject());
-                }
+                var m = members[i];
 
-                currentObj = currentObj[m];
+                if (i != members.Length - 1)
+                {
+                    if (!currentObj.ContainsKey(m))
+                    {
+                        var o = AphidObject.Complex();
+                        currentObj.Add(m, o);
+                        currentObj = o;
+                    }
+                    else
+                    {
+                        currentObj = currentObj[m];
+                    }
+                }
+                else
+                {
+                    var o = Interpreter.ValueHelper.IsComplexAphidObject(value) ?
+                        (AphidObject)value :
+                        AphidObject.Scalar(Interpreter.ValueHelper.Unwrap(value));
+
+                    if (!currentObj.ContainsKey(m))
+                    {
+                        currentObj.Add(m, o);
+                    }
+                    else
+                    {
+                        currentObj[m] = o;
+                    }
+                }
             }
 
-            currentObj.Value = value;
+            //foreach (var m in members)
+            //{
+            //    if (!currentObj.ContainsKey(m))
+            //    {
+            //        currentObj.Add(m, AphidObject.Complex());
+            //    }
+
+            //    currentObj = currentObj[m];
+            //}
+
+            //currentObj.Value = value;
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Components.Aphid.Library
                 Array.Resize(ref buffer, len);
             }
 
-            return buffer.Select(x => new AphidObject((decimal)x)).ToList();
+            return buffer.Select(x => AphidObject.Scalar((decimal)x)).ToList();
         }
     }
 }

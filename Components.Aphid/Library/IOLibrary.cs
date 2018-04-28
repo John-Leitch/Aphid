@@ -17,7 +17,7 @@ namespace Components.Aphid.Library
             
             foreach (var b in File.ReadAllBytes(filename))
             {
-                list.Add(new AphidObject((decimal)b));
+                list.Add(AphidObject.Scalar((decimal)b));
             }
 
             return list;
@@ -74,7 +74,7 @@ namespace Components.Aphid.Library
         {
             var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-            return func(dir, pattern, searchOption).Select(x => new AphidObject(x)).ToList();
+            return func(dir, pattern, searchOption).Select(x => AphidObject.Scalar(x)).ToList();
         }
 
         [AphidInteropFunction("io.dir.getFilesInternal")]

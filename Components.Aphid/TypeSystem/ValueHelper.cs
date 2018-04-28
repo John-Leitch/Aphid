@@ -35,7 +35,7 @@ namespace Components.Aphid.TypeSystem
         {
             AphidObject aphidObj;
 
-            return (aphidObj = obj as AphidObject) != null ? aphidObj : new AphidObject(obj);
+            return (aphidObj = obj as AphidObject) != null ? aphidObj : AphidObject.Scalar(obj);
         }
 
         public object DeepUnwrap(object obj)
@@ -166,7 +166,15 @@ namespace Components.Aphid.TypeSystem
         {
             var ao = obj as AphidObject;
 
-            return ao != null && ao.Value == null;
+            return ao != null &&
+                ao.Value == null &&
+                (!ao.IsComplexitySet || ao.IsComplex || !ao.IsScalar);
+
+            //return ao != null && ao.Value == null && !ao.IsScalar;
+
+            //return ao != null &&
+            //    (ao.IsComplexitySet ?
+            //        ao.IsComplex : ao.Keys.Count > 0);
         }
     }
 

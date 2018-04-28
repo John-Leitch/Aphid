@@ -284,15 +284,15 @@ namespace Components.Aphid.TypeSystem
                 //var function = func;
                 var skipOffset = isStatic ? 1 : 0;
 
-                function.ParentScope = new AphidObject { Parent = scope };
+                function.ParentScope = AphidObject.Scope(scope);
 
                 if (!isStatic)
                 {
                     function.ParentScope.Add(AphidName.ImplicitArg, obj);
                 }
 
-                function.ParentScope.Add(AphidName.Extension, new AphidObject(true));
-                function.ParentScope.Add(AphidName.StaticExtension, new AphidObject(isStatic));
+                function.ParentScope.Add(AphidName.Extension, AphidObject.Scalar(true));
+                function.ParentScope.Add(AphidName.StaticExtension, AphidObject.Scalar(isStatic));
 
                 if (function.Args.Any())
                 {
@@ -307,7 +307,7 @@ namespace Components.Aphid.TypeSystem
                     {
                         function.ParentScope.Add(
                             function.Args[1 - skipOffset],
-                            new AphidObject(key));
+                            AphidObject.Scalar(key));
 
                         skip = 2 - skipOffset;
                     }
@@ -319,14 +319,14 @@ namespace Components.Aphid.TypeSystem
                     function.Args = function.Args.Skip(skip).ToArray();
                 }
 
-                result = new AphidObject(function);
+                result = AphidObject.Scalar(function);
             }
             else
             {
                 result = !returnRef ? val[key] : val;
             }
 
-            return !returnRef ? result : new AphidObject(new AphidRef() { Name = key, Object = result });
+            return !returnRef ? result : AphidObject.Scalar(new AphidRef() { Name = key, Object = result });
         }
     }
 }

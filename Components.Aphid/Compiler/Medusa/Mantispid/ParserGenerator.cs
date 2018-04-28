@@ -41,13 +41,13 @@ namespace Mantispid
 
         private ParserGeneratorConfig _config;
 
-        private AphidObject _scope = new AphidObject();
+        private AphidObject _scope = AphidObject.Scope();
 
         private string[] _tokenTypes;
 
         private void EnterChildScope()
         {
-            _scope = new AphidObject() { Parent = _scope };
+            _scope = AphidObject.Scope(_scope);
         }
 
         private void LeaveChildScope()
@@ -186,7 +186,7 @@ namespace Mantispid
                 .WithPositionFrom(lexerObj));
 
             var interpreter = new AphidInterpreter();
-            interpreter.CurrentScope.Add("nodes", new AphidObject(nodes));
+            interpreter.CurrentScope.Add("nodes", AphidObject.Scalar(nodes));
             interpreter.Interpret(ast);
             var lexerCode = AlxFile.From(interpreter.GetReturnValue());
 
@@ -518,7 +518,7 @@ namespace Mantispid
                 typeRef = parserId.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef;
                 var init = new CodeDefaultValueExpression(typeRef);
                 var varDecl = new CodeVariableDeclarationStatement(typeRef, node.Identifier, init);
-                _scope.Add(node.Identifier, new AphidObject());
+                _scope.Add(node.Identifier, AphidObject.Complex());
 
                 return new CodeStatementCollection(new[] { varDecl });
             }
@@ -647,7 +647,7 @@ namespace Mantispid
                 AphidObject obj;
                 if (!_scope.TryResolve(id, out obj))
                 {
-                    _scope.Add(id, new AphidObject());
+                    _scope.Add(id, AphidObject.Complex());
 
                     return new CodeStatementCollection(new[]
                     {

@@ -185,18 +185,19 @@ namespace Components.Aphid.UI
                             // First() hack until folding for overlapping types
                             // is implemented.
                             var staticType = staticTypes.First(x => x.Name == t.Lexeme);
-                            scope = new AphidObject();
+                            scope = AphidObject.Scope();
 
                             foreach (var m in staticType
                                 .GetMembers(BindingFlags.Public | BindingFlags.Static)
                                 .GroupBy(x => x.Name))
                             {
-                                scope.Add(m.Key, new AphidObject(m.First()));
+                                // Todo: add all instead of first
+                                scope.Add(m.Key, AphidObject.Scalar(m.First()));
                             }
                         }
                         else if (inStaticClrType)
                         {
-                            scope = new AphidObject();
+                            scope = AphidObject.Scope();
 
                             if (scope.Value == null)
                             {
@@ -207,7 +208,7 @@ namespace Components.Aphid.UI
                                 .GetMembers(BindingFlags.Public | BindingFlags.Static)
                                 .GroupBy(x => x.Name))
                             {
-                                scope.Add(m.Key, new AphidObject(m.First()));
+                                scope.Add(m.Key, AphidObject.Scalar(m.First()));
                             }
                         }
                         else if (!inClrType && scope.Value == null)

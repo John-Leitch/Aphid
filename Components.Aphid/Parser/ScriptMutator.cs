@@ -52,14 +52,14 @@ namespace Components.Aphid.Parser
             try
             {
                 var s = Interpreter.CurrentScope;
-                s.Add("ancestors", new AphidObject(Ancestors));
-                s.Add("isStatement", new AphidObject(IsStatement));
-                s.Add("expression", new AphidObject(expression));
-                s.Add("hasChanged", new AphidObject(false));
+                s.Add("ancestors", AphidObject.Scalar(Ancestors));
+                s.Add("isStatement", AphidObject.Scalar(IsStatement));
+                s.Add("expression", AphidObject.Scalar(expression));
+                s.Add("hasChanged", AphidObject.Scalar(false));
 
                 s.Add(
                     "finalize",
-                    new AphidObject(new AphidInteropFunction((interpreter, args) =>
+                    AphidObject.Scalar(new AphidInteropFunction((interpreter, args) =>
                     {
                         FinalizeMutation();
 

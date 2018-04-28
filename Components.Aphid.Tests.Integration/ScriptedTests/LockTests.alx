@@ -1,7 +1,10 @@
-﻿#'Std';
+﻿var sharedObj = { foo: 10 };
+
+#'Std';
 #'AopTest';
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 
 locked list distinct group;
 isTrue;
@@ -10,6 +13,8 @@ _p = macro(@(count, init, path, delegate) {
     @{
         init;
         var i = 0;
+        var obj1 = new Object();
+        var obj2 = new Object();
         Parallel.ForEach(0x0..count, delegate);
 
         var distinct = path !?;
@@ -20,6 +25,10 @@ _p = macro(@(count, init, path, delegate) {
     };
 });
 
+_objAdd = macro(@{ obj.values.Add(i++) });
+_add = macro(@{ values.Add(i++) });
+_addRet = macro(@{ _add(); ret null; });
+_addEarlyRet = macro(@{ _addRet(); _add() });
 
 _noParens = macro(@(count){
     no parens begin;
@@ -27,7 +36,7 @@ _noParens = macro(@(count){
         count,
         var values = new List[int](),
         values,
-        @{ lock values { values.Add(i++); } });
+        @{ lock values { _add() } });
 });
 
 _parens = macro(@(count){
@@ -36,17 +45,24 @@ _parens = macro(@(count){
         count,
         var values = new List[int](),
         values,
-        @{ lock (values) { values.Add(i++); }
+        @{ lock (values) { _add(); }
     });
 });
 
 _memberParens = macro(@(count){
-    member no parens begin;
+    member parens begin;
     _p(
         count,
         var obj = { values: new List[int]() },
         obj.values,
-        @{ lock (obj.values) { obj.values.Add(i++); } });
+        @{ lock (obj.values) { _objAdd() } });
+
+    member target aphid object begin;
+    _p(
+        count,
+        var obj = { values: new List[int]() },
+        obj.values,
+        @{ lock (obj) { _objAdd() } });
 });
 
 _memberNoParens = macro(@(count){
@@ -55,7 +71,75 @@ _memberNoParens = macro(@(count){
         count,
         var obj = { values: new List[int]() },
         obj.values,
-        @{ lock obj.values { obj.values.Add(i++); } });
+        @{ lock obj.values { _objAdd() } });
+});
+
+_bodyRet = macro(@(count){
+    return from body begin;
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @{ lock values { _addRet() } });
+
+    early return from body begin;
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @{ lock values { _addEarlyRet()  } });
+});
+
+_multiExp = macro(@(count) {
+    alternating multiexpression begin;
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @(x) {
+            if ((x & 1) == 0) {
+                lock values, obj1 { _add() }
+            } else {
+                lock values, obj2 { _add() }
+            }
+        });
+
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @(x) {
+            if ((x & 1) == 0) {
+                lock values, obj1 { _add() }
+            } else {
+                lock obj2, values { _add() }
+            }
+        });
+
+    alternating multiexpression early return begin;
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @(x) {
+            if ((x & 1) == 0) {
+                lock values, obj1 { _addEarlyRet()  }
+            } else {
+                lock values, obj2 { _addEarlyRet()  }
+            }
+        });
+
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @(x) {
+            if ((x & 1) == 0) {
+                lock values, obj1 { _addEarlyRet()  }
+            } else {
+                lock obj2, values { _addEarlyRet()  }
+            }
+        });
 });
 
 _r = macro(@(count){
@@ -63,9 +147,22 @@ _r = macro(@(count){
     _parens(count);
     _memberParens(count);
     _memberNoParens(count);
+    _bodyRet(count);
+    _multiExp(count);
 });
 
 _r(0x1);
 _r(0x10);
 _r(0x100);
-_r(0x1000);
+_r(0x400);
+
+
+_v = macro(@(x) {
+    fault;
+    @{ lock x { } true };
+    @{ lock sharedObj, x { } true };
+    @{ lock x, sharedObj {  } true };
+});
+
+nullcheck begin;
+_v(null);

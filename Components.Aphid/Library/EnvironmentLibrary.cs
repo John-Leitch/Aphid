@@ -37,7 +37,7 @@ namespace Components.Aphid.Library
                 SetEnvArgs();
             }
 
-            return _envArgs.Select(x => new AphidObject(x)).ToList();
+            return _envArgs.Select(x => AphidObject.Scalar(x)).ToList();
         }
 
         [AphidInteropFunction("env.kill", UnwrapParameters = false, PassInterpreter = true)]
@@ -116,12 +116,12 @@ namespace Components.Aphid.Library
             {
                 process.WaitForExit();
 
-                var retVal = new AphidObject();
-                retVal.Add("exitCode", new AphidObject((decimal)process.ExitCode));
+                var retVal = AphidObject.Complex();
+                retVal.Add("exitCode", AphidObject.Scalar((decimal)process.ExitCode));
 
                 if (opt.RedirectOutput)
                 {
-                    retVal.Add("output", new AphidObject(sb.ToString()));
+                    retVal.Add("output", AphidObject.Scalar(sb.ToString()));
                 }
 
                 return retVal;
@@ -143,11 +143,12 @@ namespace Components.Aphid.Library
         {
             return Process
                 .GetProcesses()
-                .Select(x => new AphidObject() 
-                { 
-                    { "id", new AphidObject((decimal)x.Id) }, 
-                    { "name", new AphidObject(x.ProcessName) } 
-                })
+                .Select(x => AphidObject.Complex( 
+                    new Dictionary<string, AphidObject>
+                    { 
+                        { "id", AphidObject.Scalar((decimal)x.Id) }, 
+                        { "name", AphidObject.Scalar(x.ProcessName) } 
+                    }))
                 .ToList();
         }
     }

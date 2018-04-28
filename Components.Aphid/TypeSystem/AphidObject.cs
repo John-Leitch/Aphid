@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Interpreter;
+﻿#define STRICT_APHID_OBJECT_TYPE_CHECKS
+using Components.Aphid.Interpreter;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,27 +39,59 @@ namespace Components.Aphid.TypeSystem
             get { return _isScalar || _isComplex; }
         }
 
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
+        private object _value;
+
+        public object Value
+        {
+            get { return _value; }
+            set
+            {
+                if (IsComplexitySet)
+                {
+                    if (_isComplex)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+                else
+                {
+                    _isScalar = true;
+                    _isComplex = false;
+                }
+
+                _value = value;
+            }
+        }
+#else
+        public object Value { get; set; }
+#endif
+
         public int OwnerThread { get; private set; }
 
         public AphidObject Parent { get; set; }
 
-        public object Value { get; set; }
-
-        public AphidObject()
+        private AphidObject()
+            : this(isScalar: false)
         {
-            OwnerThread = Thread.CurrentThread.ManagedThreadId;
+            //OwnerThread = Thread.CurrentThread.ManagedThreadId;
         }
 
-        public AphidObject(object value)
+        private AphidObject(object value)
             : this(isScalar: true)
         {
             Value = value;
         }
 
-        public AphidObject(object value, AphidObject parent)
-            : this(isScalar: true)
+        //public AphidObject(object value, AphidObject parent)
+        private AphidObject(AphidObject parent)
+            : this(isScalar: false)
         {
-            Value = value;
+            //if (parent == null)
+            //{
+            //    throw new InvalidOperationException();
+            //}
+
             Parent = parent;
         }
 
@@ -259,11 +292,11 @@ namespace Components.Aphid.TypeSystem
                 t == typeof(float) ||
                 t == typeof(double))
             {
-                return new AphidObject(Convert.ToDecimal(o));
+                return AphidObject.Scalar(Convert.ToDecimal(o));
             }
             else if (t.IsPrimitive || t == typeof(string) || t == typeof(decimal))
             {
-                return new AphidObject(o);
+                return AphidObject.Scalar(o);
             }
             else if ((enumerable = o as IEnumerable) != null)
             {
@@ -274,11 +307,11 @@ namespace Components.Aphid.TypeSystem
                     items.Add(ConvertFrom(element.GetType(), element));
                 }
 
-                return new AphidObject(items);
+                return AphidObject.Scalar(items);
             }
             else
             {
-                var ao = new AphidObject();
+                var ao = AphidObject.Complex();
                 var properties = GetPropertyInfo(o);
 
                 foreach (var p in properties)
@@ -315,6 +348,13 @@ namespace Components.Aphid.TypeSystem
 
         public bool TryResolve(string key, out AphidObject value)
         {
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
+            if (IsScalar)
+            {
+                throw new InvalidOperationException();
+            }
+#endif
+
             if (TryGetValue(key, out value))
             {
                 return true;
@@ -426,7 +466,70 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject CreateChild()
         {
-            return new AphidObject(null, this);
+            return new AphidObject(this);
+        }
+
+        public static AphidObject Scalar(object value)
+        {
+            return new AphidObject(value: value);
+        }
+
+        public static AphidObject Scope()
+        {
+            return new AphidObject();
+        }
+
+        public static AphidObject Complex()
+        {
+            return new AphidObject();
+        }
+
+        //public static AphidObject Complex(AphidObject source)
+        //{
+        //    var obj = new AphidObject();
+        //    source.CopyTo(obj);
+
+        //    return obj;
+        //}
+
+        public static AphidObject Complex(IEnumerable<KeyValuePair<string, AphidObject>> members)
+        {
+            var obj = new AphidObject();
+            
+
+            foreach (var m in members)
+            {
+                obj.Add(m.Key, m.Value);
+            }
+
+            return obj;
+        }
+
+        //public AphidObject With(string key, AphidObject value)
+        //{
+        //    if (!_isComplex)
+        //    {
+        //        throw new InvalidOperationException();
+        //    }
+
+        //    Add(key, value);
+
+        //    return this;
+        //}
+
+        //public AphidObject WithScalar(string key, object value)
+        //{
+        //    return With(key, AphidObject.Scalar(value));
+        //}
+
+        public static AphidObject Scope(AphidObject parentScope)
+        {
+            return parentScope != null ? new AphidObject(parentScope) : AphidObject.Complex();
+        }
+
+        public static AphidObject Null()
+        {
+            return new AphidObject(value: null);
         }
     }
 }
