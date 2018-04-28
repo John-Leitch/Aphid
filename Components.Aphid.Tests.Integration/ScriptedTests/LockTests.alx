@@ -1,0 +1,71 @@
+﻿#'Std';
+#'AopTest';
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+locked list distinct group;
+isTrue;
+
+_p = macro(@(count, init, path, delegate) {
+    @{
+        init;
+        var i = 0;
+        Parallel.ForEach(0x0..count, delegate);
+
+        var distinct = path !?;
+    
+        distinct.Count == count &&
+        Enumerable.Min(path) == 0x0 &&
+        Enumerable.Max(path) == count - 0x1;
+    };
+});
+
+
+_noParens = macro(@(count){
+    no parens begin;
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @{ lock values { values.Add(i++); } });
+});
+
+_parens = macro(@(count){
+    parens begin;
+    _p(
+        count,
+        var values = new List[int](),
+        values,
+        @{ lock (values) { values.Add(i++); }
+    });
+});
+
+_memberParens = macro(@(count){
+    member no parens begin;
+    _p(
+        count,
+        var obj = { values: new List[int]() },
+        obj.values,
+        @{ lock (obj.values) { obj.values.Add(i++); } });
+});
+
+_memberNoParens = macro(@(count){
+    member no parens begin;
+    _p(
+        count,
+        var obj = { values: new List[int]() },
+        obj.values,
+        @{ lock obj.values { obj.values.Add(i++); } });
+});
+
+_r = macro(@(count){
+    _noParens(count);
+    _parens(count);
+    _memberParens(count);
+    _memberNoParens(count);
+});
+
+_r(0x1);
+_r(0x10);
+_r(0x100);
+_r(0x1000);
