@@ -130,7 +130,14 @@ var readToPrompt = @(proxy) {
 var execRemoteScript = @(host, scriptFile) {
     using System.Collections.Generic;
     printInfo('Executing script file ~Cyan~{0}~R~', scriptFile);
-    var queue = new Queue[string](scriptFile |> File.ReadAllLines);
+    
+    var lines =
+        scriptFile
+        |> File.ReadAllLines
+        -> (@()($_.Contains('//') ? $_.Remove($_.IndexOf('//')) : $_).Trim())
+        -? @!= '';
+
+    var queue = new Queue[Object](lines);
     queue.Enqueue('using System');
     queue.Enqueue('Environment.Exit 0');
 
