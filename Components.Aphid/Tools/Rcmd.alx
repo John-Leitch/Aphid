@@ -1,0 +1,34 @@
+﻿#'Std';
+#'Process';
+
+var cliArgs = Environment.GetCommandLineArgs();
+
+if (cliArgs[cliArgs.Length - 1] != '-child') {
+    while (true) {
+        var cmd = Environment.CommandLine + ' -child';
+        printInfo('Executing command: ~Cyan~{0}~R~', cmd);
+        #> cmd;
+    }
+} else {
+    var traceRemoting = true;
+    #'Meta';
+    #'Remoting';
+    using System.IO;
+
+    var append = File.AppendAllText;
+    var handleLine = @(id, line) { append(id + '.log', line + '\r\n') };
+
+    try {
+        using Components.Aphid.Parser;
+        using System.IO;
+        using System.Threading;
+        using System.Diagnostics;
+        printQuery('Starting remote');
+        var c = remote.listen(0x5231);
+        printSuccess('Listening');
+        Thread.Sleep(-1)
+    } catch (e) {
+        print(e);
+        File.WriteAllText(format('AphidCrash-{0}.log', Guid.NewGuid()), e |> serialize);
+    }
+} 
