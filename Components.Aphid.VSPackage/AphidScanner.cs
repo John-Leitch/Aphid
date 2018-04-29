@@ -56,7 +56,7 @@ namespace Components.Aphid.VSPackage
                         tokenInfo.Color = TokenColor.Identifier;
                     }
                     break;
-
+                // AphidTokenType |> Enum.GetValues-?(@()$_.ToString().EndsWith('Keyword'))->@format('case AphidTokenType.{0}:') @join('\r\n') |> print
                 case AphidTokenType.breakKeyword:
                 case AphidTokenType.catchKeyword:
                 case AphidTokenType.continueKeyword:
@@ -72,6 +72,7 @@ namespace Components.Aphid.VSPackage
                 case AphidTokenType.ifKeyword:
                 case AphidTokenType.inKeyword:
                 case AphidTokenType.loadKeyword:
+                case AphidTokenType.lockKeyword:
                 case AphidTokenType.newKeyword:
                 case AphidTokenType.nullKeyword:
                 case AphidTokenType.retKeyword:
