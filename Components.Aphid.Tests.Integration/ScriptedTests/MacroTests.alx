@@ -1,0 +1,12 @@
+﻿#'AopTest';
+macro group;
+
+isFoo;
+_a = macro(@{ 'foo' });
+@{ _a() };
+
+_b = macro(@(x){ 'f' + x });
+@{ _b('oo') };
+
+_c = macro(@(x){ quote(x) });
+@{ _c(foo) };

@@ -155,6 +155,7 @@
     <Compile Include="External\Debugging\MemoryDump.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
+    <Compile Include="Parser\AphidDirective.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
     <Compile Include="TypeSystem\IAphidCallable.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
@@ -329,7 +330,7 @@
     <Compile Include="External\PInvoke\ThreadAccess.cs" />
     <Compile Include="External\PInvoke\UNLOAD_DLL_DEBUG_INFO.cs" />
     <Compile Include="Parser\AphidAttributeScanner.cs" />
-    <Compile Include="Parser\AphidIdDirectiveMutator.cs" />
+    <Compile Include="Parser\AphidPreprocessorDirectiveMutator.cs" />
     <Compile Include="Parser\AphidCodeVisitor.cs" />
     <Compile Include="Parser\ScriptMutator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

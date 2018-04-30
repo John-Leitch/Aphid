@@ -200,7 +200,7 @@ namespace Components.Aphid.Interpreter
 
                 var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
                 mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-                mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
 
                 Interpreter.Interpret(mutatedAst);
                 

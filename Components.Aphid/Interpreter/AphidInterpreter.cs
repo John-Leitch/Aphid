@@ -4410,7 +4410,7 @@ namespace Components.Aphid.Interpreter
 #endif
             var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
             mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
 
             foreach (var exp in mutatedAst)
             {
@@ -4659,7 +4659,7 @@ namespace Components.Aphid.Interpreter
 #endif
             var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
             mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidIdDirectiveMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
 
             Interpret(mutatedAst);
         }

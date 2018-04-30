@@ -78,7 +78,7 @@ namespace Components.Aphid.Tests.Integration.Shared
         {
             var stage1 = new PartialOperatorMutator().MutateRecursively(ast);
             var stage2 = new AphidMacroMutator().MutateRecursively(stage1);
-            var stage3 = new AphidIdDirectiveMutator().MutateRecursively(stage2);
+            var stage3 = new AphidPreprocessorDirectiveMutator().MutateRecursively(stage2);
 
             return stage3;
         }
