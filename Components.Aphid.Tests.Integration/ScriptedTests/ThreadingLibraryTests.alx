@@ -1,0 +1,22 @@
+﻿#'Threading';
+#'AopTest';
+threading group;
+
+isTrue;
+@{
+    var x = false;
+    var t = startThread(@() x = true);
+    t.Join();
+    x;
+};
+
+is9;
+@{
+    var x = 0;
+    var t = startWorker(@() x++, 1, @() x < 9);
+    t.Join();
+    x;
+};
+
+fault;
+@{ startThread(@{}).Start() };
