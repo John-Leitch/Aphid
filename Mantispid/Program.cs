@@ -86,7 +86,7 @@ namespace Mantispid
             Console.WriteLine("Parsing input file");
             var ast = AphidParser.Parse(code);
             var includeMutator = new IncludeMutator(dir);
-            var idMutator = new AphidIdDirectiveMutator();
+            var idMutator = new AphidPreprocessorDirectiveMutator();
             var macroMutator = new AphidMacroMutator();
             var pipelineMutator = new PipelineToCallMutator();
 
