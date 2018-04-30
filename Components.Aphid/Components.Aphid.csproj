@@ -148,11 +148,26 @@
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
     <Compile Include="External\Common\SelectorComparer.cs" />
     <Compile Include="External\Common\Singleton.cs" />
+    <Compile Include="External\Common\StreamExtension.cs" />
+    <Compile Include="External\Common\Table.cs" />
     <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
     <Compile Include="External\ConsolePlus\SystemColor.g.cs" />
     <Compile Include="External\ConsolePlus\VT100.cs" />
     <Compile Include="External\Debugging\MemoryDump.cs" />
+    <Compile Include="External\IO\Allocation.cs" />
+    <Compile Include="External\IO\MemoryManager.cs" />
+    <Compile Include="External\IO\MemoryManagerSerializer.cs" />
+    <Compile Include="External\ObjectDatabase\BinaryObjectDatabase.cs" />
+    <Compile Include="External\ObjectDatabase\CrossProcessLockContext.cs" />
+    <Compile Include="External\ObjectDatabase\IDatabaseContext.cs" />
+    <Compile Include="External\ObjectDatabase\IndexPredicateEvaluator.cs" />
+    <Compile Include="External\ObjectDatabase\IndexSerializer.cs" />
+    <Compile Include="External\ObjectDatabase\IObjectDatabaseEntity.cs" />
+    <Compile Include="External\ObjectDatabase\ObjectDatabase.cs" />
+    <Compile Include="External\ObjectDatabase\ObjectDatabaseBase.cs" />
+    <Compile Include="External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
+    <Compile Include="External\ObjectDatabase\ObjectDatabaseRecord.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Parser\AphidDirective.cs" />
@@ -450,6 +465,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Compression.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Machine.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\NuGet.alx">
