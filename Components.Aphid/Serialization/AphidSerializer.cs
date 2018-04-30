@@ -163,8 +163,7 @@ namespace Components.Aphid.Serialization
 
             if (objType == typeof(AphidObject))
             {
-                throw new InvalidOperationException();
-                //ObjToString((AphidObject)value, s, indent);
+                Serialize(s, value, indent);
                 return;
             }
 
