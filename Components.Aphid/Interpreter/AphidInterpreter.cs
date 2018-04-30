@@ -1530,12 +1530,14 @@ namespace Components.Aphid.Interpreter
                         InterpretExpression(expression.RightOperand) as AphidObject);
 
                 case AphidTokenType.SelectOperator:
-                    var collection = InterpretExpression(expression.LeftOperand);
-                    var funcObj = InterpretExpression(expression.RightOperand);
-                    var func = ValueHelper.Unwrap(funcObj);
+                    var collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
 
-                    return ((IEnumerable<object>)ValueHelper
-                        .UnwrapAndBoxCollection(collection))
+                    var func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
                         .Select(x => ValueHelper.Wrap(
                             InterpretCallExpression(
                                 expression,
@@ -1545,10 +1547,13 @@ namespace Components.Aphid.Interpreter
                         .ToList();
 
                 case AphidTokenType.SelectManyOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
                     func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
 
-                    return ((IEnumerable<object>)ValueHelper
-                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
                         .SelectMany(x =>
                             (IEnumerable<object>)(ValueHelper.Unwrap(
                                 InterpretCallExpression(
@@ -1561,10 +1566,14 @@ namespace Components.Aphid.Interpreter
 
 
                 case AphidTokenType.AggregateOperator:
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
 
-                    return ((IEnumerable<object>)ValueHelper
-                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
                         .Aggregate((x, y) => ValueHelper.Wrap(
                             InterpretCallExpression(
                                 expression,
@@ -1573,10 +1582,14 @@ namespace Components.Aphid.Interpreter
                                 new[] { x, y })));
 
                 case AphidTokenType.AnyOperator:
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
 
-                    return ((IEnumerable<object>)ValueHelper
-                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
                         .Any(x => (bool)ValueHelper.Unwrap(
                             InterpretCallExpression(
                                 expression,
@@ -1585,10 +1598,14 @@ namespace Components.Aphid.Interpreter
                                 new[] { x })));
 
                 case AphidTokenType.WhereOperator:
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
 
-                    return ((IEnumerable<object>)ValueHelper
-                        .UnwrapAndBoxCollection(InterpretExpression(expression.LeftOperand)))
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
                         .Where(x => (bool)ValueHelper.Unwrap(
                             InterpretCallExpression(
                                 expression,
@@ -3031,10 +3048,11 @@ namespace Components.Aphid.Interpreter
                         return obj;
 
                     case AphidTokenType.DistinctOperator:
-                        var opExp = InterpretExpression(expression.Operand);
-                        var list = ((IEnumerable<object>)ValueHelper.UnwrapAndBoxCollection(opExp));
+                        var collection = ValueHelper.Unwrap(
+                            InterpretExpression(expression.Operand));
 
-                        var result = list
+                        var result = ((IEnumerable)collection)
+                            .Cast<object>()
                             .Select(ValueHelper.Unwrap)
                             .Distinct()
                             .Select(ValueHelper.Wrap) // To maintain backwards compat with Aphid

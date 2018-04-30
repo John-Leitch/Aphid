@@ -61,50 +61,6 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public object UnwrapAndBoxCollection(object obj)
-        {
-            var o = Unwrap(obj);
-            var t = o.GetType();
-
-            if (t.IsArray)
-            {
-                var elementType = t.GetElementType();
-
-                if (!elementType.IsEnum && !elementType.IsPrimitive)
-                {
-                    return o;
-                }
-
-                var src = (Array)o;
-                var dst = new object[src.Length];
-                Array.Copy(src, dst, src.Length);
-
-                return dst;
-            }
-
-            var interfaces = t
-                .GetInterfaces()
-                .Where(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .ToArray();
-
-            if (interfaces.Any())
-            {
-                var target = interfaces.First();
-                var elementType = target.GetGenericArguments().First();
-
-                if (!elementType.IsEnum && !elementType.IsPrimitive)
-                {
-                    return o;
-                }
-
-                return ((IEnumerable)o).Cast<object>();
-            }
-
-            return o;
-        }
-
         public void AssertString(object value, string operation)
         {
             AssertValue<string>(value, operation);
