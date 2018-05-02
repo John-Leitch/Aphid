@@ -57,7 +57,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return aphidObj.Value;
+                return aphidObj.IsScalar ? aphidObj.Value : aphidObj;
             }
         }
 
