@@ -68,7 +68,8 @@ namespace Components.Aphid.TypeSystem
             Type t;
             ConstructorInfo ctor;
 
-            if (result == null && typeof(TResult).IsClass)
+            if ((result == null || (result.IsScalar && result.Value == null)) &&
+                typeof(TResult).IsClass)
             {
                 return (TResult)(object)null;
             }
