@@ -21,118 +21,7 @@
     using System.IO;
     using Components.Aphid.UI;
     //AphidCli.ShowClrStack = true;
-    //useTracing = true;
-
-    var testScript = @{ %>
-
-    <% };
-
-    testScript = @{ %>
-
-        New-Alias out Write-Output
-        out "Copying file "
-        copy c:\temp\test.cmd c:\temp\test2.txt
-        out "Done copying file"
-        Test-Path c:\temp\test2.txt
-
-    <% };
-
-    testScript = @{ %>
-        #'Std'
-        #'Meta'
-        using System.Reflection
-        using System.Runtime.CompilerServices
-    
-        attr = Type.GetType System.Runtime.CompilerServices.CompilerGeneratedAttribute
-        isCompilerType = $@(t) t.IsDefined(attr, false)
-        isUserType = $isCompilerType @> @== false
-
-        bin = C:\source\Aphid\Aphid\bin\Debug
-        modules = dir $(bin) *.dll
-        asms = $modules->@.FullName->Assembly.LoadFrom
-        types = $asms-<@()$_.GetTypes()-?isUserType
-
-    <% };
-
-    var testScript2 = @{ %>
-
-        using System
-        using System.IO
-
-        file = String.Format "{0}.txt" Guid.NewGuid().ToString()
-        dst = Path.Combine c:\temp file
-        Console.WriteLine "Copying file to {0}" dst
-        File.Copy c:\temp\test.cmd dst
-        Console.WriteLine "Done copying file {0}" dst
-
-
-    <% };
-
-    testScript2 = @{ %>
-    
-        dir c:\staging *.pl
-        dir c:\staging *.txt
-        Invoke-Expression "Get-Help Write-Output -Detailed"
-        Get-Help Get-ChildItem
-        Get-ChildItem d:\staging *.alx
-
-    <% };
-
-    testScript2 = @{ %>
-
-        Get-Help Get-ChildItem
-        Get-ChildItem -Pattern *.txt -Directory d:\staging
-
-    <% };
-
-
-
-    testScript2 = @{ %>
-
-            #'Std'
-            print "test={0:x} bar={1:x}" 0xdeadbeef 0xcafeababe.GetType()
-            x = 10
-            Console.WriteLine "foobar {0} {1} {2}" 0x100 'test' x
-
-    <% };
-
-    testScript2 = @{ %>
-
-            #'Std'
-            #'IO'
-            #'Meta'
-        
-            Write-Output "Testing PowerShell Interop"
-
-            testVar = c:\staging
-            cd $testVar
-
-            files = dir $(testVar) *.alx
-
-            Write-Output "Filename contains '_'"
-            $files-?@()$_.Name.Contains('_')
-
-            Write-Output "File text 'meta'"
-            $(files-?@()$_.FullName |> File.ReadAllText @(t) t.ToLower().Contains('meta'))
-
-            files2 = $files->@.FullName->@+'-Suffix'
-            testVar2 = dir $testVar
-        
-            $files2
-
-    <% };
-
-    // testScript = @{ %>
-    //         #'Std'
-    //         #'IO'
-    //         Console.WriteLine "foo"
-    // <% };
-
-    var testPrologue = @{
-        var scope = shell.interpreter.CurrentScope;
-        if (scope.testVar defined) scope.testVar @print('testVar: {0}');
-        if (scope.testVar2 defined) scope.testVar2->@.FullName +>(@(x, y) x + ', ' + y) @print('testVar2: {0}');
-    };
+    // var useTracing = true;
 
     _initTrace = macro(@(name) { _initTraceCore(name, var id(trace, name)) });
 
@@ -324,6 +213,7 @@
                 addToken(shell.token.text, token.Lexeme);
             }
         }
+
         shellTokens->(serialize) +>(@(x, y) x + '\r\n' + y)
         @traceTokenize('Shell token count: {0}\r\n{1}\r\n\r\n', shellTokens.Count);
 
@@ -429,6 +319,7 @@
                 var tmpCwd;
                 var args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
                 var resolved = shell.resolveMethod(commandObj.values[0], args);
+
                 if (resolved != null) {
                     result = args |> resolved.call;
 
@@ -440,8 +331,15 @@
                     result = commandObj.values |> psContext.execPositional;
 
                     if (!result.success) {
-                        'Error executing command {0}: {1}' :: [ commandObj.values[0], result.error ]
-                        |> shell.outLine;
+                        if (commandObj.values.Count == 1 &&
+                            (resolved = shell.resolveMember(commandObj.values[0])) != null) {
+                            result = resolved;
+
+                            ret null;
+                        } else {
+                            'Error executing command {0}: {1}' :: [ commandObj.values[0], result.error ]
+                            |> shell.outLine;
+                        }
                     }
 
                     result = result.obj |> psContext.importPSObject;
@@ -470,7 +368,7 @@
 
             if ((matches = path |> r.resolveName) != null) {
                 if (!isResolvingMethod) {
-                    traceResolve('Resolved path {0} to {1}', path, matches);
+                    traceResolve('Resolved path {0} to {1}', path, matches |> serialize);
 
                     ret matches;                    
                 } else if ((resolved = r.resolveSignature(matches, args)) != null) {
@@ -515,31 +413,36 @@
         {
             name: 'Aphid',
             resolveName: @(name) {
+                _initTrace('Resolve');
                 var nameTokens;
-                try nameTokens = name |> tokenize;
-                catch {} //nameTokens = null;
-                if (nameTokens defined &&
-                    nameTokens != null &&
-                    nameTokens.Count >= 1) {
-                        try {
-                            var ast = AphidParser.Parse(name);
-                        
-                            var result = ast != null && ast.Count == 1 ?
-                                    ast[0] |> shell.interpret :
-                                    null;
 
-                            if (result != null) {
-                                //result @print('Name match: {0}', result);
-                                ret result;
-                            }
-                        }catch (e) {
-                            _initTrace('Resolve');
-                            traceResolve(
-                                'Aphid resolve failed with exception: {0}',
-                                e |> serialize);
-                            //print('~Red~{0}~R~', e);
+                try {
+                    traceResolve('Attempting Aphid tokenization');
+                    nameTokens = name |> tokenize;
+                    traceResolve('Aphid tokenization succeeded');
+                } catch (e) {
+                    traceResolve('Aphid tokenization failed');
+                }
+
+                if (nameTokens defined && nameTokens != null && nameTokens.Count >= 1) {
+                    try {
+                        traceResolve('Attempting Aphid parsing');
+                        var ast = AphidParser.Parse(name);
+
+                        traceResolve('Attempting Aphid interpretation');
+                        var result = ast != null && ast.Count == 1 ?
+                                ast[0] |> shell.interpret :
+                                null;
+
+                        if (result != null) {
+                            traceResolve('Aphid resolved to {0}' :: [ result.GetType() ]);
+                            ret result;
                         }
-                
+                    } catch (e) {
+                        traceResolve(
+                            'Aphid resolve failed with exception: {0}',
+                            e |> serialize);
+                    }
                 } else {
                     _initTrace('Resolve');
                     traceResolve('Aphid resolve failed due to invalid command');

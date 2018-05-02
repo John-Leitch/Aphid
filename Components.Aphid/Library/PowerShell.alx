@@ -21,31 +21,23 @@ _initTraceCore = macro(@(name, fullName) {
 var psContext;
 
 var initPSInterop = @{
-    //#'std';
-    //#'meta';
     var psAsm = load System.Management.Automation;
     using System;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
 
-    var psObject =
-        'System.Management.Automation.PSObject'
-        |> psAsm.GetType;
-
     psContext = {
-        psAsm,
-        psObject,
-        
-        psObjectCollection = Type
-            .GetType('System.Collections.ObjectModel.Collection`1')
-            .MakeGenericType([ psObject ]),
+        // tracePS: true,
+        // tracePSInterop: true,
 
+        psAsm,
+        psCollection: Collection[PSObject],
         engine: PowerShell.Create(),
         
         exec: @(command) {
             engine.AddScript(command);
-            r;
-            r = engine.Invoke() |> psContext.importPSObject;
+            var r = engine.Invoke() |> psContext.importPSObject;
 
             ret r;
         },
@@ -55,26 +47,26 @@ var initPSInterop = @{
 
         unwrap: @(obj)
             obj != null &&
-            obj.GetType() == psContext.psObject ?
+            obj.GetType() == PSObject ?
                 obj.BaseObject :
                 obj,
 
         importPSObject: @(psObj) {
             _initTrace('PSInterop');
-            tracePSInterop('importPSObject checking enumerable');
+            // tracePSInterop('importPSObject checking enumerable');
             
-            if (psObj @isEnumerableOf(psContext.psObject)) {
-                tracePSInterop('importPSObject recursing');
-                ret psObj->importPSObject;
-            } else if (
-                psObj == null ||
-                psObj.GetType() != psContext.psObject) {
-                tracePSInterop('importPSObject returning');
-                ret psObj;
-            } 
-
-            //print('converting');
-            tracePSInterop('importPSObject converting');
+            if (psObj == null) {
+                tracePSInterop('importPSObject returning null');
+                ret null;
+            } else if (psObj.GetType() != PSObject) {
+                if (psObj @isEnumerableOf(PSObject)) {
+                    tracePSInterop('importPSObject recursing');
+                    ret psObj->importPSObject;
+                } else {
+                    tracePSInterop('importPSObject returning non-PSObject');
+                    ret psObj;
+                }
+            }
 
             var o = {
                 isPSInterop: true,
@@ -91,18 +83,17 @@ var initPSInterop = @{
             });
 
             psObj.Properties
-                // -?(@(p) $(p.Name) 'Path', 'Company', 'BaseName', 'VersionInfo': false, _notAccessor(p))
-                -?(@(p) _notAccessor(p))
+                -?(@(p) $(p.Name) 'BaseName', 'VersionInfo': false, _notAccessor(p))
                 ->@(p) {
                     try o.{p.Name} = p.Value;
-                    catch (e) { }
+                    catch (e) {
+                        tracePSInterop('Error copying {0}: {1}' :: [ p.Name, e.message ]);
+                    }
                 };
 
             psObj.Methods
                 -?(@(m) _notAccessor(m))
                 ->@(m) o.{m.Name} = m.Invoke;
-
-            //setValue(o, psObj);
 
             ret o;
         },
@@ -110,7 +101,7 @@ var initPSInterop = @{
         restorePSObject: @(obj) {
             _initTrace('PSInterop');
             tracePSInterop('Restoring');
-            if (obj != null && obj.GetType() == psObject) {
+            if (obj != null && obj.GetType() == PSObject) {
                 tracePSInterop('No action needed');
                 ret obj;
             } else if (psContext.isImportedPSObj(obj)) {
@@ -190,8 +181,17 @@ var initPSInterop = @{
             }
             
             tracePS('Getting PS item {0}', parts[0]);
-            result.isItem = true;
             result.obj = parts[0] |> psContext.getItem;
+
+            if (result.obj.Count != 0) {
+                result.isItem = true;
+            } else {
+                result.isItem = false;
+                result.obj = null;
+                result.error = 'Unknown command';
+                result.success = false;
+            }
+            
 
             if ((result.obj |> isCollection) &&
                 (result.obj |> Enumerable.Count) == 1) {
@@ -200,28 +200,23 @@ var initPSInterop = @{
             }
         }
 
-        //if (!result.isCommand &&
-            //parts != null &&
-            //parts.Count >= 1 &&
-            //(result.obj == null || result.obj.Count == 0) &&
-            //parts[0].GetType() != String) {
-            //tracePS('Unwrapping PS result');
-            //result.obj = parts.Count == 1 ? parts[0] : parts;
-        //}
-
         tracePS('Done executing command: {0}', result |> serialize);
 
         ret result;
     };
 
     psContext.getItem = @(path) {
+        _initTrace('PS');
         var r;
 
         try {
+            tracePS('Invoking Get-Item {0}'  :: [ path ]);
             'Get-Item' |> psContext.engine.AddCommand;
             path |> psContext.engine.AddArgument;
             r = psContext.engine.Invoke();
+            tracePS('Get-Item result: {0}' :: [ r |> serialize ]);
         } catch (e) {
+            tracePS('Get-Item failed: {0}' :: [ e.message ]);
             r = null;
         }
 
@@ -245,7 +240,19 @@ var initPSInterop = @{
 
     psContext.outString = @(obj) {
         _initTrace('PS');
-        tracePS('Dumping result via Out-String');
+        tracePS('Dumping result via Out-String ({0})' :: [ obj |> serialize ]);
+
+        if (obj != null && obj.GetType() == AphidObject) {
+            using System.Collections.Generic;
+
+            obj = obj.Keys->@() new KeyValuePair[string, string](
+                $_,
+                @{
+                    try ret obj.{$_}.ToString();
+                    catch ret '';
+                }());
+        }
+
         ret { InputObject: obj } @psContext.psContext.execNamed('Out-String') |> aq.first;
     };
 
@@ -262,8 +269,6 @@ var initPSInterop = @{
 
         toAphidObject: psContext.importPSObject,
     }
-
-    //testPSInterop();
 };
 
 testPSInterop = macro(@{
