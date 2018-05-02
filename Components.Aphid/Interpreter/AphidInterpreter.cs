@@ -4801,7 +4801,7 @@ namespace Components.Aphid.Interpreter
                         throw CreateStrictModeException(id);
                     }
 
-                    CurrentScope.Add(id, AphidObject.Complex());
+                    CurrentScope.Add(id, AphidObject.Null());
                 }
                 else
                 {
