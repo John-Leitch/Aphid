@@ -10,7 +10,6 @@ if (cliArgs[cliArgs.Length - 1] != '-child') {
         #> cmd;
     }
 } else {
-    var traceRemoting = true;
     #'Meta';
     #'Remoting';
     using System.IO;

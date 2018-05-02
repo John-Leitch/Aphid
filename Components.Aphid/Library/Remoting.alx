@@ -46,14 +46,12 @@ var remote = null;
     using System.Text;
     #'Threading';
     #'Compression';
-    //#'Query';
-    //#'Std';
     
     extend TcpClient {
         isConnected: @(c) c.Client.Poll(0, SelectMode.SelectRead) && c.Client.Available != 0,
     }
-    //var traceRemoting = true;
-    var _rt = traceRemoting defined ? Cli.WriteLine : @{ };
+
+    var _rt = traceRemoting defined && traceRemoting ? Cli.WriteLine : @{ };
     var utf8 = new UTF8Encoding();
 
     var createClient = @(tcp) ({
