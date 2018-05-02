@@ -4,10 +4,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Components.Aphid.TypeSystem
 {
+    [Serializable]
     public partial class AphidObject : Dictionary<string, AphidObject>
     {
         private bool _isScalar;
@@ -83,7 +85,6 @@ namespace Components.Aphid.TypeSystem
             Value = value;
         }
 
-        //public AphidObject(object value, AphidObject parent)
         private AphidObject(AphidObject parent)
             : this(isScalar: false)
         {
@@ -99,6 +100,24 @@ namespace Components.Aphid.TypeSystem
         {
             OwnerThread = Thread.CurrentThread.ManagedThreadId;
             IsScalar = isScalar;
+        }
+
+        protected AphidObject(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            // Todo: eliminate strings
+            _isScalar = info.GetBoolean("_isScalar");
+            _isComplex = info.GetBoolean("_isComplex");
+            _value = info.GetValue("_value", typeof(object));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_isScalar", _isScalar);
+            info.AddValue("_isComplex", _isComplex);
+            info.AddValue("_value", _value);
+
+            base.GetObjectData(info, context);
         }
 
         public override string ToString()
@@ -470,6 +489,31 @@ namespace Components.Aphid.TypeSystem
             return base.Equals(obj);
         }
 
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = base.GetHashCode();
+
+                if (hash == 0)
+                {
+                    hash = 0x100000;
+                }
+
+                hash += _isScalar ? 0x10 : 0x100;
+                hash += _isComplex ? 0x20 : 0x200;
+                var tmp = _value != null ?_value.GetHashCode() : 0x300;
+                hash += tmp != 0 ? tmp : 0x400;
+                tmp = OwnerThread.GetHashCode();
+                hash += tmp != 0 ? tmp : 0x500;
+                tmp = Parent != null ? Parent.GetHashCode() : 0x600;
+                hash += tmp != 0 ? tmp : 0x700;
+                //hash = ((hash * ~hash) ^ hash) * hash;
+
+                return hash;
+            }
+        }
+
         public AphidObject CreateChild()
         {
             return new AphidObject(this);
@@ -490,14 +534,6 @@ namespace Components.Aphid.TypeSystem
             return new AphidObject();
         }
 
-        //public static AphidObject Complex(AphidObject source)
-        //{
-        //    var obj = new AphidObject();
-        //    source.CopyTo(obj);
-
-        //    return obj;
-        //}
-
         public static AphidObject Complex(IEnumerable<KeyValuePair<string, AphidObject>> members)
         {
             var obj = new AphidObject();
@@ -510,23 +546,6 @@ namespace Components.Aphid.TypeSystem
 
             return obj;
         }
-
-        //public AphidObject With(string key, AphidObject value)
-        //{
-        //    if (!_isComplex)
-        //    {
-        //        throw new InvalidOperationException();
-        //    }
-
-        //    Add(key, value);
-
-        //    return this;
-        //}
-
-        //public AphidObject WithScalar(string key, object value)
-        //{
-        //    return With(key, AphidObject.Scalar(value));
-        //}
 
         public static AphidObject Scope(AphidObject parentScope)
         {
