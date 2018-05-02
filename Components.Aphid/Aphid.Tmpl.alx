@@ -58,7 +58,7 @@ var firstStr = true;
 var getString = @(delim) {
     var regex;
     var escapedDelim;
-    var escapedType;
+    var escapedType = '';
 
     if (delim == '"') {
         regex = '"';
@@ -74,7 +74,7 @@ var getString = @(delim) {
         escapedType = 'bool';
     }
 
-    ret { regex: regex, code: sprintf(stringTmpl, escapedType, escapedDelim) };
+    ret { regex: regex, code: format(stringTmpl, escapedType, escapedDelim) };
 };
 
 
