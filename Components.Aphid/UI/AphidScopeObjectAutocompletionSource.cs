@@ -381,7 +381,8 @@ namespace Components.Aphid.UI
             else if (member is PropertyInfo)
             {
                 view += " { ";
-                var accessors = (member as PropertyInfo).GetAccessors();
+                var prop = (PropertyInfo)member;
+                var accessors = prop.GetAccessors();
                 if (accessors.Any(x => x.ReturnType != typeof(void)))
                 {
                     view += "get; ";
@@ -391,8 +392,8 @@ namespace Components.Aphid.UI
                 {
                     view += "set; ";
                 }
-                    
-                view += "}";
+
+                view += string.Format("}} -> {0}", prop.PropertyType.Name);
             }
 
             return new Autocomplete(view, member.Name);
