@@ -119,7 +119,11 @@ namespace Components.Aphid.Serialization
             {
                 SerializeValue(s, ao.Value, indent);
             }
-            else
+            else if (ao.IsScalar)
+            {
+                s.Append("null");
+            }
+            else if (ao.Keys.Count > 0)
             {
                 s.Append("{\r\n");
 
@@ -150,6 +154,10 @@ namespace Components.Aphid.Serialization
                 }
 
                 s.AppendFormat("{0}}}", new string(' ', indent * 4));
+            }
+            else
+            {
+                s.Append("{}");
             }
         }
 
@@ -183,17 +191,25 @@ namespace Components.Aphid.Serialization
             else if (value is List<AphidObject>)
             {
                 var list = (List<AphidObject>)value;
-                s.Append("[\r\n");
 
-                foreach (var x in list)
+                if (list.Count > 0)
                 {
-                    s.Append(new string(' ', (indent + 1) * 4));
-                    //ObjToString(x, s, indent + 1);
-                    Serialize(s, x, indent + 1);
-                    s.Append(",\r\n");
-                }
+                    s.Append("[\r\n");
 
-                s.AppendFormat("{0}]", new string(' ', indent * 4));
+                    foreach (var x in list)
+                    {
+                        s.Append(new string(' ', (indent + 1) * 4));
+                        //ObjToString(x, s, indent + 1);
+                        Serialize(s, x, indent + 1);
+                        s.Append(",\r\n");
+                    }
+
+                    s.AppendFormat("{0}]", new string(' ', indent * 4));
+                }
+                else
+                {
+                    s.Append("[]");
+                }
             }
             else if (value is IEnumerable)
             {
@@ -207,18 +223,26 @@ namespace Components.Aphid.Serialization
 
         private void SerializeEnumerable(StringBuilder s, object value, int indent)
         {
-            var enumerable = (IEnumerable)value;
-            s.Append("[\r\n");
+            var enumerable = ((IEnumerable)value).Cast<object>();
 
-            foreach (var x in enumerable)
+            if (enumerable.Any())
             {
-                s.Append(new string(' ', (indent + 1) * 4));
-                SerializeValue(s, x, indent + 1);
-                //ObjToString(x, s, indent + 1);
-                s.Append(",\r\n");
-            }
+                s.Append("[\r\n");
 
-            s.AppendFormat("{0}]", new string(' ', indent * 4));
+                foreach (var x in enumerable)
+                {
+                    s.Append(new string(' ', (indent + 1) * 4));
+                    SerializeValue(s, x, indent + 1);
+                    //ObjToString(x, s, indent + 1);
+                    s.Append(",\r\n");
+                }
+
+                s.AppendFormat("{0}]", new string(' ', indent * 4));
+            }
+            else
+            {
+                s.Append("[]");
+            }
         }
 
         private void SerializeToString(StringBuilder s, object value)
