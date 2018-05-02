@@ -98,7 +98,7 @@ var remote = null;
             ctx.listener.Start();
             _initSerializer(this.{'$aphid'});
 
-            ctx.listenThread = startThread(@{
+            ctx.listenThread = thread(@{
                 var aphid = this.{'$aphid'};
                 
                 while (true) {
@@ -109,7 +109,7 @@ var remote = null;
                         _rt('Client connected');
                         var c = createClient(tcp);
 
-                        c.thread = startThread(@{
+                        c.thread = thread(@{
                             var buffer;
                             var resp;
                             _rt('Creating client thread');
