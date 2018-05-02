@@ -98,7 +98,7 @@ var remote = null;
             ctx.listener.Start();
             _initSerializer(this.{'$aphid'});
 
-            ctx.listenThread = thread(@{
+            ctx.listenThread = startThread(@{
                 var aphid = this.{'$aphid'};
                 
                 while (true) {
@@ -109,7 +109,7 @@ var remote = null;
                         _rt('Client connected');
                         var c = createClient(tcp);
 
-                        c.thread = thread(@{
+                        c.thread = startThread(@{
                             var buffer;
                             var resp;
                             _rt('Creating client thread');
@@ -168,6 +168,22 @@ var remote = null;
                 var buf = read();
                 _rt('Server response:\r\n~Magenta~{0}~R~\r\n\r\n', buf |> Cli.StyleEscape);
                 ret buf |> deserialize;
+            };
+
+            client.copyFile = @(filename, dstFilename) {
+                ret '
+                    using System;
+                    using System.IO;
+                    "{0}" |> Path.GetDirectoryName |> Directory.CreateDirectory;
+                    "{1}" |> Convert.FromBase64String @File.WriteAllBytes("{0}");
+
+                    ret {{ filename: "{0}", length: (new FileInfo("{0}")).Length }};
+                '
+                :: [
+                    (dstFilename defined ? dstFilename : filename).Replace('\\', '\\\\'),
+                    filename |> File.ReadAllBytes |> Convert.ToBase64String
+                ]
+                |> eval;
             };
 
             _rt('Connected to remote session');
