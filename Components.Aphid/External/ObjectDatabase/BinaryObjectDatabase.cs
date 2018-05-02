@@ -37,34 +37,6 @@ namespace Components.ObjectDatabase
             return (T)_formatter.Deserialize(stream);
         }
 
-        public class ObjectDatabaseExpressionCacheEntry
-        {
-            public DateTime CacheTime { get; set; }
-
-            public long Offset { get; set; }
-
-            public ObjectDatabaseExpressionCacheEntry()
-            {
-            }
-
-            public ObjectDatabaseExpressionCacheEntry(DateTime cacheTime, long offset)
-            {
-                CacheTime = cacheTime;
-                Offset = offset;
-            }
-        }
-
-        public class ExpressionCacheTable : Dictionary<Expression<Func<T, bool>>, IEnumerable<ObjectDatabaseExpressionCacheEntry>>
-        {
-        }
-
-        public class ObjectDatabaseExpressionCache
-        {
-            private ExpressionCacheTable _table = new ExpressionCacheTable();
-
-
-        }
-
         public IEnumerable<T> ReadUnsafe(Expression<Func<T, bool>> predicate)
         {
             var key = predicate.ToString();
