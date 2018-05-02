@@ -4452,7 +4452,34 @@ namespace Components.Aphid.Interpreter
 #if APHID_SET_CODE_VAR
             SetAstCode(new List<AphidExpression> { expression });
 #endif
-            return InterpretExpression(expression);
+            IdentifierExpression idExp;
+            UnaryOperatorExpression unaryExp;
+
+            if (((expression.Type == AphidExpressionType.IdentifierExpression &&
+                (idExp = (IdentifierExpression)expression).Attributes.Count == 1) ||
+                (expression.Type == AphidExpressionType.UnaryOperatorExpression && 
+                ((unaryExp = (UnaryOperatorExpression)expression).Operator == AphidTokenType.retKeyword) &&
+                unaryExp.Operand.Type == AphidExpressionType.IdentifierExpression &&
+                (idExp = (IdentifierExpression)unaryExp.Operand).Attributes.Count == 1)) &&
+                idExp.Attributes[0].Identifier == AphidName.Var)
+            {
+                var id = idExp.Identifier;
+
+                if (CurrentScope.ContainsKey(id))
+                {
+                    throw CreateRuntimeException("Duplicated variable declaration: {0}", id);
+                }
+                else
+                {
+                    CurrentScope.Add(id, AphidObject.Null());
+
+                    return null;
+                }
+            }
+            else
+            {
+                return InterpretExpression(expression);
+            }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
