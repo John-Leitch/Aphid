@@ -170,8 +170,8 @@ var remote = null;
                 ret buf |> deserialize;
             };
 
-            client.copyFile = @(filename, dstFilename) {
-                ret '
+            client.copyFile = @(srcFilename, dstFilename)
+                '
                     using System;
                     using System.IO;
                     "{0}" |> Path.GetDirectoryName |> Directory.CreateDirectory;
@@ -180,11 +180,10 @@ var remote = null;
                     ret {{ filename: "{0}", length: (new FileInfo("{0}")).Length }};
                 '
                 :: [
-                    (dstFilename defined ? dstFilename : filename).Replace('\\', '\\\\'),
-                    filename |> File.ReadAllBytes |> Convert.ToBase64String
+                    (dstFilename defined ? dstFilename : srcFilename).Replace('\\', '\\\\'),
+                    srcFilename |> File.ReadAllBytes |> Convert.ToBase64String
                 ]
                 |> eval;
-            };
 
             _rt('Connected to remote session');
 
