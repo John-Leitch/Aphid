@@ -3,6 +3,20 @@
 using Components.Aphid.Interpreter;
 using Components.Aphid.TypeSystem;
 
+extend CodeTypeDeclaration {
+    partial: @(t) {
+        t.IsPartial = true;
+
+        ret t;
+    },
+
+    withPrivate: _attr(Private),
+    withProtected: _attr(Family),
+    withPublic: _attr(Public),
+    method: _methodBase(memberMethod),
+    delegate: _methodBase(typeDelegate),
+}
+
 _attr = macro(@(a){
     @(t) {
         t.UserData.set_Item(
@@ -13,41 +27,67 @@ _attr = macro(@(a){
     }
 });
 
-extend CodeTypeDeclaration {
-    partial: @(t) {
-        t.IsPartial = true;
-
-        ret t;
-    },
-
-    withPrivate: _attr(Private),
-    withProtected: _attr(Protected),
-    withPublic: _attr(Public),
-
-    method: @(t, return, name) {
-        var m = code.memberMethod();
-
-        if (t.UserData.Contains('AttributesAspect')) {
-            m.Attributes = t.UserData.get_Item('AttributesAspect');
-        }
-
-        m.UserData.Add('DeclaringType', t);
+_methodBase = macro(@(create) {
+    @(t, return, name) {
+        var m = code.create();
+        m.bind(t);
         m.ReturnType = code.type(return);
         m.Name = name;
         t.Members.Add(m);
 
         ret m;
+    }
+});
+
+extend CodeTypeMember {
+    bind: @(m, t) {
+        if (t.UserData.Contains('AttributesAspect')) {
+            m.Attributes = t.UserData.get_Item('AttributesAspect');
+        }
+
+        m.UserData.Add('DeclaringType', t);
     },
+
+    next: @(m) m.UserData.get_Item('DeclaringType'),
 }
 
+_memberAttr(private);
+_memberAttr(protected);
+_memberAttr(public);
+
+_memberAttr = macro(@(n){
+    extend CodeTypeMember {
+        n: @(m) {
+            var f = quote(n);
+            
+            m.Attributes = 
+                ($(f)
+                    'protected': MemberAttributes.Family, 
+                    f[0].ToUpper() + f.Substring(1)
+                    |> MemberAttributes.GetField
+                    @() $_.GetValue(null)) |
+                MemberAttributes.Final;
+
+            ret m;
+        },
+    }
+});
+
+_memberParam = macro(@(domType) {
+    extend domType {
+        param: @(m, type, name) {
+            code.paramDecl(type |> code.type, name)
+            |> m.Parameters.Add;
+
+            ret m;
+        }
+    }
+});
+
+_memberParam(CodeMemberMethod);
+_memberParam(CodeTypeDelegate);
+
 extend CodeMemberMethod {
-    param: @(m, type, name) {
-        code.paramDecl(type |> code.type, name)
-        |> m.Parameters.Add;
-
-        ret m;
-    },
-
     stmt: @(m, stmt) {
         m.Statements.Add(stmt);
 
@@ -56,3 +96,5 @@ extend CodeMemberMethod {
 }
 
 code.partial = @{ $_.IsPartial = true; ret $_ };
+
+extend CodeObject { code: @(c) c |> code.cs }
