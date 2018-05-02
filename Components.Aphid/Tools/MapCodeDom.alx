@@ -1,0 +1,90 @@
+﻿#'std';
+using System;
+using System.CodeDom;
+
+printInfo('Mapping CodeDom types');
+
+var mapName = @(Type t) {
+	var x = t.Name.StartsWith('Code') ? t.Name.Substring(4) : t.Name;
+
+	var y = (t != CodeTypeReferenceExpression &&
+			x.EndsWith('Expression') ? x.Remove(x.Length - 'Expression'.Length) :
+		t != CodeCommentStatement &&
+			t != CodeSnippetStatement &&
+			x.EndsWith('Statement') ? x.Remove(x.Length - 'Statement'.Length) :
+			x)
+		.Replace('Collection', 's')
+		.Replace('Argument', 'Arg')
+		.Replace('Attribute', 'Attr')
+		.Replace('Parameter', 'Param')
+		.Replace('Reference', '')
+		.Replace('This', 'ThisExp')
+		.Replace('NamespaceImport', 'Import')
+		.Replace('Declaration', 'Decl')
+		.Replace('Constructor', 'Ctor')
+		.Replace('Variable', 'Var')
+		.Replace('Expression', 'Exp')
+		.Replace('Statement', 'Stmt')
+		.Replace('Operator', 'Op')
+		;
+
+	ret y[0].ToString().ToLower() + y.Substring(1);
+};
+
+var codeDomMappings = (load System)
+	.GetTypes()
+	-?(@()
+		$_.FullName.StartsWith('System.CodeDom.Code') &&
+		$_ != CodeExpression &&
+		$_ != CodeStatement &&
+		!$_.IsAbstract &&
+		$_.GetConstructors().Length > 0)
+	->@()({ name: $_ |> mapName, type: $_ });
+
+codeDomMappings |> dump;
+
+printQuery('Checking for collisions');
+var names = codeDomMappings->@.name;
+var distinctNames = names!?;
+
+if (names.Count != distinctNames.Count) {
+	printError('Collisions detected');
+	names |> dump;
+	fatal('fuck');
+} else {
+	printSuccess('No collisions found');
+}
+
+var domObj = codeDomMappings
+	->(@(m) format(
+		'    {0}: @() ($($args.Count) {1},\r\n        fatal("Invalid param count"))',
+		m.name,
+		m.type
+			.GetConstructors()
+				->(@(c) format(
+					'\r\n        {0}: new {1}({2})',
+					c.GetParameters().Length,
+					m.type.Name,
+					0..c.GetParameters().Length->@format('$args[{0}]') @join(', ')))
+				!?
+				@join(', ')))
+	@join(',\r\n\r\n')
+	@format(
+		'using Components.Aphid.Compiler;\r\n' +
+		'using System.CodeDom;\r\n\r\n' +
+		'var code = {{\r\n{0}\r\n}};\r\n\r\n' + 
+		'code.cs = CSharpHelper.GenerateCode;\r\n');
+
+printSuccess('Generated CodeDom object:\r\n');
+domObj |> Console.WriteLine;
+
+var outFile =
+	this.{'$script'}
+	|> Path.GetDirectoryName
+	@() Path.Combine($_, '..', 'Library', 'CodeDom.alx');
+
+print();
+printInfo('Writing to ~Cyan~{0}~R~', outFile);
+domObj @File.WriteAllText(outFile);
+
+printSuccess('Done');
