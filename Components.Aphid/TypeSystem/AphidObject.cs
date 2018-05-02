@@ -122,7 +122,21 @@ namespace Components.Aphid.TypeSystem
 
         public override string ToString()
         {
-            return string.Format("{{ {0}, {1} members }}", Value, Count);
+            return ToString(printMembers: true);
+        }
+
+        private string ToString(bool printMembers)
+        {
+            return _isScalar ? Value.ToString() :
+                printMembers ? string.Format(
+                    "{{ {0} }}",
+                    this
+                        .Select(x => string.Format(
+                            "{0}: {1}",
+                            x.Key,
+                            x.Value.ToString(false)))
+                        .Join(", ")) :
+                "{ ... }";
         }
 
         public List<AphidObject> GetList()
