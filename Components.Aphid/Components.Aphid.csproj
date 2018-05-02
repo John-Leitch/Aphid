@@ -168,6 +168,10 @@
     <Compile Include="External\ObjectDatabase\ObjectDatabaseBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseRecord.cs" />
+    <Compile Include="External\PInvoke\HotkeyFlags.cs" />
+    <Compile Include="External\PInvoke\Shell32.cs" />
+    <Compile Include="External\PInvoke\SHFILEINFO.cs" />
+    <Compile Include="External\PInvoke\SWP.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Parser\AphidDirective.cs" />

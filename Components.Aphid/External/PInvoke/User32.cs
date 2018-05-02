@@ -8,25 +8,27 @@ namespace Components.PInvoke
 {
     public static class User32
     {
-        public const int WM_LBUTTONDOWN = 0x0201,
+        public const int
+            WM_KEYDOWN = 0x100,
+            WM_KEYUP = 0x101,
+            WM_LBUTTONDOWN = 0x0201,
             WM_LBUTTONUP = 0x0202,
-            BM_CLICK = 0x00F5;
+            BM_CLICK = 0x00F5,
+            KEYEVENTF_EXTENDEDKEY = 1,
+            KEYEVENTF_KEYUP = 2,
+            LLKHF_INJECTED = 0x00000010;
+
+        public static readonly IntPtr
+            HWND_TOPMOST = new IntPtr(-1),
+            HWND_NOTOPMOST = new IntPtr(-2),
+            HWND_TOP = new IntPtr(0),
+            HWND_BOTTOM = new IntPtr(1);
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
-
-        public const int WM_KEYDOWN = 0x100;
-
-        public const int WM_KEYUP = 0x101;
-
-        public const int KEYEVENTF_EXTENDEDKEY = 1;
-
-        public const int KEYEVENTF_KEYUP = 2;
-
-        public const int LLKHF_INJECTED = 0x00000010;
 
         [DllImport("user32.dll")]
         public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
@@ -50,10 +52,8 @@ namespace Components.PInvoke
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool BringWindowToTop(IntPtr hWnd);
 
-        public static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
-        public static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
-        public static readonly IntPtr HWND_TOP = new IntPtr(0);
-        public static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool BringWindowToTop(HandleRef hWnd);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -71,8 +71,6 @@ namespace Components.PInvoke
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
-        
-
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
@@ -81,6 +79,12 @@ namespace Components.PInvoke
         public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+
+        [DllImport("user32.dll")]
         public static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
     }
 }
