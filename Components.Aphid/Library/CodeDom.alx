@@ -1,403 +1,58 @@
-using Components.Aphid.Compiler;
-using System.CodeDom;
-
-var code = {
-    arg: @() ($($args.Count) 
-        0: new CodeArgumentReferenceExpression(), 
-        1: new CodeArgumentReferenceExpression($args[0]),
-        fatal("Invalid param count")),
-
-    arrayCreate: @() ($($args.Count) 
-        2: new CodeArrayCreateExpression($args[0], $args[1]), 
-        0: new CodeArrayCreateExpression(),
-        fatal("Invalid param count")),
-
-    arrayIndexer: @() ($($args.Count) 
-        0: new CodeArrayIndexerExpression(), 
-        2: new CodeArrayIndexerExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    assign: @() ($($args.Count) 
-        0: new CodeAssignStatement(), 
-        2: new CodeAssignStatement($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    attachEvent: @() ($($args.Count) 
-        0: new CodeAttachEventStatement(), 
-        2: new CodeAttachEventStatement($args[0], $args[1]), 
-        3: new CodeAttachEventStatement($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    attrArg: @() ($($args.Count) 
-        0: new CodeAttributeArgument(), 
-        1: new CodeAttributeArgument($args[0]), 
-        2: new CodeAttributeArgument($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    attrArgs: @() ($($args.Count) 
-        0: new CodeAttributeArgumentCollection(), 
-        1: new CodeAttributeArgumentCollection($args[0]),
-        fatal("Invalid param count")),
-
-    attrDecl: @() ($($args.Count) 
-        2: new CodeAttributeDeclaration($args[0], $args[1]), 
-        0: new CodeAttributeDeclaration(), 
-        1: new CodeAttributeDeclaration($args[0]),
-        fatal("Invalid param count")),
-
-    attrDecls: @() ($($args.Count) 
-        0: new CodeAttributeDeclarationCollection(), 
-        1: new CodeAttributeDeclarationCollection($args[0]),
-        fatal("Invalid param count")),
-
-    base: @() ($($args.Count) 
-        0: new CodeBaseReferenceExpression(),
-        fatal("Invalid param count")),
-
-    binaryOp: @() ($($args.Count) 
-        0: new CodeBinaryOperatorExpression(), 
-        3: new CodeBinaryOperatorExpression($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    cast: @() ($($args.Count) 
-        0: new CodeCastExpression(), 
-        2: new CodeCastExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    catchClause: @() ($($args.Count) 
-        0: new CodeCatchClause(), 
-        1: new CodeCatchClause($args[0]), 
-        2: new CodeCatchClause($args[0], $args[1]), 
-        3: new CodeCatchClause($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    catchClauses: @() ($($args.Count) 
-        0: new CodeCatchClauseCollection(), 
-        1: new CodeCatchClauseCollection($args[0]),
-        fatal("Invalid param count")),
-
-    checksumPragma: @() ($($args.Count) 
-        0: new CodeChecksumPragma(), 
-        3: new CodeChecksumPragma($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    comment: @() ($($args.Count) 
-        0: new CodeComment(), 
-        1: new CodeComment($args[0]), 
-        2: new CodeComment($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    commentStmt: @() ($($args.Count) 
-        0: new CodeCommentStatement(), 
-        1: new CodeCommentStatement($args[0]), 
-        2: new CodeCommentStatement($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    commentStmts: @() ($($args.Count) 
-        0: new CodeCommentStatementCollection(), 
-        1: new CodeCommentStatementCollection($args[0]),
-        fatal("Invalid param count")),
-
-    compileUnit: @() ($($args.Count) 
-        0: new CodeCompileUnit(),
-        fatal("Invalid param count")),
-
-    condition: @() ($($args.Count) 
-        0: new CodeConditionStatement(), 
-        2: new CodeConditionStatement($args[0], $args[1]), 
-        3: new CodeConditionStatement($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    ctor: @() ($($args.Count) 
-        0: new CodeConstructor(),
-        fatal("Invalid param count")),
-
-    defaultValue: @() ($($args.Count) 
-        0: new CodeDefaultValueExpression(), 
-        1: new CodeDefaultValueExpression($args[0]),
-        fatal("Invalid param count")),
-
-    delegateCreate: @() ($($args.Count) 
-        0: new CodeDelegateCreateExpression(), 
-        3: new CodeDelegateCreateExpression($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    delegateInvoke: @() ($($args.Count) 
-        0: new CodeDelegateInvokeExpression(), 
-        1: new CodeDelegateInvokeExpression($args[0]), 
-        2: new CodeDelegateInvokeExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    direction: @() ($($args.Count) 
-        0: new CodeDirectionExpression(), 
-        2: new CodeDirectionExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    directive: @() ($($args.Count) 
-        0: new CodeDirective(),
-        fatal("Invalid param count")),
-
-    directives: @() ($($args.Count) 
-        0: new CodeDirectiveCollection(), 
-        1: new CodeDirectiveCollection($args[0]),
-        fatal("Invalid param count")),
-
-    entryPointMethod: @() ($($args.Count) 
-        0: new CodeEntryPointMethod(),
-        fatal("Invalid param count")),
-
-    event: @() ($($args.Count) 
-        0: new CodeEventReferenceExpression(), 
-        2: new CodeEventReferenceExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    exps: @() ($($args.Count) 
-        0: new CodeExpressionCollection(), 
-        1: new CodeExpressionCollection($args[0]),
-        fatal("Invalid param count")),
-
-    exp: @() ($($args.Count) 
-        0: new CodeExpressionStatement(), 
-        1: new CodeExpressionStatement($args[0]),
-        fatal("Invalid param count")),
-
-    field: @() ($($args.Count) 
-        0: new CodeFieldReferenceExpression(), 
-        2: new CodeFieldReferenceExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    goto: @() ($($args.Count) 
-        0: new CodeGotoStatement(), 
-        1: new CodeGotoStatement($args[0]),
-        fatal("Invalid param count")),
-
-    indexer: @() ($($args.Count) 
-        0: new CodeIndexerExpression(), 
-        2: new CodeIndexerExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    iteration: @() ($($args.Count) 
-        0: new CodeIterationStatement(), 
-        4: new CodeIterationStatement($args[0], $args[1], $args[2], $args[3]),
-        fatal("Invalid param count")),
-
-    labeled: @() ($($args.Count) 
-        0: new CodeLabeledStatement(), 
-        1: new CodeLabeledStatement($args[0]), 
-        2: new CodeLabeledStatement($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    linePragma: @() ($($args.Count) 
-        0: new CodeLinePragma(), 
-        2: new CodeLinePragma($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    memberEvent: @() ($($args.Count) 
-        0: new CodeMemberEvent(),
-        fatal("Invalid param count")),
-
-    memberField: @() ($($args.Count) 
-        0: new CodeMemberField(), 
-        2: new CodeMemberField($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    memberMethod: @() ($($args.Count) 
-        0: new CodeMemberMethod(),
-        fatal("Invalid param count")),
-
-    memberProperty: @() ($($args.Count) 
-        0: new CodeMemberProperty(),
-        fatal("Invalid param count")),
-
-    methodInvoke: @() ($($args.Count) 
-        0: new CodeMethodInvokeExpression(), 
-        3: new CodeMethodInvokeExpression($args[0], $args[1], $args[2]), 
-        2: new CodeMethodInvokeExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    method: @() ($($args.Count) 
-        0: new CodeMethodReferenceExpression(), 
-        2: new CodeMethodReferenceExpression($args[0], $args[1]), 
-        3: new CodeMethodReferenceExpression($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    methodReturn: @() ($($args.Count) 
-        0: new CodeMethodReturnStatement(), 
-        1: new CodeMethodReturnStatement($args[0]),
-        fatal("Invalid param count")),
-
-    namespace: @() ($($args.Count) 
-        1: new CodeNamespace($args[0]), 
-        0: new CodeNamespace(),
-        fatal("Invalid param count")),
-
-    namespaces: @() ($($args.Count) 
-        0: new CodeNamespaceCollection(), 
-        1: new CodeNamespaceCollection($args[0]),
-        fatal("Invalid param count")),
-
-    import: @() ($($args.Count) 
-        1: new CodeNamespaceImport($args[0]), 
-        0: new CodeNamespaceImport(),
-        fatal("Invalid param count")),
-
-    imports: @() ($($args.Count) 
-        0: new CodeNamespaceImportCollection(),
-        fatal("Invalid param count")),
-
-    object: @() ($($args.Count) 
-        0: new CodeObject(),
-        fatal("Invalid param count")),
-
-    objectCreate: @() ($($args.Count) 
-        2: new CodeObjectCreateExpression($args[0], $args[1]), 
-        0: new CodeObjectCreateExpression(),
-        fatal("Invalid param count")),
-
-    paramDecl: @() ($($args.Count) 
-        0: new CodeParameterDeclarationExpression(), 
-        2: new CodeParameterDeclarationExpression($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    paramDeclExps: @() ($($args.Count) 
-        0: new CodeParameterDeclarationExpressionCollection(), 
-        1: new CodeParameterDeclarationExpressionCollection($args[0]),
-        fatal("Invalid param count")),
-
-    primitive: @() ($($args.Count) 
-        0: new CodePrimitiveExpression(), 
-        1: new CodePrimitiveExpression($args[0]),
-        fatal("Invalid param count")),
-
-    property: @() ($($args.Count) 
-        2: new CodePropertyReferenceExpression($args[0], $args[1]), 
-        0: new CodePropertyReferenceExpression(),
-        fatal("Invalid param count")),
-
-    propertySetValue: @() ($($args.Count) 
-        0: new CodePropertySetValueReferenceExpression(),
-        fatal("Invalid param count")),
-
-    regionDirective: @() ($($args.Count) 
-        0: new CodeRegionDirective(), 
-        2: new CodeRegionDirective($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    removeEvent: @() ($($args.Count) 
-        0: new CodeRemoveEventStatement(), 
-        2: new CodeRemoveEventStatement($args[0], $args[1]), 
-        3: new CodeRemoveEventStatement($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    snippetCompileUnit: @() ($($args.Count) 
-        0: new CodeSnippetCompileUnit(), 
-        1: new CodeSnippetCompileUnit($args[0]),
-        fatal("Invalid param count")),
-
-    snippet: @() ($($args.Count) 
-        0: new CodeSnippetExpression(), 
-        1: new CodeSnippetExpression($args[0]),
-        fatal("Invalid param count")),
-
-    snippetStmt: @() ($($args.Count) 
-        0: new CodeSnippetStatement(), 
-        1: new CodeSnippetStatement($args[0]),
-        fatal("Invalid param count")),
-
-    snippetTypeMember: @() ($($args.Count) 
-        0: new CodeSnippetTypeMember(), 
-        1: new CodeSnippetTypeMember($args[0]),
-        fatal("Invalid param count")),
-
-    stmts: @() ($($args.Count) 
-        0: new CodeStatementCollection(), 
-        1: new CodeStatementCollection($args[0]),
-        fatal("Invalid param count")),
-
-    thisExp: @() ($($args.Count) 
-        0: new CodeThisReferenceExpression(),
-        fatal("Invalid param count")),
-
-    throwException: @() ($($args.Count) 
-        0: new CodeThrowExceptionStatement(), 
-        1: new CodeThrowExceptionStatement($args[0]),
-        fatal("Invalid param count")),
-
-    tryCatchFinally: @() ($($args.Count) 
-        0: new CodeTryCatchFinallyStatement(), 
-        2: new CodeTryCatchFinallyStatement($args[0], $args[1]), 
-        3: new CodeTryCatchFinallyStatement($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    typeCtor: @() ($($args.Count) 
-        0: new CodeTypeConstructor(),
-        fatal("Invalid param count")),
-
-    typeDecl: @() ($($args.Count) 
-        1: new CodeTypeDeclaration($args[0]), 
-        0: new CodeTypeDeclaration(),
-        fatal("Invalid param count")),
-
-    typeDecls: @() ($($args.Count) 
-        0: new CodeTypeDeclarationCollection(), 
-        1: new CodeTypeDeclarationCollection($args[0]),
-        fatal("Invalid param count")),
-
-    typeDelegate: @() ($($args.Count) 
-        0: new CodeTypeDelegate(), 
-        1: new CodeTypeDelegate($args[0]),
-        fatal("Invalid param count")),
-
-    typeMember: @() ($($args.Count) 
-        0: new CodeTypeMember(),
-        fatal("Invalid param count")),
-
-    typeMembers: @() ($($args.Count) 
-        0: new CodeTypeMemberCollection(), 
-        1: new CodeTypeMemberCollection($args[0]),
-        fatal("Invalid param count")),
-
-    typeOf: @() ($($args.Count) 
-        0: new CodeTypeOfExpression(), 
-        1: new CodeTypeOfExpression($args[0]),
-        fatal("Invalid param count")),
-
-    typeParam: @() ($($args.Count) 
-        0: new CodeTypeParameter(), 
-        1: new CodeTypeParameter($args[0]),
-        fatal("Invalid param count")),
-
-    typeParams: @() ($($args.Count) 
-        0: new CodeTypeParameterCollection(), 
-        1: new CodeTypeParameterCollection($args[0]),
-        fatal("Invalid param count")),
-
-    type: @() ($($args.Count) 
-        1: new CodeTypeReference($args[0]), 
-        0: new CodeTypeReference(), 
-        2: new CodeTypeReference($args[0], $args[1]),
-        fatal("Invalid param count")),
-
-    types: @() ($($args.Count) 
-        0: new CodeTypeReferenceCollection(), 
-        1: new CodeTypeReferenceCollection($args[0]),
-        fatal("Invalid param count")),
-
-    typeExp: @() ($($args.Count) 
-        0: new CodeTypeReferenceExpression(), 
-        1: new CodeTypeReferenceExpression($args[0]),
-        fatal("Invalid param count")),
-
-    varDecl: @() ($($args.Count) 
-        0: new CodeVariableDeclarationStatement(), 
-        2: new CodeVariableDeclarationStatement($args[0], $args[1]), 
-        3: new CodeVariableDeclarationStatement($args[0], $args[1], $args[2]),
-        fatal("Invalid param count")),
-
-    var: @() ($($args.Count) 
-        0: new CodeVariableReferenceExpression(), 
-        1: new CodeVariableReferenceExpression($args[0]),
-        fatal("Invalid param count"))
-};
-
-code.cs = CSharpHelper.GenerateCode;
+#'CodeDom.g';
+
+using Components.Aphid.Interpreter;
+using Components.Aphid.TypeSystem;
+
+_attr = macro(@(a){
+    @(t) {
+        t.UserData.set_Item(
+            'AttributesAspect',
+            MemberAttributes.a | MemberAttributes.Final);
+            
+        ret t;
+    }
+});
+
+extend CodeTypeDeclaration {
+    partial: @(t) {
+        t.IsPartial = true;
+
+        ret t;
+    },
+
+    withPrivate: _attr(Private),
+    withProtected: _attr(Protected),
+    withPublic: _attr(Public),
+
+    method: @(t, return, name) {
+        var m = code.memberMethod();
+
+        if (t.UserData.Contains('AttributesAspect')) {
+            m.Attributes = t.UserData.get_Item('AttributesAspect');
+        }
+
+        m.UserData.Add('DeclaringType', t);
+        m.ReturnType = code.type(return);
+        m.Name = name;
+        t.Members.Add(m);
+
+        ret m;
+    },
+}
+
+extend CodeMemberMethod {
+    param: @(m, type, name) {
+        code.paramDecl(type |> code.type, name)
+        |> m.Parameters.Add;
+
+        ret m;
+    },
+
+    stmt: @(m, stmt) {
+        m.Statements.Add(stmt);
+
+        ret m;
+    },
+}
+
+code.partial = @{ $_.IsPartial = true; ret $_ };

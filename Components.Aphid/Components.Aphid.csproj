@@ -472,6 +472,7 @@
     <None Include="Library\Compression.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\CodeDom.g.alx" />
     <None Include="Library\Machine.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
