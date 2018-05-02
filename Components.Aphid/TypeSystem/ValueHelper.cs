@@ -28,7 +28,7 @@ namespace Components.Aphid.TypeSystem
         {
             AphidObject aphidObj;
 
-            return (aphidObj = obj as AphidObject) != null ? aphidObj.Value : obj;
+            return (aphidObj = obj as AphidObject) != null && aphidObj.IsScalar ? aphidObj.Value : obj;
         }
 
         public AphidObject Wrap(object obj)

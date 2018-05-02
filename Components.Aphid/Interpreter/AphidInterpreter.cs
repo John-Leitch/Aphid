@@ -1018,7 +1018,9 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (!obj.TryResolve(key, out val))
                 {
-                    if (obj.Value != null)
+                    var o = obj.IsScalar ? obj.Value : obj;
+
+                    if (o != null)
                     {
                         val = TypeExtender.TryResolve(
                             CurrentScope,
@@ -1031,7 +1033,7 @@ namespace Components.Aphid.Interpreter
 
                         return val == null ?
                             InterpretMemberInteropExpression(
-                                obj.Value,
+                                o,
                                 expression,
                                 returnRef,
                                 () => TypeExtender.TryResolve(

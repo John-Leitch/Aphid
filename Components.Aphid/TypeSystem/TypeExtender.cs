@@ -60,7 +60,7 @@ namespace Components.Aphid.TypeSystem
                 new List<string>() :
                 new[] { obj.GetValueType() }.ToList();
 
-            var t = obj.Value.GetType();
+            var t = obj.IsScalar ? obj.Value.GetType() : typeof(AphidObject);
 
             do
             {

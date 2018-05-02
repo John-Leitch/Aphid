@@ -145,10 +145,11 @@ namespace Components.Aphid.TypeSystem
         {
             Type t;
 
-            return Value != null ? 
-                AphidAlias.Resolve(t = Value.GetType()) ??
+            return
+                Value != null ? AphidAlias.Resolve(t = Value.GetType()) ??
                     (includeClrTypes ? t.FullName : AphidType.Unknown) :
-                AphidType.Null;
+                IsScalar ? AphidType.Null :
+                AphidType.Object;
         }
 
         private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj)
