@@ -158,8 +158,11 @@ var remote = null;
 
             _rt('Connecting to remote session {0}', server);
             var tcp = new TcpClient();
-            tcp.Connect(server, port ?? remote.port);        
+            var actualPort = port ?? remote.port;
+            tcp.Connect(server, actualPort);
             var client = createClient(tcp);
+            client.server = server;
+            client.port = actualPort;
 
             client.eval = @(exp) {
                 _rt('Writing command: ~Cyan~{0}~R~', exp.Replace('~', '~~'));
