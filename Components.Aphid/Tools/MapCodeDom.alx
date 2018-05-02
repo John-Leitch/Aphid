@@ -81,7 +81,7 @@ domObj |> Console.WriteLine;
 var outFile =
 	this.{'$script'}
 	|> Path.GetDirectoryName
-	@() Path.Combine($_, '..', 'Library', 'CodeDom.alx');
+	@() Path.Combine($_, '..', 'Library', 'CodeDom.g.alx');
 
 print();
 printInfo('Writing to ~Cyan~{0}~R~', outFile);
