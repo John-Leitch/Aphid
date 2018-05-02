@@ -35,7 +35,7 @@ while (true) {
     var p = Process.Start(si);
     p.WaitForExit();
     print('Process has exited with code ~Cyan~{0}~R~', p.ExitCode);
-    w.WaitForChanged(WatcherChangeTypes.All).Name @print("'{0}' changed");
+    w.WaitForChanged(WatcherChangeTypes.All).Name |> Cli.StyleEscape @print("'{0}' changed");
 }
 
 print('Done');
