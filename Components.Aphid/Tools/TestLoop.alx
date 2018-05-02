@@ -11,15 +11,14 @@ aq.empty = @(l) l.Count == 0;
 var args = Environment.GetCommandLineArgs() @aq.skip(2);
 
 if (args |> aq.empty) {
-    print('Aphid Test.alx [script] [directory]');
+    print('Aphid Test.alx [script] [watch directory] {args}');
     Environment.Exit(1);
-} else if (args.Count != 2) {
+} else if (args.Count < 2) {
     print('Invalid args');
     Environment.Exit(2);
 }
 
-// args for print($_);
-
+var testArgs = args @aq.skip(2) ->(@() $_.Contains(' ') ? format('"{0}"', $_) : $_) @join(' ');
 var w = new FileSystemWatcher();
 _n = macro(@(f) { NotifyFilters.f });
 w.NotifyFilter = _n(LastWrite);
@@ -31,7 +30,7 @@ print('Waiting for change');
 var exe = Assembly.GetEntryAssembly().Location;
 
 while (true) {
-    var si = new ProcessStartInfo(exe, args[0]);
+    var si = new ProcessStartInfo(exe, args[0] + (testArgs != '' ? ' ' + testArgs : ''));
     si.UseShellExecute = false;
     var p = Process.Start(si);
     p.WaitForExit();
