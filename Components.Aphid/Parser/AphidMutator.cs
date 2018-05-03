@@ -252,7 +252,7 @@ namespace Components.Aphid.Parser
                     var extendExp = (ExtendExpression)expression;
 
                     expanded.Add(new ExtendExpression(
-                        extendExp.ExtendType,
+                        (IdentifierExpression)Mutate(extendExp.ExtendType).Single(),
                         (ObjectExpression)Mutate(extendExp.Object).Single()));
 
                     break;
