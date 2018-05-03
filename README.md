@@ -193,9 +193,31 @@ Beyond compiler frontends, an early version of a Visual Studio extension can be 
 ## Change Log
 
 ### Current
+* Added lock keyword for thread synchronization.
 * Added REPL namespace autocomplete for using statements.
+* Updated REPL autocomplete to show property type in relevant results.
 * Improved autocomplete performance, decreased flickering.
 * Added REPL autocomplete max list size.
+* Fixed REPL autocomplete bug in Windows 7 and prior.
+* Made pipe operator context aware, so it can be used as a bit-wise or, or a pipeline depending on the operands.
+* Added Aphid export stub compiler which adds export keyword support. When applied to an aphid function along with optional return and param type annotations, the compiler generates strongly typed stubs to further simplify CLR to Aphid interop.
+* Major overhaul to AphidObject with improved type enforcement, interop compatibility, and serialization support.
+* Significant improvements to AphidShell language inference.
+* Restructured AphidShell remote script execution so results are buffered back on a per-command basis.
+* Added quote preprocessor directive.
+* Made process header console output conditional.
+* Added CodeDom header, which offers idiomatic mappings and fluent interfaces for .NET CodeDom.
+* Added machine header for collection system specs and resource usage.
+* Updating remoting to behavior to save original connection details.
+* Updated test loop script to support passing command-line args to target script.
+* Fixed test loop script bug caused by detection of changes in files containing tilde in name.
+* Fixed mutator coverage gap in extension declarations.
+* Fixed strict-mode compliance issues.
+* Fixed AphidShell remoting regression.
+* Fixed bug in arg parsing.
+* Cleaned up Mantispid error handling.
+* Fixed var initialization bug.
+* Fixed several serialization bugs and tweaked output formatting.
 
 ### 0.6.6686.31055 - April 22, 2017
 * Improved support for sharing resources across thread-boundaries.
