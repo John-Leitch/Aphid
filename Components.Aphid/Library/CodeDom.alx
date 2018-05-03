@@ -3,6 +3,16 @@ using Components.Aphid.Interpreter;
 using Components.Aphid.TypeSystem;
 using System.Reflection;
 
+extend CodeNamespace {
+    type: @(ns, typeName) {
+        var t = code.typeDecl(typeName);
+        t.UserData.Add('DeclaringNamespace', ns);
+        ns.Types.Add(t);
+
+        ret t;
+    }
+}
+
 extend CodeTypeDeclaration {
     partial: @(t) {
         t.IsPartial = true;
@@ -32,6 +42,7 @@ extend CodeTypeDeclaration {
 
     method: _methodBase(memberMethod),
     delegate: _methodBase(typeDelegate),
+    namespace: @(t) t.UserData.get_Item('DeclaringNamespace'),
 }
 
 _attr = macro(@(a){
