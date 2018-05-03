@@ -1,7 +1,7 @@
 #'CodeDom.g';
-
 using Components.Aphid.Interpreter;
 using Components.Aphid.TypeSystem;
+using System.Reflection;
 
 extend CodeTypeDeclaration {
     partial: @(t) {
@@ -13,6 +13,23 @@ extend CodeTypeDeclaration {
     withPrivate: _attr(Private),
     withProtected: _attr(Family),
     withPublic: _attr(Public),
+    
+    field: @(t, type, name) {
+        var f = code.memberField(code.type(type), name);
+        f.bind(t);
+
+        ret f;
+    },
+
+    property: @(t, type, name, get, set) {
+        var p = code.memberProperty();
+        p.Type = code.type(type);
+        p.Name = name;
+        p.bind(t);
+
+        ret p;
+    },
+
     method: _methodBase(memberMethod),
     delegate: _methodBase(typeDelegate),
 }
@@ -33,7 +50,6 @@ _methodBase = macro(@(create) {
         m.bind(t);
         m.ReturnType = code.type(return);
         m.Name = name;
-        t.Members.Add(m);
 
         ret m;
     }
@@ -46,6 +62,13 @@ extend CodeTypeMember {
         }
 
         m.UserData.Add('DeclaringType', t);
+        t.Members.Add(m);
+    },
+
+    static: @(m) {
+        m.Attributes |= MemberAttributes.Static;
+
+        ret m;
     },
 
     next: @(m) m.UserData.get_Item('DeclaringType'),
@@ -72,6 +95,20 @@ _memberAttr = macro(@(n){
         },
     }
 });
+
+extend CodeMemberProperty {
+    getStmt: @(p, stmt) {
+        p.GetStatements.Add(stmt);
+
+        ret p;
+    },
+
+    setStmt: @(p, stmt) {
+        p.SetStatements.Add(stmt);
+
+        ret p;
+    },
+}
 
 _memberParam = macro(@(domType) {
     extend domType {
