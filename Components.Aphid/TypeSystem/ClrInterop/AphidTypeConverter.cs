@@ -25,7 +25,17 @@ namespace Components.Aphid.TypeSystem
 
         public object Convert(AphidInteropMethodArg arg, Type[] genericArguments)
         {
-            return Convert(arg.TargetType, arg.Argument, genericArguments);
+            return arg.ImplicitConversionOperator != null ?
+                    Convert(arg.ImplicitConversionOperator, arg.Argument) :
+                arg.ExplicitConversionOperator != null ?
+                    Convert(arg.ExplicitConversionOperator, arg.Argument) :
+                Convert(arg.TargetType, arg.Argument, genericArguments);
+        }
+
+        public object Convert(MethodBase opMethod, object argument)
+        {
+            // Todo: possible optimization via delegate memoization.
+            return opMethod.Invoke(null, new[] { argument });
         }
 
         public AphidConversionInfo CanConvert(
