@@ -179,7 +179,7 @@ namespace Components.Aphid.TypeSystem
                 if (isFatal)
                 {
                     throw Interpreter.CreateRuntimeException(
-                        "Could not find type for interop call '{0}'",
+                        "Could not resolve member expression '{0}'",
                         pathStr);
                 }
                 else
@@ -191,7 +191,7 @@ namespace Components.Aphid.TypeSystem
             if (type.PartCount != path.Length - offset)
             {
                 throw Interpreter.CreateRuntimeException(
-                    "Could not find method for interop call '{0}'",
+                    "Could not resolve member expression '{0}'",
                     pathStr);
             }
 
