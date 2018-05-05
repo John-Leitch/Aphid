@@ -18,6 +18,8 @@ namespace Components.Aphid.TypeSystem
 
         public object Object { get; private set; }
 
+        public string Name { get; private set; }
+
         public FieldInfo Field { get; private set; }
 
         public PropertyInfo Property { get; private set; }
@@ -25,23 +27,37 @@ namespace Components.Aphid.TypeSystem
         public Type NestedType { get; private set; }
 
         public AphidInteropReference(object obj, FieldInfo field)
+            : this(obj, field.Name)
         {
             ReferenceType = AphidInteropReferenceType.Field;
             Object = obj;
             Field = field;
+            Name = field.Name;
         }
 
         public AphidInteropReference(object obj, PropertyInfo property)
+            : this(obj, property.Name)
         {
             ReferenceType = AphidInteropReferenceType.Property;
-            Object = obj;
             Property = property;
         }
 
         public AphidInteropReference(Type nestedType)
+            : this(nestedType.Name)
         {
             ReferenceType = AphidInteropReferenceType.NestedType;
             NestedType = nestedType;
+        }
+
+        private AphidInteropReference(object obj, string name)
+            : this(name)
+        {
+            Object = obj;
+        }
+
+        private AphidInteropReference(string name)
+        {
+            Name = name;
         }
     }
 }

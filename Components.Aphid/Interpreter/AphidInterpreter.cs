@@ -2630,6 +2630,53 @@ namespace Components.Aphid.Interpreter
                     new[] { retVal });
             }
 
+            object refObj;
+            AphidInteropReference memberRef;
+            AphidObject extObj;
+
+            if (functionExpression.Type == AphidExpressionType.BinaryOperatorExpression &&
+                (refObj = InterpretMemberExpression(
+                    (BinaryOperatorExpression)functionExpression,
+                    returnRef: true)) != null &&
+                (memberRef = ValueHelper.Unwrap(refObj) as AphidInteropReference) != null)
+            {
+                if (memberRef != null)
+                {
+                    if (((extObj = TypeExtender.TryResolve(
+                            CurrentScope,
+                            ValueHelper.Wrap(memberRef.Object),
+                            memberRef.Name,
+                            isAphidType: false,
+                            isCtor: false,
+                            isDynamic: false,
+                            returnRef: false)) != null &&
+                        (func2 = extObj.Value as AphidFunction) != null) ||
+                        ((extObj = TypeExtender.TryResolve(
+                            CurrentScope,
+                            ValueHelper.Wrap(memberRef.Object),
+                            memberRef.Name,
+                            isAphidType: false,
+                            isCtor: false,
+                            isDynamic: true,
+                            returnRef: false)) != null &&
+                        (func2 = extObj.Value as AphidFunction) != null))
+                    {
+                        PushFrame(callExpression, functionExpression, args);
+
+                        try
+                        {
+                            return CallFunctionCore(
+                                func2,
+                                args.Select(ValueHelper.Wrap).ToArray());
+                        }
+                        finally
+                        {
+                            PopFrame();
+                        }
+                    }
+                }
+            }
+
             throw CreateRuntimeException("Could not find function {0}", functionExpression);
         }
 
