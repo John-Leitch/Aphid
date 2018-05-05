@@ -1,11 +1,21 @@
-﻿var p = this.{'$scope'};
+﻿load System.Xml.Linq;
+using System.Xml.Linq;
+
+var p = this.{'$scope'};
+
+var xdoc = {
+    open: XDocument.Load,
+    read: XDocument.Load,
+    parse: XDocument.Parse,
+    fromString: XDocument.Parse
+};
 
 @{
     #'Std';
     #'Meta';
-    load System.Xml.Linq;
+    
     using System.Linq;
-    using System.Xml.Linq;
+    
 
     var extendXElement = @{ 
         xnCall = macro(@(target) { name |> XName.Get |> target });
@@ -40,10 +50,9 @@
 
             dynamic dispatch: @(element, action) {
                 var e = element;
-                [ e.attr, e.element, e.descendant ] for {
-                    var a = $_(action);
-
-                    if (a != null) {
+                [ e.attr, e.elements, e.descendants ] for {
+                    if ((var a = $_(action)) != null &&
+                        (a.GetType() == string || a.Count > 0)) {
                         ret a;
                     }
                 };
