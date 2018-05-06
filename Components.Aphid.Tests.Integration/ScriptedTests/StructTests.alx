@@ -1,0 +1,27 @@
+﻿using Components.PInvoke;
+#'AopTest';
+struct group;
+
+prologue;
+var c = new CONTEXT();
+
+isTrue;
+@{ CONTEXT != null };
+@{ CONTEXT.GetField('SegGs') != null };
+@{ CONTEXT.GetField('BadField') == null };
+@{ c != null };
+@{ c.Eip == 0x0 };
+@{ c.Eip = 0xdeadbeef; c.Eip == 0xdeadbeef };
+@{ c.ExtendedRegisters == null };
+// Todo: add List<AphidObject> to T[] support
+//@{ c.ExtendedRegisters = [ 0xde, 0xad, 0xbe, 0xef ]; c.ExtendedRegisters != null };
+@{
+    using System.Collections.Generic;
+    var l = new List[byte]();
+    [ 0xde, 0xad, 0xbe, 0xef ]->l.Add;
+    c.ExtendedRegisters = l.ToArray();
+    c.ExtendedRegisters != null &&
+    c.ExtendedRegisters.Length == 4 &&
+    c.ExtendedRegisters[0] == 0xde &&
+    c.ExtendedRegisters[3] == 0xef
+};
