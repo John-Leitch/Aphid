@@ -2963,14 +2963,31 @@ namespace Components.Aphid.Interpreter
                         }
 
                         var type = (Type)typeObj;
-                        var ctor = InteropMethodResolver.Resolve(type.GetConstructors(), args);
 
-                        var convertedArgs = TypeConverter.Convert(
-                            ctor.Arguments,
-                            ctor.GenericArguments);
+                        object result;
+                        AphidObject obj;
 
-                        var result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
-                        var obj = ValueHelper.Wrap(result);
+                        if (!type.IsValueType || args.Length > 0)
+                        {
+                            var ctor = InteropMethodResolver.Resolve(
+                                type.GetConstructors(),
+                                args);
+
+                            var convertedArgs = TypeConverter.Convert(
+                                ctor.Arguments,
+                                ctor.GenericArguments);
+
+                            result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
+
+                            obj = type != typeof(AphidObject) ?
+                                AphidObject.Scalar(result) :
+                                (AphidObject)result;
+                        }
+                        else
+                        {
+                            obj = AphidObject.Scalar(
+                                result = Activator.CreateInstance(type));
+                        }
 
                         var extension = TypeExtender.TryResolve(
                             CurrentScope,
