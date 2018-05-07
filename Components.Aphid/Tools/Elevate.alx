@@ -1,4 +1,12 @@
-﻿#'std';
+﻿{
+    title: 'elevate',
+    version: '1.0.0.0',
+    company: 'AutoSec Tools LLC',
+    copyright: '© AutoSec Tools LLC 2018',
+    showConsole: false,
+};
+
+#'std';
 using Components;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +24,9 @@ while (args.Count > 0)
         break;
 
 if (args.Count == 0) {
-    print('Elevate [command] {args ...}');
+    load System.Windows.Forms;
+    using System.Windows.Forms;
+    MessageBox.Show('Elevate [command] {args ...}', 'Elevate Utility');
     exit(0);
 }
 
