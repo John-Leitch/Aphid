@@ -182,7 +182,9 @@
     <Compile Include="External\PInvoke\UserEnv.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
+    <Compile Include="Parser\AphidByteCode.cs" />
     <Compile Include="Parser\AphidDirective.cs" />
+    <Compile Include="Parser\AphidExpressionBinder.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
     <Compile Include="TypeSystem\IAphidCallable.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
