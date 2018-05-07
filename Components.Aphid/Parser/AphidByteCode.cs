@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Components.Aphid.Parser
@@ -25,7 +27,26 @@ namespace Components.Aphid.Parser
         {
             using (var s = new MemoryStream(bytecode))
             {
-                return (List<AphidExpression>)_serializer.Deserialize(s);
+                return Decode(s);
+            }
+        }
+
+        public static List<AphidExpression> Decode(Stream stream)
+        {
+            return (List<AphidExpression>)_serializer.Deserialize(stream);
+        }
+
+        public static List<AphidExpression> DecodeResource(string name)
+        {
+            using (var s = Assembly.GetEntryAssembly().GetManifestResourceStream(name))
+            {
+                if (s == null)
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Could not find resource stream {0}.", name));
+                }
+
+                return Decode(s);
             }
         }
     }
