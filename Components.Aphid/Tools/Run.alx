@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
-var v = @() args.Peek().Value;
+var v = @() args.Count > 0 ? args.Peek().Value : null;
 _p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
 $(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
 $(_p()) 'run.exe', 'run.alx', 'run': args.Dequeue();
