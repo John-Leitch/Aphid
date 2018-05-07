@@ -17,7 +17,7 @@ var ilImportScope = this;
     using System.Threading;
 
     createAsm = @(name) {
-        var props = isObject(name) ? name : { name };
+        var props = isObject(name) ? name : { name, path: name };
         var an = new AssemblyName(props.name |> Path.GetFileName);
         
         if (props.version defined) {
@@ -27,7 +27,7 @@ var ilImportScope = this;
         var asm = AppDomain.CurrentDomain
             .DefineDynamicAssembly(
                 an,
-                AssemblyBuilderAccess.Run | AssemblyBuilderAccess.Save);
+                AssemblyBuilderAccess.RunAndSave);
 
         _v = macro(@(t, v) {
             new CustomAttributeBuilder(t.GetConstructor([ string ]), [ v ])
@@ -52,7 +52,17 @@ var ilImportScope = this;
             _v(AssemblyCopyrightAttribute, props.copyright);
         }
 
-        var module = props.name |> asm.DefineDynamicModule;
+        var module = asm.DefineDynamicModule(props.name, props.path);
+
+        if (props.streams defined) {
+            using System.Reflection;
+            
+            props.streams.Keys->@(k) module.DefineManifestResource(
+                k,
+                props.streams.{k},
+                ResourceAttributes.Public);
+        }
+
         asm.DefineVersionInfoResource();
 
         ret {

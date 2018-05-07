@@ -8,6 +8,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+head('MakeExe');
 
 var args = Environment.GetCommandLineArgs()->@() $_;
 
@@ -45,14 +46,14 @@ var properties = {
 };
 
 printInfo('Parsing script');
-
 var scriptAst = script |> AphidParser.ParseFile;
+
 if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
     var p = scriptAst[0] |> evalNode;
     p |> keys -> @() properties.{$_} = p.{$_};
 }
 
-printInfo('Inlining referenced scripts');
+printInfo('Starting preprocessing');
 var partialOpMutator = new PartialOperatorMutator();
 var macroMutator = new AphidMacroMutator();
 var directiveMutator = new AphidPreprocessorDirectiveMutator();
@@ -64,14 +65,12 @@ var srcAst = scriptAst
     |> directiveMutator.MutateRecursively
     |> includeMutator.MutateRecursively;
 
-var byteCodeFile = Path.ChangeExtension(properties.path, 'alxb');
-printInfo('Writing byte code to ~Cyan~{0}~R~', byteCodeFile);
+printSuccess('Preprocessing complete');
 
-srcAst |> AphidByteCode.Encode @File.WriteAllBytes(byteCodeFile);
-var decoded = byteCodeFile |> File.ReadAllBytes |> AphidByteCode.Decode;
-// decoded |> dumpe;
-
-
+printInfo('Creating projecting into bytecode', byteCodeFile);
+var byteCode = srcAst |> AphidByteCode.Encode;
+printSuccess('Projected into ~Cyan~{0:n0}~R~ byte stream', byteCode.Length);
+properties.streams = { ByteCode: new MemoryStream(byteCode) };
 printInfo('Assembly attributes:');
 properties |> keys -> @() print('    [{0}] ~White~{1}~R~', $_, properties.{$_});
 print();
@@ -79,36 +78,37 @@ print();
 printInfo('Creating module {0} for {1}', asmName, script);
 
 importOpcodes();
-
 @{
     var e = $_.Emit;
     e(Ldc_I4_1);
     e(Newobj, AphidInterpreter.GetConstructor([ bool ]));
-    e(Call, Assembly.GetMethod('GetExecutingAssembly'));
-    e(Callvirt, Assembly.GetMethod('get_Location'));
-    e(Call, Path.GetMethod('GetDirectoryName'));
-    e(Ldstr, byteCodeFile |> Path.GetFileName);
-    e(Call, Path.GetMethod('Combine', [ string, string ]));
-    e(Call, File.GetMethod('ReadAllBytes'));
-    e(Call, AphidByteCode.GetMethod('Decode'));
+    e(Ldstr, 'ByteCode');
+    e(Call, AphidByteCode.GetMethod('DecodeResource'));
     e(Call, AphidInterpreter.GetMethod('Interpret', [ List[AphidExpression] ]));
-    // e(Ldc_I4_0);
-    // e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));
     e(Ret);
 }
 @createProgram(properties);
 
 installPackage('ilmerge');
-load ".\\ilmerge.2.14.1208\\tools\\ILMerge.exe";
+
+var ilMergeBins = Directory.GetFiles(
+    '.\\',
+    'ilmerge.exe',
+    SearchOption.AllDirectories);
+
+if (ilMergeBins.Length == 0) {
+    printError('Could not find ilmerge.exe');
+    exit(0xbad81);
+}
+
+var ilMergeBin = ilMergeBins[0] |> Path.GetFullPath;
+load ilMergeBin;
 using ILMerging;
 
 var il = new ILMerge();
-il.SetInputAssemblies([
-    properties.path,
-    AphidObject.Assembly.Location
-]);
-
-il.OutputFile = properties.path;
+il.SetInputAssemblies([ properties.path, AphidObject.Assembly.Location ]);
+il.OutputFile = properties.path |> Path.GetFullPath;
+printInfo('Merging into final binary ~Cyan~{0}~R~', il.OutputFile);
 il.Merge();
 
 printSuccess('Done');
