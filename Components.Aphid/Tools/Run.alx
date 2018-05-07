@@ -11,22 +11,17 @@ using Components;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-var args = new Queue[ArgToken](
-    Environment.CommandLine |> ArgLexer.GetTokenInfo);
-
-while (args.Count > 0)
-    $(args.Peek().Value.ToLower() |> Path.GetFileName ?> null)
-        'aphid',
-        'aphid.exe',
-        'aphid.vshost.exe',
-        'run.alx',
-        'run.exe': args.Dequeue(),
-        break;
+var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
+var v = @() args.Peek().Value;
+_p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
+$(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
+$(_p()) 'run.exe', 'run.alx', 'run': args.Dequeue();
+if(var isAdmin = v() == '-admin') args.Dequeue();
 
 if (args.Count == 0) {
     load System.Windows.Forms;
     using System.Windows.Forms;
-    MessageBox.Show('Run [command] {args ...}', 'Run Utility');
+    MessageBox.Show('Run {-admin} [command] {args ...}', 'Run Utility');
     exit(0);
 }
 
@@ -35,6 +30,7 @@ var args2 = ArgLexer.GetTokenInfo(command);
 var filename = args2[0].Value;
 var argStr = args2.Count > 1 ? args2[1].Offset |> command.Substring : null;
 var si = new ProcessStartInfo(filename, argStr);
+if (isAdmin) si.Verb = 'runas';
 
 try {
     Process.Start(si);
