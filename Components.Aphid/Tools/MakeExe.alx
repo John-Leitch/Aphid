@@ -36,7 +36,8 @@ var asmName = args.Count == 2 ?
     Path.ChangeExtension(args[0], 'exe');
 
 var properties = {
-    name: asmName,
+    name: asmName |> Path.GetFileName,
+    path: asmName,
     title: asmName |> Path.GetFileNameWithoutExtension,
     version: '1.0.0.0',
     showConsole: true,
