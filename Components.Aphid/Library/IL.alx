@@ -59,7 +59,11 @@ var ilImportScope = this;
             asm,
             module,
             setEntryPoint: asm.SetEntryPoint,
-            createEntryPoint: @(ilCallback) {
+            createEntryPoint: @(ilCallback, showConsole) {
+                var kind = showConsole defined && !showConsole ?
+                    PEFileKinds.WindowApplication :
+                    PEFileKinds.ConsoleApplication;
+
                 var type = module.DefineType(
                     'Program',
                     TypeAttributes.Class | TypeAttributes.Public);
@@ -74,7 +78,7 @@ var ilImportScope = this;
 
                 method.GetILGenerator() |> ilCallback;
                 type.CreateType();
-                method |> asm.SetEntryPoint;
+                asm.SetEntryPoint(method, kind);
             },
             save: asm.Save,
         
@@ -83,7 +87,11 @@ var ilImportScope = this;
 
     createProgram = @(asmName, ilCallback) {
         var asm = asmName |> createAsm;
-        ilCallback |> asm.createEntryPoint;
+        
+        asm.createEntryPoint(
+            ilCallback,
+            asmName.showConsole defined ? asmName.showConsole : true);
+
         (isObject(asmName) ? asmName.name : asmName) |> asm.save;
     };
 
