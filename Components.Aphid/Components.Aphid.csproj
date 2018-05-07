@@ -524,6 +524,9 @@
     <None Include="Tools\MakeExe.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Tools\Run.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Tools\TestLoop.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

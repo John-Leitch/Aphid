@@ -1,0 +1,38 @@
+﻿{
+    title: 'run',
+    version: '1.0.0.0',
+    company: 'AutoSec Tools LLC',
+    copyright: '© AutoSec Tools LLC 2018',
+    showConsole: false,
+};
+
+#'std';
+using Components;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+var args = new Queue[ArgToken](
+    Environment.CommandLine |> ArgLexer.GetTokenInfo);
+
+while (args.Count > 0)
+    $(args.Peek().Value.ToLower() |> Path.GetFileName ?> null)
+        'aphid',
+        'aphid.exe',
+        'aphid.vshost.exe',
+        'run.alx',
+        'run.exe': args.Dequeue(),
+        break;
+
+if (args.Count == 0) {
+    load System.Windows.Forms;
+    using System.Windows.Forms;
+    MessageBox.Show('Run [command] {args ...}', 'Run Utility');
+    exit(0);
+}
+
+var command = args[0].Offset |> Environment.CommandLine.Substring;
+var args2 = ArgLexer.GetTokenInfo(command);
+var filename = args2[0].Value;
+var argStr = args2.Count > 1 ? args2[1].Offset |> command.Substring : null;
+var si = new ProcessStartInfo(filename, argStr);
+Process.Start(si);
