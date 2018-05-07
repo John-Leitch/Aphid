@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Components.PInvoke
 {
     public static class Kernel32
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr OpenProcess(
+            ProcessAccessFlags processAccess,
+            bool bInheritHandle,
+            int processId);
+
         [DllImport("kernel32.dll", EntryPoint = "WaitForDebugEvent", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool WaitForDebugEvent(

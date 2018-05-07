@@ -8,6 +8,7 @@ namespace Components.PInvoke
     [Flags]
     public enum ProcessCreationFlags : uint
     {
+        None = 0x00000000,
         CREATE_BREAKAWAY_FROM_JOB = 0x01000000,
         CREATE_DEFAULT_ERROR_MODE = 0x04000000,
         CREATE_NEW_CONSOLE = 0x00000010,
