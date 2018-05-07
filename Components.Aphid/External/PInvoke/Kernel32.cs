@@ -117,5 +117,9 @@ namespace Components.PInvoke
 
         [DllImport("kernel32.dll")]
         public static extern uint GetCurrentThreadId();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
     }
 }
