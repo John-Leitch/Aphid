@@ -23,7 +23,7 @@ if (cliArgs[cliArgs.Length - 1] != '-child') {
         using System.Threading;
         using System.Diagnostics;
         printQuery('Starting remote');
-        var c = remote.listen(0x5231);
+        var c = remote.listen(0x5230);
         printSuccess('Listening');
         Thread.Sleep(-1)
     } catch (e) {
