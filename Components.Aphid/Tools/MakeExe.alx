@@ -2,6 +2,7 @@
 #'Std';
 #'Meta';
 #'IL';
+#'Nuget';
 using Components.Aphid.Interpreter;
 using System.IO;
 using System.Diagnostics;
@@ -43,11 +44,33 @@ var properties = {
     showConsole: true,
 };
 
+printInfo('Parsing script');
+
 var scriptAst = script |> AphidParser.ParseFile;
 if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
     var p = scriptAst[0] |> evalNode;
     p |> keys -> @() properties.{$_} = p.{$_};
 }
+
+printInfo('Inlining referenced scripts');
+var partialOpMutator = new PartialOperatorMutator();
+var macroMutator = new AphidMacroMutator();
+var directiveMutator = new AphidPreprocessorDirectiveMutator();
+var includeMutator = new IncludeMutator();
+
+var srcAst = scriptAst
+    |> partialOpMutator.MutateRecursively
+    |> macroMutator.MutateRecursively
+    |> directiveMutator.MutateRecursively
+    |> includeMutator.MutateRecursively;
+
+var byteCodeFile = Path.ChangeExtension(properties.path, 'alxb');
+printInfo('Writing byte code to ~Cyan~{0}~R~', byteCodeFile);
+
+srcAst |> AphidByteCode.Encode @File.WriteAllBytes(byteCodeFile);
+var decoded = byteCodeFile |> File.ReadAllBytes |> AphidByteCode.Decode;
+// decoded |> dumpe;
+
 
 printInfo('Assembly attributes:');
 properties |> keys -> @() print('    [{0}] ~White~{1}~R~', $_, properties.{$_});
@@ -64,12 +87,28 @@ importOpcodes();
     e(Call, Assembly.GetMethod('GetExecutingAssembly'));
     e(Callvirt, Assembly.GetMethod('get_Location'));
     e(Call, Path.GetMethod('GetDirectoryName'));
-    e(Ldstr, script);
+    e(Ldstr, byteCodeFile |> Path.GetFileName);
     e(Call, Path.GetMethod('Combine', [ string, string ]));
-    e(Ldc_I4_0);
-    e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));
+    e(Call, File.GetMethod('ReadAllBytes'));
+    e(Call, AphidByteCode.GetMethod('Decode'));
+    e(Call, AphidInterpreter.GetMethod('Interpret', [ List[AphidExpression] ]));
+    // e(Ldc_I4_0);
+    // e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));
     e(Ret);
 }
 @createProgram(properties);
+
+installPackage('ilmerge');
+load ".\\ilmerge.2.14.1208\\tools\\ILMerge.exe";
+using ILMerging;
+
+var il = new ILMerge();
+il.SetInputAssemblies([
+    properties.path,
+    AphidObject.Assembly.Location
+]);
+
+il.OutputFile = properties.path;
+il.Merge();
 
 printSuccess('Done');
