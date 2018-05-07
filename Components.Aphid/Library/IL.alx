@@ -18,7 +18,7 @@ var ilImportScope = this;
 
     createAsm = @(name) {
         var props = isObject(name) ? name : { name };
-        var an = new AssemblyName(props.name);
+        var an = new AssemblyName(props.name |> Path.GetFileName);
         
         if (props.version defined) {
             an.Version = new Version(props.version);
@@ -92,7 +92,20 @@ var ilImportScope = this;
             ilCallback,
             asmName.showConsole defined ? asmName.showConsole : true);
 
-        (isObject(asmName) ? asmName.name : asmName) |> asm.save;
+        var name = isObject(asmName) ? asmName.name : asmName;
+        var fullName = isObject(asmName) ? asmName.path : asmName;
+
+        name |> asm.save;
+        var src = name |> Path.GetFullPath;
+        var dst = fullName |>  Path.GetFullPath;
+
+        if (src != dst) {
+            if (File.Exists(dst)) {
+                File.Delete(dst);
+            }
+
+            File.Move(src, dst);
+        }
     };
 
     var scope = ilImportScope;
