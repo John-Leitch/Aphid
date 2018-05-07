@@ -35,4 +35,11 @@ var args2 = ArgLexer.GetTokenInfo(command);
 var filename = args2[0].Value;
 var argStr = args2.Count > 1 ? args2[1].Offset |> command.Substring : null;
 var si = new ProcessStartInfo(filename, argStr);
-Process.Start(si);
+
+try {
+    Process.Start(si);
+} catch {
+    Environment.Exit(0xbad01);
+}
+
+Environment.Exit(0x0);
