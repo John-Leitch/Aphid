@@ -197,6 +197,7 @@ Beyond compiler frontends, an early version of a Visual Studio extension can be 
 * Added REPL namespace autocomplete for using statements.
 * Updated REPL autocomplete to show property type in relevant results.
 * Improved autocomplete performance, decreased flickering.
+* Added interop support for user-defined implicit and explicit type conversion operators.
 * Added REPL autocomplete max list size.
 * Fixed REPL autocomplete bug in Windows 7 and prior.
 * Made pipe operator context aware, so it can be used as a bit-wise or, or a pipeline depending on the operands.
@@ -218,6 +219,10 @@ Beyond compiler frontends, an early version of a Visual Studio extension can be 
 * Cleaned up Mantispid error handling.
 * Fixed var initialization bug.
 * Fixed several serialization bugs and tweaked output formatting.
+* Fixed extension resolution bug caused by interop member collision edge case.
+* Fixed member resolution error message.
+* Fixed struct instantiation bug.
+* Fixed bugs in XML header.
 
 ### 0.6.6686.31055 - April 22, 2017
 * Improved support for sharing resources across thread-boundaries.
