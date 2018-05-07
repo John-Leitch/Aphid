@@ -66,7 +66,13 @@ namespace Components.Aphid.Parser
             }
             
             var code = File.ReadAllText(script);
-            return AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
+            var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
+
+            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+            mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+
+            return mutatedAst;
             //var tokens = new AphidLexer().GetTokens();
             //return new AphidParser(tokens) { UseImplicitReturns = UseImplicitReturns }.Parse();
         }
