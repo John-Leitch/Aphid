@@ -39,6 +39,7 @@ var properties = {
     name: asmName,
     title: asmName |> Path.GetFileNameWithoutExtension,
     version: '1.0.0.0',
+    showConsole: true,
 };
 
 var scriptAst = script |> AphidParser.ParseFile;
@@ -62,7 +63,7 @@ importOpcodes();
     e(Call, Assembly.GetMethod('GetExecutingAssembly'));
     e(Callvirt, Assembly.GetMethod('get_Location'));
     e(Call, Path.GetMethod('GetDirectoryName'));
-    e(Ldstr, script |> Path.GetFileName @Path.Combine('Scripts'));
+    e(Ldstr, script);
     e(Call, Path.GetMethod('Combine', [ string, string ]));
     e(Ldc_I4_0);
     e(Call, AphidInterpreter.GetMethod('InterpretFile', [ string, bool ]));
