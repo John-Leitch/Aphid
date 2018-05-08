@@ -1566,6 +1566,21 @@ namespace Components.Aphid.Interpreter
                         .Select(ValueHelper.Wrap)
                         .ToList();
 
+                case AphidTokenType.GroupByOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
+                        .GroupBy(x => ValueHelper.Unwrap(
+                            InterpretCallExpression(
+                                expression,
+                                expression.RightOperand,
+                                func,
+                                new[] { x })));
 
                 case AphidTokenType.AggregateOperator:
                     collection = ValueHelper.Unwrap(
@@ -1590,14 +1605,15 @@ namespace Components.Aphid.Interpreter
                     func = ValueHelper.Unwrap(
                         InterpretExpression(expression.RightOperand));
 
-                    return ((IEnumerable)collection)
-                        .Cast<object>()
-                        .Any(x => (bool)ValueHelper.Unwrap(
-                            InterpretCallExpression(
-                                expression,
-                                expression.RightOperand,
-                                func,
-                                new[] { x })));
+                    return AphidObject.Scalar(
+                        ((IEnumerable)collection)
+                            .Cast<object>()
+                            .Any(x => (bool)ValueHelper.Unwrap(
+                                InterpretCallExpression(
+                                    expression,
+                                    expression.RightOperand,
+                                    func,
+                                    new[] { x }))));
 
                 case AphidTokenType.WhereOperator:
                     collection = ValueHelper.Unwrap(
@@ -1613,8 +1629,24 @@ namespace Components.Aphid.Interpreter
                                 expression,
                                 expression.RightOperand,
                                 func,
-                                new[] { x })))
-                        .ToList();
+                                new[] { x })));
+
+                case AphidTokenType.CountOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return AphidObject.Scalar(
+                        ((IEnumerable)collection)
+                            .Cast<object>()
+                            .Count(x => (bool)ValueHelper.Unwrap(
+                                InterpretCallExpression(
+                                    expression,
+                                    expression.RightOperand,
+                                    func,
+                                    new[] { x }))));
 
                 case AphidTokenType.OrderByOperator:
                     collection = ValueHelper.Unwrap(
@@ -1647,6 +1679,73 @@ namespace Components.Aphid.Interpreter
                                 expression.RightOperand,
                                 func,
                                 new[] { x })));
+
+                case AphidTokenType.FirstOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
+                        .First(x => (bool)ValueHelper.Unwrap(
+                            InterpretCallExpression(
+                                expression,
+                                expression.RightOperand,
+                                func,
+                                new[] { x })));
+
+
+                case AphidTokenType.LastOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
+                    func = ValueHelper.Unwrap(
+                        InterpretExpression(expression.RightOperand));
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
+                        .Last(x => (bool)ValueHelper.Unwrap(
+                            InterpretCallExpression(
+                                expression,
+                                expression.RightOperand,
+                                func,
+                                new[] { x })));
+
+                case AphidTokenType.StartsWithOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
+                    var pattern = ValueHelper
+                        .Unwrap(InterpretExpression(expression.RightOperand))
+                        .ToString();
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
+                        .Where(x =>
+                        {
+                            var v = ValueHelper.Unwrap(x);
+
+                            return v != null && v.ToString().StartsWith(pattern);
+                        });
+
+                case AphidTokenType.EndsWithOperator:
+                    collection = ValueHelper.Unwrap(
+                        InterpretExpression(expression.LeftOperand));
+
+                    pattern = ValueHelper
+                        .Unwrap(InterpretExpression(expression.RightOperand))
+                        .ToString();
+
+                    return ((IEnumerable)collection)
+                        .Cast<object>()
+                        .Where(x =>
+                        {
+                            var v = ValueHelper.Unwrap(x);
+
+                            return v != null && v.ToString().EndsWith(pattern);
+                        });
 
                 case AphidTokenType.CompositionOperator:
                     return InterpretFunctionComposition(expression);

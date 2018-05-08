@@ -304,10 +304,16 @@ ParsePipelineExpression = @{
 
             AggregateOperator,
             AnyOperator,
+            CountOperator,
+            EndsWithOperator,
+            FirstOperator,
+            GroupByOperator,
+            LastOperator,
             OrderByOperator,
             OrderByDescendingOperator,
             SelectManyOperator,
             SelectOperator,
+            StartsWithOperator,
             WhereOperator: {
                 inPipeline = true;
                 TakeToken(t);
@@ -735,12 +741,7 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator320,
         CustomOperator321,
         CustomOperator322,
-        CustomOperator323,
-        CustomOperator324,
-        CustomOperator325,
-        CustomOperator326,
-        CustomOperator327,
-        CustomOperator328
+        CustomOperator323
         // CustomOperatorTup End
         : {
             TakeToken(t);
@@ -1593,12 +1594,7 @@ ParseFunctionExpression = @{
         CustomOperator320,
         CustomOperator321,
         CustomOperator322,
-        CustomOperator323,
-        CustomOperator324,
-        CustomOperator325,
-        CustomOperator326,
-        CustomOperator327,
-        CustomOperator328
+        CustomOperator323
         // CustomOperatorTup End
         : {
             TakeToken(op);
@@ -2077,10 +2073,5 @@ CustomOperatorOr = macro(@{
     | CustomOperator321
     | CustomOperator322
     | CustomOperator323
-    | CustomOperator324
-    | CustomOperator325
-    | CustomOperator326
-    | CustomOperator327
-    | CustomOperator328
     // CustomOperatorOr End
 });

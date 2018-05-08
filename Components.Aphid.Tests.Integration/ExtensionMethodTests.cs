@@ -101,7 +101,7 @@ namespace Components.Aphid.Tests.Integration
                         matches = l-?@(x) x.isId() && x.id() == id;
 
 
-                        if (matches.Count != 1) {
+                        if ((matches -# @() true) != 1) {
                             fatal('Expected single expression with id ""{0}"".', id);
                         }
 
@@ -110,7 +110,7 @@ namespace Components.Aphid.Tests.Integration
                 }
 
                 var b = @{ a; b; c; d; e; f; g; h; i; };
-                ret b.Body.whereId().Count;
+                ret b.Body.whereId() -# @() true;
             ");
         }
 
@@ -130,7 +130,7 @@ namespace Components.Aphid.Tests.Integration
                         matches = l-?@(x) x.isId() && x.id() == id;
 
 
-                        if (matches.Count != 1) {
+                        if ((matches -# @() true) != 1) {
                             fatal('Expected single expression with id ""{0}"".', id);
                         }
 
@@ -139,7 +139,7 @@ namespace Components.Aphid.Tests.Integration
                 }
 
                 var b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
-                ret b.Body.whereId().Count;
+                ret b.Body.whereId() -# @() true;
             ");
         }
 
@@ -159,7 +159,7 @@ namespace Components.Aphid.Tests.Integration
                         matches = l-?@(x) x.isId() && x.id() == id;
 
 
-                        if (matches.Count != 1) {
+                        if ((matches -# @() true) != 1) {
                             fatal('Expected single expression with id ""{0}"".', id);
                         }
 
@@ -168,7 +168,7 @@ namespace Components.Aphid.Tests.Integration
                 }
 
                 var b = @{ a; b; c; d; e; f; g; h; i; };
-                ret b.Body.whereId().Count == 8;
+                ret (b.Body.whereId() -# @() true) == 8;
             ");
         }
 
@@ -188,7 +188,7 @@ namespace Components.Aphid.Tests.Integration
                         matches = l-?@(x) x.isId() && x.id() == id;
 
 
-                        if (matches.Count != 1) {
+                        if ((matches -# @() true) != 1) {
                             fatal('Expected single expression with id ""{0}"".', id);
                         }
 
@@ -197,7 +197,7 @@ namespace Components.Aphid.Tests.Integration
                 }
 
                 var b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
-                ret b.Body.whereId().Count == 8;
+                ret (b.Body.whereId() -# @() true) == 8;
             ");
         }
 

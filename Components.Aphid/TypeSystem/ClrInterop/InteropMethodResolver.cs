@@ -456,10 +456,29 @@ namespace Components.Aphid.TypeSystem
             }
             else if (parameter.ParameterType.IsArray)
             {
-                var p = new object[args.Length - index];
-                Array.Copy(args, index, p, 0, p.Length);
+                var a = args.Length > index ? args[index] : null;
+                IEnumerable seq;
 
-                return new AphidInteropMethodArg(p, parameter);
+                if (a == null ||
+                    a is string ||
+                    ((seq = a as IEnumerable) == null))
+                {
+                    var p = new object[args.Length - index];
+                    Array.Copy(args, index, p, 0, p.Length);
+
+                    return new AphidInteropMethodArg(p, parameter);
+                }
+                else
+                {
+                    var p = new List<object>();
+
+                    foreach (var x in seq)
+                    {
+                        p.Add(x);
+                    }
+
+                    return new AphidInteropMethodArg(p.ToArray(), parameter);
+                }
             }
             else
             {

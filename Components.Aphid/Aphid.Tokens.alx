@@ -65,13 +65,22 @@ var tokens = [
                 
     { regex: "\\+>", type: "AggregateOperator" },
     { regex: "=\\?", type: "AnyOperator" },
+    { regex: "-#", type: "CountOperator" },
     { regex: "!\\?", type: "DistinctOperator" },
+    { regex: "-&", type: "GroupByOperator" },
     { regex: "-<", type: "SelectManyOperator" },
-    { regex: "->", type: "SelectOperator" },                
+    { regex: "->", type: "SelectOperator" },        
     { regex: "-\\?", type: "WhereOperator" },
-    
-    { regex: ">\\?", type: "OrderByOperator" },
-    { regex: "<\\?", type: "OrderByDescendingOperator" },
+
+    { regex: "-\\\\", type: "OrderByOperator" },
+    { regex: "-/", type: "OrderByDescendingOperator" },
+
+    { regex: ">^", type: "FirstOperator" },
+    { regex: ">$", type: "LastOperator" },
+    { regex: ">#", type: "CountOperator" },
+
+    { regex: "~^", type: "StartsWithOperator" },
+    { regex: "~$", type: "EndsWithOperator" },
     
     { regex: "$", type: "PatternMatchingOperator" },
     { regex: "$_", type: "ImplicitArgumentOperator" },

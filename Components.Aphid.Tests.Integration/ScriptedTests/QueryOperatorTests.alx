@@ -4,15 +4,15 @@ query operator group;
 is9;
 
 order begin;
-@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] >? @.Length; x[2].Length  };
+@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] -\ @.Length; x[2].Length  };
 
 order descending begin;
-@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] <? @.Length; x[0].Length  };
+@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] -/ @.Length; x[0].Length  };
 
 fault;
 
 order begin;
-@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] >? @.Clone; x[2].Length  };
+@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] -\ @.Clone; x[2].Length  };
 
 order descending begin;
-@{ var x = 0xdeadbeef <? @.Length; x[0].Length  };
+@{ var x = 0xdeadbeef -/ @.Length; x[0].Length  };

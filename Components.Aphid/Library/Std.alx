@@ -114,7 +114,7 @@ using System.Text.RegularExpressions;
 @ -+ (source, delim) source +> @(x, y) x + delim + y;
 @ -| (source, predicate) { _queryBody(Enumerable.Single) };
 @ -! (source, predicate) { _queryBody(Enumerable.Any @> @== false) };
-@ -# (source, predicate) { _queryBody(Enumerable.Count) };
+//@ -# (source, predicate) { _queryBody(Enumerable.Count) };
 @ ~= (input, pattern) _re(IsMatch);
 @ ~~ (input, pattern) _re(Matches) @(m) 0..m.Count->@()m[$_];
 @ ~: (input, replace) Regex.Replace(input.ToString(), replace[0], replace[1]);
