@@ -52,11 +52,13 @@ var ilImportScope = this;
             _v(AssemblyCopyrightAttribute, props.copyright);
         }
 
-        var module = asm.DefineDynamicModule(props.name, props.path);
+        var module = asm.DefineDynamicModule(
+            props.name,
+            props.path |> Path.GetFileName);
 
         if (props.streams defined) {
             using System.Reflection;
-            
+
             props.streams.Keys->@(k) module.DefineManifestResource(
                 k,
                 props.streams.{k},
