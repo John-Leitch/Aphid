@@ -131,7 +131,7 @@ var makeFluent = @(obj) {
     -? (@has('Body'))
     -> (@{
         using System.Linq;
-        if (($_.Body.Count) == 0 ||
+        if (($_.Body #!) == 0 ||
             ($_.Body |> Enumerable.Last |> ast.isRet @== false))
             'ret ' + n  |> parseExp |> $_.Body.Add;
     });
@@ -373,9 +373,9 @@ extend AphidExpression {
         x.isParent() &&
         (!(predicate defined) || (x.GetChildren() @aq.any(predicate))),
     
-    oneAttr: @(x, a) x.attrs().Count == 1 && x.attr(0).id() == getIdArg(0),
-    firstAttr: @(x, a) x.attrs() != null && x.attrs().Count >= 1 && x.attr(0).id() == getIdArg(0),
-    noAttrs: @(x) x.attrs().Count == 0,
+    oneAttr: @(x, a) (x.attrs() #!) == 1 && x.attr(0).id() == getIdArg(0),
+    firstAttr: @(x, a) x.attrs() != null && (x.attrs() #!) >= 1 && x.attr(0).id() == getIdArg(0),
+    noAttrs: @(x) (x.attrs() #!) == 0,
     
     exp: @(x) x.Expression,
     id: @(x) x.Identifier,
@@ -388,10 +388,10 @@ extend AphidExpression {
     pairs: @(x) x.Pairs,
     extType: @(x) exp.is(Extend) ? x.ExtendType.id() : null,
 
-    attr: @(x, i) x.attrs().Count >= 1 + i ? x.attrs()[i] : null,
+    attr: @(x, i) (x.attrs() #!) >= 1 + i ? x.attrs()[i] : null,
     attrs: @(x) x.isId() ? x.Attributes : null,
     attrIds: @(x) x.attrs()->@(y)y.id(),
-    body: @(x, i) !x.is(Function) || x.Body.Count <= i ? x : x.Body[i],    
+    body: @(x, i) !x.is(Function) || (x.Body #!) <= i ? x : x.Body[i],    
     hasHeader: @(x, h) getArg(0).matchId(x.body(0)),
 
     matchId: @(x, y)
