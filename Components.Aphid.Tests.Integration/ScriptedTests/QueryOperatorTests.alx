@@ -4,15 +4,47 @@ query operator group;
 is9;
 
 order begin;
-@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] -\ @.Length; x[2].Length  };
+@{ var x = ['asdf','aaaaaaaaa','abc'] -\ @.Length; x[2].Length  };
 
 order descending begin;
-@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] -/ @.Length; x[0].Length  };
+@{ var x = ['asdf','aaaaaaaaa','abc'] -/ @.Length; x[0].Length  };
+
+group post first post count begin;
+@{ ['a','a','a','a','a','a','a','a','a','b','c','d','d','e'] -& (@(x) x[0]) ^!#!  };
+@{ ['b','c','d','d','e','a','a','a','a','a','a','a','a','a'] \!-& (@(x) x[0]) ^!#!  };
+
+group post last post count begin;
+@{ ['b','c','d','d','e','a','a','a','a','a','a','a','a','a'] -& (@(x) x[0]) $!#!  };
+@{ ['a','a','a','a','a','a','a','a','a','b','c','d','d','e'] /!-& (@(x) x[0]) $!#!  };
+
+isFoo;
+string pattern begin;
+@{ [ 'abc', 'foo', 'test' ] ~^ 'f' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~^ 'fo' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~^ 'foo' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~$ 'o' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~$ 'oo' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~$ 'foo' ^! } ;
 
 fault;
 
 order begin;
-@{ var x = [ 'asdf', 'aaaaaaaaa', 'abc' ] -\ @.Clone; x[2].Length  };
+@{ var x = [ 'asdf','aaaaaaaaa','abc' ] -\ @.Clone; x[2].Length  };
 
 order descending begin;
 @{ var x = 0xdeadbeef -/ @.Length; x[0].Length  };
+
+group post first post count begin;
+@{ ['a','a','a','a','a','a','a','a','a','b','c','d','d','e'] -& null ^!#!  };
+@{ null \!-& (@(x) x[0]) ^!#!  };
+
+group post last post count begin;
+@{ ['b','c','d','d','e','a','a','a','a','a','a','a','a','a'] -& null $!#!  };
+@{ null /!-& (@(x) x[0]) $!#!  };
+
+isFoo;
+string pattern begin;
+@{ null ~^ 'f' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~^ null ^! } ;
+@{ null ~$ 'o' ^! } ;
+@{ [ 'abc', 'foo', 'test' ] ~$ null ^! } ;
