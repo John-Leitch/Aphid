@@ -350,7 +350,7 @@ var parseVbsBlock = @{
             print('Validating Sub arguments');
             var badParams = node.Args-?@() !$_.isId();
 
-            if (badParams.Count != 0) {
+            if ((badParams #!) != 0) {
                 fatal('Expected identifiers for Sub params');
             }            
             
