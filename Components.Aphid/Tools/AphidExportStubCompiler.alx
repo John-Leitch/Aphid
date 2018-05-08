@@ -34,12 +34,12 @@ printQuery('Searching project directory for scripts');
 var srcFiles = Directory.GetFiles(projectDir, '*.alx', SearchOption.AllDirectories)
     -?@() !(ignorePattern defined) || !$_.ToLower().Contains(ignorePattern);
 
-if (srcFiles.Count == 0) {
+if ((srcFiles #!) == 0) {
     printError('No scripts found');
     exit(0xbad02);
 }
 
-printSuccess('Found ~Green~{0}~R~ script(s)', srcFiles.Count);
+printSuccess('Found ~Green~{0}~R~ script(s)', srcFiles #!);
 
 var export = {
     resolve: @(type) this.{'$aphid'}.InteropTypeResolver.ResolveType(
@@ -61,7 +61,7 @@ var export = {
                         x.isOp(AphidTokenType.AssignmentOperator));
 
                 var retType =
-                    ($(node.attrs().Count) 1: 'void', node.attr(1).Identifier)
+                    ($(node.attrs() #!) 1: 'void', node.attr(1).Identifier)
                     |> resolve;
 
                 var memberPath = exportExp.lhs().GetChildren()->@.Identifier;
