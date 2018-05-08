@@ -42,7 +42,7 @@ e.emitBinaryOperatorExpression = @(exp, isStatement) {
         var parts = exp.GetChildren();
         var badParts = parts-?(@() $_.Type != AphidExpressionType.IdentifierExpression);
     
-        if (badParts.Count != 0) {
+        if ((badParts #!) != 0) {
             fatal('Invalid namespace decl: {0}', exp);
         }
 
