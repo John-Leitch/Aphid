@@ -66,7 +66,6 @@ var tokens = [
     { regex: "\\+>", type: "AggregateOperator" },
     { regex: "=\\?", type: "AnyOperator" },
     { regex: "-#", type: "CountOperator" },
-    { regex: "!\\?", type: "DistinctOperator" },
     { regex: "-&", type: "GroupByOperator" },
     { regex: "-<", type: "SelectManyOperator" },
     { regex: "->", type: "SelectOperator" },        
@@ -81,6 +80,13 @@ var tokens = [
 
     { regex: "~^", type: "StartsWithOperator" },
     { regex: "~$", type: "EndsWithOperator" },
+
+    { regex: "!\\?", type: "DistinctOperator" },
+    { regex: "#!", type: "PostfixCountOperator" },
+    { regex: "^!", type: "PostfixFirstOperator" },
+    { regex: "$!", type: "PostfixLastOperator" },
+    { regex: "\\\\!", type: "PostfixOrderOperator" },
+    { regex: "/!", type: "PostfixOrderDescendingOperator" },
     
     { regex: "$", type: "PatternMatchingOperator" },
     { regex: "$_", type: "ImplicitArgumentOperator" },

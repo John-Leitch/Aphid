@@ -323,7 +323,12 @@ ParsePipelineExpression = @{
                     ParseRangeExpression());
             }
 
-            DistinctOperator: {
+            DistinctOperator,
+            PostfixCountOperator,
+            PostfixFirstOperator,
+            PostfixLastOperator,
+            PostfixOrderOperator,
+            PostfixOrderDescendingOperator: {
                 inPipeline = true;
                 operand = UnaryOperatorExpression(TokenType, operand);
                 NextToken;
@@ -737,11 +742,7 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator316,
         CustomOperator317,
         CustomOperator318,
-        CustomOperator319,
-        CustomOperator320,
-        CustomOperator321,
-        CustomOperator322,
-        CustomOperator323
+        CustomOperator319
         // CustomOperatorTup End
         : {
             TakeToken(t);
@@ -1590,11 +1591,7 @@ ParseFunctionExpression = @{
         CustomOperator316,
         CustomOperator317,
         CustomOperator318,
-        CustomOperator319,
-        CustomOperator320,
-        CustomOperator321,
-        CustomOperator322,
-        CustomOperator323
+        CustomOperator319
         // CustomOperatorTup End
         : {
             TakeToken(op);
@@ -2069,9 +2066,5 @@ CustomOperatorOr = macro(@{
     | CustomOperator317
     | CustomOperator318
     | CustomOperator319
-    | CustomOperator320
-    | CustomOperator321
-    | CustomOperator322
-    | CustomOperator323
     // CustomOperatorOr End
 });

@@ -2071,10 +2071,6 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CustomOperator317:
                 case AphidTokenType.CustomOperator318:
                 case AphidTokenType.CustomOperator319:
-                case AphidTokenType.CustomOperator320:
-                case AphidTokenType.CustomOperator321:
-                case AphidTokenType.CustomOperator322:
-                case AphidTokenType.CustomOperator323:
                 #endregion
                     return InterpretCustomBinaryOperator(expression);
 
@@ -3246,9 +3242,49 @@ namespace Components.Aphid.Interpreter
                             .Select(ValueHelper.Unwrap)
                             .Distinct()
                             .Select(ValueHelper.Wrap) // To maintain backwards compat with Aphid
-                            .ToList();                // list extension such as __list.count().
+                            .ToList()
+                            ;                // list extension such as __list.count().
 
                         return ValueHelper.Wrap(result);
+
+                    case AphidTokenType.PostfixCountOperator:
+                        collection = ValueHelper.Unwrap(
+                            InterpretExpression(expression.Operand));
+
+                        return AphidObject.Scalar(
+                            ((IEnumerable)collection).Cast<object>().Count());
+
+                    case AphidTokenType.PostfixFirstOperator:
+                        collection = ValueHelper.Unwrap(
+                            InterpretExpression(expression.Operand));
+
+                        return ValueHelper.Wrap(
+                            ((IEnumerable)collection).Cast<object>().First());
+
+                    case AphidTokenType.PostfixLastOperator:
+                        collection = ValueHelper.Unwrap(
+                            InterpretExpression(expression.Operand));
+
+                        return ValueHelper.Wrap(
+                            ((IEnumerable)collection).Cast<object>().Last());
+
+                    case AphidTokenType.PostfixOrderOperator:
+                        collection = ValueHelper.Unwrap(
+                            InterpretExpression(expression.Operand));
+
+                        return ValueHelper.Wrap(
+                            ((IEnumerable)collection)
+                                .Cast<object>()
+                                .OrderBy(ValueHelper.Unwrap));
+
+                    case AphidTokenType.PostfixOrderDescendingOperator:
+                        collection = ValueHelper.Unwrap(
+                            InterpretExpression(expression.Operand));
+
+                        return ValueHelper.Wrap(
+                            ((IEnumerable)collection)
+                                .Cast<object>()
+                                .OrderByDescending(ValueHelper.Unwrap));
 
                     //return AphidObject.Scalar(list.Distinct(_comparer).ToList());
 
@@ -3653,10 +3689,6 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.CustomOperator317:
                     case AphidTokenType.CustomOperator318:
                     case AphidTokenType.CustomOperator319:
-                    case AphidTokenType.CustomOperator320:
-                    case AphidTokenType.CustomOperator321:
-                    case AphidTokenType.CustomOperator322:
-                    case AphidTokenType.CustomOperator323:
                     #endregion
                         return InterpretCustomUnaryOperator(expression);
 
