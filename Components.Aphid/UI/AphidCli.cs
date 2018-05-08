@@ -112,29 +112,35 @@ namespace Components.Aphid.UI
         {
             AphidObject result = null;
 
-            TryAction(
-                interpreter,
-                code,
-                () =>
+            Action action = () =>
+            {
+                if (code.Trim() == "")
                 {
-                    if (code.Trim() == "")
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var lexer = new AphidLexer(code);
-                    var tokens = lexer.GetTokens();
-                    var exp = AphidParser.ParseExpression(tokens, code);
-                    var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
-                    new AphidCodeVisitor(code).VisitExpression(retExp);
-                    interpreter.Interpret(retExp);
-                    result = interpreter.GetReturnValue();
+                var lexer = new AphidLexer(code);
+                var tokens = lexer.GetTokens();
+                var exp = AphidParser.ParseExpression(tokens, code);
+                var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
+                new AphidCodeVisitor(code).VisitExpression(retExp);
+                interpreter.Interpret(retExp);
+                result = interpreter.GetReturnValue();
 
-                    if (result != null && (result.Value != null || result.Any()))
-                    {
-                        Console.WriteLine(new AphidSerializer(interpreter).Serialize(result));
-                    }
-                });
+                if (result != null && (result.Value != null || result.Any()))
+                {
+                    Console.WriteLine(new AphidSerializer(interpreter).Serialize(result));
+                }
+            };
+
+            if (!Debugger.IsAttached)
+            {
+                TryAction(interpreter, code, action);
+            }
+            else
+            {
+                action();
+            }
 
             return result;
         }
@@ -144,29 +150,36 @@ namespace Components.Aphid.UI
             string code,
             bool isTextDocument)
         {
-            try
+            if (!Debugger.IsAttached)
+            {
+                try
+                {
+                    interpreter.Interpret(code, isTextDocument);
+                }
+                catch (AphidParserException exception)
+                {
+                    AphidCli.DumpException(exception, code);
+                    Environment.Exit((int)AphidExitCode.ParserError);
+                }
+                catch (AphidLoadScriptException exception)
+                {
+                    AphidCli.DumpException(exception, interpreter);
+                    Environment.Exit((int)AphidExitCode.LoadScriptError);
+                }
+                catch (AphidRuntimeException exception)
+                {
+                    AphidCli.DumpException(exception, interpreter);
+                    Environment.Exit((int)AphidExitCode.RuntimeError);
+                }
+                catch (Exception exception)
+                {
+                    AphidCli.DumpException(exception, interpreter);
+                    Environment.Exit((int)AphidExitCode.GeneralError);
+                }
+            }
+            else
             {
                 interpreter.Interpret(code, isTextDocument);
-            }
-            catch (AphidParserException exception)
-            {
-                AphidCli.DumpException(exception, code);
-                Environment.Exit((int)AphidExitCode.ParserError);
-            }
-            catch (AphidLoadScriptException exception)
-            {
-                AphidCli.DumpException(exception, interpreter);
-                Environment.Exit((int)AphidExitCode.LoadScriptError);
-            }
-            catch (AphidRuntimeException exception)
-            {
-                AphidCli.DumpException(exception, interpreter);
-                Environment.Exit((int)AphidExitCode.RuntimeError);
-            }
-            catch (Exception exception)
-            {
-                AphidCli.DumpException(exception, interpreter);
-                Environment.Exit((int)AphidExitCode.GeneralError);
             }
         }
 
