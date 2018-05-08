@@ -1630,8 +1630,7 @@ namespace Components.Aphid.Interpreter
                                 expression,
                                 expression.RightOperand,
                                 func,
-                                new[] { x } )))
-                        .ToList();
+                                new[] { x } )));
 
                 case AphidTokenType.OrderByDescendingOperator:
                     collection = ValueHelper.Unwrap(
@@ -1647,8 +1646,7 @@ namespace Components.Aphid.Interpreter
                                 expression,
                                 expression.RightOperand,
                                 func,
-                                new[] { x })))
-                        .ToList();
+                                new[] { x })));
 
                 case AphidTokenType.CompositionOperator:
                     return InterpretFunctionComposition(expression);
@@ -1978,11 +1976,6 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CustomOperator321:
                 case AphidTokenType.CustomOperator322:
                 case AphidTokenType.CustomOperator323:
-                case AphidTokenType.CustomOperator324:
-                case AphidTokenType.CustomOperator325:
-                case AphidTokenType.CustomOperator326:
-                case AphidTokenType.CustomOperator327:
-                case AphidTokenType.CustomOperator328:
                 #endregion
                     return InterpretCustomBinaryOperator(expression);
 
@@ -3565,11 +3558,6 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.CustomOperator321:
                     case AphidTokenType.CustomOperator322:
                     case AphidTokenType.CustomOperator323:
-                    case AphidTokenType.CustomOperator324:
-                    case AphidTokenType.CustomOperator325:
-                    case AphidTokenType.CustomOperator326:
-                    case AphidTokenType.CustomOperator327:
-                    case AphidTokenType.CustomOperator328:
                     #endregion
                         return InterpretCustomUnaryOperator(expression);
 
@@ -3705,6 +3693,7 @@ namespace Components.Aphid.Interpreter
                 string str;
                 IList list;
                 IEnumerable enumerable;
+                IEnumerable<AphidObject> aphidObjEnumerable;
 
                 if (array != null)
                 {
@@ -3733,6 +3722,17 @@ namespace Components.Aphid.Interpreter
 
                     return ValueHelper.Wrap(list[index]);
                 }
+                else if ((aphidObjEnumerable = val as IEnumerable<AphidObject>) != null)
+                {
+                    var count = aphidObjEnumerable.Count();
+
+                    if (index < 0 || index >= count)
+                    {
+                        throw CreateOutOfBoundsException(expression, val, index, count);
+                    }
+
+                    return aphidObjEnumerable.ElementAt(index);
+                }
                 else if ((enumerable = val as IEnumerable) != null)
                 {
                     var i = 0;
@@ -3741,7 +3741,7 @@ namespace Components.Aphid.Interpreter
                     {
                         if (i++ == index)
                         {
-                            return AphidObject.Scalar(o);
+                            return ValueHelper.Wrap(o);
                         }
                     }
 
