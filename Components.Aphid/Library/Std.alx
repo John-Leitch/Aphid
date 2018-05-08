@@ -116,7 +116,7 @@ using System.Text.RegularExpressions;
 @ -! (source, predicate) { _queryBody(Enumerable.Any @> @== false) };
 //@ -# (source, predicate) { _queryBody(Enumerable.Count) };
 @ ~= (input, pattern) _re(IsMatch);
-@ ~~ (input, pattern) _re(Matches) @(m) 0..m.Count->@()m[$_];
+@ ~~ (input, pattern) _re(Matches) @(m) 0..(m #!)->@()m[$_];
 @ ~: (input, replace) Regex.Replace(input.ToString(), replace[0], replace[1]);
 @ ~? (input, pattern) _rec();
 @ ~| (input, pattern) _rec() |> Enumerable.Single;
@@ -420,7 +420,7 @@ extend RuntimePropertyInfo {
                 (access == memberAccess.protected && x.IsFamily) ||
                 (access == memberAccess.public && x.IsPublic));
 
-        ret matches.Count == 0 ? null : matches[0];
+        ret (matches #!) == 0 ? null : matches[0];
     },
 
     getPrivateAccessor: @(m, getSetter) m.getAccessor(memberAccess.private, getSetter),
