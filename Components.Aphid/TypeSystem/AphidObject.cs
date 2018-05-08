@@ -1,4 +1,5 @@
 ﻿#define STRICT_APHID_OBJECT_TYPE_CHECKS
+//#define DETECTED_ERRONEOUS_NESTING
 using Components.Aphid.Interpreter;
 using System;
 using System.Collections;
@@ -49,6 +50,13 @@ namespace Components.Aphid.TypeSystem
             get { return _value; }
             set
             {
+#if DETECTED_ERRONEOUS_NESTING
+                if (value != null && value.GetType() == typeof(AphidObject))
+                {
+                    throw new InvalidOperationException();
+                }
+#endif
+
                 if (IsComplexitySet)
                 {
                     if (_isComplex)
