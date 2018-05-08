@@ -1,4 +1,4 @@
-﻿namespace Components.Aphid;
+namespace Components.Aphid;
 token AphidTokenType;
 base AphidExpression;
 node AphidNodeType;
@@ -302,10 +302,19 @@ ParsePipelineExpression = @{
                     ParseFunctionExpression());
             }
 
-            AggregateOperator, AnyOperator, SelectManyOperator, SelectOperator, WhereOperator: {
+            AggregateOperator,
+            AnyOperator,
+            OrderByOperator,
+            OrderByDescendingOperator,
+            SelectManyOperator,
+            SelectOperator,
+            WhereOperator: {
                 inPipeline = true;
                 TakeToken(t);
-                operand = BinaryOperatorExpression(operand, t, ParseRangeExpression());
+                operand = BinaryOperatorExpression(
+                    operand,
+                    t,
+                    ParseRangeExpression());
             }
 
             DistinctOperator: {
@@ -731,9 +740,7 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator325,
         CustomOperator326,
         CustomOperator327,
-        CustomOperator328,
-        CustomOperator329,
-        CustomOperator330
+        CustomOperator328
         // CustomOperatorTup End
         : {
             TakeToken(t);
@@ -1591,9 +1598,7 @@ ParseFunctionExpression = @{
         CustomOperator325,
         CustomOperator326,
         CustomOperator327,
-        CustomOperator328,
-        CustomOperator329,
-        CustomOperator330
+        CustomOperator328
         // CustomOperatorTup End
         : {
             TakeToken(op);
@@ -2077,7 +2082,5 @@ CustomOperatorOr = macro(@{
     | CustomOperator326
     | CustomOperator327
     | CustomOperator328
-    | CustomOperator329
-    | CustomOperator330
     // CustomOperatorOr End
 });
