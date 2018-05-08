@@ -47,7 +47,7 @@ var numberBenchmark ;
             using System.Linq;
             var matches = l.whereId(id);
 
-            for (m in matches) {
+            for (m in matches |> Enumerable.ToArray) {
                 var i = l.IndexOf(m);
                 l.RemoveAt(i);
                 l.InsertRange(i, block.Body);
