@@ -8,38 +8,36 @@ using System.Text.RegularExpressions;
 
 //cls();
 
-customOps = AphidTokenType
+var customOps = AphidTokenType
     |> getEnums
     -? @(x) x.ToString().Contains('CustomOperator');
 
-getCases = @(indent) customOps
+var getCases = @(indent) customOps
     ->(@String.Format('{0}case AphidTokenType.{1}:\r\n', indent))
     +>(@(x, y) x + y);
 
-getOr = @(indent)
+var getOr = @(indent)
     indent +
     (customOps ->(@+'\r\n') +>(@(x, y) x + indent + '| ' + y));
 
-getTup = @(indent)
+var getTup = @(indent)
     indent +
     (customOps +>(@(x, y) x + ',\r\n' + indent + y)) +
     '\r\n';
 
-dir = Environment.GetCommandLineArgs()[1]
+var dir = Environment.GetCommandLineArgs()[1]
     |> Path.GetFullPath
     |> Path.GetDirectoryName;
 
-updateCustomOperators = @(codeFile, regionBegin, regionEnd, getText) {
-    code = codeFile |> File.ReadAllText;
-    matches = @Regex.Matches(code);
-
-    ends = regionEnd |> matches;
-
-    ranges = [];
+var updateCustomOperators = @(codeFile, regionBegin, regionEnd, getText) {
+    var code = codeFile |> File.ReadAllText;
+    var matches = @Regex.Matches(code);
+    var ends = regionEnd |> matches;
+    var ranges = [];
 
     ('(( |\t)+)' + regionBegin) |> matches
      for {
-        o = {
+        var o = {
             indent: $_.Groups[1].Value,
             start: $_.Index,
             end: code.IndexOf(regionEnd, $_.Index)
