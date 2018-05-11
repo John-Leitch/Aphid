@@ -4906,7 +4906,7 @@ namespace Components.Aphid.Interpreter
             }
 
             SetScriptFilename(fullFilename);
-            var code = File.ReadAllText(filename);
+            var code = AphidScript.Read(filename);
             Interpret(code, filename, isTextDocument);
         }
 

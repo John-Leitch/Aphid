@@ -198,7 +198,7 @@ namespace Components.Aphid.Parser
             bool useImplicitReturns = true)
         {
             return Parse(
-                File.ReadAllText(filename),
+                AphidScript.Read(filename),
                 filename,
                 isTextDocument,
                 useImplicitReturns);

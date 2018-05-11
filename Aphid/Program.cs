@@ -1,5 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
+using Components.Aphid.Parser;
 using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System;
@@ -11,6 +12,8 @@ namespace Aphid
 {
     class Program
     {
+        
+
         static void DisplayDirections()
         {
             Console.WriteLine("aphid [Script]");
@@ -53,11 +56,28 @@ namespace Aphid
 
             var ext = Path.GetExtension(args[0]).ToLower();
             var isTextDocument = ext == ".alxt";
-            var code = File.ReadAllText(args[0]);
+            var code = AphidScript.Read(args[0]);
             EnvironmentLibrary.SetEnvArgs(true);
             var interpreter = new AphidInterpreter();
             interpreter.SetScriptFilename(Path.GetFullPath(args[0]));
-            ExecuteCode(interpreter, code, isTextDocument);
+
+            if (!Debugger.IsAttached)
+            {
+                AphidCli.TryAction(
+                    interpreter,
+                    code,
+                    () => interpreter.Interpret(code, isTextDocument),
+                    allowErrorReporting: true);
+            }
+            else
+            {
+                interpreter.Interpret(code, isTextDocument);
+            }
+
+            if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))
+            {
+                new AphidRepl { Interpreter = interpreter }.Run();
+            }
         }
 
         static void RunExpression(string[] args)
@@ -90,23 +110,7 @@ namespace Aphid
 
         private static void ExecuteCode(AphidInterpreter interpreter, string code, bool isTextDocument)
         {
-            if (!Debugger.IsAttached)
-            {
-                AphidCli.TryAction(
-                    interpreter,
-                    code,
-                    () => interpreter.Interpret(code, isTextDocument),
-                    allowErrorReporting: true);
-            }
-            else
-            {
-                interpreter.Interpret(code, isTextDocument);
-            }
-
-            if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))
-            {
-                new AphidRepl { Interpreter = interpreter }.Run();
-            }
+            
         }
     }
 }

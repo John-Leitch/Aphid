@@ -77,10 +77,7 @@ namespace Components.Aphid.Tests.Integration.Shared
 
                 foreach (var s in testScripts)
                 {
-                    var script = Encoding.UTF8
-                        .GetString(FileMemoryCache.ReadAllBytes(s.FullName))
-                        .Trim(new char[] { '\uFEFF', '\u200B' });
-
+                    var script = AphidScript.Read(s.FullName);;
                     var interpreter = new AphidInterpreter();
                     interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
                     interpreter.Loader.SearchPaths.Add(s.Directory.FullName);

@@ -150,7 +150,7 @@ namespace Components.Aphid.Library.Net
             if (result == null)
             {
                 var localPath = GetLocalPath(context.Request.Url);
-                var code = File.ReadAllText(localPath);
+                var code = AphidScript.Read(localPath);
                 result = InterpretAphid(localPath, code, context, session);
             }
 

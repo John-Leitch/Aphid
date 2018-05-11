@@ -204,7 +204,7 @@ namespace Components.Aphid.UI
                 Cli.StyleEscape(
                     GetErrorMessage(
                         exception,
-                        File.ReadAllText(exception.ScriptFile))));
+                        AphidScript.Read(exception.ScriptFile))));
 
             DumpStackTrace(interpreter);
         }

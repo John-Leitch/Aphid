@@ -73,11 +73,7 @@ namespace Components.Aphid.Parser
 
             Included.Add(script);
 
-            var code = AphidConfig.Current.ScriptCaching ? 
-                Encoding.UTF8
-                    .GetString(FileMemoryCache.ReadAllBytes(script))
-                    .Trim(new char[] { '\uFEFF', '\u200B' }) :
-                File.ReadAllText(script);
+            var code = AphidScript.Read(script);
 
             var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
             var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
