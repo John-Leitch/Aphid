@@ -4,38 +4,56 @@
 			"path": "./build"
 		},
 		{
+			"name": "AphidLibrary",
 			"path": "./Components.Aphid/Library"
 		},
 		{
+			"name": "AphidLibrary/Serialization",
 			"path": "./Components.Aphid/Serialization"
 		},
 		{
+			"name": "AphidTools",
+			"path": "Components.Aphid/Tools"
+		},
+		{
+			"name": "AphidTests",
 			"path": "./Components.Aphid.Tests.Integration/ScriptedTests"
 		},
 		{
+			"name": "AphidBenchmarks",
+			"path": "./Aphid/Benchmarks"
+		},
+		{
+			"name": "AphidSamples",
 			"path": "./Aphid/Samples"
 		},
 		{
+			"name": "AphidSamples/WebRoot",
 			"path": "./Samples/HttpServerSample/WebRoot"
 		},
 		{
+			"name": "AphidDialects/Boxelder",
 			"path": "./Boxelder"
 		},
 		{
+			"name": "AphidDialects/AphidHdl",
 			"path": "./AphidHdl"
 		},
 		{
+			"name": "AphidDialects/Coywolf",
 			"path": "./Coywolf"
-		},
-		{
-			"path": "Components.Aphid/Tools"
 		}
 	],
 	"settings": {
         "files.exclude": {
+			"**/*.cache": true,
+			"**/*.cacheMetadata": true,
 			"**/*.cs": true,
 			"**/*.csproj": true,
+			"**/*.exe": true,
+			"**/*.pdb": true,
 			"**/*.user": true,
+			"*ilmerge*": true,
 			"*InlineIL*": true,
 			"**/obj": true,
 			"**/bin": true,
