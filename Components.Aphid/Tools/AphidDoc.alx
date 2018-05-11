@@ -1,0 +1,176 @@
+﻿{
+    title: 'AphidDoc',
+    version: '1.0.0.0',
+    company: 'AutoSec Tools LLC',
+    copyright: '© AutoSec Tools LLC 2018',
+    showConsole: true,
+};
+
+#'std';
+#'meta';
+#'serialization';
+using Components;
+using Components.Aphid.TypeSystem;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
+var v = @() args.Count > 0 ? args.Peek().Value : null;
+_p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
+$(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
+$(_p()) 'aphiddoc.exe', 'aphiddoc.alx', 'aphiddoc': args.Dequeue();
+
+if (args.Count == 0) {
+    print('AphidDoc [source dir] [xml output file]');
+    exit(0);
+} else if (args.Count != 2) {
+    printError('Invalid args: {0}', Environment.CommandLine);
+    exit(0xbad01);
+}
+
+var srcDir = args[0].Value |> Path.GetFullPath;
+var xmlFile = args[1].Value |> Path.GetFullPath;
+printQuery('Generating documentation for files in dir ~Cyan~{0}~R~', srcDir);
+var srcFiles = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories);
+printInfo('Found ~Cyan~{0}~R~ files', srcFiles #!);
+
+var parseExample = @(codeDoc){
+    var objTokens = codeDoc.raw |> tokenize;
+    var funcStart = -1;
+    var funcEnd = -1;
+    var depth = 0;
+
+    objTokens->@{
+        if (funcEnd != -1) {
+            ret null;
+        } else if (funcStart == -1) {
+            if ($_.TokenType == AphidTokenType.FunctionOperator) {
+                funcStart = $_.Index;
+            }
+        } else {
+            $($_.TokenType)
+                AphidTokenType.LeftBrace: depth++,
+                AphidTokenType.RightBrace: depth--;
+
+            if (depth == 0) {
+                funcEnd = $_.Index;
+            }
+        }
+    };
+
+    var block = codeDoc.raw.Remove(funcEnd).Substring(funcStart + 2);
+    var lines = block.Replace('\r\n', '\n').Replace('\r', '\n').Split('\n');
+    var indent = lines-?(@(x) x.Trim().Length != 0)->(@(x) (x ~~ '^\\s*')[0].Length)\!^!;
+    var formatted = lines->(@(x) x.Length > indent ? x.Substring(indent) : x) @join('\r\n');
+
+    ret formatted.Trim(' \r\n');
+};
+
+class of string MethodParamDoc { Name, Description };
+
+class of string MemberDoc {
+    Filename,
+    Path,
+    string list PathParts,
+    Type,
+    Summary,
+    MethodParamDoc list Parameters,
+    Returns,
+    Example
+};
+
+var members = new List[MemberDoc]();
+
+srcFiles->@(srcFile) {
+    if (srcFile.ToLower().EndsWith('\\aphid.alx') ||
+        srcFile.ToLower().Contains('\\bin\\')) {
+        ret null;
+    }
+    // if (!srcFile.ToLower().Contains('metatest')) {
+    //     ret null;
+    // }
+
+    printInfo('Parsing ~Cyan~{0}~R~', srcFile);
+    var src = srcFile |> File.ReadAllText;
+    var tokens = (new AphidLexer(src)).GetAllTokens();
+    
+    var codeDocComments = tokens
+        -?(@(x) x.TokenType == AphidTokenType.Comment &&
+            x.Lexeme.StartsWith('/*{') &&
+            x.Lexeme.EndsWith('}*/'))
+        ->(@(x) ({
+            index: x.Index,
+            raw: x.Lexeme.Remove(x.Lexeme.Length - 2).Substring(2),
+            obj: raw |> evalExp,
+        }));
+    
+    var codeDocQueue = new Queue(codeDocComments);
+    var srcAst = src |> parse;
+
+    srcAst @ast.walk(@(node, context) {
+        if (codeDocQueue.Count == 0 ||
+            context.isRoot ||
+            context.isBlock ||
+            node.Index < codeDocQueue.Peek().index) {
+            ret null;
+        }
+
+        var o = codeDocQueue.Dequeue();
+        var m = new MemberDoc();
+        m.Filename = srcFile.Substring(srcDir.Length).TrimStart('\\');
+        m.Summary = o.obj.summary;
+        m.Returns = o.obj.returns;
+        m.Example = o |> parseExample;
+        var isFirst = true;
+        var isFirstKvp = true;
+        var path = new List[string]();
+
+        context.stack->@{
+            if (isFirst) {
+                isFirst = false;
+                ret null;
+            }
+
+            if ($_.node.GetType() != List[AphidExpression] &&
+                $_.node.GetType() != AphidExpression.MakeArrayType()) {
+                if ($_.node.isId()) {
+                    $_.node.id() @path.Insert(0);
+                } else if ($_.node.isBinOp() && $_.node.lhs().isId()) {
+                    if ($_.node.isOp(getToken(':')) && isFirstKvp) {
+                        isFirstKvp = false;
+                    } else {
+                        $_.node.lhs().id() @path.Insert(0);
+                    }
+                }
+            }
+        };
+
+        m.PathParts = path;
+        m.Path = path @join('.');
+
+        var params = new List[MethodParamDoc]();
+
+        if (o.obj.params defined) {
+            m.Type = 'Function';
+            o.obj.params.Keys->@{
+                var p = new MethodParamDoc();
+                p.Name = $_;
+                p.Description = o.obj.params.{$_};
+                params.Add(p);
+            };
+        } else {
+            m.Type = path.Count == 1 ? 'Object' : 'Property';
+        }
+
+        m.Parameters = params;
+
+        members.Add(m);
+    });
+};
+
+printInfo('Writing XML to ~Cyan~{0}~R~', xmlFile);
+members |> toXml @File.WriteAllText(xmlFile);
+
+printSuccess('Done');
