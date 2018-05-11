@@ -37,6 +37,9 @@ var asmName = args.Count == 2 ?
     args[1] :
     Path.ChangeExtension(args[0], 'exe');
 
+var pdbFile = Path.ChangeExtension(asmName, 'pdb');
+[ pdbFile, asmName ]-?File.Exists->File.Delete;
+
 var properties = {
     name: asmName |> Path.GetFileName,
     path: asmName,
