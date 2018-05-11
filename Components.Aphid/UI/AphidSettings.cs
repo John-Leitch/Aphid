@@ -12,6 +12,7 @@ namespace Components.Aphid.UI
             SaveErrors = "saveErrors",
             StrictMode = "strict",
             AutoImport = "autoImport",
-            AutoInclude = "autoInclude";
+            AutoInclude = "autoInclude",
+            StackTraceParams = "stackTraceParams";
     }
 }

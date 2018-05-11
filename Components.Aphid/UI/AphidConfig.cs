@@ -17,7 +17,8 @@ namespace Components.Aphid.UI
 
         private Lazy<bool>
             _strictMode = GetBool(AphidSettings.StrictMode, defaultValue: true),
-            _saveErrors = GetBool(AphidSettings.SaveErrors, defaultValue: false);
+            _saveErrors = GetBool(AphidSettings.SaveErrors, defaultValue: false),
+            _stackTraceParams = GetBool(AphidSettings.StackTraceParams, defaultValue: false);
 
         private Lazy<string[]>
             _imports = GetArray(AphidSettings.AutoImport, defaultValue: new string[0]),
@@ -36,6 +37,11 @@ namespace Components.Aphid.UI
         public bool SaveErrors
         {
             get { return _saveErrors.Value; }
+        }
+
+        public bool StackTraceParams
+        {
+            get { return _stackTraceParams.Value; }
         }
 
         public bool ExceptionHandlingDisabled { get; set; }

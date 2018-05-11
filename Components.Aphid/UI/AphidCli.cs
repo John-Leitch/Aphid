@@ -281,6 +281,22 @@ namespace Components.Aphid.UI
                     frameStr);
 
                 WriteLineOut(frameOut);
+
+                if (AphidConfig.Current.StackTraceParams)
+                {
+                    var args = frame.Arguments
+                        .Select((x, y) => string.Format(
+                            "$args[{0}] = {1};",
+                            y,
+                            interpreter.Serializer.Serialize(
+                                interpreter.ValueHelper.Wrap(x))))
+                        .JoinLines();
+
+                    if (args.Length > 0)
+                    {
+                        WriteLineOut(Highlight(args.Indent("  ")));
+                    }
+                }
             }
 
             WriteLineOut("");
