@@ -1,0 +1,78 @@
+﻿{
+    title: 'NGEN Launcher',
+    version: '1.0.0.0',
+    company: 'AutoSec Tools LLC',
+    copyright: '© AutoSec Tools LLC 2018',
+    showConsole: true,
+};
+
+#'std';
+#'process';
+using Components;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
+var v = @() args.Count > 0 ? args.Peek().Value : null;
+_p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
+$(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
+$(_p()) 'ngen.exe', 'ngen.alx', 'ngen': args.Dequeue();
+
+if (args.Count == 0) {
+    print('ngen [binary path]');
+    exit(0);
+} else if (args.Count != 1) {
+    print('Invalid arguments: {0}', args->@.Value @join(' '));
+}
+
+var bin = args[0].Value |> Path.GetFullPath;
+
+if (!File.Exists(bin)) {
+    printError('Could not find file ~Yellow~{0}~R~', bin);
+    exit(0xbad02);
+}
+
+printInfo('Running Ngen on ~Cyan~{0}~R~', bin);
+
+var netDir = Path.Combine(
+    '%windir%' |> Environment.ExpandEnvironmentVariables,
+    'Microsoft.NET');
+
+var ngenBins;
+
+try {
+    ngenBins = Directory
+        .GetFiles(netDir, 'ngen.exe', SearchOption.AllDirectories)
+        ->(@(x) ({
+            file: new FileInfo(x),
+            version: new Version(file.Directory.Name.TrimStart('v'))
+        }))
+        -/ (@.version)
+        -& (@.version)
+        ^!
+        -> @.file;
+} catch (e) {
+    printError('Error finding Nren: {0}', ngenBins);
+    exit(0xbad03);
+}
+
+var succeeded = true;
+
+ngenBins->@{
+    printInfo('Running ~Cyan~{0}~R~', $_);
+    var exitCode = #> ('{0} install {1}' :: [ $_, bin ]);
+
+    if (exitCode != 0) {
+        succeeded = false;
+
+        printError(
+            'Ngen exited with error code ~Yellow~{0}~R~ (~Yellow~0x{0:x8}~R~)',
+            exitCode);
+    }
+};
+
+if (succeeded) {
+    printSuccess('Ngen successfully run');
+} else {
+    printError('Failed running ngen');
+}
