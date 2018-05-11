@@ -1,0 +1,33 @@
+﻿#'Benchmark';
+var count = 250000;
+
+benchmark('standard call', count, @{ var f = @(x) { } }, @{ f(0xdeadbeef) });
+benchmark('standard pipeline', count, @{ var f = @(x) { } }, @{ 0xdeadbeef |> f });
+benchmark('static interop call', count / 4, @{ }, @{ Math.Ceiling(0xdeadbeef) });
+benchmark('static interop pipeline', count / 4, @{ }, @{ 0xdeadbeef |> Math.Ceiling });
+benchmark('static interop call with decimal converion', count / 4, @{ }, @{ Math.Acos(0xdeadbeef) });
+benchmark('static interop pipeline with decimal converion', count / 4, @{ }, @{ 0xdeadbeef |> Math.Acos });
+
+benchmark(
+    'partial static interop call',
+    count / 4,
+    @{ var d = 10 |> Convert.ToDouble; var powOf2 = @Math.Pow(2 |> Convert.ToDouble); },
+    @{ powOf2(d) });
+
+benchmark(
+    'partial static interop pipeline',
+    count / 4,
+    @{ var d = 10 |> Convert.ToDouble; var powOf2 = @Math.Pow(2 |> Convert.ToDouble); },
+    @{ d |> powOf2 });
+
+benchmark(
+    'inline static partial interop pipeline',
+    count / 4,
+    @{ var d = 10 |> Convert.ToDouble; var x = 2 |> Convert.ToDouble },
+    @{ d |> @Math.Pow(x) });
+
+benchmark('instance interop call', count / 4, @{ var x = 'test' }, @{ x.IndexOf('t'); });
+benchmark('instance interop pipeline', count / 4, @{ var x = 'test' }, @{ 't' |> x.IndexOf; });
+benchmark('extension call', count, @{ extend decimal { square: @(x) x * x } }, @{ 0xdeadbeef.square() });
+benchmark('extension call implicit arg', count, @{ extend decimal { square: @() $_ * $_ } }, @{ 0xdeadbeef.square() });
+benchmark('extension call implicit arg array', count, @{ extend decimal { square: @() $args[0] * $args[0] } }, @{ 0xdeadbeef.square() });

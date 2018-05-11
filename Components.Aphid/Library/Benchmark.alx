@@ -1,13 +1,31 @@
 ﻿var tests;
 var benchmark;
 var numberBenchmarkRep;
-var numberBenchmark ;
+var numberBenchmark;
 
 @{
     #'Std';
     #'Meta';
     using Components.Aphid;
+    using Components.ObjectDatabase;
+    using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
+
+    var dir = 'Aphid\\Benchmarks';
+
+    var openDB = @()
+        [ '..\\' * 3 + dir, '..\\' * 4 + dir, '.\\' ]
+        >^ Directory.Exists
+        @() Path.Combine($_, 'history.db')
+        BinaryObjectDatabase.OpenFile;
+
+    var results = new List[AphidObject]();
+
+    var db;
+    var utcTime = DateTime.UtcNow.Ticks;
+    var version = AphidExpression.Assembly.GetName().Version.ToString();
+    var isCompiled = Environment.GetCommandLineArgs().Length == 1;
 
     tests = {
         autorun: true,
@@ -19,6 +37,9 @@ var numberBenchmark ;
             using System.Threading.Tasks;
             head('Running Benchmarks');
             print();
+            printInfo('Opening run database');
+            db = openDB();
+            printSuccess('Database opened: ~Cyan~{0}~R~', db.Filename);
             subhead('Compiling templates');
             tests.compileFuncs->@()$_();
             print();
@@ -26,6 +47,7 @@ var numberBenchmark ;
             printInfo('Calling benchmark functions');
             tests.funcs->@()$_();
             printSuccess('~Green~Done~R~ calling benchmark functions');
+            { utcTime, version, isCompiled, results } |> db.Create;
         },
     };
 
@@ -79,6 +101,8 @@ var numberBenchmark ;
                         n,
                         sw.ElapsedMilliseconds,
                         sw.ElapsedTicks);
+
+                    { name: n, ticks: sw.ElapsedTicks } |> results.Add;
                 }
             };" |> evalExp;
 
