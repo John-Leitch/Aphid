@@ -1,5 +1,7 @@
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.UI;
+using Components.External;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +12,9 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoader : AphidRuntimeComponent
     {
+        private Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
+            new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
+
         private List<string> _searchPaths = new List<string> 
         { 
             Path.Combine(
@@ -50,7 +55,17 @@ namespace Components.Aphid.Interpreter
 
         public void LoadLibrary(Type libraryType, AphidObject scope)
         {
-            var methods = libraryType
+            var methods = _libraryMemoizer.Call(LoadLibrary, libraryType);
+
+            foreach (var method in methods)
+            {
+                SetMember(scope, method.Item1, method.Item2);
+            }
+        }
+
+        private Tuple<string, AphidInteropFunction>[] LoadLibrary(Type libraryType)
+        {
+            return libraryType
                 .GetMethods(
                     BindingFlags.Static |
                     BindingFlags.NonPublic |
@@ -64,12 +79,9 @@ namespace Components.Aphid.Interpreter
                         .Cast<AphidInteropFunctionAttribute>()
                         .ToArray()
                 })
-                .SelectMany(x => x.Attributes.Select(y => Tuple.Create(y, x.Method)));
-
-            foreach (var method in methods)
-            {
-                SetMember(scope, method.Item1.Name, new AphidInteropFunction(method.Item1, method.Item2));
-            }
+                .SelectMany(x => x.Attributes
+                    .Select(y => Tuple.Create(y.Name, new AphidInteropFunction(y, x.Method))))
+                .ToArray();
         }
 
         public void LoadLibrary(string libraryType, AphidObject scope)
@@ -165,7 +177,16 @@ namespace Components.Aphid.Interpreter
 
                 try
                 {
-                    ast = AphidParser.Parse(File.ReadAllText(f), f, isTextDocument);
+                    if (AphidConfig.Current.ScriptCaching)
+                    {
+                        var cache = new AphidByteCodeCache(_searchPaths.ToArray());
+
+                        ast = cache.Read(f);
+                    }
+                    else
+                    {
+                        ast = AphidParser.Parse(File.ReadAllText(f), f, isTextDocument);
+                    }
                 }
                 catch (AphidParserException e)
                 {

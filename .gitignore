@@ -202,6 +202,10 @@ InlineIl_*
 # Nuget Downloads
 ilmerge.*/
 
+# Aphid Caching
+*.cache
+*.cacheMetadata
+
 # AphidDoc files
 Aphid.xml
 

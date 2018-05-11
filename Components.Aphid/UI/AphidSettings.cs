@@ -13,6 +13,7 @@ namespace Components.Aphid.UI
             StrictMode = "strict",
             AutoImport = "autoImport",
             AutoInclude = "autoInclude",
-            StackTraceParams = "stackTraceParams";
+            StackTraceParams = "stackTraceParams",
+            ScriptCaching = "scriptCaching";
     }
 }

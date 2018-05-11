@@ -1,6 +1,8 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.UI;
+using Components.Caching;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -75,7 +77,10 @@ namespace Components.Aphid.Tests.Integration.Shared
 
                 foreach (var s in testScripts)
                 {
-                    var script = File.ReadAllText(s.FullName);
+                    var script = Encoding.UTF8
+                        .GetString(FileMemoryCache.ReadAllBytes(s.FullName))
+                        .Trim(new char[] { '\uFEFF', '\u200B' });
+
                     var interpreter = new AphidInterpreter();
                     interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
                     interpreter.Loader.SearchPaths.Add(s.Directory.FullName);

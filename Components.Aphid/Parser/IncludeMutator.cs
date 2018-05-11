@@ -1,5 +1,8 @@
-﻿using Components.Aphid.Interpreter;
+﻿using Components;
+using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
+using Components.Aphid.UI;
+using Components.Caching;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +40,7 @@ namespace Components.Aphid.Parser
         }
 
         public IncludeMutator()
-            : this(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location))
+            : this(Path.GetDirectoryName(typeof(IncludeMutator).Assembly.Location))
         {
         }
 
@@ -69,9 +72,14 @@ namespace Components.Aphid.Parser
             }
 
             Included.Add(script);
-            var code = File.ReadAllText(script);
-            var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
 
+            var code = AphidConfig.Current.ScriptCaching ? 
+                Encoding.UTF8
+                    .GetString(FileMemoryCache.ReadAllBytes(script))
+                    .Trim(new char[] { '\uFEFF', '\u200B' }) :
+                File.ReadAllText(script);
+
+            var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
             var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
             mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
             mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
