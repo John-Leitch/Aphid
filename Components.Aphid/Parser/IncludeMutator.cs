@@ -17,6 +17,8 @@ namespace Components.Aphid.Parser
 
         public bool UseImplicitReturns { get; private set; }
 
+        public List<string> Included { get; private set; }
+
         public AphidLoader Loader
         {
             get { return _loader; }
@@ -26,6 +28,7 @@ namespace Components.Aphid.Parser
         {
             _applicationDirectory = applicationDirectory;
             UseImplicitReturns = useImplicitReturns;
+            Included = new List<string>();
         }
 
         public IncludeMutator(string applicationDirectory)
@@ -64,7 +67,8 @@ namespace Components.Aphid.Parser
             {
                 throw new AphidParserException("Could not find script", scriptExp);
             }
-            
+
+            Included.Add(script);
             var code = File.ReadAllText(script);
             var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
 
@@ -73,8 +77,6 @@ namespace Components.Aphid.Parser
             mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
 
             return mutatedAst;
-            //var tokens = new AphidLexer().GetTokens();
-            //return new AphidParser(tokens) { UseImplicitReturns = UseImplicitReturns }.Parse();
         }
     }
 }
