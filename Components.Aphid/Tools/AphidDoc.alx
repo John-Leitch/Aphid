@@ -33,7 +33,10 @@ if (args.Count == 0) {
 var srcDir = args[0].Value |> Path.GetFullPath;
 var xmlFile = args[1].Value |> Path.GetFullPath;
 printQuery('Generating documentation for files in dir ~Cyan~{0}~R~', srcDir);
-var srcFiles = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories);
+
+var srcFiles = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories)
+    -? @(x) !x.ToLower().EndsWith('\\aphid.alx') && !x.ToLower().Contains('\\bin\\');
+    
 printInfo('Found ~Cyan~{0}~R~ files', srcFiles #!);
 
 var parseExample = @(codeDoc){
@@ -84,14 +87,6 @@ class of string MemberDoc {
 var members = new List[MemberDoc]();
 
 srcFiles->@(srcFile) {
-    if (srcFile.ToLower().EndsWith('\\aphid.alx') ||
-        srcFile.ToLower().Contains('\\bin\\')) {
-        ret null;
-    }
-    // if (!srcFile.ToLower().Contains('metatest')) {
-    //     ret null;
-    // }
-
     printInfo('Parsing ~Cyan~{0}~R~', srcFile);
     var src = srcFile |> File.ReadAllText;
     var tokens = (new AphidLexer(src)).GetAllTokens();
