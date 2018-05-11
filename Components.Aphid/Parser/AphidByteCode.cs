@@ -17,10 +17,15 @@ namespace Components.Aphid.Parser
         {
             using (var s = new MemoryStream())
             {
-                _serializer.Serialize(s, ast);
+                Encode(s, ast);
 
                 return s.ToArray();
             }
+        }
+
+        public static void Encode(Stream stream, List<AphidExpression> ast)
+        {
+            _serializer.Serialize(stream, ast);
         }
 
         public static List<AphidExpression> Decode(byte[] bytecode)
