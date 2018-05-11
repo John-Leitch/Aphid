@@ -1,22 +1,40 @@
 var installPackage;
+var nuget;
 
 @{
     #'Std';
+    using System.Reflection;
+
+    if (load NuGet.Core == null) {
+        fatal('Failed loading Nuget.Core');
+    }
+
+    using NuGet;
+
+    nuget = {
+        repo: PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2"),
+        packageManager: new PackageManager(repo, '.\\'),
+        
+        reference: @(id) {
+            var packages = packageManager.LocalRepository
+                .GetPackages()
+                -& @.Id -> @(x) x -/ @.Version
+                -? @(x) x.Id == id;
+
+            if (packages #! @== 0) {
+                installPackage(id);
+
+                ret reference(id);
+            } else {
+                var p = packages ^!^!;
+                var d = '{0}.{1}' :: [ p.Id, p.Version ] |> Path.GetFullPath;
+                ret p @.AssemblyReferences->@() load Path.Combine(d, $_.Path);
+            }
+        },
+    };
 
     installPackage = @(package) {
-        print('Loading NuGet.Core');
-    
-        if (load NuGet.Core == null) {
-            fatal('Failed loading Nuget.Core');
-        }
-
-        using NuGet;
-
-        print('Connecting to repository');
-        var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
-        var packageManager = new PackageManager(repo, '.\\');
-
         print('Installing package {0}' :: [ package ]);
-        ret packageManager.InstallPackage(package);
+        ret nuget.packageManager.InstallPackage(package);
     }
 }();
