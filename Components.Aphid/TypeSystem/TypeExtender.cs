@@ -323,7 +323,21 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                result = !returnRef ? val[key] : val;
+                if (!returnRef)
+                {
+                    if (!val.ContainsKey(key))
+                    {
+                        result = null;
+                    }
+                    else
+                    {
+                        result = val[key];
+                    }
+                }
+                else
+                {
+                    result = val;
+                }
             }
 
             return !returnRef ? result : AphidObject.Scalar(new AphidRef() { Name = key, Object = result });
