@@ -73,7 +73,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return (TResult)(object)null;
             }
-            else if ((t = result.Value.GetType()) == typeof(TResult))
+            else if (typeof(TResult).IsAssignableFrom(t = result.Value.GetType()))
             {
                 return (TResult)result.Value;
             }
