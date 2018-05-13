@@ -24,7 +24,7 @@ var nuget;
         repoUrl: "https://packages.nuget.org/api/v2",
         customResolver: false,
         isResolveSet: false,
-        trace: true,
+        trace: false,
         refMap: new Dictionary[string, string](),
         createRepo: @() PackageRepositoryFactory.Default.CreateRepository(repoUrl),
         createPackageManager: @() new PackageManager(createRepo(), '.\\'),

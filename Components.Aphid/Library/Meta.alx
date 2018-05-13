@@ -35,6 +35,30 @@ using System.Collections.Generic;
     
 };
 
+/*{
+    summary: 'Takes an abstract syntax tree and performs transformations on it.',
+    returns: 'A transformed copy of an abstract syntax tree.',
+    params: { 
+        mutateNode: 'The function to be applied to each node as the tree is walked.',
+        rootNode: 'The root at which the transformation begins. Can be a single node or a list of nodes.'
+    },
+    example: @{
+        var f = @() print(foo\bar\test.txt);
+
+        var block = f.Body @mutate(@{
+            if ('\\' |> getToken |> expression.isOp) {
+                hasChanged = true;
+                ret expression
+                    .ToString()
+                    .Replace('\\', '\\\\')
+                    @format('"{0}"')
+                    |> ast.str;
+            }
+        });
+
+        block |> evalAst;
+    }
+}*/
 var mutate;
 var mutateFunc;
 var transformBlock;
@@ -146,6 +170,13 @@ if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
 }
 
 var ast = {
+    /*{
+        summary: 'Gets the operator for the specified abstract syntax tree node.',
+        returns: 'The operator of the node.',
+        example: @{
+            // Todo
+        }
+    }*/
     op: @() $_.Operator,
     hasOp: @(op, node) @has('Operator') && isOp(op),
     isOp: @(op, node) node.Operator == op,
@@ -264,7 +295,7 @@ var ast = {
     call: @(target, args) new CallExpression(target, args),
     text: @(text) new TextExpression(text),
     
-    str: @(value) new StringExpression(expression
+    str: @(value) new StringExpression(value
         .ToString()
         .Replace('\\', '\\\\')
         .Replace('"', '\\"')
@@ -359,12 +390,7 @@ extend AphidExpression {
     isExt: @(exp, type) exp.is(Extend) \ exp.extType() == (1`0),
     isString: @(x) x.is(String),
     isText: @(x) x.is(Text),
-
-    init: @(exp) {
-        exp.isUsing = exp.isOp(getToken('using'));
-    },
-    isUsing: null,
-    // isUsing: @(exp) exp.isOp(getToken('using')),
+    isUsing: @(exp) exp.isOp(getToken('using')),
 
     isOp: @(x, op) (x.isUnOp() || x.isBinOp()) && x.op() == op,
 
