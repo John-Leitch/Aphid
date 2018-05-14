@@ -710,7 +710,8 @@ namespace Components.Aphid.Interpreter
             bool returnRef = false,
             Func<AphidObject> dynamicHandler = null)
         {
-            if (expression.RightOperand.Type != AphidExpressionType.IdentifierExpression)
+            if (expression.RightOperand.Type != AphidExpressionType.IdentifierExpression &&
+                expression.RightOperand.Type != AphidExpressionType.DynamicMemberExpression)
             {
                 throw CreateRuntimeException(
                     "Invalid member interop access, expected identifier on right-hand " +
@@ -831,7 +832,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetInteropInstanceMembers(object target, BinaryOperatorExpression expression)
         {
-            var memberName = expression.RightOperand.ToIdentifier().Identifier;
+            var memberName = GetMemberKey(expression.RightOperand);
 
             return target
                 .GetType()
@@ -870,20 +871,54 @@ namespace Components.Aphid.Interpreter
                 .ToArray();
         }
 
+        private string GetMemberKey(AphidExpression memberExpression)
+        {
+            switch (memberExpression.Type)
+            {
+                case AphidExpressionType.IdentifierExpression:
+                    return ((IdentifierExpression)memberExpression).Identifier;
+
+                case AphidExpressionType.StringExpression:
+                    return (string)InterpretStringExpression((StringExpression)memberExpression).Value;
+
+                case AphidExpressionType.DynamicMemberExpression:
+                    var exp = ((DynamicMemberExpression)memberExpression).MemberExpression;
+                    var memberObj = ValueHelper.Unwrap(InterpretExpression(exp));
+
+                    try
+                    {
+                        return (string)memberObj;
+                    }
+                    catch
+                    {
+                        throw CreateRuntimeException(
+                            "Dynamic member expression resolved to {0} of type {1}, expected string.",
+                            memberObj ?? "null",
+                            memberObj != null ? memberObj.GetType().FullName : "null");
+                    }
+
+                default:
+                    throw CreateRuntimeException(
+                        "Expected identifier or dynamic member expression, encountered {0} in {1}.",
+                        memberExpression.Type,
+                        memberExpression);
+            }
+        }
+
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
+            // Todo: cleanup and improve perf by evaluating and saving key early
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
+            var key = GetMemberKey(expression.RightOperand);
 
             Type type;
 
             if (obj != null && ((type = obj.Value as Type) != null))
             {
-                var name = ((IdentifierExpression)expression.RightOperand).Identifier;
-
                 if (!type.Assembly.IsDynamic)
                 {
-                    var members = GetInteropStaticMembers(type, name);
+                    var members = GetInteropStaticMembers(type, key);
 
                     if (members.Length != 0)
                     {
@@ -899,7 +934,7 @@ namespace Components.Aphid.Interpreter
                                 AphidObject.Scalar(nestedType);
                     }
 
-                    members = GetInteropInstanceMembers(type, name);
+                    members = GetInteropInstanceMembers(type, key);
 
                     if (members.Length != 0)
                     {
@@ -913,7 +948,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    var members = GetInteropInstanceMembers(type, name);
+                    var members = GetInteropInstanceMembers(type, key);
 
                     if (members.Length != 0)
                     {
@@ -925,7 +960,7 @@ namespace Components.Aphid.Interpreter
                             null);
                     }
 
-                    members = GetInteropStaticMembers(type, name);
+                    members = GetInteropStaticMembers(type, key);
 
                     if (members.Length != 0)
                     {
@@ -945,7 +980,7 @@ namespace Components.Aphid.Interpreter
                 var ext = TypeExtender.TryResolve(
                     CurrentScope,
                     type,
-                    key: ((IdentifierExpression)expression.RightOperand).Identifier,
+                    key: key,
                     isAphidType: false,
                     isCtor: false,
                     isDynamic: false,
@@ -957,7 +992,8 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
+            if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression ||
+                expression.RightOperand.Type == AphidExpressionType.DynamicMemberExpression)
             {
                 var interopMember = InteropMethodResolver.TryResolveMember(
                     expression,
@@ -968,26 +1004,6 @@ namespace Components.Aphid.Interpreter
                 {
                     return interopMember;
                 }
-            }
-
-            string key;
-
-            if (expression.RightOperand is IdentifierExpression)
-            {
-                key = (expression.RightOperand as IdentifierExpression).Identifier;
-            }
-            else if (expression.RightOperand is StringExpression)
-            {
-                key = (string)ValueHelper.Unwrap(InterpretStringExpression(expression.RightOperand as StringExpression));
-            }
-            else if (expression.RightOperand is DynamicMemberExpression)
-            {
-                var memberExp = expression.RightOperand as DynamicMemberExpression;
-                key = ValueHelper.Unwrap(InterpretExpression(memberExp.MemberExpression)).ToString();
-            }
-            else
-            {
-                throw CreateRuntimeException("Unexpected expression {0}", expression.RightOperand);
             }
 
             if (returnRef)
@@ -2610,15 +2626,12 @@ namespace Components.Aphid.Interpreter
         public string[] FlattenPath(AphidExpression exp)
         {
             var pathExps = Flatten(exp);
+            var path = new string[pathExps.Length];
 
-            if (!pathExps.All(x => x.Type == AphidExpressionType.IdentifierExpression))
+            for (var i = 0; i < pathExps.Length; i++)
             {
-                throw CreateRuntimeException("Invalid interop call path '{0}'", exp);
+                path[i] = GetMemberKey(pathExps[i]);
             }
-
-            var path = pathExps
-                .Select(x => ((IdentifierExpression)x).Identifier)
-                .ToArray();
 
             return path;
         }
