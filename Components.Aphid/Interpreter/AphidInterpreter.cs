@@ -3316,7 +3316,7 @@ namespace Components.Aphid.Interpreter
 
                                 if (File.Exists(path = Path.GetFullPath(str)))
                                 {
-                                    asm = Assembly.LoadFile(path);
+                                    asm = Assembly.LoadFrom(path);
                                 }
 
                                 break;
@@ -3336,7 +3336,7 @@ namespace Components.Aphid.Interpreter
 
                             if (File.Exists(path = unwrappedPath.ToString()))
                             {
-                                asm = Assembly.LoadFile(path);
+                                asm = Assembly.LoadFrom(path);
                             }
                         }
 
