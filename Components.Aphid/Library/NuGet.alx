@@ -99,7 +99,7 @@ var nuget;
 
     installPackage = @(package) {
         // print('Installing package {0}' :: [ package ]);
-        ret nuget.packageManager.InstallPackage(package);
+        ret nuget.createPackageManager().InstallPackage(package);
     }
 }();
 
