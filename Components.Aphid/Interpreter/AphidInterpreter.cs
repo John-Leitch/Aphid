@@ -754,6 +754,29 @@ namespace Components.Aphid.Interpreter
             bool returnRef = false,
             Func<AphidObject> dynamicHandler = null)
         {
+            if (!returnRef && members.Length > 1)
+            {
+                var isNotFunc = true;
+
+                for (var i = 0; i < members.Length; i++)
+                {
+                    var t = members[i].GetType();
+
+                    if (!typeof(PropertyInfo).IsAssignableFrom(t) &&
+                        !typeof(FieldInfo).IsAssignableFrom(t) &&
+                        !typeof(EventInfo).IsAssignableFrom(t))
+                    {
+                        isNotFunc = false;
+                        break;
+                    }
+                }
+
+                if (isNotFunc)
+                {
+                    members = new[] { members[0] };
+                }
+            }
+
             if (members.Length == 1)
             {
                 var propInfo = members[0] as PropertyInfo;
