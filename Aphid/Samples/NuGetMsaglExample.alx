@@ -1,0 +1,48 @@
+﻿// This is an official Microsoft Automatic Graph Layout sample adapted
+// to Aphid to demonstrate the enhanced NuGet integration, as well
+// as code compatibility with C# and interoperability with the .NET 
+// framework.
+//
+// The original source: https://github.com/Microsoft/automatic-graph-layout
+
+#'Nuget';
+
+load System.Windows.Forms;
+
+nuget.reference(
+    'Microsoft.Msagl',
+    'Microsoft.Msagl.Drawing',
+    'Microsoft.Msagl.GraphViewerGDI');
+
+using Microsoft.Msagl;
+using Microsoft.Msagl.GraphViewerGdi;
+using Microsoft.Msagl.Drawing;
+using System;
+using System.Collections.Generic; 
+using System.Windows.Forms;
+
+//create a form 
+var form = new Form();
+//create a viewer object 
+var viewer = new GViewer();
+//create a graph object 
+var graph = new Graph("graph");
+//create the graph content 
+graph.AddEdge("A", "B");
+graph.AddEdge("B", "C");
+graph.AddEdge("A", "C").Attr.Color = Color.Green;
+graph.FindNode("A").Attr.FillColor = Color.Magenta;
+graph.FindNode("B").Attr.FillColor = Color.MistyRose;
+var c = graph.FindNode("C");
+c.Attr.FillColor = Color.PaleGreen;
+c.Attr.Shape = Shape.Diamond;
+//bind the graph to the viewer 
+viewer.Graph = graph;
+//associate the viewer with the form 
+form.SuspendLayout();
+viewer.Dock = DockStyle.Fill;
+form.Controls.Add(viewer);
+form.ResumeLayout();
+
+//show the form 
+form.ShowDialog();
