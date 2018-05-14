@@ -969,6 +969,15 @@ namespace Components.Aphid.Interpreter
 
             if (returnRef)
             {
+                if (obj.IsScalar)
+                {
+                    throw CreateRuntimeException(
+                        "Cannot resolve member {0} for type {1} from expression {2}",
+                        key,
+                        obj.Value != null ? obj.Value.ToString() : "null",
+                        expression);
+                }
+
                 return new AphidRef() { Name = key, Object = obj };
             }
             else
