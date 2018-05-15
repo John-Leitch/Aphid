@@ -1,5 +1,4 @@
-﻿#'debugDeploy';
-#'winForms';
+﻿#'winForms';
 using Components.ObjectDatabase;
 using System.Reflection
 var db = 'history.db' |> BinaryObjectDatabase.OpenFile;
