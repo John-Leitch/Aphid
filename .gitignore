@@ -218,4 +218,10 @@ Components.Aphid/Tools/*.exe
 /Components.Aphid/Library/.vscode/*
 /Components.Aphid/Library/rt.cmd
 /Components.Aphid/Library/test.alx
+/Components.Aphid/Library/test2.alx
 /Components.Aphid/Library/MetaTest.alx
+
+# Aphid NuGet Downloads
+!/Components.Aphid/Library/Net/
+/Aphid/Samples/*/
+/Components.Aphid/Library/*/
