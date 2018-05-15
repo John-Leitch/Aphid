@@ -275,10 +275,14 @@ console.header = head;
 console.subhead = subhead;
 console.subheader = subhead;
 
-var dump = @(o){
-    !isObject(o) && toJson defined ? toJson(o) : serialize(o)
-    |> Console.WriteLine;
-};
+var stdScope = this;
+
+if (!(stdScope.dump defined)) {
+    stdScope.dump = @(o){
+        !isObject(o) && toJson defined ? toJson(o) : serialize(o)
+        |> Console.WriteLine;
+    };
+}
 
 var exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
