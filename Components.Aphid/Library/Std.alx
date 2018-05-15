@@ -569,8 +569,16 @@ _aliasExt(dir, dumpMembers);
 _aliasExt(props, dumpProps);
 _aliasExt(funcs, funcs);
 
-var getEntryDir = @() Assembly.GetEntryAssembly().Location |> Path.GetDirectoryName;
-var getEntryPath = @() $args |> Path.Combine @Path.Combine(getEntryDir());
+
+_getAsmDir(Entry);
+_getAsmDir(Executing);
+_getAsmDir = macro(@(name) { _getAsmDirCore(name, id(Get, name, Assembly)) });
+
+_getAsmDirCore = macro(@(name, fullName) {
+    var id(get, name, Dir) = @() Assembly.fullName().Location |> Path.GetDirectoryName;
+    var id(get, name, Path) = @() $args |> Path.Combine @Path.Combine(id(get, name, Dir)());
+});
+
 var getEnums = @(type) type |> Enum.GetValues;
 var getFullNames = @(name) this.{'$imports'}->@+('.' + name);
 
