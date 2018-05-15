@@ -1,4 +1,5 @@
-﻿#define STRICT_APHID_OBJECT_TYPE_CHECKS
+﻿//#define LOW_SECURITY
+#define STRICT_APHID_OBJECT_TYPE_CHECKS
 //#define DETECTED_ERRONEOUS_NESTING
 using Components.Aphid.Interpreter;
 using System;
@@ -6,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Threading;
 
 namespace Components.Aphid.TypeSystem
@@ -110,6 +112,7 @@ namespace Components.Aphid.TypeSystem
             IsScalar = isScalar;
         }
 
+#if !LOW_SECURITY
         protected AphidObject(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -127,6 +130,7 @@ namespace Components.Aphid.TypeSystem
 
             base.GetObjectData(info, context);
         }
+#endif
 
         public override string ToString()
         {
