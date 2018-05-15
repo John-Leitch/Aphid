@@ -7,7 +7,7 @@ if (!this.{'$aphid'}.AsmBuilder.IsTypeDefined('RemoteProxy')) {
 }
 
 extend RemoteProxy {
-    Eval: @(s, code) code |> remote._remoteTable.{s.RemoteId}.eval,
+    Eval: @(s, code) code |> remote._remoteTable.{s.RemoteId.ToString()}.eval,
 
     dynamic handle: @(s, name) {
         using System.Text;
@@ -28,7 +28,7 @@ extend RemoteProxy {
         };
 
         sb.AppendLine(');');
-        var resp = sb.ToString() |> remote._remoteTable.{s.RemoteId}.eval;
+        var resp = sb.ToString() |> remote._remoteTable.{s.RemoteId.ToString()}.eval;
         
         ret resp != null && resp.result defined ?
             resp.result :
@@ -197,7 +197,7 @@ var remote = null;
         connectProxy: @(server, port) {
             var proxy = new RemoteProxy();
             proxy.RemoteId = Guid.NewGuid();
-            remote._remoteTable.{proxy.RemoteId} = remote.connect(server, port);
+            remote._remoteTable.{proxy.RemoteId.ToString()} = remote.connect(server, port);
 
             ret proxy;
         }
