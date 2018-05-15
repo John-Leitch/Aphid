@@ -158,6 +158,9 @@
     <Compile Include="External\Common\Table.cs" />
     <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
+    <Compile Include="External\ConsolePlus\ConsoleDataEventArgs.cs" />
+    <Compile Include="External\ConsolePlus\ConsoleTextWriter.cs" />
+    <Compile Include="External\ConsolePlus\RemoteConsoleListener.cs" />
     <Compile Include="External\ConsolePlus\SystemColor.g.cs" />
     <Compile Include="External\ConsolePlus\VT100.cs" />
     <Compile Include="External\Debugging\MemoryDump.cs" />
