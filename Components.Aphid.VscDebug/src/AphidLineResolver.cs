@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VSCodeDebug.src
+namespace VSCodeDebug
 {
     public class AphidLineResolver
     {

@@ -49,6 +49,10 @@
     <AssemblyName>aphid-debug</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SpringPeeper">
       <HintPath>..\..\..\..\..\source\SpringPeeper\SpringPeeper\bin\Debug\SpringPeeper.exe</HintPath>
     </Reference>
@@ -57,21 +61,18 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\AphidBreakpointController.cs" />
-    <Compile Include="src\AphidDebugSession.cs" />
     <Compile Include="src\AphidIndexVisitor.cs" />
     <Compile Include="src\AphidLineResolver.cs" />
-    <Compile Include="src\MonoDebugSession.cs" />
+    <Compile Include="src\AphidDebugSession.cs" />
     <Compile Include="src\Handles.cs" />
     <Compile Include="src\Utilities.cs" />
     <Compile Include="src\DebugSession.cs" />
-    <Compile Include="src\MonoDebug.cs" />
+    <Compile Include="src\Program.cs" />
     <Compile Include="src\Protocol.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -99,6 +100,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\source\Aphid\Aphid\Aphid.csproj">
+      <Project>{efde894b-fa3d-4202-9a08-c9f69c0b0799}</Project>
+      <Name>Aphid</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\source\Aphid\Components.Aphid\Components.Aphid.csproj">
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
@@ -106,5 +111,8 @@
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>powershell -Command "Get-Process aphid-debug -ErrorAction SilentlyContinue  | Stop-Process -Force; Exit 0"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetDir)\* C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
