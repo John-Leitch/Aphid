@@ -3766,11 +3766,18 @@ namespace Components.Aphid.Interpreter
                         }
                         else if (expression.Operand is BinaryOperatorExpression)
                         {
-                            var objRef = InterpretBinaryOperatorExpression(expression.Operand as BinaryOperatorExpression, true) as AphidRef;
+                            try
+                            {
+                                var objRef = InterpretBinaryOperatorExpression(expression.Operand as BinaryOperatorExpression, true) as AphidRef;
 
-                            return AphidObject.Scalar(
-                                (!objRef.Object.IsComplexitySet || objRef.Object.IsComplex) &&
-                                objRef.Object.IsDefined(objRef.Name));
+                                return AphidObject.Scalar(
+                                    (!objRef.Object.IsComplexitySet || objRef.Object.IsComplex) &&
+                                    objRef.Object.IsDefined(objRef.Name));
+                            }
+                            catch
+                            {
+                                return AphidObject.Scalar(false);
+                            }
                         }
                         else
                         {
