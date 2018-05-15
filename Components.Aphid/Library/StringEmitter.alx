@@ -22,14 +22,14 @@ var strEmitter;
             IncrementOperator: '++',
             DecrementOperator: '--',
 
-            get: @(token) opStr.unaryPrefix.{token},
+            get: @(token) opStr.unaryPrefix.{token.ToString()},
         },
 
         unaryPostfix: {
             IncrementOperator: '++',
             DecrementOperator: '--',
 
-            get: @(token) opStr.unaryPostfix.{token},
+            get: @(token) opStr.unaryPostfix.{token.ToString()},
         },
 
         binary: {
@@ -71,7 +71,7 @@ var strEmitter;
             OrEqualOperator: " |= ",
             XorEqualOperator: " ^= ",
 
-            get: @(token) opStr.binary.{token},
+            get: @(token) opStr.binary.{token.ToString()},
         }
     };
 
