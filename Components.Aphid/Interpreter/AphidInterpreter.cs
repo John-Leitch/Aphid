@@ -129,6 +129,10 @@ namespace Components.Aphid.Interpreter
             _isBreaking,
             _isInTryCatchFinally;
 
+        private Dictionary<Type, Dictionary<string, MemberInfo[]>>
+            _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
+            _staticMemberNameCache = new Dictionary<Type,Dictionary<string,MemberInfo[]>>();
+
         private Stack<AphidFrame> _frames;
 
         private int _queuedFramePops;
@@ -832,43 +836,121 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetInteropInstanceMembers(object target, BinaryOperatorExpression expression)
         {
-            var memberName = GetMemberKey(expression.RightOperand);
-
-            return target
-                .GetType()
-                .GetMembers()
-                .Where(x => x.Name == memberName)
-                .ToArray();
+            return GetTypeInteropInstanceMembers(target.GetType(), GetMemberKey(expression.RightOperand));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetInteropInstanceMembers(object target, string name)
         {
-            return target
-                .GetType()
-                .GetMembers()
-                .Where(x => x.Name == name)
-                .ToArray();
+            return GetTypeInteropInstanceMembers(target.GetType(), name);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MemberInfo[] GetTypeInteropInstanceMembers(Type targetType, string name)
+        {
+            MemberInfo[] members;
+            Dictionary<string, MemberInfo[]> nameMembers;
+
+            lock (_instanceMemberNameCache)
+            {
+                if (!_instanceMemberNameCache.TryGetValue(targetType, out nameMembers))
+                {
+                    members = GetTypeInteropInstanceMembersCore(targetType, name);
+
+                    _instanceMemberNameCache.Add(
+                        targetType,
+                        new Dictionary<string, MemberInfo[]> { { name, members } });
+                }
+                else if (!nameMembers.TryGetValue(name, out members))
+                {
+                    members = GetTypeInteropInstanceMembersCore(targetType, name);
+                    nameMembers.Add(name, members);
+                }
+
+                return members;
+            }
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MemberInfo[] GetTypeInteropInstanceMembersCore(Type targetType, string name)
+        {
+            var allMembers = targetType.GetMembers();
+            var members = new MemberInfo[allMembers.Length];
+            var count = 0;
+
+            for (var i = 0; i < allMembers.Length; i++)
+            {
+                var am = allMembers[i];
+
+                if (am.Name == name)
+                {
+                    members[count++] = am;
+                }
+            }
+
+            if (count != members.Length)
+            {
+                Array.Resize(ref members, count);
+            }
+
+            return members;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetInteropStaticMembers(Type type, string[] path)
         {
-            var member = path.Last();
-
-            return type
-                .GetMembers(BindingFlags.Static | BindingFlags.Public)
-                .Where(x => x.Name == member)
-                .ToArray();
+            return GetInteropStaticMembers(type, path[path.Length - 1]);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetInteropStaticMembers(Type type, string name)
+        private MemberInfo[] GetInteropStaticMembers(Type targetType, string name)
         {
-            return type
-                .GetMembers(BindingFlags.Static | BindingFlags.Public)
-                .Where(x => x.Name == name)
-                .ToArray();
+            MemberInfo[] members;
+            Dictionary<string, MemberInfo[]> nameMembers;
+
+            lock (_staticMemberNameCache)
+            {
+                if (!_staticMemberNameCache.TryGetValue(targetType, out nameMembers))
+                {
+                    members = GetInteropStaticMembersCore(targetType, name);
+
+                    _staticMemberNameCache.Add(
+                        targetType,
+                        new Dictionary<string, MemberInfo[]> { { name, members } });
+                }
+                else if (!nameMembers.TryGetValue(name, out members))
+                {
+                    members = GetInteropStaticMembersCore(targetType, name);
+                    nameMembers.Add(name, members);
+                }
+
+                return members;
+            }
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MemberInfo[] GetInteropStaticMembersCore(Type targetType, string name)
+        {
+            var allMembers = targetType.GetMembers(BindingFlags.Static | BindingFlags.Public);
+            var members = new MemberInfo[allMembers.Length];
+            var count = 0;
+
+            for (var i = 0; i < allMembers.Length; i++)
+            {
+                var am = allMembers[i];
+
+                if (am.Name == name)
+                {
+                    members[count++] = am;
+                }
+            }
+
+            if (count != members.Length)
+            {
+                Array.Resize(ref members, count);
+            }
+
+            return members;
         }
 
         private string GetMemberKey(AphidExpression memberExpression)
@@ -2388,7 +2470,7 @@ namespace Components.Aphid.Interpreter
             try
             {
                 var val = InterpretIdentifierExpression(idExp);
-                var func = ValueHelper.Unwrap(val) as AphidFunction;
+                var func = (AphidFunction)ValueHelper.Unwrap(val);
 
                 return CallFunction(func, parms);
             }
@@ -4026,7 +4108,7 @@ namespace Components.Aphid.Interpreter
             {
                 var init = InterpretExpression(expression.Initialization);
 
-                while ((bool)(InterpretExpression(expression.Condition) as AphidObject).Value)
+                while ((bool)((AphidObject)InterpretExpression(expression.Condition)).Value)
                 {
                     EnterScope();
                     inBodyScope = true;
@@ -4059,11 +4141,11 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretForEachExpression(ForEachExpression expression)
         {
-            var collection = InterpretExpression(expression.Collection) as AphidObject;
-            var elements = collection.Value as IEnumerable;
+            var collection = (AphidObject)InterpretExpression(expression.Collection);
+            var elements = (IEnumerable)collection.Value;
 
             var elementId = expression.Element != null ?
-                (expression.Element as IdentifierExpression).Identifier :
+                ((IdentifierExpression)expression.Element).Identifier :
                 null;
 
             var elementObjScope = elementId != null ?
@@ -4284,27 +4366,38 @@ namespace Components.Aphid.Interpreter
             var func = obj.Value as AphidFunction;
             if (func != null)
             {
-                var partialArgCount = func.Args.Length - expression.Call.Args.Count();
-                var partialArgs = func.Args.Skip(partialArgCount).ToArray();
+                var paramOffset = Math.Max(func.Args.Length - expression.Call.Args.Count, 0);
+                var paramCount = Math.Max(func.Args.Length - paramOffset, 0);
+                var callArgs = new List<AphidExpression>(expression.Call.Args.Count + paramCount);
 
-                var partialFunc = new AphidFunction(
-                        partialArgs,
+                for (var i = 0; i < expression.Call.Args.Count; i++)
+                {
+                    callArgs.Add(expression.Call.Args[i]);
+                }
+
+                var paramSet = new string[paramCount];
+
+                for (var i = 0; i < paramSet.Length; i++)
+                {
+                    callArgs.Add(
+                        new IdentifierExpression(paramSet[i] = func.Args[paramOffset + i])
+                            .WithPositionFrom(expression.Call.Args[i]));
+                }
+
+                return AphidObject.Scalar(
+                    new AphidFunction(
+                        paramSet,
                         new List<AphidExpression> 
                         {
-                            new UnaryOperatorExpression(AphidTokenType.retKeyword,
+                            new UnaryOperatorExpression(
+                                AphidTokenType.retKeyword,
                                 new CallExpression(
-                                    expression.Call.FunctionExpression, 
-                                    expression.Call.Args
-                                        .Concat(partialArgs
-                                            .Select((x, i) => (IdentifierExpression)new IdentifierExpression(x)
-                                            .WithPositionFrom(expression.Call.Args[i])))
-                                        .ToList())
+                                    expression.Call.FunctionExpression,
+                                    callArgs)
                                     .WithPositionFrom(expression.Call))
                                 .WithPositionFrom(expression.Call),
                         },
-                        CurrentScope);
-
-                return AphidObject.Scalar(partialFunc);
+                        CurrentScope));
             }
             else
             {
@@ -4317,10 +4410,12 @@ namespace Components.Aphid.Interpreter
 
                 // Todo: Fix partial application bug seemingly caused
                 // by unwrapping Object[] when passed during call to partial.
-                var applied = expression.Call.Args
-                    .Select(InterpretExpression)
-                    .Select(ValueHelper.DeepUnwrap)
-                    .ToArray();
+                var applied = new object[expression.Call.Args.Count];
+
+                for (var i = 0; i < applied.Length; i++)
+                {
+                    applied[i] = ValueHelper.DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
+                }
 
                 return AphidObject.Scalar(new AphidInteropPartialFunction(interopObj, applied));
             }
@@ -4371,12 +4466,15 @@ namespace Components.Aphid.Interpreter
             var left = (AphidObject)InterpretExpression(expression.TestExpression);
             var leftType = left.Value != null ? left.Value.GetType() : null;
 
-            foreach (var pattern in expression.Patterns)
+            for (var x = 0; x < expression.Patterns.Count; x++)
             {
-                if (pattern.Patterns != null && pattern.Patterns.Any())
+                var pattern = expression.Patterns[x];
+
+                if (pattern.Patterns != null && pattern.Patterns.Count != 0)
                 {
-                    foreach (var patternTest in pattern.Patterns)
+                    for (var y = 0; y < pattern.Patterns.Count; y++)
                     {
+                        var patternTest = pattern.Patterns[y];
                         var right = (AphidObject)InterpretExpression(patternTest);
                         var rightType = right.Value != null ? right.Value.GetType() : null;
 
@@ -4396,7 +4494,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return AphidObject.Complex();
+            return AphidObject.Null();
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4679,10 +4777,13 @@ namespace Components.Aphid.Interpreter
         {
             var exp = (AphidObject)InterpretExpression(expression.Expression);
 
-            foreach (var c in expression.Cases)
+            for (var x = 0; x < expression.Cases.Count; x++)
             {
-                foreach (var c2 in c.Cases)
+                var c = expression.Cases[x];
+
+                for (var y = 0; y < c.Cases.Count; y++)
                 {
+                    var c2 = c.Cases[y];
                     var caseValue = (AphidObject)InterpretExpression(c2);
 
                     if (!InterpretEqualityExpression(
