@@ -121,10 +121,13 @@ extend Chart {
         ret area;
     },
 
-    series: @(chart, name, points) {
+    series: @(chart, name, points, chartType) {
         var series = new Series();
-        series.ChartType = SeriesChartType.StackedBar;
-        //series.Legend = name;
+        
+        if ($args.Count == 4) {
+            series.ChartType = chartType;
+        }
+
         series.Name = name;
         chart.Series.Add(series);
         points->@() series.Points.AddXY($_[0], $_[1]);
