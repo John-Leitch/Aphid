@@ -1,0 +1,23 @@
+﻿#'debugDeploy';
+#'winForms';
+using Components.ObjectDatabase;
+using System.Reflection
+var db = 'history.db' |> BinaryObjectDatabase.OpenFile;
+var chart = winForms.chart();
+chart.area();
+
+db.ReadUnsafe()
+-< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
+-& @.name
+-> @(s){
+    var i = 0;
+    s -\ @.version
+    -> (@() [ i, $_.ticks ])
+    @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
+};
+
+winForms.split([
+    [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]
+])
+@winForms.dialog({ width: 900, height: 400 });
+
