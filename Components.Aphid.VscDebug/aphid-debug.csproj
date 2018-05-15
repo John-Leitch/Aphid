@@ -113,6 +113,9 @@
     <PreBuildEvent>powershell -Command "Get-Process aphid-debug -ErrorAction SilentlyContinue  | Stop-Process -Force; Exit 0"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)\* C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug /y</PostBuildEvent>
+    <PostBuildEvent>xcopy $(TargetDir)* C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug /s /d /y
+xcopy $(TargetDir)..\..\..\Components.Aphid\Library\*.alx C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\Library /s /d /y
+xcopy $(TargetDir)..\..\..\Components.Aphid\Tools\*.alx C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\Tools /s /d
+ngen.exe C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
   </PropertyGroup>
 </Project>

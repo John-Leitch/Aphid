@@ -11,7 +11,7 @@ namespace VSCodeDebug
     public class AphidLineResolver
     {
         private string _code;
-        
+
         private List<AphidExpression> _ast;
 
         public Dictionary<int, AphidExpression> IndexTable { get; private set; }
