@@ -309,15 +309,15 @@ var replaceNamedArguments = @{
 
             node.args()->@{                
                 if ($_.isId()) {
-                    argObj.{stack.Pop()} = $_.ToString();
+                    argObj.{stack.Pop().ToString()} = $_.ToString();
                 } else if ($_.isBinOp()) {
                     if ($_.Operator != op) {
                         fatal('Unexpected operator: {0}', $_.Operator);
                     }
 
-                    argObj.{$_.LeftOperand} = $_.RightOperand;                    
+                    argObj.{$_.LeftOperand.ToString()} = $_.RightOperand;                    
                 } else {
-                    argObj.{stack.Pop()} = $_;
+                    argObj.{stack.Pop().ToString()} = $_;
                 }
             };
 
