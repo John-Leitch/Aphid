@@ -11,6 +11,7 @@ var nuget;
     var nugetUrl = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe';
 
     if (!File.Exists(nugetExe)) {
+        using System.Net;
         (new WebClient()).DownloadFile(nugetUrl, nugetExe);
     }
 
