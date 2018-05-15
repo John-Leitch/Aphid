@@ -604,14 +604,14 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject CompareDecimals(BinaryOperatorExpression expression, Func<decimal, decimal, bool> equal)
-        {
-            return AphidObject.Scalar(
-                equal(
-                    Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))),
-                    Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)))));
-        }
+        //[TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //private AphidObject CompareDecimals(BinaryOperatorExpression expression, Func<decimal, decimal, bool> equal)
+        //{
+        //    return AphidObject.Scalar(
+        //        equal(
+        //            Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))),
+        //            Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)))));
+        //}
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteOut(string text)
@@ -1513,16 +1513,24 @@ namespace Components.Aphid.Interpreter
                     return InterpretEqualityExpression(expression);
 
                 case AphidTokenType.LessThanOperator:
-                    return CompareDecimals(expression, (x, y) => x < y);
+                    return AphidObject.Scalar(
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) <
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
 
                 case AphidTokenType.LessThanOrEqualOperator:
-                    return CompareDecimals(expression, (x, y) => x <= y);
+                    return AphidObject.Scalar(
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) <=
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
 
                 case AphidTokenType.GreaterThanOperator:
-                    return CompareDecimals(expression, (x, y) => x > y);
+                    return AphidObject.Scalar(
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) >
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
 
                 case AphidTokenType.GreaterThanOrEqualOperator:
-                    return CompareDecimals(expression, (x, y) => x >= y);
+                    return AphidObject.Scalar(
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) >=
+                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
 
                 case AphidTokenType.AndOperator:
                     return InterpretAndExpression(expression);
@@ -2521,7 +2529,10 @@ namespace Components.Aphid.Interpreter
 
             if (func.UnwrapParameters)
             {
-                args = objArgs.Select(x => x.Value).ToArray();
+                for (var i = 0; i < objArgs.Length; i++)
+                {
+                    args[i] = objArgs[i].Value;
+                }
             }
 
             return ValueHelper.Wrap(func.Invoke(this, args));
@@ -2581,24 +2592,27 @@ namespace Components.Aphid.Interpreter
             var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path);
             var methodName = path.Last();
 
-            var args = callExpression.Args
-                .Select(InterpretExpression)
-                .Select(ValueHelper.Unwrap)
-                .ToArray();
+            var args = new object[callExpression.Args.Count];
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                args[i] = ValueHelper.Unwrap(InterpretExpression(callExpression.Args[i]));
+            }
 
             var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
 
             MethodBase method;
 
-            if (!methodInfo.GenericArguments.Any())
+            if (methodInfo.GenericArguments.Length == 0)
             {
                 method = methodInfo.Method;
             }
             else
             {
                 var m = (MethodInfo)methodInfo.Method;
+                Type[] generics;
 
-                if (methodInfo.GenericArguments.Length != m.GetGenericArguments().Length)
+                if (methodInfo.GenericArguments.Length != (generics = m.GetGenericArguments()).Length)
                 {
                     throw CreateRuntimeException(
                         "Generic type parameter mismatch between {0} and {1}.",
@@ -2606,7 +2620,7 @@ namespace Components.Aphid.Interpreter
                         m.ToString());
                 }
 
-                method = m.MakeGenericMethod(m.GetGenericArguments());
+                method = m.MakeGenericMethod(generics);
             }
 
             var convertedArgs = TypeConverter.Convert(
@@ -2683,7 +2697,12 @@ namespace Components.Aphid.Interpreter
                 throw CreateRuntimeException("Could not find function {0}", expression.FunctionExpression);
             }
 
-            var args = expression.Args.Select(InterpretExpression).ToArray();
+            var args = new object[expression.Args.Count];
+
+            for (var i = 0; i < expression.Args.Count; i++)
+            {
+                args[i] = InterpretExpression(expression.Args[i]);
+            }
 
             return InterpretCallExpression(expression, expression.FunctionExpression, funcExp, args);
         }
@@ -2699,9 +2718,15 @@ namespace Components.Aphid.Interpreter
 
             if (func != null)
             {
-                var interopArgs = func.UnwrapParameters ?
-                    args.Select(ValueHelper.Unwrap).ToArray() :
-                    args;
+                var interopArgs = args;
+
+                if (func.UnwrapParameters)
+                {
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        interopArgs[i] = ValueHelper.Unwrap(interopArgs[i]);
+                    }
+                }
 
                 PushFrame(callExpression, functionExpression, interopArgs);
 
@@ -3106,7 +3131,7 @@ namespace Components.Aphid.Interpreter
             switch (operand.Type)
             {
                 case AphidExpressionType.CallExpression:
-                    var call = operand.ToCall();
+                    var call = (CallExpression)operand;
 
                     var args = call.Args
                         .Select(InterpretExpression)
@@ -3197,13 +3222,14 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretFunctionExpression(FunctionExpression expression)
         {
-            return AphidObject.Scalar(
-                new AphidFunction(
-                    expression.Args
-                        .Select(x => ((IdentifierExpression)x).Identifier)
-                        .ToArray(),
-                        expression.Body,
-                        CurrentScope));
+            var args = new string[expression.Args.Count];
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                args[i] = ((IdentifierExpression)expression.Args[i]).Identifier;
+            }
+
+            return AphidObject.Scalar(new AphidFunction(args, expression.Body, CurrentScope));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3248,13 +3274,13 @@ namespace Components.Aphid.Interpreter
                                 val.GetType());
                         }
 
-                        return ValueHelper.Wrap((decimal)val * -1);
+                        return AphidObject.Scalar((decimal)val * -1);
 
                     case AphidTokenType.ComplementOperator:
                         val = InterpretAndUnwrap(expression.Operand);
                         ValueHelper.AssertNumber(val, "unary operator '~'");
 
-                        return ValueHelper.Wrap((decimal)~Convert.ToUInt64(val));
+                        return AphidObject.Scalar((decimal)~Convert.ToUInt64(val));
 
                     case AphidTokenType.retKeyword:
                         SetReturnValue(ValueHelper.Wrap(InterpretExpression(expression.Operand)));
@@ -3266,15 +3292,17 @@ namespace Components.Aphid.Interpreter
                         return AphidObject.Scalar(CurrentScope.TryResolveAndRemove(operand));
 
                     case AphidTokenType.NotOperator:
-                        return AphidObject.Scalar(!(bool)ValueHelper.Unwrap(InterpretExpression(expression.Operand) as AphidObject));
+                        return AphidObject.Scalar(
+                            !(bool)((AphidObject)InterpretExpression(
+                                expression.Operand)).Value);
 
                     case AphidTokenType.IncrementOperator:
-                        var obj = InterpretExpression(expression.Operand) as AphidObject;
+                        var obj = (AphidObject)InterpretExpression(expression.Operand);
                         obj.Value = ((decimal)obj.Value) + 1;
                         return obj;
 
                     case AphidTokenType.DecrementOperator:
-                        obj = InterpretExpression(expression.Operand) as AphidObject;
+                        obj = (AphidObject)InterpretExpression(expression.Operand);
                         obj.Value = ((decimal)obj.Value) - 1;
                         return obj;
 
@@ -3746,46 +3774,44 @@ namespace Components.Aphid.Interpreter
                 switch (expression.Operator)
                 {
                     case AphidTokenType.IncrementOperator:
-                        var obj = InterpretExpression(expression.Operand) as AphidObject;
+                        var obj = (AphidObject)InterpretExpression(expression.Operand);
                         var v = obj.Value;
                         obj.Value = ((decimal)obj.Value) + 1;
                         return AphidObject.Scalar(v);
 
                     case AphidTokenType.DecrementOperator:
-                        obj = InterpretExpression(expression.Operand) as AphidObject;
+                        obj = (AphidObject)InterpretExpression(expression.Operand);
                         v = obj.Value;
                         obj.Value = ((decimal)obj.Value) - 1;
                         return AphidObject.Scalar(v);
 
                     case AphidTokenType.definedKeyword:
-
-
-                        if (expression.Operand is IdentifierExpression)
+                        switch (expression.Operand.Type)
                         {
-                            return AphidObject.Scalar(CurrentScope.IsDefined(expression.Operand.ToIdentifier().Identifier));
-                        }
-                        else if (expression.Operand is BinaryOperatorExpression)
-                        {
-                            try
-                            {
-                                var objRef = InterpretBinaryOperatorExpression(expression.Operand as BinaryOperatorExpression, true) as AphidRef;
-
+                            case AphidExpressionType.IdentifierExpression:
                                 return AphidObject.Scalar(
-                                    (!objRef.Object.IsComplexitySet || objRef.Object.IsComplex) &&
-                                    objRef.Object.IsDefined(objRef.Name));
-                            }
-                            catch
-                            {
-                                return AphidObject.Scalar(false);
-                            }
-                        }
-                        else
-                        {
-                            throw CreateRuntimeException("Unknown ? operand");
-                        }
+                                    CurrentScope.IsDefined(
+                                        ((IdentifierExpression)expression.Operand).Identifier));
 
+                            case AphidExpressionType.BinaryOperatorExpression:
+                                try
+                                {
+                                    var objRef = (AphidRef)InterpretBinaryOperatorExpression(
+                                        (BinaryOperatorExpression)expression.Operand,
+                                        true);
 
-                    //var obj = InterpretExpression(
+                                    return AphidObject.Scalar(
+                                        (!objRef.Object.IsComplexitySet || objRef.Object.IsComplex) &&
+                                        objRef.Object.IsDefined(objRef.Name));
+                                }
+                                catch
+                                {
+                                    return AphidObject.Scalar(false);
+                                }
+
+                            default:
+                                throw CreateRuntimeException("Unknown ? operand");
+                        }
 
                     default:
                         throw CreateUnaryOperatorException(expression);
