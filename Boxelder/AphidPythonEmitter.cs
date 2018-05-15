@@ -33,7 +33,7 @@ namespace Boxelder
         {
             var mutators = new AphidMutator[] 
             {
-                new IncludeMutator(),
+                new IncludeMutator { PerformCommonTransformations = false },
                 new AphidMacroMutator(),
                 new PipelineToCallMutator(),
                 new PartialOperatorMutator(),

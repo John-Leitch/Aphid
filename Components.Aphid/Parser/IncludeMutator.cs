@@ -22,6 +22,8 @@ namespace Components.Aphid.Parser
 
         public List<string> Included { get; private set; }
 
+        public bool PerformCommonTransformations { get; set; }
+
         public AphidLoader Loader
         {
             get { return _loader; }
@@ -29,6 +31,7 @@ namespace Components.Aphid.Parser
 
         public IncludeMutator(string applicationDirectory, bool useImplicitReturns)
         {
+            PerformCommonTransformations = true;
             _applicationDirectory = applicationDirectory;
             UseImplicitReturns = useImplicitReturns;
             Included = new List<string>();
@@ -76,11 +79,19 @@ namespace Components.Aphid.Parser
             var code = AphidScript.Read(script);
 
             var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
-            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
 
-            return mutatedAst;
+            if (PerformCommonTransformations)
+            {
+                var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
+                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+
+                return mutatedAst;
+            }
+            else
+            {
+                return ast;
+            }
         }
     }
 }
