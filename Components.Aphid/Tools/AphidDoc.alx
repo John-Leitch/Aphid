@@ -149,12 +149,17 @@ srcFiles->@(srcFile) {
 
         if (o.obj.params defined) {
             m.Type = 'Function';
-            o.obj.params.Keys->@{
-                var p = new MethodParamDoc();
-                p.Name = $_;
-                p.Description = o.obj.params.{$_};
-                params.Add(p);
-            };
+
+            try {
+                o.obj.params.Keys->@{
+                    var p = new MethodParamDoc();
+                    p.Name = $_;
+                    p.Description = o.obj.params.{$_};
+                    params.Add(p);
+                };
+            } catch {
+                
+            }
         } else {
             m.Type = path.Count == 1 ? 'Object' : 'Property';
         }
