@@ -1,0 +1,71 @@
+﻿#'std';
+#'xml';
+
+var tup = @(set, delim) set +> @(x, y) x + delim + y;
+var pluralize = @(word) $(word $!) 'y': word.Trim('y') + 'ies', word + 's';
+var htmlId = @() '#' + tup($args, '_');
+
+_sel = macro(@(name) { (@() _val(name) ) });
+_val = macro(@(name) { $_.name() ^! @.Value });
+
+var doc = xdoc
+    .open('C:\\source\\Aphid\\aphid.xml')
+    .Root
+    .MemberDoc()
+    -& _sel(Filename)
+    -> (@(f) ({
+        file: $_.Key,
+        members: $_
+            -& _sel(Type)
+            -> (@(m) ({
+                type: $_.Key |> pluralize,
+                typeMembers: $_
+                    -\ _sel(Path)
+                    -> (@(t) ({
+                        id: htmlId(file, _val(Path)),
+                        path: _val(Path),
+                        params: t.MethodParamDoc(),
+                        signature:
+                            path +
+                            (params == null ? '' : '({0})' :: [ tup(params->_sel(Name), ', ') ]),
+                        returns: _val(Returns),
+                        summary: _val(Summary),
+                        example: _val(Example),
+                    })),
+            }))
+    }));
+
+
+var generateIndex = @(codeDoc) { %>
+    <ul>
+    <% codeDoc->@(f){ %>
+    <li>
+        <b><%= f.file %></b>
+        <ul>
+        <% f.members->@(m) { %>
+        <li>
+            <%= m.type %>
+            <ul>
+            <% m.typeMembers->@(t) { %>
+                <li><a href="<%= t.id %>"><code><%= t.signature %></code></a></li>
+            <% }; %>
+            </ul>
+        </li>
+        <% }; %>
+        </ul>
+    </li>
+    <% }; %>
+    </ul>
+<% };
+
+var html;
+
+using (aphid.Out = new StringWriter()) {
+    doc |> generateIndex;
+    aphid.Out.Flush();
+    html = aphid.Out.ToString();
+}
+
+var htmlFile = 'c:\\staging\\aphid.html';
+html @File.WriteAllText(htmlFile);
+html |> Console.WriteLine;
