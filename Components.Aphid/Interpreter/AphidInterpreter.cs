@@ -3226,7 +3226,13 @@ namespace Components.Aphid.Interpreter
                     {
                         var typeObj = ValueHelper.Unwrap(InterpretExpression(call.FunctionExpression));
 
-                        if (typeObj == null || !typeof(Type).IsAssignableFrom(typeObj.GetType()))
+                        if (typeObj == null)
+                        {
+                            throw CreateRuntimeException(
+                                "Could not resolve type {0}.",
+                                call.FunctionExpression);
+                        }
+                        else if (!typeof(Type).IsAssignableFrom(typeObj.GetType()))
                         {
                             throw CreateRuntimeException(
                                 "Expression '{0}' resolved to '{1}', expected type.",
