@@ -14,6 +14,9 @@ using Components.External.ConsolePlus;
 using System.Runtime.InteropServices;
 using Components.PInvoke;
 using System.IO.Pipes;
+using Components.Aphid.UI;
+using Components.Aphid.Parser;
+using Components.Aphid.Interpreter;
 
 namespace VSCodeDebug
 {
@@ -89,78 +92,118 @@ namespace VSCodeDebug
             }
             else
             {
-                id = argv[1];
-
-                var stdOutPipeServer = new NamedPipeServerStream(
-                        GetNamedPort(id, true));
-
-                var stdInPipeServer = new NamedPipeServerStream(
-                    GetNamedPort(id, false));
-
-
-                //Cli.WriteInfoMessage("Waiting for stdin pipe");
-                stdInPipeServer.WaitForConnection();
-                //Cli.WriteSuccessMessage("Connected");
-                //Cli.WriteInfoMessage("Waiting for stdout pipe");
-                stdOutPipeServer.WaitForConnection();
-                //Cli.WriteSuccessMessage("Connected");
-                
-                int port = -1;
-
-                // parse command line arguments
-                foreach (var a in argv)
+                if (!Debugger.IsAttached)
                 {
-                    switch (a)
+                    try
                     {
-                        case "--trace":
-                            trace_requests = true;
-                            break;
-                        case "--trace=response":
-                            trace_requests = true;
-                            trace_responses = true;
-                            break;
-                        case "--server":
-                            port = DEFAULT_PORT;
-                            break;
-                        default:
-                            if (a.StartsWith("--server="))
-                            {
-                                if (!int.TryParse(a.Substring("--server=".Length), out port))
-                                {
-                                    port = DEFAULT_PORT;
-                                }
-                            }
-                            else if (a.StartsWith("--log-file="))
-                            {
-                                LOG_FILE_PATH = a.Substring("--log-file=".Length);
-                            }
-                            break;
+                        try
+                        {
+                            StartServer(argv);
+                        }
+                        catch (AphidLoadScriptException e)
+                        {
+                            AphidCli.DumpException(e, e.Interpreter);
+                        }
+                        catch (AphidParserException e)
+                        {
+                            AphidCli.DumpException(e, null);
+                        }
+                        catch (AphidRuntimeException e)
+                        {
+                            AphidCli.DumpException(e, e.Interpreter);
+                        }
                     }
-                }
+                    catch (Exception e2)
+                    {
+                        Cli.WriteErrorMessage("Internal exception: {0}", e2);
+                    }
 
-                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("mono_debug_logfile")) == false)
-                {
-                    LOG_FILE_PATH = Environment.GetEnvironmentVariable("mono_debug_logfile");
-                    trace_requests = true;
-                    trace_responses = true;
-                }
+                    Console.WriteLine("Press enter to continue...");
 
-                if (port > 0)
-                {
-                    // TCP/IP server
-                    Program.Log("waiting for debug protocol on port " + port + "\r\n");
-                    RunServer(port);
+                    while (Console.ReadKey(true).Key != ConsoleKey.Enter)
+                    {
+                    }
                 }
                 else
                 {
-                    // stdin/stdout
-                    Program.Log("waiting for debug protocol on stdin/stdout\r\n");
-                    RunSession(stdInPipeServer, stdOutPipeServer);
-                    //RunSession(Console.OpenStandardInput(), Console.OpenStandardOutput());
-
+                    StartServer(argv);
                 }
             }
 		}
+
+        static void StartServer(string[] argv)
+        {
+            var id = argv[1];
+
+            var stdOutPipeServer = new NamedPipeServerStream(
+                    GetNamedPort(id, true));
+
+            var stdInPipeServer = new NamedPipeServerStream(
+                GetNamedPort(id, false));
+
+
+            //Cli.WriteInfoMessage("Waiting for stdin pipe");
+            stdInPipeServer.WaitForConnection();
+            //Cli.WriteSuccessMessage("Connected");
+            //Cli.WriteInfoMessage("Waiting for stdout pipe");
+            stdOutPipeServer.WaitForConnection();
+            //Cli.WriteSuccessMessage("Connected");
+
+            int port = -1;
+
+            // parse command line arguments
+            foreach (var a in argv)
+            {
+                switch (a)
+                {
+                    case "--trace":
+                        trace_requests = true;
+                        break;
+                    case "--trace=response":
+                        trace_requests = true;
+                        trace_responses = true;
+                        break;
+                    case "--server":
+                        port = DEFAULT_PORT;
+                        break;
+                    default:
+                        if (a.StartsWith("--server="))
+                        {
+                            if (!int.TryParse(a.Substring("--server=".Length), out port))
+                            {
+                                port = DEFAULT_PORT;
+                            }
+                        }
+                        else if (a.StartsWith("--log-file="))
+                        {
+                            LOG_FILE_PATH = a.Substring("--log-file=".Length);
+                        }
+                        break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("mono_debug_logfile")) == false)
+            {
+                LOG_FILE_PATH = Environment.GetEnvironmentVariable("mono_debug_logfile");
+                trace_requests = true;
+                trace_responses = true;
+            }
+
+            if (port > 0)
+            {
+                // TCP/IP server
+                Program.Log("waiting for debug protocol on port " + port + "\r\n");
+                RunServer(port);
+            }
+            else
+            {
+                // stdin/stdout
+                Program.Log("waiting for debug protocol on stdin/stdout\r\n");
+                RunSession(stdInPipeServer, stdOutPipeServer);
+                //RunSession(Console.OpenStandardInput(), Console.OpenStandardOutput());
+
+            }
+        }
 
         static TextWriter logFile;
 
