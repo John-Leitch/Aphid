@@ -105,12 +105,43 @@ var transformStream;
     };
 }();
 
+/*{
+    summary: 'Retrieves the frames currently on the call stack, including the current call.',
+    returns: 'A collection of AphidFrames representative of the current call stack.',
+    params: {},
+    example: @{
+        #'std';
+        #'meta';
+        frames() |> dump;
+    }
+}*/
 var frames = @() this.{'$frames'};
+
+/*{
+    summary: 'Retrieves the frame currently on the call stack at the specified index, with the current call. at zero',
+    returns: 'An AphidFrames representative of a call on the stack.',
+    params: { index: 'The index of the frame to be retrieved.' },
+    example: @{
+        #'std';
+        #'meta';
+        frame(1) |> dump;
+    }
+}*/
 var frame = @(i) this.{'$frames'}[i];
 
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 
+/*{
+    summary: 'Tokenizes text using the Aphid lexical analyzer.',
+    returns: 'An array of AphidTokens.',
+    params: { text: 'The text to be passed to the Aphid lexer.' },
+    example: @{
+        #'std';
+        #'meta';
+        'var x = 10; x *= 2;' |> tokenize |> print;
+    }
+}*/
 var tokenize = @(text) (new AphidLexer(text)).GetTokens();
 var getToken = @(text) tokenize(text)[0].TokenType;
 
