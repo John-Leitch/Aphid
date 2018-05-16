@@ -1,7 +1,17 @@
 ﻿#'std';
 #'xml';
+using Components.Aphid.UI;
+var highlighter = new AphidSyntaxHighlighter();
 
-var tup = @(set, delim) set +> @(x, y) x + delim + y;
+var highlight = @(code) code
+    |> highlighter.Highlight
+    ->(@(h) format(
+        '<span style="color: rgb({0},{1},{2})">{3}</span>',
+        h.ForegroundRgb[0],
+        h.ForegroundRgb[1],
+        h.ForegroundRgb[2],
+        h.Text))
+    +> @(x, y) x + y;
 
 var language = {
     pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),
@@ -12,11 +22,16 @@ var language = {
             word, 
 };
 
+var tup = @(set, delim) set +> @(x, y) x + delim + y;
 var htmlId = @() tup($args, '_');
-_sel = macro(@(name) { (@() _val(name) ) });
+_sel = macro(@(name) { (@(x) _val2(name) ) });
+_val2 = macro(@(name) { x.name() ^! @.Value });
 _val = macro(@(name) { $_.name() ^! @.Value });
-var docXmlFile = 'C:\\source\\Aphid\\aphid.xml';
+var docXmlFile = 'C:\\source\\Aphid\\Components.Aphid\\Aphid.xml';
 var docHtmlFile = Path.ChangeExtension(docXmlFile, 'html');
+
+xdoc
+    .open(docXmlFile) |> dump;
 
 var doc = xdoc
     .open(docXmlFile)
@@ -24,8 +39,8 @@ var doc = xdoc
     .MemberDoc()
     -& _sel(Filename)
     -> (@(f) ({
-        file: $_.Key,
-        members: $_
+        file: f.Key,
+        members: f
             -& _sel(Type)
             -> (@(m) ({
                 type: $_.Key |> language.pluralize,
@@ -39,6 +54,7 @@ var doc = xdoc
                             path +
                             (params != null ?
                                 '({0})' :: [ tup(params->_sel(Name), ', ') ] :
+                                type == 'Functions' ? '()' :
                                 ''),
                         returns: _val(Returns),
                         summary: _val(Summary),
@@ -48,16 +64,40 @@ var doc = xdoc
     }));
 
 var title = 'Aphid Programming Language Reference';
+// dump(doc);
 
 var generateHtml = @(codeDoc) { %>
     <html>
-        <head><title><%= title %></title></head>
+        <head>
+            <style>
+                table
+                {
+                    border: solid 1px black;
+                    width: 100%;
+                    margin-bottom: 6px;
+                }
+
+                table th
+                {
+                    text-align: left;
+                    background-color: #C0C0C0;
+                    padding:2px;
+                }
+
+                table td
+                {
+                    background-color: #E0E0E0;
+                    padding:1px;
+                }
+            </style>
+            <title><%= title %></title>
+        </head>
         <body>
             <h1><%= title %></h1>
             <hr />
-            <% doc |> generateTableOfContents; %>
+            <% codeDoc |> generateTableOfContents; %>
             <hr />
-            <% doc |> generateBody; %>
+            <% codeDoc |> generateBody; %>
             <hr />
         </body>
     </html>
@@ -94,41 +134,54 @@ _prop = macro(@(name) {
 
 _kvp = macro(@(key, value) { %>
     <table>
-        <tr><td><b><%= key %></b></td></tr>
+        <tr><th><b><%= key %></b></th></tr>
         <tr><td><%= value %></td></tr>
     </table>
+<% });
+
+_kvp2 = macro(@(key, value) { %>
+    <table>
+        <tr><th style=" background-color:rgb(5,5,5)"><%= key %></th></tr>
+        <tr><td><%= value %></td></tr>
+    </table>
+    <br />
 <% });
 
 var generateBody = @(codeDoc) { %>
     <!--<h2>Headers</h2>-->
     <% codeDoc->@(f){ %>
-        <h2><%= f.file %> Header</h2>
         <% f.members->@(m) { %>
-            <h3><%= m.type %></h3>
+            <table><tr><th><h2 style="margin-bottom:0px;"><%= f.file %> <%= m.type %></h2></th></tr></table>
+            <br />
             <% m.typeMembers->@(t) {
-                _kvp(
-                    ($(m.type) 'Functions': 'Signature', 'Path'),
-                    @{ %><code id="<%= t.id %>"><%= t.signature %></code><% }());
-                
-                _prop(summary);
-                
-                if (t.params != null) { %>
-                    <table>
-                        <tr><td><b>Parameters</b></td></tr>
-                        <% t.params->@(p) { %>
-                            <tr>
-                                <td><i><%= _val(Name) %></i></td>
-                                <td><%= _val(Description) %></td>
-                            </tr>                        
-                        <% }; %>
-                    </table>
-                <% }
+                _kvp2(
+                    @{ %>
+                        <code style="font-size:130%;" id="<%= t.id %>">
+                            <%= t.signature |> highlight %>
+                        </code>
+                    <% }(),
+                    @{ 
+                            _prop(summary);
+                    
+                            if (t.params != null) { %>
+                                <table style="margin-bottom:2px;">
+                                    <tr><th colspan="2"><b>Parameters</b></th></tr>
+                                    <% t.params->@(p) { %>
+                                        <tr>
+                                            <td style="width:1px;"><i><%= _val(Name) %></i></td>
+                                            <td><%= _val(Description) %></td>
+                                        </tr>                        
+                                    <% }; %>
+                                </table>
+                            <% }
 
-                _prop(returns);
-                
-                if (t.example != null) {
-                    _kvp('Example', @{ %><pre><code><%= t.example %></code></pre><% }());
-                }
+                            _prop(returns);
+                            
+                            if (t.example != null) {
+                                _kvp('Example', @{ %><pre style="background: rgb(10,10,10); padding: 10px;"><code><%= t.example |> highlight %></code></pre><% }());
+                            }
+                        %>
+                    <% }());
             }; %>
             <hr />
         <% }; %>
