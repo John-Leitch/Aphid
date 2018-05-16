@@ -3,13 +3,16 @@
 
 var tup = @(set, delim) set +> @(x, y) x + delim + y;
 var pluralize = @(word) $(word $!) 'y': word.Trim('y') + 'ies', word + 's';
-var htmlId = @() '#' + tup($args, '_');
+var htmlId = @() tup($args, '_');
 
 _sel = macro(@(name) { (@() _val(name) ) });
 _val = macro(@(name) { $_.name() ^! @.Value });
 
+var docXmlFile = 'C:\\source\\Aphid\\aphid.xml';
+var docHtmlFile = Path.ChangeExtension(docXmlFile, 'html');
+
 var doc = xdoc
-    .open('C:\\source\\Aphid\\aphid.xml')
+    .open(docXmlFile)
     .Root
     .MemberDoc()
     -& _sel(Filename)
@@ -27,7 +30,9 @@ var doc = xdoc
                         params: t.MethodParamDoc(),
                         signature:
                             path +
-                            (params == null ? '' : '({0})' :: [ tup(params->_sel(Name), ', ') ]),
+                            (params != null ?
+                                '({0})' :: [ tup(params->_sel(Name), ', ') ] :
+                                ''),
                         returns: _val(Returns),
                         summary: _val(Summary),
                         example: _val(Example),
@@ -35,37 +40,102 @@ var doc = xdoc
             }))
     }));
 
+var title = 'Aphid Programming Language Reference';
+
+var generateHtml = @(codeDoc) { %>
+    <html>
+        <head><title><%= title %></title></head>
+        <body>
+            <h1><%= title %></h1>
+            <hr />
+            <% doc |> generateIndex; %>
+            <hr />
+            <% doc |> generateBody; %>
+            <hr />
+        </body>
+    </html>
+<% };
 
 var generateIndex = @(codeDoc) { %>
+    <h2>Index</h2>
     <ul>
-    <% codeDoc->@(f){ %>
-    <li>
-        <b><%= f.file %></b>
-        <ul>
-        <% f.members->@(m) { %>
+        <% codeDoc->@(f){ %>
         <li>
-            <%= m.type %>
+            <b><%= f.file %></b>
             <ul>
-            <% m.typeMembers->@(t) { %>
-                <li><a href="<%= t.id %>"><code><%= t.signature %></code></a></li>
-            <% }; %>
+                <% f.members->@(m) { %>
+                <li>
+                    <%= m.type %>
+                    <ul>
+                        <% m.typeMembers->@(t) { %>
+                        <li><a href="#<%= t.id %>"><code><%= t.signature %></code></a></li>
+                        <% }; %>
+                    </ul>
+                </li>
+                <% }; %>
             </ul>
         </li>
         <% }; %>
-        </ul>
-    </li>
-    <% }; %>
     </ul>
+<% };
+
+var generateBody = @(codeDoc) { %>
+    <!--<h2>Headers</h2>-->
+    <% codeDoc->@(f){ %>
+        <h2><%= f.file %> Header</h2>
+        <% f.members->@(m) { %>
+            <h3><%= m.type %></h3>
+            <% m.typeMembers->@(t) { %>
+                <table>
+                    <tr><td><b><%= $(m.type) 'Functions': 'Signature', 'Path' %></b></td></tr>
+                    <tr><td><code id="<%= t.id %>"><%= t.signature %></code></td></tr>
+                </table>
+                
+                <% if (t.summary != null) { %>
+                    <table>
+                        <tr><td><b>Summary</b></td></tr>
+                        <tr><td><%= t.summary %></td></tr>
+                    </table>
+                <% } %>
+
+                <% if (t.params != null) { %>
+                    <table>
+                        <tr><td><b>Parameters</b></td></tr>
+                        <% t.params->@(p) { %>
+                            <tr>
+                                <td><i><%= _val(Name) %></i></td>
+                                <td><%= _val(Description) %></td>
+                            </tr>                        
+                        <% }; %>
+                    </table>
+                <% } %>
+
+                <% if (t.returns != null) { %>
+                    <table>
+                        <tr><td><b>Returns</b></td></tr>
+                        <tr><td><%= t.returns %></td></tr>
+                    </table>
+                <% } %>
+
+                <% if (t.example != null) { %>
+                    <table>
+                        <tr><td><b>Example</b></td></tr>
+                        <tr><td><pre><code><%= t.example %></code></pre></td></tr>
+                    </table>
+                <% } %>
+            <% }; %>
+            <hr />
+        <% }; %>
+    <% }; %>
 <% };
 
 var html;
 
 using (aphid.Out = new StringWriter()) {
-    doc |> generateIndex;
+    doc |> generateHtml;
     aphid.Out.Flush();
     html = aphid.Out.ToString();
 }
 
-var htmlFile = 'c:\\staging\\aphid.html';
-html @File.WriteAllText(htmlFile);
+html @File.WriteAllText(docHtmlFile);
 html |> Console.WriteLine;
