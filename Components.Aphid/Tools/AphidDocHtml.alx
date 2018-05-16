@@ -2,12 +2,19 @@
 #'xml';
 
 var tup = @(set, delim) set +> @(x, y) x + delim + y;
-var pluralize = @(word) $(word $!) 'y': word.Trim('y') + 'ies', word + 's';
-var htmlId = @() tup($args, '_');
 
+var language = {
+    pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),
+    
+    capitalize: @(word)
+        !string.IsNullOrEmpty(word) ?
+            (word.Remove(1).ToUpper() + (word.Length > 1 ? word.Substring(1) : '')) :
+            word, 
+};
+
+var htmlId = @() tup($args, '_');
 _sel = macro(@(name) { (@() _val(name) ) });
 _val = macro(@(name) { $_.name() ^! @.Value });
-
 var docXmlFile = 'C:\\source\\Aphid\\aphid.xml';
 var docHtmlFile = Path.ChangeExtension(docXmlFile, 'html');
 
@@ -21,7 +28,7 @@ var doc = xdoc
         members: $_
             -& _sel(Type)
             -> (@(m) ({
-                type: $_.Key |> pluralize,
+                type: $_.Key |> language.pluralize,
                 typeMembers: $_
                     -\ _sel(Path)
                     -> (@(t) ({
@@ -48,7 +55,7 @@ var generateHtml = @(codeDoc) { %>
         <body>
             <h1><%= title %></h1>
             <hr />
-            <% doc |> generateIndex; %>
+            <% doc |> generateTableOfContents; %>
             <hr />
             <% doc |> generateBody; %>
             <hr />
@@ -56,8 +63,8 @@ var generateHtml = @(codeDoc) { %>
     </html>
 <% };
 
-var generateIndex = @(codeDoc) { %>
-    <h2>Index</h2>
+var generateTableOfContents = @(codeDoc) { %>
+    <h2>Table of Contents</h2>
     <ul>
         <% codeDoc->@(f){ %>
         <li>
@@ -79,26 +86,33 @@ var generateIndex = @(codeDoc) { %>
     </ul>
 <% };
 
+_prop = macro(@(name) {
+    if (t.name != null) { 
+        _kvp(quote(name) |> language.capitalize, t.name)
+    }
+});
+
+_kvp = macro(@(key, value) { %>
+    <table>
+        <tr><td><b><%= key %></b></td></tr>
+        <tr><td><%= value %></td></tr>
+    </table>
+<% });
+
 var generateBody = @(codeDoc) { %>
     <!--<h2>Headers</h2>-->
     <% codeDoc->@(f){ %>
         <h2><%= f.file %> Header</h2>
         <% f.members->@(m) { %>
             <h3><%= m.type %></h3>
-            <% m.typeMembers->@(t) { %>
-                <table>
-                    <tr><td><b><%= $(m.type) 'Functions': 'Signature', 'Path' %></b></td></tr>
-                    <tr><td><code id="<%= t.id %>"><%= t.signature %></code></td></tr>
-                </table>
+            <% m.typeMembers->@(t) {
+                _kvp(
+                    ($(m.type) 'Functions': 'Signature', 'Path'),
+                    @{ %><code id="<%= t.id %>"><%= t.signature %></code><% }());
                 
-                <% if (t.summary != null) { %>
-                    <table>
-                        <tr><td><b>Summary</b></td></tr>
-                        <tr><td><%= t.summary %></td></tr>
-                    </table>
-                <% } %>
-
-                <% if (t.params != null) { %>
+                _prop(summary);
+                
+                if (t.params != null) { %>
                     <table>
                         <tr><td><b>Parameters</b></td></tr>
                         <% t.params->@(p) { %>
@@ -108,22 +122,14 @@ var generateBody = @(codeDoc) { %>
                             </tr>                        
                         <% }; %>
                     </table>
-                <% } %>
+                <% }
 
-                <% if (t.returns != null) { %>
-                    <table>
-                        <tr><td><b>Returns</b></td></tr>
-                        <tr><td><%= t.returns %></td></tr>
-                    </table>
-                <% } %>
-
-                <% if (t.example != null) { %>
-                    <table>
-                        <tr><td><b>Example</b></td></tr>
-                        <tr><td><pre><code><%= t.example %></code></pre></td></tr>
-                    </table>
-                <% } %>
-            <% }; %>
+                _prop(returns);
+                
+                if (t.example != null) {
+                    _kvp('Example', @{ %><pre><code><%= t.example %></code></pre><% }());
+                }
+            }; %>
             <hr />
         <% }; %>
     <% }; %>
