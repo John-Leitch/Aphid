@@ -10,7 +10,9 @@ namespace Components.Aphid.Parser
     {
         public static string Create(string code, AphidParserException exception)
         {
-            if (exception.ExpectedToken == AphidTokenType.None && exception.Expression == null)
+            if (exception.ExpectedToken == AphidTokenType.None &&
+                exception.UnexpectedToken.TokenType == AphidTokenType.None &&
+                exception.Expression == null)
             {
                 return exception.Message;
             }
