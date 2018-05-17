@@ -151,18 +151,18 @@ createTagFormat(@{ h1 div span }[0]) |> print;
         tags.Contains(expression.lhs().id().ToString()) &&
         (expression.isOp(getToken('|')) || expression.isOp(getToken('>')))) {
         hasChanged = true;
-        
+
         ret '@{{{{ %>{0}<% }}}}()'
             :: [ expression.lhs() |> createTagFormat ]
-            :: [ expression.rhs() ]
+            :: [ expression.rhs().ToString() + (expression.rhs().isFunc() ? '()' : '') ]
             |> parseExp;
-            
-    } else if (expression.isString() &&
-        expression.ToString().Contains('Aphid Programming Language Reference')) {
-        hasChanged = true;
-        print('foo');
-        ret '"APL"' |> ast.str;
     }
+    // else if (expression.isString() &&
+    //     expression.ToString().Contains('Aphid Programming Language Reference')) {
+    //     hasChanged = true;
+    //     print('foo');
+    //     ret '"APL"' |> ast.str;
+    // }
 })
 <| @{
 print('marker');
@@ -227,47 +227,29 @@ var doc = xdoc
             }))
     }));
 
-var generateHtml = @(codeDoc) { %>
-    <html>
-        <head>
-            <style>
+var generateHtml = @(codeDoc) {
+    html | @{
+        head | @{
+            style | @{ %>
                 h2 { margin-bottom: 0px; }
-                table
-                {
-                    border: solid 1px black;
-                    width: 100%;
-                    margin-bottom: 6px;
-                }
+                table { border: solid 1px black; width: 100%; margin-bottom: 6px; }
+                table th { text-align: left; background-color: #C0C0C0; padding:2px; }
+                table td { background-color: #E0E0E0; padding:1px; }
+            <% }();
 
-                table th
-                {
-                    text-align: left;
-                    background-color: #C0C0C0;
-                    padding:2px;
-                }
+            title | docTitle;
+        }();
 
-                table td
-                {
-                    background-color: #E0E0E0;
-                    padding:1px;
-                }
-            </style>
-            <%= title | docTitle %>
-        </head>
-            <% body | @{
-                h1 | docTitle;
-                hr;
-                codeDoc |> generateTableOfContents;
-                hr;
-                codeDoc |> generateBody;
-                hr;
-            }(); %>
-    </html>
-<% };
-
-_t = macro(@(_tag, _exp) {
-    _tag > (@{ _exp }())
-});
+        body | @{
+            h1 | docTitle;
+            hr;
+            codeDoc |> generateTableOfContents;
+            hr;
+            codeDoc |> generateBody;
+            hr;
+        };
+    }();
+};
 
 var generateTableOfContents = @(codeDoc) {
     h2 | 'Table of Contents';
@@ -279,13 +261,13 @@ var generateTableOfContents = @(codeDoc) {
                     f.members->@(m) {
                         li | @{
                             span | m.type;
-                            ul > @{ (m.typeMembers->@(t) li a code | t.signature) }();
-                        }()
+                            ul > @{ (m.typeMembers->@(t) li a code | t.signature) };
+                        }
                     }
-                }()
-            }()
+                }
+            }
         }
-    }()
+    }
 };
 
 _prop = macro(@(name) {
@@ -343,11 +325,9 @@ var generateBody = @(codeDoc) {
                         if (t.example != null) {
                             _kvp(
                                 'Example',
-                                @{ %>
-                                    <pre style="background: rgb(10,10,10); padding: 10px;">
-                                        <code><%= t.example |> highlight %></code>
-                                    </pre>
-                                <% }());
+                                @{ %><pre style="background: rgb(10,10,10); padding: 10px;"><%
+                                    code | (t.example |> highlight);
+                                %></pre> <% }());
                         }
                     }());
             }; %>
@@ -366,5 +346,7 @@ using (aphid.Out = new StringWriter()) {
 
 html @File.WriteAllText(docHtmlFile);
 html |> Console.WriteLine;
+using System.Diagnostics;
+Process.Start('file:///C:/source/aphid/components.aphid/aphid.html');
 }.Body
 |> evalAst;
