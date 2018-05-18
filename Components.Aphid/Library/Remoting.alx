@@ -7,7 +7,13 @@ if (!this.{'$aphid'}.AsmBuilder.IsTypeDefined('RemoteProxy')) {
 }
 
 extend RemoteProxy {
-    Eval: @(s, code) code |> remote._remoteTable.{s.RemoteId.ToString()}.eval,
+    Eval: @(s, code) {
+        var remote = remote._remoteTable.{s.RemoteId.ToString()};
+
+        lock (remote) {
+            ret code |> remote.eval;
+        }
+    },
 
     dynamic handle: @(s, name) {
         using System.Text;
@@ -28,11 +34,15 @@ extend RemoteProxy {
         };
 
         sb.AppendLine(');');
-        var resp = sb.ToString() |> remote._remoteTable.{s.RemoteId.ToString()}.eval;
-        
-        ret resp != null && resp.result defined ?
-            resp.result :
-            { success: false, result: 'Error', obj: resp };
+        var remote = remote._remoteTable.{s.RemoteId.ToString()};
+
+        lock (remote) {
+            var resp = sb.ToString() |> remote.eval;
+            
+            ret resp != null && resp.result defined ?
+                resp.result :
+                { success: false, result: 'Error', obj: resp };
+        }
     }
 }
 
