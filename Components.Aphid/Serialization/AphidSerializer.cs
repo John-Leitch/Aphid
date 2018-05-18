@@ -165,7 +165,9 @@ namespace Components.Aphid.Serialization
         {
             if (value == null)
             {
-                throw new ArgumentException();
+                s.AppendFormat("{0}null", new string(' ', indent * 4));
+
+                return;
             }
             var objType = value.GetType();
 
