@@ -1,168 +1,32 @@
 ﻿#'std';
 #'meta';
 #'xml';
+#'htmlTags';
+using Components.Aphid.TypeSystem;
 using Components.Aphid.UI;
 using System.Collections.Generic;
-var tags = new List[string]();
-tags.Add <-
-[
-	"a",
-	"abbr",
-	"address",
-	"area",
-	"article",
-	"aside",
-	"audio",
-	"b",
-	"base",
-	"bdi",
-	"bdo",
-	"blockquote",
-	"body",
-	"br",
-	"button",
-	"canvas",
-	"caption",
-	"cite",
-	"code",
-	"col",
-	"colgroup",
-	"data",
-	"datalist",
-	"dd",
-	"del",
-	"details",
-	"dfn",
-	"dialog",
-	"div",
-	"dl",
-	"dt",
-	"em",
-	"embed",
-	"fieldset",
-	"figcaption",
-	"figure",
-	"footer",
-	"form",
-	"h1",
-	"h2",
-	"h3",
-	"h4",
-	"h5",
-	"h6",
-	"head",
-	"header",
-	"hgroup",
-	"hr",
-	"html",
-	"i",
-	"iframe",
-	"img",
-	"input",
-	"ins",
-	"kbd",
-	"keygen",
-	"label",
-	"legend",
-	"li",
-	"link",
-	"main",
-	"map",
-	"mark",
-	"math",
-	"menu",
-	"menuitem",
-	"meta",
-	"meter",
-	"nav",
-	"noscript",
-	"object",
-	"ol",
-	"optgroup",
-	"option",
-	"output",
-	"p",
-	"param",
-	"picture",
-	"pre",
-	"progress",
-	"q",
-	"rb",
-	"rp",
-	"rt",
-	"rtc",
-	"ruby",
-	"s",
-	"samp",
-	"script",
-	"section",
-	"select",
-	"slot",
-	"small",
-	"source",
-	"span",
-	"strong",
-	"style",
-	"sub",
-	"summary",
-	"sup",
-	"svg",
-	"table",
-	"tbody",
-	"td",
-	"template",
-	"textarea",
-	"tfoot",
-	"th",
-	"thead",
-	"time",
-	"title",
-	"tr",
-	"track",
-	"u",
-	"ul",
-	"var",
-	"video",
-	"wbr"
-];
 
 @ -: (source, fmt) source->@format(fmt);
 @ :+ (source, fmt) source -: fmt @join('');
-
-var createTagFormat = @(tagId) {
-    using System.Collections.Generics;
-    var t = new List[string]();
-    [ tagId.attrIds(), [ tagId.id() ] ]->@() $_->t.Add;
-    ret '{0}<%={{0}}%>{1}' :: [ t :+ '<{0}>', (t |> Enumerable.Reverse) :+ '</{0}>' ];
-};
-
-createTagFormat(@{ h1 div span }[0]) |> print;
 
 @mutate(@{
     if (isStatement &&
         expression.isId() &&
         expression.noAttrs() &&
-        tags.Contains(expression.id().ToString())) {
+        html.tags.Contains(expression.id().ToString())) {
         hasChanged = true;
         
         ret ('@{{ %><%= "<{0} />" %><% }}()' :: [ expression.id() ]) |> parseExp;
-    } else if (expression.isBinOp() &&
-        expression.lhs().isId() &&
-        tags.Contains(expression.lhs().id().ToString()) &&
-        (expression.isOp(getToken('|')) || expression.isOp(getToken('>')))) {
+    } else if (expression.isBinOp() && expression.isOp(getToken('%|'))) {
         hasChanged = true;
-
-        ret '@{{{{ %>{0}<% }}}}()'
-            :: [ expression.lhs() |> createTagFormat ]
-            :: [ expression.rhs().ToString() + (expression.rhs().isFunc() ? '()' : '') ]
-            |> parseExp;
+        var body = new List[AphidExpression]();
+        expression.rhs() |> ast.return |> body.Add;
+        
+        ret ast.binOp(
+            expression.lhs(),
+            getToken('%\\'),
+            new FunctionExpression(new List[AphidExpression](), body));
     }
-    // else if (expression.isString() &&
-    //     expression.ToString().Contains('Aphid Programming Language Reference')) {
-    //     hasChanged = true;
-    //     print('foo');
-    //     ret '"APL"' |> ast.str;
-    // }
 })
 <| @{
 print('marker');
@@ -228,46 +92,76 @@ var doc = xdoc
     }));
 
 var generateHtml = @(codeDoc) {
-    html | @{
-        head | @{
-            style | @{ %>
+    html %| @{
+        head %| @{
+            style %| @{ %>
                 h2 { margin-bottom: 0px; }
                 table { border: solid 1px black; width: 100%; margin-bottom: 6px; }
                 table th { text-align: left; background-color: #C0C0C0; padding:2px; }
                 table td { background-color: #E0E0E0; padding:1px; }
-            <% }();
+                
+                .param {
+                    text-align: left;
+                    background-color: #D0D0D0;
+                    padding: 1px 2px 1px 2px;
+                    font-weight: 550;
+                    font-style: italic;
+                    width: 1px;
+                }
+            <% };
 
-            title | docTitle;
-        }();
+            title %| docTitle;
+        };
 
-        body | @{
-            h1 | docTitle;
+        body %| @{
+            h1 %| docTitle;
             hr;
             codeDoc |> generateTableOfContents;
             hr;
             codeDoc |> generateBody;
             hr;
         };
-    }();
+    };
+};
+
+@ %\ (html, inner) {
+    using Components.Aphid.TypeSystem;
+    using System.Collections.Generics;
+    using System.Text;
+
+    var tagId = getCall().lhs();
+    print(getCall());
+    
+    if (tagId == null || !tagId.isId()) {
+        fatal('Invalid %| parameters.');
+    }
+    
+    var t = new List[string]();
+    [ tagId.attrIds(), [ tagId.id() ] ]->@() $_->t.Add;
+    var result;
+
+    %><%= t :+ '<{0}>'
+    %><%= $((result = inner()).GetType())
+        List[AphidObject], null: '',
+        AphidFunction: result() ?? '',
+        result
+    %><%= (t |> Enumerable.Reverse) :+ '</{0}>'
+    %><%
 };
 
 var generateTableOfContents = @(codeDoc) {
-    h2 | 'Table of Contents';
-    ul | @{
-        codeDoc->@(f){
-            li | @{
-                b | f.file;
-                ul | @{
-                    f.members->@(m) {
-                        li | @{
-                            span | m.type;
-                            ul > @{ (m.typeMembers->@(t) li a code | t.signature) };
-                        }
-                    }
+    h2 %| 'Table of Contents';
+    ul %| (codeDoc->@(f){
+        li %| @{
+            b %| f.file;
+            ul %| (f.members->@(m) {
+                li %| @{
+                    span %| m.type;
+                    ul %| (m.typeMembers->(@(t) li a code %| t.signature));
                 }
-            }
+            })
         }
-    }
+    })
 };
 
 _prop = macro(@(name) {
@@ -294,9 +188,7 @@ _kvp2 = macro(@(key, value) { %>
 var generateBody = @(codeDoc) {
     codeDoc->@(f){
         f.members->@(m) {
-            //<!--<table><tr><th><h2 style="margin-bottom:0px;"><%= f.file %> <%= m.type %></h2></th></tr></table>-->
-            table tr th h2 | ('{0} {1}' :: [ f.file, m.type ]);
-            
+            table tr th h2 %| ('{0} {1}' :: [ f.file, m.type ]);
             br;
             m.typeMembers->@(t) {
                 _kvp2(
@@ -313,7 +205,7 @@ var generateBody = @(codeDoc) {
                                 <tr><th colspan="2"><b>Parameters</b></th></tr>
                                 <% t.params->@(p) { %>
                                     <tr>
-                                        <td style="width:1px;"><i><%= _val(Name) %></i></td>
+                                        <th class="param"><%= _val(Name) %></th>
                                         <td><%= _val(Description) %></td>
                                     </tr>                        
                                 <% }; %>
@@ -326,15 +218,16 @@ var generateBody = @(codeDoc) {
                             _kvp(
                                 'Example',
                                 @{ %><pre style="background: rgb(10,10,10); padding: 10px;"><%
-                                    code | (t.example |> highlight);
+                                    code %| (t.example |> highlight);
                                 %></pre> <% }());
                         }
                     }());
-            }; %>
-            <hr />
-        <% }; %>
-    <% }; %>
-<% };
+            };
+
+            hr;
+        };
+    };
+};
 
 var html;
 
