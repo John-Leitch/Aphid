@@ -21,7 +21,7 @@
     using System.IO;
     using Components.Aphid.UI;
     //AphidCli.ShowClrStack = true;
-    //var useTracing = true;
+    // var useTracing = true;
 
     _initTrace = macro(@(name) { _initTraceCore(name, var id(trace, name)) });
 
@@ -324,10 +324,10 @@
                 traceResolve('Resolving command {0} args', commandObj.values[0]);
                 var args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
 
-                traceResolve(
-                    'Resolving command {0} with args {1}',
-                    commandObj.values[0],
-                    args |> serialize);
+                // traceResolve(
+                //     'Resolving command {0} with args {1}',
+                //     commandObj.values[0],
+                //     args |> serialize);
 
                 var resolved = shell.resolveMethod(commandObj.values[0], args);
 
@@ -355,7 +355,10 @@
                         }
                     }
 
+                    // traceResolve('Importing object: {0}', result |> serialize);
                     result = result.obj |> psContext.importPSObject;
+
+                    // traceResolve('Imported object: {0}', result |> serialize);
 
                     if ((tmpCwd = shell.getPSCwd()) != lastCwd) {
                         shell.cwd = tmpCwd;
@@ -372,11 +375,11 @@
         var matches;
         var resolved = null;
 
-        traceResolve(
-                "Resolving {0} '{1}' with {2}",
-                isResolvingMethod ? 'method' : 'member',
-                path,
-                resolveArgs |> serialize);
+        // traceResolve(
+        //         "Resolving {0} '{1}' with {2}",
+        //         isResolvingMethod ? 'method' : 'member',
+        //         path,
+        //         resolveArgs |> serialize);
 
         shell.resolvers for (r) {
             traceResolve(
@@ -392,14 +395,14 @@
 
             if ((matches = path |> r.resolveName) != null) {
                 if (!isResolvingMethod) {
-                    traceResolve('Resolved path {0} to {1}', path, matches |> serialize);
+                    // traceResolve('Resolved path {0} to {1}', path, matches |> serialize);
 
                     ret matches;                    
                 } else if ((resolved = r.resolveSignature(matches, resolveArgs)) != null) {
-                    traceResolve(
-                        'Resolved signature {0} to {1}',
-                        path,
-                        resolved |> serialize);
+                    // traceResolve(
+                    //     'Resolved signature {0} to {1}',
+                    //     path,
+                    //     resolved |> serialize);
 
                     ret resolved;
                 }
@@ -545,7 +548,16 @@
 
     // Todo: check for assignments, includes, etc. and handle 
     // accordingly rather than dumping everything to out
-    shell.dumpObject = psContext.restorePSObject @> psContext.outString @> Cli.StyleEscape;
+    shell.dumpObject = @{
+        _initTrace('Exec');
+        // traceExec('Dumping object: {0}', $_ |> serialize);
+        
+        ret $_
+        |> psContext.restorePSObject
+        |> psContext.outString
+        |> Cli.StyleEscape;
+    } ;
+
     shell.inLine = Console.ReadLine;
     shell.out = Cli.Write;
     shell.outLine = Cli.WriteLine;
