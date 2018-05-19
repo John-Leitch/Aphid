@@ -180,7 +180,7 @@ namespace Components.Aphid.Tests.Integration
             ");
         }
 
-        [Test, Ignore("Fix generic delegate inference/conversion.")]
+        [Test]
         public void EnumerableAphidListSelectTest()
         {
             AssertCollectionIs(
@@ -228,7 +228,7 @@ namespace Components.Aphid.Tests.Integration
                 () => Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@()($_&1)==0);"));
         }
 
-        [Test, Ignore("Fix generic delegate inference/conversion.")]
+        [Test]
         public void EnumerableAphidListOrderByTest()
         {
             AssertFoo(@"

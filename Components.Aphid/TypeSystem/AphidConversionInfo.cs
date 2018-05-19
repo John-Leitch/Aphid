@@ -13,7 +13,7 @@ namespace Components.Aphid.TypeSystem
 
         public bool CanConvert { get; private set; }
 
-        public Type[] GenericArguments { get; private set; }        
+        public Type[] GenericArguments { get; private set; }
 
         public AphidConversionInfo(
             AphidInteropMethodArg interopArg,
@@ -23,6 +23,11 @@ namespace Components.Aphid.TypeSystem
             InteropArg = interopArg;
             CanConvert = canConvert;
             GenericArguments = genericArguments;
+
+            InteropArg.IsValueTypeEnumerable =
+                GenericArguments.Length == 1 &&
+                GenericArguments[0].IsValueType &&
+                InteropArg.TargetType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
     }
 }

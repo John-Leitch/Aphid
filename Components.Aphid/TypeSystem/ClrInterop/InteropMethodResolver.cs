@@ -235,29 +235,131 @@ namespace Components.Aphid.TypeSystem
                 #endif
                 ;
 
-            var fanned = weighted
-                .SelectMany(x => x.ConversionInfo
-                    .Select(y => y.GenericArguments)
-                    .Distinct()
-                    .DefaultIfEmpty(new Type[0])
-                    .Select(y => new AphidInteropMethodInfo(x.Method, y, x.Args)))
-                #if DEBUG
-                .ToArray()
-                #endif
-                ;
-
-            var methods = fanned
-                .Where(x =>
-                        !x.Method.IsGenericMethod ||
-                        x.GenericArguments.Length == x.Method.GetGenericArguments().Length)
-                .ToArray();
-
-            if (methods.Length == 0)
+            for (var i = 0; i < weighted.Length; i++)
             {
-                throw CreateSignatureException(args, signatureMatches);
+                var x = weighted[i];
+
+                if (!x.Method.IsGenericMethod)
+                {
+                    return new AphidInteropMethodInfo(x.Method, new Type[0], x.Args);
+                }
+                else
+                {
+                    var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo, x.Args);
+
+                    if (genericArgs.Length ==
+                        x.Method
+                            .GetGenericArguments()
+                            .Distinct()
+                            .Count())
+                    {
+                        return new AphidInteropMethodInfo(x.Method, genericArgs, x.Args);
+                    }
+                }
             }
 
-            return methods.First();
+            throw CreateSignatureException(args, signatureMatches);
+
+            //var methodInfo = weighted
+            //    .Select(x => new
+            //    {
+            //        MethodInfo = x,
+            //        GenericArgs = ZipGenericParameters(
+            //            x.Method,
+            //            x.ConversionInfo,
+            //            x.Args)
+            //    })
+            //    .FirstOrDefault(
+            //        x => 
+            //            !x.MethodInfo.Method.IsGenericMethod ||
+            //            x.MethodInfo.Method
+            //                .GetGenericArguments()
+            //                .Distinct()
+            //                .Count() ==
+            //                x.GenericArgs.Length);
+
+            //return new AphidInteropMethodInfo(
+            //    methodInfo.MethodInfo.Method,
+            //    methodInfo.GenericArgs,
+            //    methodInfo.MethodInfo.Args);
+
+
+            //return null;
+            ////return new AphidInteropMethodInfo(methodInfo.Method, methodInfo.ConversionInfo., methodInfo.Args);
+
+
+            //var fanned = weighted
+            //    .SelectMany(x => x.ConversionInfo
+            //        .Select(y => y.GenericArguments)
+            //        .Distinct()
+            //        .DefaultIfEmpty(new Type[0])
+            //        .Select(y => new AphidInteropMethodInfo(x.Method, y, x.Args)))
+            //    #if DEBUG
+            //    .ToArray()
+            //    #endif
+            //    ;
+
+            //var methods = fanned
+            //    .Where(x =>
+            //            !x.Method.IsGenericMethod ||
+            //            (x.GenericArguments.Length == x.Method.GetGenericArguments().Length))
+            //    .ToArray();
+
+            //if (methods.Length == 0)
+            //{
+            //    throw CreateSignatureException(args, signatureMatches);
+            //}
+
+            //return methods.First();
+        }
+
+        private Type[] ZipGenericParameters(
+            MethodBase method,
+            AphidConversionInfo[] conversionInfo,
+            AphidInteropMethodArg[] args)
+        {
+            if (!method.IsGenericMethod)
+            {
+                return new Type[0];
+            }
+
+            var methodParams = method.GetParameters();
+            var mappedGenericArgs = new List<Type>();
+            var posOffset = 0;
+
+            for (var x = 0; x < methodParams.Length; x++)
+            {
+                var funcParamType = methodParams[x].ParameterType;
+
+                if (!funcParamType.IsGenericType)
+                {
+                    continue;
+                }
+
+                var argGenerics = funcParamType.GetGenericArguments();
+
+                for (var y = 0; y < argGenerics.Length; y++)
+                {
+                    var g = argGenerics[y];
+                    int pos;
+
+                    if (g.IsGenericParameter &&
+                        (pos = g.GenericParameterPosition) >= mappedGenericArgs.Count)
+                    {
+                        var genericArgs = conversionInfo[x].GenericArguments;
+                        var localOffset = pos - posOffset;
+
+                        if (pos >= mappedGenericArgs.Count &&
+                            localOffset < genericArgs.Length)
+                        {
+                            mappedGenericArgs.Add(genericArgs[localOffset]);
+                            posOffset++;
+                        }
+                    }
+                }
+            }
+
+            return mappedGenericArgs.ToArray();
         }
 
         private uint WeightInference(AphidInteropMethodArg[] args)
@@ -298,23 +400,27 @@ namespace Components.Aphid.TypeSystem
             {
                 return 0x40;
             }
-            else if (arg.TargetType == typeof(object))
+            else if (arg.IsGeneric)
             {
                 return 0x80;
+            }
+            else if (arg.TargetType == typeof(object))
+            {
+                return 0x100;
             }
             else if (arg.TargetType == typeof(object[]))
             {
                 if (arg.ConstructsParamArray)
                 {
-                    return 0x200;
+                    return 0x400;
                 }
                 else if (!arg.ArgumentType.IsArray)
                 {
-                    return 0x100;
+                    return 0x200;
                 }
                 else
                 {
-                    return 0x80;
+                    return 0x100;
                 }
             }
             else if (arg.ArgumentType == null)
@@ -339,7 +445,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return 0x400;
+                return 0x800;
             }
         }
 

@@ -57,6 +57,10 @@ namespace Components.Aphid.TypeSystem
 
         public bool PassesParamArray { get; private set; }
 
+        public bool IsGeneric { get; private set; }
+
+        public bool IsValueTypeEnumerable { get; set; }
+
         private AphidInteropMethodArg(
             ParameterInfo parameter,
             object argument,
@@ -69,6 +73,7 @@ namespace Components.Aphid.TypeSystem
                 null;
 
             TargetType = parameter.ParameterType;
+            IsGeneric = TargetType.IsGenericType;
 
             if (IsExactTypeMatch = ArgumentType == TargetType)
             {

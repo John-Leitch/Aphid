@@ -16,7 +16,6 @@ namespace Components.Aphid.TypeSystem
             : base(interpreter)
         {
         }
-            
 
         public object[] Convert(AphidInteropMethodArg[] args, Type[] genericArguments)
         {
@@ -29,7 +28,16 @@ namespace Components.Aphid.TypeSystem
                     Convert(arg.ImplicitConversionOperator, arg.Argument) :
                 arg.ExplicitConversionOperator != null ?
                     Convert(arg.ExplicitConversionOperator, arg.Argument) :
+                arg.IsValueTypeEnumerable &&
+                    genericArguments.Length >= 1 &&
+                    !genericArguments[0].IsValueType ? 
+                    BoxValueTypeEnumerable((IEnumerable)arg.Argument) : 
                 Convert(arg.TargetType, arg.Argument, genericArguments);
+        }
+
+        public IEnumerable<object> BoxValueTypeEnumerable(IEnumerable valueTypeSource)
+        {
+            return valueTypeSource.Cast<object>();
         }
 
         public object Convert(MethodBase opMethod, object argument)
@@ -65,6 +73,14 @@ namespace Components.Aphid.TypeSystem
 
                     if (targetGenericArgs.Length > 0 && valGenericArgs.Length == 0)
                     {
+                        for (var i = 0; i < targetGenericArgs.Length; i++)
+                        {
+                            if (targetGenericArgs[i].IsGenericParameter)
+                            {
+                                targetGenericArgs[i] = typeof(object);
+                            }
+                        }
+
                         return new AphidConversionInfo(
                             interopArg,
                             true,
@@ -170,6 +186,7 @@ namespace Components.Aphid.TypeSystem
         public object Convert(Type targetType, object srcValue, Type[] genericArguments)
         {
             Type srcType;
+            var targetGenerics = new List<Type>();
 
             if (srcValue == null)
             {
@@ -183,7 +200,7 @@ namespace Components.Aphid.TypeSystem
                     genericArguments);
             }
             else if ((srcType = srcValue.GetType()) == targetType ||
-                srcType.IsDerivedFromOrImplements(targetType, new List<Type>()))
+                srcType.IsDerivedFromOrImplements(targetType, targetGenerics))
             {
                 return srcValue;
             }

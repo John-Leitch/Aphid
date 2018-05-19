@@ -36,30 +36,65 @@ namespace Components.External
                 type.GetGenericArguments().All(x => x.IsGenericParameter);
         }
 
-        private static Type[] GetComparableType(Type type, Type otherType, List<Type> genericArguments)
+        private static Type[] GetComparableType(Type sourceType, Type targetType, List<Type> genericArguments)
         {
             var deconstruct = 
-                type.IsConstructedGenericType &&
-                otherType.IsGenericType &&
-                (ShouldDeconstructTypes(type) || ShouldDeconstructTypes(otherType));
+                sourceType.IsConstructedGenericType &&
+                targetType.IsGenericType &&
+                (ShouldDeconstructTypes(sourceType) || ShouldDeconstructTypes(targetType));
 
             if (!deconstruct)
             {
-                return new[] { type, otherType };
+                return new[] { sourceType, targetType };
             }
             else
             {
-                if (!type.ContainsGenericParameters)
+                if (!sourceType.ContainsGenericParameters)
                 {
                     if (genericArguments.Any())
                     {
                         throw new NotImplementedException();
                     }
 
-                    genericArguments.AddRange(type.GetGenericArguments().ToArray());
+                    Type targetStripped = targetType.GetGenericTypeDefinition(),
+                        sourceStripped = sourceType.GetGenericTypeDefinition();
+
+                    var tmpSource = sourceType;
+
+                    if (targetStripped.IsInterface &&
+                        (tmpSource = sourceType
+                            .GetInterfaces()
+                            .FirstOrDefault(x =>
+                                x.IsGenericType &&
+                                x.GetGenericTypeDefinition() == targetStripped)) != null)
+                    {
+                        sourceType = tmpSource;
+                    }
+                    else
+                    {
+                        tmpSource = sourceType;
+                        //throw new NotImplementedException();
+                        while (true)
+                        {
+                            sourceStripped = sourceType.GetGenericTypeDefinition();
+
+                            if (targetStripped == sourceStripped)
+                            {
+                                break;                                
+                            }
+                            else if ((sourceType = sourceType.BaseType) == null)
+                            {
+                                sourceType = tmpSource;
+                                break;
+                            }
+                            
+                        }
+                    }
+
+                    genericArguments.AddRange(sourceType.GetGenericArguments().ToArray());
                 }
 
-                return new[] { StripGenericArguments(type), StripGenericArguments(otherType) };
+                return new[] { StripGenericArguments(sourceType), StripGenericArguments(targetType) };
             }
         }
 

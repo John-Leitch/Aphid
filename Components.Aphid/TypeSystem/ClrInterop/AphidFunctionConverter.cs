@@ -44,8 +44,8 @@ namespace Components.Aphid.TypeSystem
             Type[] genericArguments)
         {
             var methodParams = method.GetParameters();
-            
             var wrapper = new AphidFunctionWrapper(Interpreter, function);
+            
             var call = wrapper
                 .GetType()
                 .GetMethods()
@@ -72,12 +72,14 @@ namespace Components.Aphid.TypeSystem
                 var paramTypes = methodParams
                     .Select(x => !x.ParameterType.IsGenericParameter ?
                         x.ParameterType :
-                        genericArguments[argOffset++]);
+                        genericArguments[x.ParameterType.GenericParameterPosition]);
 
                 call = call.MakeGenericMethod(
-                    (method.ReturnType == typeof(void) ?
-                        paramTypes :
-                        paramTypes.Concat(new[] { method.ReturnType }))
+                    (method.ReturnType.IsGenericParameter ?
+                        paramTypes.Concat(new[] { genericArguments[method.ReturnType.GenericParameterPosition] }) :
+                    method.ReturnType != typeof(void) ?
+                        paramTypes.Concat(new[] { method.ReturnType }) :
+                        paramTypes)
                         .ToArray());
             }
 
@@ -91,7 +93,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     delegateTypeParams[i] = !curDelegateArgs[i].IsGenericParameter ?
                         curDelegateArgs[i] :
-                        genericArguments[argOffset++];
+                        genericArguments[curDelegateArgs[i].GenericParameterPosition];
                 }
 
                 delegateType = delegateType
