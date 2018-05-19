@@ -12,8 +12,6 @@ namespace Aphid
 {
     class Program
     {
-        
-
         static void DisplayDirections()
         {
             Console.WriteLine("aphid [Script]");
@@ -106,11 +104,6 @@ namespace Aphid
                 "~White~~|Blue~");
 
             new AphidRepl().Run();
-        }
-
-        private static void ExecuteCode(AphidInterpreter interpreter, string code, bool isTextDocument)
-        {
-            
         }
     }
 }
