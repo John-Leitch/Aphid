@@ -1,4 +1,6 @@
-﻿_checkCmdParts = macro(@{
+﻿//#'debugdeploy';
+
+_checkCmdParts = macro(@{
     if (parts == null || ((parts #!) == 0) || parts[0] == null) {
         ret null;
     }
@@ -63,7 +65,8 @@ var initPSInterop = @{
                 tracePSInterop('importPSObject returning null');
                 ret null;
             } else if ((t = psObj.GetType()) != PSObject) {
-                if (IEnumerable[PSObject].IsAssignableFrom(t)) {
+                if (IEnumerable[PSObject].IsAssignableFrom(t) ||
+                    IEnumerable[AphidObject].IsAssignableFrom(t)) {
                     tracePSInterop('importPSObject recursing');
                     ret psObj->importPSObject;
                 } else {
@@ -71,7 +74,7 @@ var initPSInterop = @{
                     ret psObj;
                 }
             } else if (fastImport) {
-                ret psObj.BaseObject;
+                ret psObj.BaseObject defined ? psObj.BaseObject : psObj;
             }
 
             var o = {
@@ -244,7 +247,7 @@ var initPSInterop = @{
             }
         }
 
-        tracePS('Done executing command: {0}', result |> serialize);
+        // tracePS('Done executing command: {0}', result |> serialize);
 
         ret result;
     };
@@ -258,9 +261,9 @@ var initPSInterop = @{
             'Get-Item' |> psContext.engine.AddCommand;
             path |> psContext.engine.AddArgument;
             r = psContext.engine.Invoke();
-            tracePS('Get-Item result: {0}' :: [ r |> serialize ]);
+            // tracePS('Get-Item result: {0}' :: [ r |> serialize ]);
         } catch (e) {
-            tracePS('Get-Item failed: {0}' :: [ e.message ]);
+            // tracePS('Get-Item failed: {0}' :: [ e.message ]);
             r = null;
         }
 
@@ -284,7 +287,7 @@ var initPSInterop = @{
 
     psContext.outString = @(obj) {
         _initTrace('PS');
-        tracePS('Dumping result via Out-String ({0})' :: [ obj |> serialize ]);
+        // tracePS('Dumping result via Out-String ({0})' :: [ obj |> serialize ]);
 
         if (obj != null && obj.GetType() == AphidObject) {
             using System.Collections.Generic;
