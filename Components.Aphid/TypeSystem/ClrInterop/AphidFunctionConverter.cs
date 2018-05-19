@@ -64,11 +64,9 @@ namespace Components.Aphid.TypeSystem
                     method);
             }
 
-            //Todo: Add support for T Call().
-            if (methodParams.Length > 0)
+            if (methodParams.Length > 0 ||
+                method.ReturnType != typeof(void))
             {
-                var argOffset = 0;
-
                 var paramTypes = methodParams
                     .Select(x => !x.ParameterType.IsGenericParameter ?
                         x.ParameterType :
@@ -85,7 +83,6 @@ namespace Components.Aphid.TypeSystem
 
             if (delegateType.ContainsGenericParameters)
             {
-                var argOffset = 0;
                 var curDelegateArgs = delegateType.GetGenericArguments();
                 var delegateTypeParams = new Type[curDelegateArgs.Length];
 

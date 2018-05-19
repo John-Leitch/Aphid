@@ -43,6 +43,11 @@ namespace Components.Aphid.TypeSystem
             Interpreter.CallFunction(Function, arg, arg2, arg3, arg4);
         }
 
+        public TResult Call<TResult>()
+        {
+            return GetResult<TResult>(Interpreter.CallFunction(Function));
+        }
+
         public TResult Call<T1, TResult>(T1 arg)
         {
             return GetResult<TResult>(Interpreter.CallFunction(Function, arg));
