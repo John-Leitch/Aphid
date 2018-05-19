@@ -1,5 +1,7 @@
 ﻿var keyboard;
 
+using System.Windows.Input;
+
 @{
     #'std';
 
@@ -7,7 +9,7 @@
     using Components.PInvoke;
     using System;
     using System.Threading;
-    using System.Windows.Input;
+    
 
     keyboard = {
         type: @(buffer) buffer.ToCharArray() |> parseKeyBuffer -> pressChar,
@@ -63,13 +65,71 @@
     var parseKeyBuffer = @(buffer) buffer->parseKey;
 
     _k = macro(@(n) { Key.n });
-    var parseKey = @(c)({
-        shift: c |> Char.IsUpper,
-        key: $(c)
+    _l = macro(@(lhs, rhs) { _sk(lhs, rhs, false) });
+    _u = macro(@(lhs, rhs) { _sk(lhs, rhs, true) });
+
+    _sk = macro(@(lhs, rhs, value) {
+        if (c == lhs) ret {
+            shift: value,
+            key: rhs |> conv.ConvertFromString
+        }
+    });
+
+    var parseKey = @(c) {
+        _u('!', '1');
+        _u('@', '2');
+        _u('#', '3');
+        _u('$', '4');
+        _u('%', '5');
+        _u('^', '6');
+        _u('&', '7');
+        _u('*', '8');
+        _u('(', '9');
+        _u(')', '0');
+        _u('_', _k(OemMinus));
+        _l('=', _k(OemPlus));
+        _u('{', _k(OemOpenBrackets));
+        _u('}', _k(OemCloseBrackets));
+        _u('|', _k(OemPipe));
+        _u(':', _k(OemSemicolon));
+        _u('"', _k(OemQuotes));
+        _u('<', _k(OemComma));
+        _u('>', _k(OemPeriod));
+        _u('?', _k(OemQuestion));
+        _u('~', _k(OemTilde));
+        ret {
+            shift: c |> Char.IsUpper,
+            key: $(c)
+            '+': _k(Add),
+            '.': _k(Decimal),
+            '/': _k(Divide),
+            '*': _k(Multiply),
+            '\\': _k(OemBackslash),
+            ']': _k(OemCloseBrackets),
+            ';': _k(OemSemicolon),
+            '\'': _k(OemQuotes),
+            ',': _k(OemComma),
+            '-': _k(OemMinus),
+            '[': _k(OemOpenBrackets),
+            '.': _k(OemPeriod),
+            '|': _k(OemPipe),
+            '+': _k(OemPlus),
+            '/': _k(OemQuestion),
             '\n': _k(Enter),
             ' ': _k(Space),
             '\t': _k(Tab),
+            '`': _k(OemTilde),
             $_ |> conv.ConvertFromString
-    });
+        }
+    };
 }();
+
+//1..5->@()keyboard.type('!@#$%^&*()_+');
+//1..5->@()keyboard.type('-={}|[]\\');
+//1..5->@()keyboard.type(':<>');
+//1..5->@()keyboard.type(';,-[.|+?');
+//1..5->@()keyboard.type(':";\'');
+// 1..5->@()keyboard.type('`~`~');
+1..5->@()keyboard.type('\'"');
+
 
