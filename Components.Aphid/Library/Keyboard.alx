@@ -1,0 +1,75 @@
+﻿var keyboard;
+
+@{
+    #'std';
+
+    load WindowsBase;
+    using Components.PInvoke;
+    using System;
+    using System.Threading;
+    using System.Windows.Input;
+
+    keyboard = {
+        type: @(buffer) buffer.ToCharArray() |> parseKeyBuffer -> pressChar,
+        
+        pressChar: @(ci) {
+            if (ci.shift) {
+                shiftDown();
+                pressKey(ci.key);
+                shiftUp();
+            } else {
+                pressKey(ci.key);
+            }
+        },
+
+        shiftDown: @() keyDown(Key.LeftShift),
+        shiftUp: @() keyUp(Key.LeftShift),
+
+        keyDown: @(key){
+            User32.keybd_event(
+                key |> KeyInterop.VirtualKeyFromKey |> Convert.ToByte,
+                0 |> Convert.ToByte,
+                0 |> Convert.ToInt32,
+                0 |> Convert.ToInt32);
+            __impl.sleep();
+        },
+
+        keyUp: @(key){
+            User32.keybd_event(
+                key |> KeyInterop.VirtualKeyFromKey |> Convert.ToByte,
+                0 |> Convert.ToByte,
+                User32.KEYEVENTF_KEYUP,
+                0 |> Convert.ToInt32);
+            __impl.sleep();
+        },
+        
+        pressKey: @(key) [ keyDown, keyUp ]->@() $_ <| key,
+        keystrokeMinMs: 10,
+        keystrokeMaxMs: 35,
+
+        __impl: {
+            kbd = KeyboardController,
+            rnd: new Random(),
+            nextMs: @{
+                lock rnd
+                    ret rnd.Next(keystrokeMinMs, keystrokeMaxMs + 1);
+            },
+            sleep: nextMs @> Thread.Sleep,
+        },
+    };
+
+
+    var conv = new KeyConverter();
+    var parseKeyBuffer = @(buffer) buffer->parseKey;
+
+    _k = macro(@(n) { Key.n });
+    var parseKey = @(c)({
+        shift: c |> Char.IsUpper,
+        key: $(c)
+            '\n': _k(Enter),
+            ' ': _k(Space),
+            '\t': _k(Tab),
+            $_ |> conv.ConvertFromString
+    });
+}();
+

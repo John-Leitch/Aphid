@@ -180,8 +180,12 @@
     <Compile Include="External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseRecord.cs" />
     <Compile Include="External\PInvoke\AdvApi32.cs" />
+    <Compile Include="External\PInvoke\FIXED.cs" />
     <Compile Include="External\PInvoke\HotkeyFlags.cs" />
     <Compile Include="External\PInvoke\LogonFlags.cs" />
+    <Compile Include="External\PInvoke\MouseEventDataXButtons.cs" />
+    <Compile Include="External\PInvoke\MouseEventFlags.cs" />
+    <Compile Include="External\PInvoke\POINTFX.cs" />
     <Compile Include="External\PInvoke\ProcessAccessFlags.cs" />
     <Compile Include="External\PInvoke\SECURITY_ATTRIBUTES.cs" />
     <Compile Include="External\PInvoke\SECURITY_IMPERSONATION_LEVEL.cs" />
@@ -501,6 +505,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\HtmlTags.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Keyboard.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\WinForms.alx">
