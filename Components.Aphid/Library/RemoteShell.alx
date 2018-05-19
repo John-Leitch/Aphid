@@ -1,3 +1,5 @@
+//var traceRemoting = true;
+// #'DebugDeploy';
 #'Std';
 #'Query';
 #'Shell';
@@ -11,10 +13,11 @@ var cmd = getCommand();
 var argList = getCommandLineArgs() |> Enumerable.ToList;
 var getLastArg = @() argList |> Enumerable.Last;
 var parseIntArg = @() getLastArg() |> Int32.Parse;
-var flag = { connect: '-connect', listen: '-listen', pid: '-pid' };
+var flag = { connect: '-connect', listen: '-listen', pid: '-pid', test: '-test' };
 var isClient = argList.Contains(flag.connect);
 var isHost = argList.Contains(flag.listen);
 var isWorker = argList.Contains(flag.pid);
+var isTest = argList.Contains(flag.test);
 
 _logDate = macro(@{ DateTime.Now.ToString("MM-dd-yy.HH:mm:ss") });
 _logArgs = macro(@{ $args @aq.skip(1) @format($args[0]) });
@@ -34,6 +37,11 @@ var hostRemote = @{
         var p = startChild();
         p.WaitForExit();
     }
+};
+
+var waitForEnter = @{
+    Console.WriteLine('Press enter to continue...');
+    while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
 };
 
 var startChild = @{
@@ -89,45 +97,47 @@ var runInteractive = @(host)
 
 var run = @(host, nextLine) {
     var remoteShell = connectShell(host);
-    var buffer;
 
-    while (true) {
-        remoteShell.writePrompt();
+    var readToPrompt = @{
+        var buffer;
 
         do {
+            // printQuery('~Magenta~Reading out~R~');
             buffer = remoteShell.readOut();
 
             if (buffer != null) {
-                buffer |> Cli.Write;
+                if (buffer.success defined) {
+                    dump(buffer);
+                } else {
+                    buffer |> Cli.Write;
+                }                    
+            } else {
+                Thread.Sleep(10);
             }
         } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
-        
-        var line = nextLine(remoteShell);
+
+        // printQuery('~Magenta~Done reading out~R~');
+    };
+
+    while (true) {
+        // printQuery('~Magenta~Writing prompt out~R~');
+        remoteShell.writePrompt();
+        readToPrompt();
+        var line = nextLine();
 
         if (line != null) {
+            // printQuery('~Magenta~Writing next line~R~');
             line |> remoteShell.writeInLine;
         }
 
+        // printQuery('~Magenta~Executing next line~R~');
         if (!remoteShell.execNext()) {
             remoteShell.BasePath = 'Environment';
             remoteShell.Exit(0);
+            isRunning = false;
             break;
         }
     }
-};
-
-
-var readToPrompt = @(proxy) {
-    var sb = new StringBuilder();
-    var buffer;
-
-    do {
-        if (buffer != (buffer = proxy.readOut())) {
-            buffer |> sb.Append;
-        }
-    } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
-
-    ret sb.ToString();
 };
 
 var execRemoteScript = @(host, scriptFile) {
@@ -164,7 +174,12 @@ if (isHost) {
     } else {
         watchParent();
         listen();
-    }    
+    }
+    
+    if (isTest) {
+        p.WaitForExit();
+        waitForEnter();
+    }
 } else if (isClient) {
     var i = argList.IndexOf(flag.connect);
 
@@ -180,6 +195,7 @@ if (isHost) {
     }
 } else if (argList.Contains('-test')) {
     startChild();
+    Thread.Sleep(500);
     runInteractive('localhost');    
 } else {
     print('aphid RemoteShell.alx [-listen] [-connect {host} {file}]');

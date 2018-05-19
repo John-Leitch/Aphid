@@ -21,7 +21,7 @@
     using System.IO;
     using Components.Aphid.UI;
     //AphidCli.ShowClrStack = true;
-    // var useTracing = true;
+    //var useTracing = true;
 
     _initTrace = macro(@(name) { _initTraceCore(name, var id(trace, name)) });
 
@@ -48,7 +48,7 @@
         }(),
         interpret: interpreter.Interpret,
         waitingForInput: false,
-        waitingForOutput: true,
+        waitingForOutput: false,
         waitingForExecution: false,
         getState: @() ({
             waitingForInput: shell.waitingForInput,
@@ -298,9 +298,13 @@
     shell.interpretCommand = @(commandObj) {
         //commandObj |>dump;
         // commandObj |> keys |> dumpe;
-        var result;
+        var result = null;
 
         _initTrace('Resolve');
+
+        traceResolve(
+            'Beginning resolution for command {0}',
+            commandObj.values[0]);
 
         if (!(shell.cwd defined)) {
             shell.initCwd();
@@ -312,15 +316,23 @@
             ret commandObj.values[0];
         }
 
-        AphidCli.TryAction(
-            shell.interpreter,
-            commandObj.code,
-            @{
+        // AphidCli.TryAction(
+        //     shell.interpreter,
+        //     commandObj.code,
+        //     @{
                 var tmpCwd;
+                traceResolve('Resolving command {0} args', commandObj.values[0]);
                 var args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
+
+                traceResolve(
+                    'Resolving command {0} with args {1}',
+                    commandObj.values[0],
+                    args |> serialize);
+
                 var resolved = shell.resolveMethod(commandObj.values[0], args);
 
                 if (resolved != null) {
+                    traceResolve('Calling resolved method {0}', resolved.call);
                     result = args |> resolved.call;
 
                     if ((tmpCwd = shell.getClrCwd()) != lastCwd) {
@@ -328,6 +340,7 @@
                         shell.setPSCwd();
                     }
                 } else {
+                    traceResolve('Resolving as positional argument');
                     result = commandObj.values |> psContext.execPositional;
 
                     if (!result.success) {
@@ -335,7 +348,7 @@
                             (resolved = shell.resolveMember(commandObj.values[0])) != null) {
                             result = resolved;
 
-                            ret null;
+                            ret result;
                         } else {
                             'Error executing command {0}: {1}' :: [ commandObj.values[0], result.error ]
                             |> shell.outLine;
@@ -349,29 +362,40 @@
                         shell.setClrCwd();
                     }
                 }
-            });
+            // });
 
         ret result;
     };
 
-    shell.resolveImpl = @(isResolvingMethod, path, args) {
+    shell.resolveImpl = @(isResolvingMethod, path, resolveArgs) {
         _initTrace('Resolve');
         var matches;
         var resolved = null;
 
-        shell.resolvers for (r) {
-            traceResolve(
-                "Resolving {0} '{1}' using {2}",
+        traceResolve(
+                "Resolving {0} '{1}' with {2}",
                 isResolvingMethod ? 'method' : 'member',
                 path,
-                r.name);
+                resolveArgs |> serialize);
+
+        shell.resolvers for (r) {
+            traceResolve(
+                "Resolving {0} '{1}' using {2} with {3} args",
+                isResolvingMethod ? 'method' : 'member',
+                path,
+                r.name,
+                resolveArgs != null ? (resolveArgs #!) : 'null');
+
+            if (resolveArgs != null) {
+                resolveArgs->@traceResolve('  Arg: {0}');
+            }
 
             if ((matches = path |> r.resolveName) != null) {
                 if (!isResolvingMethod) {
                     traceResolve('Resolved path {0} to {1}', path, matches |> serialize);
 
                     ret matches;                    
-                } else if ((resolved = r.resolveSignature(matches, args)) != null) {
+                } else if ((resolved = r.resolveSignature(matches, resolveArgs)) != null) {
                     traceResolve(
                         'Resolved signature {0} to {1}',
                         path,
@@ -406,8 +430,8 @@
         path != null ? path.ToString() :
         null;
 
-    shell.resolveMethod = @(path, args) shell.resolveImpl(true, path, args);
-    shell.resolveMember = @(path, args) shell.resolveImpl(false, path, args);
+    shell.resolveMethod = @(path, resolveArgs) shell.resolveImpl(true, path, resolveArgs);
+    shell.resolveMember = @(path, resolveArgs) shell.resolveImpl(false, path, resolveArgs);
 
     shell.resolvers = [
         {
@@ -441,7 +465,8 @@
                     } catch (e) {
                         traceResolve(
                             'Aphid resolve failed with exception: {0}',
-                            e |> serialize);
+                            e.message)
+                            // e |> serialize);
                     }
                 } else {
                     _initTrace('Resolve');
@@ -654,50 +679,71 @@
         shell.outReader = new StreamReader(outStream);
         shell.outWriter = new StreamWriter(outStream);
 
+        shell.hostTraceSync = new Object();
+        shell.stdOut = new StreamWriter(Console.OpenStandardOutput());
+
+        shell.hostTrace = @(msg){
+            lock(hostTraceSync) {
+                var id = Thread.CurrentThread.ManagedThreadId;
+                shell.stdOut.WriteLine('[{0:x8}] {1}' :: [ id, msg ]);
+                shell.stdOut.Flush();
+            }
+        };
+
         shell.writeOut = @(buffer) {
+            // while (shell.waitingForOutput) {
+            //     //ret null;
+            //     Thread.Sleep(10);
+            // }
             // ThreadPool.QueueUserWorkItem(@{
-                Console.WriteLine('~Cyan~Waiting to write out~R~' |> Cli.EraseStyles);
+                hostTrace('Waiting to write out');
                 Monitor.Enter(outStream);
                 
-                Console.WriteLine(
-                    '~Cyan~Writing out: {0}~R~' |> Cli.EraseStyles,
-                    Cli.StyleEscape(buffer.ToString() |> Cli.EraseStyles));
+                hostTrace('Writing out: {0}' :: [ buffer.ToString() |> Cli.EraseStyles ]);
 
                 outWriter.Write(buffer.ToString());
                 outWriter.Flush();
-                shell.waitingForOutput = true;
-                Console.WriteLine('~Cyan~Done writing out~R~' |> Cli.EraseStyles);
+                
+                hostTrace('Done writing out');
                 Monitor.Exit(outStream);
+                shell.waitingForOutput = true;
             // });
         };
 
         shell.readOut = @{
-            Console.WriteLine('~Cyan~Waiting to read out~R~' |> Cli.EraseStyles);
+            
             var buffer;
+
+            //Console.WriteLine('Waiting for read out signal');
+
+            // while (!shell.waitingForOutput) {
+            //     ret null;
+            //     // Thread.Sleep(10);
+            // }
+
+            // hostTrace('Trying to read out');
 
             while (true) {
                 Monitor.Enter(outStream);
 
                 if (outStream.Length == 0) {
                     Monitor.Exit(outStream);
-                    Console.WriteLine('~Cyan~read out sleeping~R~' |> Cli.EraseStyles);
-                    Thread.Sleep(100);
-                    continue;
+                    // hostTrace('read out sleeping');
+                    // Thread.Sleep(10);
+                    // continue;
+                    ret null;
                 }
 
                 outStream.Position = 0;
                 buffer = outReader.ReadToEnd();
-                
-                Console.WriteLine(
-                    '~Cyan~Done reading out: {0}~R~' |> Cli.EraseStyles,
-                    Cli.StyleEscape(buffer |> Cli.EraseStyles));
-
+                hostTrace('Done reading out: {0}' :: [ buffer |> Cli.EraseStyles ]);
                 outStream.SetLength(0);
 
                 // if (shell.waitingForInput)
-                shell.waitingForOutput = false;
+                
 
                 Monitor.Exit(outStream);
+                shell.waitingForOutput = false;
                 break;
             }
 
@@ -714,7 +760,7 @@
         };
 
         shell.readInLine = @() {
-            Console.WriteLine('~Yellow~Waiting to read inLine~R~' |> Cli.EraseStyles);
+            hostTrace('Waiting to read inLine');
             var buffer = null;
 
             while (true) {
@@ -722,30 +768,28 @@
 
                 if (inStream.Length == 0) {
                     Monitor.Exit(inStream);
-                    Thread.Sleep(100);
+                    Thread.Sleep(10);
                     continue;
                 }
             
-                Console.WriteLine('~Yellow~Reading inLine~R~' |> Cli.EraseStyles);
+                hostTrace('Reading inLine');
                 var oldPos = inStream.Position;
                 inStream.Position = 0;
                 buffer = inReader.ReadToEnd();
                 
-                Console.WriteLine(
-                    '~Yellow~Done reading inLine: {0}~R~' |> Cli.EraseStyles,
-                    Cli.StyleEscape(buffer |> Cli.EraseStyles));
+                hostTrace('Done reading inLine: {0}' :: [ buffer ]);
 
                 if (buffer == null || !buffer.EndsWith('\r\n')) {
                     inStream.Position = oldPos;
                     Monitor.Exit(inStream);
-                    Thread.Sleep(100);
+                    Thread.Sleep(10);
                     continue;
                 }
             
                 inStream.Position = 0;
                 inStream.SetLength(0);
                 Monitor.Exit(inStream);
-                Console.WriteLine('~Yellow~Done resetting inLine~R~' |> Cli.EraseStyles);
+                hostTrace('Done resetting inLine');
                 break;
             }
 
@@ -785,7 +829,7 @@
 
     var args = getCommandLineArgs() |> Enumerable.ToList;
 
-    if (args.Contains('Shell.alx')) {
+    if (args =? @() Path.GetFileName($_).ToLower() == 'shell.alx') {
         if (args.Contains('-interactive')) {
             //shell.trace();
             shell.run();

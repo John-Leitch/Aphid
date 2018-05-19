@@ -1,5 +1,5 @@
 ﻿_checkCmdParts = macro(@{
-    if (parts == null || parts.Count == 0 || parts[0] == null) {
+    if (parts == null || ((parts #!) == 0) || parts[0] == null) {
         ret null;
     }
 });
@@ -51,21 +51,27 @@ var initPSInterop = @{
                 obj.BaseObject :
                 obj,
 
+        fastImport: true,
+
         importPSObject: @(psObj) {
             _initTrace('PSInterop');
             // tracePSInterop('importPSObject checking enumerable');
             
+            var t;
+
             if (psObj == null) {
                 tracePSInterop('importPSObject returning null');
                 ret null;
-            } else if (psObj.GetType() != PSObject) {
-                if (psObj @isEnumerableOf(PSObject)) {
+            } else if ((t = psObj.GetType()) != PSObject) {
+                if (IEnumerable[PSObject].IsAssignableFrom(t)) {
                     tracePSInterop('importPSObject recursing');
                     ret psObj->importPSObject;
                 } else {
                     tracePSInterop('importPSObject returning non-PSObject');
                     ret psObj;
                 }
+            } else if (fastImport) {
+                ret psObj.BaseObject;
             }
 
             var o = {
@@ -126,10 +132,15 @@ var initPSInterop = @{
             obj.psObject defined,
     };
 
-    psContext.isCommand = @(command) {
+    psContext.isCommandInternal = @(command, isApplication) {
         _initTrace('PS');
-        command @tracePS('checking for command: {0}');
-        var ps = command @format('[bool](Get-Command {0} -ErrorAction SilentlyContinue)');
+        var name = isApplication ? 'application' : 'command';
+        command @tracePS('checking for {0}: {1}', name);
+        
+        var ps = command @format(isApplication ?
+            '[bool](Get-Command {0} -CommandType Application -ErrorAction SilentlyContinue)' :
+            '[bool](Get-Command {0} -ErrorAction SilentlyContinue)');
+
         ps @tracePS('Running command to perform check: {0}');
         ps |> psContext.engine.AddScript;
         var r;
@@ -142,10 +153,13 @@ var initPSInterop = @{
 
         psContext.engine.Commands.Clear();
         r = r.Count > 0 ? r[0].BaseObject : false;
-        r @tracePS('Is command: {0}');
+        r @tracePS('Is {0}: {1}', name);
 
         ret r;
     };
+
+    psContext.isCommand = @(command) psContext.isCommandInternal(command, false);
+    psContext.isApplication = @(command) psContext.isCommandInternal(command, true);
 
     psContext.execPositional = @(parts) {
         _checkCmdParts();
@@ -158,19 +172,49 @@ var initPSInterop = @{
             error: null,
         };
 
-        parts[0].GetType() @tracePS('Checking if is command: {0} of type {1}', parts[0]);
-        result.isCommand = parts[0] |> psContext.isCommand;
+        parts[0].GetType() @tracePS('Checking if is command or application: {0} of type {1}', parts[0]);
         
-        if (result.isCommand) {
-            tracePS('Preparing command {0}', parts[0]);
-            parts[0] |> psContext.engine.AddCommand;
-            parts @aq.skip(1) ->psContext.restorePSObject->psContext.engine.AddArgument;
-            tracePS('Invoking PS');
-            result.obj = psContext.engine.Invoke();
-            tracePS('Clearing command');
-            psContext.engine.Commands.Clear();
+        // if (parts[0] |> psContext.isApplication) {
+        if ((parts[0] |> psContext.isApplication) ||
+            (parts[0] |> psContext.isCommand)) {
+            
+            
+            tracePS('Preparing application {0}', parts[0]);
+            result.isCommand = true;
+            // result.isApplication = true;
+
+            var applicationCommand = parts
+                ->psContext.restorePSObject
+                ->(@() !string.IsNullOrEmpty($_) && $_.ToString().Contains(' ') ?
+                    format('"{0}"', $_.Replace('"', '`"')) :
+                    $_)
+                +> @(x, y) x + ' ' + y;
+
+            tracePS('Executing application command {0}', applicationCommand);
+
+            result.obj =
+                applicationCommand
+                |> psContext.pipe;
+                //|> psContext.importPSObject;
+
+        } else if (parts[0] |> psContext.isCommand) {
+            tracePS('Executing command {0}', parts[0]);
+            result.isCommand = true;
+            result.isApplication = false;
+            
+            result.obj =
+                (parts @aq.skip(1) ->psContext.restorePSObject)
+                @psContext.pipe(parts[0])
+                |> psContext.importPSObject;
+
+            // parts[0] |> psContext.engine.AddCommand;
+            // parts @aq.skip(1) ->psContext.restorePSObject->psContext.engine.AddArgument;
+            // tracePS('Invoking PS');
+            // result.obj = psContext.engine.Invoke();
+            // tracePS('Clearing command');
+            // psContext.engine.Commands.Clear();
         } else {
-            if (parts.Count > 1) {
+            if ((parts #!) > 1) {
                 result.error = 'Unknown command';
                 tracePS(result.error);
                 //result.error = format('Unknown command');
@@ -183,7 +227,7 @@ var initPSInterop = @{
             tracePS('Getting PS item {0}', parts[0]);
             result.obj = parts[0] |> psContext.getItem;
 
-            if (result.obj.Count != 0) {
+            if ((result.obj #!) != 0) {
                 result.isItem = true;
             } else {
                 result.isItem = false;
@@ -194,7 +238,7 @@ var initPSInterop = @{
             
 
             if ((result.obj |> isCollection) &&
-                (result.obj |> Enumerable.Count) == 1) {
+                (result.obj #!) == 1) {
                 tracePS('Unwrapping PS item');
                 result.obj = result.obj[0];
             }
@@ -256,15 +300,86 @@ var initPSInterop = @{
         ret { InputObject: obj } @psContext.psContext.execNamed('Out-String') |> aq.first;
     };
 
+    psContext.pipe = @(script, pipelineInput) {
+        using (var p = psContext.engine.Runspace.CreatePipeline()) {
+            var checkedOutput = false;
+            var writeAsync = false;
+            var handler = @(o, e) {
+                try {
+                    if (!checkedOutput) {
+                        if (o.Count == 0) {
+                            ret null;
+                        } else {
+                            var pso;
+
+                            writeAsync = (pso = o.Peek()) != null &&
+                                pso.BaseObject != null &&
+                                pso.BaseObject.GetType() == string;
+
+                            checkedOutput = true;
+                        }
+                    } else if (writeAsync) {
+                        o.NonBlockingRead()
+                            ->@.BaseObject
+                            ->Cli.StyleEscape
+                            ->@+ '\r\n'
+                            ->shell.out;
+                    }
+                } catch (e) {
+                    e |> serialize |> Cli.StyleEscape |> shell.out;
+                }
+            };
+
+            p.Output.add_DataReady(handler);
+            p.Error.add_DataReady(handler);
+
+            if (pipelineInput defined) {
+                p.Input.Write(pipelineInput);
+                p.Commands.Add(script);
+            } else {
+                p.Commands.AddScript(script);
+            }
+            
+            ret p.Invoke();
+            //ret pipelineInput defined ? p.Invoke(pipelineInput) : p.Invoke();
+        }
+    };
+
+    psContext.pipeDump = @(script, pipelineInput) {
+        var result = pipelineInput defined ?
+            psContext.pipe(script, pipelineInput) :
+            psContext.pipe(script);
+
+        if ((result #!) > 0) {
+            result |> shell.dumpObject |> shell.out;
+        }
+    };
+
+    _mn = macro(@(m){ ((methods = (m-?@(x) x.Name == name)) #!) != 0 });
+
+    _clrMethod = macro(@(obj) {
+        if (obj != null &&
+            method = (obj.GetType().GetMethod(name, argTypes)) != null) {
+            ret method.Invoke(obj, $args @aq.skip(1));
+        }
+    });
+
     extend PSObject {
         dynamic funcHandler:@(psObj, name) {
-            methods = psObj.Methods-?(@(x) x.Name == name);
+            var method;
+            var methods;
+            var args = $args @aq.skip(1);
+            var argTypes = args ->@() $_.GetType();
 
-            if (methods.Count == 0) {
-                fatal('Could not find PowerShell method with name "{0}".' :: [ name ]);
+            _clrMethod(psObj.BaseObject);
+
+            if (_mn(psObj.BaseObject.GetType().GetMethods())) {
+                ret methods[0].Invoke($args @aq.skip(1)) |> psContext.importPSObject;
             }
 
-            ret methods[0].Invoke($args @aq.skip(1)) |> psContext.importPSObject;
+            _clrMethod(psObj.BaseObject.ToString());
+
+            fatal('Could not find PowerShell object method with name "{0}".' :: [ name ]);
         },
 
         toAphidObject: psContext.importPSObject,
