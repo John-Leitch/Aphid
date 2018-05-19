@@ -3370,6 +3370,28 @@ namespace Components.Aphid.Interpreter
 
                         return AphidObject.Scalar((decimal)~Convert.ToUInt64(val));
 
+                    case AphidTokenType.throwKeyword:
+                        var exceptionObj = ValueHelper.Unwrap(InterpretExpression(expression.Operand));
+                        Exception exception;
+                        string message;
+
+                        if ((exception = exceptionObj as Exception) != null)
+                        {
+                            throw exception;
+                        }
+                        else if ((message = exceptionObj as string) != null)
+                        {
+                            throw CreateRuntimeException(message);
+                        }
+                        else
+                        {
+                            throw CreateRuntimeException(
+                                "Cannot throw value of type {0}, from expression {1} " +
+                                    "expected Exception or string.",
+                                    exceptionObj != null ? exceptionObj : "null",
+                                    expression);
+                        }
+
                     case AphidTokenType.retKeyword:
                         SetReturnValue(ValueHelper.Wrap(InterpretExpression(expression.Operand)));
                         _isReturning = true;

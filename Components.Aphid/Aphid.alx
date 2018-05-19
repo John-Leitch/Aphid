@@ -39,6 +39,7 @@ Lexer({
                 'ret',
                 'switch',
                 'this',
+                'throw',
                 'true',
                 'try',
                 'using',
@@ -1682,7 +1683,7 @@ ParseFactorExpression = @{
             exp = ImplicitArgumentsExpression(op);
         }
 
-        retKeyword, deleteKeyword: exp ParseUnaryExpression;
+        throwKeyword, retKeyword, deleteKeyword: exp ParseUnaryExpression;
 
         trueKeyword: {
             exp = BooleanExpression(true);

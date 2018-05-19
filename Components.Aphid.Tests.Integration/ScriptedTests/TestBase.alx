@@ -8,7 +8,6 @@ var fault;
 var getTestKeys;
 var runTests;
 var isStandalone;
-var throw;
 var tryAction;
 
 if (!(global.childCreated defined )) {
@@ -66,7 +65,7 @@ if (!(global.childCreated defined )) {
             head('Aphid Test Framework');
         }
 
-        var makeAssert = @(f) f @> @() $_ ? $_ : throw();
+        var makeAssert = @(f) f @> @() $_ ? $_ : throw new InvalidOperationException();
         global.isTrue = makeAssert(@== true);
         global.isFalse = makeAssert(@== false);
         global.isFoo = makeAssert(@== 'foo');
@@ -114,13 +113,6 @@ if (!(global.childCreated defined )) {
             this.{'$frames'}[0].Scope.{'$block'}.AddRange(@{ runTests(global) });
         }
     }
-
-    throw = @{
-        @{
-            Newobj(InvalidOperationException.GetConstructor([ ]));
-            Throw;
-        } |> execIL;
-    };
 
     runTests = @(scope){
         printQuery('Searching for tests');
