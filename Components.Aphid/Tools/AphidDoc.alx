@@ -9,6 +9,7 @@
 #'std';
 #'meta';
 #'serialization';
+
 using Components;
 using Components.Aphid.TypeSystem;
 using System.Collections;
@@ -35,7 +36,11 @@ var xmlFile = args[1].Value |> Path.GetFullPath;
 printQuery('Generating documentation for files in dir ~Cyan~{0}~R~', srcDir);
 
 var srcFiles = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories)
-    -? @(x) !x.ToLower().EndsWith('\\aphid.alx') && !x.ToLower().Contains('\\bin\\');
+    -? @(x)
+        !x.ToLower().EndsWith('\\aphid.alx') &&
+        !x.ToLower().Contains('\\bin\\') &&
+        !x.ToLower().Contains('\\aphid\\debug\\') &&
+        !x.ToLower().EndsWith('.alxt');
     
 printInfo('Found ~Cyan~{0}~R~ files', srcFiles #!);
 
@@ -85,6 +90,8 @@ class of string MemberDoc {
 };
 
 var members = new List[MemberDoc]();
+
+using System.Threading.Tasks;
 
 srcFiles->@(srcFile) {
     printInfo('Parsing ~Cyan~{0}~R~', srcFile);
