@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Caching
 {
-    public class FileCacheInfo
+    public class FileCacheInfo : ICacheInfo
     {
         private Lazy<bool> _isOutdated;
 

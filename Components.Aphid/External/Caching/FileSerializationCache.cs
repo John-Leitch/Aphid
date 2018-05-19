@@ -1,14 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Components.Caching
 {
     public abstract class FileSerializationCache<T>
     {
-        private FileCacheInfoSerializer _serializer = new FileCacheInfoSerializer();
+        private FileCacheInfoSerializer _serializer;
 
         private static Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
+
+        public FileSerializationCache(Assembly dependency)
+        {
+            _serializer = new FileCacheInfoSerializer(dependency);
+        }
+
+        public FileSerializationCache(Version dependencyVersion)
+        {
+            _serializer = new FileCacheInfoSerializer(dependencyVersion);
+        }
 
         public T Read(string filename)
         {
@@ -20,7 +32,6 @@ namespace Components.Caching
 
         private T ReadUnsafe(string filename)
         {
-            
             var info = LoadCacheInfoUnsafe(filename);
             T cache;
 
@@ -74,7 +85,7 @@ namespace Components.Caching
             return cache;
         }
 
-        private FileCacheInfo LoadCacheInfoUnsafe(string filename)
+        private ICacheInfo LoadCacheInfoUnsafe(string filename)
         {
             var cacheInfoFile = GetCacheInfoFilename(filename);
 

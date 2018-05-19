@@ -9,6 +9,7 @@ namespace Components.Aphid.Parser
         private string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
+            : base(typeof(AphidExpression).Assembly.GetName().Version)
         {
             _searchPaths = searchPaths;
         }

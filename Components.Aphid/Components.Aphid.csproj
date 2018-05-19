@@ -145,11 +145,13 @@
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
     <Compile Include="External\Caching\CacheBlob.cs" />
+    <Compile Include="External\Caching\PrimitiveCacheInfo.cs" />
     <Compile Include="External\Caching\FileMemoryCache.cs" />
     <Compile Include="External\Caching\FileCacheInfoSerializer.cs" />
     <Compile Include="External\Caching\FileSerializationCache.cs" />
     <Compile Include="External\Caching\FileCacheSource.cs" />
     <Compile Include="External\Caching\FileCacheInfo.cs" />
+    <Compile Include="External\Caching\ICacheInfo.cs" />
     <Compile Include="External\Common\DefaultSingleton.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
     <Compile Include="External\Common\SelectorComparer.cs" />
