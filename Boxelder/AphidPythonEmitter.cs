@@ -14,7 +14,8 @@ namespace Boxelder
         private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.retKeyword, "return " },
-            { AphidTokenType.NotOperator, "not " },            
+            { AphidTokenType.NotOperator, "not " },
+            { AphidTokenType.throwKeyword, "raise " },
         };
 
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
