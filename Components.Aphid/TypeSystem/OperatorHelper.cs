@@ -298,13 +298,11 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                var r = AphidObject.Scalar(
-                    Enumerable
-                        .Range(Convert.ToInt32(x.Value), Convert.ToInt32(y.Value))
-                        .Select(z => AphidObject.Scalar((decimal)z))
-                        .ToList());
-                
-                return r;
+                return AphidObject
+                    .Scalar(
+                        Enumerable
+                            .Range(Convert.ToInt32(x.Value), Convert.ToInt32(y.Value))
+                            .Select(Convert.ToDecimal));
             }
         }
 
