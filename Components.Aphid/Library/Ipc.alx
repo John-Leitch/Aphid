@@ -1,117 +1,141 @@
-﻿using Components;
-using Components.External;
-using System;
-using System.Diagnostics;
-using System.Runtime.Remoting;
-using System.Runtime.Remoting.Channels;
-using System.Runtime.Remoting.Channels.Ipc;
-using System.Runtime.Remoting.Messaging;
-using System.Security.Permissions;
-using System.Threading;
-load System.Runtime.Remoting;
-load mscorlib;
+﻿var ipc;
 
-_initTrace = macro(@{
-    var trace = ipc.trace ? print : @{ };
-    var traceInfo = ipc.trace ? printInfo : @{ };
-    var traceSuccess = ipc.trace ? printSuccess : @{ };
-    var traceQuery = ipc.trace ? printQuery : @{ };
-});
+@{
+    #'std';
+    #'query';
+    #'RemoteProxy';
+    using Components;
+    using Components.External;
+    using System;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Runtime.Remoting;
+    using System.Runtime.Remoting.Channels;
+    using System.Runtime.Remoting.Channels.Ipc;
+    using System.Runtime.Remoting.Messaging;
+    using System.Security.Permissions;
+    using System.Threading;
+    load System.Runtime.Remoting;
+    load mscorlib;
 
-var ipc = {
-    trace: true,
-    listen: @(uri) {
-        _initTrace();
-        var u = $args.Count > 0 ? uri : "localhost:9090";
-        traceInfo('Starting IPC Channel on {0}', u);
+    _initTrace = macro(@{
+        var trace = ipc.trace ? print : @{ };
+        var traceInfo = ipc.trace ? printInfo : @{ };
+        var traceSuccess = ipc.trace ? printSuccess : @{ };
+        var traceQuery = ipc.trace ? printQuery : @{ };
+    });
+
+    ipc = {
+        trace: true,
+        listen: @(uri) {
+            _initTrace();
+            var u = $args.Count > 0 ? uri : "localhost:9090";
+            traceInfo('Starting IPC Channel on {0}', u);
+            
+            var serverChannel = new IpcChannel(u);
+            ChannelServices.RegisterChannel(serverChannel);
+            traceSuccess('Channel name: {0}', serverChannel.ChannelName);
+            traceSuccess('Channel priority: {0}', serverChannel.ChannelPriority);
+
+            var channelData = serverChannel.ChannelData;
+            channelData.ChannelUris->@format('The channel URI is {0}');
+            var aphid = this.{'$aphid'};
+
+            RemotingConfiguration.RegisterWellKnownServiceType(
+                aphid.GetIpcContextType(),
+                "RemoteObject.rem", 
+                WellKnownObjectMode.Singleton);
+
+            var urls = serverChannel.GetUrlsForUri("RemoteObject.rem");
+            trace(urls);
+            aphid.RegisterIpcServer();
+        },
         
-        var serverChannel = new IpcChannel(u);
-        ChannelServices.RegisterChannel(serverChannel);
-        traceSuccess('Channel name: {0}', serverChannel.ChannelName);
-        traceSuccess('Channel priority: {0}', serverChannel.ChannelPriority);
+        // Todo: add host, port, and obj args
+        connect: @() {
+            _initTrace();
+            traceInfo('Starting IPC client');
+            var clientChannel = new IpcChannel();
+            traceInfo('Registering channel');
+            ChannelServices.RegisterChannel(clientChannel);
+            traceInfo('Registering remote type');
+            var aphid = this.{'$aphid'};
 
-        var channelData = serverChannel.ChannelData;
-        channelData.ChannelUris->@format('The channel URI is {0}');
-        var aphid = this.{'$aphid'};
+            var remoteType = new WellKnownClientTypeEntry(
+                aphid.GetIpcContextType(),
+                "ipc://localhost:9090/RemoteObject.rem");
+        
+            RemotingConfiguration.RegisterWellKnownClientType(remoteType);
+            remoteType |> trace;
 
-        RemotingConfiguration.RegisterWellKnownServiceType(
-            aphid.GetIpcContextType(),
-            "RemoteObject.rem", 
-            WellKnownObjectMode.Singleton);
+            var messageSink = clientChannel.CreateMessageSink(
+                "ipc://localhost:9090/RemoteObject.rem",
+                null,
+                null);
 
-        urls = serverChannel.GetUrlsForUri("RemoteObject.rem");
-        trace(urls);
-        aphid.RegisterIpcServer();
-    },
-    
-    // Todo: add host, port, and obj args
-    connect: @() {
-        _initTrace();
-        traceInfo('Starting IPC client');
-        var clientChannel = new IpcChannel();
-        traceInfo('Registering channel');
-        ChannelServices.RegisterChannel(clientChannel);
-        traceInfo('Registering remote type');
-        var aphid = this.{'$aphid'};
+            messageSink |> trace;
+            var ipcContext = aphid.CreateIpcClientContext();
 
-        var remoteType = new WellKnownClientTypeEntry(
-            aphid.GetIpcContextType(),
-            "ipc://localhost:9090/RemoteObject.rem");
-    
-        RemotingConfiguration.RegisterWellKnownClientType(remoteType);
-        remoteType |> trace;
+            ret ipcContext;
+        },
 
-        var messageSink = clientChannel.CreateMessageSink(
-            "ipc://localhost:9090/RemoteObject.rem",
-            null,
-            null);
-
-        messageSink |> trace;
-        var ipcContext = aphid.CreateIpcClientContext();
-
-        ret ipcContext;
-    },
-};
-
-
-ipc.test = @{
-    var argList = getCommandLineArgs() |> Enumerable.ToList;
-    head('IPC Channel Test');
-
-    if (!argList.Contains('-client')) {
-        _initTrace();
-
-        ipc.listen();
-
-        var exe = 'c:\\source\\aphid\\aphid\\bin\\debug\\Aphid.exe';
-        var script = 'C:\\source\\aphid\\Components.Aphid\\Library\\Ipc.alx';
-
-        var args = format(
-            '/c {0} {1} -client',
-            exe,
-            script);
-            //getExe(),
-            //getCommandLineArgs()[1]);
-
-        traceQuery('Starting client process with args ~Cyan~{0}~R~', args);
-        var proc = Process.Start('cmd', args);
-        traceInfo('Waiting for process to exit');
-        proc.WaitForExit();
-        traceSuccess('Process has exited');
-        // Console.ReadLine();
-
-
-    } else {
-        try {
+        proxy: @{
+            var proxy = new RemoteProxy();
             var ctx = ipc.connect();
-            ctx.Eval('trace("Hello world")');
-            Thread.Sleep(1500);
-        } catch (e) {
-            dump(e);
-        } finally {
-            repl();
+            proxy.Eval = ctx.Eval;
+
+            ret proxy;
+        },
+    };
+
+    ipc.test = @{
+        var argList = Environment.GetCommandLineArgs() |> Enumerable.ToList;
+        head('IPC Channel Test');
+
+        if (!argList.Contains('-client')) {
+            _initTrace();
+
+            ipc.listen();
+
+            #'threading';
+            var exe = 'c:\\source\\aphid\\aphid\\bin\\debug\\Aphid.exe';
+            var script = 'C:\\source\\aphid\\Components.Aphid\\Library\\Ipc.alx';
+
+            var args = format(
+                '/c {0} {1} -client',
+                exe,
+                script);
+                //getExe(),
+                //getCommandLineArgs()[1]);
+
+            traceQuery('Starting client process with args ~Cyan~{0}~R~', args);
+            var proc = Process.Start('cmd', args);
+            traceInfo('Waiting for process to exit');
+            proc.WaitForExit();
+            traceSuccess('Process has exited');
+            // Console.ReadLine();
+
+
+        } else {
+            try {
+
+                var proxy = ipc.proxy();
+                proxy.trace('Trace test');
+                // ipc.p = proxy;
+                // repl.run();
+                //ctx.Eval('trace("Hello world")');
+                // Thread.Sleep(1500);
+            } catch (e) {
+                print(e.message);
+                print(e.exception);
+                // Console.ReadLine();
+            } finally {
+                // Console.ReadLine();
+                // repl();
+            }
+            
+            // Console.ReadLine();
         }
-        
-        // Console.ReadLine();
-    }
-};
+    };
+}();
+ipc.test();
