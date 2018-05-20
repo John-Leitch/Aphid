@@ -5172,6 +5172,15 @@ namespace Components.Aphid.Interpreter
 
                 child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
                 child.Interpret(expressions);
+
+                // Todo: come up with more foolproof solution to this issue.
+
+                var r = child.GetReturnValue();
+
+                if (r != null)
+                {
+                    SetReturnValue(r);
+                }
             }
         }
 
