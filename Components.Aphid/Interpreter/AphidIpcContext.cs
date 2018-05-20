@@ -48,7 +48,9 @@ namespace Components.Aphid.Interpreter
                     result = _interpreter.GetReturnValue();
                 }
 
-                return _interpreter.Serializer.Serialize(AphidObject.Scalar(result));
+                var ao = _interpreter.ValueHelper.Wrap(result);
+
+                return _interpreter.Serializer.Serialize(ao);
             }
             catch (Exception e)
             {
