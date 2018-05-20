@@ -31,7 +31,6 @@ extend RemoteProxy {
                 var result = sb.ToString() |> s.Eval;
 
                 if (result != null) {
-                    result |> dump;
                     ret result |> deserialize;
                 } else {
                     ret null;
