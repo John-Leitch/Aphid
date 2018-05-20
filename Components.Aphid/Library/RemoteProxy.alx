@@ -1,0 +1,37 @@
+using Components.Aphid.TypeSystem;
+using Components.Aphid.Serialization;
+using System;
+
+if (!this.{'$aphid'}.AsmBuilder.IsTypeDefined('RemoteProxy')) {
+    class RemoteProxy { Eval, string BasePath };
+}
+
+extend RemoteProxy {
+    dynamic handle: @(s, name) {
+        using System.Text;
+        var sb = new StringBuilder();
+        sb.Append('ret ');
+        sb.Append(!String.IsNullOrEmpty(s.BasePath) ? s.BasePath + '.' + name : name);
+        sb.Append('(\r\n    ');
+        var firstArg = true;
+
+        $args @aq.skip(1) -> serialize ->@(s) {
+            if (firstArg) {
+                firstArg = false;
+            } else {
+                sb.Append(', ');
+            }
+
+            s |> sb.Append;
+        };
+
+        sb.AppendLine(');');
+        lock (s.Eval) {
+            var resp = sb.ToString() |> s.Eval;
+            
+            ret resp != null && resp.result defined ?
+                resp.result :
+                { success: false, result: 'Error', obj: resp };
+        }
+    }
+}
