@@ -96,14 +96,14 @@ namespace Components.External.ConsolePlus
                 throw CreateException("Kernel32!GetStdHandle()");
             }
 
-            int mode;
+            ConsoleMode mode;
 
             if (!Kernel32.GetConsoleMode(handle, out mode))
             {
                 throw CreateException("kernel32!GetConsoleMode()");
             }
 
-            if (!Kernel32.SetConsoleMode(handle, mode | 0x4))
+            if (!Kernel32.SetConsoleMode(handle, mode | ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING))
             {
                 throw CreateException("kernel32!SetConsoleMode()");
             }

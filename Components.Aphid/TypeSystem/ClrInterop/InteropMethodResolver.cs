@@ -230,9 +230,10 @@ namespace Components.Aphid.TypeSystem
 
             var weighted = canConvert
                 .OrderBy(x => WeightInference(x.Args))
-                #if DEBUG
+#if DEBUG
+                
+#endif
                 .ToArray()
-                #endif
                 ;
 
             for (var i = 0; i < weighted.Length; i++)

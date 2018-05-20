@@ -107,13 +107,25 @@ namespace Components.PInvoke
         public static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool SetConsoleMode(IntPtr hConsoleHandle, int mode);
+        public static extern bool SetConsoleMode(IntPtr hConsoleHandle, ConsoleMode mode);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool GetConsoleMode(IntPtr handle, out int mode);
+        public static extern bool GetConsoleMode(IntPtr handle, out ConsoleMode mode);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr GetStdHandle(int handle);
+
+        [DllImport(
+            "kernel32.dll",
+            SetLastError = true,
+            EntryPoint = "WriteConsoleOutputW",
+            CharSet = CharSet.Unicode)]
+        public static extern bool WriteConsoleOutput(
+            IntPtr hConsoleOutput,
+            [MarshalAs(UnmanagedType.LPArray), In] CharInfo[,] lpBuffer,
+            Coord dwBufferSize,
+            Coord dwBufferCoord,
+            ref SmallRect lpWriteRegion);
 
         [DllImport("kernel32.dll")]
         public static extern uint GetCurrentThreadId();
