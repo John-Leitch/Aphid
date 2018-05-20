@@ -50,16 +50,23 @@
             trace(urls);
             aphid.RegisterIpcServer();
         },
+
+        isRegistered: false,
+        clientChannel: null,
+        aphid: null,
         
         // Todo: add host, port, and obj args
         connect: @() {
             _initTrace();
-            traceInfo('Starting IPC client');
-            var clientChannel = new IpcChannel();
-            traceInfo('Registering channel');
-            ChannelServices.RegisterChannel(clientChannel);
-            traceInfo('Registering remote type');
-            var aphid = this.{'$aphid'};
+
+            if (!isRegistered) {
+                traceInfo('Starting IPC client');
+                clientChannel = new IpcChannel();
+                traceInfo('Registering channel');
+                ChannelServices.RegisterChannel(clientChannel);
+                traceInfo('Registering remote type');
+                aphid = this.{'$aphid'};
+            }
 
             var remoteType = new WellKnownClientTypeEntry(
                 aphid.GetIpcContextType(),
@@ -138,4 +145,4 @@
         }
     };
 }();
-ipc.test();
+//ipc.test();

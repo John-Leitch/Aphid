@@ -27,11 +27,18 @@ extend RemoteProxy {
 
         sb.AppendLine(');');
         lock (s.Eval) {
-            var resp = sb.ToString() |> s.Eval;
-            
-            ret resp != null && resp.result defined ?
-                resp.result :
-                { success: false, result: 'Error', obj: resp };
+            try {
+                var result = sb.ToString() |> s.Eval;
+
+                if (result != null) {
+                    result |> dump;
+                    ret result |> deserialize;
+                } else {
+                    ret null;
+                }
+            } catch (e) {
+                ret e;
+            }
         }
     }
 }

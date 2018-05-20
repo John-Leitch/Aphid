@@ -39,9 +39,21 @@ namespace Components.Aphid.Interpreter
 
         public string Eval(string block)
         {
-            var result = _interpreter.InterpretStream(block);
+            try
+            {
+                var result = _interpreter.InterpretStream(block);
 
-            return _interpreter.Serializer.Serialize(AphidObject.Scalar(result));
+                if (result == null)
+                {
+                    result = _interpreter.GetReturnValue();
+                }
+
+                return _interpreter.Serializer.Serialize(AphidObject.Scalar(result));
+            }
+            catch (Exception e)
+            {
+                return _interpreter.Serializer.Serialize(AphidObject.Scalar(e));
+            }
         }
 
         public static void Register(AphidInterpreter interpreter)
