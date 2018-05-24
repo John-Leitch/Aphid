@@ -130,6 +130,6 @@ using System.Windows.Input;
 //1..5->@()keyboard.type(';,-[.|+?');
 //1..5->@()keyboard.type(':";\'');
 // 1..5->@()keyboard.type('`~`~');
-1..5->@()keyboard.type('\'"');
+// 1..5->@()keyboard.type('\'"');
 
 
