@@ -109,7 +109,7 @@ namespace Components.Aphid.Interpreter
         public string FindScriptFile(string scriptFile)
         {
             return FindScriptFile(
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+                Path.GetDirectoryName(typeof(AphidLoader).Assembly.Location),
                 scriptFile);
         }
 
