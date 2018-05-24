@@ -1,6 +1,4 @@
 ﻿#'Compiler';
-using Components.Aphid.VSPackage;
 
-export string AphidBuildInterop.Compile = @(string path, string input, string namespace) {
-	ret exports.compile(namespace, input);
-};
+export string AphidBuildInterop.Compile = @(string path, string input, string namespace)
+	exports.compile(namespace, input);
