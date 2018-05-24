@@ -1,5 +1,5 @@
 //var traceRemoting = true;
-// #'DebugDeploy';
+//#'DebugDeploy';
 #'Std';
 #'Query';
 #'Shell';
@@ -163,8 +163,9 @@ var execRemoteScript = @(host, scriptFile) {
 
                 ret cmd;
             });
-    } catch {
-
+    } catch(e) {
+        printError('Error executing script: {0}', e.message);
+        //print(e.exception);
     }
 };
 
