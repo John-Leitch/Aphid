@@ -6,12 +6,12 @@
     #'Meta';
 
     exports = {
-        compileFile: @(srcFile){
+        compileFile: @(namespace, srcFile){
             printInfo('Parsing ~Cyan~{0}~R~', srcFile);
-            ret srcFile |> File.ReadAllText |> compile;
+            ret srcFile |> File.ReadAllText @compile(namespace);
         },
 
-		compile: @(srcCode){
+        compile: @(namespace, srcCode){
             var srcAst;
     
             try {
@@ -21,7 +21,7 @@
                 ret null;
             }
 
-            var cs = srcAst |> exports.find -> exports.generate @join('\r\n\r\n');
+            var cs = srcAst |> exports.find -> @exports.generate(namespace) @join('\r\n\r\n');
 
             ret cs.Trim() != '' ? cs : null;
         },
@@ -71,7 +71,7 @@
             ret exports;
         },
 
-        generate: @(export) {
+        generate: @(namespace, export) {
         
             var typeName = export.className;
             var delName = export.propertyName + 'Delegate';

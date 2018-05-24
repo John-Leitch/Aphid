@@ -13,11 +13,11 @@ if (cliArgs.Length != 5) {
     exit(1);
 }
 
-var namespace = cliArgs[2];
+var ns = cliArgs[2];
 var projectDir = cliArgs[3];
 var outputDir = cliArgs[4];
 
-printInfo('Generating classes in namespace ~Cyan~{0}~R~', namespace);
+printInfo('Generating classes in namespace ~Cyan~{0}~R~', ns);
 
 if (!Directory.Exists(projectDir)) {
     printError('Could not find project directory ~Yellow~{0}~R~', projectDir);
@@ -41,7 +41,7 @@ if ((srcFiles #!) == 0) {
 printSuccess('Found ~Green~{0}~R~ script(s)', srcFiles #!);
 
 srcFiles->@(srcFile) {
-	var cs = exports.compileFile(srcFile);
+	var cs = exports.compileFile(ns, srcFile);
 
 	if (cs == null) {
 		ret null;
