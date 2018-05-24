@@ -72,6 +72,9 @@
       <HintPath>..\packages\Microsoft.VisualStudio.CoreUtility.15.0.26201\lib\net45\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Designer.Interfaces, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Language.Intellisense, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files (x86)\Microsoft Visual Studio 11.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.Language.Intellisense.dll</HintPath>
@@ -158,6 +161,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidAuthoringScope.cs" />
+    <Compile Include="AphidBuildInterop.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidBuildInterop.alx</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCodeDomGenerator.cs" />
     <Compile Include="AphidDeclaration.cs" />
     <Compile Include="AphidDeclarations.cs" />
     <Compile Include="AphidLanguageService.cs" />
@@ -185,6 +194,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AphidBuildInterop.alx">
+      <CustomToolNamespace>Components.Aphid.VSPackage</CustomToolNamespace>
+      <Generator>AphidCodeDomGenerator</Generator>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <LastGenOutput>AphidBuildInterop.cs</LastGenOutput>
+    </Content>
     <None Include="packages.config" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -221,6 +237,9 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
+  <PropertyGroup>
+    <PreBuildEvent>::aphid $(SolutionDir)..\aphid\aphid\bin\debug\Tools\AphidExportStubCompiler.alx Components.Aphid.VSPackage $(ProjectDir) $(ProjectDir)Generated</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

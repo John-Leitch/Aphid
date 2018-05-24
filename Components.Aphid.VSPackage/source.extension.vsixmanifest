@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="fe11c5b2-f1f0-49a9-bddc-f2c829aa4922" Version="1.6" Language="en-US" Publisher="John Leitch" />
-    <DisplayName>Aphid</DisplayName>
+    <Identity Id="fe11c5b2-f1f0-49a9-bddc-f2c829aa4922" Version="1.7" Language="en-US" Publisher="John Leitch" />
+    <DisplayName>Aphid Programming Language VS Extension</DisplayName>
     <Description>Information about my package</Description>
   </Metadata>
   <Installation InstalledByMsi="false">
@@ -18,7 +18,7 @@
   </Assets>
   <!--<Prerequisites>
     <Prerequisite Id="Microsoft.Net.Component.4.6.TargetingPack" Version="[15.6.27406.0,16.0)" DisplayName=".NET Framework 4.6 targeting pack" />-->
-    <!--<Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" />
+  <!--<Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" />
     <Prerequisite Id="Microsoft.VisualStudio.Component.DiagnosticTools" Version="[15.0.25814.0,16.0)" />
     <Prerequisite Id="Microsoft.VisualStudio.Shell.12.0" Version="[12.0]" />-->
   <!--</Prerequisites>-->

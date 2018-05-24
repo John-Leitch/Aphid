@@ -161,6 +161,7 @@
     <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
     <Compile Include="External\ConsolePlus\ConsoleDataEventArgs.cs" />
+    <Compile Include="External\ConsolePlus\ConsoleGraphics.cs" />
     <Compile Include="External\ConsolePlus\ConsoleTextWriter.cs" />
     <Compile Include="External\ConsolePlus\RemoteConsoleListener.cs" />
     <Compile Include="External\ConsolePlus\SystemColor.g.cs" />
@@ -180,6 +181,11 @@
     <Compile Include="External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseRecord.cs" />
     <Compile Include="External\PInvoke\AdvApi32.cs" />
+    <Compile Include="External\PInvoke\CharAttributes.cs" />
+    <Compile Include="External\PInvoke\CharInfo.cs" />
+    <Compile Include="External\PInvoke\CharUnion.cs" />
+    <Compile Include="External\PInvoke\ConsoleMode.cs" />
+    <Compile Include="External\PInvoke\Coord.cs" />
     <Compile Include="External\PInvoke\FIXED.cs" />
     <Compile Include="External\PInvoke\HotkeyFlags.cs" />
     <Compile Include="External\PInvoke\LogonFlags.cs" />
@@ -191,6 +197,7 @@
     <Compile Include="External\PInvoke\SECURITY_IMPERSONATION_LEVEL.cs" />
     <Compile Include="External\PInvoke\Shell32.cs" />
     <Compile Include="External\PInvoke\SHFILEINFO.cs" />
+    <Compile Include="External\PInvoke\SmallRect.cs" />
     <Compile Include="External\PInvoke\SWP.cs" />
     <Compile Include="External\PInvoke\TokenAccess.cs" />
     <Compile Include="External\PInvoke\TOKEN_TYPE.cs" />
@@ -498,6 +505,9 @@
     <None Include="Library\CodeDom.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\Compiler.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Compression.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -508,6 +518,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Keyboard.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\RemoteProxy.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\WinForms.alx">
