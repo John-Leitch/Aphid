@@ -78,6 +78,7 @@ namespace Components.Aphid.VSPackage
                 case AphidTokenType.retKeyword:
                 case AphidTokenType.switchKeyword:
                 case AphidTokenType.thisKeyword:
+                case AphidTokenType.throwKeyword:
                 case AphidTokenType.trueKeyword:
                 case AphidTokenType.tryKeyword:
                 case AphidTokenType.usingKeyword:
