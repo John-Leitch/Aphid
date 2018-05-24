@@ -1,7 +1,4 @@
-﻿#'DebugDeploy';
-#'CodeDom';
-#'Std';
-#'Meta';
+﻿#'Std';
 #'Compiler';
 using Components.Aphid.UI;
 
@@ -44,7 +41,7 @@ if ((srcFiles #!) == 0) {
 printSuccess('Found ~Green~{0}~R~ script(s)', srcFiles #!);
 
 srcFiles->@(srcFile) {
-	var cs = exports.compile(srcFile);
+	var cs = exports.compileFile(srcFile);
 
 	if (cs == null) {
 		ret null;

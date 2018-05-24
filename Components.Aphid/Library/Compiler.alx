@@ -6,9 +6,12 @@
     #'Meta';
 
     exports = {
-        compile: @(srcFile){
+        compileFile: @(srcFile){
             printInfo('Parsing ~Cyan~{0}~R~', srcFile);
-            var srcCode = srcFile |> File.ReadAllText;
+            ret srcFile |> File.ReadAllText |> compile;
+        },
+
+		compile: @(srcCode){
             var srcAst;
     
             try {
