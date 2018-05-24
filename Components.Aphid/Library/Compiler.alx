@@ -1,0 +1,99 @@
+﻿var exports;
+
+@{
+    #'CodeDom';
+    #'Std';
+    #'Meta';
+
+    exports = {
+        compile: @(srcFile){
+            printInfo('Parsing ~Cyan~{0}~R~', srcFile);
+            var srcCode = srcFile |> File.ReadAllText;
+            var srcAst;
+    
+            try {
+                srcAst = srcCode |> parse;
+            } catch (e) {
+                AphidCli.DumpException(e.exception.InnerException, srcCode);
+                ret null;
+            }
+
+            var cs = srcAst |> exports.find -> exports.generate @join('\r\n\r\n');
+
+            ret cs.Trim() != '' ? cs : null;
+        },
+
+        resolve: @(type) this.{'$aphid'}.InteropTypeResolver.ResolveType(
+            this.{'$imports'}.ToArray(),
+            [ type ],
+            true,
+            true),
+
+        find: @(srcAst) {
+            using System.Collections.Generic;
+            var exports = new List[AphidObject]();
+
+            srcAst @ast.walk(@(node, context) {
+                if (!context.isRoot && !context.isBlock && node.isId() && node.firstAttr(export)) {
+                    var exportExp = context.stack
+                        ->@.node
+                        @aq.first(@(x)
+                            x.GetType() == BinaryOperatorExpression &&
+                            x.isOp(AphidTokenType.AssignmentOperator));
+
+                    var retType =
+                        ($(node.attrs() #!) 1: 'void', node.attr(1).Identifier)
+                        |> resolve;
+
+                    var memberPath = exportExp.lhs().GetChildren()->@.Identifier;
+                    var className = memberPath[0];
+                    var propertyName = memberPath[1];
+                
+                    var params = exportExp.rhs().Args
+                        ->@()({
+                            type: ($_.noAttrs() ? 'AphidObject' : $_.attr(0).Identifier) |> resolve,
+                            name: $_.Identifier
+                        });
+
+                    {
+                        retType,
+                        className,
+                        propertyName,
+                        params,
+                        func: exportExp.rhs()
+                    } |> exports.Add;
+                }
+            });
+
+            ret exports;
+        },
+
+        generate: @(export) {
+        
+            var typeName = export.className;
+            var delName = export.propertyName + 'Delegate';
+            var fieldName = '_' + export.propertyName;
+            var propName = export.propertyName;
+            var f = code.field(code.typeExp(typeName), fieldName);
+ 
+            var d = code
+                .namespace(namespace)
+                .type(typeName)
+                .partial()
+                .field(delName, fieldName)
+                    .static()
+                    .next()
+                .withPublic()
+                .property(delName, propName)
+                    .static()
+                    .getStmt(code.methodReturn(f))
+                    .setStmt(code.assign(f, code.var('value')))
+                    .next()
+                .delegate(export.retType, delName);
+
+            export.params->@() d.param($_.type, $_.name);
+
+            ret d.next().namespace().code();
+        }
+    };
+}();
