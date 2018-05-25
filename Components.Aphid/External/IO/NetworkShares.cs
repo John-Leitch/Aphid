@@ -1,6 +1,7 @@
 ﻿using Components.PInvoke;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -17,18 +18,18 @@ namespace Components.IO
 
             try
             {
-                int entriesRead = 0, totalEntries = 0, resumeHandle = 0;
+                int errorCode, entriesRead = 0, totalEntries = 0, resumeHandle = 0;
 
-                if (NetApi32.NetShareEnum(
+                if ((errorCode = NetApi32.NetShareEnum(
                     new StringBuilder(hostName),
                     0,
                     ref sharePtr,
                     uint.MaxValue,
                     ref entriesRead,
                     ref totalEntries,
-                    ref resumeHandle) != 0)
+                    ref resumeHandle)) != 0)
                 {
-                    Win32.ThrowWin32Exception();
+                    throw new Win32Exception(errorCode);
                 }
 
                 var structSize = Marshal.SizeOf<SHARE_INFO_0>();
