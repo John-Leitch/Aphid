@@ -170,6 +170,7 @@
     <Compile Include="External\IO\Allocation.cs" />
     <Compile Include="External\IO\MemoryManager.cs" />
     <Compile Include="External\IO\MemoryManagerSerializer.cs" />
+    <Compile Include="External\IO\NetworkShares.cs" />
     <Compile Include="External\ObjectDatabase\BinaryObjectDatabase.cs" />
     <Compile Include="External\ObjectDatabase\CrossProcessLockContext.cs" />
     <Compile Include="External\ObjectDatabase\IDatabaseContext.cs" />
@@ -191,10 +192,12 @@
     <Compile Include="External\PInvoke\LogonFlags.cs" />
     <Compile Include="External\PInvoke\MouseEventDataXButtons.cs" />
     <Compile Include="External\PInvoke\MouseEventFlags.cs" />
+    <Compile Include="External\PInvoke\NetApi32.cs" />
     <Compile Include="External\PInvoke\POINTFX.cs" />
     <Compile Include="External\PInvoke\ProcessAccessFlags.cs" />
     <Compile Include="External\PInvoke\SECURITY_ATTRIBUTES.cs" />
     <Compile Include="External\PInvoke\SECURITY_IMPERSONATION_LEVEL.cs" />
+    <Compile Include="External\PInvoke\SHARE_INFO_0.cs" />
     <Compile Include="External\PInvoke\Shell32.cs" />
     <Compile Include="External\PInvoke\SHFILEINFO.cs" />
     <Compile Include="External\PInvoke\SmallRect.cs" />
