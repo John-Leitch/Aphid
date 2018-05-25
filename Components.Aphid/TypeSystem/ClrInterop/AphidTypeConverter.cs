@@ -30,8 +30,8 @@ namespace Components.Aphid.TypeSystem
                     Convert(arg.ExplicitConversionOperator, arg.Argument) :
                 arg.IsValueTypeEnumerable &&
                     genericArguments.Length >= 1 &&
-                    !genericArguments[0].IsValueType ? 
-                    BoxValueTypeEnumerable((IEnumerable)arg.Argument) : 
+                    !genericArguments[0].IsValueType ?
+                    BoxValueTypeEnumerable((IEnumerable)arg.Argument) :
                 Convert(arg.TargetType, arg.Argument, genericArguments);
         }
 
@@ -137,7 +137,17 @@ namespace Components.Aphid.TypeSystem
 
         public static bool IsNumber(Type targetType)
         {
-            return _numberTypes.Contains(targetType);
+            return
+                targetType == typeof(byte) ||
+                targetType == typeof(ushort) ||
+                targetType == typeof(uint) ||
+                targetType == typeof(ulong) ||
+                targetType == typeof(sbyte) ||
+                targetType == typeof(short) ||
+                targetType == typeof(int) ||
+                targetType == typeof(long) ||
+                targetType == typeof(float) ||
+                targetType == typeof(double);
         }
 
         public bool CanConvertArray(object value, Type valueType, Type targetType)
