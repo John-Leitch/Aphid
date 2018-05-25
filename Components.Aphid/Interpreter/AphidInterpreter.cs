@@ -4693,7 +4693,7 @@ namespace Components.Aphid.Interpreter
                 }
                 catch (Exception e)
                 {
-#if DEBUG
+#if THROW_INTERNAL_EXCEPTIONS
                     if (e is AphidInternalException)
                     {
                         throw;
@@ -4710,7 +4710,7 @@ namespace Components.Aphid.Interpreter
                 }
                 catch (Exception e)
                 {
-#if DEBUG
+#if THROW_INTERNAL_EXCEPTIONS
                     if (e is AphidInternalException)
                     {
                         throw;
