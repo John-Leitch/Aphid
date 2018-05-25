@@ -1,6 +1,7 @@
 ﻿#'winForms';
 using Components.ObjectDatabase;
 using System.Reflection
+
 var db = 'history.db' |> BinaryObjectDatabase.OpenFile;
 var chart = winForms.chart();
 
@@ -13,7 +14,6 @@ area3d.PointDepth = 50;
 area3d.Rotation = 45;
 area3d.WallWidth = 5;
 area3d.LightStyle = LightStyle.Realistic;
-
 
 db.ReadUnsafe()
 -< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
