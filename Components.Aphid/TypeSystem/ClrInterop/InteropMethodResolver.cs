@@ -189,56 +189,56 @@ namespace Components.Aphid.TypeSystem
 
         private AphidInteropMethodInfo ResolveCore(MethodBase[] signatureMatches, object[] args)
         {
-            var methodArgs = signatureMatches
-                .Select(x => new
-                {
-                    Method = x,
-                    Args = x
-                        .GetParameters()
-                        .Select((y, i) => CreateMethodArg(y, i, args))
-                        .ToArray()
-                })
-                #if DEBUG
-                .ToArray()
-                #endif
-                ;
+            var contexts = new AphidInteropCallContext[signatureMatches.Length];
+            var contextWeights = new uint[signatureMatches.Length];
+            var contextCount = 0;
 
-            var methodConversionInfo = methodArgs
-                .Select(x => new
-                {
-                    x.Method,
-                    x.Args,
-                    ConversionInfo = x.Args
-                        .Select(y => Interpreter.TypeConverter.CanConvert(
-                            y,
-                            x.Method,
-                            y.Argument,
-                            y.TargetType))
-                        .ToArray()
-                })
-                #if DEBUG
-                .ToArray()
-                #endif
-                ;
-
-            var canConvert = methodConversionInfo
-                .Where(x => x.ConversionInfo.All(y => y.CanConvert))
-                #if DEBUG
-                .ToArray()
-                #endif
-                ;
-
-            var weighted = canConvert
-                .OrderBy(x => WeightInference(x.Args))
-#if DEBUG
-                
-#endif
-                .ToArray()
-                ;
-
-            for (var i = 0; i < weighted.Length; i++)
+            for (var i = 0; i < signatureMatches.Length; i++)
             {
-                var x = weighted[i];
+                var match = signatureMatches[i];
+                var matchParams = match.GetParameters();
+                var matchArgs = new AphidInteropMethodArg[matchParams.Length];
+                var matchConversions = new AphidConversionInfo[matchParams.Length];
+                var canCall = true;
+
+                for (var j = 0; j < matchParams.Length; j++)
+                {
+                    var matchArg = CreateMethodArg(matchParams[j], j, args);
+                    
+                    var matchConversion = Interpreter.TypeConverter.CanConvert(
+                        matchArg,
+                        match,
+                        matchArg.Argument,
+                        matchArg.TargetType);
+
+                    if (!matchConversion.CanConvert)
+                    {
+                        canCall = false;
+                        break;
+                    }
+                    
+                    matchConversions[j] = matchConversion;
+                    matchArgs[j] = matchArg;
+                }
+
+                if (!canCall)
+                {
+                    continue;
+                }
+
+                contexts[contextCount] = new AphidInteropCallContext(
+                    match,
+                    matchConversions,
+                    matchArgs);
+
+                contextWeights[contextCount++] = WeightInference(matchArgs);
+            }
+
+            Array.Sort(contextWeights, contexts, 0, contextCount);
+
+            for (var i = 0; i < contexts.Length; i++)
+            {
+                var x = contexts[i];
 
                 if (!x.Method.IsGenericMethod)
                 {
@@ -260,58 +260,6 @@ namespace Components.Aphid.TypeSystem
             }
 
             throw CreateSignatureException(args, signatureMatches);
-
-            //var methodInfo = weighted
-            //    .Select(x => new
-            //    {
-            //        MethodInfo = x,
-            //        GenericArgs = ZipGenericParameters(
-            //            x.Method,
-            //            x.ConversionInfo,
-            //            x.Args)
-            //    })
-            //    .FirstOrDefault(
-            //        x => 
-            //            !x.MethodInfo.Method.IsGenericMethod ||
-            //            x.MethodInfo.Method
-            //                .GetGenericArguments()
-            //                .Distinct()
-            //                .Count() ==
-            //                x.GenericArgs.Length);
-
-            //return new AphidInteropMethodInfo(
-            //    methodInfo.MethodInfo.Method,
-            //    methodInfo.GenericArgs,
-            //    methodInfo.MethodInfo.Args);
-
-
-            //return null;
-            ////return new AphidInteropMethodInfo(methodInfo.Method, methodInfo.ConversionInfo., methodInfo.Args);
-
-
-            //var fanned = weighted
-            //    .SelectMany(x => x.ConversionInfo
-            //        .Select(y => y.GenericArguments)
-            //        .Distinct()
-            //        .DefaultIfEmpty(new Type[0])
-            //        .Select(y => new AphidInteropMethodInfo(x.Method, y, x.Args)))
-            //    #if DEBUG
-            //    .ToArray()
-            //    #endif
-            //    ;
-
-            //var methods = fanned
-            //    .Where(x =>
-            //            !x.Method.IsGenericMethod ||
-            //            (x.GenericArguments.Length == x.Method.GetGenericArguments().Length))
-            //    .ToArray();
-
-            //if (methods.Length == 0)
-            //{
-            //    throw CreateSignatureException(args, signatureMatches);
-            //}
-
-            //return methods.First();
         }
 
         private Type[] ZipGenericParameters(
