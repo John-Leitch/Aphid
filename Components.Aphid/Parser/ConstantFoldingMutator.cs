@@ -67,14 +67,18 @@ namespace Components.Aphid.Parser
                         return new List<AphidExpression> { new NumberExpression(left * right) };
 
                     case AphidTokenType.DivisionOperator:
-                        return new List<AphidExpression> { new NumberExpression(left / right) };
-
-                    default:
-                        if (!binOp.Operator.ToString().Contains("Custom"))
+                        if (right != 0)
                         {
-                            throw new InvalidOperationException();
+                            return new List<AphidExpression> { new NumberExpression(left / right) };
+                        }
+                        else
+                        {
+                            hasChanged = false;
+
+                            return null;
                         }
 
+                    default:
                         hasChanged = false;
                         break;
                 }
