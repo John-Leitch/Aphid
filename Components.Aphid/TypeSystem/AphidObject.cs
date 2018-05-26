@@ -1,6 +1,7 @@
 ﻿//#define LOW_SECURITY
 //#define STRICT_APHID_OBJECT_TYPE_CHECKS
 //#define DETECTED_ERRONEOUS_NESTING
+//#define APHID_OBJECT_OWNER_THREAD
 using Components.Aphid.Interpreter;
 using System;
 using System.Collections;
@@ -79,7 +80,9 @@ namespace Components.Aphid.TypeSystem
         public object Value { get; set; }
 #endif
 
+#if APHID_OBJECT_OWNER_THREAD
         public int OwnerThread { get; private set; }
+#endif
 
         public AphidObject Parent { get; set; }
 
@@ -108,7 +111,10 @@ namespace Components.Aphid.TypeSystem
 
         private AphidObject(bool isScalar)
         {
+#if APHID_OBJECT_OWNER_THREAD
             OwnerThread = Thread.CurrentThread.ManagedThreadId;
+#endif
+
             IsScalar = isScalar;
         }
 
@@ -543,8 +549,12 @@ namespace Components.Aphid.TypeSystem
                 var tmp = Value != null ? Value.GetHashCode() : 0x300;
 #endif
                 hash += tmp != 0 ? tmp : 0x400;
+
+#if APHID_OBJECT_OWNER_THREAD
                 tmp = OwnerThread.GetHashCode();
                 hash += tmp != 0 ? tmp : 0x500;
+#endif
+
                 tmp = Parent != null ? Parent.GetHashCode() : 0x600;
                 hash += tmp != 0 ? tmp : 0x700;
                 //hash = ((hash * ~hash) ^ hash) * hash;
