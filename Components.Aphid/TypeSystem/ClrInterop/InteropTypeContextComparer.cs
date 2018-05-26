@@ -20,19 +20,8 @@ namespace Components.Aphid.TypeSystem
             }
             else if (x.Imports != null)
             {
-                if (x.Imports.Length == y.Imports.Length)
-                //if (x.Imports.Length == y.Imports.Length ||
-                //    (x.IsResolved && x.Imports.Length < y.Imports.Length))
-                {
-                    for (var i = 0; i < x.Imports.Length; i++)
-                    {
-                        if (x.Imports[i] != y.Imports[i])
-                        {
-                            return false;
-                        }
-                    }
-                }
-                else if (x.IsResolved && x.Imports.Length < y.Imports.Length)
+                if (x.Imports.Length == y.Imports.Length ||
+                    (x.IsResolved && x.Imports.Length < y.Imports.Length))
                 {
                     for (var i = 0; i < x.Imports.Length; i++)
                     {
@@ -79,18 +68,6 @@ namespace Components.Aphid.TypeSystem
 
             unchecked
             {
-                for (var i = 0; i < obj.Imports.Length; i++)
-                {
-                    var t = obj.Imports[i].GetHashCode();
-
-                    x *= t != 0 ? t : 8;
-
-                    if (x == 0 || x == 1)
-                    {
-                        x = 9;
-                    }
-                }
-
                 for (var i = 0; i < obj.Path.Length; i++)
                 {
                     var t = obj.Path[i].GetHashCode();
