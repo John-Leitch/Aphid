@@ -236,7 +236,7 @@ namespace Components.Aphid.TypeSystem
 
             Array.Sort(contextWeights, contexts, 0, contextCount);
 
-            for (var i = 0; i < contexts.Length; i++)
+            for (var i = 0; i < contextCount; i++)
             {
                 var x = contexts[i];
 
