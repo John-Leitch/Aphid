@@ -259,8 +259,8 @@ var ast = {
         //context = c;
 
         c.isRoot = ast.depth == 0;
-        c.isBlock = node @is('IEnumerable');
-        c.hasChildren = node @has('GetChildren');
+        c.isBlock = node.GetType() |> IEnumerable[AphidExpression].IsAssignableFrom;
+        c.hasChildren = node['GetChildren'] defined;
         c.isHandled = false;
         c.push(node);        
         visit(node, c);
