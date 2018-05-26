@@ -146,3 +146,65 @@ extend CodeMemberMethod {
 code.partial = @{ $_.IsPartial = true; ret $_ };
 
 extend CodeObject { code: @(c) c |> code.cs }
+
+var codeMap = {
+    stmt: @(stmt) {
+        if (stmt.isBinOp() && stmt.isOp(getToken('='))) {
+            if (stmt.lhs().isId() && stmt.lhs().firstAttr(var)) {
+                ret code.varDecl('dynamic', stmt.lhs().id(), codeMap.exp(stmt.rhs()));
+            } else {
+                ret code.assign(codeMap.exp(stmt.lhs()), codeMap.exp(stmt.rhs()));
+            }
+        } else {
+            ret codeMap.exp(stmt);
+        }
+    },
+
+    exp: @(e) ($(e.Type)
+            AphidExpressionType.IdentifierExpression: code.var(e.id()),
+            AphidExpressionType.NumberExpression: code.primitive(e.Value),
+            
+            AphidExpressionType.StringExpression:
+                e.Value |> StringParser.Parse |> code.primitive,
+
+            AphidExpressionType.BinaryOperatorExpression:
+                code.binaryOp(
+                    codeMap.exp(e.lhs()),
+                    codeMap.op(e.op()),
+                    codeMap.exp(e.rhs())),
+                
+            AphidExpressionType.CallExpression: call(e),
+            throw 'Unsupported expression type: {0}' :: e.Type),
+
+    call: @(c) {
+        var f = c.func();
+        if (f.isBinOp() && f.isOp(getToken('.')) && f.rhs().isId()) {
+            ret code.methodInvoke(
+                codeMap.exp(f.lhs()),
+                f.rhs().id(),
+                c.args()->codeMap.exp);
+        } else {
+            throw 'Unsupported call: {0}' :: c;
+        }
+    },
+
+    op: @(operator) ($(operator)
+        AphidTokenType.AdditionOperator: CodeBinaryOperatorType.Add,
+        AphidTokenType.MinusOperator: CodeBinaryOperatorType.Subtract,
+        AphidTokenType.MultiplicationOperator: CodeBinaryOperatorType.Multiply,
+        AphidTokenType.DivisionOperator: CodeBinaryOperatorType.Divide,
+        AphidTokenType.ModulusOperator: CodeBinaryOperatorType.Modulus,
+        AphidTokenType.AssignmentOperator: CodeBinaryOperatorType.Assign,
+        AphidTokenType.NotEqualOperator: CodeBinaryOperatorType.IdentityInequality,
+        AphidTokenType.EqualityOperator: CodeBinaryOperatorType.IdentityEquality,
+        AphidTokenType.EqualityOperator: CodeBinaryOperatorType.ValueEquality,
+        AphidTokenType.BinaryOrOperator: CodeBinaryOperatorType.BitwiseOr,
+        AphidTokenType.BinaryAndOperator: CodeBinaryOperatorType.BitwiseAnd,
+        AphidTokenType.OrOperator: CodeBinaryOperatorType.BooleanOr,
+        AphidTokenType.AndOperator: CodeBinaryOperatorType.BooleanAnd,
+        AphidTokenType.LessThanOperator: CodeBinaryOperatorType.LessThan,
+        AphidTokenType.LessThanOrEqualOperator: CodeBinaryOperatorType.LessThanOrEqual,
+        AphidTokenType.GreaterThanOperator: CodeBinaryOperatorType.GreaterThan,
+        AphidTokenType.GreaterThanOrEqualOperator: CodeBinaryOperatorType.GreaterThanOrEqual,
+        throw 'Operator not supported by CodeDom: {0}' :: operator),
+};
