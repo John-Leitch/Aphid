@@ -16,11 +16,12 @@ namespace Components.Aphid.Parser
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            var idExp = expression as IdentifierExpression;
-
             AphidExpression argument;
 
-            if (idExp == null || !_arguments.TryGetValue(idExp.Identifier, out argument))
+            if (expression.Type != AphidExpressionType.IdentifierExpression ||
+                !_arguments.TryGetValue(
+                    ((IdentifierExpression)expression).Identifier,
+                    out argument))
             {
                 hasChanged = false;
 

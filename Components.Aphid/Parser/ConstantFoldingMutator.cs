@@ -26,20 +26,21 @@ namespace Components.Aphid.Parser
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            var binOp = expression as BinaryOperatorExpression;
+            
 
-            hasChanged = false;
-
-            if (binOp == null)
+            if (expression.Type != AphidExpressionType.BinaryOperatorExpression)
             {
+                hasChanged = false;
+
                 return null;
             }
 
-            hasChanged = true;
+            var binOp = (BinaryOperatorExpression)expression;            
 
             if (OperandsAre<StringExpression>(binOp) &&
                 binOp.Operator == AphidTokenType.AdditionOperator)
             {
+                hasChanged = true;
                 var left = GetString(binOp.LeftOperand);
                 var right = GetString(binOp.RightOperand);
 
@@ -58,17 +59,25 @@ namespace Components.Aphid.Parser
                 switch (binOp.Operator)
                 {
                     case AphidTokenType.AdditionOperator:
+                        hasChanged = true;
+
                         return new List<AphidExpression> { new NumberExpression(left + right) };
 
                     case AphidTokenType.MinusOperator:
+                        hasChanged = true;
+
                         return new List<AphidExpression> { new NumberExpression(left - right) };
 
                     case AphidTokenType.MultiplicationOperator:
+                        hasChanged = true;
+
                         return new List<AphidExpression> { new NumberExpression(left * right) };
 
                     case AphidTokenType.DivisionOperator:
                         if (right != 0)
                         {
+                            hasChanged = true;
+
                             return new List<AphidExpression> { new NumberExpression(left / right) };
                         }
                         else
@@ -80,15 +89,16 @@ namespace Components.Aphid.Parser
 
                     default:
                         hasChanged = false;
-                        break;
+
+                        return null;
                 }
             }
             else
             {
                 hasChanged = false;
-            }
 
-            return null;
+                return null;
+            }
         }
     }
 }

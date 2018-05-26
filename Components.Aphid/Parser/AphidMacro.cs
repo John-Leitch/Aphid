@@ -20,30 +20,35 @@ namespace Components.Aphid.Parser
             OriginalExpression = originalExpression;
         }
 
-        public static AphidMacro[] Parse(List<AphidExpression> ast)
+        public static ArraySegment<AphidMacro> Parse(List<AphidExpression> ast)
         {
-            return ast
-                .OfType<BinaryOperatorExpression>()
-                .Select(x => new
+            var macros = new AphidMacro[ast.Count];
+            var macroCount = 0;
+
+            for (var i = 0; i < ast.Count; i++)
+            {
+                var node = ast[i];
+                BinaryOperatorExpression binOp;
+                CallExpression call;
+
+                if (node.Type == AphidExpressionType.BinaryOperatorExpression &&
+                    ((binOp = (BinaryOperatorExpression)node).LeftOperand.Type ==
+                        AphidExpressionType.IdentifierExpression) &&
+                    binOp.RightOperand.Type == AphidExpressionType.CallExpression &&
+                    (call = (CallExpression)binOp.RightOperand).FunctionExpression.Type ==
+                        AphidExpressionType.IdentifierExpression &&
+                    ((IdentifierExpression)call.FunctionExpression).Identifier == "macro" &&
+                    call.Args.Count == 1 &&
+                    call.Args[0].Type == AphidExpressionType.FunctionExpression)
                 {
-                    Id = x.LeftOperand as IdentifierExpression,
-                    Call = x.RightOperand as CallExpression,
-                    Original = x,
-                })
-                .Where(x => x.Id != null && x.Call != null && x.Call.Args.Count() == 1)
-                .Select(x => new
-                {
-                    Name = x.Id.Identifier,
-                    CallName = x.Call.FunctionExpression as IdentifierExpression,
-                    Func = x.Call.Args.Single() as FunctionExpression,
-                    x.Original,
-                })
-                .Where(x =>
-                    x.CallName != null &&
-                    x.CallName.Identifier == "macro" &&
-                    x.Func != null)
-                .Select(x => new AphidMacro(x.Name, x.Func, x.Original))
-                .ToArray();
+                    macros[macroCount++] = new AphidMacro(
+                        ((IdentifierExpression)binOp.LeftOperand).Identifier,
+                        (FunctionExpression)call.Args[0],
+                        binOp);
+                }
+            }
+
+            return new ArraySegment<AphidMacro>(macros, 0, macroCount);
         }        
     }
 }

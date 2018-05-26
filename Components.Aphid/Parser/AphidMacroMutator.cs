@@ -13,8 +13,10 @@ namespace Components.Aphid.Parser
         {
             var macros = AphidMacro.Parse(ast);
 
-            foreach (var m in macros)
+            for (var i = 0; i < macros.Count; i++)
             {
+                var m = macros.Array[i];
+
                 if (_macros.ContainsKey(m.Name))
                 {
                     throw new AphidParserException(
@@ -25,25 +27,49 @@ namespace Components.Aphid.Parser
                 _macros.Add(m.Name, m);
             }
 
-            return ast.Where(x => !_macros.Any(y => y.Value.OriginalExpression == x)).ToList();
+            var filtered = new List<AphidExpression>(ast.Count);
+
+            for (var i = 0; i < ast.Count; i++)
+            {
+                var node = ast[i];
+                var include = true;
+
+                for (var j = 0; j < macros.Count; j++)
+                {
+                    if (node == macros.Array[j].OriginalExpression)
+                    {
+                        include = false;
+                        break;
+                    }
+                }
+
+                if (include)
+                {
+                    filtered.Add(node);
+                }
+            }
+
+            return filtered;
         }
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            var callExp = expression as CallExpression;
+            CallExpression callExp;
 
-            if (callExp == null)
+            if (expression.Type != AphidExpressionType.CallExpression ||
+                (callExp = (CallExpression)expression).FunctionExpression.Type !=
+                    AphidExpressionType.IdentifierExpression)
             {
                 hasChanged = false;
 
                 return null;
             }
 
-            var callIdExp = callExp.FunctionExpression as IdentifierExpression;
+            var callIdExp = (IdentifierExpression)callExp.FunctionExpression;
 
             AphidMacro macro;
 
-            if (callIdExp == null || !_macros.TryGetValue(callIdExp.Identifier, out macro))
+            if (!_macros.TryGetValue(callIdExp.Identifier, out macro))
             {
                 hasChanged = false;
 
@@ -52,13 +78,14 @@ namespace Components.Aphid.Parser
 
             hasChanged = true;
 
-            var argTable = callExp.Args
-                .Select((x, i) => new
-                {
-                    Name = (IdentifierExpression)macro.Declaration.Args[i],
-                    Value = x,
-                })
-                .ToDictionary(x => x.Name.Identifier, x => x.Value);
+            var argTable = new Dictionary<string, AphidExpression>(callExp.Args.Count);
+
+            for (var i = 0; i < callExp.Args.Count; i++)
+            {
+                argTable.Add(
+                    ((IdentifierExpression)macro.Declaration.Args[i]).Identifier,
+                    callExp.Args[i]);
+            }
 
             var bodyMutator = CreateBodyMutator(argTable);
             var mutatedBody = bodyMutator.Mutate(macro.Declaration.Body);
