@@ -8,10 +8,12 @@ namespace Components.Aphid.Parser
 {
     public class ConstantFoldingMutator : AphidMutator
     {
-        private bool OperandsAre<T>(BinaryOperatorExpression binOp)
+        private bool OperandsAre(
+            BinaryOperatorExpression binOp,
+            AphidExpressionType type)
         {
-            return binOp.LeftOperand.GetType() == typeof(T) &&
-                binOp.RightOperand.GetType() == typeof(T);
+            return binOp.LeftOperand.Type == type &&
+                binOp.RightOperand.Type == type;
         }
 
         private decimal GetNumber(AphidExpression exp)
@@ -26,8 +28,6 @@ namespace Components.Aphid.Parser
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            
-
             if (expression.Type != AphidExpressionType.BinaryOperatorExpression)
             {
                 hasChanged = false;
@@ -37,7 +37,7 @@ namespace Components.Aphid.Parser
 
             var binOp = (BinaryOperatorExpression)expression;            
 
-            if (OperandsAre<StringExpression>(binOp) &&
+            if (OperandsAre(binOp, AphidExpressionType.StringExpression) &&
                 binOp.Operator == AphidTokenType.AdditionOperator)
             {
                 hasChanged = true;
@@ -51,7 +51,7 @@ namespace Components.Aphid.Parser
                         right.Substring(1, right.Length - 2).Replace("\\\"", "\"") + "'")
                 };
             }
-            else if (OperandsAre<NumberExpression>(binOp))
+            else if (OperandsAre(binOp, AphidExpressionType.NumberExpression))
             {
                 var left = GetNumber(binOp.LeftOperand);
                 var right = GetNumber(binOp.RightOperand);

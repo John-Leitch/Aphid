@@ -49,24 +49,21 @@ namespace Components.Aphid.Parser
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            var loadExp = expression as LoadScriptExpression;
+            LoadScriptExpression loadExp;
 
-            if (loadExp == null)
+            if (expression.Type != AphidExpressionType.LoadScriptExpression)
             {
                 hasChanged = false;
 
                 return null;
             }
-
-            hasChanged = true;
-
-            var scriptExp = loadExp.FileExpression as StringExpression;
-
-            if (scriptExp == null)
+            else if ((loadExp = (LoadScriptExpression)expression).FileExpression.Type !=
+                    AphidExpressionType.StringExpression)
             {
                 throw new AphidParserException("Invalid load script operand", loadExp);
             }
 
+            var scriptExp = (StringExpression)loadExp.FileExpression;
             var script = _loader.FindScriptFile(_applicationDirectory, StringParser.Parse(scriptExp.Value));
 
             if (!File.Exists(script))
@@ -75,9 +72,7 @@ namespace Components.Aphid.Parser
             }
 
             Included.Add(script);
-
             var code = AphidScript.Read(script);
-
             var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
 
             if (PerformCommonTransformations)
@@ -85,11 +80,14 @@ namespace Components.Aphid.Parser
                 var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
                 mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
                 mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+                hasChanged = true;
 
                 return mutatedAst;
             }
             else
             {
+                hasChanged = true;
+
                 return ast;
             }
         }
