@@ -498,13 +498,15 @@ namespace Components.Aphid.TypeSystem
                 return new AphidInteropMethodArg(args[index], parameter);
             }
             else if (args.Length - 1 == index &&
-                (argType = (arg = args[index]).GetType()).IsArray &&
+                (arg = args[index]) != null &&
+                (argType = arg.GetType()).IsArray &&
                 Interpreter.TypeConverter.CanConvertArray(arg, argType, parameter.ParameterType))
             {
                 return new AphidInteropMethodArg(arg, parameter, false);
             }
             else if (args.Length > index &&
-                (arg = args[index]).GetType() == typeof(string) &&
+                (arg = args[index]) != null &&
+                arg.GetType() == typeof(string) &&
                 parameter.ParameterType == typeof(char[]))
             {
                 return new AphidInteropMethodArg(arg, parameter);
