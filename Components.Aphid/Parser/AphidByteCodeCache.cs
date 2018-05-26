@@ -23,13 +23,15 @@ namespace Components.Aphid.Parser
             var directiveMutator = new AphidPreprocessorDirectiveMutator();
             var includeMutator = new IncludeMutator();
             includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
+            var constantFoldingMutator = new ConstantFoldingMutator();
 
             var ast = AphidParser.ParseFile(filename);
 
-            var ast2 = includeMutator.MutateRecursively(
-                directiveMutator.MutateRecursively(
-                    macroMutator.MutateRecursively(
-                        partialOpMutator.MutateRecursively(ast))));
+            var ast2 = constantFoldingMutator.MutateRecursively(
+                includeMutator.MutateRecursively(
+                    directiveMutator.MutateRecursively(
+                        macroMutator.MutateRecursively(
+                            partialOpMutator.MutateRecursively(ast)))));
 
             includeMutator.Included.Add(filename);
             sources = includeMutator.Included.ToArray();
