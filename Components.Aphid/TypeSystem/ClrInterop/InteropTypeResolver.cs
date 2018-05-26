@@ -11,114 +11,6 @@ namespace Components.Aphid.TypeSystem
 {
     public class InteropTypeResolver : AphidRuntimeComponent
     {
-        private class InteropTypeContext
-        {
-            public string[] Imports { get; set; }
-
-            public string[] Path { get; set; }
-
-            public bool IsType { get; set; }
-
-            public InteropTypeContext(string[] imports, string[] path, bool isType)
-            {
-                Imports = imports;
-                Path = path;
-                IsType = isType;
-            }
-        }
-
-        private class InteropTypeContextComparer : IEqualityComparer<InteropTypeContext>
-        {
-            public bool Equals(InteropTypeContext x, InteropTypeContext y)
-            {
-                if ((x.Imports == null && y.Imports != null) ||
-                    (x.Imports != null && y.Imports == null) ||
-                    (x.Path == null && y.Path != null) ||
-                    (x.Path != null && y.Path == null) ||
-                    (x.IsType != y.IsType))
-                {
-                    return false;
-                }
-                else if (x.Imports != null)
-                {
-                    if (x.Imports.Length == y.Imports.Length)
-                    {
-                        for (var i = 0; i < x.Imports.Length; i++)
-                        {
-                            if (x.Imports[i] != y.Imports[i])
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                if (x.Path != null)
-                {
-                    if (x.Path.Length == y.Path.Length)
-                    {
-                        for (var i = 0; i < x.Path.Length; i++)
-                        {
-                            if (x.Path[i] != y.Path[i])
-                            {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-            public int GetHashCode(InteropTypeContext obj)
-            {
-                var x = 2;
-
-                unchecked
-                {
-                    for (var i = 0; i < obj.Imports.Length; i++)
-                    {
-                        var t = obj.Imports[i].GetHashCode();
-
-                        x *= t != 0 ? t : 8;
-
-                        if (x == 0 || x == 1)
-                        {
-                            x = 9;
-                        }
-                    }
-
-                    for (var i = 0; i < obj.Path.Length; i++)
-                    {
-                        var t = obj.Path[i].GetHashCode();
-
-                        x *= t != 0 ? t : 10;
-
-                        if (x == 0 || x == 1)
-                        {
-                            x = 11;
-                        }
-                    }
-
-                    x *= obj.IsType ? 7 : 9;
-                }
-
-                return x;
-            }
-        }
-
         private static Dictionary<InteropTypeContext, Type> _typeCache =
             new Dictionary<InteropTypeContext, Type>(new InteropTypeContextComparer());
 
@@ -186,6 +78,7 @@ namespace Components.Aphid.TypeSystem
                 else
                 {
 #if TYPE_CACHE_NULL
+                    ctx.IsResolved = false;
                     _typeCache.Add(ctx, null);
 #endif
 
@@ -200,6 +93,7 @@ namespace Components.Aphid.TypeSystem
                     pathStr);
             }
 
+            ctx.IsResolved = type.Type != null;
             _typeCache.Add(ctx, type.Type);
 
             return type.Type;

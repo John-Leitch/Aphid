@@ -239,6 +239,8 @@
     <Compile Include="Parser\AphidScript.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropCallContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
+    <Compile Include="TypeSystem\ClrInterop\InteropTypeContext.cs" />
+    <Compile Include="TypeSystem\ClrInterop\InteropTypeContextComparer.cs" />
     <Compile Include="TypeSystem\IAphidCallable.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
     <Compile Include="UI\AphidConfig.cs" />
