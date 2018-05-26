@@ -3944,7 +3944,15 @@ namespace Components.Aphid.Parser
                     }
                 }
             }
-            return exp;
+            if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
+            {
+                NextToken();
+                return new UnaryOperatorExpression(AphidTokenType.definedKeyword, exp, true);
+            }
+            else
+            {
+                return exp;
+            }
         }
 
         private AphidExpression ParseCallExpression()

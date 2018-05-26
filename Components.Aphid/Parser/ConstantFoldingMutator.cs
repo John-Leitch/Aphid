@@ -70,6 +70,11 @@ namespace Components.Aphid.Parser
                         return new List<AphidExpression> { new NumberExpression(left / right) };
 
                     default:
+                        if (!binOp.Operator.ToString().Contains("Custom"))
+                        {
+                            throw new InvalidOperationException();
+                        }
+
                         hasChanged = false;
                         break;
                 }

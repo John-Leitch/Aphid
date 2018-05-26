@@ -755,7 +755,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretMemberInteropExpression(
             object lhs,
             MemberInfo[] members,
-            BinaryOperatorExpression expression,
+            AphidExpression expression,
             bool returnRef = false,
             Func<AphidObject> dynamicHandler = null)
         {
@@ -822,7 +822,7 @@ namespace Components.Aphid.Interpreter
                 {
                     throw CreateRuntimeException(
                         "Could not find property '{0}'",
-                        expression.RightOperand.ToIdentifier().ToIdentifier());
+                        expression);
                 }
                 else
                 {
@@ -1300,6 +1300,7 @@ namespace Components.Aphid.Interpreter
 
                 Array targetArray;
                 List<AphidObject> targetAphidList;
+                AphidObject aphidObj;
 
                 if ((targetArray = targetObjUnwrapped as Array) != null)
                 {
@@ -1317,6 +1318,56 @@ namespace Components.Aphid.Interpreter
                     }
 
                     targetAphidList[Convert.ToInt32(keyObj)] = value2;
+                }
+                else if ((aphidObj = targetObjUnwrapped as AphidObject) != null)
+                {
+                    if (keyObj == null || keyObj.GetType() != typeof(string))
+                    {
+                        throw CreateRuntimeException(
+                            "Expected string for object key, encountered {0}.",
+                            keyObj != null ? keyObj.GetType().FullName : "null");
+                    }
+
+                    var key = (string)keyObj;
+
+                    AphidRef aphidRef;
+
+                    if (aphidObj.IsScalar)
+                    {
+                        if (aphidObj.Value == null)
+                        {
+                            throw CreateRuntimeException(
+                                "Cannot set key value for null, object expected.");
+                        }
+
+                        var members = GetInteropInstanceMembers(aphidObj.Value, key);
+
+                        for (var i = 0; i < members.Length; i++)
+                        {
+                            PropertyInfo prop;
+                            if ((prop = members[i] as PropertyInfo) != null)
+                            {
+                                prop.SetValue(aphidObj.Value, value2);
+                            }
+
+                            FieldInfo field;
+                            if ((field = members[i] as FieldInfo) != null)
+                            {
+                                field.SetValue(aphidObj.Value, value2);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (aphidObj.ContainsKey(key))
+                        {
+                            aphidObj[key] = value2;
+                        }
+                        else
+                        {
+                            aphidObj.Add(key, value2);
+                        }
+                    }
                 }
                 else
                 {
@@ -3906,17 +3957,61 @@ namespace Components.Aphid.Interpreter
                             case AphidExpressionType.BinaryOperatorExpression:
                                 try
                                 {
-                                    var objRef = (AphidRef)InterpretBinaryOperatorExpression(
-                                        (BinaryOperatorExpression)expression.Operand,
-                                        true);
+                                    var memberRefObj = ValueHelper.Unwrap(
+                                        InterpretBinaryOperatorExpression(
+                                            (BinaryOperatorExpression)expression.Operand,
+                                            returnRef: true));
+
+                                    var memberRef = memberRefObj as AphidRef;
 
                                     return AphidObject.Scalar(
-                                        (!objRef.Object.IsComplexitySet || objRef.Object.IsComplex) &&
-                                        objRef.Object.IsDefined(objRef.Name));
+                                        (memberRef != null &&
+                                            (!memberRef.Object.IsComplexitySet || memberRef.Object.IsComplex) &&
+                                            memberRef.Object.IsDefined(memberRef.Name)) ||
+                                        memberRefObj is AphidInteropReference);
                                 }
                                 catch
                                 {
                                     return AphidObject.Scalar(false);
+                                }
+
+                            case AphidExpressionType.ArrayAccessExpression:
+                                var arrayExp = (ArrayAccessExpression)expression.Operand;
+                                
+                                if (arrayExp.KeyExpressions.Count != 1)
+                                {
+                                    throw CreateRuntimeException("Index expected.");
+                                }
+
+                                var keyObj = ValueHelper.Unwrap(InterpretExpression(arrayExp.KeyExpressions[0]));
+
+                                if (keyObj == null || keyObj.GetType() != typeof(string))
+                                {
+                                    throw CreateRuntimeException(
+                                        "Expected string for object key, encountered {0}.",
+                                        keyObj != null ? keyObj.GetType().FullName : "null");
+                                }
+
+                                var key = (string)keyObj;
+                                var targetObj = InterpretExpression(arrayExp.ArrayExpression);
+                                AphidObject aphidObj;
+
+                                if ((aphidObj = targetObj as AphidObject) != null)
+                                {
+                                    if (aphidObj.IsScalar)
+                                    {
+                                        return AphidObject.Scalar(
+                                            aphidObj.Value != null &&
+                                            aphidObj.Value.GetType().GetMember(key).Length != 0);
+                                    }
+                                    else
+                                    {
+                                        return AphidObject.Scalar(aphidObj.ContainsKey(key));
+                                    }
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException();
                                 }
 
                             default:
@@ -3997,7 +4092,69 @@ namespace Components.Aphid.Interpreter
                 var constructedGenericType = genericType.MakeGenericType(typeParams);
 
                 return AphidObject.Scalar(constructedGenericType);
-                
+            }
+            else if (indexes.Length == 1 &&
+                indexes[0] != null &&
+                indexes[0].Value != null &&
+                indexes[0].Value.GetType() == typeof(string))
+            {
+                var key = (string)indexes[0].Value;
+                var target = InterpretExpression(expression.ArrayExpression);
+
+                if (target == null)
+                {
+                    throw CreateRuntimeException("Cannot get member {0} from null.", key);
+                }
+
+                var aphidObj = target as AphidObject;
+
+                if (aphidObj != null)
+                {
+                    if (aphidObj.IsScalar)
+                    {
+                        if (aphidObj.Value == null)
+                        {
+                            throw CreateRuntimeException("Cannot get member {0} from null.", key);
+                        }
+                        else
+                        {
+                            var members = GetInteropInstanceMembers(aphidObj.Value, key);
+
+                            if (members.Length == 0)
+                            {
+                                throw CreateRuntimeException(
+                                    "Cannot get member {0} from {1}.",
+                                    key,
+                                    aphidObj.Value.GetType());
+                            }
+
+                            return InterpretMemberInteropExpression(
+                                aphidObj.Value,
+                                members,
+                                expression);
+                        }
+                    }
+                    else
+                    {
+                        AphidObject val;
+
+                        if (aphidObj.TryGetValue(key, out val))
+                        {
+                            return val.IsScalar ? AphidObject.Scalar(val.Value) : val;
+                        }
+                        else
+                        {
+                            throw CreateRuntimeException(
+                                "Cannot get member {0} from {1}",
+                                key,
+                                aphidObj);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
             else
             {

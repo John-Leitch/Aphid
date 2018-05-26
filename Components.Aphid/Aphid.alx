@@ -767,7 +767,13 @@ ParseArrayAccessExpression = @{
         ParseCallBody(exp);
     }
 
-    ret exp;
+    if (definedKeyword) {
+        NextToken;
+
+        ret UnaryOperatorExpression(definedKeyword, exp, true);
+    } else {
+        ret exp;
+    }
 };
 
 ParseCall = macro(@(_parseFunc) {
