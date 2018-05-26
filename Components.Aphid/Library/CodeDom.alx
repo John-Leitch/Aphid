@@ -24,8 +24,13 @@ extend CodeTypeDeclaration {
     withProtected: _attr(Family),
     withPublic: _attr(Public),
     
-    field: @(t, type, name) {
+    field: @(t, type, name, init) {
         var f = code.memberField(code.type(type), name);
+
+        if (init defined) {
+            f.InitExpression = init;
+        }
+
         f.bind(t);
 
         ret f;

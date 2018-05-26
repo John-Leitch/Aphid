@@ -147,13 +147,18 @@ var resources;
     resources = {
         embed: @(namespace, resource, buffer) {
             var typeName = 'Resources';
-            var t = code.namespace(namespace).type(typeName).partial();
             var type = byte.MakeArrayType();
             var fieldName = '_' + resource;
-            var field = t.field(type, fieldName).static();
-            field.InitExpression = code.arrayCreate(type, buffer->code.primitive);
-            
-            field
+
+            var cs = code
+                .namespace(namespace)
+                .type(typeName)
+                .partial()
+                .field(
+                    type,
+                    fieldName,
+                    code.arrayCreate(type, buffer->code.primitive))
+                .static()
                 .next()
                 .withPublic()
                 .property(type, resource)
@@ -162,11 +167,12 @@ var resources;
                     code.methodReturn(
                         code.field(
                             code.typeExp(typeName),
-                            fieldName)));
+                            fieldName)))
+                .next()
+                .namespace()
+                .code();
 
-            var code = t.namespace().code();
-
-            ret code;
+            ret cs;
         },
     };
 }();
