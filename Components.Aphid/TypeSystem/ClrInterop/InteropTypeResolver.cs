@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Interpreter;
+﻿#define TYPE_CACHE_NULL
+using Components.Aphid.Interpreter;
 using Components.External;
 using System;
 using System.Collections.Generic;
@@ -184,6 +185,10 @@ namespace Components.Aphid.TypeSystem
                 }
                 else
                 {
+#if TYPE_CACHE_NULL
+                    _typeCache.Add(ctx, null);
+#endif
+
                     return null;
                 }
             }
