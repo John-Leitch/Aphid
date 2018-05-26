@@ -1,0 +1,77 @@
+﻿#'meta';
+#'std';
+
+using System.Text;
+using System.Collections.Generic;
+
+var sb = new StringBuilder();
+sb.AppendLine('var visitor = {');
+sb.AppendLine('    beginStmt: @(exp, depth){},');
+sb.AppendLine('    endStmt: @(exp, depth){},');
+sb.AppendLine('    beginBlock: @(block, depth){},');
+sb.AppendLine('    endBlock: @(block, depth){},');
+
+var cases = convention.getExpMap()->@(t){
+    var c = $_.name |> convention.pascalCase;
+    sb.AppendFormat('    begin{0}: @(exp, depth){{}},\r\n\r\n', c);
+    sb.AppendFormat('    {0}: @(exp, depth){{\r\n\r\n', $_.name);
+
+    var props = $_.type
+        .GetProperties()
+        -?@() $_.DeclaringType == t.type;
+    
+    props->@() sb.AppendFormat(
+        "        if (exp.{0} != null) visit(exp.{0}, depth + 1);\r\n",
+        [ $_.Name ]);
+
+    sb.Append('    },\r\n\r\n');
+    sb.AppendFormat('    end{0}: @(exp){{}},\r\n\r\n', + c);
+
+    ret
+'                AphidExpressionType.{0}: {{
+                    begin{1}(exp, d);
+                    {2}(exp, d);
+                    end{1}(exp, d);
+                }}
+' :: [
+        $_.type.Name,
+        $_.name |> convention.pascalCase,
+        $_.name
+    ]
+};
+
+'    visit: @(exp, depth) {{
+        var d = depth defined ? depth : 0;
+        var t = exp.GetType();
+
+        if (t.BaseType == AphidExpression) {{
+            switch (exp.Type) {{
+{0}
+            }}
+        }} else if (t == List[AphidExpression]) {{
+            beginBlock(exp, d);
+
+            exp for {{
+                var d2 = d + 1;
+                beginStmt($_, d2);
+                visit($_, d2);
+                endStmt($_, d2);
+            }};
+
+            endBlock(exp, d);
+        }}
+    }}' :: [ cases +>@(x, y) x + '\r\n' + y ]
+|> sb.AppendLine;
+
+sb.AppendLine('}\r\n');
+
+var outFile =
+	this.{'$script'}
+	|> Path.GetDirectoryName
+	@() Path.Combine($_, '..', 'Library', 'Visitor.g.alx');
+
+print();
+printInfo('Writing to ~Cyan~{0}~R~', outFile);
+sb @File.WriteAllText(outFile);
+
+printSuccess('Done');

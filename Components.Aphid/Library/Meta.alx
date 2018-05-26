@@ -563,3 +563,51 @@ var dumpAstJson = @(node){
     node |> toJson |> print;
     ret null;
 };
+
+var convention = {
+    pascalCase: @(str) str != null && str.Length > 0 ?
+        str[0].ToUpper() + str.Substring(1) :
+        str,
+
+    camelCase: @(str) str != null && str.Length > 0 ?
+        str[0].ToLower() + str.Substring(1) :
+        str,
+
+    shortExpName: @(str) str
+        .Replace('Collection', 's')
+        .Replace('Argument', 'Arg')
+        .Replace('Attribute', 'Attr')
+        .Replace('Parameter', 'Param')
+        .Replace('Reference', '')
+        .Replace('This', 'ThisExp')
+        .Replace('NamespaceImport', 'Import')
+        .Replace('Declaration', 'Decl')
+        .Replace('Constructor', 'Ctor')
+        .Replace('Variable', 'Var')
+        .Replace('Expression', 'Exp')
+        .Replace('Statement', 'Stmt')
+        .Replace('Operator', 'Op')
+        .Replace('Binary', 'Bin')
+        .Replace('Unary', 'Un')
+        .Replace('ExpExp', 'Exp')
+        |> camelCase,
+
+    getExpMap: @{
+        var map = AphidExpression.Assembly
+            .GetTypes()
+            -?(@()$_.BaseType == AphidExpression)
+            ->@()({ type: $_, name: $_.Name |> convention.shortExpName });
+
+        if (map -& @.name =? @() ($_ #!) > 1) {
+            throw 'Aphid expression map collision detected';
+        }
+
+        ret map;
+    },
+};
+
+var createVisitor = @{
+    #'Visitor.g';
+
+    ret visitor;
+};
