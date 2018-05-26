@@ -1,5 +1,5 @@
 ﻿//#define LOW_SECURITY
-#define STRICT_APHID_OBJECT_TYPE_CHECKS
+//#define STRICT_APHID_OBJECT_TYPE_CHECKS
 //#define DETECTED_ERRONEOUS_NESTING
 using Components.Aphid.Interpreter;
 using System;
@@ -119,14 +119,22 @@ namespace Components.Aphid.TypeSystem
             // Todo: eliminate strings
             _isScalar = info.GetBoolean("_isScalar");
             _isComplex = info.GetBoolean("_isComplex");
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
             _value = info.GetValue("_value", typeof(object));
+#else
+            Value = info.GetValue("_value", typeof(object));
+#endif
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("_isScalar", _isScalar);
             info.AddValue("_isComplex", _isComplex);
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
             info.AddValue("_value", _value);
+#else
+            info.AddValue("_value", Value);
+#endif
 
             base.GetObjectData(info, context);
         }
@@ -528,7 +536,12 @@ namespace Components.Aphid.TypeSystem
 
                 hash += _isScalar ? 0x10 : 0x100;
                 hash += _isComplex ? 0x20 : 0x200;
+
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
                 var tmp = _value != null ?_value.GetHashCode() : 0x300;
+#else
+                var tmp = Value != null ? Value.GetHashCode() : 0x300;
+#endif
                 hash += tmp != 0 ? tmp : 0x400;
                 tmp = OwnerThread.GetHashCode();
                 hash += tmp != 0 ? tmp : 0x500;

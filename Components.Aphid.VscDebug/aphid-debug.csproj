@@ -48,6 +48,16 @@
   <PropertyGroup>
     <AssemblyName>aphid-debug</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\AphidDebug\</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -113,9 +123,9 @@
     <PreBuildEvent>powershell -Command "Get-Process aphid-debug -ErrorAction SilentlyContinue  | Stop-Process -Force; Exit 0"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(TargetDir)* C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug /s /d /y
-xcopy $(TargetDir)..\..\..\Components.Aphid\Library\*.alx C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\Library /s /d /y
-xcopy $(TargetDir)..\..\..\Components.Aphid\Tools\*.alx C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\Tools /s /d
+    <PostBuildEvent>xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /s /d /y
+xcopy $(TargetDir)..\..\..\Components.Aphid\Library\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Library /s /d /y
+xcopy $(TargetDir)..\..\..\Components.Aphid\Tools\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Tools /s /d /y
 ngen.exe C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
   </PropertyGroup>
 </Project>

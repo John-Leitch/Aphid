@@ -5081,7 +5081,11 @@ namespace Components.Aphid.Interpreter
             }
 
             CurrentExpression = expression;
+
+#if APHID_DEBUGGING_ENABLED
             HandleDebugging(expression);
+#endif
+
 #if STRICT_INDEX
             if (expression.Index == -1 || expression.Length == -1)
             {
@@ -5411,7 +5415,10 @@ namespace Components.Aphid.Interpreter
 
                 if (expression.Type == AphidExpressionType.IdentifierExpression)
                 {
+#if APHID_DEBUGGING_ENABLED
                     HandleDebugging(expression);
+#endif
+
                     var idExp = (IdentifierExpression)expression;
                     var id = idExp.Identifier;
 
@@ -5510,6 +5517,7 @@ namespace Components.Aphid.Interpreter
 #endif
         }
 
+#if APHID_DEBUGGING_ENABLED
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void HandleDebugging(AphidExpression expression)
         {
@@ -5593,6 +5601,7 @@ namespace Components.Aphid.Interpreter
         {
             SingleStep();
         }
+#endif
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidRuntimeException CreateRuntimeException(string message, params object[] args)

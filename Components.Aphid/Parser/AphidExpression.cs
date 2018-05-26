@@ -26,7 +26,9 @@ namespace Components.Aphid.Parser
 
         public string Filename { get; set; }
 
+#if APHID_DEBUGGING_ENABLED
         public bool HasBreakpoint { get; set; }
+#endif
 
         public override string ToString()
         {

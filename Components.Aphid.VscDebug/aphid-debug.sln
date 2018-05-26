@@ -5,10 +5,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aphid-debug", "aphid-debug.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid", "C:\source\Aphid\Components.Aphid\Components.Aphid.csproj", "{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aphid", "..\..\..\..\..\source\Aphid\Aphid\Aphid.csproj", "{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aphid", "..\Aphid\Aphid.csproj", "{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		AphidDebug|Any CPU = AphidDebug|Any CPU
+		AphidDebug|x64 = AphidDebug|x64
+		AphidDebug|x86 = AphidDebug|x86
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -20,6 +23,10 @@ Global
 		Release64|x86 = Release64|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.AphidDebug|Any CPU.ActiveCfg = AphidDebug|Any CPU
+		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.AphidDebug|Any CPU.Build.0 = AphidDebug|Any CPU
+		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.AphidDebug|x64.ActiveCfg = AphidDebug|Any CPU
+		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.AphidDebug|x86.ActiveCfg = AphidDebug|Any CPU
 		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -32,6 +39,12 @@ Global
 		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.Release64|Any CPU.Build.0 = Release|Any CPU
 		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.Release64|x64.ActiveCfg = Release|Any CPU
 		{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}.Release64|x86.ActiveCfg = Release|Any CPU
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|Any CPU.ActiveCfg = AphidDebug|Any CPU
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|Any CPU.Build.0 = AphidDebug|Any CPU
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|x64.ActiveCfg = AphidDebug|x64
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|x64.Build.0 = AphidDebug|x64
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|x86.ActiveCfg = AphidDebug|x86
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|x86.Build.0 = AphidDebug|x86
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Debug|x64.ActiveCfg = Debug|x64
@@ -50,6 +63,12 @@ Global
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x64.Build.0 = Release64|x64
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x86.ActiveCfg = Release64|x86
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x86.Build.0 = Release64|x86
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|Any CPU.ActiveCfg = AphidDebug|Any CPU
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|Any CPU.Build.0 = AphidDebug|Any CPU
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|x64.ActiveCfg = AphidDebug|x64
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|x64.Build.0 = AphidDebug|x64
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|x86.ActiveCfg = AphidDebug|x86
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|x86.Build.0 = AphidDebug|x86
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.Debug|x64.ActiveCfg = Debug|x64
