@@ -1,0 +1,54 @@
+﻿#'Std';
+#'AopTest';
+definedKeyword group;
+
+_m = macro(@(exp) {
+    _ao(exp);
+    _io(exp);
+});
+
+_ao = macro(@(exp) {
+    @{
+        var obj = {};
+        obj['Length'] = 0xdeadbeef;
+        obj['ToString'] = @() obj.Length.ToString();
+        exp;
+    }
+});
+
+_io = macro(@(exp) {
+    @{
+        using System.Text;
+        var obj = new StringBuilder();
+        exp;
+    }
+});
+
+isTrue;
+_m(obj['Length'] != null);
+_m(obj['Length'] defined);
+_m(obj.{'Length'} defined);
+_m(obj['ToString'] != null);
+_m(obj['ToString'] defined);
+_m(obj['ToString']() != null);
+// Todo: fix with common defined implementation
+//_m(obj.{'ToString'} defined);
+
+isFalse;
+_m(obj['Length'] == null);
+_m(obj['BadMember'] defined);
+_m(obj.{'BadMember'} defined);
+_m(badObj.{'Length'} defined);
+_m(badObj.{'BadMember'} defined);
+_m(badObj.{'ToString'} defined);
+
+fault;
+_m(obj['BadMember'] != null);
+_m(obj['BadMember'] == null);
+_m(obj.{'BadMember'} != null);
+_m(obj.{'BadMember'} == null);
+_m(badObj['Length'] != null);
+_m(badObj['Length'] defined);
+_m(badObj['Length'] == null);
+_m(badObj['BadMember'] defined);
+_m(badObj['BadMember']());
