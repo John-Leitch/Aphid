@@ -1,9 +1,19 @@
 ﻿var exports;
+var resources;
 
 @{
     #'CodeDom';
     #'Std';
     #'Meta';
+
+    using System.Security.Cryptography;
+
+    var md5Provider = new MD5CryptoServiceProvider();
+    
+    var md5 = {
+        hash: md5Provider.ComputeHash,
+        hex: @(buffer) buffer |> hash -> @format('{0:x2}') +> @(x, y) x + y
+    };
 
     exports = {
         compileFile: @(namespace, srcFile){
@@ -21,7 +31,22 @@
                 ret null;
             }
 
-            var cs = srcAst |> exports.find -> @exports.generate(namespace) @join('\r\n\r\n');
+            var bytecode = AphidByteCode.Encode(srcAst);
+            var resource = 'ByteCode_{0}' :: (bytecode |> md5.hex);
+
+            var cs =
+                srcAst
+                |> exports.find
+                -> (@() exports.generate(namespace, resource, $_))
+                @join('\r\n');
+
+            cs =
+                '\r\n' +
+                cs + '\r\n' +
+                resources.embed(namespace, resource, bytecode);
+
+            [ 'Components.Aphid.Interpreter', 'Components.Aphid.Parser' ]->@()
+                cs = 'using global::' + $_ + ';\r\n' + cs.Replace($_ + '.', '');
 
             ret cs.Trim() != '' ? cs : null;
         },
@@ -71,14 +96,16 @@
             ret exports;
         },
 
-        generate: @(namespace, export) {
+        generate: @(namespace, resource, export) {
         
             var typeName = export.className;
             var delName = export.propertyName + 'Delegate';
             var fieldName = '_' + export.propertyName;
             var propName = export.propertyName;
             var f = code.field(code.typeExp(typeName), fieldName);
- 
+            var aphid = AphidInterpreter;
+            var aphidName = 'interpreter';
+            
             var d = code
                 .namespace(namespace)
                 .type(typeName)
@@ -89,6 +116,23 @@
                 .withPublic()
                 .property(delName, propName)
                     .static()
+                    .getStmt(code.condition(
+                        code.binaryOp(
+                            f,
+                            CodeBinaryOperatorType.IdentityEquality,
+                            code.primitive(null)),
+                            [
+                                code.exp(
+                                    code.methodInvoke(
+                                        code.objectCreate(aphid, []),
+                                        'Interpret',
+                                        [
+                                            code.methodInvoke(
+                                                code.typeExp(AphidByteCode),
+                                                'Decode',
+                                                [ code.field(code.var('Resources'), resource) ])
+                                        ])),
+                            ]))
                     .getStmt(code.methodReturn(f))
                     .setStmt(code.assign(f, code.var('value')))
                     .next()
@@ -98,5 +142,31 @@
 
             ret d.next().namespace().code();
         }
+    };
+
+    resources = {
+        embed: @(namespace, resource, buffer) {
+            var typeName = 'Resources';
+            var t = code.namespace(namespace).type(typeName).partial();
+            var type = byte.MakeArrayType();
+            var fieldName = '_' + resource;
+            var field = t.field(type, fieldName).static();
+            field.InitExpression = code.arrayCreate(type, buffer->code.primitive);
+            
+            field
+                .next()
+                .withPublic()
+                .property(type, resource)
+                .static()
+                .getStmt(
+                    code.methodReturn(
+                        code.field(
+                            code.typeExp(typeName),
+                            fieldName)));
+
+            var code = t.namespace().code();
+
+            ret code;
+        },
     };
 }();
