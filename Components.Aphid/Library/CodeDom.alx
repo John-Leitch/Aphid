@@ -3,6 +3,58 @@ using Components.Aphid.Interpreter;
 using Components.Aphid.TypeSystem;
 using System.Reflection;
 
+code.return = code.methodReturn;
+code.invoke = code.methodInvoke;
+code.call = code.methodInvoke;
+code.construct = code.objectCreate;
+code.ctor = code.objectCreate;
+
+code.nullExp = @() code.primitive(null);
+code.trueExp = @() code.primitive(true);
+code.falseExp = @() code.primitive(false);
+
+
+_op = macro(@(alias, operator) {
+    code.alias = @(lhs, rhs) code.binaryOp(lhs, CodeBinaryOperatorType.operator, rhs);
+
+    extend CodeExpression {
+        alias: @(lhs, rhs) code.alias(lhs, rhs)
+    }
+});
+
+_op(add, Add);
+_op(sub, Subtract);
+_op(mul, Multiply);
+_op(div, Divide);
+_op(mod, Modulus);
+_op(mov, Assign);
+_op(uneq, IdentityInequality);
+_op(eq, IdentityEquality);
+_op(valEq, ValueEquality);
+_op(binOr, BitwiseOr);
+_op(binAnd, BitwiseAnd);
+_op(or, BooleanOr);
+_op(and, BooleanAnd);
+_op(lt, LessThan);
+_op(lte, LessThanOrEqual);
+_op(gt, GreaterThan);
+_op(gte, GreaterThanOrEqual);
+
+code.isNull = @(exp) exp.eq(code.nullExp());
+code.notNull = @(exp) exp.ne(code.nullExp());
+
+code.ifNull = @(exp, stmts) code.condition(code.isNull(exp), stmts);
+code.ifNotNull = @(exp, stmts) code.condition(code.notNull(exp), stmts);
+
+extend CodeExpression {
+    call: @(exp, methodName, args) code.call(exp, methodName, args defined ? args : []),
+    stmt: @(exp) code.exp(exp),
+    ifNull: @(exp, stmts) code.ifNull(exp, stmts),
+    ifNotNull: @(exp, stmts) code.ifNotNull(exp, stmts),
+    field: @(exp, name) code.field(exp, name),
+    property: @(exp, name) code.property(exp, name),
+}
+
 extend CodeNamespace {
     type: @(ns, typeName) {
         var t = code.typeDecl(typeName);
@@ -124,6 +176,10 @@ extend CodeMemberProperty {
 
         ret p;
     },
+
+    getField: @(p, field) p.getStmt(code.methodReturn(field)),
+    setField: @(p, field) p.setStmt(code.assign(field, code.var('value'))),
+    wrapField: @(p, field) p.getField(field).setField(field),
 }
 
 _memberParam = macro(@(domType) {
