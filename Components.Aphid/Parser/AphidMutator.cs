@@ -373,36 +373,24 @@ namespace Components.Aphid.Parser
                     break;
             }
 
-            var a = FindIndexedAncestor();
-
-            if (a != null)
+            if (expression.Filename != null)
             {
-                foreach (var e in expanded)
+                for (var i = 0; i < expanded.Count; i++)
                 {
-#if DEBUG
-                    if ((e.Index != -1 && e.Index != a.Index) ||
-                        (e.Length != -1 && e.Length != a.Length))
-                    {
-                        throw new InvalidOperationException("Unexpected mutator index/length.");
-                    }
-#endif
-                    e.Index = a.Index;
-                    e.Length = a.Length;
-                    e.Code = code;
+                    expanded[i].WithPositionFrom(expression);
+                    expanded[i].Filename = expression.Filename;
                 }
             }
-
-            a = FindAssociatedFile();
-
-            if (a != null)
+            else
             {
-                foreach (var e in expanded)
+                for (var i = 0; i < expanded.Count; i++)
                 {
-                    e.Filename = a.Filename;
+                    expanded[i].WithPositionFrom(expression);
                 }
             }
 
             Ancestors.Pop();
+
             return expanded;
         }
 
