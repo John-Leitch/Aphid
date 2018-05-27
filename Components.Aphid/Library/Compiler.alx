@@ -1,4 +1,5 @@
-﻿var exports;
+﻿var preprocessor;
+var exports;
 var resources;
 var csharp;
 
@@ -16,7 +17,27 @@ var csharp;
         hex: @(buffer) buffer |> hash -> @format('{0:x2}') +> @(x, y) x + y
     };
 
+    preprocessor = {
+        transform: @(srcAst) {
+            var partialOpMutator = new PartialOperatorMutator();
+            var macroMutator = new AphidMacroMutator();
+            var directiveMutator = new AphidPreprocessorDirectiveMutator();
+            var includeMutator = new IncludeMutator();
+            //includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
+            var constantFoldingMutator = new ConstantFoldingMutator();
+
+            ret srcAst
+                |> partialOpMutator.MutateRecursively
+                |> macroMutator.MutateRecursively
+                |> directiveMutator.MutateRecursively
+                |> includeMutator.MutateRecursively
+                |> constantFoldingMutator.MutateRecursively;
+        },
+    };
+
     exports = {
+        useBinaryFormatter: false,
+
         compileFile: @(namespace, srcFile){
             printInfo('Parsing ~Cyan~{0}~R~', srcFile);
             ret srcFile |> File.ReadAllText @compile(namespace);
@@ -26,7 +47,7 @@ var csharp;
             var srcAst;
     
             try {
-                srcAst = srcCode |> parse;
+                srcAst = srcCode |> parse |> preprocessor.transform;
             } catch (e) {
                 AphidCli.DumpException(e.exception.InnerException, srcCode);
                 ret null;
@@ -44,7 +65,9 @@ var csharp;
             cs =
                 '\r\n' +
                 cs + '\r\n' +
-                resources.embed(namespace, resource, bytecode);
+                (useBinaryFormatter ?
+                    resources.embed(namespace, resource, bytecode) :
+                    csharp.fromAst(namespace, resource, srcAst));
 
             [ 'Components.Aphid.Interpreter', 'Components.Aphid.Parser' ]->@()
                 cs = 'using global::' + $_ + ';\r\n' + cs.Replace($_ + '.', '');
@@ -121,9 +144,11 @@ var csharp;
                             .call(
                                 'Interpret',
                                 [
-                                    code.typeExp(AphidByteCode).call(
-                                        'Decode',
-                                        [ code.var('Resources').field(resource) ])
+                                    useBinaryFormatter ?
+                                        code.typeExp(AphidByteCode).call(
+                                            'Decode',
+                                            [ code.var('Resources').field(resource) ]) :
+                                        code.var('Resources').call(resource)
                                 ])
                             .stmt(),
                     ]))
@@ -182,7 +207,7 @@ var csharp;
     });
 
     csharp = {
-       fromAst: @(block) {
+       fromAst: @(namespace, resource, block) {
            using System.Text;
 
             var sb = new StringBuilder(0x1000000);
@@ -192,7 +217,7 @@ var csharp;
             indent = macro(@{ indentCount++ });
             unindent = macro(@{ indentCount-- });
 
-            var compile = @(block, compileDelim, genericParam) {
+            var compile = @(blockBlock, compileDelim, genericParam) {
                 if (genericParam defined) {
                     emitLineFormat('new List<{0}>', genericParam);
                 } else {
@@ -201,7 +226,7 @@ var csharp;
 
                 emitLine('{');
                 indent();
-                block->@() compileNode($_, ',');
+                blockBlock->@() compileNode($_, ',');
                 unindent();
 
                 if (compileDelim defined && compileDelim.Length != 0) {
@@ -284,21 +309,21 @@ var csharp;
                 }
             };
 
-            emitLine('namespace Test');
+            emitLineFormat('namespace {0}', namespace);
             emitLine('{');
             indent();
-            emitLine('using Components.Aphid.Lexer;');
-            emitLine('using Components.Aphid.Parser;');
+            emitLine('using global::Components.Aphid.Lexer;');
+            emitLine('using global::Components.Aphid.Parser;');
             emitLine('using System.Collections.Generic;');
             emitLine('');
-            emitLine('public static class TestClass');
+            emitLine('public static partial class Resources');
             emitLine('{');
             indent();
-            emitLine('public static List<AphidExpression> GetAst()');
+            emitLineFormat('public static List<AphidExpression> {0}()', resource);
             emitLine('{');
             indent();
             emit('return ');
-            compile(test);
+            compile(block);
             sb.AppendLine(';');
             unindent();
             emitLine('}');

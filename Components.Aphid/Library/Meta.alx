@@ -355,7 +355,18 @@ var ast = {
 
     firstNode: @(predicate, rootNode)
         rootNode @ast.first(@(n, c)
-            !c.isBlock && !c.isRoot && predicate(n, c))
+            !c.isBlock && !c.isRoot && predicate(n, c)),
+        
+    flatten: @(block) {
+        var nodes = new List[AphidExpression](block);
+        var tmp = block;
+
+        while (((tmp = tmp-?(@()$_['GetChildren'] defined)-<@() $_.GetChildren()) #!) != 0) {
+            tmp->nodes.Add;
+        }
+
+        ret nodes;
+    },
 };
 
 var nodeType = { };
