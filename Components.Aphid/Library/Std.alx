@@ -129,6 +129,12 @@ using System.Text.RegularExpressions;
 @ \& (buffer, file) buffer @File.WriteAllBytes(file.ToString());
 @ ?. (lhs, rhs) lhs != null ? lhs.{this.{'$frames'}[0].Expression.RightOperand.Identifier} : null;
 
+@ !! (condition, fatalMessage) {
+	if (condition) {
+		printCriticalError(fatalMessage); Environment.Exit(0xbad02)
+	}
+};
+
 _re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString()) });
 _rec = macro(@{ input -? @() $_ ~= pattern });
 
