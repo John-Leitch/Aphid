@@ -3,26 +3,37 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Interpreter;
 
+head('CLR Interop/Whitebox Language Example');
+print();
+
+subhead('Test Program');
+
 var code = 
-    '#"Std";' +
+    '#"Std";\r\n' +
     'print("hello, world");';
 
+print('{0}\r\n', code);
+
+subhead('Tokenization');
 var lexer = new AphidLexer(code);
 var tokens = lexer.GetTokens();
+tokens->print;
 
-print("Tokens");
+print();
 
-for (x in tokens)
-    print(x);
-
+subhead('Parsing');
 var ast = AphidParser.Parse(tokens, code);
 
-print("\r\nStatements");
+ast->@(node) print(
+    'Type:   {0}\r\n' +
+    'Index:  {1}\r\n' +
+    'Length: {2}\r\n' +
+    'String: {3}\r\n',
+    node.Type,
+    node.Index,
+    node.Length,
+    node);
 
-for (node in ast)
-    printf("Type: {0}", node.Type);
-
-print("\r\nInterpreting script");
-
-var intepreter = new AphidInterpreter(true);
+subhead('Interpretation');
+var intepreter = new AphidInterpreter();
 intepreter.Interpret(ast);
