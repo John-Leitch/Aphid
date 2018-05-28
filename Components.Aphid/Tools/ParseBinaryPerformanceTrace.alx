@@ -1,0 +1,169 @@
+﻿#'DebugDeploy';
+#'Std';
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+// Console.Clear();
+
+////////////////////////////////////////////////////////////////
+// uint32 | Id
+//  uint8 | Enter/Eeave = 1/0
+//    var | Name
+// 
+// _framePerformanceBinaryWriter.Write(id);
+// _framePerformanceBinaryWriter.Write(true);
+// _framePerformanceBinaryWriter.Write(frame.Name);
+
+
+// _framePerformanceBinaryWriter.Write(id);
+// _framePerformanceBinaryWriter.Write(false);
+// _framePerformanceBinaryWriter.Write(tup.Item1);
+// _framePerformanceBinaryWriter.Write(tup.Item2.ElapsedTicks);
+// _framePerformanceBinaryWriter.Write(tup.Item2.ElapsedMilliseconds);
+
+class of long FrameProfile {
+    int ThreadId,
+    string Name,
+    Ticks,
+    TicksExclusive,
+    Milliseconds,
+    MillisecondsExclusive,
+    ArrayList ChildFrames,
+};
+
+var dumpFrameJson = @{
+    #'Serialization';
+    $_ |> toJson |> Cli.StyleEscape |> print;
+};
+
+var dumpFrame = @{
+    #'Serialization';
+    $_ |> toJson |> Cli.StyleEscape |> print;
+};
+
+var cliArgs = getCommandLineArgs();
+
+
+
+cliArgs.Length == 1 !! 'aphid ParseBinaryPerformanceTrace [file]';
+!File.Exists(var trace = cliArgs[2]) !! ('Could not find trace ~Yellow~{0}~R~' :: trace);
+
+//var trace = 'C:\\source\\Aphid\\Aphid\\bin\\Debug\\AphidFramePerformance.ea27e90b-43c3-4f26-aa7b-7bc3781508d0.dat';
+var reader = new BinaryReader(trace |> File.OpenRead);
+var profileHeader = reader.ReadString();
+print(profileHeader);
+// var header = r.ReadString();
+
+// reader.dir();
+// reader.BaseStream.dir();
+
+var threadStacks = {};
+var root = new List[FrameProfile]();
+var parsed = 0;
+var frames = [];
+var frameTotals = {};
+var frameTotalsList = [];
+
+using System.Threading;
+
+var t = new Thread(@{
+    while (true) {
+        Thread.Sleep(500);
+
+        var pos = reader.BaseStream.Position;
+        var len = reader.BaseStream.Length;
+
+        var remaining = len - pos;
+
+        printInfo('{0:n0}/{1:n0} {2}%', remaining |> Convert.ToInt32, len, pos / len * 100);
+
+        if (pos == len) {
+            printSuccess('Done');
+            break;
+        }
+    }
+});
+
+t.Start();
+
+while (reader.BaseStream.Position < reader.BaseStream.Length) {
+    
+    var id = reader.ReadInt32();
+
+    var stack;
+
+    if (!(threadStacks.{id.ToString()} defined)) {
+        stack = new Stack[FrameProfile]();
+        threadStacks.{id.ToString()} = stack;
+    } else {
+        stack = threadStacks.{id.ToString()};
+    }
+
+    var enter = reader.ReadBoolean();
+    var name = reader.ReadString();
+
+    if (enter) {
+        var frame = new FrameProfile();
+        frame.ThreadId = id;
+        frame.Name = 'Frame$' + name;
+        frame.ChildFrames = new ArrayList();
+        
+        if (stack.Count > 0) {
+            stack.Peek().ChildFrames.Add(frame);
+        } else {
+            root.Add(frame);
+        }
+
+        stack.Push(frame);
+        frames.add(frame);
+        // frame.Name |> Cli.StyleEscape |> print;
+    } else {
+        var curFrame = stack.Pop();
+        curFrame.Ticks = reader.ReadInt64();
+        curFrame.Milliseconds = reader.ReadInt64();
+        var arr = curFrame.ChildFrames.ToArray();
+
+        if (arr.Length == 0) {
+            curFrame.TicksExclusive = curFrame.Ticks;
+            curFrame.MillisecondsExclusive = curFrame.Milliseconds;
+        } else {
+            _exclusive = macro(@(n) { curFrame.n - (arr->@.n+>@(x, y) x + y) });
+            curFrame.TicksExclusive = _exclusive(Ticks);
+            curFrame.MillisecondsExclusive = _exclusive(Milliseconds);
+        }
+
+        if (frameTotals.{curFrame.Name} defined) {
+            var t = frameTotals.{curFrame.Name};
+            t.Ticks += curFrame.Ticks;
+            t.TicksExclusive += curFrame.TicksExclusive;
+            t.Milliseconds += curFrame.Milliseconds;
+            t.Milliseconds += curFrame.MillisecondsExclusive;
+        } else {
+            var t = new FrameProfile();
+            t.Name = curFrame.Name;
+            t.Ticks = curFrame.Ticks;
+            t.TicksExclusive = curFrame.TicksExclusive;
+            t.Milliseconds = curFrame.Milliseconds;
+            t.Milliseconds = curFrame.MillisecondsExclusive;
+            frameTotals.{curFrame.Name} = t;
+            frameTotalsList.add(t);
+        }
+    }
+}
+
+[ [ 'inclusive ticks', @.Ticks ], [ 'exclusive ticks', @.TicksExclusive ] ]->@{
+    head('Top 100 slowest by ' + $_[0]);
+    
+    frameTotalsList.orderByDescending($_[1]).take(100)->@()
+        print(
+            'Name: {0}, Ticks: {1:n0}, Ticks Exlusive: {2:n0}',
+            $_.Name.Replace('\r', '').Replace('\n', '\\n'),
+            $_.Ticks,
+            $_.TicksExclusive);
+
+    print();
+};
+
+print('Done');
+reader.Dispose();
