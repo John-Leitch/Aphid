@@ -294,7 +294,7 @@ namespace Components.Aphid.UI
 
                     if (args.Length > 0)
                     {
-                        WriteLineOut(Highlight(args.Indent("  ")));
+                        WriteLineOut(Highlight(Cli.StyleEscape(args.Indent("  "))));
                     }
                 }
             }
