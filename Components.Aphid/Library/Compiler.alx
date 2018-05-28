@@ -45,6 +45,7 @@ var csharp;
 
         compile: @(namespace, srcCode){
             var srcAst;
+            printQuery('Transforming code for ~Cyan~{0}~R~', namespace);
     
             try {
                 srcAst = srcCode |> parse |> preprocessor.transform;
@@ -53,14 +54,29 @@ var csharp;
                 ret null;
             }
 
+            printSuccess('Done transforming code');
+
+            printQuery('Encoding ~Cyan~{0}~R~', namespace);
             var bytecode = AphidByteCode.Encode(srcAst);
             var resource = 'ByteCode_{0}' :: (bytecode |> md5.hex);
+            printSuccess('Resource named ~Cyan~{0}~R~', resource);
+
+            printQuery('Generating exports');
 
             var cs =
                 srcAst
                 |> exports.find
                 -> (@() exports.generate(namespace, resource, $_))
                 @join('\r\n');
+
+            printSuccess('Exports generated');
+
+
+            if (useBinaryFormatter) {
+                printQuery('Serializing code');
+            } else {
+                printQuery('Compiling code to C#');
+            }
 
             cs =
                 '\r\n' +
@@ -69,8 +85,20 @@ var csharp;
                     resources.embed(namespace, resource, bytecode) :
                     csharp.fromAst(namespace, resource, srcAst));
 
+            if (useBinaryFormatter) {
+                printSuccess('Done serializing')
+            } else {
+                printSuccess('Done compiling code');
+            }
+            
+
+            printQuery('Fixing imports');
+
             [ 'Components.Aphid.Interpreter', 'Components.Aphid.Parser' ]->@()
                 cs = 'using global::' + $_ + ';\r\n' + cs.Replace($_ + '.', '');
+
+            printSuccess('Done fixing imports');
+            printSuccess('Output complete');
 
             ret cs.Trim() != '' ? cs : null;
         },
@@ -206,110 +234,28 @@ var csharp;
         sb.AppendLine();
     });
 
-    csharp = {
-       fromAst: @(namespace, resource, block) {
-           using System.Text;
+    concat = macro(@(text) { sb.Append(text) });
+    
+    concatLine = macro(@(text) {
+        sb.Append(text);
+        sb.AppendLine();
+    });
 
-            var sb = new StringBuilder(0x1000000);
-            var indentCount = 0;
-            var tabList = 0..128->@(i) i * '    ';
+    using System.Text;
+
+    csharp = {
+        sb: new StringBuilder(0x1000000),
+        indentCount: 0,
+        tabList: 0..128->@(i) i * '    ',
+        propCache: new Dictionary[string, Object](),
+        
+        fromAst: @(namespace, resource, block) {
             getTab = macro(@{ tabList[indentCount] });
             indent = macro(@{ indentCount++ });
             unindent = macro(@{ indentCount-- });
 
-            var compile = @(blockBlock, compileDelim, genericParam) {
-                if (genericParam defined) {
-                    emitLineFormat('new List<{0}>', genericParam);
-                } else {
-                    emitLine('new List<AphidExpression>');
-                }
-
-                emitLine('{');
-                indent();
-                blockBlock->@() compileNode($_, ',');
-                unindent();
-
-                if (compileDelim defined && compileDelim.Length != 0) {
-                    emitLine('},');
-                } else {
-                    emitLine('}');
-                }
-            };
-
-            var compileNode = @(node, compileNodeDelim) {
-                var t = node.GetType();
-                emitLineFormat('new {0}(', t.Name);
-                indent();
-                
-                var props = t.GetProperties();
-                var ctorParams = props-?@() $_.DeclaringType == t && $_.PropertyType != AphidExpressionType;
-                var i = 0;
-                ctorParams->@()$_.GetValue(node) @compileArg(i++, i == (ctorParams #!));
-                
-                unindent();
-                if (compileNodeDelim defined) {
-                    emitLine('),');
-                } else {
-                    emitLine(')');
-                }
-                
-            };
-
-            var compileArg = @(index, isLast, arg) {
-                if (arg == null) {
-                    if (isLast) {
-                        emitLine('null');
-                        ret null;
-                    } else {
-                        emitLine('null,');
-                        ret null;
-                    }
-                }
-
-                var t = arg.GetType();
-
-                if (t == AphidTokenType) {
-                    if (isLast) {
-                        emitLineFormat('AphidTokenType.{0}', arg);
-                    } else {
-                        emitLineFormat('AphidTokenType.{0},', arg);
-                    }
-                } else if (t.BaseType == AphidExpression) {
-                    if (isLast) {
-                        compileNode(arg);
-                    } else {
-                        compileNode(arg, ',');
-                    }
-                // Todo: investigate optimizing via hardcoding cases for generic 
-                // types e.g. List[IdentifierExpression]
-                // } else if (IEnumerable[IdentifierExpression].IsAssignableFrom(t)) {
-                //     compile(arg, delim, 'IdentifierExpression');
-                } else if (IEnumerable[AphidExpression].IsAssignableFrom(t)) {
-                    compile(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
-                } else if (t == string) {
-                    if (isLast) {
-                        emitLineFormat('"{0}"', arg.Replace('"', '\\"'));
-                    } else {
-                        emitLineFormat('"{0}",', arg.Replace('"', '\\"'));
-                    }
-                } else if (t == decimal) {
-                    if (isLast) {
-                        emitLine(arg.ToString());
-                    } else {
-                        emitLineFormat('{0},', arg);
-                    }
-                } else if (t == bool) {
-                    if (isLast) {
-                        emitLine(arg.ToString().ToLower());
-                    } else {
-                        emitLineFormat('{0},', arg.ToString().ToLower());
-                    }
-                } else {
-                    throw 'Not implemented: {0}' :: t;
-                }
-            };
-
-            emitLineFormat('namespace {0}', namespace);
+            emit('namespace ');
+            concatLine(namespace);
             emitLine('{');
             indent();
             emitLine('using global::Components.Aphid.Lexer;');
@@ -333,6 +279,126 @@ var csharp;
             emitLine('}');
 
             ret sb;
-       } 
+       },
+
+       compile: @(blockBlock, compileDelim, genericParam) {
+            if (genericParam defined) {
+                emitLineFormat('new List<{0}>', genericParam);
+            } else {
+                emitLine('new List<AphidExpression>');
+            }
+
+            emitLine('{');
+            indent();
+            blockBlock->@() compileNode($_, ',');
+            unindent();
+
+            if (compileDelim defined && compileDelim.Length != 0) {
+                emitLine('},');
+            } else {
+                emitLine('}');
+            }
+        },
+
+        compileNode: @(node, compileNodeDelim) {
+            var t = node.GetType();
+            emit('new ');
+            concat(t.Name);
+            concatLine('(');
+            indent();
+            
+            var ctorParams;
+
+            if (propCache.ContainsKey(t.FullName)) {
+                ctorParams = propCache.get_Item(t.FullName);
+            } else {
+                var props = t.GetProperties();
+                ctorParams = props
+                    -?@() $_.DeclaringType == t && $_.PropertyType != AphidExpressionType;
+                propCache.Add(t.FullName, ctorParams);
+            }
+            
+            var count = ctorParams #!;
+            var last = count - 1;
+
+            for (var i = 0; i < count; i++) {
+                var val = ctorParams[i].GetValue(node);
+                compileArg(i == last, val);
+
+                // ctorParams->@()$_.GetValue(node) @compileArg(++i == (ctorParams #!));
+            }
+            
+            unindent();
+
+            if (compileNodeDelim defined) {
+                emitLine('),');
+            } else {
+                emitLine(')');
+            }
+        },
+
+        compileArg: @(isLast, arg) {            
+            if (!isLast) {
+                if (arg == null) {
+                    emitLine('null,');
+                    ret null;
+                }
+
+                var t = arg.GetType();
+
+                if (t == AphidTokenType) {
+                    emit('AphidTokenType.');
+                    concat(arg);
+                    concatLine(',');
+                } else if (t.BaseType == AphidExpression) {
+                    compileNode(arg, ',');
+                // Todo: investigate optimizing via hardcoding cases for generic 
+                // types e.g. List[IdentifierExpression]
+                // } else if (IEnumerable[IdentifierExpression].IsAssignableFrom(t)) {
+                //     compile(arg, delim, 'IdentifierExpression');
+                } else if (IEnumerable[AphidExpression].IsAssignableFrom(t)) {
+                    compile(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
+                } else if (t == string) {
+                    emit('"');
+                    concat(arg.Replace('"', '\\"'));
+                    concatLine('",');
+                } else if (t == decimal) {
+                    emit(arg.ToString());
+                    concatLine(',');
+                } else if (t == bool) {
+                    emit(arg ? 'true' : 'false');
+                    concatLine(',');
+                } else {
+                    throw 'Not implemented: {0}' :: t;
+                }
+
+            } else {
+                if (arg == null) {
+                    emitLine('null');
+                    ret null;
+                }
+
+                var t = arg.GetType();
+
+                if (t == AphidTokenType) {
+                    emit('AphidTokenType.');
+                    concatLine(arg);
+                } else if (t.BaseType == AphidExpression) {
+                    compileNode(arg);
+                } else if (IEnumerable[AphidExpression].IsAssignableFrom(t)) {
+                    compile(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
+                } else if (t == string) {
+                    emit('"');
+                    concat(arg.Replace('"', '\\"'));
+                    concatLine('"');
+                } else if (t == decimal) {
+                    emitLine(arg.ToString());
+                } else if (t == bool) {
+                    emitLine(arg ? 'true' : 'false');
+                } else {
+                    throw 'Not implemented: {0}' :: t;
+                }
+            }
+        }
     };
 }();
