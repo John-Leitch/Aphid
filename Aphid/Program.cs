@@ -54,17 +54,18 @@ namespace Aphid
 
             var ext = Path.GetExtension(args[0]).ToLower();
             var isTextDocument = ext == ".alxt";
-            var code = AphidScript.Read(args[0]);
+            var file = Path.GetFullPath(args[0]);
+            var code = AphidScript.Read(file);
             EnvironmentLibrary.SetEnvArgs(true);
             var interpreter = new AphidInterpreter();
-            interpreter.SetScriptFilename(Path.GetFullPath(args[0]));
+            interpreter.SetScriptFilename(file);
 
             if (!Debugger.IsAttached)
             {
                 AphidCli.TryAction(
                     interpreter,
                     code,
-                    () => interpreter.Interpret(code, isTextDocument),
+                    () => interpreter.Interpret(code, file, isTextDocument),
                     allowErrorReporting: true);
             }
             else

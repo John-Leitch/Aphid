@@ -26,6 +26,16 @@ namespace Mantispid
             get { return ParserClass + "Exception"; }
         }
 
+        public string ExpressionContextClass
+        {
+            get { return BaseClass + "Context"; }
+        }
+
+        public string HelperClass
+        {
+            get { return BaseClass + "Helper"; }
+        }
+
         public ParserGeneratorConfig(
             string tokenType,
             string baseClass,

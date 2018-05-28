@@ -175,8 +175,10 @@ namespace Components.Aphid.UI
             var lexer = new AphidLexer(code);
             var tokens = lexer.GetTokens();
             var exp = AphidParser.ParseExpression(tokens, code);
-            var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
-            new AphidCodeVisitor(code).VisitExpression(retExp);
+            var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp)
+                .WithPositionFrom(exp);
+
+            //new AphidCodeVisitor(code).VisitExpression(retExp);
             Interpreter.Interpret(retExp);
             var value = Interpreter.GetReturnValue();
 

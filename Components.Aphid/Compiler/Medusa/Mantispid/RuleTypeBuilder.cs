@@ -14,6 +14,8 @@ namespace Mantispid
     {
         private const string _getCollection = "GetCollection";
 
+        private ParserGeneratorConfig _config;
+
         private IEnumerable<RuleStruct> _ruleTypes;
 
         private RuleStructResolver _resolver;
@@ -22,10 +24,11 @@ namespace Mantispid
 
         private string _baseTypeName;
 
-        public RuleTypeBuilder(string baseTypeName, IEnumerable<RuleStruct> ruleTypes)
+        public RuleTypeBuilder(ParserGeneratorConfig config, IEnumerable<RuleStruct> ruleTypes)
         {
-            _baseTypeName = baseTypeName;
-            _helperName = string.Format("{0}Helper", _baseTypeName);
+            _config = config;
+            _baseTypeName = config.BaseClass;
+            _helperName = config.HelperClass;
             _resolver = new RuleStructResolver(_ruleTypes = ruleTypes);
         }
 
@@ -34,7 +37,7 @@ namespace Mantispid
             return new CodeTypeDeclarationCollection(
                 _ruleTypes
                     .Select(CreateCodeType)
-                    .Concat(new [] { CreateHelperType() })
+                    .Concat(new [] { CreateHelperType(), CreateParserContextType() })
                     .ToArray());
         }
 
@@ -90,8 +93,45 @@ namespace Mantispid
 
         private CodeTypeDeclaration CreateCodeType(RuleStruct rule)
         {
+            var decl = CreateType(rule.Name);
+            decl.BaseTypes.Add(CodeHelper.TypeRef(rule.BaseName));
+            var properties = CreateProperties(rule);
+            decl.Members.AddRange(properties);
+            decl.Members.AddRange(CreateFields(properties));
+            var publicCtor = CreateConstructor(rule, properties, isInternal: false);
+            decl.Members.Add(publicCtor);
+            decl.Members.Add(CreateConstructor(rule, properties, isInternal: true));
+
+            if (publicCtor.Parameters.Count != 0)
+            {
+                decl.Members.Add(new CodeConstructor
+                {
+                    Attributes = MemberAttributes.Private
+                });
+            }
+            
+            AddGetChildrenMethod(rule, decl);
+            AddTypeProperty(rule, decl);
+
+            return decl;
+        }
+
+        private CodeTypeDeclaration CreateParserContextType()
+        {
+            var decl = CreateType(_config.ExpressionContextClass);
+
+            foreach (var n in new[] { "Filename", "Code" })
+            {
+                decl.Members.AddRange(CreateAutoProperty(CodeHelper.TypeRef<string>(), n));
+            }
+
+            return decl;
+        }
+
+        private CodeTypeDeclaration CreateType(string name)
+        {
             // Todo: extract code helper methods from this bullshit
-            var decl = new CodeTypeDeclaration(rule.Name)
+            var decl = new CodeTypeDeclaration(name)
             {
                 IsPartial = true,
             };
@@ -104,24 +144,6 @@ namespace Mantispid
                 new CodeAttributeDeclaration(
                     CodeHelper.TypeRef<DataContractAttribute>(),
                     new CodeAttributeArgument("IsReference", CodeHelper.True())));
-
-            decl.BaseTypes.Add(CodeHelper.TypeRef(rule.BaseName));
-            var properties = CreateProperties(rule);
-            decl.Members.AddRange(properties);
-            decl.Members.AddRange(CreateFields(properties));
-            var ctor = CreateConstructor(rule, properties);
-            decl.Members.Add(ctor);
-
-            if (ctor.Parameters.Count != 0)
-            {
-                decl.Members.Add(new CodeConstructor
-                {
-                    Attributes = MemberAttributes.Private
-                });
-            }
-            
-            AddGetChildrenMethod(rule, decl);
-            AddTypeProperty(rule, decl);
 
             return decl;
         }
@@ -163,6 +185,46 @@ namespace Mantispid
             return properties;
         }
 
+        private CodeTypeMember[] CreateAutoProperty(
+            CodeTypeReference type,
+            string name,
+            bool isMutable = true,
+            bool isDataMember = true)
+        {
+            var fieldName = GetFieldName(name);
+
+            var field = new CodeMemberField(type, fieldName)
+            {
+                Attributes = MemberAttributes.Private
+            };
+
+            var prop = new CodeMemberProperty()
+            {
+                Name = name,
+                Attributes = MemberAttributes.Public | MemberAttributes.Final,
+                Type = type,
+                HasGet = true,
+                HasSet = isMutable,
+                CustomAttributes = new CodeAttributeDeclarationCollection(
+                    isDataMember ? 
+                        new[]
+                        {
+                            new CodeAttributeDeclaration(
+                                CodeHelper.TypeRef<DataMemberAttribute>())
+                        } :
+                        new CodeAttributeDeclaration[0]),
+            };
+
+            prop.GetStatements.Add(CodeHelper.Return(fieldName));
+
+            if (isMutable)
+            {
+                prop.SetStatements.Add(CodeHelper.Assign(fieldName, CodeHelper.VarRef("value")));
+            }
+
+            return new CodeTypeMember[] { field, prop };
+        }
+
         private CodeMemberField[] CreateFields(CodeMemberProperty[] properties)
         {
             return properties
@@ -173,12 +235,37 @@ namespace Mantispid
                 .ToArray();
         }
 
-        private CodeConstructor CreateConstructor(RuleStruct rule, CodeMemberProperty[] properties)
+        private CodeConstructor CreateConstructor(
+            RuleStruct rule,
+            CodeMemberProperty[] properties,
+            bool isInternal)
         {
             var ctor = new CodeConstructor()
             {
-                Attributes = MemberAttributes.Public,
+                Attributes = !isInternal ?
+                    MemberAttributes.Public :
+                    MemberAttributes.Assembly,
             };
+
+            if (isInternal)
+            {
+                ctor.Parameters.Add(
+                    new CodeParameterDeclarationExpression(
+                        CodeHelper.TypeRef(_config.ExpressionContextClass),
+                        ParserName.ContextParam));
+
+                ctor.Statements.Add(
+                    CodeHelper.Assign(
+                        ParserName.ContextProperty,
+                        ParserName.ContextParam));
+            }
+            else
+            {
+                ctor.Statements.Add(
+                    CodeHelper.Assign(
+                            ParserName.ContextProperty,
+                            CodeHelper.New(CodeHelper.TypeRef(_config.ExpressionContextClass))));
+            }
 
             ctor.Parameters.AddRange(
                 properties

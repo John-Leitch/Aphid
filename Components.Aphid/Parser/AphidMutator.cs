@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define CHECK_ANCESTORS
+using Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,16 +33,17 @@ namespace Components.Aphid.Parser
 
         protected virtual void EndRecursiveMutationPass(List<AphidExpression> ast) { }
 
-        private AphidExpression MutateSingle(AphidExpression expression)
-        {
-            return Mutate(expression).Single();
-        }
-
         public List<AphidExpression> Mutate(List<AphidExpression> ast)
         {
+#if CHECK_ANCESTORS
             CheckAncestorStack();
+#endif
+
             var mutatedAst = MutateInternal(ast);
+
+#if CHECK_ANCESTORS
             CheckAncestorStack();
+#endif
 
             return mutatedAst;
         }
@@ -59,13 +62,37 @@ namespace Components.Aphid.Parser
             foreach (var exp in ast)
             {
                 IsStatement = true;
-                ast2.AddRange(Mutate(exp));
+                ast2.AddRange(MutateExpression(exp));
             }
 
             return ast2;
         }
 
-        private List<AphidExpression> Mutate(AphidExpression expression)
+        private AphidExpression MutateSingle(AphidExpression expression)
+        {
+            var result = MutateExpression(expression);
+
+            if (result.Count != 1)
+            {
+                var msg = result.Count > 0 ?
+                    string.Format(
+                        "Expression {0} expanded into multiple expressions {1} by " +
+                        "{2}, one expected.",
+                        expression,
+                        result.Select(x => x.Type.ToString()).Join(", "),
+                        GetType()) :
+                    string.Format(
+                        "Expression {0} expanded into null by {1}.",
+                        expression,
+                        GetType());
+
+                throw new AphidParserException(msg, expression);
+            }
+
+            return result[0];
+        }
+
+        private List<AphidExpression> MutateExpression(AphidExpression expression)
         {
             if (HasFinalized)
             {
@@ -80,8 +107,17 @@ namespace Components.Aphid.Parser
             if (hasChanged)
             {
                 HasMutated = true;
-                var recursivelyMutated = mutated.SelectMany(Mutate).ToList();
+                var recursivelyMutated = new List<AphidExpression>(mutated.Count);
+
+                for (var i = 0; i < mutated.Count; i++)
+                {
+                    recursivelyMutated.AddRange(
+                        MutateExpression(
+                            mutated[i].WithPositionFrom(expression)));
+                }
+
                 Ancestors.Pop();
+                
                 return recursivelyMutated;
             }
 
@@ -93,48 +129,58 @@ namespace Components.Aphid.Parser
                 case AphidExpressionType.IdentifierExpression:
                     var id = (IdentifierExpression)expression;
 
-                    expanded.Add(new IdentifierExpression(
-                        id.Identifier,
-                        id.Attributes
-                            .Select(x => (IdentifierExpression)Mutate(x).Single())
-                            .ToList()));
+                    expanded.Add(
+                        new IdentifierExpression(
+                            id.Identifier,
+                            id.Attributes
+                                .Select(x => (IdentifierExpression)MutateSingle(x))
+                                .ToList())
+                            .WithPositionFrom(id));
                     break;
 
                 case AphidExpressionType.CallExpression:
                     var call = (CallExpression)expression;
 
-                    expanded.Add(new CallExpression(
-                        Mutate(call.FunctionExpression).Single(),
-                        call.Args.Select(x => Mutate(x).Single()).ToList()));
+                    expanded.Add(
+                        new CallExpression(
+                            MutateSingle(call.FunctionExpression),
+                            call.Args.Select(x => MutateSingle(x)).ToList())
+                            .WithPositionFrom(call));
 
                     break;
 
                 case AphidExpressionType.UnaryOperatorExpression:
                     var unOp = (UnaryOperatorExpression)expression;
 
-                    expanded.Add(new UnaryOperatorExpression(
-                        unOp.Operator,
-                        Mutate(unOp.Operand).Single(), 
-                        unOp.IsPostfix));
+                    expanded.Add(
+                        new UnaryOperatorExpression(
+                            unOp.Operator,
+                            MutateSingle(unOp.Operand), 
+                            unOp.IsPostfix)
+                            .WithPositionFrom(unOp));
 
                     break;
 
                 case AphidExpressionType.BinaryOperatorExpression:
                     var binOp = (BinaryOperatorExpression)expression;
 
-                    expanded.Add(new BinaryOperatorExpression(
-                        Mutate(binOp.LeftOperand).Single(),
-                        binOp.Operator,
-                        Mutate(binOp.RightOperand).Single()));
+                    expanded.Add(
+                        new BinaryOperatorExpression(
+                            MutateSingle(binOp.LeftOperand),
+                            binOp.Operator,
+                            MutateSingle(binOp.RightOperand))
+                            .WithPositionFrom(binOp));
 
                     break;
 
                 case AphidExpressionType.BinaryOperatorBodyExpression:
                     var binOpBody = (BinaryOperatorBodyExpression)expression;
                     
-                    expanded.Add(new BinaryOperatorBodyExpression(
-                        binOpBody.Operator,
-                        (FunctionExpression)Mutate(binOpBody.Function).Single()));
+                    expanded.Add(
+                        new BinaryOperatorBodyExpression(
+                            binOpBody.Operator,
+                            (FunctionExpression)MutateSingle(binOpBody.Function))
+                            .WithPositionFrom(binOpBody));
 
                     //binOpBody.function
 
@@ -143,35 +189,43 @@ namespace Components.Aphid.Parser
                 case AphidExpressionType.SwitchExpression:
                     var switchExp = (SwitchExpression)expression;
 
-                    expanded.Add(new SwitchExpression(
-                        MutateSingle(switchExp.Expression),
-                        switchExp.Cases
-                            .Select(x => new SwitchCase(
-                                x.Cases.Select(MutateSingle).ToList(),
-                                MutateInternal(x.Body)))
-                            .ToList(),
-                        MutateInternal(switchExp.DefaultCase)));
+                    expanded.Add(
+                        new SwitchExpression(
+                            MutateSingle(switchExp.Expression),
+                            switchExp.Cases
+                                .Select(x =>
+                                    (SwitchCase)new SwitchCase(
+                                        x.Cases.Select(MutateSingle).ToList(),
+                                        MutateInternal(x.Body))
+                                        .WithPositionFrom(x))
+                                .ToList(),
+                            MutateInternal(switchExp.DefaultCase))
+                            .WithPositionFrom(switchExp));
 
                     break;
 
                 case AphidExpressionType.IfExpression:
                     var ifExp = (IfExpression)expression;
 
-                    expanded.Add(new IfExpression(
-                        Mutate(ifExp.Condition).Single(),
-                        MutateInternal(ifExp.Body),
-                        MutateInternal(ifExp.ElseBody)));
+                    expanded.Add(
+                        new IfExpression(
+                            MutateSingle(ifExp.Condition),
+                            MutateInternal(ifExp.Body),
+                            MutateInternal(ifExp.ElseBody))
+                            .WithPositionFrom(ifExp));
 
                     break;
 
                 case AphidExpressionType.ForExpression:
                     var forExp = (ForExpression)expression;
 
-                    expanded.Add(new ForExpression(
-                        Mutate(forExp.Initialization).Single(),
-                        Mutate(forExp.Condition).Single(),
-                        Mutate(forExp.Afterthought).Single(),
-                        MutateInternal(forExp.Body)));
+                    expanded.Add(
+                        new ForExpression(
+                            MutateSingle(forExp.Initialization),
+                            MutateSingle(forExp.Condition),
+                            MutateSingle(forExp.Afterthought),
+                            MutateInternal(forExp.Body))
+                            .WithPositionFrom(forExp));
 
                     break;
 
@@ -180,57 +234,84 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new ForEachExpression(
-                            Mutate(forEachExp.Collection).Single(),
+                            MutateSingle(forEachExp.Collection),
                             MutateInternal(forEachExp.Body),
-                            forEachExp.Element != null ? 
-                                Mutate(forEachExp.Element).Single() : 
-                                null));
+                            forEachExp.Element != null ?
+                                MutateSingle(forEachExp.Element) :
+                                null)
+                            .WithPositionFrom(forEachExp));
 
                     break;
 
                 case AphidExpressionType.WhileExpression:
                     var cfExp = (WhileExpression)expression;
-                    expanded.Add(new WhileExpression(Mutate(cfExp.Condition).Single(), MutateInternal(cfExp.Body)));
+                    
+                    expanded.Add(
+                        new WhileExpression(
+                            MutateSingle(cfExp.Condition),
+                            MutateInternal(cfExp.Body))
+                            .WithPositionFrom(cfExp));
+
                     break;
 
                 case AphidExpressionType.DoWhileExpression:
                     var dwExp = (DoWhileExpression)expression;
-                    expanded.Add(new DoWhileExpression(Mutate(dwExp.Condition).Single(), MutateInternal(dwExp.Body)));
+                    
+                    expanded.Add(
+                        new DoWhileExpression(
+                            MutateSingle(dwExp.Condition),
+                            MutateInternal(dwExp.Body))
+                            .WithPositionFrom(dwExp));
+
                     break;
 
                 case AphidExpressionType.LoadScriptExpression:
                     var lsExp = (LoadScriptExpression)expression;
-                    expanded.Add(new LoadScriptExpression(Mutate(lsExp.FileExpression).Single()));
+                    
+                    expanded.Add(
+                        new LoadScriptExpression(MutateSingle(lsExp.FileExpression))
+                            .WithPositionFrom(lsExp));
+
                     break;
 
                 case AphidExpressionType.LoadLibraryExpression:
                     var llExp = (LoadLibraryExpression)expression;
-                    expanded.Add(new LoadLibraryExpression(Mutate(llExp.LibraryExpression).Single()));
+                    
+                    expanded.Add(
+                        new LoadLibraryExpression(MutateSingle(llExp.LibraryExpression))
+                            .WithPositionFrom(llExp));
+
                     break;
 
                 case AphidExpressionType.FunctionExpression:
                     var funcExp = (FunctionExpression)expression;
 
-                    expanded.Add(new FunctionExpression(
-                        funcExp.Args.Select(x => Mutate(x).Single()).ToList(),
-                        MutateInternal(funcExp.Body)));
+                    expanded.Add(
+                        new FunctionExpression(
+                            funcExp.Args.Select(x => MutateSingle(x)).ToList(),
+                            MutateInternal(funcExp.Body))
+                            .WithPositionFrom(funcExp));
 
                     break;
 
                 case AphidExpressionType.ArrayExpression:
                     var arrayExp = (ArrayExpression)expression;
 
-                    expanded.Add(new ArrayExpression(
-                        arrayExp.Elements.Select(x => Mutate(x).Single()).ToList()));
+                    expanded.Add(
+                        new ArrayExpression(
+                            arrayExp.Elements.Select(x => MutateSingle(x)).ToList())
+                            .WithPositionFrom(arrayExp));
 
                     break;
 
                 case AphidExpressionType.ArrayAccessExpression:
                     var arrayAccessExp = (ArrayAccessExpression)expression;
 
-                    expanded.Add(new ArrayAccessExpression(
-                        Mutate(arrayAccessExp.ArrayExpression).Single(),
-                        arrayAccessExp.KeyExpressions.Select(x => Mutate(x).Single()).ToList()));
+                    expanded.Add(
+                        new ArrayAccessExpression(
+                            MutateSingle(arrayAccessExp.ArrayExpression),
+                            arrayAccessExp.KeyExpressions.Select(x => MutateSingle(x)).ToList())
+                            .WithPositionFrom(arrayAccessExp));
 
                     break;
 
@@ -238,22 +319,26 @@ namespace Components.Aphid.Parser
                     var obj = ((ObjectExpression)expression);
 
                     var pairs = obj.Pairs
-                        .Select(x => (BinaryOperatorExpression)Mutate(x).Single())
+                        .Select(x => (BinaryOperatorExpression)MutateSingle(x))
                         .ToList();
 
-                    var objId = obj.Identifier != null ? 
-                        (IdentifierExpression)Mutate(obj.Identifier).Single() :
+                    var objId = obj.Identifier != null ?
+                        (IdentifierExpression)MutateSingle(obj.Identifier) :
                         null;
 
-                    expanded.Add(new ObjectExpression(pairs, objId));
+                    expanded.Add(
+                        new ObjectExpression(pairs, objId)
+                            .WithPositionFrom(obj));
                     break;
 
                 case AphidExpressionType.ExtendExpression:
                     var extendExp = (ExtendExpression)expression;
 
-                    expanded.Add(new ExtendExpression(
-                        (IdentifierExpression)Mutate(extendExp.ExtendType).Single(),
-                        (ObjectExpression)Mutate(extendExp.Object).Single()));
+                    expanded.Add(
+                        new ExtendExpression(
+                            (IdentifierExpression)MutateSingle(extendExp.ExtendType),
+                            (ObjectExpression)MutateSingle(extendExp.Object))
+                            .WithPositionFrom(extendExp));
 
                     break;
 
@@ -263,9 +348,10 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new TernaryOperatorExpression(
                             terExp.Operator,
-                            Mutate(terExp.FirstOperand).Single(),
-                            Mutate(terExp.SecondOperand).Single(),
-                            Mutate(terExp.ThirdOperand).Single()));
+                            MutateSingle(terExp.FirstOperand),
+                            MutateSingle(terExp.SecondOperand),
+                            MutateSingle(terExp.ThirdOperand))
+                            .WithPositionFrom(terExp));
 
                     break;
 
@@ -274,7 +360,8 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new DynamicMemberExpression(
-                            Mutate(dynExp.MemberExpression).Single()));
+                            MutateSingle(dynExp.MemberExpression))
+                            .WithPositionFrom(dynExp));
 
                     break;
 
@@ -282,7 +369,8 @@ namespace Components.Aphid.Parser
                     var pfExp = (PartialFunctionExpression)expression;
 
                     expanded.Add(
-                        new PartialFunctionExpression(Mutate(pfExp.Call).Single()));
+                        new PartialFunctionExpression(MutateSingle(pfExp.Call))
+                            .WithPositionFrom(pfExp));
 
                     break;
 
@@ -290,7 +378,8 @@ namespace Components.Aphid.Parser
                     var emit = (GatorEmitExpression)expression;
 
                     expanded.Add(
-                        new GatorEmitExpression(Mutate(emit.Expression).Single()));
+                        new GatorEmitExpression(MutateSingle(emit.Expression))
+                            .WithPositionFrom(emit));
 
                     break;
 
@@ -300,11 +389,12 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new TryExpression(
                             MutateInternal(tryExp.TryBody),
-                            tryExp.CatchArg != null ? 
-                                (IdentifierExpression)Mutate(tryExp.CatchArg).Single() :
+                            tryExp.CatchArg != null ?
+                                (IdentifierExpression)MutateSingle(tryExp.CatchArg) :
                                 null,
                             MutateInternal(tryExp.CatchBody),
-                            MutateInternal(tryExp.FinallyBody)));
+                            MutateInternal(tryExp.FinallyBody))
+                            .WithPositionFrom(tryExp));
 
                     break;
 
@@ -313,10 +403,11 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new PatternMatchingExpression(
-                            Mutate(patternMatchingExp.TestExpression).Single(),
+                            MutateSingle(patternMatchingExp.TestExpression),
                             patternMatchingExp.Patterns
-                                .Select(x => (PatternExpression)Mutate(x).Single())
-                                .ToList()));
+                                .Select(x => (PatternExpression)MutateSingle(x))
+                                .ToList())
+                            .WithPositionFrom(patternMatchingExp));
                     
                     break;
 
@@ -325,8 +416,9 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new PatternExpression(
-                            Mutate(patternExp.Value).Single(),
-                            patternExp.Patterns.Select(x => Mutate(x).Single()).ToList()));
+                            MutateSingle(patternExp.Value),
+                            patternExp.Patterns.Select(x => MutateSingle(x)).ToList())
+                            .WithPositionFrom(patternExp));
 
                     break;
 
@@ -336,7 +428,8 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new PartialOperatorExpression(
                             partialOp.Operator,
-                            Mutate(partialOp.Operand).Single()));
+                            MutateSingle(partialOp.Operand))
+                            .WithPositionFrom(partialOp));
 
                     break;
 
@@ -345,8 +438,9 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new UsingExpression(
-                            Mutate(usingExp.Disposable).Single(),
-                            usingExp.Body.SelectMany(Mutate).ToList()));
+                            MutateSingle(usingExp.Disposable),
+                            usingExp.Body.SelectMany(MutateExpression).ToList())
+                            .WithPositionFrom(usingExp));
 
                     break;
 
@@ -355,8 +449,9 @@ namespace Components.Aphid.Parser
 
                     expanded.Add(
                         new LockExpression(
-                            lockExp.Expressions.SelectMany(Mutate).ToList(),
-                            lockExp.Body.SelectMany(Mutate).ToList()));
+                            lockExp.Expressions.SelectMany(MutateExpression).ToList(),
+                            lockExp.Body.SelectMany(MutateExpression).ToList())
+                            .WithPositionFrom(lockExp));
 
                     break;
 
@@ -371,22 +466,6 @@ namespace Components.Aphid.Parser
                     }
 
                     break;
-            }
-
-            if (expression.Filename != null)
-            {
-                for (var i = 0; i < expanded.Count; i++)
-                {
-                    expanded[i].WithPositionFrom(expression);
-                    expanded[i].Filename = expression.Filename;
-                }
-            }
-            else
-            {
-                for (var i = 0; i < expanded.Count; i++)
-                {
-                    expanded[i].WithPositionFrom(expression);
-                }
             }
 
             Ancestors.Pop();
@@ -422,16 +501,7 @@ namespace Components.Aphid.Parser
             HasMutated = false;
         }
 
-        private AphidExpression FindIndexedAncestor()
-        {
-            return Ancestors.FirstOrDefault(x => x.Index != -1 && x.Length != -1);
-        }
-
-        private AphidExpression FindAssociatedFile()
-        {
-            return Ancestors.FirstOrDefault(x => x.Filename != null);
-        }
-
+#if CHECK_ANCESTORS
         private void CheckAncestorStack()
         {
             if (Ancestors.Any())
@@ -439,6 +509,7 @@ namespace Components.Aphid.Parser
                 throw new InvalidOperationException("Mutator Ancestor stack unbalanced.");
             }
         }
+#endif
 
         protected void FinalizeMutation()
         {

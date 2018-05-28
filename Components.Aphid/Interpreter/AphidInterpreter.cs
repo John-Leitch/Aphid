@@ -5291,7 +5291,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Interpret(string code, string filename, bool isTextDocument)
+        public void Interpret(string code, string filename, bool isTextDocument)
         {
             var ast = AphidParser.Parse(code, filename, isTextDocument);
 #if APHID_SET_CODE_VAR

@@ -1,9 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Components.Aphid.BinaryTrace</AssemblyName>
-    <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Components.Aphid</AssemblyName>
+  <PropertyGroup Condition="$(Configuration.Contains('BinaryTrace'))">
+    <AssemblyName>Components.Aphid.BinaryTrace</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="!$(Configuration.Contains('BinaryTrace'))">
+    <AssemblyName>Components.Aphid</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,7 +17,7 @@
     <!-- <AssemblyName Condition=" '$(Configuration)' == 'BinaryTraceDebug' ">Components.Aphid.BinaryTrace</AssemblyName> -->
     <!-- <AssemblyName>Components.Aphid</AssemblyName> -->
     <FileAlignment>512</FileAlignment>
-    <ProductVersion>10.0.0</ProductVersion> 
+    <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <SccProjectName>
     </SccProjectName>
@@ -221,6 +223,7 @@
     <Compile Include="Compiler\Medusa\LLex\RegexNode.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
     <Compile Include="Compiler\Medusa\Mantispid\ParserGeneratorDirective.cs" />
+    <Compile Include="Compiler\Medusa\Mantispid\ParserName.cs" />
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
     <Compile Include="External\Caching\CacheBlob.cs" />

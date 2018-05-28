@@ -6,6 +6,14 @@ namespace Components.Aphid.Parser
     [Serializable, DataContract(IsReference = true)]
     public abstract class AphidExpression : AphidNode
     {
+        private AphidExpressionContext _context;
+
+        public AphidExpressionContext Context
+        {
+            get { return _context; }
+            set { _context = value; }
+        }
+
         private int _index = -1;
 
         public int Index
@@ -22,9 +30,17 @@ namespace Components.Aphid.Parser
             set { _length = value; }
         }
 
-        public string Code { get; set; }
+        public string Code
+        {
+            get { return _context.Code; }
+            set { _context.Code = value; }
+        }
 
-        public string Filename { get; set; }
+        public string Filename
+        {
+            get { return _context.Filename; }
+            set { _context.Filename = value; }
+        }
 
 #if APHID_DEBUGGING_ENABLED
         public bool HasBreakpoint { get; set; }
@@ -46,7 +62,7 @@ namespace Components.Aphid.Parser
         {
             Index = expression.Index;
             Length = expression.Length;
-            Code = expression.Code;
+            Context = expression.Context;
 
             return this;
         }

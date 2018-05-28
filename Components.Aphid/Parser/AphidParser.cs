@@ -124,10 +124,22 @@ namespace Components.Aphid.Parser
 
             var ast = parser.Parse();
 
-            new AphidCodeVisitor(
-                code,
-                filename != null ? Path.GetFullPath(filename) : null)
-                .Visit(ast);
+            if (ast.Count != 0)
+            {
+                if (code != null)
+                {
+                    ast[0].Code = code;
+                }
+
+                if (filename != null)
+                {
+                    ast[0].Filename = filename;
+                }
+            }
+            //new AphidCodeVisitor(
+            //    code,
+            //    filename != null ? Path.GetFullPath(filename) : null)
+            //    .Visit(ast);
 
             return ast;
         }

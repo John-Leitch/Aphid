@@ -73,7 +73,7 @@ namespace Components.Aphid.Parser
 
             Included.Add(script);
             var code = AphidScript.Read(script);
-            var ast = AphidParser.Parse(code, useImplicitReturns: UseImplicitReturns);
+            var ast = AphidParser.Parse(code, script, useImplicitReturns: UseImplicitReturns);
 
             if (PerformCommonTransformations)
             {

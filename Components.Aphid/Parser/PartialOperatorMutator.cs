@@ -27,7 +27,7 @@ namespace Components.Aphid.Parser
 
             hasChanged = true;
             var partialOpExp = (PartialOperatorExpression)expression;
-            var id = GetNextId();
+            var id = GetNextId().WithPositionFrom(expression);
             
             return new List<AphidExpression>
             {
@@ -37,10 +37,11 @@ namespace Components.Aphid.Parser
                     {
                         new UnaryOperatorExpression(
                             AphidTokenType.retKeyword,
-                            new BinaryOperatorExpression(
-                                id,
+                            new BinaryOperatorExpression(id,
                                 partialOpExp.Operator,
-                                partialOpExp.Operand))
+                                partialOpExp.Operand)
+                                .WithPositionFrom(expression))
+                            .WithPositionFrom(expression)
                     })
             };
         }

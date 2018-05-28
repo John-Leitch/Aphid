@@ -123,7 +123,7 @@ namespace Components.Aphid.UI
                 var tokens = lexer.GetTokens();
                 var exp = AphidParser.ParseExpression(tokens, code);
                 var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
-                new AphidCodeVisitor(code).VisitExpression(retExp);
+                //new AphidCodeVisitor(code).VisitExpression(retExp);
                 interpreter.Interpret(retExp);
                 result = interpreter.GetReturnValue();
 

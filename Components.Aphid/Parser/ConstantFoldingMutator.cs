@@ -61,24 +61,36 @@ namespace Components.Aphid.Parser
                     case AphidTokenType.AdditionOperator:
                         hasChanged = true;
 
-                        return new List<AphidExpression> { new NumberExpression(left + right) };
+                        return new List<AphidExpression>
+                        {
+                            new NumberExpression(left + right)
+                        };
 
                     case AphidTokenType.MinusOperator:
                         hasChanged = true;
 
-                        return new List<AphidExpression> { new NumberExpression(left - right) };
+                        return new List<AphidExpression>
+                        {
+                            new NumberExpression(left - right)
+                        };
 
                     case AphidTokenType.MultiplicationOperator:
                         hasChanged = true;
 
-                        return new List<AphidExpression> { new NumberExpression(left * right) };
+                        return new List<AphidExpression>
+                        {
+                            new NumberExpression(left * right)
+                        };
 
                     case AphidTokenType.DivisionOperator:
                         if (right != 0)
                         {
                             hasChanged = true;
 
-                            return new List<AphidExpression> { new NumberExpression(left / right) };
+                            return new List<AphidExpression>
+                            {
+                                new NumberExpression(left / right)
+                            };
                         }
                         else
                         {

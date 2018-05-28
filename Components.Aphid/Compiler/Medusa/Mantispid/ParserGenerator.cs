@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Compiler;
+﻿using Components;
+using Components.Aphid.Compiler;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
@@ -98,21 +99,16 @@ namespace Mantispid
             var declMutator = new DeclarativeStatementMutator(_tokenTypes, _ruleNames);
             nodes = declMutator.Mutate(nodes);
             nodes = AddIndexTracking(nodes);
-
-            var ruleTypeBuilder = new RuleTypeBuilder(
-                _config.BaseClass,
-                _ruleTypes.Select(x => x.Value));
-
+            var ruleTypeBuilder = new RuleTypeBuilder(_config, _ruleTypes.Select(x => x.Value));
             var typeClasses = ruleTypeBuilder.CreateRuleTypeClasses();
-
             var enumBuilder = new EnumBuilder(_config.BaseClass, _ruleTypes.Select(x => x.Key));
             var enumDecl = enumBuilder.CreateEnum();
 
             var ns = new CodeNamespace(
-                string.Join(".", _config.Namespace.Concat(new[] { "Parser" })));
+                string.Join(".", _config.Namespace.Concat(new[] { ParserName.Parser })));
 
             ns.Imports.Add(new CodeNamespaceImport(
-                string.Join(".", _config.Namespace.Concat(new[] { "Lexer" }))));
+                string.Join(".", _config.Namespace.Concat(new[] { ParserName.Lexer }))));
 
             ns.Imports.Add(new CodeNamespaceImport("System.Linq"));
             ns.Imports.Add(new CodeNamespaceImport("System.Collections.Generic"));
@@ -124,6 +120,7 @@ namespace Mantispid
                 IsPartial = true,
             };
 
+            parserType.Members.Add(GenerateContextField());
             parserType.Members.AddRange(nodes.Select(Generate).Where(x => x != null).ToArray());
             ns.Types.Add(parserType);
 
@@ -377,6 +374,17 @@ namespace Mantispid
                 ReferenceType.TokenType;
         }
 
+        private CodeMemberField GenerateContextField()
+        {
+            return new CodeMemberField(
+                CodeHelper.TypeRef(_config.ExpressionContextClass),
+                ParserName.ContextField)
+            {
+                Attributes = MemberAttributes.Private,
+            };
+
+        }
+
         private CodeMemberMethod Generate(AphidExpression node)
         {
             switch (node.Type)
@@ -449,6 +457,7 @@ namespace Mantispid
             if (methodAttrs.IsRoot)
             {
                 method.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+                method.Statements.Add(GenerateContextInitialization());
             }
 
             method.Statements.AddRange(body);
@@ -470,6 +479,22 @@ namespace Mantispid
             }
 
             return attrs;
+        }
+
+        private CodeStatement GenerateContextInitialization()
+        {
+            return new CodeConditionStatement(
+                CodeHelper.Eq(
+                    CodeHelper.FieldRef(ParserName.ContextField),
+                    CodeHelper.Null()),
+                new [] { GenerateContextAssign() });
+        }
+
+        private CodeStatement GenerateContextAssign()
+        {
+            return CodeHelper.Assign(
+                ParserName.ContextField,
+                CodeHelper.New(CodeHelper.TypeRef(_config.ExpressionContextClass)));
         }
 
         private CodeStatementCollection GenerateImperativeStatement(AphidExpression node)
@@ -910,7 +935,11 @@ namespace Mantispid
             switch (funcType)
             {
                 case ReferenceType.RuleClass:
-                    return new CodeObjectCreateExpression(id, args);
+                    return new CodeObjectCreateExpression(
+                        id,
+                        args
+                            .Prepend(CodeHelper.FieldRef(ParserName.ContextField))
+                            .ToArray());
 
                 case ReferenceType.RuleDeclaration:
                     return CodeHelper.Invoke(id, args);
