@@ -224,6 +224,8 @@
     <Compile Include="Compiler\Medusa\LLex\RegexParser.cs" />
     <Compile Include="Compiler\Medusa\Mantispid\ParserGeneratorDirective.cs" />
     <Compile Include="Compiler\Medusa\Mantispid\ParserName.cs" />
+    <Compile Include="Debugging\AphidBreakpointVisitor.cs" />
+    <Compile Include="Debugging\AphidErrorHandling.cs" />
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
     <Compile Include="External\Caching\CacheBlob.cs" />
@@ -519,7 +521,6 @@
     <Compile Include="TypeSystem\IAphidBindable.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropMethodResolver.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeResolver.cs" />
-    <Compile Include="Interpreter\InterpreterException.cs" />
     <Compile Include="TypeSystem\AphidFunction.cs" />
     <Compile Include="TypeSystem\AphidObjectConverter.cs" />
     <Compile Include="TypeSystem\OperatorHelper.cs" />

@@ -229,7 +229,7 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                throw Interpreter.CreateRuntimeException("Cannot find script {0}", scriptFile);
+                throw Interpreter.CreateRuntimeException("Cannot find script {0}.", scriptFile);
             }
         }
 

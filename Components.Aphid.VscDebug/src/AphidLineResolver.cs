@@ -10,31 +10,31 @@ namespace VSCodeDebug
 {
     public class AphidLineResolver
     {
-        private string _code;
+        //private string _code;
 
-        private List<AphidExpression> _ast;
+        //private List<AphidExpression> _ast;
 
         public Dictionary<int, AphidExpression> IndexTable { get; private set; }
 
-        public AphidLineResolver(string code, List<AphidExpression> ast)
-        {
-            _code = code;
-            _ast = ast;
-        }
+        //public AphidLineResolver(string code, List<AphidExpression> ast)
+        //{
+        //    _code = code;
+        //    _ast = ast;
+        //}
 
-        public int[] GetLineIndexes()
+        public int[] GetLineIndexes(string code)
         {
             return new[] { 0 }
-                .Concat(_code
+                .Concat(code
                     .Select((x, i) => new { Char = x, Index = i })
                     .Where(x => x.Char == '\n')
                     .Select(x => x.Index))
                 .ToArray();
         }
 
-        public int[] ResolveLines(int[] clientLines)
+        public int[] ResolveLines(string code, int[] clientLines)
         {
-            var lineIndexes = GetLineIndexes();
+            var lineIndexes = GetLineIndexes(code);
             //Program.Log("Lines found: {0}", JsonSerializer.Serialize(lineIndexes));
             var indexes = clientLines.Select(x => lineIndexes[x - 1]).ToArray();
             //Program.Log("Indexes found: {0}", JsonSerializer.Serialize(indexes));
@@ -42,10 +42,13 @@ namespace VSCodeDebug
             return indexes;
         }
 
-        public AphidExpression[] ResolveLineExpressions(int[] clientLines)
+        public AphidExpression[] ResolveLineExpressions(
+            List<AphidExpression> ast,
+            string code,
+            int[] clientLines)
         {
-            IndexTable = new AphidIndexVisitor().GetIndexTable(_ast);
-            var indexes = ResolveLines(clientLines);
+            IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
+            var indexes = ResolveLines(code, clientLines);
 
             return indexes
                 .Select(x => IndexTable.First(y => y.Key >= x).Value)
@@ -53,7 +56,7 @@ namespace VSCodeDebug
 
         }
 
-        public int ResolveExpressionLine(AphidExpression expression)
+        public int ResolveExpressionLine(List<AphidExpression> ast, AphidExpression expression)
         {
             if (expression == null)
             {
@@ -61,13 +64,13 @@ namespace VSCodeDebug
                 return 0;
             }
 
-            var lineIndexes = GetLineIndexes();
+            var lineIndexes = GetLineIndexes(expression.Code);
 
             Program.Log(
                 "Line indexes: {0}",
                 JsonSerializer.Serialize(lineIndexes));
 
-            IndexTable = new AphidIndexVisitor().GetIndexTable(_ast);
+            IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
 
             Program.Log(
                 "Index table: {0}",

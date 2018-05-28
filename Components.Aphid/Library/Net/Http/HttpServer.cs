@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Interpreter;
+﻿using Components.Aphid.Debugging;
+using Components.Aphid.Interpreter;
 using Components.Aphid.Library.Net.Http;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
@@ -97,7 +98,7 @@ namespace Components.Aphid.Library.Net
         {
             byte[] resp;
 
-            if (!Debugger.IsAttached)
+            if (AphidErrorHandling.HandleErrors)
             {
                 try
                 {

@@ -1,11 +1,14 @@
-﻿using Components.Aphid.Interpreter;
+﻿using Components.Aphid.Debugging;
+using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Aphid
@@ -25,6 +28,12 @@ namespace Aphid
                 VT100.Enable();
             }
             catch { }
+
+            if (args.Length > 0 && args[0] == "-ignoreDbg")
+            {
+                AphidErrorHandling.IgnoreDebugger = true;
+                args = args.Skip(1).ToArray();
+            }
 
             if (args.Length == 0)
             {
@@ -60,7 +69,7 @@ namespace Aphid
             var interpreter = new AphidInterpreter();
             interpreter.SetScriptFilename(file);
 
-            if (!Debugger.IsAttached)
+            if (AphidErrorHandling.HandleErrors)
             {
                 AphidCli.TryAction(
                     interpreter,
@@ -70,7 +79,7 @@ namespace Aphid
             }
             else
             {
-                interpreter.Interpret(code, isTextDocument);
+                interpreter.Interpret(code, file, isTextDocument);
             }
 
             if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))

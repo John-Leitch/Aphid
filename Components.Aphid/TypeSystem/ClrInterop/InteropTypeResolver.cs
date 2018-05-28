@@ -72,7 +72,7 @@ namespace Components.Aphid.TypeSystem
                 if (isFatal)
                 {
                     throw Interpreter.CreateRuntimeException(
-                        "Could not resolve member expression '{0}'",
+                        "Could not resolve member expression '{0}'.",
                         pathStr);
                 }
                 else

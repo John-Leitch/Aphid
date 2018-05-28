@@ -160,7 +160,7 @@ namespace Components.Aphid.TypeSystem
                         .Select(x => string.Format(
                             "{0}: {1}",
                             x.Key,
-                            x.Value.ToString(false)))
+                            x.Value != null ? x.Value.ToString(false) : null))
                         .Join(", ")) :
                 "{ ... }";
         }

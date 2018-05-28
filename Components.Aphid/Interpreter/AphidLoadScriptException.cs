@@ -10,10 +10,6 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoadScriptException : AphidRuntimeException
     {
-        private string _message;
-
-        public override string Message { get { return _message ?? GetMessage(); } }
-
         public string ScriptFile { get; set; }
 
         public AphidParserException ParserException { get; set; }
@@ -21,6 +17,11 @@ namespace Components.Aphid.Interpreter
         public AphidRuntimeException AphidRuntimeException { get; set; }
 
         public Exception RuntimeException { get; set; }
+
+        public override string Details
+        {
+            get { return GetMessage(); }
+        }
 
         public AphidExceptionType LoadScriptExceptionType
         {
@@ -124,21 +125,38 @@ namespace Components.Aphid.Interpreter
 
         private string GetMessage()
         {
-            return
-                LoadScriptExceptionType == AphidExceptionType.ParserException ?
-                    string.Format("Error parsing {0}:\r\n{1}", ScriptFile, ParserException) :
-                CurrentExpression == CurrentStatement ?
-                    string.Format(
-                        "Error evaluating {0} in {1}:\r\n{2}",
-                        CurrentStatement,
-                        ScriptFile,
-                        InnerException) :
-                    string.Format(
-                        "Error evaluating expression {0} from statement {1} in {2}:\r\n{2}",
-                        CurrentExpression,
-                        CurrentStatement,
-                        ScriptFile,
-                        InnerException);
+            var sb = new StringBuilder();
+            
+            sb.AppendFormat(
+                "Exception encountered while {0} included script {1}",
+                LoadScriptExceptionType == AphidExceptionType.ParserException ? "parsing" :
+                LoadScriptExceptionType == AphidExceptionType.AphidRuntimeException ? "interpreting" :
+                "evaluating",
+                ScriptFile);
+
+            TryAppendClause(sb, InnerException);
+            sb.Append(".");
+
+            return sb.ToString();
+        }
+
+        private void TryAppendClause(StringBuilder sb, object value)
+        {
+            string tmp;
+
+            if ((tmp = Format(ParserException)) != null)
+            {
+                sb.AppendFormat(", {0}", tmp);
+            }
+        }
+
+        private string Format(object value)
+        {
+            string s;
+
+            return value != null && !string.IsNullOrEmpty(s = value.ToString().Trim()) ?
+                s[0].ToString().ToUpper() + s.Substring(1) :
+                null;
         }
     }
 }

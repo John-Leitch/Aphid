@@ -93,7 +93,7 @@ namespace Components.Aphid.UI
 
                     string code;
 
-                    if (!Debugger.IsAttached)
+                    if (AphidErrorHandling.HandleErrors)
                     {
                         try
                         {
@@ -124,7 +124,7 @@ namespace Components.Aphid.UI
                         code = console.ReadLine();
                     }
 
-                    if (!Debugger.IsAttached)
+                    if (AphidErrorHandling.HandleErrors)
                     {
                         RunBlock(Prologue, handleExceptions: true);
                         AphidCli.TryAction(Interpreter, code, () => RunCode(code));

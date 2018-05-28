@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 
 
@@ -123,15 +124,11 @@ namespace Components.Aphid.Interpreter
     // * Replace foreach, Select, etc. with for.
     public partial class AphidInterpreter
     {
-        private bool
-            _isReturning,
-            _isContinuing,
-            _isBreaking,
-            _isInTryCatchFinally;
+        private bool _isReturning, _isContinuing, _isBreaking, _isInTryCatchFinally;
 
         private Dictionary<Type, Dictionary<string, MemberInfo[]>>
             _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
-            _staticMemberNameCache = new Dictionary<Type,Dictionary<string,MemberInfo[]>>();
+            _staticMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>();
 
         private Stack<AphidFrame> _frames;
 
@@ -139,11 +136,15 @@ namespace Components.Aphid.Interpreter
 
         private IEnumerable<AphidExpression> _insertNextBuffer;
 
+#if APHID_DEBUGGING_ENABLED
+        private List<AphidExpression> _currentBlock;
+
         private ManualResetEvent _breakpointReset;
 
         private bool _isSingleStepping;
 
         private AutoResetEvent _singleStepReset;
+#endif
 
 #if TRACE_SCOPE
         private AphidTrace _scopeTrace;
@@ -188,6 +189,14 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+#if APHID_DEBUGGING_ENABLED
+        public Dictionary<string, int[]> FileBreakpointIndexMap { get; private set; }
+
+        public string CurrentFileContext { get; private set; }
+
+        public Action<AphidExpression> HandleExecutionBreak { get; set; }
+#endif
+
         public int OwnerThread { get; private set; }
 
         public AphidAssemblyBuilder AsmBuilder { get; private set; }
@@ -207,8 +216,6 @@ namespace Components.Aphid.Interpreter
         public AphidFunctionConverter FunctionConverter { get; private set; }
 
         public AphidIpcContext IpcContext { get; private set; }
-
-        public Action<AphidExpression> HandleExecutionBreak { get; set; }
 
         public AphidSerializer Serializer { get; set; }
 
@@ -341,6 +348,11 @@ namespace Components.Aphid.Interpreter
             
             _framePerformanceBinaryWriter.Write(frameStart);
             _framePerformanceBinaryWriter.Flush();
+#endif
+
+#if APHID_DEBUGGING_ENABLED
+            FileBreakpointIndexMap = new Dictionary<string, int[]>(
+                StringComparer.OrdinalIgnoreCase);
 #endif
 
             Out = Console.Out;
@@ -1093,7 +1105,7 @@ namespace Components.Aphid.Interpreter
                 if (obj.IsScalar)
                 {
                     throw CreateRuntimeException(
-                        "Cannot resolve member {0} for type {1} from expression {2}",
+                        "Cannot resolve member {0} for type {1} from expression {2}.",
                         key,
                         obj.Value != null ? obj.Value.ToString() : "null",
                         expression);
@@ -1109,7 +1121,7 @@ namespace Components.Aphid.Interpreter
                 {
                     if (expression.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
                     {
-                        throw CreateRuntimeException("Null reference exception: {0}", expression);
+                        throw CreateRuntimeException("Null reference exception: {0}.", expression);
                     }
 
                     return InterpretMemberInteropExpression(null, expression, returnRef);
@@ -1141,7 +1153,7 @@ namespace Components.Aphid.Interpreter
 
                     if (val == null)
                     {
-                        throw CreateException(key, obj, expression);
+                        throw CreateMemberException(key, obj, expression);
                     }
 
                     return val;
@@ -1178,7 +1190,7 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        throw CreateException(key, obj, expression);
+                        throw CreateMemberException(key, obj, expression);
                     }
                 }
 
@@ -1187,17 +1199,28 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidRuntimeException CreateException(string key, AphidObject obj, AphidExpression expression)
+        private AphidRuntimeException CreateMemberException(string key, AphidObject obj, BinaryOperatorExpression expression)
         {
-            return CreateRuntimeException(
-                "No CLR member or Aphid extension '{0}' " +
-                    "declared for type '{1}'.\r\n\r\n" +
-                    "Expression: {2}\r\n\r\n" +
-                    "Serialized target object: {3}",
+            CurrentExpression = expression.RightOperand;
+
+            var sb = new StringBuilder();
+            sb.AppendFormat(
+                "No Aphid or .NET interop member '{0}' has been declared " +
+                    "by {1}, which was evaluated from '{2}', the left-hand " +
+                    "side of the expression '{3}'. The serialized target " +
+                    "object is '{4}'",
                 key,
                 obj.GetValueType(includeClrTypes: true),
+                expression.LeftOperand,
                 expression,
                 new AphidSerializer(this).Serialize(obj));
+
+            //if (!string.IsNullOrEmpty(expression.Filename))
+            //{
+            //    sb.AppendFormat("'{3}' in '{4}'. The serialized target object is: {3}",
+            //}
+
+            return CreateRuntimeException(sb.ToString());
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1695,13 +1718,13 @@ namespace Components.Aphid.Interpreter
                     AphidObject pipeLhs = InterpretExpression(expression.LeftOperand) as AphidObject,
                         pipeRhs = InterpretExpression(expression.RightOperand) as AphidObject;
 
-                        return pipeRhs.Value is IAphidCallable ? 
-                            InterpretCallExpression(
-                                expression,
-                                expression.RightOperand,
-                                pipeRhs.Value,
-                                new object[] { pipeLhs.Value }) :
-                            OperatorHelper.BinaryOr(pipeLhs, pipeRhs);
+                    return pipeRhs.Value is IAphidCallable ?
+                        InterpretCallExpression(
+                            expression,
+                            expression.RightOperand,
+                            pipeRhs.Value,
+                            new object[] { pipeLhs.Value }) :
+                        OperatorHelper.BinaryOr(pipeLhs, pipeRhs);
 
                 case AphidTokenType.XorOperator:
                     return OperatorHelper.Xor(
@@ -1851,7 +1874,7 @@ namespace Components.Aphid.Interpreter
                                 expression,
                                 expression.RightOperand,
                                 func,
-                                new[] { x } )));
+                                new[] { x })));
 
                 case AphidTokenType.OrderByDescendingOperator:
                     collection = ValueHelper.Unwrap(
@@ -2491,7 +2514,7 @@ namespace Components.Aphid.Interpreter
             {
                 return obj;
             }
-            else if (canResolveType && 
+            else if (canResolveType &&
                 (t = InteropTypeResolver.TryResolveType(
                     GetImports().ToArray(),
                     new[] { expression.Identifier },
@@ -3977,7 +4000,7 @@ namespace Components.Aphid.Interpreter
 
                             case AphidExpressionType.ArrayAccessExpression:
                                 var arrayExp = (ArrayAccessExpression)expression.Operand;
-                                
+
                                 if (arrayExp.KeyExpressions.Count != 1)
                                 {
                                     throw CreateRuntimeException("Index expected.");
@@ -4062,7 +4085,7 @@ namespace Components.Aphid.Interpreter
                 {
                     throw CreateRuntimeException("Expected identifier in generic type expression.");
                 }
-                
+
                 var id = ((IdentifierExpression)expression.ArrayExpression).Identifier;
 
                 var genericType = InteropTypeResolver.TryResolveType(
@@ -4084,7 +4107,7 @@ namespace Components.Aphid.Interpreter
                     if (typeParams[i] == null)
                     {
                         throw CreateRuntimeException(
-                            "Invalid type parameter '{0}'.", 
+                            "Invalid type parameter '{0}'.",
                             indexes[i].Value);
                     }
                 }
@@ -4239,7 +4262,7 @@ namespace Components.Aphid.Interpreter
             out bool isTypeArgument)
         {
             var indexExpressions = expression.KeyExpressions;
-            isTypeArgument = false;    
+            isTypeArgument = false;
 
             if (indexExpressions.Count == 0)
             {
@@ -4410,7 +4433,7 @@ namespace Components.Aphid.Interpreter
                 for (var i = 0; i < references.Length; i++)
                 {
                     var obj = InterpretExpression(expression.Expressions[i]);
-                    
+
                     if (ValueHelper.IsComplexAphidObject(obj))
                     {
                         references[i] = obj;
@@ -5038,6 +5061,8 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Interpret(AphidExpression expression)
         {
+            CurrentStatement = expression;
+
 #if APHID_SET_CODE_VAR
             SetAstCode(new List<AphidExpression> { expression });
 #endif
@@ -5046,7 +5071,7 @@ namespace Components.Aphid.Interpreter
 
             if (((expression.Type == AphidExpressionType.IdentifierExpression &&
                 (idExp = (IdentifierExpression)expression).Attributes.Count == 1) ||
-                (expression.Type == AphidExpressionType.UnaryOperatorExpression && 
+                (expression.Type == AphidExpressionType.UnaryOperatorExpression &&
                 ((unaryExp = (UnaryOperatorExpression)expression).Operator == AphidTokenType.retKeyword) &&
                 unaryExp.Operand.Type == AphidExpressionType.IdentifierExpression &&
                 (idExp = (IdentifierExpression)unaryExp.Operand).Attributes.Count == 1)) &&
@@ -5270,7 +5295,7 @@ namespace Components.Aphid.Interpreter
 
             if (fullFilename == null)
             {
-                throw CreateRuntimeException("Cannot find script {0}", filename);
+                throw CreateRuntimeException("Cannot find script {0}.", filename);
             }
 
             SetScriptFilename(fullFilename);
@@ -5317,7 +5342,7 @@ namespace Components.Aphid.Interpreter
             }
             else if (OwnerThread == Thread.CurrentThread.ManagedThreadId)
             {
-                
+
 #if APHID_SET_CODE_VAR
                 SetAstCode(expressions);
 #endif
@@ -5380,6 +5405,10 @@ namespace Components.Aphid.Interpreter
 
             for (var i = 0; i < expressions.Count || _insertNextBuffer != null; i++)
             {
+#if APHID_DEBUGGING_ENABLED
+                _currentBlock = expressions;
+#endif
+
                 if (_insertNextBuffer != null)
                 {
                     expressions.InsertRange(i, _insertNextBuffer);
@@ -5521,6 +5550,27 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void HandleDebugging(AphidExpression expression)
         {
+            if (CurrentExpression.Filename != null)
+            {
+                if (!CurrentExpression.Filename.Equals(
+                    CurrentFileContext,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    Cli.WriteInfoMessage(
+                        "File context changed from ~Cyan~{0}~R~ to ~Magenta~{1}~R~",
+                        CurrentFileContext,
+                        CurrentExpression.Filename);
+
+                    CurrentFileContext = CurrentExpression.Filename;
+                    SetBreakpoints(CurrentFileContext = CurrentExpression.Filename);
+                }
+            }
+            else if (CurrentFileContext != null)
+            {
+                Cli.WriteErrorMessage("Expression without file context: ~Yellow~{0}~R~", expression);
+                CurrentFileContext = null;
+            }
+
             if (_isSingleStepping)
             {
                 BreakExecution(expression);
@@ -5555,6 +5605,65 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetFileBreakpoints(string filename, int[] breakpoints)
+        {
+            Cli.WriteInfoMessage(
+                "Currently at offset ~Cyan~{0}~R~ of file ~Magenta~{1}~R~, " + 
+                    "Setting file breakpoints for ~Cyan~{2}~R~:",
+                CurrentStatement != null ? CurrentStatement.Index.ToString() : "[null]",
+                CurrentStatement != null ? CurrentStatement.Filename : "[null]",
+                filename);
+
+            foreach (var i in breakpoints)
+            {
+                Cli.WriteLine("    {0}", i);
+            }
+
+            //Todo: handle case sensitive file systems and forward slashes
+            lock (FileBreakpointIndexMap)
+            {
+                if (FileBreakpointIndexMap.ContainsKey(filename))
+                {
+                    FileBreakpointIndexMap[filename] = breakpoints;
+                }
+                else
+                {
+                    Cli.WriteInfoMessage(
+                        "Adding ~Cyan~{0}~R~ to breakpoint map",
+                        filename);
+
+                    FileBreakpointIndexMap.Add(filename, breakpoints);
+                }
+
+                if (filename.Equals(CurrentFileContext, StringComparison.OrdinalIgnoreCase))
+                {
+                    Cli.WriteInfoMessage(
+                        "Current context matches ~Cyan~{0}~R~, clearing",
+                        filename);
+
+                    CurrentFileContext = null;
+                }
+            }
+
+            Cli.WriteLine();
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SetBreakpoints(string filename)
+        {
+            int[] indexes;
+
+            lock (FileBreakpointIndexMap)
+            {
+                if (FileBreakpointIndexMap.TryGetValue(filename, out indexes))
+                {
+                    Cli.WriteSuccessMessage("Found breakpoints for ~Cyan~{0}~R~", filename);
+                    new AphidBreakpointVisitor(filename, indexes).Visit(_currentBlock);
+                }
+            }
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void BreakExecution(AphidExpression expression)
         {
             if (HandleExecutionBreak != null)
@@ -5567,7 +5676,10 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Continue()
         {
-            _breakpointReset.Set();
+            if (_breakpointReset != null)
+            {
+                _breakpointReset.Set();
+            }
 
             if (_isSingleStepping)
             {

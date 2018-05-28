@@ -13,9 +13,14 @@ namespace Components.Aphid.Parser
 
         public bool HasMutated { get; private set; }
 
+        public bool HasFinalized { get; private set; }
+
         protected bool IsStatement { get; private set; }
 
-        public bool HasFinalized { get; private set; }
+        protected virtual bool UpdatePosition
+        {
+            get { return true; }
+        }
 
         public AphidMutator()
         {
@@ -111,9 +116,18 @@ namespace Components.Aphid.Parser
 
                 for (var i = 0; i < mutated.Count; i++)
                 {
-                    recursivelyMutated.AddRange(
-                        MutateExpression(
-                            mutated[i].WithPositionFrom(expression)));
+                    var m = mutated[i];
+
+                    if (UpdatePosition)
+                    {
+                        m.WithPositionFrom(expression);
+                    }
+                    
+                    //var f = m.Index < 0 || m.Length < 0 ?
+                    //    m.WithPositionFrom(expression) :
+                    //    m;
+
+                    recursivelyMutated.AddRange(MutateExpression(m));
                 }
 
                 Ancestors.Pop();

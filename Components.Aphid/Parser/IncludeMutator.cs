@@ -29,6 +29,11 @@ namespace Components.Aphid.Parser
             get { return _loader; }
         }
 
+        protected override bool UpdatePosition
+        {
+            get { return false; }
+        }
+
         public IncludeMutator(string applicationDirectory, bool useImplicitReturns)
         {
             PerformCommonTransformations = true;

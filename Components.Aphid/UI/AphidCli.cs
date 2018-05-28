@@ -133,7 +133,7 @@ namespace Components.Aphid.UI
                 }
             };
 
-            if (!Debugger.IsAttached)
+            if (AphidErrorHandling.HandleErrors)
             {
                 TryAction(interpreter, code, action);
             }
@@ -150,7 +150,7 @@ namespace Components.Aphid.UI
             string code,
             bool isTextDocument)
         {
-            if (!Debugger.IsAttached)
+            if (AphidErrorHandling.HandleErrors)
             {
                 try
                 {
@@ -358,15 +358,13 @@ namespace Components.Aphid.UI
             string code)
         {
             return string.Format(
-                "Parser exception\r\n{0}",
+                "Unhandled parser exception: {0}\r\n",
                 ParserErrorMessage.Create(code, exception));
         }
 
         public static string GetErrorMessage(AphidRuntimeException exception)
         {
-            return string.Format(
-                "Unexpected runtime exception\r\n\r\n{0}\r\n",
-                exception.Message);
+            return string.Format("{0}\r\n", exception.Message);
         }
 
         public static string GetErrorMessage(AphidLoadScriptException exception, string code)
@@ -390,8 +388,8 @@ namespace Components.Aphid.UI
 
             return string.Format(
                 ShowClrStack ?
-                    "Unexpected exception: {0}\r\n\r\n{1}\r\n" :
-                    "Unexpected exception: {0}\r\n",
+                    "Unhandled exception: {0}\r\n\r\n{1}\r\n" :
+                    "Unhandled exception: {0}\r\n",
                 ex.Message,
                 ex.StackTrace);
         }

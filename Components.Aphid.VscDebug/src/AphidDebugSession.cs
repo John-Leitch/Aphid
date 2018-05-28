@@ -55,6 +55,11 @@ namespace VSCodeDebug
         private AphidInterpreter _interpreter = new AphidInterpreter();
         private bool _isRunning = false;
 
+        public AphidInterpreter Interpreter
+        {
+            get { return _interpreter; }
+        }
+
 
         public AphidDebugSession()
             : base()
@@ -209,7 +214,29 @@ namespace VSCodeDebug
             SendEvent(new InitializedEvent());
         }
 
+        public List<AphidExpression> Parse(Response response, string file)
+        {
+            var code = File.ReadAllText(file);
 
+            try
+            {
+                var a = AphidParser.Parse(code, file);
+                var mutatedAst = new PartialOperatorMutator().MutateRecursively(a);
+                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
+                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+                
+                return mutatedAst;
+            }
+            catch (AphidParserException e)
+            {
+                SendErrorResponse(
+                    response,
+                    0x523000,
+                    ParserErrorMessage.Create(code, e));
+
+                return null;
+            }
+        }
 
         public override async void Launch(Response response, dynamic args)
         {
@@ -252,27 +279,14 @@ namespace VSCodeDebug
                 }
             }
 
-            _script = programPath;
+            // Todo: handle case insensitive file systems and forward slashes
+            _script = Path.GetFullPath(programPath).Replace('/', '\\');
             _code = File.ReadAllText(programPath);
-
-            try
+            
+            if ((_ast = Parse(response, _script)) == null)
             {
-                var a = AphidParser.Parse(_code);
-                var mutatedAst = new PartialOperatorMutator().MutateRecursively(a);
-                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
-                _ast = mutatedAst;
-            }
-            catch (AphidParserException e)
-            {
-                SendErrorResponse(
-                    response,
-                    0x523000,
-                    ParserErrorMessage.Create(_code, e));
-
                 return;
             }
-            //_interpreter.Interpret(_ast);
 
             const string host = "127.0.0.1";
             int port = Utilities.FindFreePort(55555);
@@ -474,8 +488,17 @@ namespace VSCodeDebug
             }
 
             var clientLines = (int[])args.lines.ToObject<int[]>();
-            var bps = new AphidBreakpointController(_code, _ast)
-                .UpdateBreakpoints(clientLines);
+            
+            var bps = new AphidBreakpointController().UpdateBreakpoints(
+                this,
+                response,
+                path,
+                clientLines);
+
+            if (bps == null)
+            {
+                return;
+            }
 
             SendResponse(response, new SetBreakpointsResponseBody(bps));
 
@@ -581,13 +604,15 @@ namespace VSCodeDebug
 
             var id = 0;
 
-            var lineResolver = new AphidLineResolver(_code, _ast);
+            var lineResolver = new AphidLineResolver();
 
             var currentFrame = new StackFrame(
                 id++,
                 _interpreter.CurrentStatement.ToString(),
-                new Source(Path.GetFileName(_script), _script, 0, "normal"),
-                lineResolver.ResolveExpressionLine(_interpreter.CurrentStatement),
+                GetSource(_interpreter.CurrentStatement),
+                lineResolver.ResolveExpressionLine(
+                    GetAst(response, _interpreter.CurrentStatement),
+                    _interpreter.CurrentStatement),
                 0,
                 "test2");
 
@@ -597,12 +622,10 @@ namespace VSCodeDebug
                 .Select(x => new StackFrame(
                     id++,
                     x.Name,
-                    new VSCodeDebug.Source(
-                        Path.GetFileName(_script),
-                        _script,
-                        0,
-                        "normal"),
-                    lineResolver.ResolveExpressionLine(x.Expression),
+                    GetSource(x.Expression),
+                    lineResolver.ResolveExpressionLine(
+                        GetAst(response, x.Expression),
+                        x.Expression),
                     0,
                     "test2"))
                 .ToList();
@@ -654,6 +677,31 @@ namespace VSCodeDebug
             }
 
             SendResponse(response, new StackTraceResponseBody(frames2, frames2.Count));
+        }
+
+        private List<AphidExpression> GetAst(Response response, AphidExpression expression)
+        {
+            Program.Log("Getting filename from {0}", expression);
+            Program.Log("Filename: {0}", expression);
+
+            return expression != null && expression.Filename != null ?
+                Parse(response, expression.Filename) :
+                _ast;
+        }
+
+        private Source GetSource(AphidExpression expression)
+        {
+            return expression != null && expression.Filename != null ?
+                new VSCodeDebug.Source(
+                    Path.GetFileName(expression.Filename),
+                    Path.GetFullPath(expression.Filename),
+                    0,
+                    "normal") :
+                new VSCodeDebug.Source(
+                    Path.GetFileName(_script),
+                    _script,
+                    0,
+                    "normal");
         }
 
         public override void Source(Response response, dynamic arguments)
@@ -866,7 +914,7 @@ namespace VSCodeDebug
                 new StoppedEvent(
                     _threadId,
                     "exception",
-                    ExceptionHelper.Unwrap(exception).Message));
+                    ExceptionHelper.Unwrap(exception).ToString()));
 
             _resumeEvent.Set();
         }
