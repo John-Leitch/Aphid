@@ -194,8 +194,6 @@ var makeFluent = @(obj) {
     ret obj;
 };
 
-using System.Collections;
-
 if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
     class VisitorFrame { node, context };
 }
@@ -235,42 +233,36 @@ var ast = {
     indent: @() ' ' * ast.depth * 2,
 
     walk: @(visit, node, context) {
+        _push = macro(@(_c, _n){
+            if (_n defined && _n != null) {
+                var f = new VisitorFrame();
+                f.node = _n;
+                f.context = f;
+                _c.stack.Push(f);
+            }
+        });
+
         var c = null;
 
         if (context defined) {
             c = context;
         } else {
-            c = { stack: new Stack()};
-            
-            c.push = @(n) {
-                if (n defined && n != null) {
-                    // print('Pushing {0}', [ n.ToString() ] );
-                    var f = new VisitorFrame();
-                    f.node = n;
-                    f.context = f;
-                    c.stack.Push(f);
-                    // Console.WriteLine('Pushed');
-                }
-            };
-
-            c.pop = @() c.stack.Pop();            
+            c = { stack: new Stack[VisitorFrame]()};
         }
-
-        //context = c;
 
         c.isRoot = ast.depth == 0;
         c.isBlock = node.GetType() |> IEnumerable[AphidExpression].IsAssignableFrom;
         c.hasChildren = node['GetChildren'] defined;
         c.isHandled = false;
-        c.push(node);        
+        _push(c, node);        
         visit(node, c);
-        c.pop();
+        c.stack.Pop();
 
         var next = @(node) {
             if (node != null) {
-                c.push(node);
+                _push(c, node);
                 ast.walk(visit, node, c);
-                c.pop();
+                c.stack.Pop();
             }
         };
 
@@ -278,9 +270,9 @@ var ast = {
         
         if (c.isBlock) {
             ast.depth++;
-            c.push(node);
+            _push(c, node);
             node->next;
-            c.pop();
+            c.stack.Pop();
             ast.depth--;
         } else if (c.hasChildren) {  
             node.GetChildren() |> next;
