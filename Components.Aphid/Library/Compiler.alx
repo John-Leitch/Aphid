@@ -244,12 +244,13 @@ var csharp;
     using System.Text;
 
     csharp = {
-        sb: new StringBuilder(0x1000000),
+        sb: null,
         indentCount: 0,
         tabList: 0..128->@(i) i * '    ',
         propCache: new Dictionary[string, Object](),
         
         fromAst: @(namespace, resource, block) {
+            sb = new StringBuilder(0x1000000);
             getTab = macro(@{ tabList[indentCount] });
             indent = macro(@{ indentCount++ });
             unindent = macro(@{ indentCount-- });
@@ -269,7 +270,7 @@ var csharp;
             emitLine('{');
             indent();
             emit('return ');
-            compile(block);
+            compileAst(block);
             sb.AppendLine(';');
             unindent();
             emitLine('}');
@@ -281,7 +282,7 @@ var csharp;
             ret sb;
        },
 
-       compile: @(blockBlock, compileDelim, genericParam) {
+       compileAst: @(compileBlock, compileDelim, genericParam) {
             if (genericParam defined) {
                 emitLineFormat('new List<{0}>', genericParam);
             } else {
@@ -290,7 +291,7 @@ var csharp;
 
             emitLine('{');
             indent();
-            blockBlock->@() compileNode($_, ',');
+            compileBlock->@() compileNode($_, ',');
             unindent();
 
             if (compileDelim defined && compileDelim.Length != 0) {
@@ -357,7 +358,7 @@ var csharp;
                 // } else if (IEnumerable[IdentifierExpression].IsAssignableFrom(t)) {
                 //     compile(arg, delim, 'IdentifierExpression');
                 } else if (IEnumerable[AphidExpression].IsAssignableFrom(t)) {
-                    compile(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
+                    compileAst(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
                 } else if (t == string) {
                     emit('"');
                     concat(arg.Replace('"', '\\"'));
@@ -386,7 +387,7 @@ var csharp;
                 } else if (t.BaseType == AphidExpression) {
                     compileNode(arg);
                 } else if (IEnumerable[AphidExpression].IsAssignableFrom(t)) {
-                    compile(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
+                    compileAst(arg, isLast ? '' : ',', t.GetGenericArguments()[0].Name);
                 } else if (t == string) {
                     emit('"');
                     concat(arg.Replace('"', '\\"'));
