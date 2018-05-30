@@ -95,8 +95,8 @@ Global
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceDebug|x86.Build.0 = Debug|x86
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|Any CPU.ActiveCfg = BinaryTraceRelease|Any CPU
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|Any CPU.Build.0 = BinaryTraceRelease|Any CPU
-		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|x64.ActiveCfg = Release|x64
-		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|x64.Build.0 = Release|x64
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|x64.ActiveCfg = BinaryTraceRelease|x64
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|x64.Build.0 = BinaryTraceRelease|x64
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|x86.ActiveCfg = Release|x86
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTraceRelease|x86.Build.0 = Release|x86
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -124,8 +124,8 @@ Global
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceDebug|x86.Build.0 = Debug|x86
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|Any CPU.ActiveCfg = BinaryTraceRelease|Any CPU
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|Any CPU.Build.0 = BinaryTraceRelease|Any CPU
-		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|x64.ActiveCfg = Release|x64
-		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|x64.Build.0 = Release|x64
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|x64.ActiveCfg = BinaryTraceRelease|Any CPU
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|x64.Build.0 = BinaryTraceRelease|Any CPU
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|x86.ActiveCfg = Release|x86
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTraceRelease|x86.Build.0 = Release|x86
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -142,8 +142,8 @@ Global
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release|x86.Build.0 = Release|x86
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|Any CPU.ActiveCfg = Release|x64
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|Any CPU.Build.0 = Release|x64
-		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x64.ActiveCfg = Release64|x64
-		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x64.Build.0 = Release64|x64
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x64.ActiveCfg = Release|Any CPU
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x64.Build.0 = Release|Any CPU
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.Release64|x86.ActiveCfg = Release64|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceDebug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceDebug|Any CPU.Build.0 = Debug|Any CPU
@@ -153,8 +153,8 @@ Global
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceDebug|x86.Build.0 = Debug|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|Any CPU.Build.0 = Release|Any CPU
-		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|x64.ActiveCfg = Release|x64
-		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|x64.Build.0 = Release|x64
+		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|x64.ActiveCfg = Release|Any CPU
+		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|x64.Build.0 = Release|Any CPU
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|x86.ActiveCfg = Release|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.BinaryTraceRelease|x86.Build.0 = Release|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -171,8 +171,8 @@ Global
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release|x86.Build.0 = Release|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|Any CPU.ActiveCfg = Release|x64
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|Any CPU.Build.0 = Release|x64
-		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|x64.ActiveCfg = Release|x64
-		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|x64.Build.0 = Release|x64
+		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|x64.ActiveCfg = Release|Any CPU
+		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|x64.Build.0 = Release|Any CPU
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|x86.ActiveCfg = Release|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|x86.Build.0 = Release|x86
 		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTraceDebug|Any CPU.ActiveCfg = Debug|Any CPU

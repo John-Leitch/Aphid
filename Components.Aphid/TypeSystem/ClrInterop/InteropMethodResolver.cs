@@ -492,57 +492,69 @@ namespace Components.Aphid.TypeSystem
         {
             object arg;
             Type argType;
+            ParameterInfoCache paramInfo;
 
-            if (!parameter.IsDefined(typeof(ParamArrayAttribute)))
+            lock (AphidInteropMethodArg.ParamCache)
             {
-                return new AphidInteropMethodArg(args[index], parameter);
-            }
-            else if (args.Length - 1 == index &&
-                (arg = args[index]) != null &&
-                (argType = arg.GetType()).IsArray &&
-                Interpreter.TypeConverter.CanConvertArray(arg, argType, parameter.ParameterType))
-            {
-                return new AphidInteropMethodArg(arg, parameter, false);
-            }
-            else if (args.Length > index &&
-                (arg = args[index]) != null &&
-                arg.GetType() == typeof(string) &&
-                parameter.ParameterType == typeof(char[]))
-            {
-                return new AphidInteropMethodArg(arg, parameter);
-            }
-            else if (parameter.ParameterType.IsArray)
-            {
-                var a = args.Length > index ? args[index] : null;
-                IEnumerable seq;
-
-                if (a == null ||
-                    a is string ||
-                    ((seq = a as IEnumerable) == null))
+                if (!AphidInteropMethodArg.ParamCache.TryGetValue(parameter, out paramInfo))
                 {
-                    var p = new object[args.Length - index];
-                    Array.Copy(args, index, p, 0, p.Length);
+                    AphidInteropMethodArg.ParamCache.Add(
+                        parameter,
+                        paramInfo = new ParameterInfoCache(parameter));
+                }
 
-                    return new AphidInteropMethodArg(p, parameter);
+                if (!paramInfo.HasParamArray)
+                {
+                    return new AphidInteropMethodArg(args[index], paramInfo);
+                }
+                else if (args.Length - 1 == index &&
+                    (arg = args[index]) != null &&
+                    (argType = arg.GetType()).IsArray &&
+                    Interpreter.TypeConverter.CanConvertArray(arg, argType, paramInfo.TargetType))
+                {
+                    return new AphidInteropMethodArg(arg, paramInfo, false);
+                }
+                else if (args.Length > index &&
+                    (arg = args[index]) != null &&
+                    arg.GetType() == typeof(string) &&
+                    paramInfo.IsCharArray)
+                {
+                    return new AphidInteropMethodArg(arg, paramInfo);
+                }
+                else if (paramInfo.IsArray)
+                {
+                    object a;
+                    IEnumerable seq;
+
+                    if (index >= args.Length  ||
+                        (a = args[index]) == null ||
+                        a is string ||
+                        (seq = a as IEnumerable) == null)
+                    {
+                        var p = new object[args.Length - index];
+                        Array.Copy(args, index, p, 0, p.Length);
+
+                        return new AphidInteropMethodArg(p, paramInfo);
+                    }
+                    else
+                    {
+                        var p = new List<object>();
+
+                        foreach (var x in seq)
+                        {
+                            p.Add(x);
+                        }
+
+                        return new AphidInteropMethodArg(p.ToArray(), paramInfo);
+                    }
                 }
                 else
                 {
-                    var p = new List<object>();
-
-                    foreach (var x in seq)
-                    {
-                        p.Add(x);
-                    }
-
-                    return new AphidInteropMethodArg(p.ToArray(), parameter);
+                    throw Interpreter.CreateRuntimeException(
+                        "Invalid param array element type {0}, only {1} currently supported.",
+                        parameter.ParameterType.GetElementType(),
+                        typeof(object));
                 }
-            }
-            else
-            {
-                throw Interpreter.CreateRuntimeException(
-                    "Invalid param array element type {0}, only {1} currently supported.",
-                    parameter.ParameterType.GetElementType(),
-                    typeof(object));
             }
         }
     }

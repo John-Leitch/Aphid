@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' == 'x64'">
+    <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace64</AssemblyName>
+    <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid64</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' != 'x64'">
     <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName>
     <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName>
   </PropertyGroup>
@@ -160,7 +164,14 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
     <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|x64'">
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
     <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>

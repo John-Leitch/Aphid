@@ -15,6 +15,10 @@ namespace Components.Aphid.TypeSystem
 
         public bool IsClass { get; private set; }
 
+        public bool IsCharArray { get; private set; }
+
+        public bool IsArray { get; private set; }
+
         public Dictionary<Type, ArgumentTypeCache> ArgumentTypeCache { get; private set; }
 
         public ArgumentTypeCache InitialArgumentTypeCache { get; private set; }
@@ -24,6 +28,9 @@ namespace Components.Aphid.TypeSystem
             TargetType = parameter.ParameterType;
             HasParamArray = parameter.IsDefined(typeof(ParamArrayAttribute));
             IsClass = TargetType.IsClass;
+            IsCharArray = TargetType == typeof(char[]);
+            IsArray = TargetType.IsArray;
+
             ArgumentTypeCache = new Dictionary<Type, ArgumentTypeCache>();
         }
 
@@ -32,6 +39,8 @@ namespace Components.Aphid.TypeSystem
             TargetType = parameter.ParameterType;
             HasParamArray = parameter.IsDefined(typeof(ParamArrayAttribute));
             IsClass = TargetType.IsClass;
+            IsCharArray = TargetType == typeof(char[]);
+            IsArray = TargetType.IsArray;
 
             ArgumentTypeCache = new Dictionary<Type, ArgumentTypeCache>
             {

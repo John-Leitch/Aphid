@@ -11,7 +11,7 @@ namespace Components.Aphid.TypeSystem
     // Todo: refactor properties into AphidConversionInfo and logic into AphidTypeConverter.
     public class AphidInteropMethodArg
     {
-        private static Dictionary<ParameterInfo, ParameterInfoCache> _paramCache =
+        public static Dictionary<ParameterInfo, ParameterInfoCache> ParamCache =
             new Dictionary<ParameterInfo, ParameterInfoCache>();
 
         private ParameterInfoCache _paramInfo;
@@ -112,11 +112,11 @@ namespace Components.Aphid.TypeSystem
             {
                 ArgumentType = argument.GetType();
 
-                lock (_paramCache)
+                lock (ParamCache)
                 {
-                    if (!_paramCache.TryGetValue(parameter, out _paramInfo))
+                    if (!ParamCache.TryGetValue(parameter, out _paramInfo))
                     {
-                        _paramCache.Add(
+                        ParamCache.Add(
                             parameter,
                             _paramInfo = new ParameterInfoCache(parameter, ArgumentType));
 
@@ -135,11 +135,11 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                lock (_paramCache)
+                lock (ParamCache)
                 {
-                    if (!_paramCache.TryGetValue(parameter, out _paramInfo))
+                    if (!ParamCache.TryGetValue(parameter, out _paramInfo))
                     {
-                        _paramCache.Add(
+                        ParamCache.Add(
                             parameter,
                             _paramInfo = new ParameterInfoCache(parameter));
                     }
@@ -206,15 +206,95 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public AphidInteropMethodArg(object argument, ParameterInfo parameter)
-            : this(parameter, argument)
+        public AphidInteropMethodArg(object argument, ParameterInfoCache parameterInfo)
+            : this(argument, parameterInfo, constructsParamArray: null)
         {
             
         }
 
-        public AphidInteropMethodArg(object argument, ParameterInfo parameter, bool constructsParamArray)
-            : this(parameter, argument, constructsParamArray)
+        public AphidInteropMethodArg(
+            object argument,
+            ParameterInfoCache parameterInfo,
+            bool? constructsParamArray)
         {
+            _paramInfo = parameterInfo;
+            Argument = argument;
+
+            if (argument != null)
+            {
+                ArgumentType = argument.GetType();
+
+                if (!_paramInfo.ArgumentTypeCache.TryGetValue(ArgumentType, out _argInfo))
+                {
+                    _paramInfo.ArgumentTypeCache.Add(
+                        ArgumentType,
+                        _argInfo = new ArgumentTypeCache(
+                            ArgumentType,
+                            _paramInfo,
+                            _paramInfo.TargetType));
+                }
+            }
+            else
+            {
+                _argInfo = new ArgumentTypeCache();
+            }
+
+            IsGeneric = TargetType.IsGenericType;
+
+            if (_argInfo.NeedsStringToCharCheck)
+            {
+                if (((string)Argument).Length == 1)
+                {
+                    IsExactBasicTypeMatch = true;
+                }
+
+                //IsExactUserReferenceTypeMatch = false;
+
+            }
+            else if (_argInfo.NeedsDecimalFitCheck)
+            {
+                IsConvertibleNumberPair = AphidTypeConverter.CanConvertDecimal(
+                    (decimal)Argument,
+                    TargetType);
+            }
+            else
+            {
+                IsConvertibleNumberPair = _argInfo.IsConvertibleNumberPair;
+                IsExactBasicTypeMatch = _argInfo.IsExactBasicTypeMatch;
+                IsExactUserReferenceTypeMatch = _argInfo.IsExactUserReferenceTypeMatch;
+            }
+
+            if (HasParamArray)
+            {
+                if (constructsParamArray == null)
+                {
+                    if (!HasParamArray)
+                    {
+                        ConstructsParamArray = false;
+                        PassesParamArray = false;
+                    }
+                    else
+                    {
+                        if (!IsExactTypeMatch &&
+                            ArgumentType != null &&
+                            ArgumentType.GetInterface("IEnumerable") != null)
+                        {
+                            ConstructsParamArray = true;
+                            PassesParamArray = false;
+                        }
+                        else
+                        {
+                            ConstructsParamArray = false;
+                            PassesParamArray = true;
+                        }
+                    }
+                }
+                else
+                {
+                    ConstructsParamArray = constructsParamArray.Value;
+                    PassesParamArray = !ConstructsParamArray;
+                }
+            }
         }
     }
 }
