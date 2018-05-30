@@ -3,7 +3,6 @@
 //#define BINARY_FRAME_PERFORMANCE_TRACE
 
 #if TRACE_SCOPE || TEXT_FRAME_PERFORMANCE_TRACE || BINARY_FRAME_PERFORMANCE_TRACE
-using Components.Aphid.Debugging;
 using Components.External;
 using System.Diagnostics;
 #endif
@@ -27,7 +26,6 @@ using System.Runtime;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-
 
 namespace Components.Aphid.Interpreter
 {
@@ -152,14 +150,11 @@ namespace Components.Aphid.Interpreter
 
 #if TEXT_FRAME_PERFORMANCE_TRACE
         private AphidTrace _framePerformanceTrace;
-#endif
-
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
         private Stack<Tuple<string, Stopwatch>> _frameStopwatchStack = new Stack<Tuple<string, Stopwatch>>();
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
-        private BinaryWriter _framePerformanceBinaryWriter;
+        private FrameProfileBinaryWriter _framePerformanceBinaryWriter;
 #endif
 
         private AphidObject _localScope;
@@ -306,7 +301,7 @@ namespace Components.Aphid.Interpreter
             _scopeTrace.Open();
 #endif
 
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+#if TEXT_FRAME_PERFORMANCE_TRACE
             var framePerfGuid = Guid.NewGuid();
 
             var frameStart = string.Format(
@@ -339,15 +334,8 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
-            _framePerformanceBinaryWriter = new BinaryWriter(
-                File.Create(
-                    PathHelper.GetExecutingPath(
-                        string.Format(
-                            "AphidFramePerformance.{0}.dat",
-                            framePerfGuid))));
-            
-            _framePerformanceBinaryWriter.Write(frameStart);
-            _framePerformanceBinaryWriter.Flush();
+            _framePerformanceBinaryWriter = new FrameProfileBinaryWriter(Guid.NewGuid());
+            _framePerformanceBinaryWriter.WriteStart();
 #endif
 
 #if APHID_DEBUGGING_ENABLED
@@ -3093,12 +3081,10 @@ namespace Components.Aphid.Interpreter
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
             // Todo: Pack enter/leave in as high order bit of thread id
-            _framePerformanceBinaryWriter.Write(id);
-            _framePerformanceBinaryWriter.Write(true);
-            _framePerformanceBinaryWriter.Write(name.Value);
+            _framePerformanceBinaryWriter.WriteEnter(id, name.Value);
 #endif
 
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+#if TEXT_FRAME_PERFORMANCE_TRACE
             var sw = new Stopwatch();
             _frameStopwatchStack.Push(Tuple.Create(name.Value, sw));
             sw.Start();
@@ -3120,12 +3106,10 @@ namespace Components.Aphid.Interpreter
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
             // Todo: Pack enter/leave in as high order bit of thread id
-            _framePerformanceBinaryWriter.Write(id);
-            _framePerformanceBinaryWriter.Write(true);
-            _framePerformanceBinaryWriter.Write(frame.Name);
+            _framePerformanceBinaryWriter.WriteEnter(id, frame.Name);
 #endif
 
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+#if TEXT_FRAME_PERFORMANCE_TRACE
             var sw = new Stopwatch();
             _frameStopwatchStack.Push(Tuple.Create(frame.Name, sw));
             sw.Start();
@@ -3135,7 +3119,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopFrame()
         {
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+#if TEXT_FRAME_PERFORMANCE_TRACE
             var tup = _frameStopwatchStack.Pop();
             tup.Item2.Stop();
             var id = Thread.CurrentThread.ManagedThreadId;
@@ -3151,11 +3135,7 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
-            _framePerformanceBinaryWriter.Write(id);
-            _framePerformanceBinaryWriter.Write(false);
-            _framePerformanceBinaryWriter.Write(tup.Item1);
-            _framePerformanceBinaryWriter.Write(tup.Item2.ElapsedTicks);
-            _framePerformanceBinaryWriter.Write(tup.Item2.ElapsedMilliseconds);
+            _framePerformanceBinaryWriter.WriteLeave();
 #endif
             if (!_isInTryCatchFinally)
             {

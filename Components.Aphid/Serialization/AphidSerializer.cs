@@ -335,7 +335,7 @@ namespace Components.Aphid.Serialization
                 new AphidObjectReferenceVisitor()
                     .FindReferenceAssignments(ast));
 
-            new AphidCodeVisitor(obj).Visit(ast);
+            new AphidCodeVisitor().Visit(ast);
 
             var objInterpreter = new AphidInterpreter();
             objInterpreter.Interpret(ast);

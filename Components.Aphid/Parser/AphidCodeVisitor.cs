@@ -5,20 +5,20 @@ namespace Components.Aphid.Parser
 {
     public class AphidCodeVisitor : AphidVisitor
     {
-        private string _code;
+        //private string _code;
 
-        private string _filename;
+        //private string _filename;
 
-        public AphidCodeVisitor(string code)
-            : this(code, null)
-        {
-        }
+        //public AphidCodeVisitor(string code)
+        //    : this(code, null)
+        //{
+        //}
 
-        public AphidCodeVisitor(string code, string filename)
-        {
-            _code = code;
-            _filename = filename;
-        }
+        //public AphidCodeVisitor(string code, string filename)
+        //{
+        //    _code = code;
+        //    _filename = filename;
+        //}
 
         protected override void EndVisit(List<AphidExpression> ast)
         {
@@ -86,14 +86,21 @@ namespace Components.Aphid.Parser
 
         protected override void Visit(AphidExpression expression)
         {
-            if (_filename != null && expression.Filename == null)
-            {
-                expression.Filename = _filename;
-            }
+            //if (_filename != null && expression.Filename == null)
+            //{
+            //    expression.Filename = _filename;
+            //}
 
-            if (expression.Index == -1)
+            if (expression.Index == -1 && Ancestors.Count > 1)
             {
-                var a = Ancestors.FirstOrDefault(x => x.Index != -1);
+                var a = Ancestors.ToArray()[1];
+
+                if (a.Index == -1)
+                {
+                    return;
+                }
+
+                //var a = Ancestors.FirstOrDefault(x => x.Index != -1);
 
                 IParentNode parent;
 
@@ -119,7 +126,7 @@ namespace Components.Aphid.Parser
                 }
             }
 
-            expression.Code = _code;
+            //expression.Code = _code;
         }
     }
 }

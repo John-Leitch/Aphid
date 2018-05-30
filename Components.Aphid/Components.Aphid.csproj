@@ -166,7 +166,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|AnyCPU'">
     <OutputPath>bin\BinaryTraceRelease\</OutputPath>
-    <DefineConstants>TRACE;BINARY_FRAME_PERFORMANCE_TRACE</DefineConstants>
+    <DefineConstants>BINARY_FRAME_PERFORMANCE_TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -228,6 +228,8 @@
     <Compile Include="Debugging\AphidErrorHandling.cs" />
     <Compile Include="Debugging\AphidMemoryDump.cs" />
     <Compile Include="Debugging\AphidErrorReporter.cs" />
+    <Compile Include="Debugging\FrameProfileBinaryWriter.cs" />
+    <Compile Include="Debugging\FrameProfileInfo.cs" />
     <Compile Include="External\Caching\CacheBlob.cs" />
     <Compile Include="External\Caching\PrimitiveCacheInfo.cs" />
     <Compile Include="External\Caching\FileMemoryCache.cs" />

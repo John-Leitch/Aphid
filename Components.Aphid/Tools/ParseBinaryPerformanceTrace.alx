@@ -25,10 +25,9 @@ using System.IO;
 class of long FrameProfile {
     int ThreadId,
     string Name,
+    Hits,
     Ticks,
     TicksExclusive,
-    Milliseconds,
-    MillisecondsExclusive,
     ArrayList ChildFrames,
 };
 
@@ -46,10 +45,17 @@ var cliArgs = getCommandLineArgs();
 
 
 
-cliArgs.Length == 1 !! 'aphid ParseBinaryPerformanceTrace [file]';
+cliArgs.Length == 2 !! 'aphid ParseBinaryPerformanceTrace [file]';
 !File.Exists(var trace = cliArgs[2]) !! ('Could not find trace ~Yellow~{0}~R~' :: trace);
 
 //var trace = 'C:\\source\\Aphid\\Aphid\\bin\\Debug\\AphidFramePerformance.ea27e90b-43c3-4f26-aa7b-7bc3781508d0.dat';
+var nameReader = new BinaryReader(trace + '.names' |> File.OpenRead);
+var names = new List[string]();
+
+while (nameReader.BaseStream.Position < nameReader.BaseStream.Length) {
+    nameReader.ReadString() |> names.Add;
+}
+
 var reader = new BinaryReader(trace |> File.OpenRead);
 var profileHeader = reader.ReadString();
 print(profileHeader);
@@ -61,25 +67,30 @@ print(profileHeader);
 var threadStacks = {};
 var root = new List[FrameProfile]();
 var parsed = 0;
-var frames = [];
+var frames = new List[FrameProfile]();
 var frameTotals = {};
-var frameTotalsList = [];
+var frameTotalsList = new List[FrameProfile]();
 
 using System.Threading;
 
 var t = new Thread(@{
+    var lastPct = 0;
     while (true) {
         Thread.Sleep(500);
 
+        try {
         var pos = reader.BaseStream.Position;
         var len = reader.BaseStream.Length;
-
         var remaining = len - pos;
-
-        printInfo('{0:n0}/{1:n0} {2}%', remaining |> Convert.ToInt32, len, pos / len * 100);
+        var pct = Math.Round(pos / len * 100, 2);
+        printInfo('{0:n0}/{1:n0} {2}% {3}% inc', pos, len, pct, pct - lastPct);
+        lastPct = pct;
 
         if (pos == len) {
             printSuccess('Done');
+            break;
+        }
+        } catch (e) {
             break;
         }
     }
@@ -87,23 +98,25 @@ var t = new Thread(@{
 
 t.Start();
 
-while (reader.BaseStream.Position < reader.BaseStream.Length) {
+var readInt32 = reader.ReadInt32;
+var readInt64 = reader.ReadInt64;
+var readBool = reader.ReadBoolean;
+var s = reader.BaseStream;
+var f = FrameProfile;
+
+while (s.Position < s.Length) {
     
     var id = reader.ReadInt32();
+    var key = id.ToString();
 
-    var stack;
+    var stack = threadStacks.{key} defined ? 
+        threadStacks.{key} :
+        threadStacks.{key} = new Stack[FrameProfile]();
 
-    if (!(threadStacks.{id.ToString()} defined)) {
-        stack = new Stack[FrameProfile]();
-        threadStacks.{id.ToString()} = stack;
-    } else {
-        stack = threadStacks.{id.ToString()};
-    }
-
-    var enter = reader.ReadBoolean();
-    var name = reader.ReadString();
+    var enter = reader.ReadBoolean();    
 
     if (enter) {
+        var name = names[reader.ReadInt32()];
         var frame = new FrameProfile();
         frame.ThreadId = id;
         frame.Name = 'Frame$' + name;
@@ -116,54 +129,68 @@ while (reader.BaseStream.Position < reader.BaseStream.Length) {
         }
 
         stack.Push(frame);
-        frames.add(frame);
+        frames.Add(frame);
         // frame.Name |> Cli.StyleEscape |> print;
     } else {
         var curFrame = stack.Pop();
         curFrame.Ticks = reader.ReadInt64();
-        curFrame.Milliseconds = reader.ReadInt64();
-        var arr = curFrame.ChildFrames.ToArray();
+        var arr = curFrame.ChildFrames;
 
-        if (arr.Length == 0) {
-            curFrame.TicksExclusive = curFrame.Ticks;
-            curFrame.MillisecondsExclusive = curFrame.Milliseconds;
+
+        if (arr.Count == 0) {
+            curFrame.TicksExclusive = curFrame.Ticks;            
         } else {
             _exclusive = macro(@(n) { curFrame.n - (arr->@.n+>@(x, y) x + y) });
-            curFrame.TicksExclusive = _exclusive(Ticks);
-            curFrame.MillisecondsExclusive = _exclusive(Milliseconds);
+            curFrame.TicksExclusive = _exclusive(Ticks);            
         }
 
         if (frameTotals.{curFrame.Name} defined) {
             var t = frameTotals.{curFrame.Name};
+            t.Hits = t.Hits + 1;
             t.Ticks += curFrame.Ticks;
-            t.TicksExclusive += curFrame.TicksExclusive;
-            t.Milliseconds += curFrame.Milliseconds;
-            t.Milliseconds += curFrame.MillisecondsExclusive;
+            t.TicksExclusive += curFrame.TicksExclusive;            
         } else {
             var t = new FrameProfile();
+            t.Hits = 1;
             t.Name = curFrame.Name;
             t.Ticks = curFrame.Ticks;
-            t.TicksExclusive = curFrame.TicksExclusive;
-            t.Milliseconds = curFrame.Milliseconds;
-            t.Milliseconds = curFrame.MillisecondsExclusive;
+            t.TicksExclusive = curFrame.TicksExclusive;            
             frameTotals.{curFrame.Name} = t;
-            frameTotalsList.add(t);
+            frameTotalsList.Add(t);
         }
     }
 }
 
+var printFrame = @(frame, indent) print(
+    (indent defined ? indent : '') +
+    ($_.Hits != 0 ? 
+        'Name: {0}, Ticks: {1:n0}, Exclusive: {2:n0}, Hits: {3:n0}' :
+        'Name: {0}, Ticks: {1:n0}, Exclusive: {2:n0}'),
+    $_.Name.Replace('\r', '').Replace('\n', '\\n'),
+    $_.Ticks,
+    $_.TicksExclusive,
+    $_.Hits);
+
 [ [ 'inclusive ticks', @.Ticks ], [ 'exclusive ticks', @.TicksExclusive ] ]->@{
     head('Top 100 slowest by ' + $_[0]);
-    
-    frameTotalsList.orderByDescending($_[1]).take(100)->@()
-        print(
-            'Name: {0}, Ticks: {1:n0}, Ticks Exlusive: {2:n0}',
-            $_.Name.Replace('\r', '').Replace('\n', '\\n'),
-            $_.Ticks,
-            $_.TicksExclusive);
+
+    var ordered = frameTotalsList-/$_[1];
+    Enumerable.Take(ordered, 100)->printFrame;
 
     print();
 };
 
 print('Done');
 reader.Dispose();
+
+var dumpTree = @(root, indent) {
+    var i = indent defined ? indent : '';
+    root->@{
+        printFrame($_, i);
+        dumpTree($_.ChildFrames, i + '  ');
+    };
+};
+
+
+root |> dumpTree;
+    

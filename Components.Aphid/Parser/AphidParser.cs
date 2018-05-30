@@ -136,10 +136,8 @@ namespace Components.Aphid.Parser
                     ast[0].Filename = filename;
                 }
             }
-            //new AphidCodeVisitor(
-            //    code,
-            //    filename != null ? Path.GetFullPath(filename) : null)
-            //    .Visit(ast);
+            
+            new AphidCodeVisitor().Visit(ast);
 
             return ast;
         }

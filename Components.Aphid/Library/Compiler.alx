@@ -9,6 +9,7 @@ var csharp;
     #'Meta';
 
     using System.Security.Cryptography;
+    using System.Reflection;
 
     var md5Provider = new MD5CryptoServiceProvider();
     
@@ -61,13 +62,13 @@ var csharp;
             var resource = 'ByteCode_{0}' :: (bytecode |> md5.hex);
             printSuccess('Resource named ~Cyan~{0}~R~', resource);
 
-            printQuery('Generating exports');
+            printInfo('Generating exports');
+            printQuery('Searching for exports');
+            var e = srcAst |> exports.find;
 
-            var cs =
-                srcAst
-                |> exports.find
-                -> (@() exports.generate(namespace, resource, $_))
-                @join('\r\n');
+            printInfo('Compiling exports');
+
+            var cs = e -> (@() exports.generate(namespace, resource, $_)) @join('\r\n');
 
             printSuccess('Exports generated');
 
@@ -247,13 +248,14 @@ var csharp;
         sb: null,
         indentCount: 0,
         tabList: 0..128->@(i) i * '    ',
+        tab: '',
         propCache: new Dictionary[string, Object](),
         
         fromAst: @(namespace, resource, block) {
             sb = new StringBuilder(0x1000000);
-            getTab = macro(@{ tabList[indentCount] });
-            indent = macro(@{ indentCount++ });
-            unindent = macro(@{ indentCount-- });
+            getTab = macro(@{ tab });
+            indent = macro(@{ tab = tabList[++indentCount] });
+            unindent = macro(@{ tab = tabList[--indentCount] });
 
             emit('namespace ');
             concatLine(namespace);
@@ -291,7 +293,7 @@ var csharp;
 
             emitLine('{');
             indent();
-            compileBlock->@() compileNode($_, ',');
+            for (compileBlock) compileNode($_, ',');
             unindent();
 
             if (compileDelim defined && compileDelim.Length != 0) {
@@ -300,6 +302,8 @@ var csharp;
                 emitLine('}');
             }
         },
+
+        bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance,
 
         compileNode: @(node, compileNodeDelim) {
             var t = node.GetType();
@@ -313,21 +317,24 @@ var csharp;
             if (propCache.ContainsKey(t.FullName)) {
                 ctorParams = propCache.get_Item(t.FullName);
             } else {
-                var props = t.GetProperties();
-                ctorParams = props
-                    -?@() $_.DeclaringType == t && $_.PropertyType != AphidExpressionType;
+                
+                var props = t.GetProperties(bindingFlags);
+                ctorParams = new List[PropertyInfo]();
+
+                for (props)
+                    if ($_.PropertyType != AphidExpressionType) {
+                        ctorParams.Add($_);
+                    }
+
                 propCache.Add(t.FullName, ctorParams);
             }
             
             var count = ctorParams #!;
             var last = count - 1;
+            var i = 0;
 
-            for (var i = 0; i < count; i++) {
-                var val = ctorParams[i].GetValue(node);
-                compileArg(i == last, val);
-
-                // ctorParams->@()$_.GetValue(node) @compileArg(++i == (ctorParams #!));
-            }
+            for (ctorParams) 
+                compileArg(i++ == last, $_.GetValue(node));
             
             unindent();
 
