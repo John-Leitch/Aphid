@@ -325,11 +325,13 @@ namespace Components.Aphid.Serialization
                     Root,
                     new List<IdentifierExpression>
                     {
-                        new IdentifierExpression(AphidName.Var)
+                        (IdentifierExpression)new IdentifierExpression(AphidName.Var)
+                            .WithPositionFrom(ast[0])
                     })
                     .WithPositionFrom(ast[0]),
                 AphidTokenType.AssignmentOperator,
-                ast[0]);
+                ast[0])
+                .WithPositionFrom(ast[0]);
 
             ast.AddRange(
                 new AphidObjectReferenceVisitor()

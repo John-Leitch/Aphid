@@ -22,7 +22,12 @@ namespace Components.Aphid.Parser
 
         protected override void EndVisit(List<AphidExpression> ast)
         {
-            AphidExpression prev = null, next = ast.Count > 1 ? ast[1] : null;
+            if (ast.Count < 2)
+            {
+                return;
+            }
+
+            AphidExpression prev = null, next = ast[1];
 
             for (var i = 0; i < ast.Count; i++)
             {
