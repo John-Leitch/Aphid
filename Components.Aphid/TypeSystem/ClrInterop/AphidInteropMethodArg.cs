@@ -11,35 +11,66 @@ namespace Components.Aphid.TypeSystem
     // Todo: refactor properties into AphidConversionInfo and logic into AphidTypeConverter.
     public class AphidInteropMethodArg
     {
+        private static Dictionary<ParameterInfo, ParameterInfoCache> _paramCache =
+            new Dictionary<ParameterInfo, ParameterInfoCache>();
+
+        private ParameterInfoCache _paramInfo;
+
+        private ArgumentTypeCache _argInfo;
+
         public object Argument { get; private set; }
 
         public Type ArgumentType { get; private set; }
 
-        public Type TargetType { get; private set; }
+        public Type TargetType 
+        {
+            get { return _paramInfo.TargetType; }
+        }
 
-        public MethodInfo ImplicitConversionOperator { get; private set; }
+        public MethodInfo ImplicitConversionOperator
+        {
+            get { return _argInfo.ImplicitConversionOperator; }
+        }
 
-        public MethodInfo ExplicitConversionOperator { get; private set; }
+        public MethodInfo ExplicitConversionOperator
+        {
+            get { return _argInfo.ExplicitConversionOperator; }
+        }
 
-        public bool HasImplicitConversion { get; private set; }
+        public bool HasImplicitConversion
+        {
+            get { return _argInfo.HasImplicitConversion; }
+        }
 
-        public bool HasExplicitConversion { get; private set; }
+        public bool HasExplicitConversion
+        {
+            get { return _argInfo.HasExplicitConversion; }
+        }
 
-        public bool HasToStringConversion { get; private set; }
+        public bool HasToStringConversion
+        {
+            get { return _argInfo.HasToStringConversion; }
+        }
 
-        public bool IsExactBasicTypeMatch { get; private set; }
+        public bool IsDerivedFromUserReferenceType
+        {
+            get { return _argInfo.IsDerivedFromUserReferenceType; }
+        }
 
-        public bool IsExactUserReferenceTypeMatch { get; private set; }
+        public bool IsNonRootImplementationOfTarget
+        {
+            get { return _argInfo.IsNonRootImplementationOfTarget; }
+        }
 
-        public bool IsDerivedFromUserReferenceType { get; private set; }
+        public bool IsExactTypeMatch
+        {
+            get { return _argInfo.IsExactTypeMatch; }
+        }
 
-        public bool IsNonRootImplementationOfTarget { get; private set; }
-
-        public bool IsExactTypeMatch { get; private set; }
-
-        public bool IsConvertibleNumberPair { get; private set; }
-
-        public bool IsPrecisionLost { get; private set; }
+        public bool IsPrecisionLost
+        {
+            get { return _argInfo.IsPrecisionLost; }
+        }
 
         public bool IsSafeConvertibleNumberPair
         {
@@ -51,7 +82,16 @@ namespace Components.Aphid.TypeSystem
             get { return IsConvertibleNumberPair && IsPrecisionLost; }
         }
 
-        public bool HasParamArray { get; private set; }
+        public bool HasParamArray
+        {
+            get { return _paramInfo.HasParamArray; }
+        }
+
+        public bool IsConvertibleNumberPair { get; private set; }
+
+        public bool IsExactBasicTypeMatch { get; private set; }
+
+        public bool IsExactUserReferenceTypeMatch { get; private set; }
 
         public bool ConstructsParamArray { get; private set; }
 
@@ -68,100 +108,70 @@ namespace Components.Aphid.TypeSystem
         {
             Argument = argument;
 
-            ArgumentType = argument != null ?
-                argument.GetType() :
-                null;
-
-            TargetType = parameter.ParameterType;
-            IsGeneric = TargetType.IsGenericType;
-
-            if (IsExactTypeMatch = ArgumentType == TargetType)
+            if (argument != null)
             {
-                IsExactBasicTypeMatch =
-                    ArgumentType.IsPrimitive ||
-                    ArgumentType.IsEnum ||
-                    ArgumentType == typeof(string) ||
-                    ArgumentType == typeof(decimal);
+                ArgumentType = argument.GetType();
 
-                IsExactUserReferenceTypeMatch = ArgumentType.IsClass && ArgumentType != typeof(object);
-                HasToStringConversion = TargetType == typeof(string);
-            }
-            else if ((ArgumentType == typeof(string) &&
-                    TargetType == typeof(char) &&
-                    ((string)Argument).Length == 1) ||
-                (ArgumentType == typeof(char) &&
-                    TargetType == typeof(string)))
-            {
-                IsExactBasicTypeMatch = true;
-                IsExactUserReferenceTypeMatch = false;
-                HasToStringConversion = TargetType == typeof(string);
-            }
-            else if (ArgumentType == typeof(string) && TargetType == typeof(char[]))
-            {
-                IsExactBasicTypeMatch = false;
-                IsExactUserReferenceTypeMatch = false;
-                HasToStringConversion = TargetType == typeof(string);
+                lock (_paramCache)
+                {
+                    if (!_paramCache.TryGetValue(parameter, out _paramInfo))
+                    {
+                        _paramCache.Add(
+                            parameter,
+                            _paramInfo = new ParameterInfoCache(parameter, ArgumentType));
+
+                        _argInfo = _paramInfo.InitialArgumentTypeCache;
+                    }
+                    else if (!_paramInfo.ArgumentTypeCache.TryGetValue(ArgumentType, out _argInfo))
+                    {
+                        _paramInfo.ArgumentTypeCache.Add(
+                            ArgumentType,
+                            _argInfo = new ArgumentTypeCache(
+                                ArgumentType,
+                                _paramInfo,
+                                _paramInfo.TargetType));
+                    }
+                }
             }
             else
             {
-                if (ArgumentType != null)
+                lock (_paramCache)
                 {
-                    if ((ImplicitConversionOperator = ConversionOperator.GetImplicitOperator(
-                        TargetType,
-                        ArgumentType)) != null)
+                    if (!_paramCache.TryGetValue(parameter, out _paramInfo))
                     {
-                        HasImplicitConversion = true;
-                    }
-                    else if ((ExplicitConversionOperator = ConversionOperator.GetExplicitOperator(
-                        TargetType,
-                        ArgumentType)) != null)
-                    {
-                        HasExplicitConversion = true;
+                        _paramCache.Add(
+                            parameter,
+                            _paramInfo = new ParameterInfoCache(parameter));
                     }
 
-                    if (TargetType == typeof(string))
-                    {
-                        HasToStringConversion = true;
-                    }
+                    _argInfo = new ArgumentTypeCache();
                 }
-
-                IsExactBasicTypeMatch = IsExactUserReferenceTypeMatch = false;
             }
 
-            IsDerivedFromUserReferenceType =
-                TargetType.IsClass &&
-                TargetType != typeof(object) &&
-                TargetType != typeof(object[]) &&
-                (ArgumentType == null ||
-                    (ArgumentType.IsClass &&
-                    ArgumentType.IsDerivedFrom(TargetType)));
+            IsGeneric = TargetType.IsGenericType;
 
-            IsNonRootImplementationOfTarget =
-                TargetType.IsInterface &&
-                ArgumentType != null &&
-                ArgumentType != typeof(object) &&
-                ArgumentType.GetInterfaces().Contains(TargetType);
+            if (_argInfo.NeedsStringToCharCheck)
+            {
+                if (((string)Argument).Length == 1)
+                {
+                    IsExactBasicTypeMatch = true;
+                }
 
-            if (ArgumentType == typeof(decimal) && AphidTypeConverter.IsNumber(TargetType))
+                //IsExactUserReferenceTypeMatch = false;
+                
+            }
+            else if (_argInfo.NeedsDecimalFitCheck)
             {
                 IsConvertibleNumberPair = AphidTypeConverter.CanConvertDecimal(
                     (decimal)Argument,
                     TargetType);
-
-                IsPrecisionLost = TargetType == typeof(float) || TargetType == typeof(double);
-            }
-            else if (TargetType == typeof(decimal) && AphidTypeConverter.IsNumber(ArgumentType))
-            {
-                IsConvertibleNumberPair = true;
             }
             else
             {
-                // Todo: cover non-decimal to non-decimal checks e.g.
-                // ulong to uint -> uint.MinValue <= ulongValue && ulongValue <= uint.MaxValue
-                IsConvertibleNumberPair = false;
+                IsConvertibleNumberPair = _argInfo.IsConvertibleNumberPair;
+                IsExactBasicTypeMatch = _argInfo.IsExactBasicTypeMatch;
+                IsExactUserReferenceTypeMatch = _argInfo.IsExactUserReferenceTypeMatch;
             }
-
-            HasParamArray = parameter.IsDefined(typeof(ParamArrayAttribute));
 
             if (HasParamArray)
             {

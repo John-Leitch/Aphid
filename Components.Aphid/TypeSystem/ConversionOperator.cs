@@ -24,9 +24,15 @@ namespace Components.Aphid.TypeSystem
             Type targetType,
             bool isImplicit)
         {
-            return valueType.GetMethod(
-                isImplicit ? "op_Implicit" : "op_Explicit",
-                new[] { targetType });
+            if (isImplicit)
+            {
+                return valueType.GetMethod("op_Implicit", new[] { targetType });
+            }
+            else
+            {
+                return valueType.GetMethod("op_Explicit", new[] { targetType });
+
+            }
         }
     }
 }
