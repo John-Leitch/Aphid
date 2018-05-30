@@ -1,5 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
+using Components.External;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,11 @@ namespace Components.Aphid.TypeSystem
 {
     public class TypeExtender : AphidRuntimeComponent
     {
+        private static Memoizer<Type, string[]>
+            _staticTypeMemoizer = new Memoizer<Type,string[]>(),
+            _fanInteropTypeMemoizer = new Memoizer<Type, string[]>(),
+            _fanAphidTypeMemoizer = new Memoizer<Type, string[]>();
+
         public TypeExtender(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -16,22 +22,32 @@ namespace Components.Aphid.TypeSystem
 
         public string GetCtorName(string type)
         {
-            return GetName(type, "$ctor");
+            return "$ext." + type + ".$ctor";
         }
 
-        public string GetDynamicName(string type)
+        private string GetDynamicName(string type)
         {
-            return GetName(type, null);
+            return "$ext." + type;
         }
 
-        public string GetName(string type, string nameStr)
+        private string GetName(string type, string nameStr)
         {
-            return nameStr != null ?
-                string.Format("$ext.{0}.{1}", type, nameStr) :
-                string.Format("$ext.{0}", type);
+            if (nameStr != null)
+            {
+                return "$ext." + type + "." + nameStr;
+            }
+            else
+            {
+                return "$ext." + type;
+            }
         }
 
-        public string[] FanStaticInteropTypeName(Type type)
+        private string[] FanStaticInteropTypeName(Type type)
+        {
+            return _staticTypeMemoizer.Call(FanStaticInteropTypeNameCore, type);
+        }
+
+        private string[] FanStaticInteropTypeNameCore(Type type)
         {
             var names = new List<string>();
 
@@ -44,23 +60,38 @@ namespace Components.Aphid.TypeSystem
             return names.ToArray();
         }
 
-        public string[] FanAphidName(AphidObject obj)
+        private string[] FanAphidName(AphidObject obj)
         {
-            return FanInteropNameCore(obj, includeAphidType: true);
+            if (obj.IsScalar)
+            {
+                return _fanAphidTypeMemoizer.Call(FanAphidName, obj.Value.GetType());
+            }
+            else
+            {
+                return new string[]
+                {
+                    AphidType.Object,
+                    typeof(AphidObject).FullName,
+                    AphidType.Unknown
+                };
+            }
         }
 
-        public string[] FanInteropName(AphidObject obj)
+        private string[] FanInteropName(AphidObject obj)
         {
-            return FanInteropNameCore(obj, includeAphidType: false);
+            if (obj.IsScalar)
+            {
+                return _fanInteropTypeMemoizer.Call(FanInteropName, obj.Value.GetType());
+            }
+            else
+            {
+                return new string[] { typeof(AphidObject).FullName, AphidType.Unknown };
+            }
         }
 
-        private string[] FanInteropNameCore(AphidObject obj, bool includeAphidType)
+        private string[] FanInteropName(Type t)
         {
-            var names = !includeAphidType ?
-                new List<string>() :
-                new[] { obj.GetValueType() }.ToList();
-
-            var t = obj.IsScalar ? obj.Value.GetType() : typeof(AphidObject);
+            var names = new List<string>();
 
             do
             {
@@ -72,25 +103,40 @@ namespace Components.Aphid.TypeSystem
 
             return names.ToArray();
         }
-
-        public string GetInteropName(AphidObject obj)
+        
+        private string[] FanAphidName(Type t)
         {
-            return GetInteropName(obj.Value.GetType());
+            var names = new List<string>();
+
+            string aphidType;
+
+            do
+            {
+                if ((aphidType = AphidAlias.Resolve(t)) != null)
+                {
+                    names.Add(aphidType);
+                }
+
+                names.Add(GetInteropName(t));
+                t = t.BaseType;
+            } while (t != null);
+
+            names.Add(AphidType.Unknown);
+
+            return names.ToArray();
         }
 
-        public string GetInteropName(Type t)
+        private string GetInteropName(Type t)
         {
-            var n = AphidAlias.Resolve(t) ?? t.FullName;
-
             if (!t.IsGenericType)
             {
-                return n;
+                return t.FullName;
             }
             else
             {
                 var isFirstTypeArg = true;
-                var sb = new StringBuilder(n);
-                sb.Append('<');
+                var sb = new StringBuilder(t.FullName);
+                sb.Append('[');
 
                 foreach (var p in t.GetGenericArguments())
                 {
@@ -106,7 +152,7 @@ namespace Components.Aphid.TypeSystem
                     sb.Append(p.FullName);
                 }
 
-                sb.Append('>');
+                sb.Append(']');
 
                 return sb.ToString();
             }
@@ -217,16 +263,32 @@ namespace Components.Aphid.TypeSystem
             bool isDynamic,
             bool returnRef)
         {
-            return TryResolve(
-                scope,
-                obj,
-                isAphidType ? FanAphidName(obj) : FanInteropName(obj),
-                key,
-                isAphidType,
-                isCtor,
-                isDynamic,                
-                isStatic: false,
-                returnRef: returnRef);
+            if (isAphidType)
+            {
+                return TryResolve(
+                    scope,
+                    obj,
+                    FanAphidName(obj),
+                    key,
+                    isAphidType,
+                    isCtor,
+                    isDynamic,
+                    isStatic: false,
+                    returnRef: returnRef);
+            }
+            else
+            {
+                return TryResolve(
+                    scope,
+                    obj,
+                    FanInteropName(obj),
+                    key,
+                    isAphidType,
+                    isCtor,
+                    isDynamic,
+                    isStatic: false,
+                    returnRef: returnRef);
+            }
         }
 
         public AphidObject TryResolve(
@@ -245,7 +307,7 @@ namespace Components.Aphid.TypeSystem
                 key,
                 isAphidType,
                 isCtor,
-                isDynamic,                
+                isDynamic,
                 isStatic: true,
                 returnRef: returnRef);
         }
@@ -263,16 +325,50 @@ namespace Components.Aphid.TypeSystem
         {
             AphidObject val = null;
 
-            var selector =
-                isDynamic ? (Func<string, string>)(x => GetDynamicName(x)) :
-                isCtor ? (Func<string, string>)(x => GetCtorName(x)) :
-                (Func<string, string>)(x => GetName(x, key));
-
-            if (classHierarchy
-                .Select(selector)
-                .FirstOrDefault(x => scope.TryResolve(x, out val)) == null)
+            if (isDynamic)
             {
-                return null;
+                for (var i = 0; i < classHierarchy.Length; i++)
+                {
+                    if (scope.TryResolve(GetDynamicName(classHierarchy[i]), out val))
+                    {
+                        break;
+                    }
+                }
+
+                if (val == null)
+                {
+                    return null;
+                }
+            }
+            else if (isCtor)
+            {
+                for (var i = 0; i < classHierarchy.Length; i++)
+                {
+                    if (scope.TryResolve(GetCtorName(classHierarchy[i]), out val))
+                    {
+                        break;
+                    }
+                }
+
+                if (val == null)
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                for (var i = 0; i < classHierarchy.Length; i++)
+                {
+                    if (scope.TryResolve(GetName(classHierarchy[i], key), out val))
+                    {
+                        break;
+                    }
+                }
+
+                if (val == null)
+                {
+                    return null;
+                }
             }
 
             AphidObject result;
