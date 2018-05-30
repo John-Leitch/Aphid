@@ -5556,10 +5556,12 @@ namespace Components.Aphid.Interpreter
                     CurrentFileContext,
                     StringComparison.OrdinalIgnoreCase))
                 {
+#if APHID_DEBUGGING_TRACE
                     Cli.WriteInfoMessage(
                         "File context changed from ~Cyan~{0}~R~ to ~Magenta~{1}~R~",
                         CurrentFileContext,
                         CurrentExpression.Filename);
+#endif
 
                     CurrentFileContext = CurrentExpression.Filename;
                     SetBreakpoints(CurrentFileContext = CurrentExpression.Filename);
@@ -5567,7 +5569,9 @@ namespace Components.Aphid.Interpreter
             }
             else if (CurrentFileContext != null)
             {
+#if APHID_DEBUGGING_TRACE
                 Cli.WriteErrorMessage("Expression without file context: ~Yellow~{0}~R~", expression);
+#endif
                 CurrentFileContext = null;
             }
 
@@ -5607,6 +5611,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetFileBreakpoints(string filename, int[] breakpoints)
         {
+#if APHID_DEBUGGING_TRACE
             Cli.WriteInfoMessage(
                 "Currently at offset ~Cyan~{0}~R~ of file ~Magenta~{1}~R~, " + 
                     "Setting file breakpoints for ~Cyan~{2}~R~:",
@@ -5618,6 +5623,7 @@ namespace Components.Aphid.Interpreter
             {
                 Cli.WriteLine("    {0}", i);
             }
+#endif
 
             //Todo: handle case sensitive file systems and forward slashes
             lock (FileBreakpointIndexMap)
@@ -5628,24 +5634,30 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
+#if APHID_DEBUGGING_TRACE
                     Cli.WriteInfoMessage(
                         "Adding ~Cyan~{0}~R~ to breakpoint map",
                         filename);
+#endif
 
                     FileBreakpointIndexMap.Add(filename, breakpoints);
                 }
 
                 if (filename.Equals(CurrentFileContext, StringComparison.OrdinalIgnoreCase))
                 {
+#if APHID_DEBUGGING_TRACE
                     Cli.WriteInfoMessage(
                         "Current context matches ~Cyan~{0}~R~, clearing",
                         filename);
+#endif
 
                     CurrentFileContext = null;
                 }
             }
 
+#if APHID_DEBUGGING_TRACE
             Cli.WriteLine();
+#endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -5657,7 +5669,9 @@ namespace Components.Aphid.Interpreter
             {
                 if (FileBreakpointIndexMap.TryGetValue(filename, out indexes))
                 {
+#if APHID_DEBUGGING_TRACE
                     Cli.WriteSuccessMessage("Found breakpoints for ~Cyan~{0}~R~", filename);
+#endif
                     new AphidBreakpointVisitor(filename, indexes).Visit(_currentBlock);
                 }
             }

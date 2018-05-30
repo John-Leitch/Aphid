@@ -25,26 +25,42 @@ namespace Components.Aphid.Debugging
         {
             if (_filename.Equals(expression.Filename, StringComparison.OrdinalIgnoreCase))
             {
+#if APHID_DEBUGGING_TRACE
+                var oldValue = expression.HasBreakpoint;
+#endif
                 expression.HasBreakpoint = _indexes.Contains(expression.Index);
 
-                if (expression.HasBreakpoint)
+#if APHID_DEBUGGING_TRACE
+                if (oldValue != expression.HasBreakpoint)
                 {
-                    Cli.WriteSuccessMessage(
-                        "Breakpoint set on expression ~Green~{0}~R~",
-                        expression);
+                    if (expression.HasBreakpoint)
+                    {
+                        Cli.WriteSuccessMessage(
+                            "Breakpoint set on expression ~Green~{0}~R~",
+                            expression);
+                    }
+                    else
+                    {
+                        Cli.WriteSuccessMessage(
+                            "Breakpoint disabled expression ~Magenta~{0}~R~",
+                            expression);
+                    }
                 }
+#endif
             }
+#if APHID_DEBUGGING_TRACE_VERBOSE
             else
             {
-                //Cli.WriteErrorMessage(
-                //    "Breakpoint visitor mismatch at expression {0}:\r\n" +
-                //        "    Expected: ~Yellow~{1}~R~\r\n" +
-                //        "    Found:    ~Yellow~{2}~R~",
-                //    expression,
-                //    _filename ?? "[null]",
-                //    expression != null && expression.Filename != null ?
-                //        expression.Filename : "[null]");
+                Cli.WriteErrorMessage(
+                    "Breakpoint visitor mismatch at expression {0}:\r\n" +
+                        "    Expected: ~Yellow~{1}~R~\r\n" +
+                        "    Found:    ~Yellow~{2}~R~",
+                    expression,
+                    _filename ?? "[null]",
+                    expression != null && expression.Filename != null ?
+                        expression.Filename : "[null]");
             }
+#endif
         }
     }
 }
