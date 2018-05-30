@@ -13,20 +13,20 @@ namespace Components
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Prepend
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> source, T value)
-        {
-            return new[] { value }.Concat(source);
-        }
+        //[DebuggerStepThrough]
+        //public static IEnumerable<T> Prepend<T>(this IEnumerable<T> source, T value)
+        //{
+        //    return new[] { value }.Concat(source);
+        //}
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Append
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static IEnumerable<T> Append<T>(this IEnumerable<T> source, T value)
-        {
-            return source.Concat(new[] { value });
-        }
+        //[DebuggerStepThrough]
+        //public static IEnumerable<T> Append<T>(this IEnumerable<T> source, T value)
+        //{
+        //    return source.Concat(new[] { value });
+        //}
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // None
