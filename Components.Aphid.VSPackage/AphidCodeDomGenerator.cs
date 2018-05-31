@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Interpreter;
+using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.External;
 using Microsoft.VisualStudio;
@@ -23,6 +24,8 @@ namespace Components.Aphid.VSPackage
     [CodeGeneratorRegistration(typeof(AphidCodeDomGenerator), "AphidCodeDomGenerator", "{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}", GeneratesDesignTimeSource = true)]
     public class AphidCodeDomGenerator : IVsSingleFileGenerator, IObjectWithSite
     {
+        private string _code;
+
         private object site = null;
 
         private Lazy<CodeDomProvider> codeDomProvider;
@@ -47,21 +50,68 @@ namespace Components.Aphid.VSPackage
                 throw new ArgumentException(bstrInputFileContents);
             }
 
-            if (AphidBuildInterop.Compile == null)
+            string csOut = null;
+            var result = VSConstants.E_FAIL;
+
+            try
             {
-                var interpreter = new AphidInterpreter();
 
-                var script = Path.Combine(
-                    Path.GetDirectoryName(typeof(AphidExpression).Assembly.Location),
-                    "AphidBuildInterop.alx");
+                if (AphidBuildInterop.Compile == null)
+                {
+                    var interpreter = new AphidInterpreter();
 
-                interpreter.InterpretFile(script);
+                    _code = Path.Combine(
+                        Path.GetDirectoryName(typeof(AphidExpression).Assembly.Location),
+                        "AphidBuildInterop.alx");
+
+                    interpreter.InterpretFile(_code);
+                }
+
+                csOut = AphidBuildInterop.Compile(
+                    wszInputFilePath,
+                    bstrInputFileContents,
+                    wszDefaultNamespace);
+
+                result = VSConstants.S_OK;
             }
+            catch (AphidParserException e)
+            {
+                if (e.UnexpectedToken.TokenType != default(AphidToken).TokenType)
+                {
+                    var pos = TokenHelper.GetIndexPosition(
+                        _code,
+                        e.UnexpectedToken.Index);
 
-            var csOut = AphidBuildInterop.Compile(
-                wszInputFilePath,
-                bstrInputFileContents,
-                wszDefaultNamespace);
+                    pGenerateProgress.GeneratorError(
+                        0,
+                        0,
+                        ParserErrorMessage.Create(_code, e),
+                        pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
+                        pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
+                }
+                else
+                {
+                    WriteError(pGenerateProgress, e, e.Expression);
+                }
+            }
+            catch (AphidLoadScriptException e)
+            {
+                WriteError(
+                    pGenerateProgress,
+                    e,
+                    e.CurrentExpression ?? e.CurrentStatement);
+            }
+            catch (AphidRuntimeException e)
+            {
+                WriteError(
+                    pGenerateProgress,
+                    e,
+                    e.CurrentExpression ?? e.CurrentStatement);
+            }
+            catch (Exception e)
+            {
+                WriteError(pGenerateProgress, e);
+            }
 
             var bytes = csOut != null ? csOut.GetBytes() : null;
 
@@ -80,7 +130,33 @@ namespace Components.Aphid.VSPackage
             //pGenerateProgress.GeneratorError(
 
 
-            return VSConstants.S_OK;
+            return result;
+        }
+
+        private void WriteError(
+            IVsGeneratorProgress progress,
+            Exception exception,
+            AphidExpression expression = null)
+        {
+            Tuple<int, int> pos;
+
+            if (expression != null && expression.Index > -1)
+            {
+                pos = TokenHelper.GetIndexPosition(
+                    _code,
+                    expression.Index);
+            }
+            else
+            {
+                pos = Tuple.Create(-1, -1);
+            }
+
+            progress.GeneratorError(
+                0,
+                0,
+                exception.ToString(),
+                pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
+                pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
         }
 
         public void GetSite(ref Guid riid, out IntPtr ppvSite)

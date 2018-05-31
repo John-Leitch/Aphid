@@ -162,7 +162,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidAuthoringScope.cs" />
-    <Compile Include="AphidBuildInterop.cs" />
+    <Compile Include="AphidBuildInterop.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidBuildInterop.alx</DependentUpon>
+    </Compile>
     <Compile Include="AphidCodeDomGenerator.cs" />
     <Compile Include="AphidDeclaration.cs" />
     <Compile Include="AphidDeclarations.cs" />
@@ -191,12 +195,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AphidBuildInterop.alx">
-      <CustomToolNamespace>Components.Aphid.VSPackage</CustomToolNamespace>
-      <Generator>AphidCodeDomGenerator</Generator>
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -206,6 +204,11 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AphidBuildInterop.alx">
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>AphidBuildInterop.cs</LastGenOutput>
+      <CustomToolNamespace>Components.Aphid.VSPackage</CustomToolNamespace>
+    </None>
     <Content Include="Resources\Package.ico" />
     <Resource Include="todo.txt" />
   </ItemGroup>

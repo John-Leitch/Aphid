@@ -178,8 +178,8 @@ var csharp;
                                     useBinaryFormatter ?
                                         code.typeExp(AphidByteCode).call(
                                             'Decode',
-                                            [ code.var('Resources').field(resource) ]) :
-                                        code.var('Resources').call(resource)
+                                            [ code.var(resources.typeName).field(resource) ]) :
+                                        code.var(resources.typeName).call(resource)
                                 ])
                             .stmt(),
                     ]))
@@ -194,8 +194,8 @@ var csharp;
     };
 
     resources = {
+		typeName: 'AphidCompilerResources',
         embed: @(namespace, resource, buffer) {
-            var typeName = 'Resources';
             var type = byte.MakeArrayType();
             var fieldName = '_' + resource;
 
@@ -267,7 +267,7 @@ var csharp;
             emitLine('using global::Components.Aphid.Parser;');
             emitLine('using System.Collections.Generic;');
             emitLine('');
-            emitLine('public static partial class Resources');
+            emitLineFormat('public static partial class {0}', resources.typeName);
             emitLine('{');
             indent();
             emitLineFormat('public static List<AphidExpression> {0}()', resource);
