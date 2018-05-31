@@ -48,7 +48,12 @@ namespace Components.Aphid.Interpreter
             AphidExpression currentExpression,
             string details,
             params object[] args)
-            : this(interpreter, exceptionScope, string.Format(details, args))
+            : this(
+                interpreter,
+                exceptionScope,
+                args != null && args.Length > 0 ?
+                    string.Format(details, args) :
+                    details)
         {
             CurrentStatement = currentStatement;
             CurrentExpression = currentExpression;

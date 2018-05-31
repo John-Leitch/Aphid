@@ -57,7 +57,14 @@ namespace Components.Aphid.Parser
 
         public AphidParserException(string format, params object[] args)
         {
-            _message = string.Format(format, args);
+            if (args != null && args.Length > 0)
+            {
+                _message = string.Format(format, args);
+            }
+            else
+            {
+                _message = format;
+            }
         }
 
         private string CreateUnexpectedMessage(AphidToken token)
