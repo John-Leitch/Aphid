@@ -1,0 +1,12 @@
+﻿exec(ArithmeticBenchmark);
+exec(CallBenchmark);
+exec(CustomOperatorBenchmark);
+exec(IncludeBenchmark);
+
+execOne = macro(@(n) { @{ #quote(n) + ".alx" }() });
+
+exec = macro(@(n) {
+    execOne(n);
+    execOne(n);
+    execOne(n);
+});

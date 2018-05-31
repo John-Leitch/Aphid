@@ -13,6 +13,7 @@ namespace Components.Aphid.Parser
         public AphidByteCodeCache(string[] searchPaths)
             : base(typeof(AphidExpression).Assembly.GetName().Version)
         {
+            InlineScripts = true;
             _searchPaths = searchPaths;
         }
 
@@ -32,11 +33,12 @@ namespace Components.Aphid.Parser
                 var includeMutator = new IncludeMutator();
                 includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
 
-                var ast2 = constantFoldingMutator.MutateRecursively(
-                    includeMutator.MutateRecursively(
-                        directiveMutator.MutateRecursively(
-                            macroMutator.MutateRecursively(
-                                partialOpMutator.MutateRecursively(ast)))));
+                var ast2 =
+                    constantFoldingMutator.MutateRecursively(
+                        includeMutator.MutateRecursively(
+                            directiveMutator.MutateRecursively(
+                                macroMutator.MutateRecursively(
+                                    partialOpMutator.MutateRecursively(ast)))));
 
                 includeMutator.Included.Add(filename);
                 sources = includeMutator.Included.ToArray();

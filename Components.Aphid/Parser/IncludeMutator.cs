@@ -55,6 +55,7 @@ namespace Components.Aphid.Parser
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
             LoadScriptExpression loadExp;
+            AphidExpression scriptExp;
 
             if (expression.Type != AphidExpressionType.LoadScriptExpression)
             {
@@ -65,11 +66,22 @@ namespace Components.Aphid.Parser
             else if ((loadExp = (LoadScriptExpression)expression).FileExpression.Type !=
                     AphidExpressionType.StringExpression)
             {
-                throw new AphidParserException("Invalid load script operand", loadExp);
+                var constantFolder = new ConstantFoldingMutator();
+                var mutated = constantFolder.Mutate(new List<AphidExpression> { loadExp.FileExpression });
+
+                if (mutated.Count != 1 || (scriptExp = mutated[0]).Type != AphidExpressionType.StringExpression)
+                {
+                    throw new AphidParserException("Invalid load script operand", loadExp);
+                }
+            }
+            else
+            {
+                scriptExp = loadExp.FileExpression;
             }
 
-            var scriptExp = (StringExpression)loadExp.FileExpression;
-            var script = _loader.FindScriptFile(_applicationDirectory, StringParser.Parse(scriptExp.Value));
+            var script = _loader.FindScriptFile(
+                _applicationDirectory,
+                StringParser.Parse(((StringExpression)scriptExp).Value));
 
             if (!File.Exists(script))
             {
@@ -96,6 +108,7 @@ namespace Components.Aphid.Parser
                 var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
                 mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
                 mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+                mutatedAst = new ConstantFoldingMutator().MutateRecursively(mutatedAst);
                 hasChanged = true;
 
                 return mutatedAst;

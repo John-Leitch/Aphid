@@ -61,6 +61,58 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
+        public object WrapNonNull(object obj)
+        {
+            var unwrapped = Unwrap(obj);
+
+            if (unwrapped == null)
+            {
+                throw Interpreter.CreateRuntimeException(
+                    "Expression evaluated to null, value expected.");
+            }
+
+            return unwrapped;
+        }
+
+        public IEnumerable<object> UnwrapIEnumerableObject(object obj)
+        {
+            return UnwrapIEnumerable(obj).Cast<object>();
+        }
+
+        public IEnumerable UnwrapIEnumerable(object obj)
+        {
+            var unwrapped = Unwrap(obj);
+            var enumerable = unwrapped as IEnumerable;
+
+            if (enumerable == null)
+            {
+                if (unwrapped == null)
+                {
+                    if (obj == null)
+                    {
+                        throw Interpreter.CreateRuntimeException(
+                            "Expression evaluated to null, IEnumerable expected.");
+                    }
+                    else
+                    {
+                        throw Interpreter.CreateRuntimeException(
+                            "Expression evaluated to {0}, IEnumerable expected.",
+                            obj.GetType());
+                    }
+                }
+                else
+                {
+                    throw Interpreter.CreateRuntimeException(
+                        "Expression evaluated to {0}, IEnumerable expected.",
+                        unwrapped.GetType());
+                }
+            }
+            else
+            {
+                return enumerable;
+            }
+        }
+
         public void AssertString(object value, string operation)
         {
             AssertValue<string>(value, operation);

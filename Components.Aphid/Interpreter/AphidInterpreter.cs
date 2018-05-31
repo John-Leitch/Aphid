@@ -1092,11 +1092,24 @@ namespace Components.Aphid.Interpreter
             {
                 if (obj.IsScalar)
                 {
-                    throw CreateRuntimeException(
-                        "Cannot resolve member {0} for type {1} from expression {2}.",
-                        key,
-                        obj.Value != null ? obj.Value.ToString() : "null",
-                        expression);
+                    if (obj.Value != null)
+                    {
+                        throw CreateRuntimeException(
+                            "Cannot resolve member '{0}' for value '{1}' of type " +
+                                "'{2}' from expression '{3}'.",
+                            key,
+                            obj.Value,
+                            obj.Value.GetType(),
+                            expression.ToString().Trim());
+                    }
+                    else
+                    {
+                        throw CreateRuntimeException(
+                            "Cannot resolve member '{0}' for null value from " +
+                                "expression '{1}'.",
+                            key,
+                            expression.ToString().Trim());
+                    }
                 }
 
                 return new AphidRef() { Name = key, Object = obj };
@@ -3471,11 +3484,8 @@ namespace Components.Aphid.Interpreter
                         return obj;
 
                     case AphidTokenType.DistinctOperator:
-                        var collection = ValueHelper.Unwrap(
-                            InterpretExpression(expression.Operand));
-
-                        var result = ((IEnumerable)collection)
-                            .Cast<object>()
+                        var result = ValueHelper
+                            .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
                             .Select(ValueHelper.Unwrap)
                             .Distinct()
                             .Select(ValueHelper.Wrap) // To maintain backwards compat with Aphid
@@ -3485,42 +3495,34 @@ namespace Components.Aphid.Interpreter
                         return ValueHelper.Wrap(result);
 
                     case AphidTokenType.PostfixCountOperator:
-                        collection = ValueHelper.Unwrap(
-                            InterpretExpression(expression.Operand));
-
                         return AphidObject.Scalar(
-                            ((IEnumerable)collection).Cast<object>().Count());
+                            ValueHelper
+                                .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
+                                .Count());
 
                     case AphidTokenType.PostfixFirstOperator:
-                        collection = ValueHelper.Unwrap(
-                            InterpretExpression(expression.Operand));
-
                         return ValueHelper.Wrap(
-                            ((IEnumerable)collection).Cast<object>().First());
+                            ValueHelper
+                                .UnwrapIEnumerableObject(
+                                InterpretExpression(expression.Operand))
+                                .First());
 
                     case AphidTokenType.PostfixLastOperator:
-                        collection = ValueHelper.Unwrap(
-                            InterpretExpression(expression.Operand));
-
                         return ValueHelper.Wrap(
-                            ((IEnumerable)collection).Cast<object>().Last());
+                            ValueHelper
+                                .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
+                                .Last());
 
                     case AphidTokenType.PostfixOrderOperator:
-                        collection = ValueHelper.Unwrap(
-                            InterpretExpression(expression.Operand));
-
                         return ValueHelper.Wrap(
-                            ((IEnumerable)collection)
-                                .Cast<object>()
+                            ValueHelper
+                                .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
                                 .OrderBy(ValueHelper.Unwrap));
 
                     case AphidTokenType.PostfixOrderDescendingOperator:
-                        collection = ValueHelper.Unwrap(
-                            InterpretExpression(expression.Operand));
-
                         return ValueHelper.Wrap(
-                            ((IEnumerable)collection)
-                                .Cast<object>()
+                            ValueHelper
+                                .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
                                 .OrderByDescending(ValueHelper.Unwrap));
 
                     //return AphidObject.Scalar(list.Distinct(_comparer).ToList());

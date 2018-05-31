@@ -1,9 +1,12 @@
-﻿var tests;
-var benchmark;
-var numberBenchmarkRep;
+﻿var numberBenchmarkRep;
 var numberBenchmark;
+var tests;
+var benchmark;
 
 @{
+
+
+
     #'Std';
     #'Meta';
     using Components.Aphid;
@@ -38,16 +41,17 @@ var numberBenchmark;
             head('Running Benchmarks');
             print();
             printInfo('Opening run database');
-            db = openDB();
-            printSuccess('Database opened: ~Cyan~{0}~R~', db.Filename);
-            subhead('Compiling templates');
-            tests.compileFuncs->@()$_();
-            print();
-            subhead('Starting benchmarks');
-            printInfo('Calling benchmark functions');
-            tests.funcs->@()$_();
-            printSuccess('~Green~Done~R~ calling benchmark functions');
-            { utcTime, version, isCompiled, results } |> db.Create;
+            using (db = openDB()) {
+                printSuccess('Database opened: ~Cyan~{0}~R~', db.Filename);
+                subhead('Compiling {0:n0} templates' :: (tests.compileFuncs #!));
+                tests.compileFuncs->@()$_();
+                print();
+                subhead('Starting benchmarks');
+                printInfo('Calling benchmark functions');
+                tests.funcs->@()$_();
+                printSuccess('~Green~Done~R~ calling benchmark functions');
+                { utcTime, version, isCompiled, results } |> db.Create;
+            }
         },
     };
 
@@ -86,11 +90,10 @@ var numberBenchmark;
 
             if (action.Body.Count != 1) fatal('Action must be single statement.');
 
-            var template = "@{
-                @{
+            var benchmarkFunc = "@{
                     using System;
                     namePlaceholder;
-                    printQuery('Running ~Cyan~{0}~R~ performance tests', n);
+                    printQuery('Running ~Cyan~{0:n0}~R~ performance tests', n);
                     var sw = new Stopwatch();
                     sw.Start();
                     placeholder;
@@ -103,12 +106,11 @@ var numberBenchmark;
                         sw.ElapsedTicks);
 
                     { name: n, ticks: sw.ElapsedTicks } |> results.Add;
-                }
             };" |> evalExp;
 
-            printInfo('Compiling ~Cyan~{0}~R~ benchmark templates', name);
+            
 
-            var benchmarkFunc = template.Body[0].ToString() |> parseExp |> evalExp;
+            printInfo('Compiling ~Cyan~{0}~R~ benchmark templates', name);
             benchmarkFunc.Body.InsertRange(0, prologue.Body);
 
             if ($args.Count >= 5) {
@@ -127,7 +129,15 @@ var numberBenchmark;
                 .ToArray(AphidExpression)
                 |> actionBlock.Body.AddRange;
 
+
+            actionBlock.Body.Count
+            @printInfo('Generated action block contains ~Cyan~{0:n0}~R~ statements');
+
             benchmarkFunc.Body.replaceId('placeholder', actionBlock);
+
+            if (tests.{name + 'Benchmark'} defined) {
+                throw ('Benchmark ~Yellow~{0}Benchmark~R~ already defined' :: name);
+            }
 
             tests.{name + 'Benchmark'} = benchmarkFunc;
             tests.funcs.add(benchmarkFunc);
