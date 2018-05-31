@@ -1,4 +1,5 @@
-﻿var preprocessor;
+﻿var aphidCompiler;
+var preprocessor;
 var exports;
 var resources;
 var csharp;
@@ -7,15 +8,36 @@ var csharp;
     #'CodeDom';
     #'Std';
     #'Meta';
+    #'ViewModelCompiler';
 
-    using System.Security.Cryptography;
+    using System.Collections.Generic;    
     using System.Reflection;
+    using System.Security.Cryptography;
+    using System.Text;
 
     var md5Provider = new MD5CryptoServiceProvider();
     
     var md5 = {
         hash: md5Provider.ComputeHash,
         hex: @(buffer) buffer |> hash -> @format('{0:x2}') +> @(x, y) x + y
+    };
+
+    aphidCompiler = {
+        compileCode: @(namespace, srcCode) {
+            printInfo('Beginning compilation');
+            var sb = new StringBuilder();
+
+            printQuery('Compiling exports');
+            exports.compile(namespace, srcCode) |> sb.AppendLine;
+            printSuccess('Exports successfully compiled');
+
+            printQuery('Compiling view models');
+            viewModel.compileCode(srcCode) |> sb.AppendLine;
+            printSuccess('View models successfully compiled');
+
+            printSuccess('Compilation complete');
+            ret sb.ToString();
+        }
     };
 
     preprocessor = {
@@ -113,7 +135,6 @@ var csharp;
             true),
 
         find: @(srcAst) {
-            using System.Collections.Generic;
             var exports = new List[AphidObject]();
 
             srcAst @ast.walk(@(node, context) {
@@ -243,8 +264,6 @@ var csharp;
         sb.Append(text);
         sb.AppendLine();
     });
-
-    using System.Text;
 
     csharp = {
         sb: null,

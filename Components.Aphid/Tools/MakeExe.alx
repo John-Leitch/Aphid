@@ -15,7 +15,12 @@ var args = Environment.GetCommandLineArgs()->@() $_;
 if (args.Count >= 1) {
     var n = Path.GetFileName(args[0]).ToLower();
 
-    if (n == 'aphid' || n == 'aphid.exe' || n == 'aphid.vshost.exe') {
+    var names = [ '', '.exe' ]
+        -<@(ext) [ '', '64', '.vshost', '.binaryTrace' ]
+        ->@() 'aphid' + $_ + ext
+        @() $_.ToLower();
+    
+    if (names =? @== n) {
         args = args @aq.skip(2);
     } else {
         args = args @aq.skip(1);

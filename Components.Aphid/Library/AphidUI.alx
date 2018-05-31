@@ -1,4 +1,9 @@
 ﻿@{
+    ViewModel;
+    // Todo:
+    // * infer namespaces based on member references such 
+    //   as Visibility.Collapsed.
+    // * Only require references 
     using System.Windows;
 
     AphidUI.ViewModels;    
@@ -28,4 +33,4 @@
     
     class ExpressionViewModel { object Value };
 
-}.Body |> e.emit;
+};
