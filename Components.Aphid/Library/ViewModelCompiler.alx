@@ -30,12 +30,11 @@ var viewModel;
     e.onChangeMap = [];
     e.onChangeStatements = [];
 
+    e.imports = [];
+
     e.emitUnaryOperatorExpression = @(exp) {
         if (exp.Operator == AphidTokenType.usingKeyword){
-            append(margin());
-            append('using ');
-            emitExpression(exp.Operand, false);
-            append(';\r\n');
+            e.imports.add(exp.Operand);
         }
     };
 
@@ -97,6 +96,15 @@ var viewModel;
 
         append('namespace {0}\r\n{{\r\n', ns);
         indent();
+
+        e.imports->@(i){
+            append(margin());
+            append('using ');
+            emitExpression(i, false);
+            append(';\r\n');
+        };
+
+        e.imports.Clear();
         inNamespace = true;
     };
 
@@ -330,6 +338,7 @@ var viewModel;
             setText: @(sb) e.text = sb,
 
             compileCode: @(code) {
+                e.text.Clear();
                 code |> parse |> compileAst;
                 ret e.text.ToString();
             },
@@ -371,6 +380,4 @@ var viewModel;
     //e.emitObjectExpression();
 }();
 
-var code = viewModel.compileFile('c:\\source\\aphid\\Components.Aphid\\Tools\\AphidUI.alx');
-using System;
-Environment.Exit(0);
+// var vmCode = viewModel.compileFile('c:\\source\\aphid\\Components.Aphid\\Library\\AphidUI.alx');

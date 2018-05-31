@@ -24,8 +24,6 @@ namespace Components.Aphid.VSPackage
     [CodeGeneratorRegistration(typeof(AphidCodeDomGenerator), "AphidCodeDomGenerator", "{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}", GeneratesDesignTimeSource = true)]
     public class AphidCodeDomGenerator : IVsSingleFileGenerator, IObjectWithSite
     {
-        private string _code;
-
         private object site = null;
 
         private Lazy<CodeDomProvider> codeDomProvider;
@@ -60,11 +58,11 @@ namespace Components.Aphid.VSPackage
                 {
                     var interpreter = new AphidInterpreter();
 
-                    _code = Path.Combine(
+                    var interopScript = Path.Combine(
                         Path.GetDirectoryName(typeof(AphidExpression).Assembly.Location),
                         "AphidBuildInterop.alx");
 
-                    interpreter.InterpretFile(_code);
+                    interpreter.InterpretFile(interopScript);
                 }
 
                 csOut = AphidBuildInterop.Compile(
@@ -79,25 +77,30 @@ namespace Components.Aphid.VSPackage
                 if (e.UnexpectedToken.TokenType != default(AphidToken).TokenType)
                 {
                     var pos = TokenHelper.GetIndexPosition(
-                        _code,
+                        bstrInputFileContents,
                         e.UnexpectedToken.Index);
 
                     pGenerateProgress.GeneratorError(
                         0,
                         0,
-                        ParserErrorMessage.Create(_code, e),
-                        pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
-                        pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
+                        ParserErrorMessage.Create(bstrInputFileContents, e),
+                        pos == null || pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
+                        pos == null ||pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
                 }
                 else
                 {
-                    WriteError(pGenerateProgress, e, e.Expression);
+                    WriteError(
+                        pGenerateProgress,
+                        bstrInputFileContents,
+                        e,
+                        e.Expression);
                 }
             }
             catch (AphidLoadScriptException e)
             {
                 WriteError(
                     pGenerateProgress,
+                    bstrInputFileContents,
                     e,
                     e.CurrentExpression ?? e.CurrentStatement);
             }
@@ -105,12 +108,16 @@ namespace Components.Aphid.VSPackage
             {
                 WriteError(
                     pGenerateProgress,
+                    bstrInputFileContents,
                     e,
                     e.CurrentExpression ?? e.CurrentStatement);
             }
             catch (Exception e)
             {
-                WriteError(pGenerateProgress, e);
+                WriteError(
+                    pGenerateProgress,
+                    bstrInputFileContents,
+                    e);
             }
 
             var bytes = csOut != null ? csOut.GetBytes() : null;
@@ -135,28 +142,25 @@ namespace Components.Aphid.VSPackage
 
         private void WriteError(
             IVsGeneratorProgress progress,
+            string code,
             Exception exception,
             AphidExpression expression = null)
         {
-            Tuple<int, int> pos;
+            Tuple<int, int> pos = null;
 
             if (expression != null && expression.Index > -1)
             {
                 pos = TokenHelper.GetIndexPosition(
-                    _code,
+                    code,
                     expression.Index);
-            }
-            else
-            {
-                pos = Tuple.Create(-1, -1);
             }
 
             progress.GeneratorError(
                 0,
                 0,
                 exception.ToString(),
-                pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
-                pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
+                pos == null || pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
+                pos == null || pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
         }
 
         public void GetSite(ref Guid riid, out IntPtr ppvSite)

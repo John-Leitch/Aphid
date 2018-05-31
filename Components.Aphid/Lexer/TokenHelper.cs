@@ -18,6 +18,11 @@ namespace Components.Aphid.Lexer
 
         public static Tuple<int, int> GetIndexPosition(string text, int index)
         {
+            if (text == null || index < 0 || index >= text.Length)
+            {
+                return null;
+            }
+
             var state = LineState.RegularChar;
             var preceding = text.Remove(index);
             var line = 0;
