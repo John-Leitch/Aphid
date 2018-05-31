@@ -98,13 +98,11 @@ var t = new Thread(@{
 
 t.Start();
 
-var readInt32 = reader.ReadInt32;
-var readInt64 = reader.ReadInt64;
-var readBool = reader.ReadBoolean;
 var s = reader.BaseStream;
 var f = FrameProfile;
+var len = s.Length;
 
-while (s.Position < s.Length) {
+while (s.Position < len) {
     
     var id = reader.ReadInt32();
     var key = id.ToString();
@@ -192,5 +190,5 @@ var dumpTree = @(root, indent) {
 };
 
 
-root |> dumpTree;
+// root |> dumpTree;
     

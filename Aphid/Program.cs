@@ -64,28 +64,57 @@ namespace Aphid
             var ext = Path.GetExtension(args[0]).ToLower();
             var isTextDocument = ext == ".alxt";
             var file = Path.GetFullPath(args[0]);
-            var code = AphidScript.Read(file);
-            EnvironmentLibrary.SetEnvArgs(true);
             var interpreter = new AphidInterpreter();
             interpreter.SetScriptFilename(file);
+            EnvironmentLibrary.SetEnvArgs(true);
 
-            if (AphidErrorHandling.HandleErrors)
+#if !APHID_DEBUGGING_ENABLED
+            if (AphidConfig.Current.ScriptCaching)
             {
-                AphidCli.TryAction(
-                    interpreter,
-                    code,
-                    () => interpreter.Interpret(code, file, isTextDocument),
-                    allowErrorReporting: true);
+                if (AphidErrorHandling.HandleErrors)
+                {
+                    AphidCli.TryAction(
+                        interpreter,
+                        () => AphidScript.Read(file),
+                        () =>
+                        {
+                            var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
+                            interpreter.Interpret(cache.Read(file));
+                        },
+                        allowErrorReporting: true);
+                }
+                else
+                {
+                    var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
+                    interpreter.Interpret(cache.Read(file));
+                }
             }
             else
             {
-                interpreter.Interpret(code, file, isTextDocument);
-            }
+#endif
+                var code = AphidScript.Read(file);
 
-            if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))
-            {
-                new AphidRepl { Interpreter = interpreter }.Run();
+                if (AphidErrorHandling.HandleErrors)
+                {
+                    AphidCli.TryAction(
+                        interpreter,
+                        code,
+                        () => interpreter.Interpret(code, file, isTextDocument),
+                        allowErrorReporting: true);
+                }
+                else
+                {
+                    interpreter.Interpret(code, file, isTextDocument);
+                }
+
+                if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))
+                {
+                    new AphidRepl { Interpreter = interpreter }.Run();
+                }
+#if !APHID_DEBUGGING_ENABLED
             }
+#endif
+            
         }
 
         static void RunExpression(string[] args)

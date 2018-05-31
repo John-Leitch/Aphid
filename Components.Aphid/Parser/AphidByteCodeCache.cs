@@ -6,6 +6,8 @@ namespace Components.Aphid.Parser
 {
     public class AphidByteCodeCache : FileSerializationCache<List<AphidExpression>>
     {
+        public bool InlineScripts { get; set; }
+
         private string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
@@ -18,25 +20,40 @@ namespace Components.Aphid.Parser
             string filename,
             out string[] sources)
         {
+            var ast = AphidParser.ParseFile(filename);
+
             var partialOpMutator = new PartialOperatorMutator();
             var macroMutator = new AphidMacroMutator();
             var directiveMutator = new AphidPreprocessorDirectiveMutator();
-            var includeMutator = new IncludeMutator();
-            includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
             var constantFoldingMutator = new ConstantFoldingMutator();
 
-            var ast = AphidParser.ParseFile(filename);
+            if (InlineScripts)
+            {
+                var includeMutator = new IncludeMutator();
+                includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
 
-            var ast2 = constantFoldingMutator.MutateRecursively(
-                includeMutator.MutateRecursively(
+                var ast2 = constantFoldingMutator.MutateRecursively(
+                    includeMutator.MutateRecursively(
+                        directiveMutator.MutateRecursively(
+                            macroMutator.MutateRecursively(
+                                partialOpMutator.MutateRecursively(ast)))));
+
+                includeMutator.Included.Add(filename);
+                sources = includeMutator.Included.ToArray();
+
+                return ast2;
+            }
+            else
+            {
+                var ast2 = constantFoldingMutator.MutateRecursively(
                     directiveMutator.MutateRecursively(
                         macroMutator.MutateRecursively(
-                            partialOpMutator.MutateRecursively(ast)))));
+                            partialOpMutator.MutateRecursively(ast))));
 
-            includeMutator.Included.Add(filename);
-            sources = includeMutator.Included.ToArray();
+                sources = new string[0];
 
-            return ast2;
+                return ast2;
+            }
         }
 
         protected override void SerializeCache(Stream stream, List<AphidExpression> cache)

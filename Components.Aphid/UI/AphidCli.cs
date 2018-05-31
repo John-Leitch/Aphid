@@ -40,7 +40,10 @@ namespace Components.Aphid.UI
             WriteLineOut = Cli.WriteLine;
         }
 
-        public static bool TryAction(AphidInterpreter interpreter, string code, Action action)
+        public static bool TryAction(
+            AphidInterpreter interpreter,
+            string code,
+            Action action)
         {
             return TryAction(interpreter, code, action, allowErrorReporting: false);
         }
@@ -48,6 +51,15 @@ namespace Components.Aphid.UI
         public static bool TryAction(
             AphidInterpreter interpreter,
             string code,
+            Action action,
+            bool allowErrorReporting)
+        {
+            return TryAction(interpreter, () => code, action, allowErrorReporting);
+        }
+
+        public static bool TryAction(
+            AphidInterpreter interpreter,
+            Func<string> getCode,
             Action action,
             bool allowErrorReporting)
         {
@@ -62,7 +74,7 @@ namespace Components.Aphid.UI
             catch (AphidParserException exception)
             {
                 LastException = exception;
-                AphidCli.DumpException(exception, code);
+                AphidCli.DumpException(exception, getCode());
             }
             catch (AphidLoadScriptException exception)
             {

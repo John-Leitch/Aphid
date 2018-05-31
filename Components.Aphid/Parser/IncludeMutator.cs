@@ -77,8 +77,19 @@ namespace Components.Aphid.Parser
             }
 
             Included.Add(script);
-            var code = AphidScript.Read(script);
-            var ast = AphidParser.Parse(code, script, useImplicitReturns: UseImplicitReturns);
+
+            List<AphidExpression> ast;
+
+            if (AphidConfig.Current.ScriptCaching)
+            {
+                var cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray());
+                ast = cache.Read(script);
+            }
+            else
+            {
+                var code = AphidScript.Read(script);
+                ast = AphidParser.Parse(code, script, useImplicitReturns: UseImplicitReturns);
+            }
 
             if (PerformCommonTransformations)
             {

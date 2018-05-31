@@ -185,7 +185,11 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        ast = AphidParser.Parse(File.ReadAllText(f), f, isTextDocument);
+                        ast =
+                            new AphidPreprocessorDirectiveMutator().MutateRecursively(
+                                new AphidMacroMutator().MutateRecursively(
+                                    new PartialOperatorMutator().MutateRecursively(
+                                        AphidParser.Parse(File.ReadAllText(f), f, isTextDocument))));
                     }
                 }
                 catch (AphidParserException e)
@@ -219,13 +223,9 @@ namespace Components.Aphid.Interpreter
                         e);
                 }
 
-                var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
-
-                Interpreter.Interpret(mutatedAst);
+                Interpreter.Interpret(ast);
                 
-                return mutatedAst;
+                return ast;
             }
             else
             {
