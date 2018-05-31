@@ -44,7 +44,14 @@ namespace Components.Aphid.TypeSystem
 
         private string[] FanStaticInteropTypeName(Type type)
         {
-            return _staticTypeMemoizer.Call(FanStaticInteropTypeNameCore, type);
+            if (type != null)
+            {
+                return _staticTypeMemoizer.Call(FanStaticInteropTypeNameCore, type);
+            }
+            else
+            {
+                return new string[0];
+            }
         }
 
         private string[] FanStaticInteropTypeNameCore(Type type)
@@ -64,7 +71,14 @@ namespace Components.Aphid.TypeSystem
         {
             if (obj.IsScalar)
             {
-                return _fanAphidTypeMemoizer.Call(FanAphidName, obj.Value.GetType());
+                if (obj.Value != null)
+                {
+                    return _fanAphidTypeMemoizer.Call(FanAphidName, obj.Value.GetType());
+                }
+                else
+                {
+                    return new string[0];
+                }
             }
             else
             {
@@ -81,7 +95,14 @@ namespace Components.Aphid.TypeSystem
         {
             if (obj.IsScalar)
             {
-                return _fanInteropTypeMemoizer.Call(FanInteropName, obj.Value.GetType());
+                if (obj.Value != null)
+                {
+                    return _fanInteropTypeMemoizer.Call(FanInteropName, obj.Value.GetType());
+                }
+                else
+                {
+                    return new string[0];
+                }
             }
             else
             {

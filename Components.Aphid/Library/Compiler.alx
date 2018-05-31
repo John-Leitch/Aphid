@@ -19,6 +19,8 @@ var csharp;
     };
 
     preprocessor = {
+        inlineScripts: false,
+
         transform: @(srcAst) {
             var partialOpMutator = new PartialOperatorMutator();
             var macroMutator = new AphidMacroMutator();
@@ -31,13 +33,13 @@ var csharp;
                 |> partialOpMutator.MutateRecursively
                 |> macroMutator.MutateRecursively
                 |> directiveMutator.MutateRecursively
-                |> includeMutator.MutateRecursively
+                |> (inlineScripts ? includeMutator.MutateRecursively : @() $_)
                 |> constantFoldingMutator.MutateRecursively;
         },
     };
 
     exports = {
-        useBinaryFormatter: false,
+        useBinaryFormatter: false,        
 
         compileFile: @(namespace, srcFile){
             printInfo('Parsing ~Cyan~{0}~R~', srcFile);

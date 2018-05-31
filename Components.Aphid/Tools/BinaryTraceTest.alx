@@ -1,0 +1,40 @@
+using System;
+using System.Threading;
+var forceCache = DateTime.Now.Ticks;
+var forceCache2 = Thread.Sleep;
+
+var sleep10ms = @{
+    Thread.Sleep(10);
+};
+
+var nop = @{ };
+
+var exclusive1000ticks = @{
+    var t = DateTime.Now.Ticks;
+
+    while (DateTime.Now.Ticks - t < 1000) {
+
+    }
+};
+
+var inclusive1000ticks = @{ exclusive1000ticks() };
+var rep = @(times) { for (var i = 0; i < times; i++) nop(); };
+var rep2 = @rep(2);
+
+var all = @{
+    sleep10ms();
+    nop();
+    exclusive1000ticks();
+    inclusive1000ticks();
+    rep(5);
+    rep2();
+};
+
+
+sleep10ms();
+nop();
+exclusive1000ticks();
+inclusive1000ticks();
+rep(5);
+rep2();
+all();

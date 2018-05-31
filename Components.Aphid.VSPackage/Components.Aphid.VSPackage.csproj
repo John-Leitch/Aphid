@@ -32,6 +32,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -46,7 +47,7 @@
     <AssemblyName>AphidPackage</AssemblyName>
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -161,11 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidAuthoringScope.cs" />
-    <Compile Include="AphidBuildInterop.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>AphidBuildInterop.alx</DependentUpon>
-    </Compile>
+    <Compile Include="AphidBuildInterop.cs" />
     <Compile Include="AphidCodeDomGenerator.cs" />
     <Compile Include="AphidDeclaration.cs" />
     <Compile Include="AphidDeclarations.cs" />
@@ -199,7 +196,6 @@
       <Generator>AphidCodeDomGenerator</Generator>
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <LastGenOutput>AphidBuildInterop.cs</LastGenOutput>
     </Content>
     <None Include="packages.config" />
     <None Include="source.extension.vsixmanifest">
