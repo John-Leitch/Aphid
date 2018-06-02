@@ -395,6 +395,16 @@ var viewModel;
                 ret fromMap(namespace, type.Name, typeMap);
             },
 
+            fromObject: @(namespace, name, aphidObject) {
+                var map = {};
+
+                aphidObject.Keys->@{
+                    map[$_] = Object.ToString();
+                };
+
+                ret fromMap(namespace, name, map);
+            },
+
             fromMap: @(namespace, name, typeMap) {
                 var sb = new StringBuilder();
                 sb.AppendLine('@{');
@@ -411,6 +421,7 @@ var viewModel;
                 sb.AppendLine(namespace + ';\r\n');
 
                 sb.AppendFormat('class {0}ViewModel {{\r\n', name);
+                sb.AppendFormat('Object ViewModelDataSource,\r\n\r\n');
                 var v;
                 
                 typeMap.Keys

@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 
 var wpf;
+var bind;
 
 @{
     #'Std';
@@ -124,5 +125,65 @@ var wpf;
                     dataGrid.Columns.Add(col);
                 })
         }
+    };
+
+    bind = {
+        typeToViewModel: @(viewModelType, context) {
+            var ctxType = context.GetType();
+            var vm = new viewModelType();
+            viewModelType
+                .GetProperties()
+                -?(@() $_.Name != 'ViewModelDataSource')
+                ->@{
+                    var p = $_;
+                    var name = p.Name;
+                    var contextProp = ctxType.GetProperty(name);
+
+                    if (contextProp != null) {
+                        var contextPropValue = contextProp.GetValue(context);
+                        p.SetValue(vm, contextPropValue);
+                        vm.add_PropertyChanged(@(o, e) {
+                            if (e.PropertyName == name) {
+                                // print('Property ~Cyan~{0}~R~', e.PropertyName);
+                                contextProp.SetValue(context, p.GetValue(vm));
+                            }
+                        });
+                    }
+                };
+
+
+            print(vm);
+            vm.ViewModelDataSource = context;
+
+            ret vm;
+        },
+
+        objToViewModel: @(viewModelType, context) {
+            var vm = new viewModelType();
+            viewModelType
+                .GetProperties()
+                -?(@() $_.Name != 'ViewModelDataSource')
+                ->@{
+                    var p = $_;
+                    var name = p.Name;
+                    
+                    if (context[name] defined) {
+                        p.SetValue(vm, context[name]);
+
+                        vm.add_PropertyChanged(@(o, e) {
+                            if (e.PropertyName == name) {
+                                print('Property ~Cyan~{0}~R~', e.PropertyName);
+                                context[name] = p.GetValue(vm);
+                            }
+                        });
+                    }
+                };
+
+
+            print(vm);
+            vm.ViewModelDataSource = context;
+
+            ret vm;
+        },
     };
 }();
