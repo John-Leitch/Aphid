@@ -270,18 +270,19 @@ namespace AphidUI.ViewModels
         }
 
         [AphidInteropFunction("dump", PassInterpreter = true, UnwrapParameters = false)]
-        public static void Dump(AphidInterpreter interpreter, AphidObject obj)
+        public static void Dump(AphidInterpreter interpreter, object obj)
         {
             AphidObject vmObj;
             interpreter.CurrentScope.TryResolve(ViewModelName, out vmObj);
             var vm = (AphidReplViewModel)vmObj.Value;
             var serializer = new AphidSerializer(interpreter) { IgnoreFunctions = false };
+            var ao = interpreter.ValueHelper.Wrap(obj);
 
             vm._codeViewer.Dispatcher.Invoke(() =>
             {
                 if (obj != null)
                 {
-                    vm._codeViewer.AppendCode(serializer.Serialize(obj));
+                    vm._codeViewer.AppendCode(serializer.Serialize(ao));
                 }
                 else
                 {
