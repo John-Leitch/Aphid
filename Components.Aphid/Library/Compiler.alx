@@ -75,6 +75,7 @@ var csharp;
             try {
                 srcAst = srcCode |> parse |> preprocessor.transform;
             } catch (e) {
+                using Components.Aphid.UI;
                 AphidCli.DumpException(e.exception.InnerException, srcCode);
                 ret null;
             }
@@ -428,6 +429,37 @@ var csharp;
                     throw 'Not implemented: {0}' :: t;
                 }
             }
-        }
+        },
+
+        refs: null,
+
+        params: null,
+
+        compileAsm: @(cs) {
+            using Microsoft.CSharp;
+            
+            var provider = new CSharpCodeProvider();
+            
+            
+
+            if (params == null) {
+                params = createDefaultParams();
+            }
+
+            var results = provider.CompileAssemblyFromSource(params, cs);
+
+            ret results;
+        },
+
+        createDefaultParams: @() {
+            using System.CodeDom.Compiler;
+
+            var params = new CompilerParameters();
+            params.GenerateInMemory = true;
+            var asms = AppDomain.CurrentDomain.GetAssemblies()-?(@() !$_.IsDynamic)->@.Location;
+            asms->params.ReferencedAssemblies.Add;
+
+            ret params;
+        },
     };
 }();

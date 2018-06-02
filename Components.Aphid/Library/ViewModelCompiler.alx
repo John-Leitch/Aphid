@@ -160,6 +160,29 @@ var viewModel;
 
     e.endClass = @{
         unindent();
+
+        append('
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void InvokePropertyChanged(
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(callerName));
+            }
+        }
+
+        protected void SetProperty<T>(
+            ref T property,
+            T value,
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            property = value;
+            InvokePropertyChanged(callerName);
+        }
+        ');
+
         append('{0}}}\r\n', margin());
         inClass = false;
     };
@@ -362,6 +385,43 @@ var viewModel;
                 ast |> visitor.visit;
 
                 return e.text;
+            },
+
+            fromType: @(namespace, type) {
+                var typeMap = {};
+                type.GetProperties()
+                    ->@{ typeMap[$_.Name] = $_.PropertyType.FullName; };
+                
+                ret fromMap(namespace, type.Name, typeMap);
+            },
+
+            fromMap: @(namespace, name, typeMap) {
+                var sb = new StringBuilder();
+                sb.AppendLine('@{');
+                sb.AppendLine('ViewModel;\r\n');    
+                var i;
+                
+                typeMap.Keys
+                    ->(@() typeMap[$_])
+                    ->(@() $(i = $_.LastIndexOf('.')) -1: $_, $_.Remove(i))
+                    ->(@format('using {0};\r\n'))
+                    !?
+                    ->sb.AppendLine;
+
+                sb.AppendLine(namespace + ';\r\n');
+
+                sb.AppendFormat('class {0}ViewModel {{\r\n', name);
+                var v;
+                
+                typeMap.Keys
+                    ->(@() format(
+                    '    {0} {1},',
+                    (v = typeMap[$_]).Substring(v.LastIndexOf('.') + 1), $_))
+                    ->sb.AppendLine;
+                sb.AppendLine('}\r\n');
+                sb.AppendLine('}\r\n');
+
+                ret sb.ToString() |> compileCode;
             },
         };
     }();
