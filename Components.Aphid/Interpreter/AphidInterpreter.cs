@@ -666,6 +666,7 @@ namespace Components.Aphid.Interpreter
         {
             var left = (AphidObject)InterpretExpression(expression.LeftOperand);
             var right = (AphidObject)InterpretExpression(expression.RightOperand);
+            bool scalarCompare;
 
             bool val;
 
@@ -677,7 +678,11 @@ namespace Components.Aphid.Interpreter
             {
                 throw CreateUndefinedMemberException(expression, expression.RightOperand);
             }
-            else
+            else if ((scalarCompare = left.IsScalar) != right.IsScalar)
+            {
+                val = false;
+            }
+            else if (scalarCompare)
             {
                 if (left.Value != null && right.Value != null)
                 {
@@ -694,8 +699,12 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    val = left.Count == 0 && right.Count == 0;
+                    val = true;
                 }
+            }
+            else
+            {
+                val = left == right;
             }
 
             if (expression.Operator == AphidTokenType.NotEqualOperator)
