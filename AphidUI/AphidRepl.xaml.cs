@@ -152,7 +152,7 @@ namespace AphidUI
 
         private void StatementsTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            StatementsTextBox.MaxHeight = (CodeRow.MaxHeight = ActualHeight - 40) - 8;
+            StatementsTextBox.MaxHeight = Math.Max(0, (CodeRow.MaxHeight = Math.Max(0, ActualHeight - 40)) - 8);
         }
     }
 }
