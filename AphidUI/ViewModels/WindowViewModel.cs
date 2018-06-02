@@ -16,7 +16,7 @@ using System.Windows.Documents;
 
 namespace AphidUI.ViewModels
 {
-    public partial class AphidReplViewModel : ViewModel
+    public partial class AphidReplViewModel : ViewModelBase
     {
         public const string NoValue = "Expression has been evaluated and has no value";
 

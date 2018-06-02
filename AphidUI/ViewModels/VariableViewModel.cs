@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AphidUI.ViewModels
 {
-    public partial class VariableViewModel : ViewModel
+    public partial class VariableViewModel : ViewModelBase
     {
     }
 }

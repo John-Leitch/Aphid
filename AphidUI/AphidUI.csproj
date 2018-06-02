@@ -157,10 +157,14 @@
     </Compile>
     <Compile Include="TextCell.cs" />
     <Compile Include="TextCellType.cs" />
-    <Compile Include="ViewModels\ViewModels.g.cs" />
+    <Compile Include="ViewModels\ViewModels.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ViewModels.alx</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\ExpressionViewModel.cs" />
     <Compile Include="ViewModels\VariableViewModel.cs" />
-    <Compile Include="ViewModels\ViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\WindowViewModel.cs" />
     <Page Include="AphidRepl.xaml">
       <SubType>Designer</SubType>
@@ -209,11 +213,17 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="ViewModels\ViewModels.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>ViewModels.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
