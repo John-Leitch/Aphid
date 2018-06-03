@@ -1002,209 +1002,199 @@ namespace Components.Aphid.Interpreter
             // Todo: cleanup and improve perf by evaluating and saving key early
             var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
             var key = GetMemberKey(expression.RightOperand);
-
             Type type;
+            AphidObject val;
 
-            if (obj != null && ((type = obj.Value as Type) != null))
+            if (obj != null)
             {
-                if (!type.Assembly.IsDynamic)
+                if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression ||
+                    expression.RightOperand.Type == AphidExpressionType.DynamicMemberExpression)
                 {
-                    var members = GetInteropStaticMembers(type, key);
+                    var interopMember = InteropMethodResolver.TryResolveMember(
+                        expression,
+                        obj,
+                        returnRef);
 
-                    if (members.Length != 0)
+                    if (interopMember != null)
                     {
-                        var nestedType = members[0] as Type;
-
-                        return nestedType == null ?
-                            InterpretMemberInteropExpression(
-                                null,
-                                members,
-                                expression,
-                                returnRef,
-                                null) :
-                                AphidObject.Scalar(nestedType);
-                    }
-
-                    members = GetInteropInstanceMembers(type, key);
-
-                    if (members.Length != 0)
-                    {
-                        return InterpretMemberInteropExpression(
-                            type,
-                            members,
-                            expression,
-                            returnRef,
-                            null);
-                    }
-                }
-                else
-                {
-                    var members = GetInteropInstanceMembers(type, key);
-
-                    if (members.Length != 0)
-                    {
-                        return InterpretMemberInteropExpression(
-                            type,
-                            members,
-                            expression,
-                            returnRef,
-                            null);
-                    }
-
-                    members = GetInteropStaticMembers(type, key);
-
-                    if (members.Length != 0)
-                    {
-                        var nestedType = members[0] as Type;
-
-                        return nestedType == null ?
-                            InterpretMemberInteropExpression(
-                                null,
-                                members,
-                                expression,
-                                returnRef,
-                                null) :
-                                AphidObject.Scalar(nestedType);
+                        return interopMember;
                     }
                 }
 
-                var ext = TypeExtender.TryResolve(
-                    CurrentScope,
-                    type,
-                    key: key,
-                    isAphidType: false,
-                    isCtor: false,
-                    isDynamic: false,
-                    returnRef: returnRef);
-
-                if (ext != null)
-                {
-                    return ext;
-                }
-            }
-
-            if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression ||
-                expression.RightOperand.Type == AphidExpressionType.DynamicMemberExpression)
-            {
-                var interopMember = InteropMethodResolver.TryResolveMember(
-                    expression,
-                    obj,
-                    returnRef);
-
-                if (interopMember != null)
-                {
-                    return interopMember;
-                }
-            }
-
-            if (returnRef)
-            {
                 if (obj.IsScalar)
                 {
-                    if (obj.Value != null)
+                    if ((type = obj.Value as Type) != null)
                     {
-                        throw CreateRuntimeException(
-                            "Cannot resolve member '{0}' for value '{1}' of type " +
-                                "'{2}' from expression '{3}'.",
-                            key,
-                            obj.Value,
-                            obj.Value.GetType(),
-                            expression.ToString().Trim());
-                    }
-                    else
-                    {
-                        throw CreateRuntimeException(
-                            "Cannot resolve member '{0}' for null value from " +
-                                "expression '{1}'.",
-                            key,
-                            expression.ToString().Trim());
-                    }
-                }
+                        if (!type.Assembly.IsDynamic)
+                        {
+                            var members = GetInteropStaticMembers(type, key);
 
-                return new AphidRef() { Name = key, Object = obj };
-            }
-            else
-            {
-                AphidObject val;
+                            if (members.Length != 0)
+                            {
+                                var nestedType = members[0] as Type;
 
-                if (obj == null || (obj.Count == 0 && obj.Value == null))
-                {
-                    if (expression.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
-                    {
-                        throw CreateRuntimeException("Null reference exception: {0}.", expression);
-                    }
+                                return nestedType == null ?
+                                    InterpretMemberInteropExpression(
+                                        null,
+                                        members,
+                                        expression,
+                                        returnRef,
+                                        null) :
+                                        AphidObject.Scalar(nestedType);
+                            }
 
-                    return InterpretMemberInteropExpression(null, expression, returnRef);
-                }
-                else if (obj.Count == 0)
-                {
-                    var aphidType = obj.IsAphidType();
+                            members = GetInteropInstanceMembers(type, key);
 
-                    val = TypeExtender.TryResolve(
+                            if (members.Length != 0)
+                            {
+                                return InterpretMemberInteropExpression(
+                                    type,
+                                    members,
+                                    expression,
+                                    returnRef,
+                                    null);
+                            }
+                        }
+                        else
+                        {
+                            var members = GetInteropInstanceMembers(type, key);
+
+                            if (members.Length != 0)
+                            {
+                                return InterpretMemberInteropExpression(
+                                    type,
+                                    members,
+                                    expression,
+                                    returnRef,
+                                    null);
+                            }
+
+                            members = GetInteropStaticMembers(type, key);
+
+                            if (members.Length != 0)
+                            {
+                                var nestedType = members[0] as Type;
+
+                                return nestedType == null ?
+                                    InterpretMemberInteropExpression(
+                                        null,
+                                        members,
+                                        expression,
+                                        returnRef,
+                                        null) :
+                                        AphidObject.Scalar(nestedType);
+                            }
+                        }
+
+                        var ext = TypeExtender.TryResolve(
                             CurrentScope,
-                            obj,
-                            key,
-                            isAphidType: aphidType,
+                            type,
+                            key: key,
+                            isAphidType: false,
                             isCtor: false,
                             isDynamic: false,
-                            returnRef: returnRef) ??
-                        InterpretMemberInteropExpression(
-                            obj.Value,
-                            expression,
-                            returnRef,
-                            () => TypeExtender.TryResolve(
+                            returnRef: returnRef);
+
+                        if (ext == null)
+                        {
+                            throw CreateMemberException(key, obj, expression);                            
+                        }
+
+                        return ext;
+                    }
+                    else if (returnRef)
+                    {
+                        if (obj.Value != null)
+                        {
+                            throw CreateRuntimeException(
+                                "Cannot resolve member '{0}' for value '{1}' of type " +
+                                    "'{2}' from expression '{3}'.",
+                                key,
+                                obj.Value,
+                                obj.Value.GetType(),
+                                expression.ToString().Trim());
+                        }
+                        else
+                        {
+                            throw CreateRuntimeException(
+                                "Cannot resolve member '{0}' for null value from " +
+                                    "expression '{1}'.",
+                                key,
+                                expression.ToString().Trim());
+                        }
+                    }
+                    else if (obj.Value != null)
+                    {
+                        var aphidType = obj.IsAphidType();
+
+                        val = TypeExtender.TryResolve(
                                 CurrentScope,
                                 obj,
                                 key,
                                 isAphidType: aphidType,
                                 isCtor: false,
-                                isDynamic: true,
-                                returnRef: returnRef));
-
-                    if (val == null)
-                    {
-                        throw CreateMemberException(key, obj, expression);
-                    }
-
-                    return val;
-                }
-                else if (!obj.TryResolve(key, out val))
-                {
-                    var o = obj.IsScalar ? obj.Value : obj;
-
-                    if (o != null)
-                    {
-                        val = TypeExtender.TryResolve(
-                            CurrentScope,
-                            obj,
-                            key,
-                            isAphidType: true,
-                            isCtor: false,
-                            isDynamic: false,
-                            returnRef: returnRef);
-
-                        return val == null ?
+                                isDynamic: false,
+                                returnRef: returnRef) ??
                             InterpretMemberInteropExpression(
-                                o,
+                                obj.Value,
                                 expression,
                                 returnRef,
                                 () => TypeExtender.TryResolve(
                                     CurrentScope,
                                     obj,
                                     key,
-                                    isAphidType: true,
+                                    isAphidType: aphidType,
                                     isCtor: false,
                                     isDynamic: true,
-                                    returnRef: returnRef)) :
-                            val;
+                                    returnRef: returnRef));
+
+                        if (val == null)
+                        {
+                            throw CreateMemberException(key, obj, expression);
+                        }
+
+                        return val;
+                    }
+                    else if (expression.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
+                    {
+                        return InterpretMemberInteropExpression(null, expression, returnRef);
                     }
                     else
                     {
-                        throw CreateMemberException(key, obj, expression);
+                        throw CreateRuntimeException("Null reference exception: {0}.", expression);
                     }
                 }
-
-                return val;
+                else if (returnRef)
+                {
+                    return new AphidRef() { Name = key, Object = obj };
+                }
+                else if (obj.TryResolve(key, out val))
+                {
+                    return val;
+                }
+                else if ((val = InterpretMemberInteropExpression(
+                        obj,
+                        expression,
+                        returnRef,
+                        () => TypeExtender.TryResolve(
+                            CurrentScope,
+                            obj,
+                            key,
+                            isAphidType: true,
+                            isCtor: false,
+                            isDynamic: false,
+                            returnRef: returnRef))) != null)
+                {
+                    return val;
+                }
+                else
+                {
+                    throw CreateMemberException(key, obj, expression);
+                }                    
+            }
+            else
+            {
+                throw CreateMemberException(key, obj, expression);
             }
         }
 
@@ -1239,6 +1229,19 @@ namespace Components.Aphid.Interpreter
             bool returnRef = false)
         {
             var value = InterpretExpression(expression.RightOperand);
+            //object value;
+
+            //if ((value = InterpretExpression(expression.RightOperand)) == null)
+            //{
+            //    if (StrictMode)
+            //    {
+            //        throw CreateStrictModeException(expression.ToString());
+            //    }
+            //    else
+            //    {
+            //        return null;
+            //    }
+            //}
 
             var result = InterpretAssignmentExpression(
                 expression.LeftOperand,
@@ -1362,8 +1365,6 @@ namespace Components.Aphid.Interpreter
                     }
 
                     var key = (string)keyObj;
-
-                    AphidRef aphidRef;
 
                     if (aphidObj.IsScalar)
                     {
@@ -2532,11 +2533,14 @@ namespace Components.Aphid.Interpreter
             {
                 return AphidObject.Scalar(t);
             }
-            else
+            else //if (!StrictMode)
             {
-
                 return null;
             }
+            //else
+            //{
+            //    throw CreateStrictModeException(expression.Identifier);
+            //}
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
