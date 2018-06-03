@@ -17,11 +17,27 @@ namespace Components.Aphid.Parser
             _searchPaths = searchPaths;
         }
 
+        public AphidByteCodeCache(string[] searchPaths, uint flags)
+            : base(typeof(AphidExpression).Assembly.GetName().Version, flags)
+        {
+            InlineScripts = true;
+            _searchPaths = searchPaths;
+        }
+
         protected override List<AphidExpression> CreateCache(
             string filename,
             out string[] sources)
         {
-            var ast = AphidParser.ParseFile(filename);
+            List<AphidExpression> ast;
+
+            if ((Flags & 0x1) == 0)
+            {
+                ast = AphidParser.ParseFile(filename);
+            }
+            else
+            {
+                ast = AphidParser.ParseFile(filename, useImplicitReturns: false);
+            }
 
             var partialOpMutator = new PartialOperatorMutator();
             var macroMutator = new AphidMacroMutator();
@@ -30,7 +46,17 @@ namespace Components.Aphid.Parser
 
             if (InlineScripts)
             {
-                var includeMutator = new IncludeMutator();
+                IncludeMutator includeMutator;
+
+                if ((Flags & 0x1) == 0)
+                {
+                    includeMutator = new IncludeMutator();
+                }
+                else
+                {
+                    includeMutator = new IncludeMutator(false);
+                }
+
                 includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
 
                 var ast2 =

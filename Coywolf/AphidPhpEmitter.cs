@@ -46,7 +46,11 @@ if (!function_exists('__add')) {
         {
             var mutators = new AphidMutator[] 
             {
-                new IncludeMutator { PerformCommonTransformations = false },
+                new IncludeMutator
+                {
+                    PerformCommonTransformations = false,
+                    DisableCaching = true,
+                },
                 new AphidMacroMutator(),
                 new PartialOperatorMutator(),
                 new PipelineToCallMutator(),

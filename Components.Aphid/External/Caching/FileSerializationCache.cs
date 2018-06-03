@@ -12,6 +12,8 @@ namespace Components.Caching
 
         private static Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
 
+        public uint Flags { get; private set; }
+
         public FileSerializationCache(Assembly dependency)
         {
             _serializer = new FileCacheInfoSerializer(dependency);
@@ -20,6 +22,18 @@ namespace Components.Caching
         public FileSerializationCache(Version dependencyVersion)
         {
             _serializer = new FileCacheInfoSerializer(dependencyVersion);
+        }
+
+        public FileSerializationCache(Assembly dependency, uint flags)
+            : this(dependency)
+        {
+            Flags = flags;
+        }
+
+        public FileSerializationCache(Version dependencyVersion, uint flags)
+            : this(dependencyVersion)
+        {
+            Flags = flags;
         }
 
         public T Read(string filename)
@@ -134,12 +148,26 @@ namespace Components.Caching
 
         protected virtual string GetCacheFilename(string filename)
         {
-            return filename + ".cache";
+            if (Flags == 0x0)
+            {
+                return filename + ".cache";
+            }
+            else
+            {
+                return filename + "." + Flags + ".cache";
+            }
         }
 
         protected virtual string GetCacheInfoFilename(string filename)
         {
-            return filename + ".cacheMetadata";
+            if (Flags == 0x0)
+            {
+                return filename + ".cacheMetadata";
+            }
+            else
+            {
+                return filename + "." + Flags + ".cacheMetadata";
+            }
         }
     }
 }

@@ -24,6 +24,8 @@ namespace Components.Aphid.Parser
 
         public bool PerformCommonTransformations { get; set; }
 
+        public bool DisableCaching { get; set; }
+
         public AphidLoader Loader
         {
             get { return _loader; }
@@ -44,6 +46,11 @@ namespace Components.Aphid.Parser
 
         public IncludeMutator(string applicationDirectory)
             : this(applicationDirectory, true)
+        {
+        }
+
+        public IncludeMutator(bool useImplicitReturns)
+            : this(Path.GetDirectoryName(typeof(IncludeMutator).Assembly.Location), useImplicitReturns)
         {
         }
 
@@ -92,9 +99,19 @@ namespace Components.Aphid.Parser
 
             List<AphidExpression> ast;
 
-            if (AphidConfig.Current.ScriptCaching)
+            if (AphidConfig.Current.ScriptCaching && !DisableCaching)
             {
-                var cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray());
+                AphidByteCodeCache cache;
+
+                if (UseImplicitReturns)
+                {
+                    cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray());
+                }
+                else
+                {
+                    cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray(), 0x1);
+                }
+
                 ast = cache.Read(script);
             }
             else
