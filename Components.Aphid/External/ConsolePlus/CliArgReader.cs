@@ -146,7 +146,7 @@ namespace Components.External.ConsolePlus
                             }
                             catch (Exception e)
                             {
-                                throw new ArgumentException("Could not parse hex number \"{0}\".", x);
+                                throw new ArgumentException("Could not parse hex number \"{0}\".", x, e);
                             }
                         }
                         else if (x.Length > 0 && char.IsDigit(x[0]))

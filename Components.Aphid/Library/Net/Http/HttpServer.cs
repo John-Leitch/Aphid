@@ -34,7 +34,7 @@ namespace Components.Aphid.Library.Net
 
         private AphidObject _globals = AphidObject.Scope();
 
-        private string _config = "Config.alx";
+        //private string _config = "Config.alx";
 
         public HttpServer(string prefix)
             : this(prefix, GetDefaultWebRoot())

@@ -74,8 +74,6 @@ namespace LLex
 
         int mode = 0;
 
-        int state = 0;
-
         char currentChar = (char)0;
 
         public RegexLexer()

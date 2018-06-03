@@ -91,10 +91,6 @@ namespace Components.Aphid.TypeSystem
                         "Converting from generic delegate {0} to {1} not yet supported.",
                         valType,
                         target);
-
-                    var zipped = targetGenericArgs
-                        .Zip(valGenericArgs, (x, y) => new[] { x, y })
-                        .ToArray();
                 }
                 else
                 {
