@@ -1210,7 +1210,7 @@ namespace Components.Aphid.Interpreter
                     "side of the expression '{3}'. The serialized target " +
                     "object is '{4}'",
                 key,
-                obj.GetValueType(includeClrTypes: true),
+                obj != null ? obj.GetValueType(includeClrTypes: true) : "null",
                 expression.LeftOperand,
                 expression,
                 new AphidSerializer(this).Serialize(obj));
