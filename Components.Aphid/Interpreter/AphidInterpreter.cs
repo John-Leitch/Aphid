@@ -883,7 +883,12 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetTypeInteropInstanceMembersCore(Type targetType, string name)
         {
-            var allMembers = targetType.GetMembers();
+            var allMembers = targetType.GetMembers(
+                BindingFlags.FlattenHierarchy |
+                BindingFlags.Public |
+                BindingFlags.Instance |
+                BindingFlags.Static);
+
             var members = new MemberInfo[allMembers.Length];
             var count = 0;
 
@@ -940,7 +945,11 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MemberInfo[] GetInteropStaticMembersCore(Type targetType, string name)
         {
-            var allMembers = targetType.GetMembers(BindingFlags.Static | BindingFlags.Public);
+            var allMembers = targetType.GetMembers(
+                BindingFlags.Static |
+                BindingFlags.Public |
+                BindingFlags.FlattenHierarchy);
+
             var members = new MemberInfo[allMembers.Length];
             var count = 0;
 
