@@ -190,7 +190,7 @@ namespace Components.Aphid.TypeSystem
         private AphidInteropMethodInfo ResolveCore(MethodBase[] signatureMatches, object[] args)
         {
             var contexts = new AphidInteropCallContext[signatureMatches.Length];
-            var contextWeights = new uint[signatureMatches.Length];
+            var contextWeights = new ulong[signatureMatches.Length];
             var contextCount = 0;
 
             for (var i = 0; i < signatureMatches.Length; i++)
@@ -311,9 +311,9 @@ namespace Components.Aphid.TypeSystem
             return mappedGenericArgs.ToArray();
         }
 
-        private uint WeightInference(AphidInteropMethodArg[] args)
+        private ulong WeightInference(AphidInteropMethodArg[] args)
         {
-            var u = 0u;
+            var u = 0ul;
 
             for (var i = 0; i < args.Length; i++)
             {
