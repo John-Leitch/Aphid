@@ -1,0 +1,133 @@
+﻿using System.Text;
+using System.IO;
+#'AopTest';
+member group;
+
+value interop begin;
+    isTrue;
+        @{ var x = 1; x.ToString() == '1' };
+        @{ var x = true; true.ToString() == 'True' };
+        @{ var x = 'a'; x == 'a' };
+        @{ var x = 'a'.ToUpper(); x == 'A' };
+        @{ true.ToString() == 'True' };
+        @{ 1.ToString() == '1' };
+        @{ 'a'.ToUpper() == 'A' };
+    isFalse;
+        @{ var x = 1; x.ToString() != '1' };
+        @{ var x = true; true.ToString() != 'True' };
+        @{ var x = 'a'; x != 'a' };
+        @{ var x = 'a'.ToUpper(); x != 'A' };
+        @{ true.ToString() != 'True' };
+        @{ 1.ToString() != '1' };
+        @{ 'a'.ToUpper() != 'A' };
+
+value interop nullValue begin;
+    isTrue;
+        @{ var x = null; x == null };
+        @{ var x = null; x != 'A' };
+        @{ var x = true; true.ToString() != null };
+        @{ var x = 'a'; x != null };
+        @{ 'a'.ToUpper() != null };
+        @{ true.ToString() != null };
+    isFalse;
+        @{ var x = null; x != null };
+        @{ var x = null; x == 'A' };
+        @{ var x = true; true.ToString() == null };
+        @{ var x = 'a'; x == null };
+        @{ 'a'.ToUpper() == null };
+        @{ true.ToString() == null };
+
+
+_a(aphidObject, {z: 10});
+_a(emptyAphidObject, {});
+_a(List, [1]);
+_a(listOfAphidObjects, [{z: 10},{z: 10},{z: 10},{z: 10},{z: 10}]);
+_a(listOfEmptyAphidObjects, [{},{},{},{},{},{},{},{},{},{}]);
+_a(emptyList, []);
+_a(instance, new StringBuilder());
+_a(instanceMember, (new StringBuilder()).Length);
+_a(staticType, File);
+_a(staticTypeMethod, File.ReadAllText);
+
+fault;
+
+//_a(nullValue, null);
+_a(divZeroList, [1/0]);
+_a(badNew, new StringBuilderBad());
+_a(badInstanceMember, (new StringBuilder()).LengthBad);
+//_a(badStaticType, FileBad);
+_a(badStaticTypeMethod, File.ReadAllTextBad);
+
+_a = macro(@(name, obj){
+    member name access by group;
+    _ac(obj);
+});
+
+_ac = macro(@(obj) {
+    _ao(obj);
+    _aom(obj);
+    _aom2(obj);
+    //_aom3(obj);
+    _aod(obj);
+    _aod2(obj);
+    _aok(obj);
+    _aok2(obj);
+    _aor(obj);
+    _aor2(obj);
+    _aor3(obj);
+    _aor4(obj);
+    _aor5(obj);
+    _aoi(obj);
+});
+
+_ao = macro(@(obj) { _aoc(dot, var x = obj, x); });
+_aom = macro(@(obj) { _aoc(nestedDot, var x = {y:obj}, x.y); });
+_aom2 = macro(@(obj) { _aoc(twiceNestedDot, var x = {y:{z:obj}}, x.y.z); });
+//_aom3 = macro(@(obj) { _aoc(partNestedDot, var x = {y:{z:obj}}, x.y); });
+_aod = macro(@(obj) { _aoc(dynamic, var x = {y:obj}, x.{'y'}); });
+_aod2 = macro(@(obj) { _aoc(dynamicNested, var x = {y:{z:obj}}, x.{'y'}.{'z'}); });
+_aok = macro(@(obj) { _aoc(key, var x = {y:obj}, x['y']); });
+_aok2 = macro(@(obj) { _aoc(key, var x = {y:{z:obj}}, x['y']['z']); });
+_aor = macro(@(obj) { _aoc(dotAndKey, var x = {y:{z:obj}}, x.y['z']); });
+_aor2 = macro(@(obj) { _aoc(dynamicAndKey, var x = {y:{z:obj}}, x.{'y'}['z']); });
+_aor3 = macro(@(obj) { _aoc(keyAndDynamic, var x = {y:{z:obj}}, x['y'].{'z'}); });
+_aor4 = macro(@(obj) { _aoc(dynamicAndDot, var x = {y:{z:obj}}, x.{'y'}.z); });
+_aor5 = macro(@(obj) { _aoc(keyAndDot, var x = {y:{z:obj}}, x['y'].z); });
+_aoi = macro(@(obj) { _aoc(interopKeysItem, var x = {y:{z:obj}}, x[x.Keys[0]].z); });
+
+_aoc = macro(@(name, objPrologue, path) {
+    prologue;
+        objPrologue;
+    
+    isTrue;
+        name notNull begin;
+        @{ path != null };
+        @{ path.ToString() != null };
+        @{ path.GetType() != null };
+        
+        name equal to same begin;
+        @{ path == path };
+        @{ path.ToString() == path.ToString() };
+        @{ path.GetType() == path.GetType() };
+        
+        indirect name notNull begin;
+        @{ var indirect = path; indirect != null };
+        @{ var indirect = path; indirect.ToString() != null };
+        @{ var indirect = path; indirect.GetType() != null };
+
+        indirect name equal to same begin;
+        @{ var indirect = path; indirect == indirect };
+        @{ var indirect = path; indirect.ToString() == indirect.ToString() };
+        @{ var indirect = path; indirect.GetType() == indirect.GetType() };
+    
+    isFalse;
+        name isNull begin;
+        @{ path == null };
+        @{ path.ToString() == null };
+        @{ path.GetType() == null };
+
+        name not equal to same begin;
+        @{ path != path };
+        @{ path.ToString() != path.ToString() };
+        @{ path.GetType() != path.GetType() };
+});

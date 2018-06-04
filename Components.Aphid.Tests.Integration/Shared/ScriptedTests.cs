@@ -43,8 +43,6 @@ namespace Components.Aphid.Tests.Integration.Shared
             }
         }
 
-        private static bool _isLibraryUpdated = false;
-
         private static readonly List<AphidExpression> _prologueAst = AphidParser.Parse(@"
             using Components.Aphid.Tests.Integration;
             using Components.Aphid.Tests.Integration.Shared;
