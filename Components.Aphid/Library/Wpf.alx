@@ -128,6 +128,13 @@ var bind;
     };
 
     bind = {
+        toViewModel: @(viewModelType, context)
+            (context.GetType() != AphidObject ?
+                typeToViewModel :
+                objToViewModel)(
+                    viewModelType,
+                    context),
+
         typeToViewModel: @(viewModelType, context) {
             var ctxType = context.GetType();
             var vm = new viewModelType();
