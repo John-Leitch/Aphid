@@ -670,3 +670,45 @@ var repl = {
         finally r.Dispose();
     }
 };
+
+var strOut = @(func){
+    using System.Text;
+    using System.IO;
+
+    var a = this.{'$aphid'};
+    var prev = a.Out;
+    var sb = new StringBuilder();
+    
+    using (var sw = new StringWriter(sb)) {
+        a.Out = sw;
+        func();
+    }
+
+    a.Out = prev;
+
+    ret sb;
+};
+
+using System.Collections;
+
+var outStack = new Stack();
+
+var beginOut = @{
+    using System.Text;
+    using System.IO;
+
+    var a = this.{'$aphid'};
+    var sb = new StringBuilder();
+    var sw = new StringWriter(sb);
+    outStack.Push({ prev: a.Out, sb, sw });
+    a.Out = sw;
+};
+
+var endOut = @{
+    var a = this.{'$aphid'};
+    var ctx = outStack.Pop();
+    a.Out = ctx.prev;
+    ctx.sw.Dispose();
+    
+    ret ctx.sb;
+};
