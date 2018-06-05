@@ -129,12 +129,6 @@ var csharp;
             ret cs.Trim() != '' ? cs : null;
         },
 
-        resolve: @(type) this.{'$aphid'}.InteropTypeResolver.ResolveType(
-            this.{'$imports'}.ToArray(),
-            [ type ],
-            true,
-            true),
-
         find: @(srcAst) {
             var exports = new List[AphidObject]();
 
@@ -148,7 +142,7 @@ var csharp;
 
                     var retType =
                         ($(node.attrs() #!) 1: 'void', node.attr(1).Identifier)
-                        |> resolve;
+                        |> resolveType;
 
                     var memberPath = exportExp.lhs().GetChildren()->@.Identifier;
                     var className = memberPath[0];
@@ -156,7 +150,7 @@ var csharp;
                 
                     var params = exportExp.rhs().Args
                         ->@()({
-                            type: ($_.noAttrs() ? 'AphidObject' : $_.attr(0).Identifier) |> resolve,
+                            type: ($_.noAttrs() ? 'AphidObject' : $_.attr(0).Identifier) |> resolveType,
                             name: $_.Identifier
                         });
 

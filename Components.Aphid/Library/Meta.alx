@@ -615,3 +615,10 @@ var createVisitor = @{
 
     ret visitor;
 };
+
+var resolveType = @(type)
+    this.{'$aphid'}.InteropTypeResolver.ResolveType(
+        this.{'$imports'}.ToArray(),
+        [ type ],
+        true,
+        true);

@@ -5,7 +5,8 @@ var viewModel;
 @{
     #'Std';
     #'StringEmitter';
-    //#'Meta';
+    #'Meta';
+    #'CodeDom';
     using Components.Aphid.Lexer;
     using Components.Aphid.Parser;
 
@@ -23,6 +24,7 @@ var viewModel;
         silent: false,
     };
 
+    e.aliases = null;
     e.boolConverter = {};
     e.boolConverterNames = [];
     e.lastPropertyName = null;
@@ -40,8 +42,19 @@ var viewModel;
 
     e.emitBinaryOperatorExpression = @(exp, isStatement) {
         if (isStatement) {
-            if (exp.Operator != AphidTokenType.MemberOperator)
+            if (exp.Operator == AphidTokenType.AssignmentOperator) {
+                if (!exp.lhs().isId() || !exp.lhs().oneAttr(alias)) {
+                    fatal('Expected id with alias attr on lhs of exp: {0}', exp);
+                } else if ((e.aliases[var key = exp.lhs().id()] defined)) {
+                    fatal('Alias {0} already defined', key);
+                } else {
+                    e.aliases[key] = StringParser.Parse(exp.rhs().Value);
+
+                    ret null;
+                }
+            } else if (exp.Operator != AphidTokenType.MemberOperator) {
                 fatal('Invalid op: {0}', exp.Operator);
+            }
 
             var parts = exp.GetChildren();
             var badParts = parts-?(@() $_.Type != AphidExpressionType.IdentifierExpression);
@@ -105,6 +118,7 @@ var viewModel;
         };
 
         e.imports.Clear();
+        e.aliases = {};
         inNamespace = true;
     };
 
@@ -180,10 +194,9 @@ var viewModel;
         {
             property = value;
             InvokePropertyChanged(callerName);
-        }
-        ');
+        }');
 
-        append('{0}}}\r\n', margin());
+        append('\r\n{0}}}\r\n', margin());
         inClass = false;
     };
 
@@ -269,63 +282,6 @@ var viewModel;
         if (inNamespace) endNamespace();
     };
 
-    var getLexer = @(stream) {
-        var l = {
-            index: -1,
-            token: null,
-            count: stream.Count,
-            eos: false,
-            stream,
-
-            oneOrNone: @(set, def) {
-                for (x in set) {
-                    print('[?] Checking for {0}', x);
-                    if (x |> match) {
-                        ret $_;
-                    }
-                }
-
-                ret def;
-            },
-
-            match: @(t) {
-                if (token == t) {
-                    //print('[+] token matched');
-                    next();
-                    ret true;
-                } else {
-                    //print('[-] token not matched');
-                    ret false;
-                }
-            },
-            
-            take: @() {
-                var t = token;
-                if (!eos) next();
-
-                ret t;
-            },
-
-            next: @{
-                if (index < count) index++;
-
-                if (index != count) {
-                    token = stream[index];
-                    //print('[+] Next token: {0}', token);
-                } else {
-                    token = null;
-                    eos = true;
-                }
-
-                ret token;
-            }
-        };
-
-        l.next();
-
-        ret l;
-    };
-
     var lastAttrTree = null;
 
     var parseAttributes = @(exp) {
@@ -337,10 +293,16 @@ var viewModel;
         //print('='*40);
 
         var lexer = exp.Attributes->@.Identifier |> getLexer;
+
+        var resolveAlias = @(name) e.aliases[name] defined ?
+            e.aliases[name] |> Type.GetType |> code.typeExp |> code.cs :
+            name;
         
         var attrTree = {
             access = lexer.oneOrNone(['private', 'public'], 'public'),
-            type = lexer.take(),
+            baseType = lexer.take() |> resolveAlias,
+            list = lexer.match('list'),
+            type = !list ? baseType : 'ObservableCollection<{0}>' :: baseType,
             silent = lexer.match('silent'),
             success = lexer.eos,
         };
@@ -359,6 +321,14 @@ var viewModel;
 
         viewModel = {
             setText: @(sb) e.text = sb,
+
+            buildForType: @(namespace, type) {
+                var code = fromType(namespace, type);
+                var results = csharp.compileAsm(code);
+                var vmType = results.CompiledAssembly.GetTypes()[0];
+
+                ret vmType;
+            },
 
             compileCode: @(code) {
                 e.text.Clear();
@@ -390,7 +360,10 @@ var viewModel;
             fromType: @(namespace, type) {
                 var typeMap = {};
                 type.GetProperties()
-                    ->@{ typeMap[$_.Name] = $_.PropertyType.FullName; };
+                    ->@{ typeMap[$_.Name] = $_.PropertyType; };
+
+                printInfo('Created map: ');
+                typeMap |> dump;
                 
                 ret fromMap(namespace, type.Name, typeMap);
             },
@@ -402,37 +375,102 @@ var viewModel;
                     map[$_] = Object.ToString();
                 };
 
+                printInfo('Created map: ');
+                typeMap |> dump;
+
                 ret fromMap(namespace, name, map);
             },
 
+
+
             fromMap: @(namespace, name, typeMap) {
-                var sb = new StringBuilder();
-                sb.AppendLine('@{');
-                sb.AppendLine('ViewModel;\r\n');    
                 var i;
-                
-                typeMap.Keys
+                var e;
+
+                var usingStmts = typeMap.Keys
                     ->(@() typeMap[$_])
-                    ->(@() $(i = $_.LastIndexOf('.')) -1: $_, $_.Remove(i))
-                    ->(@format('using {0};\r\n'))
-                    !?
-                    ->sb.AppendLine;
+                    ->(@(x) Type.IsAssignableFrom(x.GetType()) ?
+                        x.Namespace :
+                        $(i = x.LastIndexOf('.')) -1: x, x.Remove(i))
+                    ->(@format('using {0};'))
+                    !?;
 
-                sb.AppendLine(namespace + ';\r\n');
-
-                sb.AppendFormat('class {0}ViewModel {{\r\n', name);
-                sb.AppendFormat('Object ViewModelDataSource,\r\n\r\n');
-                var v;
+                var aliases = {};
+                var aliasMap = {};
+                var aliasIndex = 0;
                 
-                typeMap.Keys
-                    ->(@() format(
-                    '    {0} {1},',
-                    (v = typeMap[$_]).Substring(v.LastIndexOf('.') + 1), $_))
-                    ->sb.AppendLine;
-                sb.AppendLine('}\r\n');
-                sb.AppendLine('}\r\n');
+                var addAlias = @(type) {
+                    if (aliasMap[type.FullName] defined) {
+                        ret aliasMap[type.FullName]
+                    } else {
+                        var key = 'alias{0}' :: aliasIndex++;
+                        aliases[key] = type.FullName;
+                        aliasMap[type.FullName] = key;
 
-                ret sb.ToString() |> compileCode;
+                        ret key;
+                    }
+                };
+
+                var resolveType = @(t) {
+                    if (!t.IsGenericType && !t.IsArray) {
+                        ret t.Name;
+                    } else if (t.IsArray &&
+                        !(e = t.GetElementType()).IsArray &&
+                        !e.IsGenericType) {
+                        ret e.Name + ' list';
+                    } else if ((e = t.GetInterface('IEnumerable`1')) != null) {
+                        if (!(e = e.GetGenericArguments()[0]).IsGenericType &&
+                            !e.IsArray) {
+                            ret e.Name + ' list';
+                        } else {
+                            ret addAlias(e) + ' list';
+                        }
+                    } else if (t.GetInterface('IEnumerable') != null) {
+                        ret 'Object list';
+                    } else {
+                        ret addAlias(t);
+                    }
+                };
+
+                var members = typeMap.Keys
+                    ->(@(x) resolveType(typeMap[x]) + ' ' + x)
+                    ->@format('{0},\r\n');
+
+                beginOut();
+
+                %>
+                @{
+                    ViewModel;
+                    
+                    using System;
+                    using System.Collections;
+                    using System.Collections.Generic;
+                    using System.Collections.ObjectModel;
+
+                    <% usingStmts->@{ %><%= $_ %><% }; %>
+                
+                    <%= namespace %>;
+
+                    <% aliases.Keys->@{ %>
+                    alias <%= $_ %> = "<%= aliases[$_]%>";<%
+                    }; %>
+
+                    class <%= name %>ViewModel
+                    {
+                        Object ViewModelDataSource,
+                        
+                        <% members->@{ %>
+                        <%= $_ %><%
+                        }; %>
+                    }
+                }
+                <%
+
+                var s = endOut().ToString();
+
+                s |> Console.WriteLine;
+
+                ret s |> compileCode;
             },
         };
     }();
