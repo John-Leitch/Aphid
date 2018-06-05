@@ -799,9 +799,21 @@ namespace Components.Aphid.Interpreter
                 {
                     if (!returnRef)
                     {
-                        return propInfo.PropertyType != typeof(AphidObject) ?
-                            AphidObject.Scalar(propInfo.GetValue(lhs)) :
-                            (AphidObject)propInfo.GetValue(lhs);
+                        if (propInfo.PropertyType != typeof(AphidObject))
+                        {
+                            if (!propInfo.PropertyType.IsAssignableFrom(typeof(AphidObject)))
+                            {
+                                return AphidObject.Scalar(propInfo.GetValue(lhs));
+                            }
+                            else
+                            {
+                                return ValueHelper.Wrap(propInfo.GetValue(lhs));
+                            }
+                        }
+                        else
+                        {
+                            return (AphidObject)propInfo.GetValue(lhs);
+                        }
                     }
                     else
                     {
@@ -815,9 +827,21 @@ namespace Components.Aphid.Interpreter
                 {
                     if (!returnRef)
                     {
-                        return fieldInfo.FieldType != typeof(AphidObject) ?
-                            AphidObject.Scalar(fieldInfo.GetValue(lhs)) :
-                            (AphidObject)fieldInfo.GetValue(lhs);
+                        if (fieldInfo.FieldType != typeof(AphidObject))
+                        {
+                            if (!fieldInfo.FieldType.IsAssignableFrom(typeof(AphidObject)))
+                            {
+                                return AphidObject.Scalar(fieldInfo.GetValue(lhs));
+                            }
+                            else
+                            {
+                                return ValueHelper.Wrap(fieldInfo.GetValue(lhs));
+                            }
+                        }
+                        else
+                        {
+                            return (AphidObject)fieldInfo.GetValue(lhs);
+                        }
                     }
                     else
                     {
