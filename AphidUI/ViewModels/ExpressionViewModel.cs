@@ -2,7 +2,7 @@
 
 namespace AphidUI.ViewModels
 {
-    public partial class ExpressionViewModel : ViewModelBase
+    public partial class ExpressionViewModel
     {
         public event EventHandler ExpressionChanged;
 

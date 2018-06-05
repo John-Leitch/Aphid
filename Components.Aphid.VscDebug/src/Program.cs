@@ -2,6 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+//#define LOG_JSON
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -17,6 +18,7 @@ using System.IO.Pipes;
 using Components.Aphid.UI;
 using Components.Aphid.Parser;
 using Components.Aphid.Interpreter;
+using Components;
 
 namespace VSCodeDebug
 {
@@ -39,6 +41,10 @@ namespace VSCodeDebug
 
             if (!argv.Contains("--child"))
             {
+#if LOG_JSON
+                var file = File.Create("d:\\staging\\vscJson.log");
+                var writer = new StreamWriter(file);
+#endif
                 id = Guid.NewGuid().ToString();
 
                 var proc = Process.Start(
@@ -57,6 +63,17 @@ namespace VSCodeDebug
                     {
                         if ((read = stdOutPipe.Read(buffer, 0, buffer.Length)) > 0)
                         {
+#if LOG_JSON
+                            if (read > 0)
+                            {
+                                using (new CrossProcessLock("AphidVSCDebug"))
+                                {
+                                    writer.WriteLine("STD Out");
+                                    file.Write(buffer, 0, read);
+                                    writer.WriteLine();
+                                }
+                            }
+#endif
                             stdOut.Write(buffer, 0, read);
                             stdOut.Flush();
                         }
@@ -77,6 +94,18 @@ namespace VSCodeDebug
                     {
                         if ((read = stdIn.Read(buffer, 0, buffer.Length)) > 0)
                         {
+#if LOG_JSON
+                            if (read > 0)
+                            {
+                                using (new CrossProcessLock("AphidVSCDebug"))
+                                {
+                                    writer.WriteLine("STD In");
+                                    file.Write(buffer, 0, read);
+                                    writer.WriteLine();
+                                }
+                            }
+#endif
+
                             stdInPipe.Write(buffer, 0, read);
                             stdInPipe.Flush();
                         }

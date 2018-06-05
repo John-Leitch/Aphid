@@ -2,4 +2,4 @@
 using Components.Aphid.VSPackage;
 
 export string AphidBuildInterop.Compile = @(string path, string input, string namespace)
-	aphidCompiler.compileCode(namespace, input);
+	aphidCompiler.compileCode(namespace, input);  

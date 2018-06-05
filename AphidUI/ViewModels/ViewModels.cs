@@ -10,7 +10,7 @@ namespace AphidUI.ViewModels
     
     public static partial class AphidCompilerResources
     {
-        public static List<AphidExpression> ByteCode_d9e2b535cc06eb1e9e2300fda3f6a72a()
+        public static List<AphidExpression> ByteCode_221ad5a3a1876e7a60e51ed97b2b3efd()
         {
             return             new List<AphidExpression>
             {
@@ -590,7 +590,7 @@ namespace AphidUI.ViewModels
 namespace AphidUI.ViewModels
 {
     using System.Windows;
-    public partial class AphidReplViewModel
+    public partial class AphidReplViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         private bool _IsControlInitialized;
 
@@ -816,8 +816,29 @@ namespace AphidUI.ViewModels
         {
         }
         
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void InvokePropertyChanged(
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(callerName));
+            }
+        }
+
+        protected void SetProperty<T>(
+            ref T property,
+            T value,
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            property = value;
+            InvokePropertyChanged(callerName);
+        }
     }
-    public partial class VariableViewModel
+
+    public partial class VariableViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         private string _Name;
 
@@ -859,8 +880,29 @@ namespace AphidUI.ViewModels
         {
         }
         
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void InvokePropertyChanged(
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(callerName));
+            }
+        }
+
+        protected void SetProperty<T>(
+            ref T property,
+            T value,
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            property = value;
+            InvokePropertyChanged(callerName);
+        }
     }
-    public partial class ExpressionViewModel
+
+    public partial class ExpressionViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         private object _Value;
 
@@ -882,6 +924,27 @@ namespace AphidUI.ViewModels
         {
         }
         
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void InvokePropertyChanged(
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(callerName));
+            }
+        }
+
+        protected void SetProperty<T>(
+            ref T property,
+            T value,
+            [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        {
+            property = value;
+            InvokePropertyChanged(callerName);
+        }
     }
+
 }
 

@@ -11,7 +11,7 @@ namespace Components.Aphid.VSPackage {
         public static CompileDelegate Compile {
             get {
                 if ((AphidBuildInterop._Compile == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_4cb1c893653dd805f948bde638b1f387());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_bc79b1c90375a7efa721519452f6737c());
                 }
                 return AphidBuildInterop._Compile;
             }
@@ -32,7 +32,7 @@ namespace Components.Aphid.VSPackage
     
     public static partial class AphidCompilerResources
     {
-        public static List<AphidExpression> ByteCode_4cb1c893653dd805f948bde638b1f387()
+        public static List<AphidExpression> ByteCode_bc79b1c90375a7efa721519452f6737c()
         {
             return             new List<AphidExpression>
             {
@@ -184,3 +184,5 @@ namespace Components.Aphid.VSPackage
         }
     }
 }
+
+

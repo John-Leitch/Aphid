@@ -163,8 +163,8 @@
   <ItemGroup>
     <Compile Include="AphidAuthoringScope.cs" />
     <Compile Include="AphidBuildInterop.cs">
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>AphidBuildInterop.alx</DependentUpon>
     </Compile>
     <Compile Include="AphidCodeDomGenerator.cs" />
@@ -206,8 +206,8 @@
   <ItemGroup>
     <None Include="AphidBuildInterop.alx">
       <Generator>AphidCodeDomGenerator</Generator>
-      <LastGenOutput>AphidBuildInterop.cs</LastGenOutput>
       <CustomToolNamespace>Components.Aphid.VSPackage</CustomToolNamespace>
+      <LastGenOutput>AphidBuildInterop.cs</LastGenOutput>
     </None>
     <Content Include="Resources\Package.ico" />
     <Resource Include="todo.txt" />

@@ -140,7 +140,10 @@ var viewModel;
         if (classAspects.public) append('public ');
         if (classAspects.partial) append('partial ');
 
-        append('class {0}\r\n', object.Identifier.Identifier);
+        append(
+            'class {0} : System.ComponentModel.INotifyPropertyChanged\r\n',
+            object.Identifier.Identifier);
+            
         append(margin());
         append('{\r\n');
         indent();
@@ -196,7 +199,7 @@ var viewModel;
             InvokePropertyChanged(callerName);
         }');
 
-        append('\r\n{0}}}\r\n', margin());
+        append('\r\n{0}}}\r\n\r\n', margin());
         inClass = false;
     };
 

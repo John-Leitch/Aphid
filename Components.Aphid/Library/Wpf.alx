@@ -17,6 +17,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Markup;
 
 var wpf;
 var bind;
@@ -25,10 +26,12 @@ var bind;
     #'Std';
     load PresentationFramework;
     load PresentationCore;
-    load System.xaml;
+    //load System.Xaml;
     load WindowsBase;
 
+    using Components.Aphid.TypeSystem;
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     
     wpf = {
@@ -42,7 +45,7 @@ var bind;
             var wpfApp = {};
             var dataGrid;
 
-            printInfo('Creating reset event');
+            printInfo( 'Creating reset event');
             var uiInitReset = new ManualResetEvent(false);
 
             try {
@@ -115,17 +118,46 @@ var bind;
             ret app.invoke(@() new DataGrid());
         },
 
+        bindingMode: BindingMode.TwoWay,
+
         dataGrid: {
             addTextColumn: @(dataGrid, name, binding)
                 dataGrid.Dispatcher.Invoke(@{
                     var col = new DataGridTextColumn();
                     col.Header = name;
                     col.Binding = new Binding(binding);
-                    col.Binding.Mode = BindingMode.TwoWay;
+                    col.Binding.Mode = bindingMode;
                     dataGrid.Columns.Add(col);
-                })
+                }),
+
+            addButtonColumn: @(dataGrid, header, content, handler) {
+                var template = new DataTemplate(Button);
+                var dgTemplateColumn = new DataGridTemplateColumn();
+                dgTemplateColumn.Header = header;
+                dgTemplateColumn.CellTemplate = template;
+                
+                var buttonFactory =  new FrameworkElementFactory(Button);
+                template.VisualTree = buttonFactory;
+                buttonFactory.SetValue(Button.ContentProperty, content);
+                handler |> wpf.routedEventHandler @buttonFactory.AddHandler(Button.ClickEvent);
+                dataGrid.Columns.Add(dgTemplateColumn);
+            },
+        },
+
+        routedEventHandler: @(handler) {
+            var wrapper = new AphidFunctionWrapper(this.{'$aphid'}, handler);
+
+            ret wrapper
+                .Call
+                .Members[2]
+                .MakeGenericMethod([Object, RoutedEventArgs])
+                .CreateDelegate(RoutedEventHandler, wrapper.Call.Target);
         }
     };
+
+    using System.Collections;
+    using System.Collections.ObjectModel;
+    using System.Reflection;
 
     bind = {
         toViewModel: @(viewModelType, context)
@@ -134,6 +166,8 @@ var bind;
                 objToViewModel)(
                     viewModelType,
                     context),
+                    
+        collectionType: ObservableCollection[string].GetGenericTypeDefinition(),
 
         typeToViewModel: @(viewModelType, context) {
             var ctxType = context.GetType();
@@ -148,13 +182,34 @@ var bind;
 
                     if (contextProp != null) {
                         var contextPropValue = contextProp.GetValue(context);
-                        p.SetValue(vm, contextPropValue);
-                        vm.add_PropertyChanged(@(o, e) {
-                            if (e.PropertyName == name) {
-                                // print('Property ~Cyan~{0}~R~', e.PropertyName);
-                                contextProp.SetValue(context, p.GetValue(vm));
-                            }
-                        });
+
+                        if (!p.PropertyType.IsGenericType ||
+                            p.PropertyType.GetGenericTypeDefinition() != collectionType) {
+                            p.SetValue(vm, contextPropValue);
+                            vm.add_PropertyChanged(@(o, e) {
+                                if (e.PropertyName == name) {
+                                    print('Property ~Cyan~{0}~R~', e.PropertyName);
+                                    contextProp.SetValue(context, p.GetValue(vm));
+                                }
+                            });
+                        } else {
+                            p.SetValue(
+                                vm,
+                                Activator.CreateInstance(
+                                    p.PropertyType,
+                                    contextPropValue != null ? 
+                                        [ contextPropValue ] : []));
+
+                            // Todo: not yet supported
+                            // vm.add_PropertyChanged(@(o, e) {
+                            //     if (e.PropertyName == name) {
+                            //         // print('Property ~Cyan~{0}~R~', e.PropertyName);
+                            //         contextProp.SetValue(context, p.GetValue(vm));
+                            //     }
+                            // });
+                        }
+
+                        
                     }
                 };
 
@@ -191,6 +246,52 @@ var bind;
             vm.ViewModelDataSource = context;
 
             ret vm;
+        },
+
+        maxFanDepth: 5,
+
+        fanPaths: @(type, base, depth) {
+            ret type.GetProperties()
+                -?(@() ($_.GetIndexParameters()#!) == 0)
+                ->@()({
+                    type: $_.PropertyType,
+                    name: $_.Name,
+                    path: (base defined ? base + '.' : '') + $_.Name,
+                    
+                    navigation:
+                        $_.PropertyType != string &&
+                        $_.PropertyType | IEnumerable.IsAssignableFrom,
+                    
+                    properties:
+                        (this.{'$parent'}.d = depth defined ? depth : 0) < maxFanDepth ?
+                        fanPaths($_.PropertyType, path, d + 1) :
+                        []
+                });
+        },
+
+        flattenPaths:  @(paths) {
+            var flattenPathsCore = @(paths2) {
+                paths2->@(p){
+                    var copy = {};
+                    p.CopyTo(copy);
+                    copy.Remove('properties');
+                    copy |> flattenedPaths.Add;
+
+                    if (copy.navigation) {
+                        // var copy = {};
+                        // p.CopyTo(copy);
+                        // copy.Remove('properties');
+                        copy |> associationPaths.Add;
+                    }
+
+                    p.properties |> flattenPathsCore;
+                };
+            };
+
+            var flattenedPaths = new List[AphidObject]();
+            var associationPaths = new List[IEnumerable]();
+            paths |> flattenPathsCore;
+            ret { associationPaths, flattenedPaths };
         },
     };
 }();
