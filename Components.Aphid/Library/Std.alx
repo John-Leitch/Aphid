@@ -712,3 +712,10 @@ var endOut = @{
     
     ret ctx.sb;
 };
+
+var findType = @(searchStr) AppDomain.CurrentDomain
+        .GetAssemblies()
+        -<(@()$_.GetTypes())
+        -?@()$_
+            .ToString()
+            .IndexOf(searchStr, StringComparison.OrdinalIgnoreCase) > -1;

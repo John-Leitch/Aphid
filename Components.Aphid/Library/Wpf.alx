@@ -18,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
+using System.Windows.Media;
 
 var wpf;
 var bind;
@@ -144,6 +145,21 @@ var bind;
             },
         },
 
+        eventHandler: @(delegateType, func) {
+            var wrapper = new AphidFunctionWrapper(this.{'$aphid'}, func);
+
+            var paramTypes = delegateType
+                .GetMethod('Invoke')
+                .GetParameters()
+                ->@.ParameterType;
+
+            ret wrapper
+                .Call
+                .Members[2]
+                .MakeGenericMethod([ paramTypes[0], paramTypes[1] ])
+                .CreateDelegate(delegateType, wrapper.Call.Target);
+        },
+
         routedEventHandler: @(handler) {
             var wrapper = new AphidFunctionWrapper(this.{'$aphid'}, handler);
 
@@ -254,17 +270,17 @@ var bind;
             ret type.GetProperties()
                 -?(@() ($_.GetIndexParameters()#!) == 0)
                 ->@()({
-                    type: $_.PropertyType,
-                    name: $_.Name,
-                    path: (base defined ? base + '.' : '') + $_.Name,
-                    
-                    navigation:
+                    assoc: createAssoc(
+                        type,
+                        $_.Name,
+                        (base defined ? base + '.' : '') + $_.Name,
+                        $_.PropertyType,
                         $_.PropertyType != string &&
-                        $_.PropertyType | IEnumerable.IsAssignableFrom,
+                            $_.PropertyType | IEnumerable.IsAssignableFrom),
                     
                     properties:
                         (this.{'$parent'}.d = depth defined ? depth : 0) < maxFanDepth ?
-                        fanPaths($_.PropertyType, path, d + 1) :
+                        fanPaths($_.PropertyType, assoc.MemberPath, d + 1) :
                         []
                 });
         },
@@ -272,26 +288,43 @@ var bind;
         flattenPaths:  @(paths) {
             var flattenPathsCore = @(paths2) {
                 paths2->@(p){
-                    var copy = {};
-                    p.CopyTo(copy);
-                    copy.Remove('properties');
-                    copy |> flattenedPaths.Add;
+                    var assoc = p.assoc;
 
-                    if (copy.navigation) {
-                        // var copy = {};
-                        // p.CopyTo(copy);
-                        // copy.Remove('properties');
+                    if (assoc.IsNavigation) {
                         copy |> associationPaths.Add;
+                    } else {
+                        copy |> flattenedPaths.Add;
                     }
 
                     p.properties |> flattenPathsCore;
                 };
             };
 
-            var flattenedPaths = new List[AphidObject]();
-            var associationPaths = new List[IEnumerable]();
+            var flattenedPaths = new List[ViewModelAssociation]();
+            var associationPaths = new List[ViewModelAssociation]();
             paths |> flattenPathsCore;
             ret { associationPaths, flattenedPaths };
         },
+
+        createAssoc: @(parent, name, path, type, isNavigation) {
+            var assoc = new ViewModelAssociation();
+            assoc.ParentViewModel = parent;
+            assoc.MemberName = name;
+            assoc.MemberPath = path;
+            assoc.MemberType = type;
+            assoc.IsNavigation = isNavigation;
+
+            ret assoc;
+        },
+    };
+
+    class of Type ViewModelAssociation {
+        ParentViewModel,        
+        string MemberName,
+        string MemberPath,
+        MemberType,
+        MemberViewModel,
+        Boolean IsNavigation
     };
 }();
+
