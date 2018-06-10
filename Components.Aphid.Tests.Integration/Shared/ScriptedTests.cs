@@ -52,6 +52,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             var is9 = AphidTests.Is9;
             var isNull = AphidTests.IsNull;
             var notNull = AphidTests.NotNull;
+            var isThrow = AphidTests.IsThrow;
         ");
 
         public static IEnumerable Tests

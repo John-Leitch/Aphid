@@ -195,28 +195,31 @@ namespace Components.Aphid.Tests.Integration.Shared
             actions.Iter(IsFail);
         }
 
-        public static void IsThrow(Action action)
+        public static Exception IsThrow(Action action)
         {
-            Assert.Catch(() => action());
+            return Assert.Catch(() => action());
         }
 
-        public static void AllThrow(params Action[] actions)
+        public static Exception[] AllThrow(params Action[] actions)
         {
             CollectionAssert.IsNotEmpty(actions);
-            actions.Iter(IsThrow);
+
+            return actions.Select(IsThrow).ToArray();
         }
 
-        public static void IsThrow<TException>(Action action)
+        public static TException IsThrow<TException>(Action action)
             where TException : Exception
         {
-            Assert.Catch<TException>(() => action());
+            return Assert.Catch<TException>(() => action());
         }
 
-        public static void AllThrow<TException>(params Action[] actions)
+        public static TException[] AllThrow<TException>(
+            params Action[] actions)
             where TException : Exception
         {
             CollectionAssert.IsNotEmpty(actions);
-            actions.Iter(IsThrow<TException>);
+
+            return actions.Select(IsThrow<TException>).ToArray();
         }
 
         protected void AssertEquals(object expected, string script)

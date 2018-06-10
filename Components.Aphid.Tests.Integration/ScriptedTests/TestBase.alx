@@ -41,14 +41,16 @@ if (!(global.childCreated defined )) {
 
     _try = macro(@(expectSuccess) {
         @() @{
-            global.lastException = null;
-            try $_();
-            catch (e) {
-                global.lastException = e;
-                ret !expectSuccess;
-            }
+            if (expectSuccess) {
+                $_();
+                ret true;
+            } else {
+                var actual = isThrow(@{
+                    $_();
+                });
 
-            ret expectSuccess
+                ret actual != null;
+            }
         }
     });
 
@@ -72,6 +74,15 @@ if (!(global.childCreated defined )) {
         global.is9 = makeAssert(@== 9);
         global.isNull = makeAssert(@== null);
         global.notNull = makeAssert(@!= null);
+        
+        global.isThrow = @(f) {
+            try f();
+            catch ret true;
+            
+            throw string.Format(
+                'Expected exception from test function: {0}',
+                f);
+        };
 
         var args = getCommandLineArgs();
 
