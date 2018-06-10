@@ -6,7 +6,7 @@ namespace Components.IO
 {
     public class MemoryManager
     {
-        private const int _growSize = 0x100;
+        private const int _growSize = 0x1000;
 
         private Stream _stream;
 
