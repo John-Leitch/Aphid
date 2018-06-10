@@ -212,16 +212,21 @@ Aphid.xml
 # MakeExe files
 Aphid/Aphid/Samples/*.exe
 Aphid/Benchmarks/*.exe
+/Components.Aphid/Library/*.dll
+/Components.Aphid/Library/*.exe
+Components.Aphid/Tools/*.dll
 Components.Aphid/Tools/*.exe
 
 # Test files
 /Components.Aphid/Library/.vscode/*
 /Components.Aphid/Library/rt.cmd
-/Components.Aphid/Library/test.alx
-/Components.Aphid/Library/test2.alx
-/Components.Aphid/Library/MetaTest.alx
+/Components.Aphid/Library/*Test*.alx
+/Components.Aphid/Tools/*.cmd
+/PerfTrace*.txt
 
 # Aphid NuGet Downloads
 !/Components.Aphid/Library/Net/
 /Aphid/Samples/*/
 /Components.Aphid/Library/*/
+
+/AphidLanguageServer/*
