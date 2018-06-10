@@ -124,7 +124,7 @@ namespace Components.Aphid.Interpreter
     {
         private bool _isReturning, _isContinuing, _isBreaking, _isInTryCatchFinally;
 
-        private Dictionary<Type, Dictionary<string, MemberInfo[]>>
+        private static Dictionary<Type, Dictionary<string, MemberInfo[]>>
             _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
             _staticMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>();
 
