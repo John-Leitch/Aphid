@@ -12,7 +12,7 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoader : AphidRuntimeComponent
     {
-        private Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
+        private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
 
         private List<string> _searchPaths = new List<string> 
