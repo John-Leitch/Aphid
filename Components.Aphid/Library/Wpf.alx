@@ -131,15 +131,22 @@ var bind;
                     dataGrid.Columns.Add(col);
                 }),
 
-            addButtonColumn: @(dataGrid, header, content, handler) {
+            addButtonColumn: @(dataGrid, header, content, width, handler) {
                 var template = new DataTemplate(Button);
                 var dgTemplateColumn = new DataGridTemplateColumn();
                 dgTemplateColumn.Header = header;
                 dgTemplateColumn.CellTemplate = template;
                 
-                var buttonFactory =  new FrameworkElementFactory(Button);
+                var buttonFactory = new FrameworkElementFactory(Button);
                 template.VisualTree = buttonFactory;
                 buttonFactory.SetValue(Button.ContentProperty, content);
+
+                if (width != null) {
+                    buttonFactory.SetValue(
+                        Button.WidthProperty,
+                        width |> Convert.ToDouble);
+                }
+
                 handler |> wpf.routedEventHandler @buttonFactory.AddHandler(Button.ClickEvent);
                 dataGrid.Columns.Add(dgTemplateColumn);
             },
