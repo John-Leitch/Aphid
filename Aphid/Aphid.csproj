@@ -1,17 +1,83 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup Condition="'$(Platform)' == 'x64'">
-    <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace64</AssemblyName>
-    <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid64</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Platform)' != 'x64'">
-    <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName>
-    <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName>
-  </PropertyGroup>
+  
+  <Choose>
+    <When Condition="$(Configuration.EndsWith('32'))">
+      <PropertyGroup>
+        <PlatformTarget>x86</PlatformTarget>
+        <Bitness>32</Bitness>
+        <BitnessDirective>X86</BitnessDirective>        
+      </PropertyGroup>
+    </When>
+    <When Condition="$(Configuration.EndsWith('64'))">
+      <PropertyGroup>
+        <PlatformTarget>x64</PlatformTarget>
+        <Bitness>64</Bitness>
+        <BitnessDirective>AMD64</BitnessDirective>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <Bitness></Bitness>
+        <BitnessDirective>ANY_CPU</BitnessDirective>
+      </PropertyGroup>        
+    </Otherwise>
+  </Choose>
+  <Choose>
+    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
+      <PropertyGroup>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <IsDebug>.Debug</IsDebug>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>$(DefineConstants);TRACE;DEBUG;$(BitnessDirective)</DefineConstants>        
+      </PropertyGroup>        
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>      
+        <IsDebug></IsDebug>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)</DefineConstants>
+      </PropertyGroup>        
+    </Otherwise>
+  </Choose>
+  <!-- <PropertyGroup> -->
+    <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
+  <!-- </PropertyGroup> -->
+  <Choose>
+    <When Condition="$(Configuration.Contains('BinaryTrace'))">
+        <PropertyGroup>
+          <AssemblyName>Aphid.BinaryTrace$(Bitness)$(IsDebug)</AssemblyName>
+        </PropertyGroup>        
+    </When>
+    <Otherwise>
+        <PropertyGroup>
+          <AssemblyName>Aphid$(Bitness)$(IsDebug)</AssemblyName>
+        </PropertyGroup>        
+    </Otherwise>
+  </Choose>
+  
+  <!-- <PropertyGroup Condition="'$(Platform)' == 'x64'"> -->
+    <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace64</AssemblyName> -->
+    <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid64</AssemblyName> -->
+  <!-- </PropertyGroup> -->
+  <!-- <PropertyGroup Condition="'$(Platform)' == 'x86'"> -->
+    <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace32</AssemblyName> -->
+    <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid32</AssemblyName> -->
+  <!-- </PropertyGroup> -->
+  <!-- <PropertyGroup Condition="'$(Platform)' != 'x86' And '$(Platform)' != 'x64'"> -->
+    <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
+    <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
+  <!-- </PropertyGroup> -->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('32')) ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('64')) ">x64</Platform>
+    <Platform Condition=" '$(Platform)' == '' And !$(Configuration.Contains('32') And !$(Configuration.Contains('64')) ">AnyCPU</Platform>    
     <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -28,187 +94,92 @@
     <SccProvider>
     </SccProvider>
     <TargetFrameworkProfile />
+    <ErrorReport>prompt</ErrorReport>    
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
+    <Prefer32Bit>true</Prefer32Bit>    
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
+    
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
+    
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|AnyCPU'">
-    <OutputPath>bin\Release64\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|x64'">
-    <OutputPath>bin\Release64\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
+    <OutputPath>bin\Release32\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
+    <ErrorReport>prompt</ErrorReport>   
+<UseVSHostingProcess>false</UseVSHostingProcess>    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|x86'">
-    <OutputPath>bin\x86\Release64\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
+    <OutputPath>bin\Release64\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\AphidDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
+    <DefineConstants>
+    </DefineConstants>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>    
+    <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\AphidDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\AphidDebug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
+    <OutputPath>bin\AphidDebug32\</OutputPath>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
+    <ErrorReport>prompt</ErrorReport>    
+    <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\AphidDebug64\</OutputPath>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>    
+    <Optimize>true</Optimize>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
     <DebugType>pdbonly</DebugType>
     <Prefer32Bit>false</Prefer32Bit>
     <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\AphidDebug64\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\AphidDebug64\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\AphidDebug64\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -320,11 +291,11 @@ powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {
   <PropertyGroup>
     <PostBuildEvent>::copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)
 IF NOT EXIST "$(TargetDir)Aphid64.exe" (
-IF NOT EXIST "$(TargetDir)Ngen.exe" "$(TargetDir)Aphid.exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" 
-IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)Aphid.exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe"
+IF NOT EXIST "$(TargetDir)Ngen.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" 
+IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe"
 ) ELSE (
-IF NOT EXIST "$(TargetDir)Ngen.exe" "$(TargetDir)Aphid64.exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" 
-IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)Aphid64.exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe"
+IF NOT EXIST "$(TargetDir)Ngen.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" 
+IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe"
 )</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

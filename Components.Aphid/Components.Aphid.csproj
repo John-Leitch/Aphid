@@ -1,21 +1,93 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup Condition="$(Configuration.Contains('BinaryTrace'))">
-    <AssemblyName>Components.Aphid.BinaryTrace</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition="!$(Configuration.Contains('BinaryTrace'))">
-    <AssemblyName>Components.Aphid</AssemblyName>
+  <Choose>
+    <When Condition="$(Configuration.EndsWith('32'))">
+      <PropertyGroup>
+        <PlatformTarget>x86</PlatformTarget>
+        <Bitness>32</Bitness>
+        <BitnessDirective>FULL_DBG;X86</BitnessDirective>        
+      </PropertyGroup>
+    </When>
+    <When Condition="$(Configuration.EndsWith('64'))">
+      <PropertyGroup>
+        <PlatformTarget>x64</PlatformTarget>
+        <Bitness>64</Bitness>
+        <BitnessDirective>AMD64</BitnessDirective>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <Bitness></Bitness>
+        <BitnessDirective>FULL_DBG;ANY_CPU</BitnessDirective>
+      </PropertyGroup>        
+    </Otherwise>
+  </Choose>
+  <Choose>
+    <When Condition="$(Configuration.Contains('BinaryTrace'))">
+        <PropertyGroup>          
+          <TraceSuffix>.BinaryTrace</TraceSuffix>
+          <TraceDirective>;BINARY_FRAME_PERFORMANCE_TRACE</TraceDirective>
+        </PropertyGroup>        
+    </When>
+    <Otherwise>
+        <PropertyGroup>
+          <TraceSuffix></TraceSuffix>
+          <TraceDirective></TraceDirective>
+        </PropertyGroup>        
+    </Otherwise>
+  </Choose>
+    <Choose>
+    <When Condition="$(Configuration.StartsWith('AphidDebug'))">
+      <PropertyGroup>
+        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
+        <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <AphidDbgDirective></AphidDbgDirective>
+        <IsAphidDbg></IsAphidDbg>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>  
+  <Choose>
+    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
+      <PropertyGroup>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <IsDebug>.Debug</IsDebug>
+        <OutputPath>bin\Debug\</OutputPath>
+        <CommonDirectives>TRACE;DEBUG</CommonDirectives>        
+      </PropertyGroup>        
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>      
+        <IsDebug></IsDebug>
+        <OutputPath>bin\Release\</OutputPath>
+        <CommonDirectives>RELEASE</CommonDirectives>        
+      </PropertyGroup>        
+    </Otherwise>
+  </Choose>
+  <!-- <PropertyGroup> -->
+    <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
+  <!-- </PropertyGroup> -->
+  
+  <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE'))">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DefineConstants>$(DefineConstants);$(CommonDirectives);$(BitnessDirective)$(TraceDirective)$(AphidDbgDirective)</DefineConstants>
+    <AssemblyName>Components.Aphid$(TraceSuffix)$(IsAphidDbg)$(IsDebug)$(Bitness)</AssemblyName>
     <ProjectGuid>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Components.Aphid</RootNamespace>
-    <!-- <AssemblyName Condition=" '$(Configuration)' == 'BinaryTraceDebug' ">Components.Aphid.BinaryTrace</AssemblyName> -->
-    <!-- <AssemblyName>Components.Aphid</AssemblyName> -->
     <FileAlignment>512</FileAlignment>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
@@ -28,167 +100,58 @@
     <SccProvider>
     </SccProvider>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFrameworkProfile />    
     <DebugSymbols>True</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Externalconsole>True</Externalconsole>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>
-    </DocumentationFile>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ErrorReport>prompt</ErrorReport>    
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>True</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+  <!--                                -->
+  <!-- DEBUG                          -->
+  <!--                                -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
+    
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|AnyCPU'">
-    <OutputPath>bin\Release64\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>bin\x64\Debug\</OutputPath>
+  <!--                                -->
+  <!-- RELEASE                        -->
+  <!--                                -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
+        
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <Optimize>true</Optimize>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>bin\Release64\</OutputPath>
-    <Optimize>true</Optimize>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <DefineConstants>DEBUG;AMD64</DefineConstants>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG X86</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <!--                                -->
+  <!-- APHID SCRIPT DEBUG             -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">    
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|x86'">
-    <OutputPath>bin\x86\Release64\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">    
+    
+  </PropertyGroup>  
+  <!--                                -->
+  <!-- BINARY TRACE                   -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
+            
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\AphidDebug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG APHID_DEBUGGING_ENABLED</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
+    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\AphidDebug\</OutputPath>
-    <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\AphidDebug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG X86</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceDebug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\BinaryTraceDebug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG BINARY_FRAME_PERFORMANCE_TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceDebug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\BinaryTraceDebug\</OutputPath>
-    <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceDebug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\BinaryTraceDebug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FULL_DBG X86</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|AnyCPU'">
-    <OutputPath>bin\BinaryTraceRelease\</OutputPath>
-    <DefineConstants>BINARY_FRAME_PERFORMANCE_TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|x64'">
-    <OutputPath>bin\x64\BinaryTraceRelease\</OutputPath>
-    <Optimize>true</Optimize>
-    <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTraceRelease|x86'">
-    <OutputPath>bin\x86\BinaryTraceRelease\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
+    
+  </PropertyGroup>    
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

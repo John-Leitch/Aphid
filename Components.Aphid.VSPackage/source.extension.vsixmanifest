@@ -16,6 +16,9 @@
   <Assets>
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
   </Assets>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[11.0,16.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
   <!--<Prerequisites>
     <Prerequisite Id="Microsoft.Net.Component.4.6.TargetingPack" Version="[15.6.27406.0,16.0)" DisplayName=".NET Framework 4.6 targeting pack" />-->
   <!--<Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" />
