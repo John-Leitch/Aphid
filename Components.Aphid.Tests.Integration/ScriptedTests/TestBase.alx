@@ -59,7 +59,11 @@ if (!(global.childCreated defined )) {
 
     using System.IO;
     var exe = getExe();
-    isStandalone = !String.IsNullOrEmpty(exe) && Path.GetFileName(exe).ToLower() == "aphid.exe";
+
+    isStandalone =
+        !String.IsNullOrEmpty(exe) &&
+        Path.GetFileName(exe).ToLower().StartsWith('aphid');
+
     tryAction = @AphidCli.TryAction(this.{'$aphid'}, null);
 
     if (isStandalone) {
