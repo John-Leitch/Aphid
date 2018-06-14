@@ -29,7 +29,7 @@ _null(SystemBad, SystemBad);
 _notNull(AphidString, asm);
 _null(AphidStringMangled, asm.Replace('.', '\\'));
 _null(AphidStringTruncated, asm.Remove(asm.Length - 4));
-_notNull(Aphid, Components.Aphid);
+_notNull(Core, System.Core);
 // Todo: enable these once load fallback null ref bug is fixed
 // _null(AphidMangled, Components.Aphida);
 // _null(AphidTruncated, Components.Ap);
