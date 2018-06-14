@@ -258,9 +258,16 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    var o = Interpreter.ValueHelper.IsComplexAphidObject(value) ?
-                        (AphidObject)value :
-                        AphidObject.Scalar(Interpreter.ValueHelper.Unwrap(value));
+                    var o = value as AphidObject;
+
+                    if (o == null)
+                    {
+                        o = AphidObject.Scalar(value);
+                    }
+                    else if (o.IsScalar)
+                    {
+                        o = AphidObject.Scalar(o.Value);
+                    }
 
                     if (!currentObj.ContainsKey(m))
                     {

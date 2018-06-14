@@ -169,25 +169,5 @@ namespace Components.Aphid.TypeSystem
         {
             return value != null ? _typeName[value.GetType()] : "null";
         }
-
-        public bool IsComplexAphidObject(object obj)
-        {
-            var ao = obj as AphidObject;
-
-            return ao != null &&
-                ao.Value == null &&
-                (!ao.IsComplexitySet || ao.IsComplex || !ao.IsScalar);
-
-            //return ao != null && ao.Value == null && !ao.IsScalar;
-
-            //return ao != null &&
-            //    (ao.IsComplexitySet ?
-            //        ao.IsComplex : ao.Keys.Count > 0);
-        }
-    }
-
-    public class ValueHelper<TExpected>
-    {
-        
     }
 }

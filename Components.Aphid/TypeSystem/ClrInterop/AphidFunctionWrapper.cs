@@ -82,9 +82,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return (TResult)result.Value;
             }
-            else if (
-                Interpreter.ValueHelper.IsComplexAphidObject(result) &&
-                (ctor = t.GetConstructor(new Type[0])).IsPublic)
+            else if (result.IsComplex && (ctor = t.GetConstructor(new Type[0])).IsPublic)
             {
                 var obj = Activator.CreateInstance(t);
                 result.Bind(obj, true);

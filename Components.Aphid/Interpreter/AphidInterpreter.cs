@@ -1340,7 +1340,7 @@ namespace Components.Aphid.Interpreter
                 {
                     if (!CurrentScope.ContainsKey(id))
                     {
-                        if (ValueHelper.IsComplexAphidObject(value2))
+                        if (value2.IsComplex)
                         {
                             CurrentScope.Add(id, value2);
                         }
@@ -1493,41 +1493,34 @@ namespace Components.Aphid.Interpreter
                     }
                     else if (objRef.Object.ContainsKey(objRef.Name))
                     {
-                        if (ValueHelper.IsComplexAphidObject(value))
+                        if (value2.IsComplex)
                         {
-                            var v = (AphidObject)value;
-
-                            if ((func = value2.Value as AphidFunction) != null)
-                            {
-                                func.ParentScope = v;
-                            }
-
-                            objRef.Object[objRef.Name] = v;
+                            objRef.Object[objRef.Name] = value2;
                         }
                         else
                         {
+                            objRef.Object[objRef.Name] = AphidObject.Scalar(value2.Value);
+
                             if ((func = value2.Value as AphidFunction) != null)
                             {
                                 func.ParentScope = objRef.Object;
-                            }
-
-                            objRef.Object[objRef.Name] = AphidObject.Scalar(value2.Value);
+                            }                            
                         }
                     }
                     else
                     {
-                        if (ValueHelper.IsComplexAphidObject(value))
+                        if (value2.IsComplex)
                         {
                             objRef.Object.Add(objRef.Name, value2);
                         }
                         else
                         {
                             objRef.Object.Add(objRef.Name, AphidObject.Scalar(value2.Value));
-                        }
 
-                        if ((func = value2.Value as AphidFunction) != null)
-                        {
-                            func.ParentScope = objRef.Object;
+                            if ((func = value2.Value as AphidFunction) != null)
+                            {
+                                func.ParentScope = objRef.Object;
+                            }
                         }
                     }
 
@@ -3455,13 +3448,22 @@ namespace Components.Aphid.Interpreter
             {
                 var element = InterpretExpression(expression.Elements[i]);
 
-                if (ValueHelper.IsComplexAphidObject(element))
+                var ao = element as AphidObject;
+
+                if (ao != null)
                 {
-                    list.Add((AphidObject)element);
+                    if (ao.IsComplex)
+                    {
+                        list.Add(ao);
+                    }
+                    else
+                    {
+                        list.Add(AphidObject.Scalar(ao.Value));
+                    }
                 }
                 else
                 {
-                    list.Add(AphidObject.Scalar(ValueHelper.Unwrap(element)));
+                    list.Add(AphidObject.Scalar(element));
                 }
             }
 
@@ -4473,15 +4475,15 @@ namespace Components.Aphid.Interpreter
 
                 for (var i = 0; i < references.Length; i++)
                 {
-                    var obj = InterpretExpression(expression.Expressions[i]);
+                    var obj = (AphidObject)InterpretExpression(expression.Expressions[i]);
 
-                    if (ValueHelper.IsComplexAphidObject(obj))
+                    if (obj.IsComplex)
                     {
                         references[i] = obj;
                     }
                     else
                     {
-                        references[i] = ((AphidObject)obj).Value;
+                        references[i] = obj.Value;
 
                         if (references[i] == null)
                         {

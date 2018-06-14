@@ -76,7 +76,11 @@ namespace Components.Aphid.Serialization
 
             Action<object> checkGraph = x =>
             {
-                if (x == null || !Interpreter.ValueHelper.IsComplexAphidObject(x))
+                AphidObject ao2;
+
+                if (x == null ||
+                    (ao2 = x as AphidObject) == null ||
+                    !ao2.IsComplex)
                 {
                     return;
                 }
