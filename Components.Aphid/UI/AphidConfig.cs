@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
@@ -81,7 +78,7 @@ namespace Components.Aphid.UI
 
         private static Lazy<string[]> GetArray(string name, string[] defaultValue = null)
         {
-            return _config.Value != null ? 
+            return _config.Value != null ?
                 new Lazy<string[]>(() => (GetSetting(name) ?? "")
                     .Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
@@ -100,8 +97,12 @@ namespace Components.Aphid.UI
         {
             try
             {
-                return ConfigurationManager.OpenExeConfiguration(
-                    typeof(AphidConfig).Assembly.Location);
+                return ConfigurationManager.OpenMappedExeConfiguration(
+                    new ExeConfigurationFileMap
+                    {
+                        ExeConfigFilename = "Components.Aphid.dll.config",
+                    },
+                    ConfigurationUserLevel.None);
             }
             catch
             {
