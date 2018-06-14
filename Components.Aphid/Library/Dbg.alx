@@ -7,3 +7,253 @@ dbg.disable = @() dbg.enabled = false;
 dbg.code = @(f) {
 	if (dbg.enabled) f();
 };
+
+var expressionColor = {
+    comment: '~DarkGreen~',
+    modifier: '~DarkCyan~',
+    keyword: modifier,
+    type: '~Cyan~',
+    methodName: '~White~',
+    propertyName: methodName,
+    eventName: methodName,
+    paramName: '~|DarkBlue~~White~',
+};
+
+_get = macro(@(method) {
+    ([
+        //BindingFlags.NonPublic | BindingFlags.Instance,
+        //BindingFlags.NonPublic | BindingFlags.Static,
+        BindingFlags.Public | BindingFlags.Instance,
+        BindingFlags.Public | BindingFlags.Static,
+    ]-<obj.GetType().method)
+});
+
+_en = macro(@(prefix) {
+    !cm.Name.StartsWith(prefix + '_')
+    //&& @{ cm.ToString() |> Console.WriteLine; ret true }()
+});
+
+_dump = macro(@(m) {
+    id(get, m) = @(obj)
+        obj == null ? null :
+        obj.GetType().Name != 'AphidObject' ? _get(id(Get, m)) :
+        (obj |> keys);
+    id(dump, m) = @(obj, pattern) {
+        using System.Text.RegularExpressions;
+
+        if ($args.Count >= 1 && obj == null) {
+            print('Type of null cannot be dumped.');
+
+            ret null;
+        }
+
+        var isAphidObject = obj.GetType().Name == 'AphidObject';
+        var n = this.{'$frames'}[0].Name;
+        var hasPattern = $args.Count == 2;
+        var hr = '//' * 40;
+        
+        print(
+            expressionColor.comment + hr + '\r\n// {0}({1}){2}\r\n' + hr + '~R~',
+            n,
+            obj != null ? obj.GetType().FullName : 'null',
+            hasPattern ? ' ' + pattern : '');
+
+        var raw = obj |> id(get, m);
+
+        var members = !isAphidObject ?
+            raw-?@(cm) _en('get') && _en('set') && _en('add') && _en('remove') :
+            raw;
+
+        var prepared = isAphidObject ? @prepareAphidMember(false) : @prepareClrMember(false);
+
+        var matches = members
+            ->(@(x) x |> prepared)
+            -?(@(x)
+                !hasPattern ||
+                Regex.IsMatch(
+                    Cli.StyleEscape(x.ToString()),
+                    pattern,
+                    RegexOptions.IgnoreCase))
+            ->(@(o) o)
+            @join('\r\n')
+            print;
+            
+        print();
+    };
+});
+
+var getMembers;
+var dumpMembers;
+var getProperties;
+var dumpProperties;
+var getMethods;
+var dumpMethods;
+
+_dump(Members);
+_dump(Properties);
+_dump(Methods);
+
+var memberAccess = { private = 0x1, protected = 0x2, public = 0x4 };
+
+extend RuntimePropertyInfo {
+    getAccessor: @(m, access, getSetter) {
+        var a = m.GetAccessors(false);
+
+        if (a == null || a.Length == 0) {
+            ret null;
+        }
+
+        var matches = a
+            -? (@(x)
+                (getSetter && x.ReturnType == void) ||
+                (!getSetter && x.ReturnType != void))
+            -? (@(x)
+                (access == memberAccess.private && x.IsPrivate) ||
+                (access == memberAccess.protected && x.IsFamily) ||
+                (access == memberAccess.public && x.IsPublic));
+
+        ret (matches #!) == 0 ? null : matches[0];
+    },
+
+    getPrivateAccessor: @(m, getSetter) m.getAccessor(memberAccess.private, getSetter),
+    getProtectedAccessor: @(m, getSetter) m.getAccessor(memberAccess.protected, getSetter),
+    getPublicAccessor: @(m, getSetter) m.getAccessor(memberAccess.public, getSetter),
+
+    getPrivateSetter: @(m) m.getPrivateAccessor(true),
+    getPrivateGetter: @(m) m.getPrivateAccessor(false),
+    getProtectedSetter: @(m) m.getProtectedAccessor(true),
+    getProtectedGetter: @(m) m.getProtectedAccessor(false),
+    getPublicGetter: @(m) m.getPublicAccessor(false),
+    getPublicSetter: @(m) m.getPublicAccessor(true),
+
+    hasPrivateSetter: @(m) m.getPrivateAccessor(true) != null,
+    hasPrivateGetter: @(m) m.getPrivateAccessor(false) != null,
+    hasProtectedSetter: @(m) m.getProtectedAccessor(true) != null,
+    hasProtectedGetter: @(m) m.getProtectedAccessor(false) != null,
+    hasPublicGetter: @(m) m.getPublicAccessor(false) != null,
+    hasPublicSetter: @(m) m.getPublicAccessor(true) != null,
+}
+
+_pn = macro(@(t) { useFullNames ? t.FullName : t.Name });
+
+var prepareAphidMember = @(useFullNames, object, key)
+    format('{0}={1}', key, object.{key});
+
+var prepareClrMember = @(useFullNames, m)
+    format(
+        '{0}{1}~R~ ',
+        expressionColor.modifier,
+        ($(m.GetType())
+            RuntimeMethodInfo,
+            RuntimeConstructorInfo,            
+            ConstructorInfo,
+            RuntimeConstructorInfo,
+            FieldInfo,
+            RuntimeFieldInfo,
+            RtFieldInfo:
+                m.IsPublic,
+            PropertyInfo, RuntimePropertyInfo:
+                m.hasPublicGetter(),
+            EventInfo, RuntimeEventInfo:
+                m.AddMethod != null && m.AddMethod.IsPublic,
+            false) ?
+            'public' :
+            'private') +
+    ((m @has('IsStatic')) && m.IsStatic ?
+        format('{0}static~R~ ', expressionColor.modifier) :
+        '') +
+    ($(m.GetType())
+        EventInfo, RuntimeEventInfo:
+            format('{0}event~R~ ', expressionColor.modifier),
+        '') +
+    ($(m.GetType())
+        ConstructorInfo, RuntimeConstructorInfo:
+            format(
+                '{0}{1}~R~({2});',
+                expressionColor.type,
+                _pn(m.DeclaringType),
+                _formatParams()),
+        MethodInfo, RuntimeMethodInfo:
+            format(
+                '{0}{1}~R~ {2}{3}~R~({4});',
+                expressionColor.type,
+                _pn(m.ReturnType),
+                expressionColor.methodName,
+                m.Name,
+                _formatParams()),
+        FieldInfo, RuntimeFieldInfo, RtFieldInfo:
+            format(
+                '{0}{1}~R~ {2}{3}~R~;',
+                expressionColor.type,
+                _pn(m.FieldType),
+                expressionColor.propertyName,
+                m.Name),
+        PropertyInfo, RuntimePropertyInfo:
+            format(
+                '{0}{1}~R~ {2}{3}~R~ {{ {4}get~R~;{5} }}',
+                expressionColor.type,
+                _pn(m.PropertyType),
+                expressionColor.propertyName,
+                m.Name,
+                expressionColor.keyword,
+                _formatAutoSet()),
+        EventInfo, RuntimeEventInfo:
+            format(
+                '{0}{1}~R~ {2}{3}~R~;',
+                expressionColor.type,
+                _pn(m.EventHandlerType),
+                expressionColor.eventName,
+                m.Name),
+        m.ToString());
+
+_formatParams = macro(@{
+    m.GetParameters().Length > 0 ?
+        m
+            .GetParameters()
+            ->(@(x) format(
+                '{0}{1}~R~ {2}{3}~R~',
+                expressionColor.type,
+                _pn(x.ParameterType),
+                expressionColor.paramName,
+                x.Name))
+            @join(' ') :
+        ''
+});
+
+_alias = macro(@(n, n2) {
+    id(get, n) = id(get, n2);
+    id(dump, n) = id(dump, n2);
+});
+
+_formatAutoSet = macro(@{
+    m.hasPrivateSetter() ? format(' {0}private set~R~;',
+        expressionColor.keyword) :
+    m.hasProtectedSetter() ? format(
+        ' {0}protected set~R~;',
+        expressionColor.keyword) :
+    m.hasPublicSetter() ? format(
+        ' {0}set~R~;',
+        expressionColor.keyword) :
+    ''
+});
+
+var getProps;
+var dumpProps;
+var getFuncs;
+var dumpFuncs;
+
+_alias(Props, Properties);
+_alias(Funcs, Methods);
+
+_aliasExt = macro(@(name, func) {
+    extend unknown {
+        name: @(o, p)
+            $args.Count >= 1 && $args[0] == null ? 'Type of null cannot be dumped.' :
+            $args.Count == 1 ? func(o) :
+            func(o, p)
+    }
+});
+
+_aliasExt(dir, dumpMembers);
+_aliasExt(props, dumpProps);
+_aliasExt(funcs, funcs);

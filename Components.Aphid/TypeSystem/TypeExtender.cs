@@ -15,6 +15,10 @@ namespace Components.Aphid.TypeSystem
             _fanInteropTypeMemoizer = new Memoizer<Type, string[]>(),
             _fanAphidTypeMemoizer = new Memoizer<Type, string[]>();
 
+        private bool _isUnknownExtended = false;
+
+        private List<string> _typesExtended = new List<string>(0x100);
+
         public TypeExtender(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -238,6 +242,15 @@ namespace Components.Aphid.TypeSystem
                 type = GetInteropName(interopType);
             }
 
+            if (type == AphidType.Unknown || type == typeof(object).FullName)
+            {
+                _isUnknownExtended = true;
+            }
+            else if (!_typesExtended.Contains(type))
+            {
+                _typesExtended.Add(type);
+            }
+
             foreach (var extension in extensions)
             {
                 var nameStr = extension.Key;
@@ -344,6 +357,25 @@ namespace Components.Aphid.TypeSystem
             bool isStatic,
             bool returnRef)
         {
+            if (!_isUnknownExtended)
+            {
+                var isTypeExtended = false;
+
+                for (var i = 0; i < classHierarchy.Length - 2; i++)
+                {
+                    if (_typesExtended.Contains(classHierarchy[i]))
+                    {
+                        isTypeExtended = true;
+                        break;
+                    }
+                }
+
+                if (!isTypeExtended)
+                {
+                    return null;
+                }
+            }
+
             AphidObject val = null;
 
             if (isDynamic)
