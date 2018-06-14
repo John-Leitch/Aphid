@@ -17,7 +17,7 @@ namespace Components.Aphid.TypeSystem
 
         private bool _isUnknownExtended = false;
 
-        private List<string> _typesExtended = new List<string>(0x100);
+        private HashSet<string> _typesExtended = new HashSet<string>();
 
         public TypeExtender(AphidInterpreter interpreter)
             : base(interpreter)
@@ -357,13 +357,25 @@ namespace Components.Aphid.TypeSystem
             bool isStatic,
             bool returnRef)
         {
+            int startOffset = 0;
+
             if (!_isUnknownExtended)
             {
                 var isTypeExtended = false;
+                int len;
 
-                for (var i = 0; i < classHierarchy.Length - 2; i++)
+                if (!isStatic)
                 {
-                    if (_typesExtended.Contains(classHierarchy[i]))
+                    len = classHierarchy.Length - 2;
+                }
+                else
+                {
+                    len = classHierarchy.Length - 1;
+                }
+                
+                for (; startOffset < len; startOffset++)
+                {
+                    if (_typesExtended.Contains(classHierarchy[startOffset]))
                     {
                         isTypeExtended = true;
                         break;
@@ -380,9 +392,24 @@ namespace Components.Aphid.TypeSystem
 
             if (isDynamic)
             {
-                for (var i = 0; i < classHierarchy.Length; i++)
+                var isFirst = true;
+
+                for (; startOffset < classHierarchy.Length; startOffset++)
                 {
-                    if (scope.TryResolve(GetDynamicName(classHierarchy[i]), out val))
+                    var c = classHierarchy[startOffset];
+
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else if (c != AphidType.Unknown &&
+                        c != typeof(AphidObject).FullName &&
+                        !_typesExtended.Contains(c))
+                    {
+                        continue;
+                    }
+
+                    if (scope.TryResolve(GetDynamicName(c), out val))
                     {
                         break;
                     }
@@ -395,9 +422,24 @@ namespace Components.Aphid.TypeSystem
             }
             else if (isCtor)
             {
-                for (var i = 0; i < classHierarchy.Length; i++)
+                var isFirst = true;
+
+                for (; startOffset < classHierarchy.Length; startOffset++)
                 {
-                    if (scope.TryResolve(GetCtorName(classHierarchy[i]), out val))
+                    var c = classHierarchy[startOffset];
+
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else if (c != AphidType.Unknown &&
+                        c != typeof(AphidObject).FullName &&
+                        !_typesExtended.Contains(c))
+                    {
+                        continue;
+                    }
+
+                    if (scope.TryResolve(GetCtorName(c), out val))
                     {
                         break;
                     }
@@ -410,9 +452,24 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                for (var i = 0; i < classHierarchy.Length; i++)
+                var isFirst = true;
+
+                for (; startOffset < classHierarchy.Length; startOffset++)
                 {
-                    if (scope.TryResolve(GetName(classHierarchy[i], key), out val))
+                    var c = classHierarchy[startOffset];
+
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else if (c != AphidType.Unknown &&
+                        c != typeof(AphidObject).FullName &&
+                        !_typesExtended.Contains(c))
+                    {
+                        continue;
+                    }
+
+                    if (scope.TryResolve(GetName(c, key), out val))
                     {
                         break;
                     }
