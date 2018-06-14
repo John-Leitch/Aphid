@@ -36,6 +36,8 @@ namespace Components.ObjectDatabase
 
         public bool TrackEntities { get; set; }
 
+        public bool SetEntityMetaData { get; set; }
+
         public ObjectDatabase(
             string filename,
             Action<Stream, TElement> serialize,
@@ -47,6 +49,7 @@ namespace Components.ObjectDatabase
             _deserialize = deserialize;
             UseUnsafeMemoryManager = useUnsafeMemoryManager;
             TrackEntities = true;
+            SetEntityMetaData = true;
         }
 
         protected override void OpenCore()
@@ -192,7 +195,7 @@ namespace Components.ObjectDatabase
 
             IObjectDatabaseEntity entity;
 
-            if ((entity = element as IObjectDatabaseEntity) != null)
+            if (SetEntityMetaData && (entity = element as IObjectDatabaseEntity) != null)
             {
                 entity.Offset = offset;
                 entity.Filename = Filename;
@@ -213,7 +216,7 @@ namespace Components.ObjectDatabase
 
             foreach (var a in mm.Allocations)
             {
-                yield return ReadUnsafe(a.Key * mm.PageSize);
+                yield return ReadUnsafe((long)a.Key * mm.PageSize);
             }
         }
 
