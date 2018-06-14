@@ -16,8 +16,10 @@ if (args.Count >= 1) {
     var n = Path.GetFileName(args[0]).ToLower();
 
     var names = [ '', '.exe' ]
-        -<@(ext) [ '', '64', '.vshost', '.binaryTrace' ]
-        ->@() 'aphid' + $_ + ext
+        -<@(ext) [ '', '.vshost', '.binaryTrace' ]
+        -<@(ver) [ '', '32', '64' ]
+        -<@(bits) [ '', '.debug' ]
+        ->@(dbg) 'aphid' + ver + bits + dbg + ext
         @() $_.ToLower();
     
     if (names =? @== n) {
