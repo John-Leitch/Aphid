@@ -1066,14 +1066,19 @@ namespace Components.Aphid.Interpreter
                             {
                                 var nestedType = members[0] as Type;
 
-                                return nestedType == null ?
-                                    InterpretMemberInteropExpression(
+                                if (nestedType == null)
+                                {
+                                    return InterpretMemberInteropExpression(
                                         null,
                                         members,
                                         expression,
                                         returnRef,
-                                        null) :
-                                        AphidObject.Scalar(nestedType);
+                                        null);
+                                }
+                                else
+                                {
+                                    return AphidObject.Scalar(nestedType);
+                                }
                             }
 
                             members = GetInteropInstanceMembers(type, key);
@@ -1108,14 +1113,19 @@ namespace Components.Aphid.Interpreter
                             {
                                 var nestedType = members[0] as Type;
 
-                                return nestedType == null ?
-                                    InterpretMemberInteropExpression(
+                                if (nestedType == null)
+                                {
+                                    return InterpretMemberInteropExpression(
                                         null,
                                         members,
                                         expression,
                                         returnRef,
-                                        null) :
-                                        AphidObject.Scalar(nestedType);
+                                        null);
+                                }
+                                else
+                                {
+                                    return AphidObject.Scalar(nestedType);
+                                }
                             }
                         }
 
@@ -1160,33 +1170,36 @@ namespace Components.Aphid.Interpreter
                     {
                         var aphidType = obj.IsAphidType();
 
-                        val = TypeExtender.TryResolve(
+                        if ((val = TypeExtender.TryResolve(
+                            CurrentScope,
+                            obj,
+                            key,
+                            isAphidType: aphidType,
+                            isCtor: false,
+                            isDynamic: false,
+                            returnRef: returnRef)) != null)
+                        {
+                            return val;
+                        }
+                        else if ((val = InterpretMemberInteropExpression(
+                            obj.Value,
+                            expression,
+                            returnRef,
+                            () => TypeExtender.TryResolve(
                                 CurrentScope,
                                 obj,
                                 key,
                                 isAphidType: aphidType,
                                 isCtor: false,
-                                isDynamic: false,
-                                returnRef: returnRef) ??
-                            InterpretMemberInteropExpression(
-                                obj.Value,
-                                expression,
-                                returnRef,
-                                () => TypeExtender.TryResolve(
-                                    CurrentScope,
-                                    obj,
-                                    key,
-                                    isAphidType: aphidType,
-                                    isCtor: false,
-                                    isDynamic: true,
-                                    returnRef: returnRef));
-
-                        if (val == null)
+                                isDynamic: true,
+                                returnRef: returnRef))) != null)
+                        {
+                            return val;
+                        }
+                        else
                         {
                             throw CreateMemberException(key, obj, expression);
                         }
-
-                        return val;
                     }
                     else if (expression.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
                     {
@@ -1206,17 +1219,17 @@ namespace Components.Aphid.Interpreter
                     return val;
                 }
                 else if ((val = InterpretMemberInteropExpression(
+                    obj,
+                    expression,
+                    returnRef,
+                    () => TypeExtender.TryResolve(
+                        CurrentScope,
                         obj,
-                        expression,
-                        returnRef,
-                        () => TypeExtender.TryResolve(
-                            CurrentScope,
-                            obj,
-                            key,
-                            isAphidType: true,
-                            isCtor: false,
-                            isDynamic: false,
-                            returnRef: returnRef))) != null)
+                        key,
+                        isAphidType: true,
+                        isCtor: false,
+                        isDynamic: false,
+                        returnRef: returnRef))) != null)
                 {
                     return val;
                 }
