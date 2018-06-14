@@ -2,6 +2,7 @@
 //#define STRICT_APHID_OBJECT_TYPE_CHECKS
 //#define DETECTED_ERRONEOUS_NESTING
 //#define APHID_OBJECT_OWNER_THREAD
+//#define CHECK_COMPLEXITY_SET
 using Components.Aphid.Interpreter;
 using System;
 using System.Collections;
@@ -14,14 +15,15 @@ using System.Threading;
 namespace Components.Aphid.TypeSystem
 {
     [Serializable]
-    public partial class AphidObject : Dictionary<string, AphidObject>
+    public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
         private bool _isScalar;
 
         public bool IsScalar
         {
             get { return _isScalar; }
-            set
+            private set
             {
                 _isScalar = value;
                 _isComplex = !value;
@@ -33,17 +35,26 @@ namespace Components.Aphid.TypeSystem
         public bool IsComplex
         {
             get { return _isComplex; }
-            set
+            private set
             {
                 _isComplex = value;
                 _isScalar = !value;
             }
         }
+#else
+        public bool IsScalar { get; private set; }
 
+        public bool IsComplex { get; private set; }
+#endif       
+
+#if CHECK_COMPLEXITY_SET
         public bool IsComplexitySet
         {
             get { return _isScalar || _isComplex; }
         }
+#else
+        public bool IsComplexitySet { get { return true; } }
+#endif
 
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
         private object _value;
@@ -87,44 +98,43 @@ namespace Components.Aphid.TypeSystem
         public AphidObject Parent { get; set; }
 
         private AphidObject()
-            : this(isScalar: false)
         {
-            //OwnerThread = Thread.CurrentThread.ManagedThreadId;
-        }
+            IsComplex = true;
 
-        private AphidObject(object value)
-            : this(isScalar: true)
-        {
-            Value = value;
-        }
-
-        private AphidObject(AphidObject parent)
-            : this(isScalar: false)
-        {
-            //if (parent == null)
-            //{
-            //    throw new InvalidOperationException();
-            //}
-
-            Parent = parent;
-        }
-
-        private AphidObject(bool isScalar)
-        {
 #if APHID_OBJECT_OWNER_THREAD
             OwnerThread = Thread.CurrentThread.ManagedThreadId;
 #endif
+        }
 
-            IsScalar = isScalar;
+        private AphidObject(object value)            
+        {
+            IsScalar = true;
+            Value = value;
+
+#if APHID_OBJECT_OWNER_THREAD
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
+#endif      
+        }
+
+        private AphidObject(AphidObject parent)
+        {
+            IsComplex = true;
+            Parent = parent;
+
+#if APHID_OBJECT_OWNER_THREAD
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
+#endif
         }
 
 #if !LOW_SECURITY
+#pragma warning disable CS0628 // New protected member declared in sealed class
         protected AphidObject(SerializationInfo info, StreamingContext context)
+#pragma warning restore CS0628 // New protected member declared in sealed class
             : base(info, context)
         {
             // Todo: eliminate strings
-            _isScalar = info.GetBoolean("_isScalar");
-            _isComplex = info.GetBoolean("_isComplex");
+            IsScalar = info.GetBoolean("_isScalar");
+            IsComplex = info.GetBoolean("_isComplex");
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
             _value = info.GetValue("_value", typeof(object));
 #else
@@ -134,8 +144,8 @@ namespace Components.Aphid.TypeSystem
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("_isScalar", _isScalar);
-            info.AddValue("_isComplex", _isComplex);
+            info.AddValue("_isScalar", IsScalar);
+            info.AddValue("_isComplex", IsComplex);
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
             info.AddValue("_value", _value);
 #else
@@ -153,7 +163,7 @@ namespace Components.Aphid.TypeSystem
 
         private string ToString(bool printMembers)
         {
-            return _isScalar ? Value.ToString() :
+            return IsScalar ? Value.ToString() :
                 printMembers ? string.Format(
                     "{{ {0} }}",
                     this
@@ -202,13 +212,35 @@ namespace Components.Aphid.TypeSystem
 
         public string GetValueType(bool includeClrTypes)
         {
-            Type t;
+            if (IsScalar)
+            {
+                if (Value != null)
+                {
+                    var t = Value.GetType();
+                    var name = AphidAlias.Resolve(t);
 
-            return
-                Value != null ? AphidAlias.Resolve(t = Value.GetType()) ??
-                    (includeClrTypes ? t.FullName : AphidType.Unknown) :
-                IsScalar ? AphidType.Null :
-                AphidType.Object;
+                    if (name != null)
+                    {
+                        return name;
+                    }
+                    else if (includeClrTypes)
+                    {
+                        return t.FullName;
+                    }
+                    else
+                    {
+                        return AphidType.Unknown;
+                    }
+                }
+                else
+                {
+                    return AphidType.Null;
+                }
+            }
+            else
+            {
+                return AphidType.Object;
+            }
         }
 
         private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj)
@@ -506,22 +538,39 @@ namespace Components.Aphid.TypeSystem
 
         public string GetTypeName()
         {
-            return Count > 0 ? AphidType.Object :
-                Value != null ? GetValueType() :
-                AphidType.Null;
+            if (IsComplex)
+            {
+                return AphidType.Object;
+            }
+            else if (Value != null)
+            {
+                return GetValueType();
+            }
+            else
+            {
+                return AphidType.Null;
+            }
         }
 
         public static bool IsAphidType(object obj)
         {
-            return
-                obj == null ||
-                obj is string ||
-                obj is decimal ||
-                obj is bool ||
-                obj is List<AphidObject> ||
-                obj is AphidObject ||
-                obj is AphidFunction ||
-                obj is AphidInteropFunction;
+            if (obj == null)
+            {
+                return true;
+            }
+            else
+            {
+                var t = obj.GetType();
+
+                return
+                    t == typeof(string) ||
+                    t == typeof(decimal) ||
+                    t == typeof(bool) ||
+                    t == typeof(List<AphidObject>) ||
+                    t == typeof(AphidObject) ||
+                    t == typeof(AphidFunction) ||
+                    t == typeof(AphidInteropFunction);
+            }
         }
 
         public override bool Equals(object obj)
@@ -540,8 +589,8 @@ namespace Components.Aphid.TypeSystem
                     hash = 0x100000;
                 }
 
-                hash += _isScalar ? 0x10 : 0x100;
-                hash += _isComplex ? 0x20 : 0x200;
+                hash += IsScalar ? 0x10 : 0x100;
+                hash += IsComplex ? 0x20 : 0x200;
 
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
                 var tmp = _value != null ?_value.GetHashCode() : 0x300;
@@ -598,7 +647,14 @@ namespace Components.Aphid.TypeSystem
 
         public static AphidObject Scope(AphidObject parentScope)
         {
-            return parentScope != null ? new AphidObject(parentScope) : AphidObject.Complex();
+            if (parentScope != null)
+            {
+                return new AphidObject(parentScope);
+            }
+            else
+            {
+                return new AphidObject();
+            }
         }
 
         public static AphidObject Null()
