@@ -4,7 +4,7 @@ using System.Reflection;
 using Components.Aphid.Parser;
 
 AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
-    ret e.Name == 'Components.Aphid' ? AphidExpression.Assembly : null;
+    ret e.Name.StartsWith('Components.Aphid') ? AphidExpression.Assembly : null;
 });
 
 var db = 'history.db' |> BinaryObjectDatabase.OpenFile;
