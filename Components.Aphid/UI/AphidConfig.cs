@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 
 namespace Components.Aphid.UI
@@ -10,6 +11,8 @@ namespace Components.Aphid.UI
     // *Save embedded default config to disk if none present.
     public class AphidConfig : DefaultSingleton<AphidConfig>
     {
+        public const string FileName = "Components.Aphid.dll.config";
+
         private static Lazy<Configuration> _config = new Lazy<Configuration>(LoadConfig);
 
         private Lazy<bool>
@@ -97,10 +100,22 @@ namespace Components.Aphid.UI
         {
             try
             {
+                var l = typeof(AphidConfig).Assembly.Location;
+                string path;
+
+                if (l != null)
+                {
+                    path = Path.Combine(Path.GetDirectoryName(l), FileName);
+                }
+                else
+                {
+                    path = FileName;
+                }
+
                 return ConfigurationManager.OpenMappedExeConfiguration(
                     new ExeConfigurationFileMap
                     {
-                        ExeConfigFilename = "Components.Aphid.dll.config",
+                        ExeConfigFilename = path,
                     },
                     ConfigurationUserLevel.None);
             }
