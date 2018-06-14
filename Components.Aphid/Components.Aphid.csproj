@@ -6,7 +6,7 @@
       <PropertyGroup>
         <PlatformTarget>x86</PlatformTarget>
         <Bitness>32</Bitness>
-        <BitnessDirective>FULL_DBG;X86</BitnessDirective>        
+        <BitnessDirective>FULL_DBG;X86</BitnessDirective>
       </PropertyGroup>
     </When>
     <When Condition="$(Configuration.EndsWith('64'))">
@@ -19,26 +19,29 @@
     <Otherwise>
       <PropertyGroup>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <Bitness></Bitness>
+        <Bitness>
+        </Bitness>
         <BitnessDirective>FULL_DBG;ANY_CPU</BitnessDirective>
-      </PropertyGroup>        
+      </PropertyGroup>
     </Otherwise>
   </Choose>
   <Choose>
     <When Condition="$(Configuration.Contains('BinaryTrace'))">
-        <PropertyGroup>          
-          <TraceSuffix>.BinaryTrace</TraceSuffix>
-          <TraceDirective>;BINARY_FRAME_PERFORMANCE_TRACE</TraceDirective>
-        </PropertyGroup>        
+      <PropertyGroup>
+        <TraceSuffix>.BinaryTrace</TraceSuffix>
+        <TraceDirective>;BINARY_FRAME_PERFORMANCE_TRACE</TraceDirective>
+      </PropertyGroup>
     </When>
     <Otherwise>
-        <PropertyGroup>
-          <TraceSuffix></TraceSuffix>
-          <TraceDirective></TraceDirective>
-        </PropertyGroup>        
+      <PropertyGroup>
+        <TraceSuffix>
+        </TraceSuffix>
+        <TraceDirective>
+        </TraceDirective>
+      </PropertyGroup>
     </Otherwise>
   </Choose>
-    <Choose>
+  <Choose>
     <When Condition="$(Configuration.StartsWith('AphidDebug'))">
       <PropertyGroup>
         <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
@@ -47,11 +50,13 @@
     </When>
     <Otherwise>
       <PropertyGroup>
-        <AphidDbgDirective></AphidDbgDirective>
-        <IsAphidDbg></IsAphidDbg>
+        <AphidDbgDirective>
+        </AphidDbgDirective>
+        <IsAphidDbg>
+        </IsAphidDbg>
       </PropertyGroup>
     </Otherwise>
-  </Choose>  
+  </Choose>
   <Choose>
     <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
       <PropertyGroup>
@@ -59,23 +64,23 @@
         <Optimize>false</Optimize>
         <IsDebug>.Debug</IsDebug>
         <OutputPath>bin\Debug\</OutputPath>
-        <CommonDirectives>TRACE;DEBUG</CommonDirectives>        
-      </PropertyGroup>        
+        <CommonDirectives>TRACE;DEBUG</CommonDirectives>
+      </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
         <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>      
-        <IsDebug></IsDebug>
+        <Optimize>true</Optimize>
+        <IsDebug>
+        </IsDebug>
         <OutputPath>bin\Release\</OutputPath>
-        <CommonDirectives>RELEASE</CommonDirectives>        
-      </PropertyGroup>        
+        <CommonDirectives>RELEASE</CommonDirectives>
+      </PropertyGroup>
     </Otherwise>
   </Choose>
   <!-- <PropertyGroup> -->
-    <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
+  <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
   <!-- </PropertyGroup> -->
-  
   <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE'))">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -100,58 +105,46 @@
     <SccProvider>
     </SccProvider>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetFrameworkProfile />    
+    <TargetFrameworkProfile />
     <DebugSymbols>True</DebugSymbols>
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <!--                                -->
   <!-- DEBUG                          -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
-    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
-    
   </PropertyGroup>
   <!--                                -->
   <!-- RELEASE                        -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
-        
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
-    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    
   </PropertyGroup>
   <!--                                -->
   <!-- APHID SCRIPT DEBUG             -->
   <!--                                -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">    
-    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
-    
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">    
-    
-  </PropertyGroup>  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+  </PropertyGroup>
   <!--                                -->
   <!-- BINARY TRACE                   -->
   <!--                                -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
-            
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
-    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
-    
-  </PropertyGroup>    
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

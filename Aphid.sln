@@ -20,8 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid", "Compone
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.Tests.Integration", "Components.Aphid.Tests.Integration\Components.Aphid.Tests.Integration.csproj", "{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.VSPackage", "Components.Aphid.VSPackage\Components.Aphid.VSPackage.csproj", "{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLex", "LLex\LLex.csproj", "{D172AD83-34D8-478D-8875-2D467A28129C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "Samples\HelloWorld\HelloWorld.csproj", "{B524818F-9E7A-4DA1-AB85-821346E188B8}"
@@ -158,30 +156,6 @@ Global
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release32|Default.Build.0 = Release|x86
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|Default.ActiveCfg = Release|x64
 		{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}.Release64|Default.Build.0 = Release|x64
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.AphidDebug|Default.ActiveCfg = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.AphidDebug|Default.Build.0 = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.AphidDebug32|Default.ActiveCfg = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.AphidDebug32|Default.Build.0 = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.AphidDebug64|Default.ActiveCfg = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.AphidDebug64|Default.Build.0 = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTrace|Default.ActiveCfg = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTrace|Default.Build.0 = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTrace32|Default.ActiveCfg = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTrace32|Default.Build.0 = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTrace64|Default.ActiveCfg = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.BinaryTrace64|Default.Build.0 = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Debug|Default.ActiveCfg = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Debug|Default.Build.0 = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Debug32|Default.ActiveCfg = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Debug32|Default.Build.0 = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Debug64|Default.ActiveCfg = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Debug64|Default.Build.0 = Debug|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Release|Default.ActiveCfg = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Release|Default.Build.0 = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Release32|Default.ActiveCfg = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Release32|Default.Build.0 = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Release64|Default.ActiveCfg = Release|Any CPU
-		{AEBCC8FB-FD65-4B84-92DC-5DB425EFF417}.Release64|Default.Build.0 = Release|Any CPU
 		{D172AD83-34D8-478D-8875-2D467A28129C}.AphidDebug|Default.ActiveCfg = Debug|Any CPU
 		{D172AD83-34D8-478D-8875-2D467A28129C}.AphidDebug|Default.Build.0 = Debug|Any CPU
 		{D172AD83-34D8-478D-8875-2D467A28129C}.AphidDebug32|Default.ActiveCfg = Debug|x86
