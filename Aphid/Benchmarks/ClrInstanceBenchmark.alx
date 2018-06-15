@@ -1,0 +1,13 @@
+﻿#'Benchmark';
+
+var count = 10000;
+
+_b = macro(@(n, e) { benchmark(n, count, @{ using System.Text }, @{ e }) });
+_b2 = macro(@(n, e) { benchmark(n, count * 10, @{ var x = new StringBuilder() }, @{ e }) });
+
+_b('new default ctor', new StringBuilder());
+_b('one arg ctor', new StringBuilder(0x10));
+_b('two arg ctor', new StringBuilder('test', 0x10));
+
+_b2('property get', x.Length);
+_b2('property set', x.Length = 0x10);

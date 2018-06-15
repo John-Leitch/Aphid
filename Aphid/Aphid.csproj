@@ -1,13 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
       <PropertyGroup>
         <PlatformTarget>x86</PlatformTarget>
         <Bitness>32</Bitness>
-        <BitnessDirective>X86</BitnessDirective>        
+        <BitnessDirective>X86</BitnessDirective>
       </PropertyGroup>
     </When>
     <When Condition="$(Configuration.EndsWith('64'))">
@@ -20,9 +19,10 @@
     <Otherwise>
       <PropertyGroup>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <Bitness></Bitness>
+        <Bitness>
+        </Bitness>
         <BitnessDirective>ANY_CPU</BitnessDirective>
-      </PropertyGroup>        
+      </PropertyGroup>
     </Otherwise>
   </Choose>
   <Choose>
@@ -32,52 +32,52 @@
         <Optimize>false</Optimize>
         <IsDebug>.Debug</IsDebug>
         <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>$(DefineConstants);TRACE;DEBUG;$(BitnessDirective)</DefineConstants>        
-      </PropertyGroup>        
+        <DefineConstants>$(DefineConstants);TRACE;DEBUG;$(BitnessDirective)</DefineConstants>
+      </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
         <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>      
-        <IsDebug></IsDebug>
+        <Optimize>true</Optimize>
+        <IsDebug>
+        </IsDebug>
         <OutputPath>bin\Release\</OutputPath>
         <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)</DefineConstants>
-      </PropertyGroup>        
+      </PropertyGroup>
     </Otherwise>
   </Choose>
   <!-- <PropertyGroup> -->
-    <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
+  <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
   <!-- </PropertyGroup> -->
   <Choose>
     <When Condition="$(Configuration.Contains('BinaryTrace'))">
-        <PropertyGroup>
-          <AssemblyName>Aphid.BinaryTrace$(Bitness)$(IsDebug)</AssemblyName>
-        </PropertyGroup>        
+      <PropertyGroup>
+        <AssemblyName>Aphid.BinaryTrace$(Bitness)$(IsDebug)</AssemblyName>
+      </PropertyGroup>
     </When>
     <Otherwise>
-        <PropertyGroup>
-          <AssemblyName>Aphid$(Bitness)$(IsDebug)</AssemblyName>
-        </PropertyGroup>        
+      <PropertyGroup>
+        <AssemblyName>Aphid$(Bitness)$(IsDebug)</AssemblyName>
+      </PropertyGroup>
     </Otherwise>
   </Choose>
-  
   <!-- <PropertyGroup Condition="'$(Platform)' == 'x64'"> -->
-    <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace64</AssemblyName> -->
-    <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid64</AssemblyName> -->
+  <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace64</AssemblyName> -->
+  <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid64</AssemblyName> -->
   <!-- </PropertyGroup> -->
   <!-- <PropertyGroup Condition="'$(Platform)' == 'x86'"> -->
-    <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace32</AssemblyName> -->
-    <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid32</AssemblyName> -->
+  <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace32</AssemblyName> -->
+  <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid32</AssemblyName> -->
   <!-- </PropertyGroup> -->
   <!-- <PropertyGroup Condition="'$(Platform)' != 'x86' And '$(Platform)' != 'x64'"> -->
-    <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
-    <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
+  <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
+  <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
   <!-- </PropertyGroup> -->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('32')) ">x86</Platform>
     <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('64')) ">x64</Platform>
-    <Platform Condition=" '$(Platform)' == '' And !$(Configuration.Contains('32') And !$(Configuration.Contains('64')) ">AnyCPU</Platform>    
+    <Platform Condition=" '$(Platform)' == '' And !$(Configuration.Contains('32') And !$(Configuration.Contains('64')) ">AnyCPU</Platform>
     <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -94,17 +94,15 @@
     <SccProvider>
     </SccProvider>
     <TargetFrameworkProfile />
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    <Prefer32Bit>true</Prefer32Bit>    
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
-    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -114,13 +112,13 @@
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
     <OutputPath>bin\Release32\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>   
-<UseVSHostingProcess>false</UseVSHostingProcess>    
+    <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
     <OutputPath>bin\Release64\</OutputPath>
@@ -138,7 +136,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>    
+    <Prefer32Bit>true</Prefer32Bit>
     <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
@@ -147,16 +145,16 @@
     <OutputPath>bin\AphidDebug32\</OutputPath>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
     <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\AphidDebug64\</OutputPath>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>    
+    <ErrorReport>prompt</ErrorReport>
     <Optimize>true</Optimize>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
@@ -198,6 +196,12 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Benchmarks\ListBenchmark.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Benchmarks\ClrInstanceBenchmark.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Benchmarks\CallBenchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -208,6 +212,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Benchmarks\Run.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Benchmarks\Run2.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Benchmarks\RunAll.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Samples\ConditionalOperatorExample.alx">

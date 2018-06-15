@@ -1,8 +1,12 @@
 ﻿#'std';
 #'process';
+using System.Reflection;
 var count = 3;
-exec = macro(@(n) { 0..count->@() #> ('aphid {0}.alx' :: [ quote(n) ]) });
+var asm = Assembly.GetEntryAssembly().Location;
+exec = macro(@(n) { 0..count->@() #> ('{0} {1}.alx' :: [ asm, quote(n) ]) });
 exec(ArithmeticBenchmark);
 exec(CallBenchmark);
+exec(ListBenchmark);
+exec(ClrInstanceBenchmark);
 exec(CustomOperatorBenchmark);
 exec(IncludeBenchmark);

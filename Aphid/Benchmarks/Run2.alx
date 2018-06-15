@@ -1,5 +1,7 @@
 ﻿exec(ArithmeticBenchmark);
 exec(CallBenchmark);
+exec(ListBenchmark);
+exec(ClrInstanceBenchmark);
 exec(CustomOperatorBenchmark);
 exec(IncludeBenchmark);
 
