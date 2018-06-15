@@ -17,7 +17,8 @@ namespace Components.Aphid.TypeSystem
     [Serializable]
     public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
-        public static readonly AphidObject Null = Scalar(null),
+        public static readonly AphidObject
+            Null = Scalar(null),
             True = Scalar(true),
             False = Scalar(false);
 

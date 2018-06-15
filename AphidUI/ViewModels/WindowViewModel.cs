@@ -298,7 +298,7 @@ namespace AphidUI.ViewModels
 
         private void AddIsRepl()
         {
-            _interpreter.CurrentScope.Add(IsReplName, AphidObject.Scalar(true));
+            _interpreter.CurrentScope.Add(IsReplName, AphidObject.True);
         }
 
         private void InitInterpreter()

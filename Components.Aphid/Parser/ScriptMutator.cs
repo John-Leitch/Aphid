@@ -55,7 +55,7 @@ namespace Components.Aphid.Parser
                 s.Add("ancestors", AphidObject.Scalar(Ancestors));
                 s.Add("isStatement", AphidObject.Scalar(IsStatement));
                 s.Add("expression", AphidObject.Scalar(expression));
-                s.Add("hasChanged", AphidObject.Scalar(false));
+                s.Add("hasChanged", AphidObject.False);
 
                 s.Add(
                     "finalize",

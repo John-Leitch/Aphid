@@ -638,7 +638,7 @@ namespace Components.Aphid.Interpreter
 
             if (!left)
             {
-                return AphidObject.Scalar(false);
+                return AphidObject.False;
             }
             else
             {
@@ -653,7 +653,7 @@ namespace Components.Aphid.Interpreter
 
             if (left)
             {
-                return AphidObject.Scalar(true);
+                return AphidObject.True;
             }
             else
             {
@@ -4129,7 +4129,7 @@ namespace Components.Aphid.Interpreter
                                 }
                                 catch
                                 {
-                                    return AphidObject.Scalar(false);
+                                    return AphidObject.False;
                                 }
 
                             case AphidExpressionType.ArrayAccessExpression:
