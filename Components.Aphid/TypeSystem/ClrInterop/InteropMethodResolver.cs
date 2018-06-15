@@ -61,7 +61,7 @@ namespace Components.Aphid.TypeSystem
                 key = expression.RightOperand.ToIdentifier().Identifier;
 
                 staticType = Interpreter.InteropTypeResolver.TryResolveType(
-                    Interpreter.GetImports().ToArray(),
+                    Interpreter.GetImports(),
                     Interpreter.FlattenPath(expression.LeftOperand),
                     isType: true);
 

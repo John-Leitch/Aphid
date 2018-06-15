@@ -19,12 +19,12 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public Type TryResolveType(string[] imports, string[] path, bool isType = false)
+        public Type TryResolveType(HashSet<string> imports, string[] path, bool isType = false)
         {
             return ResolveType(imports, path, isFatal: false, isType: isType);
         }
 
-        public Type ResolveType(string[] imports, string[] path, bool isFatal = true, bool isType = false)
+        public Type ResolveType(HashSet<string> imports, string[] path, bool isFatal = true, bool isType = false)
         {
             lock (_typeCache)
             {
@@ -32,7 +32,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private Type ResolveTypeCore(string[] imports, string[] path, bool isFatal, bool isType)
+        private Type ResolveTypeCore(HashSet<string> imports, string[] path, bool isFatal, bool isType)
         {
             var ctx = new InteropTypeContext(imports, path, isType);
             Type t;

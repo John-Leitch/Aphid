@@ -12,8 +12,8 @@ namespace Components.Aphid.TypeSystem
         {
             if ((x.Imports == null && y.Imports != null) ||
                 (x.Imports != null && y.Imports == null) ||
-                (x.PathHashSet == null && y.PathHashSet != null) ||
-                (x.PathHashSet != null && y.PathHashSet == null) ||
+                (x.Path == null && y.Path != null) ||
+                (x.Path != null && y.Path == null) ||
                 (x.IsType != y.IsType))
             {
                 return false;
@@ -30,9 +30,24 @@ namespace Components.Aphid.TypeSystem
                 }
             }
 
-            if (x.PathHashSet != null)
+            if (x.Path != null)
             {
-                return x.PathHashSet.SequenceEqual(y.PathHashSet);
+                if (x.Path.Length != y.Path.Length)
+                {
+                    return false;
+                }
+                else
+                {
+                    for (var i = 0; i < x.Path.Length; i++)
+                    {
+                        if (x.Path[i] != y.Path[i])
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
             }
             else
             {
@@ -51,11 +66,11 @@ namespace Components.Aphid.TypeSystem
 
             if (obj.IsType)
             {
-                return ~x;
+                return x & ~0x1;
             }
             else
             {
-                return x;
+                return x | 0x1;
             }
         }
     }

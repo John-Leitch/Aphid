@@ -411,17 +411,17 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public List<string> GetImports()
+        public HashSet<string> GetImports()
         {
             AphidObject imports = null;
 
             if (CurrentScope.TryResolve(AphidName.Imports, out imports))
             {
-                return (List<string>)imports.Value;
+                return (HashSet<string>)imports.Value;
             }
             else
             {
-                var list = new List<string>(AphidConfig.Current.Imports);
+                var list = new HashSet<string>(AphidConfig.Current.Imports);
                 CurrentScope.Add(AphidName.Imports, AphidObject.Scalar(list));
 
                 return list;
@@ -832,7 +832,7 @@ namespace Components.Aphid.Interpreter
             else
             {
                 var path = FlattenPath(expression);
-                var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path);
+                var type = InteropTypeResolver.ResolveType(GetImports(), path);
                 members = GetInteropStaticMembers(type, path);
                 TypeInfo nestedTypeInfo;
 
@@ -2657,7 +2657,7 @@ namespace Components.Aphid.Interpreter
             }
             else if (canResolveType &&
                 (t = InteropTypeResolver.TryResolveType(
-                    GetImports().ToArray(),
+                    GetImports(),
                     new[] { expression.Identifier },
                     isType: true)) != null)
             {
@@ -2888,8 +2888,7 @@ namespace Components.Aphid.Interpreter
             var path = FlattenPath(callExpression.FunctionExpression);
             var pathStr = string.Join(".", path);
             var imports = GetImports();
-
-            var type = InteropTypeResolver.ResolveType(GetImports().ToArray(), path);
+            var type = InteropTypeResolver.ResolveType(GetImports(), path);
             var methodName = path.Last();
 
             var args = new object[callExpression.Args.Count];
@@ -4223,7 +4222,7 @@ namespace Components.Aphid.Interpreter
                 var id = ((IdentifierExpression)expression.ArrayExpression).Identifier;
 
                 var genericType = InteropTypeResolver.TryResolveType(
-                    GetImports().ToArray(),
+                    GetImports(),
                     new[] { string.Format("{0}`{1}", id, indexes.Length) },
                     isType: true);
 

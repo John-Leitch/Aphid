@@ -96,7 +96,7 @@ namespace Components.Aphid.Compiler
                     .DefineDynamicModule(AssemblyName));
         }
 
-        public Type CreateType(ObjectExpression type, IEnumerable<string> imports)
+        public Type CreateType(ObjectExpression type, HashSet<string> imports)
         {
             if (type.Identifier == null || !type.Identifier.Attributes.Any())
             {
@@ -236,7 +236,7 @@ namespace Components.Aphid.Compiler
             var resolver = Interpreter.InteropTypeResolver;
 
             var type = resolver.TryResolveType(
-                Interpreter.GetImports().ToArray(),
+                Interpreter.GetImports(),
                 new[] { name },
                 isType: true);
 
@@ -247,9 +247,9 @@ namespace Components.Aphid.Compiler
             TypeBuilder typeBuilder,
             string defaultType,
             IdentifierExpression propertyDecl,
-            IEnumerable<string> imports)
+            HashSet<string> imports)
         {
-            var t = GetPropertyType(defaultType, propertyDecl, imports.ToArray());
+            var t = GetPropertyType(defaultType, propertyDecl, imports);
 
             if (t == null)
             {
@@ -303,7 +303,7 @@ namespace Components.Aphid.Compiler
         private Type GetPropertyType(
             string defaultType,
             IdentifierExpression property,
-            string[] imports)
+            HashSet<string> imports)
         {
             if (property.Attributes == null || !property.Attributes.Any())
             {

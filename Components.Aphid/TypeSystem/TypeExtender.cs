@@ -218,7 +218,7 @@ namespace Components.Aphid.TypeSystem
             if (AphidAlias.Resolve(type) == null)
             {
                 var interopType = Interpreter.InteropTypeResolver.ResolveType(
-                    Interpreter.GetImports().ToArray(),
+                    Interpreter.GetImports(),
                     new[] { type },
                     isType: true);
 
