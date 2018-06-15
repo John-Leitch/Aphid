@@ -1,6 +1,6 @@
 ﻿#'Benchmark';
 
-var custopOpCount = 20000;
+var custopOpCount = 2000;
 
 benchmark(
     'custom operator extension method',

@@ -1,5 +1,5 @@
 ﻿#'Benchmark';
-var count = 250000;
+var count = 250000 / 5;
 
 benchmark('standard call', count, @{ var f = @(x) { } }, @{ f(0xdeadbeef) });
 benchmark('standard pipeline', count, @{ var f = @(x) { } }, @{ 0xdeadbeef |> f });

@@ -1,5 +1,5 @@
 ﻿#'Benchmark';
-numberBenchmarkRep = 1000000;
+numberBenchmarkRep = 1000000 / 5;
 numberBenchmark('increment', @{ i++ });
 numberBenchmark('decrement', @{ i-- });
 numberBenchmark('add', @{ i + 10 });
