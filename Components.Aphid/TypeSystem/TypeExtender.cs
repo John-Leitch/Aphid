@@ -17,7 +17,9 @@ namespace Components.Aphid.TypeSystem
 
         private bool _isUnknownExtended = false;
 
-        private HashSet<string> _typesExtended = new HashSet<string>();
+        private HashSet<string> _typesExtended = new HashSet<string>(),
+            _typesCtorExtended = new HashSet<string>(),
+            _typesDynamicallyExtended = new HashSet<string>();
 
         public TypeExtender(AphidInterpreter interpreter)
             : base(interpreter)
@@ -249,6 +251,16 @@ namespace Components.Aphid.TypeSystem
             else if (!_typesExtended.Contains(type))
             {
                 _typesExtended.Add(type);
+
+                if (ctorHandler != null)
+                {
+                    _typesCtorExtended.Add(type);
+                }
+
+                if (dynamicHandler != null)
+                {
+                    _typesDynamicallyExtended.Add(type);
+                }
             }
 
             foreach (var extension in extensions)
@@ -358,6 +370,20 @@ namespace Components.Aphid.TypeSystem
             bool returnRef)
         {
             int startOffset = 0;
+            HashSet<string> types;
+
+            if (isCtor)
+            {
+                types = _typesCtorExtended;
+            }
+            else if (isDynamic)
+            {
+                types = _typesDynamicallyExtended;
+            }
+            else
+            {
+                types = _typesExtended;
+            }
 
             if (!_isUnknownExtended)
             {
@@ -375,7 +401,7 @@ namespace Components.Aphid.TypeSystem
                 
                 for (; startOffset < len; startOffset++)
                 {
-                    if (_typesExtended.Contains(classHierarchy[startOffset]))
+                    if (types.Contains(classHierarchy[startOffset]))
                     {
                         isTypeExtended = true;
                         break;
@@ -404,7 +430,7 @@ namespace Components.Aphid.TypeSystem
                     }
                     else if (c != AphidType.Unknown &&
                         c != typeof(AphidObject).FullName &&
-                        !_typesExtended.Contains(c))
+                        !types.Contains(c))
                     {
                         continue;
                     }
@@ -434,7 +460,7 @@ namespace Components.Aphid.TypeSystem
                     }
                     else if (c != AphidType.Unknown &&
                         c != typeof(AphidObject).FullName &&
-                        !_typesExtended.Contains(c))
+                        !types.Contains(c))
                     {
                         continue;
                     }
@@ -464,7 +490,7 @@ namespace Components.Aphid.TypeSystem
                     }
                     else if (c != AphidType.Unknown &&
                         c != typeof(AphidObject).FullName &&
-                        !_typesExtended.Contains(c))
+                        !types.Contains(c))
                     {
                         continue;
                     }
