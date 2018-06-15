@@ -449,7 +449,7 @@ namespace Components.Aphid.Interpreter
         private AphidObject GetReturnValue(bool remove)
         {
             AphidObject retVal = null;
-            if (CurrentScope.TryGetValue(AphidName.Return, out retVal) && remove)
+            if (CurrentScope.TryResolve(AphidName.Return, out retVal) && remove)
             {
                 CurrentScope.Remove(AphidName.Return);
             }

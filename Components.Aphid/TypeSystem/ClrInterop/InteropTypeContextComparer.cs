@@ -12,23 +12,49 @@ namespace Components.Aphid.TypeSystem
         {
             if ((x.Imports == null && y.Imports != null) ||
                 (x.Imports != null && y.Imports == null) ||
-                (x.PathHashSet == null && y.PathHashSet != null) ||
-                (x.PathHashSet != null && y.PathHashSet == null) ||
+                (x.Path == null && y.Path != null) ||
+                (x.Path != null && y.Path == null) ||
                 (x.IsType != y.IsType))
             {
                 return false;
             }
             else if (x.Imports != null)
             {
-                if (!x.IsResolved || !y.Imports.IsSubsetOf(x.Imports))
+                if (x.Imports.Length == y.Imports.Length ||
+                    (x.IsResolved && x.Imports.Length < y.Imports.Length))
+                {
+                    for (var i = 0; i < x.Imports.Length; i++)
+                    {
+                        if (x.Imports[i] != y.Imports[i])
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
                 {
                     return false;
                 }
             }
 
-            if (x.PathHashSet != null)
+            if (x.Path != null)
             {
-                return x.PathHashSet.SequenceEqual(y.PathHashSet);
+                if (x.Path.Length == y.Path.Length)
+                {
+                    for (var i = 0; i < x.Path.Length; i++)
+                    {
+                        if (x.Path[i] != y.Path[i])
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
@@ -38,21 +64,26 @@ namespace Components.Aphid.TypeSystem
 
         public int GetHashCode(InteropTypeContext obj)
         {
-            var x = 0;
+            var x = 2;
 
-            for (var i = 0; i < obj.Path.Length; i++)
+            unchecked
             {
-                x ^= obj.Path[i].GetHashCode();
+                for (var i = 0; i < obj.Path.Length; i++)
+                {
+                    var t = obj.Path[i].GetHashCode();
+
+                    x *= t != 0 ? t : 10;
+
+                    if (x == 0 || x == 1)
+                    {
+                        x = 11;
+                    }
+                }
+
+                x *= obj.IsType ? 7 : 9;
             }
 
-            if (obj.IsType)
-            {
-                return ~x;
-            }
-            else
-            {
-                return x;
-            }
+            return x;
         }
     }
 }
