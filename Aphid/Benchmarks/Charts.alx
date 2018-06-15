@@ -30,6 +30,8 @@ db.ReadUnsafe()
     @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
 };
 
+db.Dispose();
+
 winForms.split([
     [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]
 ])

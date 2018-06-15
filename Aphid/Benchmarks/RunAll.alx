@@ -1,0 +1,59 @@
+#'Std';
+#'Process';
+using System.IO;
+
+var root = Path.Combine(Path.GetDirectoryName(this['$script']), '..', '..') |> Path.GetFullPath;
+var testRoot = Path.Combine(root, '..', 'AphidBenchMark') |> Path.GetFullPath;
+var testSrc = root + '\\Aphid\\Benchmarks';
+var testDst = testRoot + '\\Aphid\\Benchmarks';
+var exe = testRoot + '\\aphid\\bin\\release\\aphid.exe';
+var test = exe + ' run2.alx';
+var tmpDir = testSrc + '\\temp';
+var cd = @Directory.SetCurrentDirectory(testRoot);
+
+var init = @{
+    if (Directory.Exists(testRoot)) {
+        cd();
+        #> 'git pull'
+    } else {
+        #> ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot);
+        cd();
+    }
+    
+    #> ('cmd /c mkdir ' + tmpDir);
+    #> ('cmd /c del ' + testDst + '\\history.* /q');
+};
+
+var run = @{
+    var hasExe = @File.Exists(exe);
+
+    if (hasExe()) {
+        File.Delete(exe);
+    }
+
+    #> ('c:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe ' + 
+        testRoot + '\\aphid\\Aphid.csproj ' + 
+        '/p:Platform= ' + 
+        '/p:Configuration=Release');
+    
+    if (hasExe()) {
+        #> ('cmd /c copy ' + testSrc + '\\*.alx ' + testDst + ' /y');
+        Directory.SetCurrentDirectory(testDst);
+        #> test;
+    }
+
+    rollBack();
+};
+
+var rollBack = @{
+    cd();
+    #> ('cmd /c copy ' + testDst + '\\history.* ' + tmpDir + ' /y');
+    #> 'git reset --hard HEAD~1';
+    #> ('cmd /c copy ' + tmpDir + '\\history.* ' + testDst + ' /y');
+};
+
+init();
+
+while (true) {
+    run();
+}
