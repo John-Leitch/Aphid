@@ -19,11 +19,11 @@ namespace Components
                     .GetAssemblies()
                     .GroupToArrayDictionary(x => x.FullName.RemoveAtIndexOf(',')));
 
-        private Memoizer<List<string>, IEnumerable<Type>>
-            _getAllTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(
+        private Memoizer<HashSet<string>, IEnumerable<Type>>
+            _getAllTypesMemoizer = new Memoizer<HashSet<string>, IEnumerable<Type>>(
                 new NamespaceEqualityComparer()),
 
-            _getStaticTypesMemoizer = new Memoizer<List<string>, IEnumerable<Type>>(
+            _getStaticTypesMemoizer = new Memoizer<HashSet<string>, IEnumerable<Type>>(
                 new NamespaceEqualityComparer());
 
         public TypeLoader()
@@ -49,7 +49,7 @@ namespace Components
             }
         }
 
-        public IEnumerable<Type> GetAllTypes(List<string> imports)
+        public IEnumerable<Type> GetAllTypes(HashSet<string> imports)
         {
             lock (_cacheSync)
             {
@@ -57,7 +57,7 @@ namespace Components
             }
         }
 
-        private IEnumerable<Type> GetAllTypesCore(List<string> imports)
+        private IEnumerable<Type> GetAllTypesCore(HashSet<string> imports)
         {
             return this.GetAssemblies()
                 .SelectMany(x => x.GetTypes())
@@ -69,7 +69,7 @@ namespace Components
                 .ToArray();
         }
 
-        public IEnumerable<Type> GetStaticTypes(List<string> imports)
+        public IEnumerable<Type> GetStaticTypes(HashSet<string> imports)
         {
             lock (_cacheSync)
             {
@@ -77,7 +77,7 @@ namespace Components
             }
         }
 
-        private IEnumerable<Type> GetStaticTypesCore(List<string> imports)
+        private IEnumerable<Type> GetStaticTypesCore(HashSet<string> imports)
         {
             return GetAllTypes(imports)
                 .Where(x => x.GetMembers(BindingFlags.Public | BindingFlags.Static).Any())

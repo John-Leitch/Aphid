@@ -15,16 +15,17 @@ namespace Components.Aphid.Interpreter
         private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
 
-        private List<string> _searchPaths = new List<string> 
-        { 
-            Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Library")
-        };
+        private HashSet<string> _searchPaths = new HashSet<string>(
+            new[]
+            { 
+                Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "Library")
+            });
 
         private List<Assembly> _modules;
 
-        public List<string> SearchPaths
+        public HashSet<string> SearchPaths
         {
             get { return _searchPaths; }
         }
@@ -131,11 +132,11 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            var searchPathSets = new List<List<string>> { _searchPaths };
+            var searchPathSets = new List<HashSet<string>> { _searchPaths };
 
             if (appDir != null)
             {
-                searchPathSets.Add(new List<string> { appDir });
+                searchPathSets.Add(new HashSet<string>(new[] { appDir } ));
             }
 
             foreach (var paths in searchPathSets)

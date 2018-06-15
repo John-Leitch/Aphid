@@ -57,7 +57,10 @@ namespace Components.Aphid.Parser
                     includeMutator = new IncludeMutator(false);
                 }
 
-                includeMutator.Loader.SearchPaths.AddRange(_searchPaths);
+                foreach (var p in _searchPaths)
+                {
+                    includeMutator.Loader.SearchPaths.Add(p);
+                }
 
                 var ast2 =
                     constantFoldingMutator.MutateRecursively(

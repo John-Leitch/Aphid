@@ -23,7 +23,7 @@ someFunc.Body @ast.walk(@(node, context) {
     if (context.isRoot) {
         print('Root');
     } else if (!context.isBlock) {
-        (node |> getProps) -> (@.Name) +> (@+ ', ' + $args[1])
+        node.GetType().GetProperties() -> (@.Name) +> (@+ ', ' + $args[1])
         @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
     }
 });

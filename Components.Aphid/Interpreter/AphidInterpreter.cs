@@ -2721,7 +2721,10 @@ namespace Components.Aphid.Interpreter
                     StrictMode = StrictMode,
                 };
 
-                child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
+                foreach (var p in Loader.SearchPaths)
+                {
+                    child.Loader.SearchPaths.Add(p);
+                }
 
                 return child.CallFunctionCore(function, scope, parmsWrapped);
             }
@@ -4650,7 +4653,7 @@ namespace Components.Aphid.Interpreter
                 {
                     Loader.SearchPaths.Add(scriptDir);
                     ast = Loader.LoadScript(file);
-                    Loader.SearchPaths.RemoveAt(Loader.SearchPaths.Count - 1);
+                    Loader.SearchPaths.Remove(scriptDir);
                 }
                 else
                 {
@@ -5489,7 +5492,11 @@ namespace Components.Aphid.Interpreter
                     StrictMode = StrictMode,
                 };
 
-                child.Loader.SearchPaths.AddRange(Loader.SearchPaths);
+                foreach (var p in Loader.SearchPaths)
+                {
+                    child.Loader.SearchPaths.Add(p);
+                }
+
                 child.Interpret(expressions);
 
                 // Todo: come up with more foolproof solution to this issue.

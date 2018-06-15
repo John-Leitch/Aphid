@@ -15,9 +15,9 @@ namespace Components.Aphid.TypeSystem
             _fanInteropTypeMemoizer = new Memoizer<Type, string[]>(),
             _fanAphidTypeMemoizer = new Memoizer<Type, string[]>();
 
-        private bool _isUnknownExtended = false;
+        private static bool _isUnknownExtended = false;
 
-        private HashSet<string> _typesExtended = new HashSet<string>(),
+        private static HashSet<string> _typesExtended = new HashSet<string>(),
             _typesCtorExtended = new HashSet<string>(),
             _typesDynamicallyExtended = new HashSet<string>();
 
@@ -251,16 +251,18 @@ namespace Components.Aphid.TypeSystem
             else if (!_typesExtended.Contains(type))
             {
                 _typesExtended.Add(type);
+            }
 
-                if (ctorHandler != null)
-                {
-                    _typesCtorExtended.Add(type);
-                }
+            if (ctorHandler != null &&
+                !_typesCtorExtended.Contains(type))
+            {
+                _typesCtorExtended.Add(type);
+            }
 
-                if (dynamicHandler != null)
-                {
-                    _typesDynamicallyExtended.Add(type);
-                }
+            if (dynamicHandler != null &&
+                !_typesDynamicallyExtended.Contains(type))
+            {
+                _typesDynamicallyExtended.Add(type);
             }
 
             foreach (var extension in extensions)

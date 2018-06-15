@@ -24,7 +24,7 @@ namespace Components.Aphid.Compiler
 
         private Lazy<ModuleBuilder> _moduleBuilder;
 
-        private List<string> _types = new List<string>();
+        private HashSet<string> _types = new HashSet<string>();
 
         public string AssemblyName { get; private set; }
 

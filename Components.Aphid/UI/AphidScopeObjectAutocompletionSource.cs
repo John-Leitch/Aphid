@@ -423,7 +423,7 @@ namespace Components.Aphid.UI
                 return new Autocomplete[0];
             }
 
-            var imports = (List<string>)importObj.Value;
+            var imports = (HashSet<string>)importObj.Value;
             
             var types = _loader
                 .GetAssemblies()
@@ -487,16 +487,16 @@ namespace Components.Aphid.UI
                 .OrderBy(x => x.Text);
         }
 
-        private List<string> GetImports()
+        private HashSet<string> GetImports()
         {
             AphidObject importObj;
 
             if (!_currentScope.TryGetValue(AphidName.Imports, out importObj))
             {
-                return new List<string>();
+                return new HashSet<string>();
             }
 
-            return (List<string>)importObj.Value;
+            return (HashSet<string>)importObj.Value;
         }
 
         public void Dispose()

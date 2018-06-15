@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Components
 {
-    public class NamespaceEqualityComparer : IEqualityComparer<List<string>>
+    public class NamespaceEqualityComparer : IEqualityComparer<HashSet<string>>
     {
-        public bool Equals(List<string> x, List<string> y)
+        public bool Equals(HashSet<string> x, HashSet<string> y)
         {
             if (x == null)
             {
@@ -24,35 +24,17 @@ namespace Components
             }
             else
             {
-                for (var i = 0; i < x.Count; i++)
-                {
-                    if (x[i] != y[i])
-                    {
-                        return false;
-                    }
-                }
+                return x.SequenceEqual(y);
             }
-
-            return true;
         }
 
-        public int GetHashCode(List<string> obj)
+        public int GetHashCode(HashSet<string> obj)
         {
-            var x = 2;
+            var x = 0;
 
-            unchecked
+            foreach (var h in obj)
             {
-                for (var i = 0; i < obj.Count; i++)
-                {
-                    var t = obj[i].GetHashCode();
-
-                    x *= t != 0 ? t : 8;
-
-                    if (x == 0 || x == 1)
-                    {
-                        x = 9;
-                    }
-                }
+                x ^= h.GetHashCode();
             }
 
             return x;
