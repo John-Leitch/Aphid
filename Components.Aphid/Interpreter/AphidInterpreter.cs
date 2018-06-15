@@ -666,7 +666,6 @@ namespace Components.Aphid.Interpreter
         {
             var left = (AphidObject)InterpretExpression(expression.LeftOperand);
             var right = (AphidObject)InterpretExpression(expression.RightOperand);
-            bool scalarCompare;
 
             bool val;
 
@@ -678,33 +677,30 @@ namespace Components.Aphid.Interpreter
             {
                 throw CreateUndefinedMemberException(expression, expression.RightOperand);
             }
-            else if ((scalarCompare = left.IsScalar) != right.IsScalar)
+            else if (left.Value != null && right.Value != null)
             {
-                val = false;
+                Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
+                val = InterpretEqualityExpression(left.Value, leftType, right.Value, rightType);
             }
-            else if (scalarCompare)
+            else if (left.Value != null)
             {
-                if (left.Value != null && right.Value != null)
-                {
-                    Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
-                    val = InterpretEqualityExpression(left.Value, leftType, right.Value, rightType);
-                }
-                else if (left.Value != null)
-                {
-                    val = left.Value.Equals(right.Value);
-                }
-                else if (right.Value != null)
-                {
-                    val = right.Value.Equals(left.Value);
-                }
-                else
-                {
-                    val = true;
-                }
+                val = left.Value.Equals(right.Value);
+            }
+            else if (right.Value != null)
+            {
+                val = right.Value.Equals(left.Value);
+            }
+            else if (left.IsScalar && right.IsScalar)
+            {
+                val = true;
+            }
+            else if (left.IsComplex && right.IsComplex)
+            {
+                val = left == right;                
             }
             else
             {
-                val = left == right;
+                val = false;
             }
 
             if (expression.Operator == AphidTokenType.NotEqualOperator)
