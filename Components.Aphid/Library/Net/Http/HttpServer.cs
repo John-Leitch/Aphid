@@ -440,8 +440,8 @@ namespace Components.Aphid.Library.Net
             scope.Add("session", session);
             scope.Add("body", AphidObject.Scalar(body));
             scope.Add("globals", _globals);
-            scope.Add("content", AphidObject.Null());
-            scope.Add("contentType", AphidObject.Null());
+            scope.Add("content", AphidObject.Null);
+            scope.Add("contentType", AphidObject.Null);
 
             scope.Add(
                 "post",

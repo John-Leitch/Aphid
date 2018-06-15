@@ -667,48 +667,143 @@ namespace Components.Aphid.Interpreter
             var left = (AphidObject)InterpretExpression(expression.LeftOperand);
             var right = (AphidObject)InterpretExpression(expression.RightOperand);
 
-            bool val;
+            if (expression.Operator == AphidTokenType.EqualityOperator)
+            {
+                //bool val;
 
-            if (left == null)
-            {
-                throw CreateUndefinedMemberException(expression, expression.LeftOperand);
-            }
-            else if (right == null)
-            {
-                throw CreateUndefinedMemberException(expression, expression.RightOperand);
-            }
-            else if (left.Value != null && right.Value != null)
-            {
-                Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
-                val = InterpretEqualityExpression(left.Value, leftType, right.Value, rightType);
-            }
-            else if (left.Value != null)
-            {
-                val = left.Value.Equals(right.Value);
-            }
-            else if (right.Value != null)
-            {
-                val = right.Value.Equals(left.Value);
-            }
-            else if (left.IsScalar && right.IsScalar)
-            {
-                val = true;
-            }
-            else if (left.IsComplex && right.IsComplex)
-            {
-                val = left == right;                
+                if (left == null)
+                {
+                    throw CreateUndefinedMemberException(expression, expression.LeftOperand);
+                }
+                else if (right == null)
+                {
+                    throw CreateUndefinedMemberException(expression, expression.RightOperand);
+                }
+                else if (left.Value != null && right.Value != null)
+                {
+                    Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
+                    if (InterpretEqualityExpression(left.Value, leftType, right.Value, rightType))
+                    {
+                        return AphidObject.True;
+                    }
+                    else
+                    {
+                        return AphidObject.False;
+                    }
+                }
+                else if (left.Value != null)
+                {
+                    if (left.Value.Equals(right.Value))
+                    {
+                        return AphidObject.True;
+                    }
+                    else
+                    {
+                        return AphidObject.False;
+                    }
+                }
+                else if (right.Value != null)
+                {
+                    if (right.Value.Equals(left.Value))
+                    {
+                        return AphidObject.True;
+                    }
+                    else
+                    {
+                        return AphidObject.False;
+                    }
+                }
+                else if (left.IsScalar && right.IsScalar)
+                {
+                    return AphidObject.True;
+                }
+                else if (left.IsComplex && right.IsComplex)
+                {
+                    if (left == right)
+                    {
+                        return AphidObject.True;
+                    }
+                    else
+                    {
+                        return AphidObject.False;
+                    }
+                }
+                else
+                {
+                    return AphidObject.False;
+                }
             }
             else
             {
-                val = false;
+                if (left == null)
+                {
+                    throw CreateUndefinedMemberException(expression, expression.LeftOperand);
+                }
+                else if (right == null)
+                {
+                    throw CreateUndefinedMemberException(expression, expression.RightOperand);
+                }
+                else if (left.Value != null && right.Value != null)
+                {
+                    Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
+                    if (InterpretEqualityExpression(left.Value, leftType, right.Value, rightType))
+                    {
+                        return AphidObject.False;
+                    }
+                    else
+                    {
+                        return AphidObject.True;
+                    }
+                }
+                else if (left.Value != null)
+                {
+                    if (left.Value.Equals(right.Value))
+                    {
+                        return AphidObject.False;
+                    }
+                    else
+                    {
+                        return AphidObject.True;
+                    }
+                }
+                else if (right.Value != null)
+                {
+                    if (right.Value.Equals(left.Value))
+                    {
+                        return AphidObject.False;
+                    }
+                    else
+                    {
+                        return AphidObject.True;
+                    }
+                }
+                else if (left.IsScalar && right.IsScalar)
+                {
+                    return AphidObject.False;
+                }
+                else if (left.IsComplex && right.IsComplex)
+                {
+                    if (left == right)
+                    {
+                        return AphidObject.False;
+                    }
+                    else
+                    {
+                        return AphidObject.True;
+                    }
+                }
+                else
+                {
+                    return AphidObject.True;
+                }
             }
 
-            if (expression.Operator == AphidTokenType.NotEqualOperator)
-            {
-                val = !val;
-            }
+            //if (expression.Operator == AphidTokenType.NotEqualOperator)
+            //{
+            //    val = !val;
+            //}
 
-            return AphidObject.Scalar(val);
+            //return AphidObject.Scalar(val);
         }
 
         // Todo: add interop support for dynamic members e.g. Path.{'Combine'}
@@ -3627,7 +3722,7 @@ namespace Components.Aphid.Interpreter
 
                             if (unwrappedPath == null)
                             {
-                                return AphidObject.Null();
+                                return AphidObject.Null;
                             }
 
                             if (File.Exists(path = unwrappedPath.ToString()))
@@ -4741,7 +4836,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return AphidObject.Null();
+            return AphidObject.Null;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -5124,7 +5219,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    CurrentScope.Add(id, AphidObject.Null());
+                    CurrentScope.Add(id, AphidObject.Null);
 
                     return null;
                 }
@@ -5240,7 +5335,7 @@ namespace Components.Aphid.Interpreter
                     return InterpretLoadLibraryExpression((LoadLibraryExpression)expression);
 
                 case AphidExpressionType.NullExpression:
-                    return AphidObject.Null();
+                    return AphidObject.Null;
 
                 case AphidExpressionType.ContinueExpression:
                     return InterpretContinueExpression();
@@ -5501,7 +5596,7 @@ namespace Components.Aphid.Interpreter
                         throw CreateStrictModeException(id);
                     }
 
-                    CurrentScope.Add(id, AphidObject.Null());
+                    CurrentScope.Add(id, AphidObject.Null);
                 }
                 else
                 {

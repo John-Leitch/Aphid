@@ -17,6 +17,10 @@ namespace Components.Aphid.TypeSystem
     [Serializable]
     public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
+        public static readonly AphidObject Null = Scalar(null),
+            True = Scalar(true),
+            False = Scalar(false);
+
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
         private bool _isScalar;
 
@@ -655,11 +659,6 @@ namespace Components.Aphid.TypeSystem
             {
                 return new AphidObject();
             }
-        }
-
-        public static AphidObject Null()
-        {
-            return new AphidObject(value: null);
         }
     }
 }
