@@ -21,9 +21,9 @@ var cd = @Directory.SetCurrentDirectory(testRoot);
 var init = @{
     if (Directory.Exists(testRoot)) {
         cd();
-        #> 'git fetch --all';
-        #> 'git pull';
+        #> 'git fetch --all';        
         #> 'git reset --hard origin/master';
+        #> 'git pull';
     } else {
         #> ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot);
         cd();
