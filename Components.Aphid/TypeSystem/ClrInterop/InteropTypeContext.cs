@@ -8,9 +8,11 @@ namespace Components.Aphid.TypeSystem
 {
     public class InteropTypeContext
     {
-        public string[] Imports { get; private set; }
+        public HashSet<string> Imports { get; private set; }
 
         public string[] Path { get; private set; }
+
+        public HashSet<string> PathHashSet { get; private set; }
 
         public bool IsType { get; private set; }
 
@@ -18,8 +20,9 @@ namespace Components.Aphid.TypeSystem
 
         public InteropTypeContext(string[] imports, string[] path, bool isType)
         {
-            Imports = imports;
+            Imports = new HashSet<string>(imports);
             Path = path;
+            PathHashSet = new HashSet<string>(path);
             IsType = isType;
         }
     }
