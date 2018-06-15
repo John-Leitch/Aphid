@@ -3,6 +3,10 @@
 using System.IO;
 using System.Text;
 
+var ignore = [
+    '581bb73 Updated interop type caching to use hash sets.'
+];
+
 var config = 'Release';
 var root = Path.Combine(Path.GetDirectoryName(this['$script']), '..', '..') |> Path.GetFullPath;
 var testRoot = Path.Combine(root, '..', 'AphidBenchMark') |> Path.GetFullPath;
@@ -43,7 +47,8 @@ var run = @{
     #> ('c:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe ' + 
         csProj + ' ' +
         (((csProj  |> File.ReadAllText) ~= 'Release\\|Default') ? '/p:Platform= ' : '') +
-        '/p:Configuration=' + config);
+        '/p:Configuration=' + config + ' ' +
+        '/verbosity:quiet');
     
     if (hasExe()) {
         #> ('cmd /c copy ' + testSrc + '\\*.alx ' + testDst + ' /y');
@@ -61,18 +66,30 @@ var rollBack = @{
     #> ('cmd /c copy ' + testDst + '\\history.* ' + tmpDir + ' /y');
     
     var tries = 0;
-    do {
+
+    while (true) {
         cd();
         #> 'git reset --hard HEAD~1';
 
         sb.Clear();
         'git show --name-only --oneline' ~> sb.AppendLine;
-        print('Current changes: ~Cyan~{0}~R~', sb);
 
+        var s = sb.ToString();
+
+        
+        if (ignore =? s.StartsWith) {
+            print('Ignoring:\r\n~Red~{0}~R~', sb);
+        } else if (s.ToLower() ~= '\\.cs[^a-z0-9]') {
+            print('C# changes found:\r\n~Green~{0}~R~', sb);
+            break;
+        } else {
+            print('No C# changes found:\r\n~Yellow~{0}~R~', sb);
+        }
+        
         if (++tries == 100) {
             print('No more CS changes found, exiting');
         }
-    } while (!sb.ToString().ToLower().Contains('.cs'));
+    }
 
     #> ('cmd /c copy ' + tmpDir + '\\history.* ' + testDst + ' /y');
 };
