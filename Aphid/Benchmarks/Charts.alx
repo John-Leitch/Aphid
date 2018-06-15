@@ -20,14 +20,29 @@ area3d.Rotation = 45;
 area3d.WallWidth = 5;
 area3d.LightStyle = LightStyle.Realistic;
 
+var tickMode = { normal: 0, sum: 1, average: 2 };
+
+var mode = tickMode.normal;
+
 db.ReadUnsafe()
 -< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
 -& @.name
 -> @(s){
-    var i = 0;
-    s -\ @.version
-    -> (@() [ i, $_.ticks ])
-    @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
+    var i = 0x1000;
+    var data = ($(mode)
+        tickMode.average: (s
+            -& (@.version)
+            -\ (@.Key)
+            -> (@() [ i++, ($_ -> @.ticks +> (@(a, b) a + b)) / ($_ #!) ])),
+        tickMode.sum: (s
+            -& (@.version)
+            -\ (@.Key)
+            -> (@() [ i++, ($_ -> @.ticks +> (@(a, b) a + b)) ])),
+        (s
+            -\ (@.version)
+            -> (@() [ i++, $_.ticks ])));
+    
+    data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
 };
 
 db.Dispose();
