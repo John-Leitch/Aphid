@@ -1,12 +1,19 @@
 #'Std';
 #'Process';
 using System.IO;
+using System.Text;
 
+var config = 'Release';
 var root = Path.Combine(Path.GetDirectoryName(this['$script']), '..', '..') |> Path.GetFullPath;
 var testRoot = Path.Combine(root, '..', 'AphidBenchMark') |> Path.GetFullPath;
-var testSrc = root + '\\Aphid\\Benchmarks';
-var testDst = testRoot + '\\Aphid\\Benchmarks';
-var exe = testRoot + '\\aphid\\bin\\release\\aphid.exe';
+var csProj = testRoot + '\\Aphid\\Aphid.csproj';
+var benchRel = '\\Aphid\\Benchmarks';
+var testSrc = root + benchRel;
+var testDst = testRoot + benchRel;
+var bin = '\\bin\\' + config;
+var testBin = testRoot + '\\Aphid' + bin;
+var testBin2 = testRoot + '\\Components.Aphid' + bin;
+var exe = testBin + '\\Aphid.exe';
 var test = exe + ' run2.alx';
 var tmpDir = testSrc + '\\temp';
 var cd = @Directory.SetCurrentDirectory(testRoot);
@@ -14,7 +21,9 @@ var cd = @Directory.SetCurrentDirectory(testRoot);
 var init = @{
     if (Directory.Exists(testRoot)) {
         cd();
-        #> 'git pull'
+        #> 'git fetch --all';
+        #> 'git pull';
+        #> 'git reset --hard origin/master';
     } else {
         #> ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot);
         cd();
@@ -27,13 +36,14 @@ var init = @{
 var run = @{
     var hasExe = @File.Exists(exe);
 
-    if (hasExe()) {
-        File.Delete(exe);
-    }
+    [ 'aphid*.exe', 'components*.dll', '*.alx', '*.cache*' ]
+        ->@(p) [ testBin, testBin2 ]
+            ->@() #> ('cmd /c del ' + $_ + '\\' + p + ' /s /q');
 
     #> ('c:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe ' + 
-        testRoot + '\\aphid\\Aphid.csproj ' + 
-        '/p:Configuration=Release');
+        csProj + ' ' +
+        (((csProj  |> File.ReadAllText) ~= 'Release\\|Default') ? '/p:Platform= ' : '') +
+        '/p:Configuration=' + config);
     
     if (hasExe()) {
         #> ('cmd /c copy ' + testSrc + '\\*.alx ' + testDst + ' /y');
@@ -44,10 +54,26 @@ var run = @{
     rollBack();
 };
 
+var sb = new StringBuilder();
+
 var rollBack = @{
     cd();
     #> ('cmd /c copy ' + testDst + '\\history.* ' + tmpDir + ' /y');
-    #> 'git reset --hard HEAD~1';
+    
+    var tries = 0;
+    do {
+        cd();
+        #> 'git reset --hard HEAD~1';
+
+        sb.Clear();
+        'git show --name-only --oneline' ~> sb.AppendLine;
+        print('Current changes: ~Cyan~{0}~R~', sb);
+
+        if (++tries == 100) {
+            print('No more CS changes found, exiting');
+        }
+    } while (!sb.ToString().ToLower().Contains('.cs'));
+
     #> ('cmd /c copy ' + tmpDir + '\\history.* ' + testDst + ' /y');
 };
 
