@@ -26,26 +26,41 @@ var nuget;
         customResolver: false,
         isResolveSet: false,
         trace: false,
+        ignoreDependencies: false,
+        allowPrereleaseVersions: true,
         refMap: new Dictionary[string, string](),
         createRepo: @() PackageRepositoryFactory.Default.CreateRepository(repoUrl),
         createPackageManager: @() new PackageManager(createRepo(), '.\\'),
         getLocalPackages: @() createPackageManager().LocalRepository.GetPackages(),
         
-        reference: @(id) {
+        reference: @(packageId) {
             if ($args.Count > 1) {
                 ret $args-<reference;
             }
 
-            var packages = getLocalPackages() -? (@(x) x.Id == id) -/ @.Version;
+            var packages = getLocalPackages() -? (@(x) x.Id == packageId) -/ @.Version;
 
             if (packages #! @== 0) {
-                installPackage(id);
+                installPackage(packageId);
 
-                ret reference(id);
+                ret reference(packageId);
             } else {
                 var p = packages ^!;
                 var d = '{0}.{1}' :: [ p.Id, p.Version ] |> Path.GetFullPath;
-                var refAsmPaths = p @.AssemblyReferences->@() Path.Combine(d, $_.Path);
+                
+                var refAsmGroups = p.AssemblyReferences
+                    -<(@(r) $_.SupportedFrameworks->(@()({
+                        path: r, name: $_.FullName, version: $_.Version
+                    })))
+                    -&@.name;
+
+                var filtered = refAsmGroups -? @() $_.Key.StartsWith('.NETFramework');
+
+                var refAsmPaths = ((filtered #!) != 0 ? filtered : refAsmGroups)
+                    -/@.Key
+                    ^!
+                    ->@() Path.Combine(d, $_.path);
+
                 var badAsms = refAsmPaths-?(@(x) !File.Exists(x));
 
                 if (badAsms #! @!= 0) {
@@ -98,10 +113,14 @@ var nuget;
         },
     };
 
-    installPackage = @(package) {
-        // print('Installing package {0}' :: [ package ]);
-        ret nuget.createPackageManager().InstallPackage(package);
-    }
+    installPackage = @(packageId)
+        nuget
+            .createPackageManager()
+            .InstallPackage(
+                packageId,
+                null,
+                nuget.ignoreDependencies,
+                nuget.allowPrereleaseVersions);
 }();
 
 // Todo: replace with preprocessor looping support
