@@ -75,15 +75,16 @@ var rollBack = @{
         'git show --name-only --oneline' ~> sb.AppendLine;
 
         var s = sb.ToString();
+        var s2 = s |> Cli.StyleEscape;
 
         
         if (ignore =? s.StartsWith) {
-            print('Ignoring:\r\n~Red~{0}~R~', sb);
+            print('Ignoring:\r\n~Red~{0}~R~', s2);
         } else if (s.ToLower() ~= '\\.cs[^a-z0-9]') {
-            print('C# changes found:\r\n~Green~{0}~R~', sb);
+            print('C# changes found:\r\n~Green~{0}~R~', s2);
             break;
         } else {
-            print('No C# changes found:\r\n~Yellow~{0}~R~', sb);
+            print('No C# changes found:\r\n~Yellow~{0}~R~', s2);
         }
         
         if (++tries == 100) {
