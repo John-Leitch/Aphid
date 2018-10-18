@@ -28,7 +28,7 @@ db.ReadUnsafe()
 -< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
 -& @.name
 -> @(s){
-    var i = 0x1000;
+    var i = 0x0;
     var data = ($(mode)
         tickMode.average: (s
             -& (@.version)

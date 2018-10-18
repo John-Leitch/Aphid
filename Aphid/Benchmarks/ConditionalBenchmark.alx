@@ -1,0 +1,12 @@
+﻿#'Benchmark';
+
+var count = 250000;
+
+benchmark('if block', 150000, @{ var b = true }, @{ if (b) { 10 } else { } });
+benchmark('else block', 150000, @{ var b = false }, @{ if (b) { } else { 10 } });
+benchmark('switch match block', 150000, @{ var x = 10 }, @{ switch (x) { 10: { 20 } default: { 30 } } });
+benchmark('switch default block', 150000, @{ var x = 20 }, @{ switch (x) { 10: { 20 } default: { 30 } } });
+benchmark('conditional true', 600000, @{ var x = true }, @{ x ? 10 : 20 });
+benchmark('conditional false', 600000, @{ var x = false }, @{ x ? 10 : 20 });
+benchmark('pattern match', 300000, @{ var x = 10 }, @{ $(x) 10: 20, 30 });
+benchmark('pattern default', 300000, @{ var x = 11 }, @{ $(x) 10: 20, 30 });

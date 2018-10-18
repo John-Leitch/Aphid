@@ -1,0 +1,8 @@
+﻿#'Benchmark';
+numberBenchmarkRep = 1000000 / 4;
+numberBenchmark('equals', @{ i == 10 });
+numberBenchmark('not equal', @{ i != 10 });
+numberBenchmark('less than', @{ i < 10 });
+numberBenchmark('greater than', @{ i > 10 });
+numberBenchmark('less than equal to', @{ i <= 10 });
+numberBenchmark('greater than equal to', @{ i >= 10 });
