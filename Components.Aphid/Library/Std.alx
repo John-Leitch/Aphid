@@ -127,7 +127,9 @@ using System.Text.RegularExpressions;
 @ |\ (file) _in(ReadAllText);
 @ \| (text, file) text.ToString() @File.WriteAllText(file.ToString());
 @ \& (buffer, file) buffer @File.WriteAllBytes(file.ToString());
-@ ?. (lhs, rhs) lhs != null ? lhs.{this.{'$frames'}[0].Expression.RightOperand.Identifier} : null;
+_rhs = macro(@{ this.{'$frames'}[0].Expression.RightOperand });
+@ ?. (lhs, rhs) lhs != null ? lhs.{_rhs().Identifier} : null;
+@ -. (lhs, rhs) { var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> this.{'$aphid'}.Interpret; ret lhs->f };
 
 @ !! (condition, fatalMessage) {
 	if (condition) {
@@ -463,8 +465,21 @@ var endOut = @{
 };
 
 var findType = @(searchStr) AppDomain.CurrentDomain
-        .GetAssemblies()
-        -<(@()$_.GetTypes())
-        -?@()$_
-            .ToString()
-            .IndexOf(searchStr, StringComparison.OrdinalIgnoreCase) > -1;
+    .GetAssemblies()
+    -<(@()$_.GetTypes())
+    -?@()$_
+        .ToString()
+        .IndexOf(searchStr, StringComparison.OrdinalIgnoreCase) > -1;
+
+_firstChar = macro(@(action) {
+    @(word)
+        !string.IsNullOrEmpty(word) ?
+            (word.Remove(1).action() + (word.Length > 1 ? word.Substring(1) : '')) :
+            word
+});
+
+var language = {
+    pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),    
+    capitalize: _firstChar(ToUpper),
+    camelCase: _firstChar(ToLower),
+};
