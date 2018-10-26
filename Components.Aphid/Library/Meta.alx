@@ -622,3 +622,45 @@ var resolveType = @(type)
         [ type ],
         true,
         true);
+
+var importRules;
+var importMethods;
+var importMethodsScope = this;
+var loadTokenDetails;
+
+@{
+    importRules = {
+        camelCase: true,
+        createScope: true,
+        strict: true,
+    };
+
+    importMethods = @(sourceType)
+        copyMethods(
+            sourceType,
+            importRules.camelCase ? language.camelCase : @() $_,
+            importRules.createScope ? {} : importMethodsScope);
+
+    var copyMethods = @(sourceType, prep, scope) {
+        sourceType
+            .GetMethods()
+            ->@.Name
+            !?
+            ->@{
+                scope[$_ |> prep] = evalExp('{0}.{1}' :: [ sourceType.Name, $_ ])
+            };
+        
+        ret scope;
+    };
+
+    //var getNames = @(sourceType)
+
+    loadTokenDetails = @{
+        var getNumber = @() $_;
+        var getString = @() $_;
+        //@{%> c:\source\Aphid\Components.Aphid\Aphid.Tokens.alx <%}[1].Text.Trim() |> serialize |> print
+        #'c:\\source\\Aphid\\Components.Aphid\\Aphid.Tokens.alx';
+
+        ret tokens;
+    };
+}();
