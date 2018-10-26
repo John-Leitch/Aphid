@@ -28,12 +28,10 @@ var parallel;
         });
 
     parallel = @(action, collection) collection
-        ->(@(element) var ctx = {
+        ->(@(element) ({
             state: null,
-            thread: thread(@{
-                ctx.state = element |> action;
-            }) 
-        })
+            thread: thread(@{ $_.state = element |> action }, this)
+        }))
         ->(@(ctx)ctx.thread.WaitOne() ? ctx.state : null);
 }();
 
