@@ -286,7 +286,7 @@ namespace Components.Aphid.Compiler
             property.SetGetMethod(getter);
 
             var setter = typeBuilder.DefineMethod(
-                getName,
+                setName,
                 accessorAttr,
                 null,
                 new[] { t });
