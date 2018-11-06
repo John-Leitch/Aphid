@@ -142,6 +142,7 @@ namespace Components.Aphid.Tests.Integration
         public void TryCatchNestingExceptionStackTraceStaleNameTest()
         {
             AssertTrue(@"
+                #'meta';
                 var stale = @() 1/1;
                 var foo = @() 1/0;
                 var bar = @{
@@ -168,7 +169,7 @@ namespace Components.Aphid.Tests.Integration
                         !e.stack.Contains('stale');
                 }
 
-                success = success && this.{'$frames'}.Count == 1;
+                success = success && frames().Length == 1;
 
                 ret success;
             ");

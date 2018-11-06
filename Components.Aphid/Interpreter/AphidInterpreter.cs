@@ -4995,7 +4995,7 @@ namespace Components.Aphid.Interpreter
                     var ex = AphidObject.Complex();
                     ex.Add("message", AphidObject.Scalar(ExceptionHelper.Unwrap(e).Message));
                     ex.Add("exception", AphidObject.Scalar(e));
-                    ex.Add("stack", AphidObject.Scalar(ExceptionHelper.StackTrace(GetStackTrace())));
+                    ex.Add("stack", AphidObject.Scalar(ExceptionHelper.StackTrace(GetRawStackTrace())));
 
                     CurrentScope.Add(expression.CatchArg.Identifier, ex);
                 }
@@ -5667,7 +5667,19 @@ namespace Components.Aphid.Interpreter
             Array.Reverse(arr);
 
             return arr;
-        }        
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidFrame[] GetRawStackTrace()
+        {
+            var c = _frames.Count;
+            var src = _getFrameArray();
+            var arr = new AphidFrame[c];
+            Array.Copy(src, 0, arr, 0, c);
+            Array.Reverse(arr);
+
+            return arr;
+        }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidFrame[] GetStackTrace(int skip)
