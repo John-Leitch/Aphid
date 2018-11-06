@@ -1,0 +1,157 @@
+using System.IO;
+using Components.External.ConsolePlus;
+using Components.Aphid.Parser;
+
+_lp = print;
+_lp = @{};
+
+csvLexerState = {
+    starting: 0,
+    inString: 1,
+    endString: 2,
+    inValue: 3,
+    // endValue: 4,
+};
+
+fixCsvLine = @(line) {
+    using System.Linq;
+    using System.Text;
+
+    state = csvLexerState.starting;
+
+    lexer = 
+        line.ToCharArray()
+        |> Enumerable.ToList
+        |> getLexer;
+
+    sb = new StringBuilder();
+    while (!lexer.eos) {
+        token = lexer.token;
+        _lp('Scanning \'{0}\'', token);
+        switch (state){
+            csvLexerState.starting: {
+                _lp('[?] Scanning element start');
+                switch (token) {
+                    '"': {
+                        _lp('[+] matched string start');
+                        sb.Append(token);
+                        state = csvLexerState.inString;
+                    }
+
+                    ',': {
+                        _lp('[+] matched empty value');
+                        sb.Append('"",');
+                    }
+
+                    default: {
+                        _lp('[+] matched value start');
+                        sb.Append('"');
+                        sb.Append(token);
+                        state = csvLexerState.inValue;
+                    }
+                }
+            }
+
+            csvLexerState.inString: {
+                _lp('[?] Scanning string');
+                sb.Append(token);
+
+                if (token == '"') {
+                    _lp('[+] matched end string');
+                    state = csvLexerState.endString;
+                }
+            }
+
+            csvLexerState.endString: {
+                _lp('[?] Scanning end string');
+                sb.Append(token);
+
+                if (token == ',') {
+                    _lp('[+] matched comma');
+                    state = csvLexerState.starting;
+                } else {
+                    fatal('Expected comma');
+                }
+            }
+
+            csvLexerState.inValue: {
+                if (token != ',') {
+                    _lp('[+] matched value token');
+                    sb.Append(token);
+                } else {
+                    _lp('[+] matched end string');
+                    sb.Append('"');
+                    sb.Append(token);
+                    state = csvLexerState.starting;
+                }
+            }
+            
+            default: fatal('Unknown lexer state');
+        }
+
+        lexer.next();
+    }
+
+    if (state == csvLexerState.inValue) {
+        sb.Append('"');
+    }
+
+    ret sb.ToString();
+};
+
+parseCsvFile = @(csvFile) {
+    print('Parsing CSV file');
+    rows =
+        csvFile
+        |> File.ReadAllLines
+        @aq.skip(3)
+        -> @format('[{0}]')
+        +>(@(x, y) x + ',\r\n' + y)
+        @format('[{0}]')
+        evalExp;
+
+    names = rows[0];
+
+    csvObj = rows @aq.skip(1) ->(@(r) {
+        o = {};
+        0..names.Count ->@() {
+            c = r[$_];
+            try { c = Decimal.Parse(c) } catch {
+                try { c = DateTime.Parse(c); } catch {}
+            }
+
+            o.{names[$_]} = c;
+        };
+        ret o;
+    });
+
+    ret csvObj;
+};
+
+parseCsvLines = @(csvLines) {
+    print('Parsing CSV file');
+    rows =
+        csvLines
+        -> @format('[{0}]')
+        +>(@(x, y) x + ',\r\n' + y)
+        @format('[{0}]')
+        evalExp;
+
+    names = rows[0];
+
+    csvObj = rows @aq.skip(1) ->(@(r) {
+        o = {};
+        0..names.Count ->@() {
+            c = r[$_];
+            try { c = Decimal.Parse(c) } catch {
+                try { c = DateTime.Parse(c); } catch {}
+            }
+
+            o.{names[$_]} = c;
+        };
+        ret o;
+    });
+
+    ret csvObj;
+};
+//rows |> dump;

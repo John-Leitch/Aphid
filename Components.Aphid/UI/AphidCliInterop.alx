@@ -1,0 +1,42 @@
+﻿using Components.Aphid.UI;
+using Components.Aphid.TypeSystem;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+// Todo: fix packing issue.
+#'Meta/Reflection';
+
+export Type AphidCli.Unwrap = @(Object obj) this.{'$aphid'}.ValueHelper.Unwrap(obj);
+
+export Type AphidCli.GetUnwrappedType = @(Object obj)
+    (var val = this.{'$aphid'}.ValueHelper.Unwrap(obj)) != null ? val.GetType() : null;
+
+export string AphidCli.GetAphidObjectTypeName = @(Object obj)
+    (obj == null || (var uw = this.{'$aphid'}.ValueHelper.Unwrap(obj)) == null) ?
+        AphidType.Null :
+    (var t = uw.GetType()) == List[AphidObject] ? AphidType.List :
+    (var alias = AphidAlias.Resolve(t)) != AphidType.Unknown &&
+        alias != AphidType.List &&
+        alias != null ? alias :
+    typeToString(t, false).ToString();
+
+export string AphidCli.GetAphidTypeName = @(Type type)
+    type == List[AphidObject] ? AphidType.List :
+    (var alias = AphidAlias.Resolve(type)) != AphidType.Unknown &&
+        alias != AphidType.List &&
+        alias != null ? alias :
+    typeToString(type, false).ToString();
+
+export string AphidCli.GetTypeName = @(Type type)
+    typeToString(type, false).ToString();
+
+export string AphidCli.GetTypeFullName = @(Type type)
+    typeToString(type, true).ToString();
+
+export string AphidCli.GetObjectTypeName = @(Object obj)
+    obj != null ? typeToString(obj.GetType(), false).ToString() : null;
+
+export string AphidCli.GetObjectTypeFullName = @(Object obj)
+    obj != null ? typeToString(obj.GetType(), true).ToString() : null;

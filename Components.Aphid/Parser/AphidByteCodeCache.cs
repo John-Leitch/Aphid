@@ -50,11 +50,17 @@ namespace Components.Aphid.Parser
 
                 if ((Flags & 0x1) == 0)
                 {
-                    includeMutator = new IncludeMutator();
+                    includeMutator = new IncludeMutator()
+                    {
+                        PerformCommonTransformations = false,
+                    };
                 }
                 else
                 {
-                    includeMutator = new IncludeMutator(false);
+                    includeMutator = new IncludeMutator(false)
+                    {
+                        PerformCommonTransformations = false,
+                    };
                 }
 
                 foreach (var p in _searchPaths)
@@ -70,7 +76,8 @@ namespace Components.Aphid.Parser
                                     partialOpMutator.MutateRecursively(ast)))));
 
                 includeMutator.Included.Add(filename);
-                sources = includeMutator.Included.ToArray();
+                sources = new string[includeMutator.Included.Count];
+                includeMutator.Included.CopyTo(sources);
 
                 return ast2;
             }

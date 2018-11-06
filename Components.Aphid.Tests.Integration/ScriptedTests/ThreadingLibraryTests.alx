@@ -1,5 +1,5 @@
-﻿#'Threading';
-#'AopTest';
+﻿#'Core\\Threading';
+#'Testing\\AopTest';
 threading group;
 
 isTrue;

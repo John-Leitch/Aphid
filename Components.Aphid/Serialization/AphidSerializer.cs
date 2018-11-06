@@ -43,6 +43,8 @@ namespace Components.Aphid.Serialization
 
         public bool QuoteToStringResults { get; set; }
 
+        public bool ToStringClrTypes { get; set; }
+
         public AphidSerializer(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -139,7 +141,8 @@ namespace Components.Aphid.Serialization
                         kvp.Value.Value is AphidInteropFunction ||
                         kvp.Value.Value is AphidInteropPartialFunction ||
                         kvp.Value.Value is BinaryOperatorBodyExpression ||
-                        kvp.Value.Value is AphidFunctionComposition)) ||
+                        kvp.Value.Value is AphidFunctionComposition ||
+                        kvp.Value.Value is AphidInteropMember)) ||
                         (IgnoreSpecialVariables && kvp.Key.StartsWith("$")))
                     {
                         continue;
@@ -304,7 +307,6 @@ namespace Components.Aphid.Serialization
                 {
                     s.AppendFormat("{1}clrObject({0}){1}", value.GetType().FullName, "'");
                 }
-
             }
         }
 

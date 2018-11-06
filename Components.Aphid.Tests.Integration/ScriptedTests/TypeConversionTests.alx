@@ -1,5 +1,5 @@
 ﻿#'Std';
-#'Test';
+#'Testing\\Test';
 var decimalToInt = @() 'f'.PadRight(3) == 'f  ';
 var decimalToInt2 = @() 'foo'.PadRight(3) == 'foo';
 var decimalToInt3 = @() 'f'.PadRight(3).Trim() == 'f';

@@ -55,20 +55,25 @@ namespace Components.Aphid.Interpreter
             return ToString(true);
         }
 
-        public string ToString(bool showParams)
+        public string ToString(bool showParams, bool useFullNames = true)
         {
             return showParams ?
-                string.Format("{0}({1})", Name, CreateParamTupleString()) :
+                string.Format(
+                    "{0}({1})",
+                    Name,
+                    CreateParamTupleString(useFullNames)) :
                 Name;
         }
 
-        private string CreateParamTupleString()
+        public string CreateParamTupleString(bool useFullNames)
         {
             // Todo: get param names
-            return string.Join(", ", Arguments.Select((x, i) => GetArgumentType(x)));
+            return string.Join(
+                ", ",
+                Arguments.Select((x, i) => GetArgumentType(x, useFullNames)));
         }
         
-        private string GetArgumentType(object argument)
+        private string GetArgumentType(object argument, bool useFullNames)
         {
             if (argument == null)
             {
@@ -78,7 +83,8 @@ namespace Components.Aphid.Interpreter
             var t = argument.GetType();
             var n = AphidAlias.Resolve(t);
 
-            return n != null && n != AphidType.Unknown ? n : t.FullName;
+            return n != null && n != AphidType.Unknown ? n :
+                (useFullNames ? t.FullName : t.Name);
         }
 
         private string CreateArgString()

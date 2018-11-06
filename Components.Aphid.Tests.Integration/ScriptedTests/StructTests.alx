@@ -1,5 +1,5 @@
 ﻿using Components.PInvoke;
-#'AopTest';
+#'Testing\\AopTest';
 struct group;
 
 prologue;
@@ -20,8 +20,9 @@ isTrue;
     var l = new List[byte]();
     [ 0xde, 0xad, 0xbe, 0xef ]->l.Add;
     c.ExtendedRegisters = l.ToArray();
+
     c.ExtendedRegisters != null &&
-    c.ExtendedRegisters.Length == 4 &&
-    c.ExtendedRegisters[0] == 0xde &&
-    c.ExtendedRegisters[3] == 0xef
+        c.ExtendedRegisters.Length == 4 &&
+        c.ExtendedRegisters[0] == 0xde &&
+        c.ExtendedRegisters[3] == 0xef
 };

@@ -20,7 +20,7 @@ namespace Components.Aphid.Parser
 
         public bool UseImplicitReturns { get; private set; }
 
-        public List<string> Included { get; private set; }
+        public HashSet<string> Included { get; private set; }
 
         public bool PerformCommonTransformations { get; set; }
 
@@ -41,7 +41,7 @@ namespace Components.Aphid.Parser
             PerformCommonTransformations = true;
             _applicationDirectory = applicationDirectory;
             UseImplicitReturns = useImplicitReturns;
-            Included = new List<string>();
+            Included = new HashSet<string>();
         }
 
         public IncludeMutator(string applicationDirectory)
@@ -86,13 +86,17 @@ namespace Components.Aphid.Parser
                 scriptExp = loadExp.FileExpression;
             }
 
-            var script = _loader.FindScriptFile(
-                _applicationDirectory,
-                StringParser.Parse(((StringExpression)scriptExp).Value));
+            var scriptStr = StringParser.Parse(((StringExpression)scriptExp).Value);
+
+            var script = _loader.FindScriptFile(_applicationDirectory, scriptStr);
 
             if (!File.Exists(script))
             {
-                throw new AphidParserException("Could not find script", scriptExp);
+                throw new AphidParserException(
+                    string.Format(
+                        "Could not find script {0}",
+                        scriptStr),
+                    scriptExp);
             }
 
             Included.Add(script);
@@ -112,7 +116,12 @@ namespace Components.Aphid.Parser
                     cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray(), 0x1);
                 }
 
-                ast = cache.Read(script);
+                ast = cache.Read(script, out var cacheSources);
+
+                for (var i = 0; i < cacheSources.Length; i++)
+                {
+                    Included.Add(cacheSources[i].Name);
+                }
             }
             else
             {

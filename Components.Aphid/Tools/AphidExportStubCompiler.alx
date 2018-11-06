@@ -1,21 +1,28 @@
 ﻿#'Std';
-#'Compiler';
+#'Meta\\Code\\Compiler';
 using Components.Aphid.UI;
 
 // Used to ignore scripts copied to bin directory by build process. To
 // disable, comment line out.
 var ignorePattern = '\\bin\\';
 
-var cliArgs = Environment.GetCommandLineArgs();
+var args = parseArgsFor([
+    'aphidexportstubcompiler.exe',
+    'aphidexportstubcompiler.alx',
+    'aphidexportstubcompiler'
+]);
 
-if (cliArgs.Length != 5) {
+if (args.Count == 0) {
     print('aphid AphidExportStubCompiler.alx [namespace] [project dir] [output dir]');
     exit(1);
+} else if (args.Count != 3) {
+    printError('Invalid args: {0}', Environment.CommandLine);
+    exit(0xbad01);
 }
 
-var ns = cliArgs[2];
-var projectDir = cliArgs[3];
-var outputDir = cliArgs[4];
+var ns = args[0].Value;
+var projectDir = args[1].Value;
+var outputDir = args[2].Value;
 
 printInfo('Generating classes in namespace ~Cyan~{0}~R~', ns);
 

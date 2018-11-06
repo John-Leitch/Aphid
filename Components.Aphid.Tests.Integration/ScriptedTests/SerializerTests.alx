@@ -25,7 +25,7 @@ r = macro(@(obj, check) {
     c(funcsAndSpecials, p(true, true, true), obj, check);
 });
 
-#'AopTest';
+#'Testing\\AopTest';
 
 serialize group;
 r(1, $_ == 1);

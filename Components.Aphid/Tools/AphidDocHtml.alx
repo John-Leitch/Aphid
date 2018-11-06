@@ -1,7 +1,6 @@
-﻿#'std';
-#'meta';
-#'xml';
-#'htmlTags';
+﻿#'Std';
+#'Data\\Xml';
+#'Html\\Tags';
 using Components.Aphid.TypeSystem;
 using Components.Aphid.UI;
 using System.Collections.Generic;

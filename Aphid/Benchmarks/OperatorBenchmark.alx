@@ -1,4 +1,4 @@
-﻿#'Benchmark';
+﻿#'Testing\\Benchmark';
 numberBenchmarkRep = 1000000 / 4;
 numberBenchmark('equals', @{ i == 10 });
 numberBenchmark('not equal', @{ i != 10 });

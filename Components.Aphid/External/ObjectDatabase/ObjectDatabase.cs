@@ -2,6 +2,7 @@
 using Components.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -217,6 +218,24 @@ namespace Components.ObjectDatabase
             foreach (var a in mm.Allocations)
             {
                 yield return ReadUnsafe((long)a.Key * mm.PageSize);
+
+                //TElement element = default(TElement);
+                //var success = false;
+
+                //try
+                //{
+                //    element = ReadUnsafe((long)a.Key * mm.PageSize);
+                //    success = true;
+                //}
+                //catch (Exception e)
+                //{
+                //    Debug.WriteLine("Error deserializing object: {0}", e.Message);
+                //}
+
+                //if (success)
+                //{
+                //    yield return element;
+                //}
             }
         }
 

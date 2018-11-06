@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 var f = BindingFlags;
-#'AopTest';
+#'Testing\\AopTest';
 
 contextual pipe group;
 

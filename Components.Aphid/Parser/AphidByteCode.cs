@@ -8,7 +8,11 @@ namespace Components.Aphid.Parser
 {
     public static class AphidByteCode
     {
-        private static BinaryFormatter _serializer = new BinaryFormatter()
+        private static bool _useBoundSerializer = false;
+
+        private static BinaryFormatter _serializer = new BinaryFormatter();
+
+        private static BinaryFormatter _boundSerializer = new BinaryFormatter()
         {
             Binder = new AphidExpressionBinder()
         };
@@ -38,7 +42,24 @@ namespace Components.Aphid.Parser
 
         public static List<AphidExpression> Decode(Stream stream)
         {
-            return (List<AphidExpression>)_serializer.Deserialize(stream);
+            if (!_useBoundSerializer)
+            {
+                try
+                {
+                    return (List<AphidExpression>)_serializer.Deserialize(stream);
+                }
+                catch (InvalidCastException)
+                {
+                    stream.Position = 0;
+                    var result = (List<AphidExpression>)_boundSerializer.Deserialize(stream);
+                    _useBoundSerializer = true;
+                    return result;
+                }
+            }
+            else
+            {
+                return (List<AphidExpression>)_boundSerializer.Deserialize(stream);
+            }
         }
 
         public static List<AphidExpression> DecodeResource(string name)

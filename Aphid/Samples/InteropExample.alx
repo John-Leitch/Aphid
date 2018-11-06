@@ -22,9 +22,9 @@ tokens->print;
 print();
 
 subhead('Parsing');
-var ast = AphidParser.Parse(tokens, code);
+var tree = AphidParser.Parse(tokens, code);
 
-ast->@(node) print(
+tree->@(node) print(
     'Type:   {0}\r\n' +
     'Index:  {1}\r\n' +
     'Length: {2}\r\n' +
@@ -36,4 +36,4 @@ ast->@(node) print(
 
 subhead('Interpretation');
 var intepreter = new AphidInterpreter();
-intepreter.Interpret(ast);
+intepreter.Interpret(tree);

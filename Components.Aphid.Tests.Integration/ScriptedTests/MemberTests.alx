@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.IO;
-#'AopTest';
+#'Testing\\AopTest';
 member group;
 
 value interop begin;

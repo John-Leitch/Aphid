@@ -1,7 +1,7 @@
 ﻿var sharedObj = { foo: 10 };
 
 #'Std';
-#'AopTest';
+#'Testing\\AopTest';
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

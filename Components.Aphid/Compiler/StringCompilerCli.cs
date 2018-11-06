@@ -165,7 +165,7 @@ namespace Components.Aphid.Compiler
             }
             catch (AphidParserException exception)
             {
-                var msg = ParserErrorMessage.Create(code, exception);
+                var msg = ParserErrorMessage.Create(code, exception, true);
                 Cli.WriteCriticalErrorMessage("~Yellow~Error parsing code~R~\r\n\r\n{0}", Cli.Escape(msg));
                 Environment.Exit(100);
                 throw;

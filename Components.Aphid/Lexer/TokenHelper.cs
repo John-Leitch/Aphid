@@ -285,9 +285,9 @@ namespace Components.Aphid.Lexer
 
             for (int i = line - surroundingLines; i < line + surroundingLines + 1; i++)
             {
-                if (i > 0 && i < lines.Length)
+                if (i >= 0 && i < lines.Length)
                 {
-                    sb.AppendLine(string.Format("({0}) {1}", i, lines[i]));
+                    sb.AppendLine(string.Format("({0}) {1}", i + 1, lines[i]));
                 }
             }
 

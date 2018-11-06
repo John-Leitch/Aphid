@@ -12,7 +12,7 @@
                     font-style: italic;
                     width: 1px;
                 }
-            </style><title>Aphid Programming Language Reference</title></head><body><h1>Aphid Programming Language Reference</h1><hr /><h2>Table of Contents</h2><ul><li><b>Library\Meta.alx</b><ul><li><span>Functions</span><ul><li><a><code>frame(index)</code></a></li><li><a><code>frames()</code></a></li><li><a><code>mutate(mutateNode, rootNode)</code></a></li><li><a><code>tokenize(text)</code></a></li></ul></li><li><span>Properties</span><ul><li><a><code>ast.op</code></a></li></ul></li></ul></li><li><b>Library\MetaTest.alx</b><ul><li><span>Functions</span><ul><li><a><code>mutate(mutateNode, rootNode)</code></a></li></ul></li></ul></li></ul><hr /><table><tr><th><h2>Library\Meta.alx Functions</h2></th></tr></table><br />
+            </style><title>Aphid Programming Language Reference</title></head><body><h1>Aphid Programming Language Reference</h1><hr /><h2>Table of Contents</h2><ul><li><b>Library\Meta.alx</b><ul><li><span>Functions</span><ul><li><a><code>frame(index)</code></a></li><li><a><code>frames()</code></a></li><li><a><code>mutate(mutateNode, rootNode)</code></a></li><li><a><code>tokenize(text)</code></a></li></ul></li><li><span>Properties</span><ul><li><a><code>ast.op</code></a></li></ul></li></ul></li></ul><hr /><table><tr><th><h2>Library\Meta.alx Functions</h2></th></tr></table><br />
     <table>
         <tr><th style=" background-color:rgb(5,5,5)">
                         <code style="font-size:130%;" id="Library\Meta.alx_frame">
@@ -43,7 +43,6 @@
     <table>
         <tr><th><b>Example</b></th></tr>
         <tr><td><pre style="background: rgb(10,10,10); padding: 10px;"><code><span style="color: rgb(30,144,255)">#</span><span style="color: rgb(255,127,80)">'std'</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(30,144,255)">#</span><span style="color: rgb(255,127,80)">'meta'</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
 </span><span style="color: rgb(95,158,160)">frame</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(238,232,170)">1</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">dump</span><span style="color: rgb(255,255,255)">;</span></code></pre> </td></tr>
     </table>
 </td></tr>
@@ -70,7 +69,6 @@
     <table>
         <tr><th><b>Example</b></th></tr>
         <tr><td><pre style="background: rgb(10,10,10); padding: 10px;"><code><span style="color: rgb(30,144,255)">#</span><span style="color: rgb(255,127,80)">'std'</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(30,144,255)">#</span><span style="color: rgb(255,127,80)">'meta'</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
 </span><span style="color: rgb(95,158,160)">frames</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">dump</span><span style="color: rgb(255,255,255)">;</span></code></pre> </td></tr>
     </table>
 </td></tr>
@@ -160,7 +158,6 @@
     <table>
         <tr><th><b>Example</b></th></tr>
         <tr><td><pre style="background: rgb(10,10,10); padding: 10px;"><code><span style="color: rgb(30,144,255)">#</span><span style="color: rgb(255,127,80)">'std'</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(30,144,255)">#</span><span style="color: rgb(255,127,80)">'meta'</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
 </span><span style="color: rgb(255,127,80)">'var x = 10; x *= 2;'</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">tokenize</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">print</span><span style="color: rgb(255,255,255)">;</span></code></pre> </td></tr>
     </table>
 </td></tr>
@@ -187,59 +184,6 @@
     <table>
         <tr><th><b>Example</b></th></tr>
         <tr><td><pre style="background: rgb(10,10,10); padding: 10px;"><code><span style="color: rgb(0,100,0)">// Todo</span></code></pre> </td></tr>
-    </table>
-</td></tr>
-    </table>
-    <br />
-<hr /><table><tr><th><h2>Library\MetaTest.alx Functions</h2></th></tr></table><br />
-    <table>
-        <tr><th style=" background-color:rgb(5,5,5)">
-                        <code style="font-size:130%;" id="Library\MetaTest.alx_mutate">
-                            <span style="color: rgb(95,158,160)">mutate</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(95,158,160)">mutateNode</span><span style="color: rgb(255,255,255)">,</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">rootNode</span><span style="color: rgb(211,211,211)">)</span>
-                        </code>
-                    </th></tr>
-        <tr><td>
-    <table>
-        <tr><th><b>Summary</b></th></tr>
-        <tr><td>Takes an abstract syntax tree and performs transformations on it.</td></tr>
-    </table>
-
-                            <table style="margin-bottom:2px;">
-                                <tr><th colspan="2"><b>Parameters</b></th></tr>
-                                
-                                    <tr>
-                                        <th class="param">mutateNode</th>
-                                        <td>The function to be applied to each node as the tree is walked.</td>
-                                    </tr>                        
-                                
-                                    <tr>
-                                        <th class="param">rootNode</th>
-                                        <td>The root at which the transformation begins. Can be a single node or a list of nodes.</td>
-                                    </tr>                        
-                                
-                            </table>
-                        
-    <table>
-        <tr><th><b>Returns</b></th></tr>
-        <tr><td>A transformed copy of an abstract syntax tree.</td></tr>
-    </table>
-
-    <table>
-        <tr><th><b>Example</b></th></tr>
-        <tr><td><pre style="background: rgb(10,10,10); padding: 10px;"><code><span style="color: rgb(95,158,160)">var</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">f</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">=</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(30,144,255)">@</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">print</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(95,158,160)">foo</span><span style="color: rgb(255,255,255)">\</span><span style="color: rgb(95,158,160)">bar</span><span style="color: rgb(255,255,255)">\</span><span style="color: rgb(95,158,160)">test</span><span style="color: rgb(255,255,255)">.</span><span style="color: rgb(95,158,160)">txt</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(95,158,160)">var</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">block</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">=</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">f</span><span style="color: rgb(255,255,255)">.</span><span style="color: rgb(95,158,160)">Body</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(30,144,255)">@</span><span style="color: rgb(95,158,160)">mutate</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(30,144,255)">@</span><span style="color: rgb(211,211,211)">{</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(30,144,255)">if</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(255,127,80)">'\\'</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">getToken</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">expression</span><span style="color: rgb(255,255,255)">.</span><span style="color: rgb(95,158,160)">isOp</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(211,211,211)">{</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">hasChanged</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">=</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(30,144,255)">true</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(30,144,255)">ret</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">expression</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)">.</span><span style="color: rgb(95,158,160)">ToString</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)">.</span><span style="color: rgb(95,158,160)">Replace</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(255,127,80)">'\\'</span><span style="color: rgb(255,255,255)">,</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,127,80)">'\\\\'</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(30,144,255)">@</span><span style="color: rgb(95,158,160)">format</span><span style="color: rgb(211,211,211)">(</span><span style="color: rgb(255,127,80)">'"{0}"'</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">ast</span><span style="color: rgb(255,255,255)">.</span><span style="color: rgb(95,158,160)">str</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(211,211,211)">}</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(211,211,211)">}</span><span style="color: rgb(211,211,211)">)</span><span style="color: rgb(255,255,255)">;</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(255,255,255)">
-</span><span style="color: rgb(95,158,160)">block</span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(192,192,192)">|></span><span style="color: rgb(255,255,255)"> </span><span style="color: rgb(95,158,160)">evalAst</span><span style="color: rgb(255,255,255)">;</span></code></pre> </td></tr>
     </table>
 </td></tr>
     </table>

@@ -1,7 +1,6 @@
 ﻿#'Std';
-#'Meta';
 
-@?. (lhs, rhs) lhs != null ? lhs.{frame(1).exp().rhs().id()} : null;
+@?. (lhs, rhs) lhs != null ? lhs.{frame(0).exp().rhs().id()} : null;
 
 var foo = {
     bar: {

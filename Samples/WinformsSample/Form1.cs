@@ -34,7 +34,7 @@ namespace WinformsSample
             catch (AphidParserException exception)
             {
                 Console.WriteLine("Parser exception\r\n");
-                Console.WriteLine(ParserErrorMessage.Create(CodeTextBox.Text, exception));
+                Console.WriteLine(ParserErrorMessage.Create(CodeTextBox.Text, exception, true));
             }
             catch (AphidRuntimeException exception)
             {

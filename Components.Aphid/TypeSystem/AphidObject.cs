@@ -168,15 +168,19 @@ namespace Components.Aphid.TypeSystem
 
         private string ToString(bool printMembers)
         {
-            return IsScalar ? Value.ToString() :
-                printMembers ? string.Format(
-                    "{{ {0} }}",
-                    this
-                        .Select(x => string.Format(
-                            "{0}: {1}",
-                            x.Key,
-                            x.Value != null ? x.Value.ToString(false) : null))
-                        .Join(", ")) :
+            return
+                IsScalar ?
+                    (Value == null ?
+                        AphidType.Null : Value.ToString()) :
+                printMembers ?
+                    string.Format(
+                        "{{ {0} }}",
+                        this
+                            .Select(x => string.Format(
+                                "{0}: {1}",
+                                x.Key,
+                                x.Value != null ? x.Value.ToString(false) : null))
+                            .Join(", ")) :
                 "{ ... }";
         }
 

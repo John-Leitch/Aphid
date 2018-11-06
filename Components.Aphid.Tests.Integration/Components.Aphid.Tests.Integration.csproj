@@ -149,9 +149,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ScriptedTests\AopTest.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="ScriptedTests\ConditionalOperatorTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -203,9 +200,6 @@
     <None Include="ScriptedTests\SerializerTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ScriptedTests\TestBase.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="ScriptedTests\VarDeclTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -222,9 +216,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ScriptedTests\SafeNavigationTests.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ScriptedTests\Test.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ScriptedTests\TypeConversionTests.alx">

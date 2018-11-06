@@ -6,17 +6,13 @@
     showConsole: true,
 };
 
-#'std';
-#'process';
+#'Std';
+#'System\\Process';
 using Components;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
-var v = @() args.Count > 0 ? args.Peek().Value : null;
-_p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
-$(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
-$(_p()) 'ngen.exe', 'ngen.alx', 'ngen': args.Dequeue();
+var args = parseArgsFor([ 'ngen.exe', 'ngen.alx', 'ngen' ]);
 
 if (args.Count == 0) {
     print('ngen [binary path]');
@@ -56,18 +52,22 @@ try {
     exit(0xbad03);
 }
 
-var succeeded = true;
+var succeeded = false;
+var scriptExitCode = 0;
 
 ngenBins->@{
     printInfo('Running ~Cyan~{0}~R~', $_);
     var exitCode = #> ('{0} install {1}' :: [ $_, bin ]);
 
     if (exitCode != 0) {
-        succeeded = false;
-
         printError(
             'Ngen exited with error code ~Yellow~{0}~R~ (~Yellow~0x{0:x8}~R~)',
             exitCode);
+
+        scriptExitCode = exitCode;
+        print(scriptExitCode);
+    } else {
+        succeeded = true;
     }
 };
 
@@ -75,4 +75,5 @@ if (succeeded) {
     printSuccess('Ngen successfully run');
 } else {
     printError('Failed running ngen');
+    exit(scriptExitCode);
 }

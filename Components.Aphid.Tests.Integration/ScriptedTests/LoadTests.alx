@@ -19,7 +19,7 @@ _load = macro(@(n, p, f) {
 _notNull = macro(@(name, path) { _load(name, path, notNull) });
 _null = macro(@(name, path) { _load(name, path, isNull) });
 
-#'Test';
+#'Testing\\Test';
 _notNull(System, System);
 _notNull(SystemXml, System.Xml);
 _null(SystemBad, SystemBad);

@@ -1,4 +1,4 @@
-﻿#'AopTest';
+﻿#'Testing\\AopTest';
 macro group;
 
 isFoo;

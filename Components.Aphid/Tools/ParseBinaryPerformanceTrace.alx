@@ -1,4 +1,4 @@
-﻿#'DebugDeploy';
+﻿//#'DebugDeploy';
 #'Std';
 using System;
 using System.Collections;
@@ -32,12 +32,12 @@ class of long FrameProfile {
 };
 
 var dumpFrameJson = @{
-    #'Serialization';
+    #'Data\\Serialization';
     $_ |> toJson |> Cli.StyleEscape |> print;
 };
 
 var dumpFrame = @{
-    #'Serialization';
+    #'Data\\Serialization';
     $_ |> toJson |> Cli.StyleEscape |> print;
 };
 
@@ -67,7 +67,7 @@ print(profileHeader);
 var threadStacks = {};
 var root = new List[FrameProfile]();
 var parsed = 0;
-var frames = new List[FrameProfile]();
+var frameList = new List[FrameProfile]();
 var frameTotals = {};
 var frameTotalsList = new List[FrameProfile]();
 
@@ -127,7 +127,7 @@ while (s.Position < len) {
         }
 
         stack.Push(frame);
-        frames.Add(frame);
+        frameList.Add(frame);
         // frame.Name |> Cli.StyleEscape |> print;
     } else {
         var curFrame = stack.Pop();

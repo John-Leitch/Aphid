@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#'AopTest';
+#'Testing\\AopTest';
 explicit generics group;
 
 isTrue;

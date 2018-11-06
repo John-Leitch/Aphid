@@ -1,11 +1,8 @@
 #'Std';
-#'Meta';
-#'List';
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Reflection;
-cls();
 
 head('Merging .NET Program');
 
@@ -52,33 +49,29 @@ if (ilmergeExe == null) {
     :> 'ILMerge already installed';
 }
 
-var outExe = 'AphidPortable.exe';
+var outExe = getExe() |> Path.GetFileNameWithoutExtension @+ 'Portable.exe';
 
-using System.Linq;
-var asmList = asms ->(@() '"{0}"' :: $_) !?;
+var aphidDll = AppDomain.CurrentDomain
+    .GetAssemblies()
+    ~|'Components\\.Aphid'
+    @.Location;
 
-head('Getting asm list');
-print('~Cyan~Asms:~R~ {0}', asmList);
-
-var libPaths = (asms->Path.GetDirectoryName!?->@() '/lib:"{0}"' :: $_) @join(' ');
-libPaths = '';
-    
-var systemPath = 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6';
-
-File.WriteAllText('c:\\temp\\log.txt', '');
+var logFile = getExecutingPath('log.txt');
+File.WriteAllText(logFile, '');
 
 var args =
-    '/out:{0} Aphid.exe /target:{1} {2} /targetplatform:v4.5,"C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.6" Components.Aphid.dll {3} {4} /log:c:\\temp\\log.txt' :: [
-        outExe,
+    '/target:{0} ' +
+    '/log:{1} ' +
+    '/targetplatform:v4.5,' +
+    '"C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2" ' +
+    '/out:{2} {3} {4}':: [
         Path.GetExtension(outExe).Substring(1),
-        libPaths,
-        flags,
-        asms
-            ->(@() $_.Contains('\\') ? $_ : Path.Combine(systemPath, $_))
-            ->(@() '"{0}"' :: $_)
-            @join(' ')
+        logFile,
+        outExe,
+        getExe(),
+        aphidDll,
     ];
-
+    
 args @print('Starting ilmerge.exe with args ~Magenta~{0}~R~');
 
 var si = new ProcessStartInfo(ilmergeExe, args);   
@@ -86,10 +79,8 @@ si.UseShellExecute = false;
 var p = Process.Start(si);
 p.WaitForExit();
 
-
-
 var failure = 
-    'c:\\temp\\log.txt'
+    logFile
     |> File.ReadAllText
     @()
         $_.Contains('was not merged in correctly. It is still listed as an external reference in the target assembly') ||
@@ -98,21 +89,11 @@ var failure =
 
 if (failure) {
     print('~Red~Failed merging dll~R~');
-    'c:\\temp\\log.txt' |> File.ReadAllText |> Console.WriteLine;
+    logFile |> File.ReadAllText |> Console.WriteLine;
     exit(1);
 }
 
 //Process.Start('ildasm', 'AphidPortable.exe');
-Process.Start('c:\\temp\\log.txt');
-
-new FileInfo('AphidPortable.exe') @.Length @print('Asm size: ~Cyan~{0:n0}~R~');
-
-
-Process.Start('AphidPortable.exe');
-
-// head('Starting ngen');
-
-// si.FileName = 'ngen';
-// si.Arguments = 'install AphidPortable.exe';
-// p = Process.Start(si);
-// p.WaitForExit();
+Process.Start(logFile);
+new FileInfo(outExe) @.Length @print('Asm size: ~Cyan~{0:n0}~R~');
+Process.Start(outExe);

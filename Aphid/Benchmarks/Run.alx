@@ -1,12 +1,14 @@
-﻿#'std';
-#'process';
+﻿#'Std';
+#'System\\Process';
 using System.Reflection;
 var count = 3;
 var asm = Assembly.GetEntryAssembly().Location;
 exec = macro(@(n) { 0..count->@() #> ('{0} {1}.alx' :: [ asm, quote(n) ]) });
 exec(ArithmeticBenchmark);
+exec(OperatorBenchmark);
 exec(CallBenchmark);
 exec(ListBenchmark);
 exec(ClrInstanceBenchmark);
 exec(CustomOperatorBenchmark);
+exec(ConditionalBenchmark);
 exec(IncludeBenchmark);

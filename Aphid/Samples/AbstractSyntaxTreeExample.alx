@@ -1,5 +1,4 @@
-﻿#'Std.alx';
-#'Meta.alx';
+﻿#'Std';
 
 var someFunc = @{
     using System;

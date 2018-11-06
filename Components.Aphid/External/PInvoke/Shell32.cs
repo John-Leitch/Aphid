@@ -21,5 +21,12 @@ namespace Components.PInvoke
             ref SHFILEINFO psfi,
             uint cbSizeFileInfo,
             uint uFlags);
+
+        [DllImport("shell32.dll")]
+        public static extern int ShellAbout(
+            IntPtr hWnd,
+            string szApp,
+            string szOtherStuff,
+            IntPtr hIcon);
     }
 }

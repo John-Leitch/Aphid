@@ -158,7 +158,9 @@ namespace Components.External.ConsolePlus
             return bg + bg.Replace("\x1b", "");
         }
 
-        static void TestVT100()
+        public static string Escape(string s) => s.Replace("\x1b", "\\x1b");
+
+        public static void TestVT100()
         {
             Enable();
 

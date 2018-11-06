@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ArrayOfMemberDoc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<ArrayOfMemberDoc xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <MemberDoc>
     <Filename>Library\Meta.alx</Filename>
     <Path>mutate</Path>
@@ -45,7 +45,6 @@ block |&gt; evalAst;</Example>
     <Parameters />
     <Returns>A collection of AphidFrames representative of the current call stack.</Returns>
     <Example>#'std';
-#'meta';
 frames() |&gt; dump;</Example>
   </MemberDoc>
   <MemberDoc>
@@ -64,7 +63,6 @@ frames() |&gt; dump;</Example>
     </Parameters>
     <Returns>An AphidFrames representative of a call on the stack.</Returns>
     <Example>#'std';
-#'meta';
 frame(1) |&gt; dump;</Example>
   </MemberDoc>
   <MemberDoc>
@@ -83,7 +81,6 @@ frame(1) |&gt; dump;</Example>
     </Parameters>
     <Returns>An array of AphidTokens.</Returns>
     <Example>#'std';
-#'meta';
 'var x = 10; x *= 2;' |&gt; tokenize |&gt; print;</Example>
   </MemberDoc>
   <MemberDoc>
@@ -98,39 +95,5 @@ frame(1) |&gt; dump;</Example>
     <Parameters />
     <Returns>The operator of the node.</Returns>
     <Example>// Todo</Example>
-  </MemberDoc>
-  <MemberDoc>
-    <Filename>Library\MetaTest.alx</Filename>
-    <Path>mutate</Path>
-    <PathParts>
-      <string>mutate</string>
-    </PathParts>
-    <Type>Function</Type>
-    <Summary>Takes an abstract syntax tree and performs transformations on it.</Summary>
-    <Parameters>
-      <MethodParamDoc>
-        <Name>mutateNode</Name>
-        <Description>The function to be applied to each node as the tree is walked.</Description>
-      </MethodParamDoc>
-      <MethodParamDoc>
-        <Name>rootNode</Name>
-        <Description>The root at which the transformation begins. Can be a single node or a list of nodes.</Description>
-      </MethodParamDoc>
-    </Parameters>
-    <Returns>A transformed copy of an abstract syntax tree.</Returns>
-    <Example>var f = @() print(foo\bar\test.txt);
-
-var block = f.Body @mutate(@{
-    if ('\\' |&gt; getToken |&gt; expression.isOp) {
-        hasChanged = true;
-        ret expression
-            .ToString()
-            .Replace('\\', '\\\\')
-            @format('"{0}"')
-            |&gt; ast.str;
-    }
-});
-
-block |&gt; evalAst;</Example>
   </MemberDoc>
 </ArrayOfMemberDoc>

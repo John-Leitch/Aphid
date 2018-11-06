@@ -20,7 +20,7 @@ namespace ErrorHandlingSample
             }
             catch (AphidParserException e)
             {
-                var msg = ParserErrorMessage.Create(code, e);
+                var msg = ParserErrorMessage.Create(code, e, true);
                 Console.WriteLine(msg);
             }
         }

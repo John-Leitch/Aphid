@@ -14,6 +14,7 @@ namespace Components.Aphid.UI
             AutoImport = "autoImport",
             AutoInclude = "autoInclude",
             StackTraceParams = "stackTraceParams",
-            ScriptCaching = "scriptCaching";
+            ScriptCaching = "scriptCaching",
+            IgnoreDebugger = "ignoreDbg";
     }
 }

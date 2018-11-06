@@ -48,7 +48,6 @@ namespace Components.Caching
 
             using (CreateLock(key))
             {
-                
                 File.WriteAllBytes(key, buffer);
                 var date = new FileInfo(key).LastWriteTimeUtc;
 
@@ -57,6 +56,10 @@ namespace Components.Caching
                 if (!_cache.TryGetValue(key, out bytes))
                 {
                     _cache.Add(key, new CacheBlob<byte[]>(date, buffer));
+                }
+                else
+                {
+                    _cache[key] = new CacheBlob<byte[]>(date, buffer);
                 }
             }
         }

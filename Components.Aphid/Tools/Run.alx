@@ -6,17 +6,16 @@
     showConsole: false,
 };
 
-#'std';
+#'Std';
 using Components;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
-var v = @() args.Count > 0 ? args.Peek().Value : null;
-_p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
-$(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
-$(_p()) 'run.exe', 'run.alx', 'run': args.Dequeue();
-if(var isAdmin = v() == '-admin') args.Dequeue();
+var args = parseArgsFor([ 'run.exe', 'run.alx', 'run' ]);
+
+if(var isAdmin = (?|args.Peek ?.Value) == '-admin') {
+    args.Dequeue();
+}
 
 if (args.Count == 0) {
     load System.Windows.Forms;
@@ -34,7 +33,13 @@ if (isAdmin) si.Verb = 'runas';
 
 try {
     Process.Start(si);
-} catch {
+} catch (e) {
+    var ex = e.exception;
+
+    do {
+        printError(ex);
+    } while ((ex = ex.InnerException) != null);
+
     Environment.Exit(0xbad01);
 }
 

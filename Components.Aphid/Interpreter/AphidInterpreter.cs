@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Exp = System.Linq.Expressions.Expression;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.CompilerServices;
@@ -128,12 +129,20 @@ namespace Components.Aphid.Interpreter
             _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
             _staticMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>();
 
+        private static FieldInfo _frameArray = typeof(Stack<AphidFrame>)
+            .GetField("_array", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        private Func<AphidFrame[]> _getFrameArray => Exp
+                .Lambda<Func<AphidFrame[]>>(
+                    Exp.Field(Exp.Constant(_frames, typeof(Stack<AphidFrame>)), _frameArray))
+                .Compile();
+
         private Stack<AphidFrame> _frames;
 
         private int _queuedFramePops;
 
         private IEnumerable<AphidExpression> _insertNextBuffer;
-
+        
 #if APHID_DEBUGGING_ENABLED
         private List<AphidExpression> _currentBlock;
 
@@ -158,6 +167,8 @@ namespace Components.Aphid.Interpreter
 #endif
 
         private AphidObject _localScope;
+
+        private AphidObject _initialScope;
 
         private AphidObject _currentScope;
 
@@ -390,6 +401,8 @@ namespace Components.Aphid.Interpreter
             {
                 CurrentScope.Add(AphidName.Interpreter, AphidObject.Scalar(this));
             }
+
+            _initialScope = CurrentScope;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3227,6 +3240,12 @@ namespace Components.Aphid.Interpreter
             Lazy<string> name,
             IEnumerable<object> args)
         {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
             _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, args));
 
 #if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
@@ -3252,6 +3271,12 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushFrame(AphidFrame frame)
         {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
             _frames.Push(frame);
 
 #if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
@@ -3297,6 +3322,12 @@ namespace Components.Aphid.Interpreter
 #endif
             if (!_isInTryCatchFinally)
             {
+                while (_queuedFramePops > 0)
+                {
+                    _frames.Pop();
+                    _queuedFramePops--;
+                }
+
                 _frames.Pop();
             }
             else
@@ -3350,7 +3381,10 @@ namespace Components.Aphid.Interpreter
             PushFrame(
                 callExpression,
                 new Lazy<string>(() =>
-                    string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name)),
+                    string.Format(
+                        "{0}.{1}",
+                        AphidCli.GetTypeName(method.DeclaringType),
+                        method.Name)),
                 convertedArgs);
 
             try
@@ -3390,7 +3424,10 @@ namespace Components.Aphid.Interpreter
             PushFrame(
                 callExpression,
                 new Lazy<string>(() =>
-                    string.Format("{0}.{1}", method.DeclaringType.FullName, method.Name)),
+                    string.Format(
+                        "{0}.{1}",
+                        AphidCli.GetTypeName(method.DeclaringType),
+                        method.Name)),
                 convertedArgs);
 
             try
@@ -3432,7 +3469,7 @@ namespace Components.Aphid.Interpreter
                         .Select(ValueHelper.DeepUnwrap)
                         .ToArray();
 
-                    PushFrame(operand, operand, args);
+                    PushFrame(operand, call.FunctionExpression, args);
 
                     try
                     {
@@ -5235,12 +5272,6 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private object InterpretExpression(AphidExpression expression)
         {
-            while (_queuedFramePops > 0)
-            {
-                _frames.Pop();
-                _queuedFramePops--;
-            }
-
             CurrentExpression = expression;
 
 #if APHID_DEBUGGING_ENABLED
@@ -5624,11 +5655,67 @@ namespace Components.Aphid.Interpreter
                 }
             }
         }
+               
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidFrame[] GetStackTrace()
         {
-            return _frames.ToArray();
+            var c = _frames.Count - 1;
+            var src = _getFrameArray();
+            var arr = new AphidFrame[c];
+            Array.Copy(src, 0, arr, 0, c);
+            Array.Reverse(arr);
+
+            return arr;
+        }        
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidFrame[] GetStackTrace(int skip)
+        {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+            
+            var c = _frames.Count - 1 - skip;
+            var src = _getFrameArray();
+            var arr = new AphidFrame[c];
+            Array.Copy(src, 0, arr, 0, c);
+            Array.Reverse(arr);
+
+            return arr;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidFrame GetStackFrame(int offset)
+        {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
+            var c = _frames.Count - 2;
+
+            if (offset < 0 || offset > c)
+            {
+                throw new IndexOutOfRangeException($"Frame index out of range: {offset}");
+            }
+            
+            return _getFrameArray()[c - offset];
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidFrame GetStackFrame()
+        {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
+            return _getFrameArray()[_frames.Count - 2];
         }
 
 #if APHID_SET_CODE_VAR
@@ -5648,12 +5735,10 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetState()
         {
-            while (CurrentScope != null && CurrentScope.Parent != null)
-            {
-                CurrentScope = CurrentScope.Parent;
-            }
+            CurrentScope = _initialScope;
 
             // Todo: Add test cases to cover try/catch influence
+            CurrentExpression = null;
             CurrentStatement = null;
             _isReturning = false;
             _isContinuing = false;
@@ -5668,15 +5753,15 @@ namespace Components.Aphid.Interpreter
                 CurrentScope.Remove(AphidName.Return);
             }
 
-            if (CurrentScope.ContainsKey(AphidName.Block))
-            {
-                CurrentScope.Remove(AphidName.Block);
-            }
+            //if (CurrentScope.ContainsKey(AphidName.Block))
+            //{
+            //    CurrentScope.Remove(AphidName.Block);
+            //}
 
-            if (CurrentScope.ContainsKey(AphidName.Script))
-            {
-                CurrentScope.Remove(AphidName.Script);
-            }
+            //if (CurrentScope.ContainsKey(AphidName.Script))
+            //{
+            //    CurrentScope.Remove(AphidName.Script);
+            //}
 
 #if APHID_SET_CODE_VAR
             if (CurrentScope.ContainsKey(AphidName.Code))

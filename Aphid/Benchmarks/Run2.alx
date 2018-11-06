@@ -1,10 +1,12 @@
-﻿exec(ArithmeticBenchmark);
-exec(OperatorBenchmark);
+﻿#'Std';
+
+exec(ArithmeticBenchmark);
+//exec(OperatorBenchmark);
 exec(CallBenchmark);
 exec(ListBenchmark);
 exec(ClrInstanceBenchmark);
 exec(CustomOperatorBenchmark);
-exec(ConditionalBenchmark);
+//exec(ConditionalBenchmark);
 exec(IncludeBenchmark);
 
 execOne = macro(@(n) { @{ #quote(n) + ".alx" }() });

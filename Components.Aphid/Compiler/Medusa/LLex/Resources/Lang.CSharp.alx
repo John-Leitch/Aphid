@@ -1,5 +1,4 @@
 ﻿#'Std';
-#'Query';
 cls();
 print('Starting\r\n');
 

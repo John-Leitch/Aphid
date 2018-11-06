@@ -1,4 +1,4 @@
-﻿#'Benchmark';
+﻿#'Testing\\Benchmark';
 var count = 250000 / 5;
 
 benchmark('standard call', count, @{ var f = @(x) { } }, @{ f(0xdeadbeef) });

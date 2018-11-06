@@ -1,7 +1,7 @@
 ﻿#'Std';
 
 if (!getCommand().EndsWith('-crash')) {
-    #'NativeDebugging';
+    #'Debugging\\NativeDebugging';
     print('Starting process under debugger');
     var cmd = getCommand() + ' -crash';
     var getOp = @() $($_) 0: 'read', 1: 'write', 8: 'execute', 'unknown';

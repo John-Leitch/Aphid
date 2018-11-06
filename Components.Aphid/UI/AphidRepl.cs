@@ -39,19 +39,23 @@ namespace Components.Aphid.UI
         public List<AphidExpression> Epilogue { get; set; }
 
         public AphidRepl()
-            : this(null)
+            : this(new AphidInterpreter())
         {
         }
 
         public AphidRepl(AphidInterpreter interpreter)
-            : this(interpreter, null)
+            : this(interpreter, new AphidSerializer(interpreter)
+            {
+                IgnoreSpecialVariables = true,
+                IgnoreFunctions = true,
+            })
         {
         }
 
         public AphidRepl(AphidInterpreter interpreter, AphidSerializer serializer)
         {
-            Interpreter = interpreter ?? new AphidInterpreter();
-            Serializer = serializer ?? new AphidSerializer(Interpreter) { IgnoreSpecialVariables = true, };
+            Interpreter = interpreter;
+            Serializer = serializer;
             Prologue = new List<AphidExpression>();
             Epilogue = new List<AphidExpression>();
         }
@@ -126,17 +130,16 @@ namespace Components.Aphid.UI
 
                     if (AphidErrorHandling.HandleErrors)
                     {
+                        Interpreter.SetIsInTryCatchFinally(true);
                         RunBlock(Prologue, handleExceptions: true);
                         AphidCli.TryAction(Interpreter, code, () => RunCode(code));
                         RunBlock(Epilogue, handleExceptions: true);
                     }
                     else
                     {
-                        var backup = Interpreter.SetIsInTryCatchFinally(true);
                         RunBlock(Prologue, handleExceptions: false);
                         RunCode(code);
                         RunBlock(Epilogue, handleExceptions: false);
-                        Interpreter.SetIsInTryCatchFinally(backup);
                     }
 
                     Interpreter.ResetState();
@@ -146,7 +149,7 @@ namespace Components.Aphid.UI
 
         private void RunBlock(List<AphidExpression> block, bool handleExceptions)
         {
-            if (block != null)
+            if (block != null && block.Any())
             {
                 if (handleExceptions)
                 {
@@ -182,13 +185,27 @@ namespace Components.Aphid.UI
             Interpreter.Interpret(retExp);
             var value = Interpreter.GetReturnValue();
 
-            if (value != null && (value.Value != null || value.Any()))
+            if (value != null &&
+                value.IsComplex ||
+                (value.IsScalar && value.Value != null))
             {
-                var o = (Serializer != null ? Serializer : new AphidSerializer(Interpreter))
-                        .Serialize(value);
-
-                Console.WriteLine(AphidCli.Highlight(o));
+                Console.WriteLine(
+                    AphidCli.Highlight(
+                        AphidCli.DumpValue(
+                            Interpreter,
+                            Serializer != null ? Serializer : new AphidSerializer(Interpreter),
+                            value,
+                            ignoreNull: false,
+                            ignoreClrObj: false)));
             }
+
+            //if (value != null && (value.Value != null || value.Any()))
+            //{
+            //    var o = (Serializer != null ? Serializer : new AphidSerializer(Interpreter))
+            //            .Serialize(value);
+
+            //    Console.WriteLine(AphidCli.Highlight(o));
+            //}
         }
     }
 }

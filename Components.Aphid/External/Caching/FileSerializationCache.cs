@@ -44,15 +44,27 @@ namespace Components.Caching
             }
         }
 
+        public T Read(string filename, out FileCacheSource[] cacheSources)
+        {
+            using (CreateLock(filename))
+            {
+                return ReadUnsafe(filename, out cacheSources);
+            }
+        }
+
         private T ReadUnsafe(string filename)
+        {
+            return ReadUnsafe(filename, out _);
+        }
+
+        private T ReadUnsafe(string filename, out FileCacheSource[] cacheSources)
         {
             var info = LoadCacheInfoUnsafe(filename);
             T cache;
 
             if (info == null || info.IsOutdated)
             {
-                string[] sources;
-                cache = CreateCache(filename, out sources);
+                cache = CreateCache(filename, out var sources);
 
                 if (_inMemoryCache.ContainsKey(filename))
                 {
@@ -76,7 +88,7 @@ namespace Components.Caching
                 SaveCacheInfoUnsafe(
                     filename,
                     new FileCacheInfo(
-                        sources
+                        cacheSources = sources
                             .Select(x => new FileCacheSource(
                                 Path.GetFullPath(x),
                                 new FileInfo(x).LastWriteTimeUtc))
@@ -84,6 +96,11 @@ namespace Components.Caching
             }
             else
             {
+                var fileCacheInfo = info as FileCacheInfo;
+
+                cacheSources = fileCacheInfo != null ?
+                    fileCacheInfo.Sources :
+                    new FileCacheSource[0];
 
                 if (!_inMemoryCache.TryGetValue(filename, out cache))
                 {
@@ -133,7 +150,7 @@ namespace Components.Caching
             using (var s = new MemoryStream())
             {
                 _serializer.Serialize(s, cacheInfo);
-                
+
                 FileMemoryCache.WriteAllBytes(
                     GetCacheInfoFilename(filename),
                     s.ToArray());

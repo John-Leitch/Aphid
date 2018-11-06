@@ -26,7 +26,7 @@ namespace AphidHdl
             }
             catch (AphidParserException e)
             {
-                Console.WriteLine(ParserErrorMessage.Create(code, e));
+                Console.WriteLine(ParserErrorMessage.Create(code, e, true));
                 Console.ReadKey();
 
                 return;

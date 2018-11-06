@@ -24,6 +24,7 @@ namespace Components.Caching
             _isOutdated = new Lazy<bool>(GetIsOutdated);
         }
 
+
         public bool GetIsOutdated()
         {
             return !Sources.All(x =>

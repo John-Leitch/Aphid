@@ -1,15 +1,15 @@
-﻿#'Benchmark';
+﻿#'Testing\\Benchmark';
 
 var custopOpCount = 2000;
 
 benchmark(
     'custom operator extension method',
     custopOpCount,
-    @{ @`(depth, num) this.{'$frames'}[depth].exp().args()[num].id() },
+    @{ @`(depth, num) frame(depth).exp().args()[num].id() },
     @{ @{ (1`0).ToString() }(foo, bar) });
 
 benchmark(
     'custom operator direct property access',
     custopOpCount,
-    @{ @`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier },
+    @{ @`(depth, num) frame(depth).Expression.Args[num].Identifier },
     @{ @{ (1`0).ToString() }(foo, bar) });

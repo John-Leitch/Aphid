@@ -20,7 +20,7 @@ namespace Components.Aphid.Tests.Integration
 
         protected override List<AphidExpression> ParseScript(AphidInterpreter interpreter, string script)
         {
-            return base.ParseScript(interpreter, "#'Query'; var l = [ 1, 1, 2, 3, ]; var l2 = [ 4, ];" + script);
+            return base.ParseScript(interpreter, "var l = [ 1, 1, 2, 3, ]; var l2 = [ 4, ];" + script);
         }
 
         [Test]

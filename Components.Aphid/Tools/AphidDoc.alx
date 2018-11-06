@@ -6,9 +6,8 @@
     showConsole: true,
 };
 
-#'std';
-#'meta';
-#'serialization';
+#'Std';
+#'Data\\Serialization';
 
 using Components;
 using Components.Aphid.TypeSystem;
@@ -17,11 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
-var v = @() args.Count > 0 ? args.Peek().Value : null;
-_p = macro(@{ v().ToLower() |> Path.GetFileName ?> null });
-$(_p()) 'aphid', 'aphid.exe', 'aphid.vshost', 'aphid.vshost.exe': args.Dequeue();
-$(_p()) 'aphiddoc.exe', 'aphiddoc.alx', 'aphiddoc': args.Dequeue();
+var args = parseArgsFor([ 'aphiddoc.exe', 'aphiddoc.alx', 'aphiddoc' ]);
 
 if (args.Count == 0) {
     print('AphidDoc [source dir] [xml output file]');

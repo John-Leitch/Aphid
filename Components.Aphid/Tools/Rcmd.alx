@@ -1,5 +1,5 @@
 ﻿#'Std';
-#'Process';
+#'System\\Process';
 
 var cliArgs = Environment.GetCommandLineArgs();
 
@@ -10,8 +10,7 @@ if (cliArgs[cliArgs.Length - 1] != '-child') {
         #> cmd;
     }
 } else {
-    #'Meta';
-    #'Remoting';
+    #'Remoting\\Remote';
     using System.IO;
 
     var append = File.AppendAllText;

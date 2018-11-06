@@ -1,5 +1,5 @@
 ﻿#'Std';
-#'Test';
+#'Testing\\Test';
 
 var varIntLocalDecl = @{
     var x = 9;

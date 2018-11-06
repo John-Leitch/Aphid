@@ -1,5 +1,5 @@
 ﻿var strict = @(x) this.{'$aphid'}.StrictMode = x;
-#'AopTest';
+#'Testing\\AopTest';
 strict mode group;
 
 prologue;

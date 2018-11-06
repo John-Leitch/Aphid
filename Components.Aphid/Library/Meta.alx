@@ -16,24 +16,14 @@
 //   formats used by intellisense/autocomplete, etc.
 // * Support output formats definitions via EBNF-style grammar.
 
-
+using Components.Aphid;
+using Components.Aphid.UI;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.Interpreter;
 using System;
 using System.Collections.Generic;
-
-@`(depth, num) this.{'$frames'}[depth].Expression.Args[num].Identifier;
-
-@\ (lhs, rhs) {
-    var s = this.{'$frames'}[0].Scope;
-    var args = s.{'$args'};
-    var i = s.argIndex defined ? s.argIndex++ : s.argIndex = 1;
-
-    ret args.Count < i ? lhs : lhs && rhs;
-    
-};
 
 /*{
     summary: 'Takes an abstract syntax tree and performs transformations on it.',
@@ -81,7 +71,7 @@ var transformStream;
     transformBlock = @(f) this.{'$aphid'}.OnInterpretBlock = f;
 
     transformStream = @(depth, after, pattern, replace) {
-        var block = this.{'$frames'}[depth + 1].Scope.{'$block'};
+        var block = frame(depth + 1).Scope.{'$block'};
         var afterBlock = false;
         
         block
@@ -111,11 +101,10 @@ var transformStream;
     params: {},
     example: @{
         #'std';
-        #'meta';
         frames() |> dump;
     }
 }*/
-var frames = @() this.{'$frames'};
+var frames = this.{'$aphid'}.GetStackTrace;
 
 /*{
     summary: 'Retrieves the frame currently on the call stack at the specified index, with the current call. at zero',
@@ -123,11 +112,10 @@ var frames = @() this.{'$frames'};
     params: { index: 'The index of the frame to be retrieved.' },
     example: @{
         #'std';
-        #'meta';
         frame(1) |> dump;
     }
 }*/
-var frame = @(i) this.{'$frames'}[i];
+var frame = this.{'$aphid'}.GetStackFrame;
 
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
@@ -138,7 +126,6 @@ _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
     params: { text: 'The text to be passed to the Aphid lexer.' },
     example: @{
         #'std';
-        #'meta';
         'var x = 10; x *= 2;' |> tokenize |> print;
     }
 }*/
@@ -149,8 +136,7 @@ var parse = @(code) AphidParser.Parse(code);
 var parseExp = @(exp) parse(exp)[0];
 
 var parseFunc = @(code) {
-    var f = @{ };
-    f.Body.Clear();
+    var f = new AphidFunction([], new List[AphidExpression](), this);
     code |> parse -> f.Body.Add;
     
     ret f;
@@ -408,8 +394,6 @@ extend AphidParser {
     }
 }
 
-#'Query';
-
 _is = macro(@(_type) { _is2(id(_type, Expression)) });
 _is2 = macro(@(_typeFull) { x.Type == AphidExpressionType._typeFull });
 
@@ -547,8 +531,7 @@ var dumpAst = @(node) {
 };
 
 var dumpAstJson = @(node){
-    #'Std';
-    #'Serialization';
+    #'Data\\Serialization';
     node @ast.walk(@(node, context) {
         if (context != null &&
             !context.isBlock &&
@@ -611,7 +594,7 @@ var convention = {
 };
 
 var createVisitor = @{
-    #'Visitor.g';
+    #'Meta\\Code\\Syntax\\Visitor.g';
 
     ret visitor;
 };

@@ -254,7 +254,13 @@
     <Compile Include="Parser\AphidDirective.cs" />
     <Compile Include="Parser\AphidExpressionBinder.cs" />
     <Compile Include="Parser\AphidByteCodeCache.cs" />
+    <Compile Include="Parser\AphidParent.cs" />
     <Compile Include="Parser\AphidScript.cs" />
+    <Compile Include="Parser\ParserErrorMessageInterop.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ParserErrorMessageInterop.alx</DependentUpon>
+    </Compile>
     <Compile Include="TypeSystem\ClrInterop\AphidInteropCallContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\ParameterInfoCache.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
@@ -263,6 +269,11 @@
     <Compile Include="TypeSystem\ClrInterop\TargetTypeCache.cs" />
     <Compile Include="TypeSystem\IAphidCallable.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />
+    <Compile Include="UI\AphidCliInterop.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidCliInterop.alx</DependentUpon>
+    </Compile>
     <Compile Include="UI\AphidConfig.cs" />
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
@@ -494,12 +505,12 @@
     <Compile Include="Serialization\AphidSerializer.cs" />
     <Compile Include="Library\Net\Http\HttpServer.cs" />
     <Compile Include="Library\Net\UdpLibrary.cs" />
-    <Compile Include="Library\StreamLibrary.cs" />
+    <Compile Include="Library\IO\StreamLibrary.cs" />
     <Compile Include="Library\Net\TcpLibrary.cs" />
-    <Compile Include="Library\DebugLibrary.cs" />
-    <Compile Include="Library\EnvironmentLibrary.cs" />
-    <Compile Include="Library\ExecOptions.cs" />
-    <Compile Include="Library\ThreadingLibrary.cs" />
+    <Compile Include="Library\Debugging\DebugLibrary.cs" />
+    <Compile Include="Library\System\EnvironmentLibrary.cs" />
+    <Compile Include="Library\System\ExecOptions.cs" />
+    <Compile Include="Library\Core\ThreadingLibrary.cs" />
     <Compile Include="Parser\AphidAttributeAttribute.cs" />
     <Compile Include="Parser\AphidAttributeParser.cs" />
     <Compile Include="Parser\AphidMacro.cs" />
@@ -532,10 +543,10 @@
     <Compile Include="Parser\PipelineToCallMutator.cs" />
     <Compile Include="Parser\StringParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Library\IOLibrary.cs" />
+    <Compile Include="Library\IO\IOLibrary.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropFunctionAttribute.cs" />
     <Compile Include="Interpreter\AphidLoader.cs" />
-    <Compile Include="Library\StandardLibrary.cs" />
+    <Compile Include="Library\Core\StandardLibrary.cs" />
     <Compile Include="Interpreter\AphidLibraryAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -543,43 +554,86 @@
     <None Include="Aphid.Code.alx" />
     <None Include="Aphid.Tokens.alx" />
     <None Include="Aphid.Tmpl.alx" />
-    <None Include="Library\Benchmark.alx">
+    <None Include="Parser\ParserErrorMessageInterop.alx">
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>ParserErrorMessageInterop.cs</LastGenOutput>
+    </None>
+    <None Include="Library\Testing\AopTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\CodeDom.alx">
+    <None Include="Library\Testing\Benchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Compiler.alx">
+    <None Include="Library\Cli\Console.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Compression.alx">
+    <None Include="Library\Cli\Out.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\CodeDom.g.alx">
+    <None Include="Library\Cli\Repl.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\HtmlTags.alx">
+    <None Include="Library\Meta\Code\Syntax\CodeDom.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Keyboard.alx">
+    <None Include="Library\Meta\Code\Compiler.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\RemoteProxy.alx">
+    <None Include="Library\IO\Compression.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\ViewModelCompiler.alx">
+    <None Include="Library\Meta\Code\Syntax\CodeDom.g.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Visitor.g.alx">
+    <None Include="Library\Core\Internals.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\WinForms.alx">
+    <None Include="Library\Html\Tags.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Machine.alx">
+    <None Include="Library\Meta\Reflection.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\NuGet.alx">
+    <None Include="Library\Cli.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Cli\Print.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\NaturalLanguage\Ipa.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Automation\Keyboard.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Data\OleDB.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\Operators.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Remoting\RemoteProxy.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\ViewModelCompiler.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Syntax\Visitor.g.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Gui\WinForms.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\System\Machine.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\System\NuGet.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Testing\Test.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Testing\TestBase.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Tools\AphidDoc.alx">
@@ -600,22 +654,26 @@
     <None Include="Tools\Ngen.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Tools\ParseBinaryPerformanceTrace.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Tools\Rcmd.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Tools\ILMerge.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Ipc.alx">
+    <None Include="Library\Remoting\Ipc.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="External\ConsolePlus\SystemColor.alx" />
-    <None Include="Library\Wpf.alx">
+    <None Include="Library\Gui\Wpf.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Serialization\AphidObject.alx" />
     <None Include="Components.Aphid.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="AphidCustomOperators.alx" />
     <None Include="Tools\MakeExe.alx">
@@ -627,6 +685,10 @@
     <None Include="Tools\TestLoop.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="UI\AphidCliInterop.alx">
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>AphidCliInterop.cs</LastGenOutput>
+    </None>
     <Resource Include="Compiler\Medusa\LLex\Resources\Lang.CSharp.alx" />
     <None Include="External\ConsolePlus\Cli.alx" />
     <None Include="External\Json\Json.alx" />
@@ -635,70 +697,70 @@
     <None Include="Library\Conversion.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\RemoteShell.alx">
+    <None Include="Library\Remoting\RemoteShell.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Shell.alx">
+    <None Include="Library\Cli\Shell.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\ProcessTest.alx">
+    <None Include="Library\System\ProcessTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Process.alx">
+    <None Include="Library\System\Process.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\PowerShell.alx">
+    <None Include="Library\Cli\PowerShell.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\NativeDebugging.alx">
+    <None Include="Library\Debugging\NativeDebugging.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Wmi.alx">
+    <None Include="Library\System\Wmi.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Xml.alx">
+    <None Include="Library\Data\Xml.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\DebugDeploy.alx">
+    <None Include="Library\Debugging\DebugDeploy.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Web.alx">
+    <None Include="Library\Net\Web.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Serialization.alx">
+    <None Include="Library\Data\Serialization.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\StringEmitter.alx">
+    <None Include="Library\Meta\Code\Generation\StringEmitter.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\IL.alx">
+    <None Include="Library\Meta\Code\Generation\IL.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Sandbox.alx">
+    <None Include="Library\System\Sandbox.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Meta.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Remoting.alx">
+    <None Include="Library\Remoting\Remote.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Udp.alx">
+    <None Include="Library\Net\Udp.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Tcp.alx">
+    <None Include="Library\Net\Tcp.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Dbg.alx">
+    <None Include="Library\Debugging\Dbg.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Env.alx">
+    <None Include="Library\System\Env.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Query.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Threading.alx">
+    <None Include="Library\Core\Threading.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\String.alx">

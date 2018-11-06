@@ -19,7 +19,8 @@ namespace Components.Aphid.UI
             _strictMode = GetBool(AphidSettings.StrictMode, defaultValue: true),
             _saveErrors = GetBool(AphidSettings.SaveErrors, defaultValue: false),
             _stackTraceParams = GetBool(AphidSettings.StackTraceParams, defaultValue: false),
-            _scriptCaching = GetBool(AphidSettings.ScriptCaching, defaultValue: false);
+            _scriptCaching = GetBool(AphidSettings.ScriptCaching, defaultValue: false),
+            _ignoreDebugger = GetBool(AphidSettings.IgnoreDebugger, defaultValue: false);
 
         private Lazy<string[]>
             _imports = GetArray(AphidSettings.AutoImport, defaultValue: new string[0]),
@@ -48,6 +49,11 @@ namespace Components.Aphid.UI
         public bool ScriptCaching
         {
             get { return _scriptCaching.Value; }
+        }
+
+        public bool IgnoreDebugger
+        {
+            get { return _ignoreDebugger.Value; }
         }
 
         public bool ExceptionHandlingDisabled { get; set; }

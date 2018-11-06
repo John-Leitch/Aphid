@@ -34,6 +34,10 @@ namespace Aphid
                 AphidErrorHandling.IgnoreDebugger = true;
                 args = args.Skip(1).ToArray();
             }
+            else if (AphidConfig.Current.IgnoreDebugger)
+            {
+                AphidErrorHandling.IgnoreDebugger = true;
+            }
 
             if (args.Length == 0)
             {

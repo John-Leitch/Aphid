@@ -1,0 +1,80 @@
+﻿using Components.Aphid.Parser;
+using Components.Aphid.Lexer;
+using Components.Aphid.UI;
+using System;
+using System.Text;
+
+#'Std';
+
+_a = macro(@(name) { _fc(id(Append, name)) });
+_f = macro(@(name) { _fc(id(From, name)) });
+_fc = macro(@(name2) { export StringBuilder ParserErrorMessage.name2 });
+
+_expand = macro(@(name, id, body) { name = id(body); name(); });
+_block = macro(@(body2) { _expand(_b, macro, body2); });
+
+export string ParserErrorMessage.FromExpression = @(
+    string code,
+    AphidParserException exception,
+    bool highlight) {
+    var sb = new StringBuilder();
+    sb.Append(exception?.Message ?: 'Unexpected parser error ');
+    var exp = exception?.Expression;
+    ParserErrorMessage.AppendFilename(sb, exception);
+    ParserErrorMessage.AppendPositionAndExcerpt(sb, exp?.Code ?: code, exp?.Index, highlight);
+    
+    ret sb.ToString();
+};
+
+_a(Filename) = @(StringBuilder sb, AphidParserException exception)
+    exception?.Expression?.Filename @sb.AppendFormat($($_) null: "", " in script '{0}'");
+
+export string ParserErrorMessage.FromToken = @(
+    string code,
+    AphidParserException exception,
+    bool highlight) {
+    var sb = new StringBuilder();
+
+    sb.AppendFormat(
+        "Unexpected {0} '{1}'",
+        exception.UnexpectedToken.TokenType.ToString().ToLower(),
+        exception.UnexpectedToken.Lexeme);
+
+    if (exception.ExpectedToken != AphidTokenType.None) {
+        sb.AppendFormat(" expected {0}", exception.ExpectedToken);
+    }
+
+    ParserErrorMessage.AppendPositionAndExcerpt(sb, code, exception.UnexpectedToken.Index, highlight);
+
+    ret sb.ToString();
+};
+
+_a(PositionAndExcerpt) = @(StringBuilder sb, string code, int index, bool highlight) {
+    [ ParserErrorMessage.AppendPosition, ParserErrorMessage.AppendExcerpt ]
+        ->@()$_(sb, code, index, highlight);
+
+    ret sb;
+};
+
+_a(Position) = @(StringBuilder sb, string code, int index, bool highlight) {
+    if ((var line = TokenHelper.GetIndexPosition(code, index)) != null) {
+        sb.AppendFormat(
+            " on line {0}, column {1}, ",
+            line.Item1 + 1,
+            line.Item2);
+    } else {
+        sb.Append('at ');
+    }
+    
+    sb.AppendFormat('offset {0} ', index);
+
+    ret sb;
+};
+
+_a(Excerpt) = @(StringBuilder sb, string code, int index, bool highlight) {
+    var e = TokenHelper.GetCodeExcerpt(code, index, 4);
+
+    ret String.IsNullOrEmpty(e) ?
+        sb :        
+        ((highlight ? AphidCli.Highlight(e) : e) @sb.AppendFormat('\r\n\r\n{0}\r\n'));
+}

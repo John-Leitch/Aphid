@@ -96,6 +96,21 @@
     <TargetFrameworkProfile />
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
     <Prefer32Bit>true</Prefer32Bit>
@@ -182,7 +197,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
+    <!-- <Reference Include="System.Xml.Linq" /> -->
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -195,6 +210,9 @@
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Benchmarks\ConditionalBenchmark.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Benchmarks\ListBenchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -209,6 +227,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Benchmarks\IncludeBenchmark.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Benchmarks\OperatorBenchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Benchmarks\Run.alx">
@@ -286,6 +307,9 @@
     <None Include="Samples\HelloWorld.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Test\TestTools.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
@@ -293,13 +317,21 @@
       <Name>Components.Aphid</Name>
     </ProjectReference>
   </ItemGroup>
+  <!-- <ItemGroup> -->
+  <!-- <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1"> -->
+  <!-- <Visible>False</Visible> -->
+  <!-- <ProductName>.NET Framework 3.5 SP1</ProductName> -->
+  <!-- <Install>false</Install> -->
+  <!-- </BootstrapperPackage> -->
+  <!-- </ItemGroup> -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::taskkill /im aphid.exe /f
-powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"</PreBuildEvent>
+::powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>::copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)
+
 IF NOT EXIST "$(TargetDir)Aphid64.exe" (
 IF NOT EXIST "$(TargetDir)Ngen.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" 
 IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe"

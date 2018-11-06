@@ -1,4 +1,4 @@
-﻿#'winForms';
+﻿#'Gui\\WinForms';
 using Components.ObjectDatabase;
 using System.Reflection;
 using Components.Aphid.Parser;
@@ -7,7 +7,7 @@ AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
     ret e.Name.StartsWith('Components.Aphid') ? AphidExpression.Assembly : null;
 });
 
-var db = 'history.db' |> BinaryObjectDatabase.OpenFile;
+
 var chart = winForms.chart();
 
 var area3d = chart.area().Area3DStyle;
@@ -23,29 +23,36 @@ area3d.LightStyle = LightStyle.Realistic;
 var tickMode = { normal: 0, sum: 1, average: 2 };
 
 var mode = tickMode.normal;
+#'std';
+var l = {};
 
-db.ReadUnsafe()
--< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
--& @.name
--> @(s){
-    var i = 0x0;
-    var data = ($(mode)
-        tickMode.average: (s
-            -& (@.version)
-            -\ (@.Key)
-            -> (@() [ i++, ($_ -> @.ticks +> (@(a, b) a + b)) / ($_ #!) ])),
-        tickMode.sum: (s
-            -& (@.version)
-            -\ (@.Key)
-            -> (@() [ i++, ($_ -> @.ticks +> (@(a, b) a + b)) ])),
-        (s
-            -\ (@.version)
-            -> (@() [ i++, $_.ticks ])));
+using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
+    db.ReadUnsafe()
+    -< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
+    -& @.name
+    -> @(s){
+        var i = 0x0;
+        var data = ($(mode)
+            tickMode.average: (s
+                -& (@.version)
+                -\ (@.Key)
+                -> (@(g) [ i++, (g -> @.ticks +> (@(a, b) a + b)) / (g #!), g.Key ])),
+            tickMode.sum: (s
+                -& (@.version)
+                -\ (@.Key)
+                -> (@(g) [ i++, (g -> @.ticks +> (@(a, b) a + b)), g.Key ])),
+            (s
+                -\ (@.version)
+                -> (@() [ i++, $_.ticks, $_.version ])));
     
-    data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
-};
+        l[s.Key] = data;
+        Console.WriteLine('{0}: {1}', s.Key, data #!);
 
-db.Dispose();
+        data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
+    };
+}
+
+//l |> serialize @File.WriteAllText('c:\\temp\\dat.alx');
 
 winForms.split([
     [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]

@@ -1,5 +1,5 @@
 ﻿#'Std';
-#'Tcp';
+#'Net\\Tcp';
 
 var client = tcp.connect('google.com', 80);
 client.write('HEAD http://www.google.com/ HTTP/1.0\r\nHost: google.com\r\n\r\n');

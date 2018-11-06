@@ -606,15 +606,19 @@ namespace Components.External.ConsolePlus
             }
         }
 
-        public static string Escape(string value)
-        {
-            return !string.IsNullOrEmpty(value) ?
-                value
-                    .Replace("{", "{{")
-                    .Replace("}", "}}")
-                    .Replace("~", "~~") :
+        public static string Escape(string value) =>
+            !string.IsNullOrEmpty(value) ?
+                //(VT100.IsEnabled ?
+                //    VT100.Escape(
+                //        value
+                //            .Replace("{", "{{")
+                //            .Replace("}", "}}")
+                //            .Replace("~", "~~")) :
+                        value
+                            .Replace("{", "{{")
+                            .Replace("}", "}}")
+                            .Replace("~", "~~")/*)*/ :
                 value;
-        }
 
         public static string FormatEscape(string value)
         {
@@ -631,10 +635,10 @@ namespace Components.External.ConsolePlus
             return StyleEscape(value.ToString());
         }
 
-        public static string StyleEscape(string value)
-        {
-            return !string.IsNullOrEmpty(value) ? value.Replace("~", "~~") : value;
-        }
+        public static string StyleEscape(string value) =>
+            !string.IsNullOrEmpty(value) ? value.Replace("~", "~~") :
+            //(VT100.IsEnabled ? VT100.Escape(value.Replace("~", "~~")) : value.Replace("~", "~~")) :
+            value;
 
 #if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]

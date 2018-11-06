@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 var numbers = 1..10;
 #'Std';
-#'AopTest';
+#'Testing\\AopTest';
 
 linq smoke group;
 @{ Enumerable.Aggregate([ 1, 2, 3, 4 ], @(x, y) x + y) };

@@ -90,7 +90,6 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 #'Std';
-                #'Meta';
                 using Components.Aphid.Parser;
                 extend list AphidExpression {
                     whereId: @(l, id) id defined ?
@@ -119,7 +118,6 @@ namespace Components.Aphid.Tests.Integration
         {
             Assert9(@"
                 #'Std';
-                #'Meta';
                 using Components.Aphid.Parser;
                 extend list AphidExpression {
                     whereId: @(l, id) id defined ?
@@ -148,7 +146,6 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFalse(@"
                 #'Std';
-                #'Meta';
                 using Components.Aphid.Parser;
                 extend list AphidExpression {
                     whereId: @(l, id) id defined ?
@@ -177,7 +174,6 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFalse(@"
                 #'Std';
-                #'Meta';
                 using Components.Aphid.Parser;
                 extend list AphidExpression {
                     whereId: @(l, id) id defined ?
@@ -206,7 +202,6 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFalse(@"
                 #'Std';
-                #'Meta';
                 try {
                     extend list AphidExpressiona {
                         whereId: @(l, id) id defined ?
@@ -226,7 +221,6 @@ namespace Components.Aphid.Tests.Integration
         {
             AssertFalse(@"
                 #'Std';
-                #'Meta';
                 try {
                     extend list list AphidExpression {
                         whereId: @(l, id) id defined ?
@@ -366,7 +360,6 @@ namespace Components.Aphid.Tests.Integration
             string paramRef = "o")
         {
             AssertTrue(@"
-                #'Std';
                 #'Meta';
                 using Components.Aphid.Parser;
                 using System;

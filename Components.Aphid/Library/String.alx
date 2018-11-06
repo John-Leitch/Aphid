@@ -1,4 +1,17 @@
-﻿extend string {
+﻿_firstChar = macro(@(action) {
+    @(word)
+        !string.IsNullOrEmpty(word) ?
+            (word.Remove(1).action() + (word.Length > 1 ? word.Substring(1) : '')) :
+            word
+});
+
+var language = {
+    pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),    
+    capitalize: _firstChar(ToUpper),
+    camelCase: _firstChar(ToLower),
+};
+
+extend string {
 	chars: @(s) __string.getChars(s),
 	lower: @(s) __string.lower(s),
 	split: @(s, separator) __string.split(s, separator),
@@ -14,4 +27,30 @@
 		
 	startsWith: @(s, value) __string.startsWith(s, value),
 	endsWith: @(s, value) __string.endsWith(s, value),
+    
+    removeAt: @(x, substring)
+        substring
+        |> x.IndexOf
+        |> x.Remove,
+
+    removeAtIndexOf: @(x, value, offset)
+        ((var i = x.IndexOf(value)) < 0) ?
+            x :
+            x.Remove(i + (offset defined ? offset : 0)),
+
+    dec: @(x) x |> Decimal.Parse,
+
+    pluralize: language.pluralize,
+    capitalize: language.capitalize,
+    camelCase: language.camelCase,
 }
+
+extend IntPtr {
+    toHex: @(p) '0x' + string
+        .Format("{0:x}", p.ToInt64())
+        .PadLeft(IntPtr.Size == 0x4 ? 0x8 : 0x10, '0'),
+}
+
+var format = string.Format;
+var join = string.Join;
+var concat = string.Concat;

@@ -322,7 +322,6 @@ namespace Components.Aphid.Tests.Integration
         {
             return string.Format(
                 "#'Std';\r\n" +
-                "#'Meta';\r\n" +
                 "var a = Array.CreateInstance({0}, {1});\r\n" +
                 "{2}",
                 typeof(TElement).Name,

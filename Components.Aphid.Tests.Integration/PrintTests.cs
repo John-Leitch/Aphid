@@ -13,7 +13,6 @@ namespace Components.Aphid.Tests.Integration
                 using Components.External.ConsolePlus;
                 //tracePrint;
                 #'Std';
-                #'Meta';
                 
                 print(null);
                 print(null, null);

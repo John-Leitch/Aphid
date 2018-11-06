@@ -5,7 +5,8 @@
 //
 // The original source: https://github.com/Microsoft/automatic-graph-layout
 
-#'Nuget';
+#'Std';
+#'System\\Nuget';
 
 load System.Windows.Forms;
 
