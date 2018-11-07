@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 
 // Todo: fix packing issue.
+#'Core/Operators';
 #'Meta/Reflection';
 
 export Type AphidCli.Unwrap = @(Object obj) this.{'$aphid'}.ValueHelper.Unwrap(obj);

@@ -193,7 +193,7 @@ namespace Components.Aphid.UI
                     AphidCli.Highlight(
                         AphidCli.DumpValue(
                             Interpreter,
-                            Serializer != null ? Serializer : new AphidSerializer(Interpreter),
+                            Serializer ?? new AphidSerializer(Interpreter),
                             value,
                             ignoreNull: false,
                             ignoreClrObj: false)));

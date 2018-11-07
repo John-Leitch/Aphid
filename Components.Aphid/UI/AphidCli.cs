@@ -252,7 +252,7 @@ namespace Components.Aphid.UI
 
         public static void DumpStackTrace(AphidInterpreter interpreter)
         {
-            var trace = interpreter.GetStackTrace();
+            var trace = interpreter.GetRawStackTrace();
             var i = 0;
 
             if(!Console.IsOutputRedirected)
@@ -542,7 +542,7 @@ namespace Components.Aphid.UI
             };
 
 
-            foreach (var pair in ctxPairs.Reverse())
+            foreach (var pair in ctxPairs)
             {
                 if (trace.Any(a =>
                     a.Expression != null &&

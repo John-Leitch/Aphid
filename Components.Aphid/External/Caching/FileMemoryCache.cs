@@ -14,11 +14,9 @@ namespace Components.Caching
 
             using (CreateLock(key))
             {
-                CacheBlob<byte[]> bytes;
-                
                 var time = new FileInfo(key).LastWriteTimeUtc;
 
-                if (!_cache.TryGetValue(key, out bytes))
+                if (!_cache.TryGetValue(key, out CacheBlob<byte[]> bytes))
                 {
                     var b = File.ReadAllBytes(key);
                     _cache.Add(key, new CacheBlob<byte[]>(time, b));
@@ -51,9 +49,7 @@ namespace Components.Caching
                 File.WriteAllBytes(key, buffer);
                 var date = new FileInfo(key).LastWriteTimeUtc;
 
-                CacheBlob<byte[]> bytes;
-
-                if (!_cache.TryGetValue(key, out bytes))
+                if (!_cache.TryGetValue(key, out var bytes))
                 {
                     _cache.Add(key, new CacheBlob<byte[]>(date, buffer));
                 }

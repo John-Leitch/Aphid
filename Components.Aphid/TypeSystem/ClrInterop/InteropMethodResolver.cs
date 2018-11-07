@@ -58,7 +58,7 @@ namespace Components.Aphid.TypeSystem
 
             if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
             {
-                key = expression.RightOperand.ToIdentifier().Identifier;
+                key = ((IdentifierExpression)expression.RightOperand).Identifier;
 
                 staticType = Interpreter.InteropTypeResolver.TryResolveType(
                     Interpreter.GetImports(),
@@ -95,9 +95,8 @@ namespace Components.Aphid.TypeSystem
                 returnRef,
                 dynamicHandler);
 
-            var staticRef = staticObj.Value as AphidInteropReference;
 
-            if (staticRef != null && staticRef.Property != null)
+            if (staticObj.Value is AphidInteropReference staticRef && staticRef.Property != null)
             {
                 return staticRef;
             }
@@ -248,11 +247,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo, x.Args);
 
-                    if (genericArgs.Length ==
-                        x.Method
-                            .GetGenericArguments()
-                            .Distinct()
-                            .Count())
+                    if (genericArgs.Length == x.Method.GetGenericArguments().Distinct().Count())
                     {
                         return new AphidInteropMethodInfo(x.Method, genericArgs, x.Args);
                     }
@@ -398,11 +393,10 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private AphidRuntimeException CreateSignatureException(object[] args, MethodBase[] matches)
-        {
-            return Interpreter.CreateRuntimeException(
-                "Call did not match interop signature {0}({1}).\r\n\r\n" + 
-                    "Methods found:\r\n{2}\r\n\r\n" + 
+        private AphidRuntimeException CreateSignatureException(object[] args, MethodBase[] matches) =>
+            Interpreter.CreateRuntimeException(
+                "Call did not match interop signature {0}({1}).\r\n\r\n" +
+                    "Methods found:\r\n{2}\r\n\r\n" +
                     "Arguments:\r\n{3}",
                 matches.Length != 0 ? matches[0].Name : "",
                 string.Join(
@@ -410,15 +404,15 @@ namespace Components.Aphid.TypeSystem
                     args.Select(x => (x != null ? x.GetType() : typeof(object)).FullName)),
                 string.Join("\r\n", matches.Select(GetMethodDescription)),
                 CreateArgumentString(args));
-        }
 
         private string CreateArgumentString(object[] args)
         {
             var sb = new StringBuilder();
             IEnumerable enumerable;
 
-            foreach (var arg in args)
+            for (var i = 0; i < args.Length; i++)
             {
+                var arg = args[i];
                 sb.AppendFormat("{0}=", AphidType.GetName(arg));
 
                 if (arg == null ||
@@ -463,10 +457,8 @@ namespace Components.Aphid.TypeSystem
             return sb.ToString();
         }
 
-        private string GetParamDescription(ParameterInfo parameter)
-        {
-            return string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
-        }
+        private string GetParamDescription(ParameterInfo parameter) =>
+            string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
 
         private bool CheckArgumentCount(MethodBase method, object[] args)
         {
@@ -490,18 +482,17 @@ namespace Components.Aphid.TypeSystem
 
         private AphidInteropMethodArg CreateMethodArg(ParameterInfo parameter, int index, object[] args)
         {
-            object arg;
-            Type argType;
-            ParameterInfoCache paramInfo;
-
             lock (AphidInteropMethodArg.ParamCache)
             {
-                if (!AphidInteropMethodArg.ParamCache.TryGetValue(parameter, out paramInfo))
+                if (!AphidInteropMethodArg.ParamCache.TryGetValue(parameter, out var paramInfo))
                 {
                     AphidInteropMethodArg.ParamCache.Add(
                         parameter,
                         paramInfo = new ParameterInfoCache(parameter));
                 }
+
+                Type argType;
+                object arg;
 
                 if (!paramInfo.HasParamArray)
                 {
@@ -526,7 +517,7 @@ namespace Components.Aphid.TypeSystem
                     object a;
                     IEnumerable seq;
 
-                    if (index >= args.Length  ||
+                    if (index >= args.Length ||
                         (a = args[index]) == null ||
                         a is string ||
                         (seq = a as IEnumerable) == null)

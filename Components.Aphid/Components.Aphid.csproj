@@ -117,6 +117,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <!--                                -->
   <!-- RELEASE                        -->
@@ -554,6 +555,9 @@
     <None Include="Aphid.Code.alx" />
     <None Include="Aphid.Tokens.alx" />
     <None Include="Aphid.Tmpl.alx" />
+    <None Include="Library\Core\Enums.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Parser\ParserErrorMessageInterop.alx">
       <Generator>AphidCodeDomGenerator</Generator>
       <LastGenOutput>ParserErrorMessageInterop.cs</LastGenOutput>

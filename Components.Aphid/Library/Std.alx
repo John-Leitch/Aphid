@@ -85,6 +85,7 @@ using System.Reflection;
 #'Core\\Internals';
 #'Meta\\Reflection';
 #'Core\\Operators';
+#'Core\\Enums';
 #'String';
 #'List';
 #'Conversion';
@@ -93,6 +94,7 @@ using System.Reflection;
 #'Meta';
 #'Debugging\\Dbg';
 
+//>>>var attrs = Enumerable.Take(((getAllTypes()-<@()$_.GetMethods()-<@()$_.GetParameters())-?@()(var a = $_.Attributes) !=ParameterAttributes.None&&$_.Attributes!=ParameterAttributes.Out), 100)->@()({attrs:$_.Attributes, meth:$_})
 // Todo: make API for exporting custom ops/type extensions/etc.,
 // to other scopes so they can be defined using imports and includes
 // without causing scope pollution.

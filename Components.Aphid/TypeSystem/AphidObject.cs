@@ -287,17 +287,17 @@ namespace Components.Aphid.TypeSystem
                 bindable.OnBinding(this);
             }
 
-            var kvps = GetPropertyValuePairs(obj);
-
-            foreach (var p in kvps)
+            foreach (var p in GetPropertyValuePairs(obj))
             {
-                if (TrySetProperty(p.Property, obj, p.Value))
+                var property = p.Property;
+
+                if (TrySetProperty(property, obj, p.Value))
                 {
                     continue;
                 }
-                else if (p.Property.PropertyType.IsArray)
+                else if (property.PropertyType.IsArray)
                 {
-                    var elementType = p.Property.PropertyType.GetElementType();
+                    var elementType = property.PropertyType.GetElementType();
                     var srcArray = p.Value
                         .GetList()
                         .Select(x =>
@@ -309,26 +309,25 @@ namespace Components.Aphid.TypeSystem
                         .ToArray();
                     var destArray = Array.CreateInstance(elementType, srcArray.Length);
                     Array.Copy(srcArray, destArray, srcArray.Length);
-
-                    p.Property.SetValue(obj, destArray, null);
+                    property.SetValue(obj, destArray, null);
                 }
-                else if (p.Property.PropertyType.IsEnum)
+                else if (property.PropertyType.IsEnum)
                 {
-                    var val = Enum.ToObject(p.Property.PropertyType, Convert.ToInt64(p.Value.Value));
-                    p.Property.SetValue(obj, val, null);
+                    var val = Enum.ToObject(property.PropertyType, Convert.ToInt64(p.Value.Value));
+                    property.SetValue(obj, val, null);
                 }
                 else if (p.Value.Count == 0 ||
-                    p.Property.PropertyType == typeof(bool) ||
-                    p.Property.PropertyType == typeof(string) ||
-                    p.Property.PropertyType == typeof(decimal))
+                    property.PropertyType == typeof(bool) ||
+                    property.PropertyType == typeof(string) ||
+                    property.PropertyType == typeof(decimal))
                 {
-                    p.Property.SetValue(obj, p.Value.Value, null);
+                    property.SetValue(obj, p.Value.Value, null);
                 }
                 else
                 {
-                    var childObj = Activator.CreateInstance(p.Property.PropertyType);
+                    var childObj = Activator.CreateInstance(property.PropertyType);
                     p.Value.Bind(childObj);
-                    p.Property.SetValue(obj, childObj, null);
+                    property.SetValue(obj, childObj, null);
                 }
             }
 
@@ -398,11 +397,11 @@ namespace Components.Aphid.TypeSystem
                 t == typeof(float) ||
                 t == typeof(double))
             {
-                return AphidObject.Scalar(Convert.ToDecimal(o));
+                return Scalar(Convert.ToDecimal(o));
             }
             else if (t.IsPrimitive || t == typeof(string) || t == typeof(decimal))
             {
-                return AphidObject.Scalar(o);
+                return Scalar(o);
             }
             else if ((enumerable = o as IEnumerable) != null)
             {
@@ -413,19 +412,15 @@ namespace Components.Aphid.TypeSystem
                     items.Add(ConvertFrom(element.GetType(), element));
                 }
 
-                return AphidObject.Scalar(items);
+                return Scalar(items);
             }
             else
             {
-                var ao = AphidObject.Complex();
-                var properties = GetPropertyInfo(o);
+                var ao = Complex();
 
-                foreach (var p in properties)
+                foreach (var p in GetPropertyInfo(o))
                 {
-                    var val = ConvertFrom(
-                        p.Property.PropertyType,
-                        p.Property.GetValue(o, null));
-
+                    var val = ConvertFrom(p.Property.PropertyType, p.Property.GetValue(o, null));
                     ao.Add(p.Name, val);
                 }
 
@@ -433,16 +428,11 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public static AphidObject ConvertFrom<T>(T o)
-        {
-            return ConvertFrom(typeof(T), o);
-        }
+        public static AphidObject ConvertFrom<T>(T o) => ConvertFrom(typeof(T), o);
 
         public AphidObject Resolve(AphidInterpreter interpreter, string key, string errorMessage = null)
         {
-            AphidObject obj;
-
-            if (!TryResolve(key, out obj))
+            if (!TryResolve(key, out var obj))
             {
                 throw errorMessage == null ?
                     interpreter.CreateValueException(this, "Could not resolve property {0}", key) :
@@ -494,9 +484,7 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject TryResolveParent(string key)
         {
-            AphidObject value;
-
-            if (TryGetValue(key, out value))
+            if (TryGetValue(key, out var value))
             {
                 return this;
             }
@@ -510,27 +498,14 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public bool IsDefined(string key)
-        {
-            AphidObject v;
+        public bool IsDefined(string key) => TryResolve(key, out var v);
 
-            return TryResolve(key, out v);
-        }
-
-        public bool ResolveBool(string key)
-        {
-            AphidObject value;
-
-            return
-                TryResolve(key, out value) &&
+        public bool ResolveBool(string key) =>
+            TryResolve(key, out var value) &&
                 value.Value != null &&
                 Convert.ToBoolean(value.Value);
-        }
 
-        public bool IsAphidType()
-        {
-            return IsAphidType(this.Value);
-        }
+        public bool IsAphidType() => IsAphidType(Value);
 
         public AphidObject[] FlattenScope()
         {
@@ -582,10 +557,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
+        public override bool Equals(object obj) => base.Equals(obj);
 
         public override int GetHashCode()
         {
@@ -621,25 +593,13 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public AphidObject CreateChild()
-        {
-            return new AphidObject(this);
-        }
+        public AphidObject CreateChild() => new AphidObject(this);
 
-        public static AphidObject Scalar(object value)
-        {
-            return new AphidObject(value: value);
-        }
+        public static AphidObject Scalar(object value) => new AphidObject(value: value);
 
-        public static AphidObject Scope()
-        {
-            return new AphidObject();
-        }
+        public static AphidObject Scope() => new AphidObject();
 
-        public static AphidObject Complex()
-        {
-            return new AphidObject();
-        }
+        public static AphidObject Complex() => new AphidObject();
 
         public static AphidObject Complex(IEnumerable<KeyValuePair<string, AphidObject>> members)
         {

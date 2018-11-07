@@ -8,7 +8,7 @@ namespace Components.Aphid.Parser
     {
         public bool InlineScripts { get; set; }
 
-        private string[] _searchPaths;
+        private readonly string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
             : base(typeof(AphidExpression).Assembly.GetName().Version)

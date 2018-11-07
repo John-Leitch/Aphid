@@ -9,7 +9,7 @@ namespace Components.Aphid.TypeSystem
 {
     public class ValueHelper : AphidRuntimeComponent
     {
-        private Dictionary<Type, string> _typeName = new Dictionary<Type, string>
+        private readonly Dictionary<Type, string> _typeName = new Dictionary<Type, string>
         {
             { typeof(string), "string" },
             { typeof(decimal), "number" },
@@ -74,10 +74,8 @@ namespace Components.Aphid.TypeSystem
             return unwrapped;
         }
 
-        public IEnumerable<object> UnwrapIEnumerableObject(object obj)
-        {
-            return UnwrapIEnumerable(obj).Cast<object>();
-        }
+        public IEnumerable<object> UnwrapIEnumerableObject(object obj) =>
+            UnwrapIEnumerable(obj).Cast<object>();
 
         public IEnumerable UnwrapIEnumerable(object obj)
         {
@@ -113,35 +111,23 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public void AssertString(object value, string operation)
-        {
+        public void AssertString(object value, string operation) =>
             AssertValue<string>(value, operation);
-        }
 
-        public void AssertNumber(object value, string operation)
-        {
+        public void AssertNumber(object value, string operation) =>
             AssertValue<decimal>(value, operation);
-        }
 
-        public void AssertBool(object value, string operation)
-        {
+        public void AssertBool(object value, string operation) =>
             AssertValue<bool>(value, operation);
-        }
 
-        public void AssertList(object value, string operation)
-        {
+        public void AssertList(object value, string operation) =>
             AssertValue<List<AphidObject>>(value, operation);
-        }
 
-        public void AssertObject(object value, string operation)
-        {
+        public void AssertObject(object value, string operation) =>
             AssertValue<AphidObject>(value, operation);
-        }
 
-        public void AssertFunction(object value, string operation)
-        {
+        public void AssertFunction(object value, string operation) =>
             AssertValue<AphidFunction>(value, operation);
-        }
 
         public void AssertValue<TExpected>(object value, string operation)
         {
@@ -153,21 +139,67 @@ namespace Components.Aphid.TypeSystem
                     GetTypeName<TExpected>(),
                     GetTypeName(value));
             }
-        }  
-
-        public string GetTypeName(Type type)
-        {
-            return _typeName[type];
         }
 
-        public string GetTypeName<T>()
+        public string GetTypeName(Type type) => _typeName[type];
+
+        public string GetTypeName<T>() => _typeName[typeof(T)];
+
+        public string GetTypeName(object value) =>
+            value != null ? _typeName[value.GetType()] : "null";
+
+        public AphidObject[] WrapObjectArray(object[] srcArray)
         {
-            return _typeName[typeof(T)];
+            var dstArray = new AphidObject[srcArray.Length];
+
+            for (var i = 0; i < dstArray.Length; i++)
+            {
+                dstArray[i] = Wrap(srcArray[i]);
+            }
+
+            return dstArray;
         }
 
-        public string GetTypeName(object value)
+        public object[] WrapObjectArrayRef(object[] array)
         {
-            return value != null ? _typeName[value.GetType()] : "null";
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = Wrap(array[i]);
+            }
+
+            return array;
+        }
+
+        public object[] UnwrapObjectArray(object[] srcArray)
+        {
+            var dstArray = new object[srcArray.Length];
+
+            for (var i = 0; i < dstArray.Length; i++)
+            {
+                dstArray[i] = Unwrap(srcArray[i]);
+            }
+
+            return dstArray;
+        }
+
+        public object[] UnwrapObjectArrayRef(object[] array)
+        {
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = Unwrap(array[i]);
+            }
+
+            return array;
+        }
+
+        public object[] DeepUnwrapObjectArrayRef(object[] array)
+        {
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = DeepUnwrap(array[i]);
+            }
+
+            return array;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Components.Aphid.Interpreter
     {
         private AphidSerializer _serializer;
 
-        private Lazy<string> _name;
+        private readonly Lazy<string> _name;
 
         public AphidObject Scope { get; set; }
 
@@ -21,7 +21,7 @@ namespace Components.Aphid.Interpreter
 
         public string Name
         {
-            get { return _name != null ? _name.Value : null; }
+            get { return _name?.Value; }
         }
 
         public IEnumerable<object> Arguments { get; private set; }
@@ -50,29 +50,22 @@ namespace Components.Aphid.Interpreter
             _serializer = new AphidSerializer(interpreter);
         }
 
-        public override string ToString()
-        {
-            return ToString(true);
-        }
+        public override string ToString() => ToString(true);
 
-        public string ToString(bool showParams, bool useFullNames = true)
-        {
-            return showParams ?
+        public string ToString(bool showParams, bool useFullNames = true) =>
+            showParams ?
                 string.Format(
                     "{0}({1})",
                     Name,
                     CreateParamTupleString(useFullNames)) :
                 Name;
-        }
 
-        public string CreateParamTupleString(bool useFullNames)
-        {
+        public string CreateParamTupleString(bool useFullNames) =>
             // Todo: get param names
-            return string.Join(
+            string.Join(
                 ", ",
                 Arguments.Select((x, i) => GetArgumentType(x, useFullNames)));
-        }
-        
+
         private string GetArgumentType(object argument, bool useFullNames)
         {
             if (argument == null)
@@ -87,32 +80,18 @@ namespace Components.Aphid.Interpreter
                 (useFullNames ? t.FullName : t.Name);
         }
 
-        private string CreateArgString()
-        {
-            return string.Join(", ", Arguments.Select(CreateObjectString));
-        }
-
+        private string CreateArgString() => string.Join(", ", Arguments.Select(CreateObjectString));
 
         private string CreateObjectString(object value)
         {
-            if (value == null)
+            switch (value)
             {
-                return "null";
-            }
-
-            var aphidObj = value as AphidObject;
-
-            if (aphidObj != null)
-            {
-                return _serializer.Serialize(aphidObj);
-                //return aphidObj.Any() ?
-                //    _serializer.Serialize(aphidObj) :
-                //    aphidObj.Value != null ? aphidObj.Value.ToString() :
-                //    "null";
-            }
-            else
-            {
-                return value.ToString();
+                case null:
+                    return "null";
+                case AphidObject aphidObj:
+                    return _serializer.Serialize(aphidObj);
+                default:
+                    return value.ToString();
             }
         }
     }

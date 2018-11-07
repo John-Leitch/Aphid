@@ -11,7 +11,7 @@ namespace Components.Aphid.UI {
         public static UnwrapDelegate Unwrap {
             get {
                 if ((AphidCli._Unwrap == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._Unwrap;
             }
@@ -34,7 +34,7 @@ namespace Components.Aphid.UI {
         public static GetUnwrappedTypeDelegate GetUnwrappedType {
             get {
                 if ((AphidCli._GetUnwrappedType == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetUnwrappedType;
             }
@@ -57,7 +57,7 @@ namespace Components.Aphid.UI {
         public static GetAphidObjectTypeNameDelegate GetAphidObjectTypeName {
             get {
                 if ((AphidCli._GetAphidObjectTypeName == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetAphidObjectTypeName;
             }
@@ -80,7 +80,7 @@ namespace Components.Aphid.UI {
         public static GetAphidTypeNameDelegate GetAphidTypeName {
             get {
                 if ((AphidCli._GetAphidTypeName == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetAphidTypeName;
             }
@@ -103,7 +103,7 @@ namespace Components.Aphid.UI {
         public static GetTypeNameDelegate GetTypeName {
             get {
                 if ((AphidCli._GetTypeName == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetTypeName;
             }
@@ -126,7 +126,7 @@ namespace Components.Aphid.UI {
         public static GetTypeFullNameDelegate GetTypeFullName {
             get {
                 if ((AphidCli._GetTypeFullName == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetTypeFullName;
             }
@@ -149,7 +149,7 @@ namespace Components.Aphid.UI {
         public static GetObjectTypeNameDelegate GetObjectTypeName {
             get {
                 if ((AphidCli._GetObjectTypeName == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetObjectTypeName;
             }
@@ -172,7 +172,7 @@ namespace Components.Aphid.UI {
         public static GetObjectTypeFullNameDelegate GetObjectTypeFullName {
             get {
                 if ((AphidCli._GetObjectTypeFullName == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b71193ed0959dd29f9ec7b405f1873aa());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_98985a32c2f876ecca5fb39f8ab84aea());
                 }
                 return AphidCli._GetObjectTypeFullName;
             }
@@ -193,7 +193,7 @@ namespace Components.Aphid.UI
     
     public static partial class AphidCompilerResources
     {
-        public static List<AphidExpression> ByteCode_b71193ed0959dd29f9ec7b405f1873aa()
+        public static List<AphidExpression> ByteCode_98985a32c2f876ecca5fb39f8ab84aea()
         {
             return             new List<AphidExpression>
             {
@@ -328,6 +328,11 @@ namespace Components.Aphid.UI
                         )
                     ),
                     false
+                ),
+                new LoadScriptExpression(
+                    new StringExpression(
+                        "'Core/Operators'"
+                    )
                 ),
                 new LoadScriptExpression(
                     new StringExpression(
