@@ -17,6 +17,8 @@ namespace Components.Aphid.TypeSystem
     [Serializable]
     public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
+        public const int MaxStringMembers = 0x8;
+
         public static readonly AphidObject
             Null = Scalar(null),
             True = Scalar(true),
@@ -111,7 +113,7 @@ namespace Components.Aphid.TypeSystem
 #endif
         }
 
-        private AphidObject(object value)            
+        private AphidObject(object value)
         {
             IsScalar = true;
             Value = value;
@@ -161,63 +163,32 @@ namespace Components.Aphid.TypeSystem
         }
 #endif
 
-        public override string ToString()
-        {
-            return ToString(printMembers: true);
-        }
+        public override string ToString() => ToString(printMembers: true);
 
-        private string ToString(bool printMembers)
-        {
-            return
-                IsScalar ?
-                    (Value == null ?
-                        AphidType.Null : Value.ToString()) :
-                printMembers ?
-                    string.Format(
-                        "{{ {0} }}",
-                        this
-                            .Select(x => string.Format(
-                                "{0}: {1}",
-                                x.Key,
-                                x.Value != null ? x.Value.ToString(false) : null))
-                            .Join(", ")) :
-                "{ ... }";
-        }
+        private string ToString(bool printMembers) =>
+            IsScalar ? (Value == null ? AphidType.Null : Value.ToString()) :
+            printMembers ? ToString(this) :
+            "{ ... }";
 
-        public List<AphidObject> GetList()
-        {
-            return Value as List<AphidObject>;
-        }
+        private string ToString(AphidObject x) =>
+            $"{{ {x.Take(8).Select(ToString).Join(", ")}{(x.Count > 8 ? ", ..." : "")} }}";
 
-        public IEnumerable<string> GetStringList()
-        {
-            return GetList().Select(x => x.GetString());
-        }
+        private string ToString(KeyValuePair<string, AphidObject> x) =>
+            $"{x.Key}: {(x.Value != null ? x.Value.ToString(false) : AphidType.Null)}";
 
-        public string GetString()
-        {
-            return Value as string;
-        }
+        public List<AphidObject> GetList() => Value as List<AphidObject>;
 
-        public decimal GetNumber()
-        {
-            return (decimal)Value;
-        }
+        public IEnumerable<string> GetStringList() => GetList().Select(x => x.GetString());
 
-        public bool GetBool()
-        {
-            return (bool)Value;
-        }
+        public string GetString() => Value as string;
 
-        public AphidFunction GetFunction()
-        {
-            return Value as AphidFunction;
-        }
+        public decimal GetNumber() => (decimal)Value;
 
-        public string GetValueType()
-        {
-            return GetValueType(true);
-        }
+        public bool GetBool() => (bool)Value;
+
+        public AphidFunction GetFunction() => Value as AphidFunction;
+
+        public string GetValueType() => GetValueType(true);
 
         public string GetValueType(bool includeClrTypes)
         {
@@ -252,9 +223,8 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj)
-        {
-            return obj
+        private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj) =>
+            obj
                 .GetType()
                 .GetProperties()
                 .Select(x => new
@@ -269,14 +239,11 @@ namespace Components.Aphid.TypeSystem
                 .Select(x => new AphidPropertyInfo(
                     x.AphidProperty.Name ?? x.Property.Name,
                     x.Property));
-        }
 
-        private IEnumerable<AphidPropertyValuePair> GetPropertyValuePairs(object obj)
-        {
-            return GetPropertyInfo(obj)
+        private IEnumerable<AphidPropertyValuePair> GetPropertyValuePairs(object obj) =>
+            GetPropertyInfo(obj)
                 .Where(x => ContainsKey(x.Name))
                 .Select(x => new AphidPropertyValuePair(x.Property, this[x.Name]));
-        }
 
         public void Bind(object obj, bool invokeEvents = true)
         {
@@ -604,7 +571,7 @@ namespace Components.Aphid.TypeSystem
         public static AphidObject Complex(IEnumerable<KeyValuePair<string, AphidObject>> members)
         {
             var obj = new AphidObject();
-            
+
 
             foreach (var m in members)
             {

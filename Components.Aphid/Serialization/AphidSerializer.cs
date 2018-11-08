@@ -29,6 +29,16 @@ namespace Components.Aphid.Serialization
     //       GZ, etc.
     public class AphidSerializer : AphidRuntimeComponent
     {
+        private readonly Type[] _safeEnumerableInterfaces = new Type[]
+        {
+            typeof(ICollection),
+            typeof(ICollection<>),
+            typeof(IList),
+            typeof(IReadOnlyCollection<>),
+            typeof(IReadOnlyDictionary<,>),
+            typeof(IReadOnlyList<>),
+        };
+
         public const string Root = "obj";
 
         private List<object> _traversed;
@@ -37,13 +47,15 @@ namespace Components.Aphid.Serialization
 
         private Stack<string> _currentPath = new Stack<string>();
 
+        public bool IgnoreLazyLists { get; set; }
+
         public bool IgnoreFunctions { get; set; }
 
         public bool IgnoreSpecialVariables { get; set; }
 
         public bool QuoteToStringResults { get; set; }
 
-        public bool ToStringClrTypes { get; set; }
+        public bool ToStringClrTypes { get; set; }        
 
         public AphidSerializer(AphidInterpreter interpreter)
             : base(interpreter)
@@ -131,7 +143,7 @@ namespace Components.Aphid.Serialization
             }
             else if (ao.Keys.Count > 0)
             {
-                s.Append("{\r\n");
+                var hasAny = false;
 
                 foreach (var kvp in ao)
                 {
@@ -148,6 +160,12 @@ namespace Components.Aphid.Serialization
                         continue;
                     }
 
+                    if (!hasAny)
+                    {
+                        s.Append("{\r\n");
+                        hasAny = true;
+                    }
+
                     s.AppendFormat(
                         !ShouldQuote(kvp.Key) ? "{0}{1}: " : "{0}'{1}':",
                         new string(' ', (indent + 1) * 4),
@@ -160,7 +178,14 @@ namespace Components.Aphid.Serialization
                     s.Append(",\r\n");
                 }
 
-                s.AppendFormat("{0}}}", new string(' ', indent * 4));
+                if (hasAny)
+                {
+                    s.AppendFormat("{0}}}", new string(' ', indent * 4));
+                }
+                else
+                {
+                    s.Append("{ }");
+                }
             }
             else
             {
@@ -197,10 +222,8 @@ namespace Components.Aphid.Serialization
             {
                 s.Append(Quote((string)value));
             }
-            else if (value is List<AphidObject>)
+            else if (value is List<AphidObject> list)
             {
-                var list = (List<AphidObject>)value;
-
                 if (list.Count > 0)
                 {
                     s.Append("[\r\n");
@@ -220,9 +243,9 @@ namespace Components.Aphid.Serialization
                     s.Append("[]");
                 }
             }
-            else if (value is IEnumerable)
+            else if (value is IEnumerable enumerable)
             {
-                SerializeEnumerable(s, value, indent);
+                SerializeEnumerable(s, enumerable, indent);
             }
             else
             {
@@ -230,22 +253,39 @@ namespace Components.Aphid.Serialization
             }
         }
 
-        private void SerializeEnumerable(StringBuilder s, object value, int indent)
+        private void SerializeEnumerable(StringBuilder s, IEnumerable enumerable, int indent)
         {
-            var enumerable = ((IEnumerable)value).Cast<object>();
-
-            if (enumerable.Any())
+            if (IgnoreLazyLists)
             {
-                s.Append("[\r\n");
+                var type = enumerable.GetType();
 
-                foreach (var x in enumerable)
+                if (IgnoreLazyLists &&
+                    !_safeEnumerableInterfaces
+                        .Any(x => type.GetInterface(x.FullName) != null))
                 {
-                    s.Append(new string(' ', (indent + 1) * 4));
-                    SerializeValue(s, x, indent + 1);
-                    //ObjToString(x, s, indent + 1);
-                    s.Append(",\r\n");
+                    SerializeClrTypeName(s, enumerable);
+
+                    return;
+                }
+            }
+            
+            var hasAny = false;
+
+            foreach (var x in enumerable)
+            {
+                if (!hasAny)
+                {
+                    s.Append("[\r\n");
+                    hasAny = true;
                 }
 
+                s.Append(new string(' ', (indent + 1) * 4));
+                SerializeValue(s, x, indent + 1);
+                s.Append(",\r\n");
+            }
+
+            if (hasAny)
+            {
                 s.AppendFormat("{0}]", new string(' ', indent * 4));
             }
             else
@@ -254,11 +294,11 @@ namespace Components.Aphid.Serialization
             }
         }
 
-        private void SerializeToString(StringBuilder s, object value)
+        private void SerializeToString(StringBuilder sb, object value)
         {
             if (value == null)
             {
-                s.Append("null");
+                sb.Append("null");
 
                 return;
             }
@@ -284,31 +324,30 @@ namespace Components.Aphid.Serialization
                 valueType == typeof(double) ||
                 valueType == typeof(decimal))
             {
-                s.Append(value.ToString());
+                sb.Append(value.ToString());
             }
             else if (hasToString)
             {
                 if (!QuoteToStringResults)
                 {
-                    s.Append(value.ToString());
+                    sb.Append(value.ToString());
                 }
                 else
                 {
-                    s.Append(Quote(value.ToString()));
+                    sb.Append(Quote(value.ToString()));
                 }
             }
             else
             {
-                if (!QuoteToStringResults)
-                {
-                    s.AppendFormat("clrObject({0})", value.GetType().FullName);
-                }
-                else
-                {
-                    s.AppendFormat("{1}clrObject({0}){1}", value.GetType().FullName, "'");
-                }
+                SerializeClrTypeName(sb, value);
             }
         }
+
+        private void SerializeClrTypeName(StringBuilder sb, object clrObject) =>
+            sb.AppendFormat(
+                !QuoteToStringResults ? "clrObject({0})" : "{1}clrObject({0}){1}",
+                clrObject.GetType().FullName,
+                "'");
 
         public AphidObject Deserialize(string obj)
         {

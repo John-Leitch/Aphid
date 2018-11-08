@@ -104,8 +104,8 @@ srcFiles->@(srcFile) {
         }));
     
     var codeDocQueue = new Queue(codeDocComments);
-    var srcAst = src |> parse;
-
+    var srcAst = parseFile(srcFile);
+    
     srcAst @ast.walk(@(node, context) {
         if (codeDocQueue.Count == 0 ||
             context.isRoot ||

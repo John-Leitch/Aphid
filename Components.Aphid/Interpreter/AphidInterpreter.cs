@@ -371,7 +371,7 @@ namespace Components.Aphid.Interpreter
             Serializer = new AphidSerializer(this)
             {
                 IgnoreSpecialVariables = false,
-                IgnoreFunctions = false,
+                IgnoreFunctions = true,
                 QuoteToStringResults = true,
             };
 
@@ -2970,7 +2970,8 @@ namespace Components.Aphid.Interpreter
                             break;
 
                         default:
-                            args[i] = CreateUnsafeArgument(argExpressions[i]);
+                            //args[i] = CreateUnsafeArgument(argExpressions[i]);
+                            args[i] = argExpressions[i];
                             break;
                     }
                 }
@@ -2988,33 +2989,15 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
-            var value = InterpretExpression(expression.FunctionExpression);
-            var funcExp = ValueHelper.Unwrap(value);
+            var func = ValueHelper.Unwrap(InterpretExpression(expression.FunctionExpression));
             var args = new object[expression.Args.Count];
-
-            if (funcExp == null)
-            {
-                args = CreateSafeArgs(expression.Args);
-                PushFrame(expression, expression.FunctionExpression, args);
-
-                try
-                {
-                    throw CreateRuntimeException("Could not find function {0}", expression.FunctionExpression);
-                }
-                finally
-                {
-                    PopFrame();
-                }
-            }
-
-            args = new object[expression.Args.Count];
 
             for (var i = 0; i < expression.Args.Count; i++)
             {
                 args[i] = InterpretExpression(expression.Args[i]);
             }
 
-            return InterpretCallExpression(expression, expression.FunctionExpression, funcExp, args);
+            return InterpretCallExpression(expression, expression.FunctionExpression, func, args);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3024,7 +3007,6 @@ namespace Components.Aphid.Interpreter
             object funcExp,
             object[] args)
         {
-
             switch (funcExp)
             {
                 case AphidInteropFunction func:

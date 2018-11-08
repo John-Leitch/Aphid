@@ -44,11 +44,7 @@ namespace Components.Aphid.UI
         }
 
         public AphidRepl(AphidInterpreter interpreter)
-            : this(interpreter, new AphidSerializer(interpreter)
-            {
-                IgnoreSpecialVariables = true,
-                IgnoreFunctions = true,
-            })
+            : this(interpreter, AphidCli.CreateSerializer(interpreter))
         {
         }
 

@@ -14,6 +14,7 @@ using Components.Aphid.Serialization;
 using Components.Aphid.Debugging;
 using Components.External;
 using Components.Json;
+using System.Reflection;
 
 namespace Components.Aphid.UI
 {
@@ -46,22 +47,26 @@ namespace Components.Aphid.UI
             WriteLineOut = Cli.WriteLine;
         }
 
+        public static AphidSerializer CreateSerializer(AphidInterpreter interpreter) =>
+            new AphidSerializer(interpreter)
+            {
+                IgnoreFunctions = true,
+                IgnoreLazyLists = true,
+                IgnoreSpecialVariables = true,
+                QuoteToStringResults = false,
+                ToStringClrTypes = false,
+            };
+
         public static bool TryAction(
             AphidInterpreter interpreter,
             string code,
-            Action action)
-        {
-            return TryAction(interpreter, code, action, allowErrorReporting: false);
-        }
+            Action action) => TryAction(interpreter, code, action, allowErrorReporting: false);
 
         public static bool TryAction(
             AphidInterpreter interpreter,
             string code,
             Action action,
-            bool allowErrorReporting)
-        {
-            return TryAction(interpreter, () => code, action, allowErrorReporting);
-        }
+            bool allowErrorReporting) => TryAction(interpreter, () => code, action, allowErrorReporting);
 
         public static bool TryAction(
             AphidInterpreter interpreter,
@@ -79,25 +84,43 @@ namespace Components.Aphid.UI
 
                 return true;
             }
-            catch(AphidParserException exception)
+            catch (AphidParserException exception)
             {
                 LastException = exception;
-                AphidCli.DumpException(exception, getCode());
+                DumpException(exception, getCode());
             }
-            catch(AphidLoadScriptException exception)
+            catch (AphidLoadScriptException exception)
             {
                 LastException = exception;
-                AphidCli.DumpException(exception, interpreter);
+                DumpException(exception, interpreter);
             }
-            catch(AphidRuntimeException exception)
+            catch (AphidRuntimeException exception)
             {
                 LastException = exception;
-                AphidCli.DumpException(exception, interpreter);
+                DumpException(exception, interpreter);
             }
-            catch(Exception exception)
+            catch (TargetInvocationException exception)
+                when (exception.InnerException is AphidParserException parserException)
+            {
+                LastException = parserException;
+                DumpException(parserException, getCode());
+            }
+            catch (TargetInvocationException exception)
+                when (exception.InnerException is AphidLoadScriptException loadScriptException)
+            {
+                LastException = loadScriptException;
+                DumpException(loadScriptException, interpreter);
+            }
+            catch (TargetInvocationException exception)
+                when (exception.InnerException is AphidRuntimeException runtimeException)
+            {
+                LastException = runtimeException;
+                DumpException(runtimeException, interpreter);
+            }
+            catch (Exception exception)
             {
                 LastException = exception;
-                AphidCli.DumpException(exception, interpreter);
+                DumpException(exception, interpreter);
             }
 
             if(allowErrorReporting)
@@ -110,25 +133,17 @@ namespace Components.Aphid.UI
             return false;
         }
 
-        public static void ExecuteCode(string code)
-        {
+        public static void ExecuteCode(string code) =>
             ExecuteCode(code, isTextDocument: false);
-        }
 
-        public static void ExecuteCode(AphidInterpreter interpreter, string code)
-        {
+        public static void ExecuteCode(AphidInterpreter interpreter, string code) =>
             ExecuteCode(interpreter, code, isTextDocument: false);
-        }
 
-        public static void ExecuteCode(string code, bool isTextDocument)
-        {
+        public static void ExecuteCode(string code, bool isTextDocument) =>
             ExecuteCode(new AphidInterpreter(), code, isTextDocument);
-        }
 
-        public static AphidObject DumpExpression(string code)
-        {
-            return DumpExpression(new AphidInterpreter(), code);
-        }
+        public static AphidObject DumpExpression(string code) =>
+            DumpExpression(new AphidInterpreter(), code);
 
         public static AphidObject DumpExpression(AphidInterpreter interpreter, string code)
         {
@@ -151,7 +166,12 @@ namespace Components.Aphid.UI
 
                 if(result != null && (result.Value != null || result.Any()))
                 {
-                    Console.WriteLine(new AphidSerializer(interpreter).Serialize(result));
+                    DumpValue(
+                        interpreter,
+                        CreateSerializer(interpreter),
+                        result,
+                        ignoreNull: false,
+                        ignoreClrObj: false);
                 }
             };
 
@@ -183,22 +203,22 @@ namespace Components.Aphid.UI
                 }
                 catch(AphidParserException exception)
                 {
-                    AphidCli.DumpException(exception, code);
+                    DumpException(exception, code);
                     Environment.Exit((int)AphidExitCode.ParserError);
                 }
                 catch(AphidLoadScriptException exception)
                 {
-                    AphidCli.DumpException(exception, interpreter);
+                    DumpException(exception, interpreter);
                     Environment.Exit((int)AphidExitCode.LoadScriptError);
                 }
                 catch(AphidRuntimeException exception)
                 {
-                    AphidCli.DumpException(exception, interpreter);
+                    DumpException(exception, interpreter);
                     Environment.Exit((int)AphidExitCode.RuntimeError);
                 }
                 catch(Exception exception)
                 {
-                    AphidCli.DumpException(exception, interpreter);
+                    DumpException(exception, interpreter);
                     Environment.Exit((int)AphidExitCode.GeneralError);
                 }
                 finally
@@ -212,10 +232,8 @@ namespace Components.Aphid.UI
             }
         }
 
-        public static void DumpException(AphidParserException exception, string code)
-        {
+        public static void DumpException(AphidParserException exception, string code) =>
             WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception, code)));
-        }
 
         public static void DumpException(
             AphidRuntimeException exception,
@@ -438,11 +456,7 @@ namespace Components.Aphid.UI
 
                 if(AphidConfig.Current.StackTraceParams)
                 {
-                    var serializer = new AphidSerializer(interpreter)
-                    {
-                        IgnoreFunctions = true,
-                        IgnoreSpecialVariables = true,
-                    };
+                    var serializer = CreateSerializer(interpreter);
 
                     var args = frame.Arguments
                         .Select((x, y) => string.Format(
@@ -641,12 +655,10 @@ namespace Components.Aphid.UI
                 result;
         }
 
-        private static bool DumpFirstExcerpt(AphidExpression statement, string name = null)
-        {
-            return DumpExcerpt(statement, name)
+        private static bool DumpFirstExcerpt(AphidExpression statement, string name = null) =>
+            DumpExcerpt(statement, name)
                 || DumpExcerpt(AphidParent.FirstComplete(statement), name)
                 || DumpExcerpt(AphidParent.FirstNearComplete(statement), name);
-        }
 
         private static bool DumpExcerpt(AphidExpression statement, string name = null)
         {
@@ -685,10 +697,8 @@ namespace Components.Aphid.UI
                 "Unhandled parser exception: {0}",
                 ParserErrorMessage.Create(code, exception, true));
 
-        public static string GetErrorMessage(AphidRuntimeException exception)
-        {
-            return string.Format("{0}\r\n", exception.Message);
-        }
+        public static string GetErrorMessage(AphidRuntimeException exception) =>
+            $"{exception.Message}\r\n";
 
         public static string GetErrorMessage(AphidLoadScriptException exception, string code)
         {
@@ -734,8 +744,7 @@ namespace Components.Aphid.UI
             }
         }
 
-        public static void WriteSubheader(string text, string style = "")
-        {
+        public static void WriteSubheader(string text, string style = "") =>
             WriteLineOut(
                 string.Format(
                     "{0}  {1}{2}{3}",
@@ -743,12 +752,10 @@ namespace Components.Aphid.UI
                     Cli.Escape(text),
                     new string(' ', Cli.BufferWidth - text.Length - 3),
                     "~R~"));
-        }
 
         public static void WriteErrorMessage(string format, params object[] arg)
         {
-            if(!Console.IsOutputRedirected &&
-                Console.CursorLeft != 0)
+            if(!Console.IsOutputRedirected && Console.CursorLeft != 0)
             {
                 WriteLineOut("\r\n");
             }
@@ -760,13 +767,11 @@ namespace Components.Aphid.UI
                 arg);
         }
 
-        public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)
-        {
+        public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg) =>
             WriteLineOut(
                 string.Format(
                     string.Format(_messageFormat, tokenColor, token, format.Replace("{", "{{").Replace("}", "}}")),
                     arg));
-        }
 
         public static ColoredText Invert(ColoredText x)
         {

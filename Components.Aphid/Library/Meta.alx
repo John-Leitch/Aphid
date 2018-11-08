@@ -132,6 +132,7 @@ _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
 var tokenize = @(text) (new AphidLexer(text)).GetTokens();
 var getToken = @(text) tokenize(text)[0].TokenType;
 
+var parseFile = AphidParser.ParseFile;
 var parse = @(code) AphidParser.Parse(code);
 var parseExp = @(exp) parse(exp)[0];
 
@@ -611,6 +612,8 @@ var importMethods;
 var importMethodsScope = this;
 var loadTokenDetails;
 
+//tokens-?(@()$_.regex defined)->@.regex->@()$_.Replace('\\s', ' ') |> Regex.Unescape
+
 @{
     importRules = {
         camelCase: true,
@@ -646,4 +649,4 @@ var loadTokenDetails;
 
         ret tokens;
     };
-}();
+}(); 
