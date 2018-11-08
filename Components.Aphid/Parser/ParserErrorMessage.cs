@@ -1,6 +1,7 @@
 ﻿using Components.Aphid.Lexer;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,9 +11,13 @@ namespace Components.Aphid.Parser
     {
         public static string Create(string code, AphidParserException exception, bool highlight)
         {
+            var actualCode = exception.Filename != null && File.Exists(exception.Filename) ?
+                AphidScript.Read(exception.Filename) :
+                code;
+
             return
-                exception.UnexpectedToken.TokenType != AphidTokenType.None ? FromToken(code, exception, highlight) :
-                exception.Expression != null ? FromExpression(code, exception, highlight) :
+                exception.UnexpectedToken.TokenType != AphidTokenType.None ? FromToken(actualCode, exception, highlight) :
+                exception.Expression != null ? FromExpression(actualCode, exception, highlight) :
                 exception.Message;
         }
     }

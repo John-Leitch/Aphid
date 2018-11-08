@@ -27,6 +27,8 @@ namespace Components.Aphid.Parser
             get { return _message; }
         }
 
+        public string Filename { get; set; }
+
         public AphidParserException(AphidToken unexpectedToken)
         {
             UnexpectedToken = unexpectedToken;

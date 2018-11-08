@@ -122,7 +122,18 @@ namespace Components.Aphid.Parser
                 UseImplicitReturns = useImplicitReturns
             };
 
-            var ast = parser.Parse();
+            List<AphidExpression> ast;
+
+            try
+            {
+                ast = parser.Parse();
+            }
+            catch (AphidParserException e)
+                when (!string.IsNullOrEmpty(filename) && string.IsNullOrEmpty(e.Filename))
+            {
+                e.Filename = filename;
+                throw;
+            }
 
             if (ast.Count != 0)
             {
