@@ -1,7 +1,7 @@
 ﻿var machine;
 
 @{
-    #'Wmi';
+    #'System/Wmi';
     using System.Diagnostics;
     using System.Threading;
 
