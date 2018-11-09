@@ -352,6 +352,7 @@ var viewModel;
                     func.Body |> e.emit;
                 };
 
+                visitor.e = e;
                 ast |> visitor.visit;
 
                 return e.text;
