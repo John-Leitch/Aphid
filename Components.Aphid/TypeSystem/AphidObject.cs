@@ -17,7 +17,7 @@ namespace Components.Aphid.TypeSystem
     [Serializable]
     public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
-        public const int MaxStringMembers = 0x8;
+        public const int MaxToStringMembers = 0x8;
 
         public static readonly AphidObject
             Null = Scalar(null),
@@ -163,18 +163,20 @@ namespace Components.Aphid.TypeSystem
         }
 #endif
 
-        public override string ToString() => ToString(printMembers: true);
+        public override string ToString() => ToString(printMemberValues: true);
 
-        private string ToString(bool printMembers) =>
+        private string ToString(bool printMemberValues) =>
             IsScalar ? (Value == null ? AphidType.Null : Value.ToString()) :
-            printMembers ? ToString(this) :
+            printMemberValues ? ToString(this, printMemberValues) :
             "{ ... }";
 
-        private string ToString(AphidObject x) =>
-            $"{{ {x.Take(8).Select(ToString).Join(", ")}{(x.Count > 8 ? ", ..." : "")} }}";
+        private string ToString(AphidObject x, bool printMemberValues) =>
+            $"{{ {x.Where(y => !y.Key.StartsWith("$")).Take(MaxToStringMembers).Select(y => ToString(y, printMemberValues)).Join(", ")}{(x.Count > MaxToStringMembers ? ", ..." : "")} }}";
 
-        private string ToString(KeyValuePair<string, AphidObject> x) =>
-            $"{x.Key}: {(x.Value != null ? x.Value.ToString(false) : AphidType.Null)}";
+        private string ToString(KeyValuePair<string, AphidObject> x, bool printMemberValues) =>
+            printMemberValues ? 
+                $"{x.Key}: {(x.Value != null ? x.Value.ToString(false) : AphidType.Null)}" :
+                x.Key;
 
         public List<AphidObject> GetList() => Value as List<AphidObject>;
 
