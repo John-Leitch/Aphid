@@ -805,7 +805,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs
+    <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)Library\Meta\Code\Aphid\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs
 ::$(ProjectDir)..\Llex\bin\$(ConfigurationName)\llex.exe $(ProjectDir)\External\Json\json.alx $(ProjectDir)\External\Json\JsonLexer.cs
 ::$(SolutionDir)Aphid\$(OutDir)Aphid.exe $(ProjectDir)External\ConsolePlus\Cli.alx &gt; $(ProjectDir)External\ConsolePlus\Cli.g.cs</PreBuildEvent>
   </PropertyGroup>
