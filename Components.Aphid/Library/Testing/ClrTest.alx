@@ -1,25 +1,52 @@
 ﻿#'Std';
 #'Cli/Powershell';
+cls();
+
+var arch = Assembly
+    .GetExecutingAssembly()
+    .GetName()
+    .ProcessorArchitecture;
+
+var testDll = 'Components.Aphid.Tests.Integration.dll';
 
 var asm = 
-    'dir ../../../Components.Aphid.Tests.Integration/bin/*/Components.Aphid.Tests.Integration.dll -r'
-    |> psContext.exec
-    -\@.LastWriteTime
-    ^!;
+    0..10
+    ->(@()'dir {0}Components.Aphid.Tests.Integration/bin/*/{1} -r' :: [ $_ * '../', testDll ])
+    -<psContext.exec
+    -/@.LastWriteTime
+    ->@.FullName
+    >^(AssemblyName.GetAssemblyName @> (@.ProcessorArchitecture) @> @== arch);
 
-(load asm)
+var tests = (load asm)
     .GetTypes()
     -<(@()$_.GetMethods())
     -?(@()
         $_.Name != 'RunTestScript' &&
         ($_.CustomAttributes=?@()$_~='\\.TestAttribute') &&
         !($_.CustomAttributes=?@()$_~='\\.Ignore'))
-    -&@.DeclaringType
-    ->@{
-        subhead('{0} Tests' :: $_.Key.Name);
-        var testObj = new ($_.Key)();
-        $_->@.Name->@{
-            printQuery('Running ~Cyan~{0}~R~ test', $_);
-            testObj[$_]();
-        }
-    };
+    -&@.DeclaringType;
+
+var testScript = strOut(@{
+    %>
+        #'Std';
+        var asm = Assembly.LoadFile("<%= asm.Replace('\\', '\\\\') %>");
+    <%
+
+    tests->@(x){%>
+        var <%= x.Key.Name %>Type = asm.GetType("<%= x.Key %>");
+        var <%= x.Key.Name %>Obj = new <%= x.Key.Name %>Type();
+    <%};
+
+    %>
+        #'Testing\\Test';
+    <%
+
+    tests->@(x)x->@{ %>
+        var <%= x.Key.Name %><%= $_.Name %>Stub = @{
+            <%= x.Key.Name %>Obj.<%= $_.Name %>();
+            ret true;
+        };
+    <%}
+});
+
+testScript |> str |> eval;
