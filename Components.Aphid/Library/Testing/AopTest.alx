@@ -1,0 +1,136 @@
+﻿#'Testing\\TestBase';
+
+@{
+    #'Std';
+
+    var context = {
+        currentState: 0,
+        names: { },
+        prologue: [],
+        epilogue: [],
+        insert: false,
+        add: false,
+        curList: null,
+        handled: [],
+        group: '',
+        testSet: '',
+        wrap: 'success',
+        wrapLast: null,
+    };
+
+    var getAttrStr = @(exp) exp
+        .attrs()
+        ->(@()$_.id().Remove(1).ToUpper() + $_.id().Substring(1))
+        |> concat;
+
+    _takeAttr = macro(@(dst){
+        context.dst = getAttrStr(ctx.Expression);
+        ctx.IsHandled = true;
+    });
+
+    var capitalize = @(word) !string.IsNullOrEmpty(word) ?
+        word.Remove(1).ToUpper() + word.Substring(1) :
+        word;
+
+    var c = context;
+
+    var getBase = @()
+        concat(
+            c.group,
+            c.testSet,
+            c.wrapLast != null && c.wrap != 'fault' && c.wrapLast.Length > 0 ? capitalize(c.wrapLast) : '',
+            c.wrap != 'success' && c.wrap.Length > 0 ? capitalize(c.wrap) : '',
+            'Test') ?:
+        'UnnamedScriptedAphidTest';
+    
+    var nextName = @()
+        getBase() +
+        (context.names.{getBase()} defined ?
+            (context.names.{getBase()}++).ToString() :
+            @{ context.names.{getBase()} = 2; ret '' }());
+
+    var detach = @{ this.{'$aphid'}.OnInterpretStatement = null };
+
+    var updateList = @(action, list) {
+        switch (action) {
+            "set": {
+                list.Clear();
+                context.add = true;
+                context.curList = list;
+            }
+            "push": {
+                context.add = true;
+                context.curList = list;
+            }
+            "insert": {
+                context.insert = true;
+                context.curList = list;
+            }
+            "clear": list.Clear();
+            "pop": if (list.Count > 0) list.RemoveAt(list.Count - 1);
+            "delete": if (list.Count > 0) list.RemoveAt(0);
+        }
+    };
+
+    _updateList = macro(@(l){
+        updateList(
+            (@() ctx.Expression.attrs()[0].id()) ?| 'set',
+            context.l);
+        ctx.IsHandled = true;
+    });
+
+    _wrap = macro(@(n) {
+        context.wrap = n;
+        ctx.IsHandled = true;
+    });
+
+    _wrapLast = macro(@(n) {
+        context.wrapLast = n;
+        ctx.IsHandled = true;
+    });
+
+    this.{'$aphid'}.OnInterpretStatement = @(ctx) {
+        if (context.add) {
+            context.curList.add(ctx.Expression);
+            ctx.IsHandled = true;
+            context.add = false;
+        } else if (context.insert) {
+            context.curList.insert(0, ctx.Expression);
+            ctx.IsHandled = true;
+            context.insert = false;
+        } else if (ctx.Expression.isId()) {
+            switch (ctx.Expression.id()) {
+                'group': _takeAttr(group);
+                'begin': _takeAttr(testSet);
+                'prologue': _updateList(prologue);
+                'epilogue': _updateList(epilogue);
+                'success': _wrap('success');
+                'fault': _wrap('fault');
+                'isFoo': _wrapLast('isFoo');
+                'isTrue': _wrapLast('isTrue');
+                'isFalse': _wrapLast('isFalse');
+                'is9': _wrapLast('is9');
+            }
+        } else if (ctx.Expression.isFunc()) {
+            
+            var f = 'var {0} = {1}(@{{  }})' :: [ nextName(), context.wrap ] |> parse;
+            var b = f[0].RightOperand.Args[0].Body;
+            [ context.prologue, detach.Body, ctx.Expression.Body, ] -<(@()$_) ->b.Add;
+
+            if (context.wrapLast != null) {
+                var l = b |> aq.last;
+                b.Remove(l);
+                var exp = parseExp('{0}()' :: [ context.wrapLast ]);
+                exp.Args.Add(l);
+                b.Add(exp);
+            }
+
+            context.epilogue->b.Add;
+            ctx.Expression = f[0];
+            ctx.IsModified = true;
+            context.handled.add(f[0]);
+        }
+    };
+}();
+
+var tests;

@@ -1,0 +1,25 @@
+﻿#'Std';
+#'Cli/Powershell';
+
+var asm = 
+    'dir ../../../Components.Aphid.Tests.Integration/bin/*/Components.Aphid.Tests.Integration.dll -r'
+    |> psContext.exec
+    -\@.LastWriteTime
+    ^!;
+
+(load asm)
+    .GetTypes()
+    -<(@()$_.GetMethods())
+    -?(@()
+        $_.Name != 'RunTestScript' &&
+        ($_.CustomAttributes=?@()$_~='\\.TestAttribute') &&
+        !($_.CustomAttributes=?@()$_~='\\.Ignore'))
+    -&@.DeclaringType
+    ->@{
+        subhead('{0} Tests' :: $_.Key.Name);
+        var testObj = new ($_.Key)();
+        $_->@.Name->@{
+            printQuery('Running ~Cyan~{0}~R~ test', $_);
+            testObj[$_]();
+        }
+    };

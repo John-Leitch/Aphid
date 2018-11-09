@@ -1,0 +1,18 @@
+_evalEnumType = macro(@{ frame().exp().func().lhs().id() |> evalExp });
+var _zeroWord = 0 |> Convert.ToUInt16;
+
+extend Enum {
+    zeroFlag: @(enumType) Enum.ToObject(enumType, _zeroWord),
+
+    flags: @(enumObj) ({
+            type: enumObj defined && enumObj != null ? enumObj.GetType() : _evalEnumType(),
+            zero: Enum.zeroFlag(type)
+        })
+        @(ctx) ctx.type |> Enum.GetValues -?@!=ctx.zero -?enumObj.HasFlag,
+    
+    values: @(enumTypeOrObj)
+        !(enumTypeOrObj defined) || enumTypeOrObj == null ?
+            _evalEnumType() |> Enum.GetValues :
+            (var t = enumTypeOrObj.GetType()).BaseType == Enum ? t |> Enum.GetValues :
+            throw new ArgumentException('enumTypeOrObj')
+}

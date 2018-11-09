@@ -1,0 +1,292 @@
+//#'DebugDeploy';
+#'Std';
+#'System\\Nuget';
+#'Meta\\Code\\Compiler';
+#'Data\\Xml';
+
+load System.Data;
+load System.Data.DataSetExtensions;
+using System.Data.OleDb;
+using System.Data;
+using System.Data.Common;
+
+// nuget.reference('AutoMapper');
+// nuget.reference('AutoMapper.Data');
+
+// nuget.reference('Dapper');
+// repl.run();
+// dumpe(this);
+
+var query1 = "
+    SELECT System.ItemName
+    FROM SystemIndex
+    WHERE scope ='file:c:/' AND System.ItemName LIKE '%Test%'
+";
+
+/*
+
+
+// File name search (case insensitive), also searches sub directories
+
+
+// File name search (case insensitive), does not search sub directories
+var query2 = @"SELECT System.ItemName FROM SystemIndex " +
+            @"WHERE directory = 'file:C:/' AND System.ItemName LIKE '%Test%' ";
+
+// Folder name search (case insensitive)
+var query3 = @"SELECT System.ItemName FROM SystemIndex " +
+            @"WHERE scope = 'file:C:/' AND System.ItemType = 'Directory' AND System.Itemname LIKE '%Test%' ";
+
+// Folder name search (case insensitive), does not search sub directories
+var query4 = @"SELECT System.ItemName FROM SystemIndex " +
+            @"WHERE directory = 'file:C:/' AND System.ItemType = 'Directory' AND System.Itemname LIKE '%Test%' ";           
+
+*/
+
+
+var q =  "SELECT System.ItemName, System.DateCreated, System.ItemPathDisplay, " +
+    "System.Search.Rank FROM SYSTEMINDEX WHERE CONTAINS(System.Search.Contents, '$($firstname)') " + 
+    "and CONTAINS(System.Search.Contents, '$($lastname)') and SCOPE= 'c:\\' " +
+    "and System.Search.Rank > 0 ORDER BY System.ItemPathDisplay";
+
+var oleDB;
+
+@{
+    oleDB = {
+        connectionString: {
+            search: "Provider=Search.CollatorDSO.1;Extended Properties='Application=Windows'",
+            //search: 'Provider="Windows Search Data Source";Extended Properties="Application=Windows"',
+        },
+
+        initialized: false,
+
+        init: @{
+            load System.Data;
+            using System.Data.OleDb;
+        },
+
+        open: @(connectionString) {
+            if (!initialized) {
+                initialized = true;
+                init();
+            }
+
+            var connection = new OleDbConnection(connectionString);
+            connection.Open();
+            
+            ret connection;
+        },
+
+        openSearch: @() connectionString.search |> open,
+
+        emit: @(cmd, tableName) {
+            var adapter = new OleDbDataAdapter(cmd);
+            
+            print('foo');
+            var ds = new DataSet();
+            adapter.Fill(ds);
+
+            var oldDSName = ds.DataSetName;
+            var oldName = ds.Tables[0].TableName;
+            var actualName = tableName;
+
+            // var oldName = ds.Tables[0].TableName;
+            // var actualName = name defined && name != null ?
+            //     name :
+            //     ds.Tables[0].TableName;
+
+            // print('foo {0}', actualName);
+            // print(ds.Tables[0]);
+
+            ds.Tables[0].TableName = actualName;
+
+            if(oldDSName == ds.DataSetName) {
+                ds.DataSetName = tableName + 'DataSet';
+            }
+
+            adapter.TableMappings.Add(oldName, actualName);
+            // adapter.Fill(ds);
+            // 
+            var xsdFile = actualName + '.xsd';
+            var csFile = actualName + '.cs';
+            ds.WriteXmlSchema(xsdFile);
+            var ns = 'GeneratedDataSet_' + Guid.NewGuid().ToString().Replace('-', '_');
+            xsd.generateDataSet(actualName, ns);
+            File.Delete(xsdFile);
+
+            var res = csFile |> File.ReadAllText |> csharp.compileAsm;
+
+            if (res.Errors.Count > 0) {
+                res.Errors |> dump;
+                throw new InvalidOperationException(res.Errors[0]);
+            }
+
+            File.Delete(csFile);
+
+            var dsType = res.CompiledAssembly.GetTypes()^!;
+
+            ret {
+                ds,
+                adapter,
+                type: dsType,
+                create: @{
+                    var ds2 = new dsType();
+                    adapter.Fill(ds2);
+
+                    ret ds2;
+                },
+            };
+
+            ret dsType;
+        },
+
+        dumpAllSchemas: @(db) { db.GetSchema().Rows->@()$_.ItemArray[0] |> dumpSchema; },
+        dumpSchema: @(s) { (s defined ? db.GetSchema(s) : db.GetSchema()).CreateDataReader() |> dumpReader },
+        dumpReader: @(r) { while (r.Read()) { dumpRecord(r) } print(); },
+        dumpRecord: @(re){ 0..re.FieldCount->@(i) { dumpField(re, i) } },
+        dumpField: @(re, i){ print('[{0}] {1} {2} {3} = {4}', re.Depth, re.GetDataTypeName(i), re.GetFieldType(i), re.GetName(i), re.GetValue(i)) },
+        dumpXml: @(o) { o.WriteXml('tmp.xsd', true); File.ReadAllText('tmp.xsd') |> print },
+    };
+}();
+
+q = 'SELECT TOP 5 System.ItemName, System.DateCreated, System.ItemPathDisplay FROM SystemIndex';
+var db = oleDB.openSearch();
+// repl.run();
+var cmd = new OleDbCommand(q, db);
+var n = 'SearchPathCreation';
+var md = oleDB.emit(cmd, n);
+md.ds.GetXmlSchema() |> print;
+var ds = md.create();
+
+for (md.adapter.TableMappings) {
+    print(
+        'Mapping {0} to {1}',
+        $_.SourceTable,
+        $_.DataSetTable);
+}
+
+ds.SearchPathCreation[0] |> dump;
+ds.SearchPathCreation[0]._SYSTEM_ITEMPATHDISPLAY |> dump;
+// repl.run();
+var table = ds.SearchPathCreation;
+0..table.Count->@()table[$_]._SYSTEM_ITEMPATHDISPLAY |> print;
+// exit();
+
+
+
+// var d3=@(r) { while (r.Read()) { 0..r.FieldCount->@() print('{0}: {1}', r.GetName($_), r.GetValue($_)) } };
+
+
+
+var d2 = @(o) { o.GetType().GetProperties()->@(p){ try { print('{0}: {1}', p.Name, o.{$_.Name}) } catch { } } };
+
+
+// dumpSchema();
+// dumpSchema('DataSourceInformation');
+// dumpSchema('Restrictions');
+// dumpSchema('ReservedWords');
+// repl.run();
+
+exit();
+// while (reader.Reader) { 0..reader.FieldCount->@() print('{0}: {1}', reader.GetName($_), reader.GetValue($_)) }
+// db.GetSchema().CreateDataReader() @(r) while (r.Read()) { 0..r.FieldCount->@(i) print('{0} {1} = {2}', r.GetFieldType(i), r.GetName(i), r.GetValue(i)) }
+// db.GetSchema().CreateDataReader() @(r) while (r.Read()) { 0..r.FieldCount->@(i) print('{0} {1} = {2}, {3}', r.GetFieldType(i), r.GetName(i), r.GetValue(i), r.GetProviderSpecificValue(i)); }
+
+// var dumpSchema = @(s){ db.GetSchema(s).CreateDataReader() @(re) { re.dir(); re ->@(r){ dumpRecord(r, re)  } } };
+
+var query = @(c) {
+    using (var ole = oleDB.openSearch()) {
+        var command = new OleDbCommand(c, ole);
+        using (var reader = command.ExecuteReader()) {
+            while (reader.Read()) {
+                reader[0] |> dump;
+            }
+        }
+    }
+};
+
+
+
+var getReader = @{
+    var db = oleDB.openSearch();
+    var cmd = new OleDbCommand(q, db);
+    var reader = cmd.ExecuteReader();
+    var adapter  = new OleDbDataAdapter(cmd);
+    var ds = new DataSet();
+    reader.Read();
+    adapter.Fill(ds);
+    ret adapter;
+};
+// repl.run();
+
+repl.run();
+ds2._Table[0]._SYSTEM_ITEMNAME |> dump;
+
+
+
+var r = getReader();
+r |> dumpe;
+
+var foo = @{
+    ret new DataReaderEnumerableAdapter(getReader());
+};
+
+getReader() |> dump;
+
+// [
+//     'System',
+//     'System.IO',
+//     'System.Text.RegularExpressions',
+//     'Components.External.ConsolePlus',
+//     'System.Linq',
+//     'System.Reflection',
+//     'System.Collections',
+//     'Components.Aphid.Lexer',
+//     'Components.Aphid.Parser',
+//     'Components.Aphid.TypeSystem',
+//     'Components.Aphid.Interpreter',
+//     'System.Collections.Generic',
+//     'NuGet',
+//     'AutoMapper',
+//     'AutoMapper.Data',
+//     'AutoMapper.Data.Utils',
+//     'Components.Aphid.UI',
+//     'System.Data.OleDb',
+//     'AutoMapper.Data.Mappers',
+//     'AutoMapper.Configuration',
+//     'System.Data.Common',
+//     'System.Data',
+// ]
+
+// load System.Data;
+// using AutoMapper;
+// using AutoMapper.Configuration;
+// using AutoMapper.Data.Configuration.Conventions;
+// using AutoMapper.Data;
+// using AutoMapper.Data.Mappers;
+// using AutoMapper.Data.Utils;
+
+
+// var recType = findType('IDataRecord');
+
+cls();
+
+// }
+// repl.run();
+
+//query(q);
+
+var loop = @{
+    while (true) {
+        out('Query: ');
+
+        try {
+            Console.ReadLine() |> query |> dump;
+        } catch (e) {
+            e |> dump;
+        }
+        
+    }
+};
+
+repl.run();

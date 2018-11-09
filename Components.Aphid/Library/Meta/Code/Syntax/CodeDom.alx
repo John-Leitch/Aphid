@@ -1,0 +1,271 @@
+#'Meta\\Code\\Syntax\\CodeDom.g';
+using Components.Aphid.Interpreter;
+using Components.Aphid.TypeSystem;
+using System.Reflection;
+
+code.return = code.methodReturn;
+code.invoke = code.methodInvoke;
+code.call = code.methodInvoke;
+code.construct = code.objectCreate;
+code.ctor = code.objectCreate;
+
+code.nullExp = @() code.primitive(null);
+code.trueExp = @() code.primitive(true);
+code.falseExp = @() code.primitive(false);
+
+
+_op = macro(@(alias, operator) {
+    code.alias = @(lhs, rhs) code.binaryOp(lhs, CodeBinaryOperatorType.operator, rhs);
+
+    extend CodeExpression {
+        alias: @(lhs, rhs) code.alias(lhs, rhs)
+    }
+});
+
+_op(add, Add);
+_op(sub, Subtract);
+_op(mul, Multiply);
+_op(div, Divide);
+_op(mod, Modulus);
+_op(mov, Assign);
+_op(uneq, IdentityInequality);
+_op(eq, IdentityEquality);
+_op(valEq, ValueEquality);
+_op(binOr, BitwiseOr);
+_op(binAnd, BitwiseAnd);
+_op(or, BooleanOr);
+_op(and, BooleanAnd);
+_op(lt, LessThan);
+_op(lte, LessThanOrEqual);
+_op(gt, GreaterThan);
+_op(gte, GreaterThanOrEqual);
+
+code.isNull = @(exp) exp.eq(code.nullExp());
+code.notNull = @(exp) exp.ne(code.nullExp());
+
+code.ifNull = @(exp, stmts) code.condition(code.isNull(exp), stmts);
+code.ifNotNull = @(exp, stmts) code.condition(code.notNull(exp), stmts);
+
+extend CodeExpression {
+    call: @(exp, methodName, args) code.call(exp, methodName, args defined ? args : []),
+    stmt: @(exp) code.exp(exp),
+    ifNull: @(exp, stmts) code.ifNull(exp, stmts),
+    ifNotNull: @(exp, stmts) code.ifNotNull(exp, stmts),
+    field: @(exp, name) code.field(exp, name),
+    property: @(exp, name) code.property(exp, name),
+}
+
+extend CodeNamespace {
+    type: @(ns, typeName) {
+        var t = code.typeDecl(typeName);
+        t.UserData.Add('DeclaringNamespace', ns);
+        ns.Types.Add(t);
+
+        ret t;
+    }
+}
+
+extend CodeTypeDeclaration {
+    partial: @(t) {
+        t.IsPartial = true;
+
+        ret t;
+    },
+
+    withPrivate: _attr(Private),
+    withProtected: _attr(Family),
+    withPublic: _attr(Public),
+    
+    field: @(t, type, name, init) {
+        var f = code.memberField(code.type(type), name);
+
+        if (init defined) {
+            f.InitExpression = init;
+        }
+
+        f.bind(t);
+
+        ret f;
+    },
+
+    property: @(t, type, name, get, set) {
+        var p = code.memberProperty();
+        p.Type = code.type(type);
+        p.Name = name;
+        p.bind(t);
+
+        ret p;
+    },
+
+    method: _methodBase(memberMethod),
+    delegate: _methodBase(typeDelegate),
+    namespace: @(t) t.UserData.get_Item('DeclaringNamespace'),
+}
+
+_attr = macro(@(a){
+    @(t) {
+        t.UserData.set_Item(
+            'AttributesAspect',
+            MemberAttributes.a | MemberAttributes.Final);
+            
+        ret t;
+    }
+});
+
+_methodBase = macro(@(create) {
+    @(t, return, name) {
+        var m = code.create();
+        m.bind(t);
+        m.ReturnType = code.type(return);
+        m.Name = name;
+
+        ret m;
+    }
+});
+
+extend CodeTypeMember {
+    bind: @(m, t) {
+        if (t.UserData.Contains('AttributesAspect')) {
+            m.Attributes = t.UserData.get_Item('AttributesAspect');
+        }
+
+        m.UserData.Add('DeclaringType', t);
+        t.Members.Add(m);
+    },
+
+    static: @(m) {
+        m.Attributes |= MemberAttributes.Static;
+
+        ret m;
+    },
+
+    next: @(m) m.UserData.get_Item('DeclaringType'),
+}
+
+_memberAttr(private);
+_memberAttr(protected);
+_memberAttr(public);
+
+_memberAttr = macro(@(n){
+    extend CodeTypeMember {
+        n: @(m) {
+            var f = quote(n);
+            
+            m.Attributes = 
+                ($(f)
+                    'protected': MemberAttributes.Family, 
+                    f[0].ToUpper() + f.Substring(1)
+                    |> MemberAttributes.GetField
+                    @() $_.GetValue(null)) |
+                MemberAttributes.Final;
+
+            ret m;
+        },
+    }
+});
+
+extend CodeMemberProperty {
+    getStmt: @(p, stmt) {
+        p.GetStatements.Add(stmt);
+
+        ret p;
+    },
+
+    setStmt: @(p, stmt) {
+        p.SetStatements.Add(stmt);
+
+        ret p;
+    },
+
+    getField: @(p, field) p.getStmt(code.methodReturn(field)),
+    setField: @(p, field) p.setStmt(code.assign(field, code.var('value'))),
+    wrapField: @(p, field) p.getField(field).setField(field),
+}
+
+_memberParam = macro(@(domType) {
+    extend domType {
+        param: @(m, type, name) {
+            code.paramDecl(type |> code.type, name)
+            |> m.Parameters.Add;
+
+            ret m;
+        }
+    }
+});
+
+_memberParam(CodeMemberMethod);
+_memberParam(CodeTypeDelegate);
+
+extend CodeMemberMethod {
+    stmt: @(m, stmt) {
+        m.Statements.Add(stmt);
+
+        ret m;
+    },
+}
+
+code.partial = @{ $_.IsPartial = true; ret $_ };
+
+extend CodeObject { code: @(c) c |> code.cs }
+
+var codeMap = {
+    stmt: @(stmt) {
+        if (stmt.isBinOp() && stmt.isOp(getToken('='))) {
+            if (stmt.lhs().isId() && stmt.lhs().firstAttr(var)) {
+                ret code.varDecl('dynamic', stmt.lhs().id(), codeMap.exp(stmt.rhs()));
+            } else {
+                ret code.assign(codeMap.exp(stmt.lhs()), codeMap.exp(stmt.rhs()));
+            }
+        } else {
+            ret codeMap.exp(stmt);
+        }
+    },
+
+    exp: @(e) ($(e.Type)
+            AphidExpressionType.IdentifierExpression: code.var(e.id()),
+            AphidExpressionType.NumberExpression: code.primitive(e.Value),
+            
+            AphidExpressionType.StringExpression:
+                e.Value |> StringParser.Parse |> code.primitive,
+
+            AphidExpressionType.BinaryOperatorExpression:
+                code.binaryOp(
+                    codeMap.exp(e.lhs()),
+                    codeMap.op(e.op()),
+                    codeMap.exp(e.rhs())),
+                
+            AphidExpressionType.CallExpression: call(e),
+            throw 'Unsupported expression type: {0}' :: e.Type),
+
+    call: @(c) {
+        var f = c.func();
+        if (f.isBinOp() && f.isOp(getToken('.')) && f.rhs().isId()) {
+            ret code.methodInvoke(
+                codeMap.exp(f.lhs()),
+                f.rhs().id(),
+                c.args()->codeMap.exp);
+        } else {
+            throw 'Unsupported call: {0}' :: c;
+        }
+    },
+
+    op: @(operator) ($(operator)
+        AphidTokenType.AdditionOperator: CodeBinaryOperatorType.Add,
+        AphidTokenType.MinusOperator: CodeBinaryOperatorType.Subtract,
+        AphidTokenType.MultiplicationOperator: CodeBinaryOperatorType.Multiply,
+        AphidTokenType.DivisionOperator: CodeBinaryOperatorType.Divide,
+        AphidTokenType.ModulusOperator: CodeBinaryOperatorType.Modulus,
+        AphidTokenType.AssignmentOperator: CodeBinaryOperatorType.Assign,
+        AphidTokenType.NotEqualOperator: CodeBinaryOperatorType.IdentityInequality,
+        AphidTokenType.EqualityOperator: CodeBinaryOperatorType.IdentityEquality,
+        AphidTokenType.EqualityOperator: CodeBinaryOperatorType.ValueEquality,
+        AphidTokenType.BinaryOrOperator: CodeBinaryOperatorType.BitwiseOr,
+        AphidTokenType.BinaryAndOperator: CodeBinaryOperatorType.BitwiseAnd,
+        AphidTokenType.OrOperator: CodeBinaryOperatorType.BooleanOr,
+        AphidTokenType.AndOperator: CodeBinaryOperatorType.BooleanAnd,
+        AphidTokenType.LessThanOperator: CodeBinaryOperatorType.LessThan,
+        AphidTokenType.LessThanOrEqualOperator: CodeBinaryOperatorType.LessThanOrEqual,
+        AphidTokenType.GreaterThanOperator: CodeBinaryOperatorType.GreaterThan,
+        AphidTokenType.GreaterThanOrEqualOperator: CodeBinaryOperatorType.GreaterThanOrEqual,
+        throw 'Operator not supported by CodeDom: {0}' :: operator),
+};

@@ -1,0 +1,83 @@
+﻿using Components.External.ConsolePlus;
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+
+
+var sandbox = { root: null, bin: null };
+sandbox.exec = @(userScript) {
+    var sandboxRoot = sandbox.root ?? Assembly.GetExecutingAssembly().Location |> Path.GetDirectoryName;
+    var sandboxDir = Path.Combine(sandboxRoot, 'Sandbox', Guid.NewGuid().ToString());
+
+    if (!Directory.Exists(sandboxDir)) {
+        Directory.CreateDirectory(sandboxDir);
+    }
+
+    var getSandboxPath = @() $args |> Path.Combine @Path.Combine(sandboxDir);    
+    var sandboxExe = 'Aphid.exe' |> getSandboxPath;
+    
+    var getBin = @() sandbox.bin == null ?
+        ($($args.Count) 0: getEntryPath(), 1: getEntryPath($args[0]), getEntryPath($args)) :
+        Path.Combine(sandbox.bin, $args @join('\\'));
+    
+    aq.concat(
+        [ 'Aphid.exe', 'Components.Aphid.dll', 'Components.Aphid.dll.config' ]->getBin,
+        [ 'Library' ]->getBin-<Directory.GetFiles)
+    ->(@() [ $_, $_.Substring(getBin().Length + 1) |> getSandboxPath ])
+    ->(@(x) {
+        x[1] |> Path.GetDirectoryName |> Directory.CreateDirectory;
+        // Console.WriteLine("Copying {0} to {1}", x[0], x[1]);
+        File.Copy(x[0], x[1]);
+    });
+
+    var dst = Path.GetFileName(userScript) |> getSandboxPath;
+    File.Move(userScript, dst);
+
+    var ps = new PermissionSet(PermissionState.None);
+
+    [ 
+        new SecurityPermission(SecurityPermissionFlag.Execution |
+            SecurityPermissionFlag.UnmanagedCode),
+        new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess),
+        new FileIOPermission(FileIOPermissionAccess.AllAccess, sandboxDir),
+        new EnvironmentPermission(PermissionState.Unrestricted),
+        new UIPermission(PermissionState.Unrestricted),
+    ]->ps.AddPermission;
+
+
+    var evidence = new Evidence([ new Zone(SecurityZone.Internet) ], []);
+    var ads = new AppDomainSetup();
+    ads.ApplicationBase = sandboxDir;
+    var ad = AppDomain.CreateDomain('Sandbox', evidence, ads, ps, []);
+    
+    var proxy = ad.CreateInstanceAndUnwrap(
+        RemoteConsoleListener.Assembly.FullName,
+        RemoteConsoleListener.FullName);
+
+    proxy.SetOut();
+    var oldCwd = Directory.GetCurrentDirectory();
+    sandboxDir |> Directory.SetCurrentDirectory;
+    //Console.WriteLine('Executing sandboxed code');
+    ad.ExecuteAssembly(sandboxExe, [ dst ]);
+    // Console.WriteLine('Done Executing sandboxed code');
+    proxy.Flush() |> Console.Write;
+    ad |> AppDomain.Unload;
+    oldCwd |> Directory.SetCurrentDirectory;
+    Directory.Delete(sandboxDir, true);
+};
+
+sandbox.eval = @(code) {
+    var tmp = Guid.NewGuid().ToString() @String.Format("Sandboxed_{0}.alx");
+    var tmpFull = sandbox.root == null ? (tmp |> getExecutingPath) : Path.Combine(sandbox.root, tmp);
+    
+    if (!Directory.Exists(sandbox.root)) {
+        Directory.CreateDirectory(sandbox.root);
+    }
+    // Console.WriteLine('Writing sandbox script to {0}', tmpFull);
+    File.WriteAllText(tmpFull, code);    
+    tmpFull |> sandbox.exec;
+    File.Delete(tmpFull);
+};

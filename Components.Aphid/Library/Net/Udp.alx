@@ -1,0 +1,18 @@
+﻿var udp;
+
+@(){
+	##'Components.Aphid.Library.Net.UdpLibrary';
+	##'Components.Aphid.Library.StreamLibrary';	
+	udp = {
+		create: @() {
+			client = __udp.create();
+		
+			ret {
+				client,
+				send: @(datagram, host, port) __udp.send(client, datagram, host, port),
+				recv: @(port) __udp.recv(client, port),
+				close: @() __udp.close(client),
+			};
+		}
+	};
+}();

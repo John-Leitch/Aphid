@@ -1,0 +1,174 @@
+﻿var scanMemory;
+var debugCommand;
+var catchExceptions;
+
+
+// ================================================================
+// == Todo ========================================================
+// ================================================================
+// * Add lazy keyword.
+//   -> When applied to variables, behave like standard lazy evaluation.
+//      lazy foo = 10 + bar // <- Bar not accessed until foo is, value is cached.
+//   -> When applied to function param, arguments passed in are lazily evaluated.
+//      This functionality will broaded Medusa capabilities when redefining
+//      semantics in such a way that would cause exceptions during calling e.g.
+//      null reference exceptions.
+//      // Entirely contrived, but an example of using lazy to intentionally ignore
+//      // evaluation of an argument for the purpose of custom semantics.
+//      select = @(lazy path, source) 'source.' + getArg(0).ToString() |> evalExp;
+//   -> Support with custom operaotr?
+// * Add memoize support.
+//   -> memoize parseCsv = @(text) /* ... */;
+// * Replace NUnit with proprietary framework. 
+//   -> Update  
+@{
+    using Components.Cypress;
+    using Components.PInvoke;
+    using System;
+    using System.ComponentModel;
+    
+
+    catchExceptions = @(command, callback) {
+        var dbg = new NativeDebugger();
+        
+        dbg.add_DebugEventReceived(@(sender, e){
+            switch (e.DebugEvent.dwDebugEventCode) {
+                DebugEventType.EXCEPTION_DEBUG_EVENT: {
+                    print('Exception: ~Red~{0}~R~', e);
+                    callback(sender, e);
+                }
+
+                default: print('Debug event: {0}', e.DebugEvent.dwDebugEventCode);
+            }
+
+            e.DebugEvent.ContinueUnhandled();
+        });
+
+        dbg.StartProcess(command);
+
+        ret dbg;
+    };
+
+    debugCommand = @(command, eventMap) {
+        var debugGlobals = {};
+
+        if (!(debugGlobals.eventMap defined)) {
+            debugGlobals.eventMap = eventMap;
+        }
+        
+        var handler = new AphidFunction(
+            ([ 'sender', 'e' ] |> Enumerable.ToArray),
+            new List[AphidExpression](),
+            this);
+
+        _de = macro(@(_em, _f) {
+            if (debugGlobals.eventMap._f defined) {
+                @{
+                    if (e.DebugEvent.dwDebugEventCode == DebugEventType._em) {
+                        debugGlobals.eventMap._f(sender, e);
+                    }
+                }.Body
+                |> handler.Body.AddRange;
+            }
+        });
+        
+        _de(EXCEPTION_DEBUG_EVENT, exception);
+        _de(CREATE_THREAD_DEBUG_EVENT, createThread);
+        _de(CREATE_PROCESS_DEBUG_EVENT, createProcess);
+        _de(EXIT_THREAD_DEBUG_EVENT, exitThread);
+        _de(EXIT_PROCESS_DEBUG_EVENT, exitProcess);
+        _de(LOAD_DLL_DEBUG_EVENT, loadDll);
+        _de(OUTPUT_DEBUG_STRING_EVENT, outputDebugSring);
+        _de(RIP_EVENT, ripEvent);
+        _de(UNLOAD_DLL_DEBUG_EVENT, unloadDll);
+        handler.Body.Add(@{ e.DebugEvent.ContinueUnhandled() }.Body[0]);
+        var dbg = new NativeDebugger();
+        dbg.add_DebugEventReceived(handler);
+        dbg.StartProcess(command);
+
+        ret dbg;
+    };
+
+    scanMemory = @(memory, start, end, step) {
+        using System;
+        
+        var start = start defined ? start : 0x0;
+        var end = end defined ? end : 0x7fff0000;
+        var step = step defined ? step : 0x1000;
+        var intPtrType = Type.GetType('System.IntPtr');
+        var blocks = [];
+        var i = start;
+    
+        //#'serialization';
+        do {
+            var addr = i |> Convert.ToInt64;
+            var mem = new IntPtr(addr) |> memory.ReadMemoryInfo;
+
+            if (mem.Protect != AllocationProtect.None &&
+                (mem.Protect & AllocationProtect.PAGE_NOACCESS) !=
+                    AllocationProtect.PAGE_NOACCESS) {
+                blocks.add({ address: addr, region: mem });
+                //print(
+                    //'{0} = {1}',
+                    //'Address'.PadRight(18, ' '),
+                    //addr
+                    //@String.Format("{0:x}")
+                    //@(x) '0x' + x.PadLeft(8, '0'));
+    //
+                //mem.GetType().GetFields() ->@(f)
+                    //print(
+                        //'{0} = {1}',
+                        //f.Name.PadRight(18, ' '),
+                        //f
+                            //.GetValue(mem)
+                            //@(x) {
+                                ////x |> dumpFuncs;
+                                ////f |> dumpProps;
+                                //ret f != null &&
+                                    //x != null &&
+                                    //f.FieldType == intPtrType ?
+                                        //x.ToInt64() :
+                                        //x
+                            //}
+                            //@String.Format("{0:x}")
+                            //@(x) '0x' + x.PadLeft(8, '0'));
+
+                //print();
+                endOfRegion = mem.AllocationBase.ToInt64() +
+                        mem.RegionSize.ToInt64();
+
+                //delta = mem.AllocationBase.ToInt64() - addr;
+                //print('Delta: {0}', delta);
+                if (addr < endOfRegion) {
+                    //print('Copying allocation base');
+                    i = endOfRegion;
+                } else if (mem.RegionSize.ToInt64() != 0) {
+                    i += mem.RegionSize.ToInt64();
+                } else {
+                    //print('incrementing by step');
+                    i += step;
+                }
+            } else if (mem.RegionSize.ToInt64() != 0) {
+                i += mem.RegionSize.ToInt64();
+            } else {
+                i += step;
+            }
+        } while(i <= end);
+        //blocks->@()$_.region |> toJson |> print;
+        print('Done');
+        //exit();
+        ret blocks;
+    };
+}();
+//#'std';
+//cls();
+//print('ready');
+//test = 'c:\\source\\BadParser\\BadParser\\bin\\Debug\\test_0xdead0003.xml';
+////cmd = '{0} "{1}"' :: [ exe, test ];
+//debugCommand(
+    //test,
+    //{
+        //exception: @(sender, e) {
+            //print('~Red~{0}~R~', e.ToString());
+        //}
+    //});

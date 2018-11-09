@@ -1,0 +1,220 @@
+﻿var opStr;
+var strEmitter;
+
+@{
+    using Components.Aphid.Lexer;
+    using Components.Aphid.Parser;
+    using System;
+    using System.Text;
+
+    _printNode = macro(@{
+        $_ @print('Node: {0} -> {1}', frame(1).Name)
+    });
+
+    opStr = {
+        unaryPrefix: {
+            usingKeyword: 'using ',
+            retKeyword: 'ret ',
+            NotOperator: "!",
+            MinusOperator: "-",
+            ComplementOperator: "~",
+            IncrementOperator: '++',
+            DecrementOperator: '--',
+
+            get: @(token) opStr.unaryPrefix.{token.ToString()},
+        },
+
+        unaryPostfix: {
+            IncrementOperator: '++',
+            DecrementOperator: '--',
+
+            get: @(token) opStr.unaryPostfix.{token.ToString()},
+        },
+
+        binary: {
+            AdditionOperator: " + ",
+            MinusOperator: " - ",
+            MultiplicationOperator: " * ",
+            DivisionOperator: " / ",
+            ModulusOperator: " % ",
+
+            AndOperator: " && ",
+            OrOperator: " || ",
+
+            BinaryAndOperator: " & ",
+            BinaryOrOperator: " | ",
+            XorOperator,  " ^ ",
+            ShiftLeft: " << ",
+            ShiftRight: " >> ",
+            
+            MemberOperator: ".",
+            
+            EqualityOperator: " == ",
+            NotEqualOperator: " != ",
+            LessThanOperator: " < ",
+            LessThanOrEqualOperator: " <= ",
+            GreaterThanOperator: " > ",
+            GreaterThanOrEqualOperator: " >= ",
+
+            Comma: ": ",
+
+            AssignmentOperator: " = ",
+            PlusEqualOperator: " += ",
+            MinusEqualOperator: " -= ",
+            MultiplicationEqualOperator: " *= ",
+            DivisionEqualOperator: " /= ",
+            ModulusEqualOperator: " %= ",
+            ShiftLeftEqualOperator: " <<= ",
+            ShiftRightEqualOperator: " >>= ",
+            BinaryAndEqualOperator: " &= ",
+            OrEqualOperator: " |= ",
+            XorEqualOperator: " ^= ",
+
+            get: @(token) opStr.binary.{token.ToString()},
+        }
+    };
+
+    strEmitter =  {
+        depth: 0,
+        margin: @() depth * '    ',
+        indent: @() depth++,
+        unindent: @() depth--,
+        text: new StringBuilder(),
+        
+        append: @(t, args) {
+            if ($args.Count == 1)
+                text.Append(t);
+            else
+                text.AppendFormat(t, $args @aq.skip(1))
+        },
+
+        appendLine: @(t, args) {
+            append(margin());
+
+            if ($args.Count == 1)
+                text.Append(t);
+            else
+                text.AppendFormat(t, $args @aq.skip(1));
+
+            append('\r\n');
+        },
+
+        emitBegin: @(ast) { },
+        emitEnd: @(ast) { },
+
+        emit: @(ast) {
+            emitBegin(ast);
+            emitBlock(ast);
+            emitEnd(ast);
+        },
+
+        emitBlock: @(node) {
+            node->emitStatement;
+        },
+
+        beginStatement: @(statement) { },
+        endStatement: @(statement) { },
+
+        emitStatement: @(statement) {
+            beginStatement(statement);
+            emitExpression(statement, true);
+            endStatement(statement);
+        },
+    
+        beginExpression: @(expression) { },
+        endExpression: @(expression) { },
+
+        emitExpression: @(expression, isStatement) {
+            expression |> beginExpression;
+        
+            [ 'begin', 'emit', 'end' ]->@{
+                var n = $_ + expression.Type;
+                //n @print('Looking for {0}');
+                if (this.{n} defined) {
+                    this.{n}(expression, isStatement);
+                }
+            };
+
+            expression |> endExpression;
+        },
+
+        emitUnaryOperatorExpression: @(exp) {
+            if (exp.IsPostfix) {
+                emitExpression(exp.Operand);
+                exp.Operator |> opStr.unaryPostfix.get |> append;
+            } else {
+                exp.Operator |> opStr.unaryPrefix.get |> append;
+                emitExpression(exp.Operand);
+            }
+        },
+
+        emitBinaryOperatorExpression: @(expression, isStatement) {
+            if (isStatement == null || !isStatement)
+                append("(");
+
+            emitExpression(expression.LeftOperand, false);
+            expression.Operator |> opStr.binary.get |> append;
+            emitExpression(expression.RightOperand, false);
+
+            if (isStatement == null || !isStatement)
+                append(")");
+        },
+
+        emitIdentifierExpression: @(exp) append(exp.Identifier),
+
+        emitStringExpression: @(expression, isStatement)
+            StringParser
+                .Parse(expression.Value)
+                .Replace("\\", "\\\\")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\"", "\\\"")
+                @append('"{0}"'),
+
+        emitNumberExpression: @(exp) append(exp.Value.ToString()),
+        emitNullExpression: @() append("null"),
+        emitBooleanExpression: @(exp) append(exp.Value ? "true" : "false"),
+
+        emitCallExpression: @(exp){
+            emitExpression(exp.FunctionExpression);
+            append("(");
+            emitTuple(exp.Args);
+            append(")");
+        },
+
+        emitArrayExpression: @(exp){
+            append("[");
+            emitTuple(exp.Elements);
+            append("]");
+        },
+
+        emitArrayAccessExpression: @(exp){
+            emitExpression(exp.ArrayExpression);
+            append("[");
+            emitTuple(exp.KeyExpression);
+            append("]");
+        },
+
+        emitTuple: @(items) {
+            var first = true;
+            var prefix = '';
+            var suffix = '';
+
+            if ($args.Count >= 2) prefix = $args[1];
+            if ($args.Count >= 3) suffix = $args[2];
+
+            for (arg in items) {
+                if (!first)
+                    append(", ");
+                else
+                    first = false;
+
+                append(prefix);
+                emitExpression(arg);
+                append(suffix);
+            }
+        },
+
+        //emitObjectExpression: null,
+    };
+}();

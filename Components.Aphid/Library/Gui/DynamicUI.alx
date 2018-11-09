@@ -1,0 +1,244 @@
+#'Std';
+#'Wpf';
+#'Compiler';
+#'ViewModelCompiler';
+#'Process';
+#'Nuget';
+printInfo('Loading Nuget references');
+var asms =
+    [ 'Extended.Wpf.Toolkit', 'System.Windows.Controls.DataVisualization.Toolkit' ]
+    -< nuget.reference;
+
+printSuccess('Done loading references: {0}', asms |> serialize);
+
+class DynamicView {
+    string Name,
+    string list Columns,
+    string list Associations,
+    AphidFunction LoadData,
+    Type ViewModelType
+};
+
+var loadDocking = @() XamlReader.Parse('
+    <Grid
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        xmlns:dg="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+        xmlns:dg2="clr-namespace:Xceed.Wpf.DataGrid;assembly=Xceed.Wpf.DataGrid"
+        xmlns:xcdg="http://schemas.xceed.com/wpf/xaml/datagrid">
+        <xcad:DockingManager AllowMixedOrientation="True"
+                        BorderBrush="Black"                        
+                        BorderThickness="1">
+            <!--<xcad:DockingManager.LayoutItemContainerStyle>
+                <Style TargetType="{x:Type xcad:LayoutItem}">
+                    <Setter Property="Title" Value="{Binding Model.Title}" />
+                    <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                    <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
+                </Style>
+            </xcad:DockingManager.LayoutItemContainerStyle>-->
+            <!--<xcad:DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding Title}" />
+                    </StackPanel>
+                </DataTemplate>
+            </xcad:DockingManager.DocumentHeaderTemplate>-->
+            <xcad:LayoutRoot x:Name="_layoutRoot">
+                <xcad:LayoutPanel Orientation="Horizontal">
+                    <!--<xcad:LayoutAnchorablePane DockWidth="200">
+                        <xcad:LayoutAnchorable ContentId="properties"
+                                Title="Properties"
+                                CanHide="False"
+                                CanClose="False"
+                                AutoHideWidth="240">
+                            <xctk:PropertyGrid NameColumnWidth="110"
+                                            SelectedObject="{Binding SelectedItem}"
+                                            AutoGenerateProperties="True"
+                                            IsReadOnly="True" />
+                        </xcad:LayoutAnchorable>
+                    </xcad:LayoutAnchorablePane>-->
+                    <xcad:LayoutDocumentPaneGroup>
+                        <xcad:LayoutDocumentPane x:Name="DocPane">
+                            <!--<xcad:LayoutDocument ContentId="document1"
+                                Title="Document 1"
+                                    IsActive="True">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="20" />
+                                        <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <TextBox IsReadOnly="True" Text="{Binding Filename}" />
+                                        <dg:DataGrid x:Name="DataGrid" Grid.Row="1"
+                                                    IsReadOnly="True"
+                                                    SelectedItem="{Binding SelectedItem}"
+                                                    ItemsSource="{Binding Records}">
+                                        </dg:DataGrid>
+                                    </Grid>
+
+                                </xcad:LayoutDocument>-->
+                            </xcad:LayoutDocumentPane>
+                        </xcad:LayoutDocumentPaneGroup>
+                </xcad:LayoutPanel>
+                <!--<xcad:LayoutRoot.LeftSide>
+                    <xcad:LayoutAnchorSide>
+                        <xcad:LayoutAnchorGroup>
+                            <xcad:LayoutAnchorable Title="Agenda"
+                                        ContentId="agenda">
+                                <TextBlock Text="Agenda Content"
+                                    Margin="10"
+                                    FontSize="18"
+                                    FontWeight="Black"
+                                    TextWrapping="Wrap" />
+                                    </xcad:LayoutAnchorable>
+                                    <xcad:LayoutAnchorable Title="Contacts"
+                                        ContentId="contacts">
+                                <TextBlock Text="Contacts Content"
+                                    Margin="10"
+                                    FontSize="18"
+                                    FontWeight="Black"
+                                    TextWrapping="Wrap" />
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorGroup>
+                    </xcad:LayoutAnchorSide>
+                </xcad:LayoutRoot.LeftSide>-->
+            </xcad:LayoutRoot>
+        </xcad:DockingManager>
+    </Grid>
+');
+
+var viewModelLoader = {
+    vmTable: new Dictionary[Type, Type](),
+    assocTable: new Dictionary[Type, List[ViewModelAssociation]](),
+
+    loadFor: @(type) {
+        if (vmTable.ContainsKey(type)){
+            ret vmTable.get_Item(type);
+        } else {
+            var v = viewModel.buildForType('AphidUI.ViewModels', type);
+            vmTable.Add(type, v);
+
+            var assocs = v |> bind.fanPaths |> bind.flattenPaths;
+            assocTable.Add(type, assocs.flattenedPaths);
+
+            ret v;
+        }
+    }
+};
+
+var viewController = {
+    table: new Dictionary[string, DynamicView](),
+    app: null,
+
+    init: @{
+        app = wpf.createAppAsync();
+        wait = app.waitForExit;
+
+        app.invoke(@{
+            using Xceed.Wpf.AvalonDock.Layout;
+            using System.Linq;
+            var docking = loadDocking();
+            app.window.Content = docking;
+            pane = docking.FindName('DocPane');
+            print('~Yellow~Pane: {0}~R~', pane);
+        });
+    },
+
+    pane: null,
+
+    wait: null,
+
+    addListView: @(name, columns, associations, loadData, rowType) {
+        var view = new DynamicView();
+        view.Name = name;
+        
+        if (associations != null) {
+            view.Associations = new List[string](associations #!);
+            associations->view.Associations.Add;
+        }
+        
+        if (columns != null ) {
+            view.Columns = new List[string](columns #!);
+            columns->view.Columns.Add;
+        }
+
+        view.LoadData = loadData;
+        view.ViewModelType = viewModelLoader.loadFor(rowType);
+        table.Add(view.Name, view);
+    },
+    
+    navigate: @(view, navContext) {
+        var dynView;
+
+        if (view == null ||
+            (view.GetType() != DynamicView && view.GetType() != string)) {
+            fatal('Expected argument view to be of type string or DynamicView');
+        } else if (view.GetType() == string) {
+            if (!table.ContainsKey(view)) {
+                fatal('Could not find DynamicView with key {0}' :: view);
+            }
+
+            dynView = table.get_Item(view);
+        } else {
+            dynView = view;
+        }
+
+        app.invoke(@{
+            var dg = app.createDataGrid();
+            wpf.bindingMode = BindingMode.OneWay;
+
+            if (dynView.Columns != null) {
+                dg.AutoGenerateColumns = false;
+                dynView.Columns->@() wpf.dataGrid.addTextColumn(dg, $_, $_);
+            } else {
+                dg.Columns.Clear();
+                dg.AutoGenerateColumns = true;
+            }
+
+            if (dynView.Associations != null) {
+                dynView.Associations->@(name) {
+                    wpf.dataGrid.addButtonColumn(
+                        dg,
+                        name,
+                        'Open',
+                        50,
+                        @(sender, e) {
+                            viewController.navigate(
+                                name,
+                                sender.DataContext);
+                        });
+                }
+            }
+                
+            using Xceed.Wpf.AvalonDock.Layout;
+            using System.Linq;
+            var vmData;
+
+            if (navContext defined) {
+                vmData = navContext |> dynView.LoadData;
+            } else {
+                vmData = dynView.LoadData();
+            }
+            
+            dg.ItemsSource = vmData
+                ->@bind.typeToViewModel(dynView.ViewModelType)
+                |> Enumerable.AsEnumerable;
+
+            // var docking = loadDocking();
+            // app.window.Content = docking;
+
+            //var pane = docking.FindName('DocPane');
+            var doc = new LayoutDocument();
+            doc.Title = dynView.Name;
+            doc.ContentId = dynView.Name;
+            doc.Content = dg;
+            // doc.IsActive = true;
+            pane.Children.Add(doc);
+            print('~Yellow~Pane: {0}~R~', pane);
+            //app.window.Content = dg;
+        });
+    },
+};

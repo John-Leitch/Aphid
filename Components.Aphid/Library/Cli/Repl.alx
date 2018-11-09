@@ -1,0 +1,26 @@
+﻿var repl = {
+    run: @(scope){
+        using Components.Aphid.UI;
+        var aphidScope = this;
+        var success = false;
+        
+
+        do {
+            if (aphidScope.{'$aphid'} defined) {
+                success = true;
+                break;
+            }
+        } while ((aphidScope = this.{'$parent'}) != null);
+
+        if (scope defined && success) {
+            aphidScope.{'$aphid'}.SetInitialScope(scope);
+        }
+
+        var r = success ?
+            new AphidRepl(aphidScope.{'$aphid'}) :
+            new AphidRepl();
+
+        try r.Run();
+        finally r.Dispose();
+    }
+};

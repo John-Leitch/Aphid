@@ -1,0 +1,204 @@
+
+
+//var traceRemoting = true;
+//#'DebugDeploy';
+#'Std';
+#'Cli\\Shell';
+#'Remoting\\Remote';
+using Components;
+using System.Diagnostics;
+using System.Threading;
+using System.Text;
+
+var cmd = getCommand();
+var argList = getCommandLineArgs() |> Enumerable.ToList;
+var getLastArg = @() argList |> Enumerable.Last;
+var parseIntArg = @() getLastArg() |> Int32.Parse;
+var flag = { connect: '-connect', listen: '-listen', pid: '-pid', test: '-test' };
+var isClient = argList.Contains(flag.connect);
+var isHost = argList.Contains(flag.listen);
+var isWorker = argList.Contains(flag.pid);
+var isTest = argList.Contains(flag.test);
+
+_logDate = macro(@{ DateTime.Now.ToString("MM-dd-yy.HH:mm:ss") });
+_logArgs = macro(@{ $args @aq.skip(1) @format($args[0]) });
+var log = @() print('[~Cyan~{0}~R~] {1}' :: [ _logDate(), _logArgs() ]);
+
+head('AphidShell remoting{0}' :: [
+    isClient ? ' client' :
+    isWorker ? ' host worker process' :
+    isHost ? ' host' :
+    '' 
+]);
+
+var hostRemote = @{
+    log('Starting host');
+
+    while (true) {
+        var p = startChild();
+        p.WaitForExit();
+    }
+};
+
+var waitForEnter = @{
+    Console.WriteLine('Press enter to continue...');
+    while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+};
+
+var startChild = @{
+    var childArgs = "{0} -listen -pid {1}" :: [
+        cmd |> ArgLexer.GetTokenInfo |> Enumerable.First @.EndOffset |> cmd.Substring @() $_.Trim(),
+        Process.GetCurrentProcess().Id
+    ];
+
+    log('Starting remote worker process with args ~Cyan~{0}~R~', childArgs);
+    var p = Process.Start(getExe(), childArgs);
+
+    ret p;
+};
+
+var watchParent = @{
+    var t = new Thread(@{
+        var pId = parseIntArg();
+        log('Waiting for parent process ~Cyan~{0}~R~ to exit', pId);
+        var p = Process.GetProcessById(pId);
+
+        if (p != null) {
+            p.WaitForExit();
+            exit();
+        }
+    });
+
+    t.Start();
+};
+
+var listen = @{
+    log('Listening on ~Cyan~{0}~R~', remote.port);
+    remote.listen();
+    log('Sleeping');
+    Thread.Sleep(-1);
+};
+
+var connectShell = @(host) {
+    log('Connecting to remote ~Cyan~{0}~R~', host);
+    var remoteShell = remote.connectProxy(host);
+    
+    log('Connected, initializing shell');
+    remoteShell.Eval('#"Cli\\\\Shell";');
+    remoteShell.BasePath = 'shell';
+
+    log('Shell initialized, listening');
+    remoteShell.listen();
+
+    ret remoteShell;
+};
+
+var runInteractive = @(host)
+    run(host, @(remoteShell) Console.ReadLine());
+
+var run = @(host, nextLine) {
+    var remoteShell = connectShell(host);
+
+    var readToPrompt = @{
+        var buffer;
+
+        do {
+            // printQuery('~Magenta~Reading out~R~');
+            buffer = remoteShell.readOut();
+
+            if (buffer != null) {
+                if (buffer.success defined) {
+                    dump(buffer);
+                } else {
+                    buffer |> Cli.Write;
+                }                    
+            } else {
+                Thread.Sleep(10);
+            }
+        } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
+
+        // printQuery('~Magenta~Done reading out~R~');
+    };
+
+    while (true) {
+        // printQuery('~Magenta~Writing prompt out~R~');
+        remoteShell.writePrompt();
+        readToPrompt();
+        var line = nextLine();
+
+        if (line != null) {
+            // printQuery('~Magenta~Writing next line~R~');
+            line |> remoteShell.writeInLine;
+        }
+
+        // printQuery('~Magenta~Executing next line~R~');
+        if (!remoteShell.execNext()) {
+            remoteShell.BasePath = 'Environment';
+            remoteShell.Exit(0);
+            isRunning = false;
+            break;
+        }
+    }
+};
+
+var execRemoteScript = @(host, scriptFile) {
+    using System.Collections.Generic;
+    printInfo('Executing script file ~Cyan~{0}~R~', scriptFile);
+    
+    var lines =
+        scriptFile
+        |> File.ReadAllLines
+        -> (@()($_.Contains('//') ? $_.Remove($_.IndexOf('//')) : $_).Trim())
+        -? @!= '';
+
+    var queue = new Queue[Object](lines);
+    queue.Enqueue('using System');
+    queue.Enqueue('Environment.Exit 0');
+
+    try {
+        run(
+            host,
+            @{
+                var cmd = queue.Count > 0 ? queue.Dequeue() : null;
+                Console.WriteLine(cmd);
+
+                ret cmd;
+            });
+    } catch(e) {
+        printError('Error executing script: {0}', e.message);
+        //print(e.exception);
+    }
+};
+
+if (isHost) {
+    if (!isWorker) {
+        hostRemote();
+    } else {
+        watchParent();
+        listen();
+    }
+    
+    if (isTest) {
+        p.WaitForExit();
+        waitForEnter();
+    }
+} else if (isClient) {
+    var i = argList.IndexOf(flag.connect);
+
+    if (i == argList.Count - 2) {
+        getLastArg() |> runInteractive;
+    } else {
+        var script = argList[argList.Count - 2];
+        var result = argList |> Enumerable.Last @execRemoteScript(script);
+
+        if (result.success defined && result.success && result.out defined) {
+            result.out @print('Result:\r\n{0}');
+        }
+    }
+} else if (argList.Contains('-test')) {
+    startChild();
+    Thread.Sleep(500);
+    runInteractive('localhost');    
+} else {
+    print('aphid RemoteShell.alx [-listen] [-connect {host} {file}]');
+}

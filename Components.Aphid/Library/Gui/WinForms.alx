@@ -1,0 +1,142 @@
+load System.Windows.Forms;
+load System.Windows.Forms.DataVisualization;
+using System.IO;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+
+_attachEnum = macro(@(type, property, enumType, enumValueName) {
+    extend type {
+        enumValueName: @(o) {
+            o.property = enumType.enumValueName;
+            ret o;
+        },
+    }
+});
+
+_dock = macro(@(name) { _attachEnum(Control, Dock, DockStyle, name) });
+_dock(Bottom);
+_dock(Fill);
+_dock(Left);
+_dock(None);
+_dock(Right);
+_dock(Top);
+
+showInternal = macro(@(showMember){
+    @(controlOrProps, control){
+        var f = new Form();
+
+        var c;
+
+        if ($args.Count == 1) {
+            c = controlOrProps;
+        } else {
+            c = control;
+            var p = controlOrProps;
+            p.Keys->@{
+                var k = $_[0].ToUpper() + $_.Substring(1);
+                f.{k} = p.{$_};
+            };
+        }
+
+        f.SuspendLayout();
+        c.Fill() |> f.Controls.Add;
+        f.ResumeLayout();
+        f.showMember();
+    }
+});
+
+var winForms = {
+    show: showInternal(Show),
+    dialog: showInternal(ShowDialog),
+
+    split: @(panelArray) {
+        
+        var layout = new TableLayoutPanel();
+        layout.Fill();
+        layout.ColumnCount = panelArray -> (@(x) x #!) \!^!;
+        layout.RowCount = panelArray #!;
+        layout.AutoSize = true;
+
+        panelArray
+            ^! -> @(x) (x.absolute defined ?
+                new ColumnStyle(SizeType.Absolute, x.absolute) :
+                new ColumnStyle())
+                |> layout.ColumnStyles.Add;
+
+
+        for (var y = 0; y < (panelArray #!); y++) {
+            for (var x = 0; x < (panelArray[y] #!); x++) {
+                layout.Controls.Add(panelArray[y][x].control, x, y);
+            }
+        }
+        
+        ret layout;
+    },
+
+    propertyGrid: @(selected) {
+        var p = new PropertyGrid();
+        p.Fill();
+        p.SelectedObject = selected;
+
+        ret p;
+    },
+
+    tabs: @(tabObj) {
+        var tabs = new TabControl();
+        tabs.Fill();
+
+        tabObj.Keys->@{
+            var page = new TabPage();
+            page.Text = $_;
+            tabObj.{$_}.Fill() |> page.Controls.Add;
+            page |> tabs.Controls.Add;
+        };
+
+        ret tabs;
+    },
+
+    chart: @{
+        var chart = new Chart();
+        chart.Fill();
+
+        ret chart;
+    }
+};
+
+extend Chart {
+    area: @(chart) {
+        var area = new ChartArea();
+        area.CursorX.Interval = 0;
+        area.CursorY.Interval = 0;
+        area.AxisX.ScaleView.Zoomable = true;
+        area.AxisY.ScaleView.Zoomable = true;
+        area.CursorX.IsUserEnabled = true;
+        area.CursorX.IsUserSelectionEnabled = true;
+        area.CursorY.IsUserEnabled = true;
+        area.CursorY.IsUserSelectionEnabled = true;
+        chart.ChartAreas.Add(area);
+
+        ret area;
+    },
+
+    series: @(chart, name, points, chartType) {
+        var series = new Series();
+        
+        if ($args.Count == 4) {
+            series.ChartType = chartType;
+        }
+
+        series.Name = name;
+        chart.Series.Add(series);
+        points->@() series.Points.AddXY($_[0], $_[1]);
+
+        ret series;
+    },
+
+    toPng: @(chart, filename) {
+        chart.SaveImage(filename, ChartImageFormat.Png);
+        
+        ret chart;
+    }
+}

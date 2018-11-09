@@ -1,0 +1,40 @@
+﻿var machine;
+
+@{
+    #'Wmi';
+    using System.Diagnostics;
+    using System.Threading;
+
+    _wmiProp = macro(@(table, name) {
+        wmi.query('SELECT {1} FROM {0}' :: [ quote(table), quote(name) ])[0].name
+    });
+
+    machine = {
+        getSpecs: @() ({
+            processors: getProcessorCount(),
+            cores: getCoreCount(),
+            logicalProcessors: getLogicalProcessorCount(),
+            clockSpeed: getClockSpeed(),
+            memory: getMemory(),
+            memoryUsage: getMemoryUsage(),
+            cpuUsage: getCpuUsage(),
+        }),
+
+        getProcessorCount: @() _wmiProp(Win32_ComputerSystem, NumberOfProcessors),
+        getCoreCount: @() _wmiProp(Win32_Processor, NumberOfCores),
+        getLogicalProcessorCount: @() _wmiProp(Win32_ComputerSystem, NumberOfLogicalProcessors),
+        getClockSpeed: @() _wmiProp(Win32_Processor, MaxClockSpeed),
+        getMemory: @() _wmiProp(Win32_ComputerSystem, TotalPhysicalMemory),
+
+        getMemoryUsage: @() getMemory() -
+            (new PerformanceCounter("Memory", "Available MBytes")).NextValue() * 0x100000,
+
+        getCpuUsage: @{
+            var c = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            c.NextValue();
+            Thread.Sleep(100);
+
+            ret c.NextValue();
+        },
+    };
+}();

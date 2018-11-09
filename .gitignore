@@ -227,6 +227,5 @@ Components.Aphid/Tools/*.exe
 # Aphid NuGet Downloads
 !/Components.Aphid/Library/Net/
 /Aphid/Samples/*/
-/Components.Aphid/Library/*/
 
 /AphidLanguageServer/*

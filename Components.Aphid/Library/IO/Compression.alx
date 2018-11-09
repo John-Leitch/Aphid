@@ -1,0 +1,41 @@
+﻿var deflate;
+var gzip;
+
+@{
+    using System.IO;
+    using System.IO.Compression;
+
+    _compressor = macro(@(name, className) {
+        name = {
+            compress: @(buffer, level) {
+                //print('~Magenta~Compressing {0} bytes~R~', buffer.Length);
+                var l = $($args.Count) 1: CompressionLevel.Optimal, level;
+
+                using (var s = new MemoryStream()) {
+                    using (var ds = new className(s, l, true)) {
+                        var writer = new BinaryWriter(ds);
+                        writer.Write(buffer);
+                    }
+
+                    ret s.ToArray();
+                }
+            },
+
+            decompress: @(buffer) {
+                //print('~Magenta~Decompressing {0} bytes~R~', buffer.Length);
+                using (var s = new MemoryStream()) {
+                    using (var ds = new className(
+                        new MemoryStream(buffer),
+                        CompressionMode.Decompress)) {
+                        ds.CopyTo(s);
+                    }
+
+                    ret s.ToArray();
+                }
+            }
+        };
+    });
+
+    _compressor(deflate, DeflateStream);
+    _compressor(gzip, GZipStream);
+}();

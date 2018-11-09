@@ -1,0 +1,131 @@
+﻿using System.Text;
+
+_ce = macro(@{ _getCall(1).Expression.Args });
+var _getCall = this.{'$aphid'}.GetStackFrame;
+var getCall = @() _getCall(1).Expression;
+var getArgs = @() _ce();
+var getArg = @(i) _ce()[i];
+var getIdArg = @(i) _ce()[i].Identifier;
+var idString = @() _ce()[0];
+
+var is = @(name, target)
+    target.GetType().GetInterface(name) != null || 
+    target.GetType().FullName == name ||
+    target.GetType().Name == name;
+
+var isEnumerableOf = @(enumerableType, target)
+    target != null &&
+    isTypeEnumerableOf(enumerableType, target.GetType());
+
+var isTypeEnumerableOf = @(enumerableType, type) {
+    var t;
+
+    ret (t = type.GetInterface('IEnumerable`1')) != null &&
+        t.GetGenericArguments()[0] == enumerableType;
+};
+
+var has = @(name, target)
+    target.GetType().GetMethod(name) != null ||
+    target.GetType().GetProperty(name) != null;
+
+_getAsmDir(Entry);
+_getAsmDir(Executing);
+_getAsmDir = macro(@(name) { _getAsmDirCore(name, id(Get, name, Assembly)) });
+
+_getAsmDirCore = macro(@(name, fullName) {
+    var id(get, name, Dir) = @() Assembly.fullName().Location |> Path.GetDirectoryName;
+    var id(get, name, Path) = @() $args |> Path.Combine @Path.Combine(id(get, name, Dir)());
+});
+
+var getEnums = @(type) type |> Enum.GetValues;
+var getFullNames = @(name) this.{'$imports'}->@+('.' + name);
+var gkeys = @(o) o |> keys !?\!-&@() $($_[0]) '$': $_.remove(2), $_[0];
+
+var getExe = @{
+    var asm = Assembly.GetEntryAssembly();
+
+    ret asm != null ? asm.Location : null;
+};
+
+var map = @(mapping, obj) {
+    var m = {};
+
+    mapping |> keys for {
+        var k = mapping.{$_};
+        m.{$_} = obj.{k} defined ? obj.{k} : null;
+    };
+
+    ret m;
+};
+
+var isObject = @(o) o.GetType() == AphidObject;
+var isNonNullObject = @(o) o != null && o.GetType() == AphidObject;
+
+var isCollection = @(x)
+    x != null &&
+    !isObject(x) &&
+    x.GetType() != string &&
+    x.GetType().GetInterface('IEnumerable') != null;
+
+var mix = @(src, dst) {
+	for (m in keys(src)) {
+		dst.{m} = src.{m};
+		mix(src.{m}, dst.{m});
+	}
+};
+
+var getMember = @(obj, path) {	
+	var val = obj;
+	var parts = path.split('.');
+
+	for (p in parts) {		
+		val = val.{p};
+	}
+
+	ret val;
+};
+
+var loadFile = @(asmFile) asmFile
+    |> Path.GetFullPath
+    @() $_.Replace('\\', '\\\\')
+    @format('load "{0}"')
+    |> evalExp;
+
+var getAssemblies = AppDomain.CurrentDomain.GetAssemblies;
+var getAllTypes = @() getAssemblies()-<(@()$_.GetTypes());
+var findTypes = @(searchStr) getAllTypes()~?searchStr;
+var findType = @(searchStr) searchStr |> findTypes |> Enumerable.Single;
+
+var typeToString = @(type, fullName, sb) {    
+    var s = sb defined ? sb : new StringBuilder();
+    var fn = fullName defined && fullName;
+    var name = fn ? type.FullName : type.Name;
+
+    if(type.IsGenericType) {
+        ((@() (name ~~ '`\\d+') ^! @.Index |> name.Remove) ?| name)
+            |> @s.AppendFormat('{0}[');
+
+        var isFirst = true;
+
+        type.GetGenericArguments()->@{
+            if (!isFirst) {
+                s.Append(', ');
+            } else {
+                isFirst = false;
+            }
+            
+            typeToString($_, fn, s);
+        };
+
+        s.Append(']');
+    } else if (type.IsArray) {
+        var rank = type.GetArrayRank();
+        var elemType = type.GetElementType();
+        typeToString(elemType, fn, s);
+        ($(rank) 0: '',  /*1: '*',*/ ',' * (rank - 1)) @s.AppendFormat('[{0}]')
+    } else {
+        s.Append(name);
+    }
+
+    ret s;
+};

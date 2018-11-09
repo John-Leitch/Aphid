@@ -1,0 +1,76 @@
+using System.IO;
+using System.Text.RegularExpressions;
+
+// Todo: move ops and other common funcs to core header,
+// autoload using INI setting.
+@ :: (fmt, args) string.Format(fmt, args);
+@ :> (fmt, args) $args.Count == 2 ? print(fmt, args) : print(fmt);
+@ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
+@ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
+@ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };
+@ ?? (value, defaultValue) value != null ? value : defaultValue;
+@ <! (func) func ?> false;
+
+_anySource = macro(@{ source != null && Enumerable.Any(source) });
+
+@ +? (source, func) $($args.Count)
+    1: (_anySource()),
+    (_anySource() ? (source |> func) : null);
+
+@ ^| (source, defaultValue) { try ret source ^!; catch ret defaultValue };
+@ <! (source, func) $args.Count == 2 ? (source -? (<! func)) : source ?> false;
+@ -+ (source, delim) source +> @(x, y) x + delim + y;
+@ -| (source, predicate) { _queryBody(Enumerable.Single) };
+@ -! (source, predicate) { _queryBody(Enumerable.Any @> @== false) };
+
+_queryBody = macro(@(filter){
+    using System.Linq;
+    ret (source -? predicate |> filter);
+});
+
+@ ~= (input, pattern) _re(IsMatch);
+@ ~~ (input, pattern) _re(Matches) @(m) 0..(m #!)->@()m[$_];
+@ ~: (input, replace) $(replace.GetType()) String: _sub(replace, ''), _sub(replace[0], replace[1]);
+
+@ ~? (input, pattern) _rec();
+@ ~| (input, pattern) _rec() |> Enumerable.Single;
+@ <- (selector, source) source -> selector;
+@ ?- (selector, source) source -? selector;
+@ <| (target, arg) arg |> target;
+@ <@ (f1, f2) f2 @> f1;
+@ &\ (file) _in(ReadAllBytes);
+@ |\ (file) _in(ReadAllText);
+@ \| (text, file) text.ToString() @File.WriteAllText(file.ToString());
+@ \& (buffer, file) buffer @File.WriteAllBytes(file.ToString());
+
+@\ (lhs, rhs) {
+    var s = frame().Scope;
+    var args = s.{'$args'};
+    var i = s.argIndex defined ? s.argIndex++ : s.argIndex = 1;
+
+    ret $args.Count < i ? lhs : lhs && rhs;
+    
+};
+
+_rhs = macro(@{ frame(0).Expression.RightOperand });
+@ ?. (lhs, rhs) lhs != null ? lhs.{_rhs().Identifier} : null;
+@ -. (lhs, rhs) {
+    var f =
+        new PartialOperatorExpression(getToken('.'), _rhs())
+        |> this.{'$aphid'}.Interpret;
+    
+    ret lhs->f
+};
+
+@ !! (condition, fatalMessage) {
+	if (condition) {
+		printCriticalError(fatalMessage); Environment.Exit(0xbad02)
+	}
+};
+
+@`(depth, num) frame(depth).Expression.Args[num].Identifier;
+_sub = macro(@(pattern, replacement) { Regex.Replace(input.ToString(), pattern, replacement) });
+
+_re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString()) });
+_rec = macro(@{ input -? @() $_ ~= pattern });
+_in = macro(@(f) { file.ToString() |> File.f });

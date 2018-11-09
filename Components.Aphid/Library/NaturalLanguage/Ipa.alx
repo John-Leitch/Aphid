@@ -1,0 +1,58 @@
+var ipa;
+
+@{
+load System.Speech;
+using System.Globalization;
+using System.Speech.Recognition;
+using System.Speech.Synthesis;
+
+var culture = new CultureInfo("en-US");
+var grammar1 = new DictationGrammar();  
+grammar1.Name = "default dictation";  
+grammar1.Enabled = true;  
+
+// Create the spelling dictation grammar.  
+var grammar2 = new DictationGrammar("grammar:dictation#spelling");  
+grammar2.Name = "spelling dictation";  
+grammar2.Enabled = false;  
+
+var nextPrompt = @(s) {
+    var prompt = new PromptBuilder(culture);
+    // prompt.StartStyle(new PromptStyle(PromptEmphasis.Strong));
+    prompt.StartStyle(new PromptStyle(PromptRate.Medium));
+    prompt.AppendTextWithPronunciation("foo", s);
+    prompt.EndStyle();
+    // prompt.EndStyle();
+
+    ret prompt;
+};
+
+_speak = macro(@{ ipaString |> nextPrompt |> synth.Speak });
+
+ipa = {
+    speak: @(ipaString) {
+        dump(ipaString);
+        using (var synth = new SpeechSynthesizer()) {
+            dump(ipaString);
+            _speak();
+        }
+    },
+    recognize: @(ipaString) {
+        using (var synth = new SpeechSynthesizer())
+        using (var recognizer = new SpeechRecognitionEngine(culture)) {
+            [ grammar1, grammar2 ]->recognizer.LoadGrammar;
+
+            using (var s = new MemoryStream()) {
+                s |> synth.SetOutputToWaveStream;
+                _speak();
+                s.Position = 0;
+                s |> recognizer.SetInputToWaveStream;
+                var r = recognizer.Recognize();
+                // ret r != null ? r.Words->@.Text : null;
+                ret r;
+            }
+        }
+    }
+};
+}();
+

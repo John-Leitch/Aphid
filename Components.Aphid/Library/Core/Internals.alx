@@ -1,0 +1,38 @@
+﻿var aphid = this.{'$aphid'} defined ? this.{'$aphid'} : null;
+var getBlock = @() this.{'$parent'}.{'$block'};
+
+var parseArgsFor = @{
+    var q = getArgQueue();
+    
+    $args->q.matchPath;
+
+    ret q.args;
+};
+
+//(Directory.GetFiles('..\\..\\..\\', 'aphid*.exe', SearchOption.AllDirectories)-<@(f)[Path.GetFileName, Path.GetFileNameWithoutExtension]->@()$_(f).ToLower())!?->@String.Format("'{0}'") @String.Join(',') |> Console.WriteLine
+var getArgQueue = @{
+    var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
+    
+    var v = @() args.Count > 0 ? args.Peek().Value : null;
+    var matchPath = @{
+        var argPath = (@() v().ToLower() |> Path.GetFileName) ?| null;
+        
+        if ($args =? @(p) p =? @== argPath) {
+            args.Dequeue();
+
+            ret true;
+        } else {
+            ret false;
+        }
+    };
+    
+    matchPath([
+        'aphid.exe','aphid','aphid64.exe','aphid64','aphid.debug.exe',
+        'aphid.debug','aphid32.debug.exe','aphid32.debug','aphid32.exe',
+        'aphid32','aphid.binarytrace.exe','aphid.binarytrace','aphid.binarytrace32.exe',
+        'aphid.binarytrace32','aphid.binarytrace64.exe','aphid.binarytrace64',
+        'aphid64.debug.exe','aphid64.debug','aphidui.exe','aphidui','aphid-debug.exe',
+        'aphid-debug']);
+
+    ret { args, matchPath };
+};

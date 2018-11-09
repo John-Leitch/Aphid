@@ -1,0 +1,37 @@
+﻿##'Components.Aphid.Library.ThreadingLibrary';
+
+var startThread;
+var startWorker;
+var parallel;
+
+@{
+    using System.Threading;
+
+    var _ts = traceService defined && traceService ? print : @{ };
+    
+    startThread = @(action) new Thread(action) @{ $_.Start(); ret $_ };
+
+    startWorker = @(action, interval, runCondition) 
+        startThread(@{ 
+            _ts('Service thread starting');
+
+            while(!(runCondition defined) || runCondition()) {
+                action();
+
+                if (interval defined) {
+                    Thread.Sleep(interval);
+                }
+            }
+
+            _ts('Service thread exiting');
+        });
+
+    parallel = @(action, collection) collection
+        ->(@(element) ({
+            state: null,
+            thread: thread(@{ $_.state = element |> action }, this)
+        }))
+        ->(@(ctx)ctx.thread.WaitOne() ? ctx.state : null);
+}();
+
+@ >~ (collection, action) parallel(action, collection);

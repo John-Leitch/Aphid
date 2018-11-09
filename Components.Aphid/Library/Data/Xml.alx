@@ -1,0 +1,114 @@
+﻿load System.Xml.Linq;
+using System.Xml.Linq;
+
+var p = this.{'$scope'};
+
+var xdoc = {
+    open: XDocument.Load,
+    read: XDocument.Load,
+    parse: XDocument.Parse,
+    fromString: XDocument.Parse
+};
+
+var xsd;
+
+@{
+    xsd = {
+        path: 'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.7.2 Tools\\xsd.exe',
+        generateDataSet: @(name, ns){
+            using System.Diagnostics;
+            var args = format('/d /l:CS "{0}.xsd" /eld /n:{1}', name, ns);
+            var p = Process.Start(path, args);
+            p.WaitForExit();
+        },
+    };
+}();
+
+@{
+    using System.Linq;
+    
+
+    var extendXElement = @{ 
+        xnCall = macro(@(target) { name |> XName.Get |> target });
+
+        _parse = macro(@(type){
+            @(element, name)
+                name defined ?
+                    element.element(name).Value |> type.Parse :
+                    element.Value |> type.Parse
+        });
+
+        _l = macro(@(x) { x |> Enumerable.ToList });
+
+        extend XElement {
+            descendants: @(element, name)
+                _l(name defined ? xnCall(element.Descendants) : element.Descendants()),
+
+            descendant: @(element, name) element.descendants(name) |> Enumerable.Single,
+
+            elements: @(element, name)
+                _l(name defined ? xnCall(element.Elements) : element.Elements()),
+
+            element: @(element, name) xnCall(element.Element),
+            val: @(element, name) name defined ? element.element(name).Value : element.Value,
+            dec: _parse(Decimal),
+            int: _parse(Int32),
+            date: _parse(DateTime),
+
+            attr: @(element, name) xnCall(element.Attribute) != null ?
+                xnCall(element.Attribute).Value :
+                null,
+
+            dynamic dispatch: @(element, action) {
+                var e = element;
+                [ e.attr, e.elements, e.descendants ] for {
+                    if ((var a = $_(action)) != null &&
+                        (a.GetType() == string || a.Count > 0)) {
+                        ret a;
+                    }
+                };
+
+                ret null;
+            }
+        }
+
+        extend list XElement {
+            map: @(elements, selector) elements->selector,
+        }
+
+        extend XDocument {  }
+
+        var _p = print;
+        _p = @{};
+
+        this |> keys -?(@(k)k.StartsWith('$ext')) ->@(k){
+            $_ @_p('Importing extension method ~Magenta~{0}~R~');
+            p.{$_} = this.{$_};
+        };
+    };
+
+    var initXml = @{
+        var xdExtend = (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XDocument)));
+        (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XElement))).obj().pairs()->@(p){
+            var ext = p.lhs().id();
+            // ext @print('Adding XDocument extension {0}');
+            var argList = ast.block();
+            p.rhs().args() @aq.skip(1)->argList.Add;
+            var funcBody = ast.block();
+
+            funcBody.Add(
+                ast.return(
+                    ast.call(
+                        ast.member(
+                            ast.member(p.rhs().args()[0], ast.id('Root')),
+                            ast.id(ext)),
+                        argList)));
+
+            new FunctionExpression(p.rhs().args(), funcBody)
+                @ast.pair(ast.id(ext)) |> xdExtend.obj().pairs().Add;
+        };
+    };
+
+    initXml();
+    extendXElement();
+}();

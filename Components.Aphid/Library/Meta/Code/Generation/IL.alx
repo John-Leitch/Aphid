@@ -1,0 +1,202 @@
+﻿using System.Reflection;
+using System.Reflection.Emit;
+
+var createAsm;
+var createProgram;
+var importOpcodes;
+var asmIL;
+var execIL;
+var execILBlock;
+var ilImportScope = this;
+
+@{
+    using System;
+    using System.Threading;
+
+    createAsm = @(name) {
+        var props = isObject(name) ? name : { name, path: name };
+        var an = new AssemblyName(props.name |> Path.GetFileName);
+        
+        if (props.version defined) {
+            an.Version = new Version(props.version);
+        }
+
+        var asm = AppDomain.CurrentDomain
+            .DefineDynamicAssembly(
+                an,
+                AssemblyBuilderAccess.RunAndSave);
+
+        _v = macro(@(t, v) {
+            new CustomAttributeBuilder(t.GetConstructor([ string ]), [ v ])
+            |> asm.SetCustomAttribute;
+        });
+
+        if (props.version defined) {
+            _v(AssemblyVersionAttribute, props.version);
+            _v(AssemblyFileVersionAttribute, props.version);
+        }
+
+        if (props.title defined) {
+            _v(AssemblyTitleAttribute, props.title);
+            _v(AssemblyProductAttribute, props.title);
+        }
+
+        if (props.company defined) {
+            _v(AssemblyCompanyAttribute, props.company);
+        }
+
+        if (props.copyright defined) {
+            _v(AssemblyCopyrightAttribute, props.copyright);
+        }
+
+        var module = asm.DefineDynamicModule(
+            props.name,
+            props.path |> Path.GetFileName);
+
+        if (props.streams defined) {
+            using System.Reflection;
+
+            props.streams.Keys->@(k) module.DefineManifestResource(
+                k,
+                props.streams.{k},
+                ResourceAttributes.Public);
+        }
+
+        asm.DefineVersionInfoResource();
+
+        ret {
+            asm,
+            module,
+            setEntryPoint: asm.SetEntryPoint,
+            createEntryPoint: @(ilCallback, showConsole) {
+                var kind = showConsole defined && !showConsole ?
+                    PEFileKinds.WindowApplication :
+                    PEFileKinds.ConsoleApplication;
+
+                var type = module.DefineType(
+                    'Program',
+                    TypeAttributes.Class | TypeAttributes.Public);
+
+                var method = type.DefineMethod(
+                    'Main',
+                    MethodAttributes.HideBySig |
+                        MethodAttributes.Public |
+                        MethodAttributes.Static,
+                    void,
+                    [ string.MakeArrayType() ]);
+
+                method.GetILGenerator() |> ilCallback;
+                type.CreateType();
+                asm.SetEntryPoint(method, kind);
+            },
+            save: asm.Save,
+        
+        };
+    };
+
+    createProgram = @(asmName, ilCallback) {
+        var asm = asmName |> createAsm;
+        
+        asm.createEntryPoint(
+            ilCallback,
+            asmName.showConsole defined ? asmName.showConsole : true);
+
+        var name = isObject(asmName) ? asmName.name : asmName;
+        var fullName = isObject(asmName) ? asmName.path : asmName;
+
+        name |> asm.save;
+        var src = name |> Path.GetFullPath;
+        var dst = fullName |>  Path.GetFullPath;
+
+        if (src != dst) {
+            if (File.Exists(dst)) {
+                File.Delete(dst);
+            }
+
+            File.Move(src, dst);
+        }
+    };
+
+    var scope = ilImportScope;
+
+    importOpcodes = @()
+        OpCodes
+            .GetFields()
+            ->(@.Name)
+            ->(@(n) scope.{n} = n @String.Format('OpCodes.{0}') |> evalExp);
+
+    asmIL = @(il) {
+        var emit = @(instruction) {
+            if (instruction.isCall()) {
+                ret emitGenerate(
+                    instruction.FunctionExpression,
+                    instruction.Args->@()$_.ToString());
+            } else if (instruction.isString()) {
+                ret emitLsdstr(instruction);
+            } else if (instruction.isId()) {
+                ret emitGenerate(instruction.ToString());
+            }
+        };
+
+        var emitLsdstr = @(str) emitGenerate('Ldstr', [ str.ToString() ]);
+        var emitMnemonic = @(mnemonic) { };
+
+        var emitGenerate = @(mnemonic, args)
+            $args.Count > 1 && (args |> Enumerable.Any) ?
+                format('$_.Emit(OpCodes.{0}, {1});', mnemonic, args @join(', ')) :
+                format('$_.Emit(OpCodes.{0});', mnemonic);
+
+        ret il->emit @join('\r\n') @format('@{{\r\n{0}\r\n}}') |> evalExp;
+    };
+
+    var ilModuleSync = new Object();
+    var ilModuleName = null;
+    var ilModule = null;
+
+    var getILModule = @{
+        Monitor.Enter(ilModuleSync);
+
+        try {
+            if (ilModule == null) {
+                ilModuleName = 'InlineIL_' + Guid.NewGuid().ToString();
+
+                var asm = AppDomain.CurrentDomain.DefineDynamicAssembly(
+                    new AssemblyName(ilModuleName),
+                    AssemblyBuilderAccess.Run);
+
+                ilModule = name |> asm.DefineDynamicModule;
+            }
+
+            ret ilModule;
+        } finally {
+            Monitor.Exit(ilModuleSync);
+        }
+    };
+
+    execILBlock = @(il) {
+        var methodName = 'Test';
+
+        var type = getILModule().DefineType(
+            'InlineIL_' + Guid.NewGuid().ToString(),
+            TypeAttributes.Class | TypeAttributes.Public);
+
+        var method = type.DefineMethod(
+            methodName,
+            MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Static,
+            void,
+            [  ]);
+
+        method.GetILGenerator() @{
+            importOpcodes();
+            $_ |> il;
+        };
+
+        type.CreateType();
+
+        ret type.GetMethod(methodName).Invoke(null, []);
+    };
+
+    execIL = asmIL @> execILBlock;
+}();
+
+delete ilImportScope;

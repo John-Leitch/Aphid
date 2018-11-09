@@ -1,0 +1,711 @@
+var visitor = {
+    beginStmt: @(exp, depth){},
+    endStmt: @(exp, depth){},
+    beginBlock: @(block, depth){},
+    endBlock: @(block, depth){},
+    beginCallExp: @(exp, depth){},
+
+    callExp: @(exp, depth){
+
+        if (exp.FunctionExpression != null) visit(exp.FunctionExpression, depth + 1);
+        if (exp.Args != null) visit(exp.Args, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endCallExp: @(exp){},
+
+    beginArrayAccessExp: @(exp, depth){},
+
+    arrayAccessExp: @(exp, depth){
+
+        if (exp.ArrayExpression != null) visit(exp.ArrayExpression, depth + 1);
+        if (exp.KeyExpressions != null) visit(exp.KeyExpressions, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endArrayAccessExp: @(exp){},
+
+    beginArrayExp: @(exp, depth){},
+
+    arrayExp: @(exp, depth){
+
+        if (exp.Elements != null) visit(exp.Elements, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endArrayExp: @(exp){},
+
+    beginBinOpExp: @(exp, depth){},
+
+    binOpExp: @(exp, depth){
+
+        if (exp.LeftOperand != null) visit(exp.LeftOperand, depth + 1);
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.RightOperand != null) visit(exp.RightOperand, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endBinOpExp: @(exp){},
+
+    beginBinOpBodyExp: @(exp, depth){},
+
+    binOpBodyExp: @(exp, depth){
+
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.Function != null) visit(exp.Function, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endBinOpBodyExp: @(exp){},
+
+    beginBooleanExp: @(exp, depth){},
+
+    booleanExp: @(exp, depth){
+
+        if (exp.Value != null) visit(exp.Value, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endBooleanExp: @(exp){},
+
+    beginBreakExp: @(exp, depth){},
+
+    breakExp: @(exp, depth){
+
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endBreakExp: @(exp){},
+
+    beginContinueExp: @(exp, depth){},
+
+    continueExp: @(exp, depth){
+
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endContinueExp: @(exp){},
+
+    beginDoWhileExp: @(exp, depth){},
+
+    doWhileExp: @(exp, depth){
+
+        if (exp.Condition != null) visit(exp.Condition, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endDoWhileExp: @(exp){},
+
+    beginDynamicMemberExp: @(exp, depth){},
+
+    dynamicMemberExp: @(exp, depth){
+
+        if (exp.MemberExpression != null) visit(exp.MemberExpression, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endDynamicMemberExp: @(exp){},
+
+    beginExtendExp: @(exp, depth){},
+
+    extendExp: @(exp, depth){
+
+        if (exp.ExtendType != null) visit(exp.ExtendType, depth + 1);
+        if (exp.Object != null) visit(exp.Object, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endExtendExp: @(exp){},
+
+    beginForEachExp: @(exp, depth){},
+
+    forEachExp: @(exp, depth){
+
+        if (exp.Collection != null) visit(exp.Collection, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Element != null) visit(exp.Element, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endForEachExp: @(exp){},
+
+    beginForExp: @(exp, depth){},
+
+    forExp: @(exp, depth){
+
+        if (exp.Initialization != null) visit(exp.Initialization, depth + 1);
+        if (exp.Condition != null) visit(exp.Condition, depth + 1);
+        if (exp.Afterthought != null) visit(exp.Afterthought, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endForExp: @(exp){},
+
+    beginFunctionExp: @(exp, depth){},
+
+    functionExp: @(exp, depth){
+
+        if (exp.Args != null) visit(exp.Args, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endFunctionExp: @(exp){},
+
+    beginGatorOpenExp: @(exp, depth){},
+
+    gatorOpenExp: @(exp, depth){
+
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endGatorOpenExp: @(exp){},
+
+    beginGatorCloseExp: @(exp, depth){},
+
+    gatorCloseExp: @(exp, depth){
+
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endGatorCloseExp: @(exp){},
+
+    beginGatorEmitExp: @(exp, depth){},
+
+    gatorEmitExp: @(exp, depth){
+
+        if (exp.Expression != null) visit(exp.Expression, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endGatorEmitExp: @(exp){},
+
+    beginIdentifierExp: @(exp, depth){},
+
+    identifierExp: @(exp, depth){
+
+        if (exp.Identifier != null) visit(exp.Identifier, depth + 1);
+        if (exp.Attributes != null) visit(exp.Attributes, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endIdentifierExp: @(exp){},
+
+    beginIfExp: @(exp, depth){},
+
+    ifExp: @(exp, depth){
+
+        if (exp.Condition != null) visit(exp.Condition, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.ElseBody != null) visit(exp.ElseBody, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endIfExp: @(exp){},
+
+    beginImplicitArgExp: @(exp, depth){},
+
+    implicitArgExp: @(exp, depth){
+
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endImplicitArgExp: @(exp){},
+
+    beginImplicitArgsExp: @(exp, depth){},
+
+    implicitArgsExp: @(exp, depth){
+
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endImplicitArgsExp: @(exp){},
+
+    beginLoadLibraryExp: @(exp, depth){},
+
+    loadLibraryExp: @(exp, depth){
+
+        if (exp.LibraryExpression != null) visit(exp.LibraryExpression, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endLoadLibraryExp: @(exp){},
+
+    beginLoadScriptExp: @(exp, depth){},
+
+    loadScriptExp: @(exp, depth){
+
+        if (exp.FileExpression != null) visit(exp.FileExpression, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endLoadScriptExp: @(exp){},
+
+    beginLockExp: @(exp, depth){},
+
+    lockExp: @(exp, depth){
+
+        if (exp.Expressions != null) visit(exp.Expressions, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endLockExp: @(exp){},
+
+    beginNullExp: @(exp, depth){},
+
+    nullExp: @(exp, depth){
+
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endNullExp: @(exp){},
+
+    beginNumberExp: @(exp, depth){},
+
+    numberExp: @(exp, depth){
+
+        if (exp.Value != null) visit(exp.Value, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endNumberExp: @(exp){},
+
+    beginObjectExp: @(exp, depth){},
+
+    objectExp: @(exp, depth){
+
+        if (exp.Pairs != null) visit(exp.Pairs, depth + 1);
+        if (exp.Identifier != null) visit(exp.Identifier, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endObjectExp: @(exp){},
+
+    beginPartialFunctionExp: @(exp, depth){},
+
+    partialFunctionExp: @(exp, depth){
+
+        if (exp.Call != null) visit(exp.Call, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endPartialFunctionExp: @(exp){},
+
+    beginPartialOpExp: @(exp, depth){},
+
+    partialOpExp: @(exp, depth){
+
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.Operand != null) visit(exp.Operand, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endPartialOpExp: @(exp){},
+
+    beginPatternExp: @(exp, depth){},
+
+    patternExp: @(exp, depth){
+
+        if (exp.Value != null) visit(exp.Value, depth + 1);
+        if (exp.Patterns != null) visit(exp.Patterns, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endPatternExp: @(exp){},
+
+    beginPatternMatchingExp: @(exp, depth){},
+
+    patternMatchingExp: @(exp, depth){
+
+        if (exp.TestExpression != null) visit(exp.TestExpression, depth + 1);
+        if (exp.Patterns != null) visit(exp.Patterns, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endPatternMatchingExp: @(exp){},
+
+    beginUnOpExp: @(exp, depth){},
+
+    unOpExp: @(exp, depth){
+
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.Operand != null) visit(exp.Operand, depth + 1);
+        if (exp.IsPostfix != null) visit(exp.IsPostfix, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endUnOpExp: @(exp){},
+
+    beginUsingExp: @(exp, depth){},
+
+    usingExp: @(exp, depth){
+
+        if (exp.Disposable != null) visit(exp.Disposable, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endUsingExp: @(exp){},
+
+    beginStringExp: @(exp, depth){},
+
+    stringExp: @(exp, depth){
+
+        if (exp.Value != null) visit(exp.Value, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endStringExp: @(exp){},
+
+    beginSwitchCase: @(exp, depth){},
+
+    switchCase: @(exp, depth){
+
+        if (exp.Cases != null) visit(exp.Cases, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endSwitchCase: @(exp){},
+
+    beginSwitchExp: @(exp, depth){},
+
+    switchExp: @(exp, depth){
+
+        if (exp.Expression != null) visit(exp.Expression, depth + 1);
+        if (exp.Cases != null) visit(exp.Cases, depth + 1);
+        if (exp.DefaultCase != null) visit(exp.DefaultCase, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endSwitchExp: @(exp){},
+
+    beginTernaryOpExp: @(exp, depth){},
+
+    ternaryOpExp: @(exp, depth){
+
+        if (exp.Operator != null) visit(exp.Operator, depth + 1);
+        if (exp.FirstOperand != null) visit(exp.FirstOperand, depth + 1);
+        if (exp.SecondOperand != null) visit(exp.SecondOperand, depth + 1);
+        if (exp.ThirdOperand != null) visit(exp.ThirdOperand, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endTernaryOpExp: @(exp){},
+
+    beginTextExp: @(exp, depth){},
+
+    textExp: @(exp, depth){
+
+        if (exp.Text != null) visit(exp.Text, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endTextExp: @(exp){},
+
+    beginThisExp: @(exp, depth){},
+
+    thisExp: @(exp, depth){
+
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endThisExp: @(exp){},
+
+    beginTryExp: @(exp, depth){},
+
+    tryExp: @(exp, depth){
+
+        if (exp.TryBody != null) visit(exp.TryBody, depth + 1);
+        if (exp.CatchArg != null) visit(exp.CatchArg, depth + 1);
+        if (exp.CatchBody != null) visit(exp.CatchBody, depth + 1);
+        if (exp.FinallyBody != null) visit(exp.FinallyBody, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endTryExp: @(exp){},
+
+    beginWhileExp: @(exp, depth){},
+
+    whileExp: @(exp, depth){
+
+        if (exp.Condition != null) visit(exp.Condition, depth + 1);
+        if (exp.Body != null) visit(exp.Body, depth + 1);
+        if (exp.Type != null) visit(exp.Type, depth + 1);
+    },
+
+    endWhileExp: @(exp){},
+
+    visit: @(exp, depth) {
+        var d = depth defined ? depth : 0;
+        var t = exp.GetType();
+
+        if (t.BaseType == AphidExpression) {
+            switch (exp.Type) {
+                AphidExpressionType.CallExpression: {
+                    beginCallExp(exp, d);
+                    callExp(exp, d);
+                    endCallExp(exp, d);
+                }
+
+                AphidExpressionType.ArrayAccessExpression: {
+                    beginArrayAccessExp(exp, d);
+                    arrayAccessExp(exp, d);
+                    endArrayAccessExp(exp, d);
+                }
+
+                AphidExpressionType.ArrayExpression: {
+                    beginArrayExp(exp, d);
+                    arrayExp(exp, d);
+                    endArrayExp(exp, d);
+                }
+
+                AphidExpressionType.BinaryOperatorExpression: {
+                    beginBinOpExp(exp, d);
+                    binOpExp(exp, d);
+                    endBinOpExp(exp, d);
+                }
+
+                AphidExpressionType.BinaryOperatorBodyExpression: {
+                    beginBinOpBodyExp(exp, d);
+                    binOpBodyExp(exp, d);
+                    endBinOpBodyExp(exp, d);
+                }
+
+                AphidExpressionType.BooleanExpression: {
+                    beginBooleanExp(exp, d);
+                    booleanExp(exp, d);
+                    endBooleanExp(exp, d);
+                }
+
+                AphidExpressionType.BreakExpression: {
+                    beginBreakExp(exp, d);
+                    breakExp(exp, d);
+                    endBreakExp(exp, d);
+                }
+
+                AphidExpressionType.ContinueExpression: {
+                    beginContinueExp(exp, d);
+                    continueExp(exp, d);
+                    endContinueExp(exp, d);
+                }
+
+                AphidExpressionType.DoWhileExpression: {
+                    beginDoWhileExp(exp, d);
+                    doWhileExp(exp, d);
+                    endDoWhileExp(exp, d);
+                }
+
+                AphidExpressionType.DynamicMemberExpression: {
+                    beginDynamicMemberExp(exp, d);
+                    dynamicMemberExp(exp, d);
+                    endDynamicMemberExp(exp, d);
+                }
+
+                AphidExpressionType.ExtendExpression: {
+                    beginExtendExp(exp, d);
+                    extendExp(exp, d);
+                    endExtendExp(exp, d);
+                }
+
+                AphidExpressionType.ForEachExpression: {
+                    beginForEachExp(exp, d);
+                    forEachExp(exp, d);
+                    endForEachExp(exp, d);
+                }
+
+                AphidExpressionType.ForExpression: {
+                    beginForExp(exp, d);
+                    forExp(exp, d);
+                    endForExp(exp, d);
+                }
+
+                AphidExpressionType.FunctionExpression: {
+                    beginFunctionExp(exp, d);
+                    functionExp(exp, d);
+                    endFunctionExp(exp, d);
+                }
+
+                AphidExpressionType.GatorOpenExpression: {
+                    beginGatorOpenExp(exp, d);
+                    gatorOpenExp(exp, d);
+                    endGatorOpenExp(exp, d);
+                }
+
+                AphidExpressionType.GatorCloseExpression: {
+                    beginGatorCloseExp(exp, d);
+                    gatorCloseExp(exp, d);
+                    endGatorCloseExp(exp, d);
+                }
+
+                AphidExpressionType.GatorEmitExpression: {
+                    beginGatorEmitExp(exp, d);
+                    gatorEmitExp(exp, d);
+                    endGatorEmitExp(exp, d);
+                }
+
+                AphidExpressionType.IdentifierExpression: {
+                    beginIdentifierExp(exp, d);
+                    identifierExp(exp, d);
+                    endIdentifierExp(exp, d);
+                }
+
+                AphidExpressionType.IfExpression: {
+                    beginIfExp(exp, d);
+                    ifExp(exp, d);
+                    endIfExp(exp, d);
+                }
+
+                AphidExpressionType.ImplicitArgumentExpression: {
+                    beginImplicitArgExp(exp, d);
+                    implicitArgExp(exp, d);
+                    endImplicitArgExp(exp, d);
+                }
+
+                AphidExpressionType.ImplicitArgumentsExpression: {
+                    beginImplicitArgsExp(exp, d);
+                    implicitArgsExp(exp, d);
+                    endImplicitArgsExp(exp, d);
+                }
+
+                AphidExpressionType.LoadLibraryExpression: {
+                    beginLoadLibraryExp(exp, d);
+                    loadLibraryExp(exp, d);
+                    endLoadLibraryExp(exp, d);
+                }
+
+                AphidExpressionType.LoadScriptExpression: {
+                    beginLoadScriptExp(exp, d);
+                    loadScriptExp(exp, d);
+                    endLoadScriptExp(exp, d);
+                }
+
+                AphidExpressionType.LockExpression: {
+                    beginLockExp(exp, d);
+                    lockExp(exp, d);
+                    endLockExp(exp, d);
+                }
+
+                AphidExpressionType.NullExpression: {
+                    beginNullExp(exp, d);
+                    nullExp(exp, d);
+                    endNullExp(exp, d);
+                }
+
+                AphidExpressionType.NumberExpression: {
+                    beginNumberExp(exp, d);
+                    numberExp(exp, d);
+                    endNumberExp(exp, d);
+                }
+
+                AphidExpressionType.ObjectExpression: {
+                    beginObjectExp(exp, d);
+                    objectExp(exp, d);
+                    endObjectExp(exp, d);
+                }
+
+                AphidExpressionType.PartialFunctionExpression: {
+                    beginPartialFunctionExp(exp, d);
+                    partialFunctionExp(exp, d);
+                    endPartialFunctionExp(exp, d);
+                }
+
+                AphidExpressionType.PartialOperatorExpression: {
+                    beginPartialOpExp(exp, d);
+                    partialOpExp(exp, d);
+                    endPartialOpExp(exp, d);
+                }
+
+                AphidExpressionType.PatternExpression: {
+                    beginPatternExp(exp, d);
+                    patternExp(exp, d);
+                    endPatternExp(exp, d);
+                }
+
+                AphidExpressionType.PatternMatchingExpression: {
+                    beginPatternMatchingExp(exp, d);
+                    patternMatchingExp(exp, d);
+                    endPatternMatchingExp(exp, d);
+                }
+
+                AphidExpressionType.UnaryOperatorExpression: {
+                    beginUnOpExp(exp, d);
+                    unOpExp(exp, d);
+                    endUnOpExp(exp, d);
+                }
+
+                AphidExpressionType.UsingExpression: {
+                    beginUsingExp(exp, d);
+                    usingExp(exp, d);
+                    endUsingExp(exp, d);
+                }
+
+                AphidExpressionType.StringExpression: {
+                    beginStringExp(exp, d);
+                    stringExp(exp, d);
+                    endStringExp(exp, d);
+                }
+
+                AphidExpressionType.SwitchCase: {
+                    beginSwitchCase(exp, d);
+                    switchCase(exp, d);
+                    endSwitchCase(exp, d);
+                }
+
+                AphidExpressionType.SwitchExpression: {
+                    beginSwitchExp(exp, d);
+                    switchExp(exp, d);
+                    endSwitchExp(exp, d);
+                }
+
+                AphidExpressionType.TernaryOperatorExpression: {
+                    beginTernaryOpExp(exp, d);
+                    ternaryOpExp(exp, d);
+                    endTernaryOpExp(exp, d);
+                }
+
+                AphidExpressionType.TextExpression: {
+                    beginTextExp(exp, d);
+                    textExp(exp, d);
+                    endTextExp(exp, d);
+                }
+
+                AphidExpressionType.ThisExpression: {
+                    beginThisExp(exp, d);
+                    thisExp(exp, d);
+                    endThisExp(exp, d);
+                }
+
+                AphidExpressionType.TryExpression: {
+                    beginTryExp(exp, d);
+                    tryExp(exp, d);
+                    endTryExp(exp, d);
+                }
+
+                AphidExpressionType.WhileExpression: {
+                    beginWhileExp(exp, d);
+                    whileExp(exp, d);
+                    endWhileExp(exp, d);
+                }
+
+            }
+        } else if (t == List[AphidExpression]) {
+            beginBlock(exp, d);
+
+            exp for {
+                var d2 = d + 1;
+                beginStmt($_, d2);
+                visit($_, d2);
+                endStmt($_, d2);
+            };
+
+            endBlock(exp, d);
+        }
+    }
+}
+

@@ -1,0 +1,45 @@
+﻿var getCommand = @() Environment.CommandLine;
+var getCommandLineArgs = @() Environment.GetCommandLineArgs();
+var cls = Console.Clear;
+
+var fixColors = @{
+    Console.ForegroundColor = ConsoleColor.Gray;
+    Console.BackgroundColor = ConsoleColor.Black;
+};
+
+var console = {
+    defaultHeaderStyle: '~|Blue~~White~',
+    defaultSubheaderStyle: defaultHeaderStyle,
+};
+
+var head = @(msg){ Cli.WriteHeader($_, console.defaultHeaderStyle) };
+var header = head;
+var subhead = @(msg) { Cli.WriteSubheader(msg, console.defaultSubheaderStyle) };
+var subheader = subhead;
+console.head = head;
+console.header = head;
+console.subhead = subhead;
+console.subheader = subhead;
+
+var stdScope = this;
+
+if (!(stdScope.dump defined)) {
+    stdScope.dump = @(o){
+        (o != null ?
+            !isNonNullObject(o) && toJson defined ? toJson(o) : serialize(o) :
+            'null')
+        |> Console.WriteLine;
+    };
+}
+
+var dumpe = @{ 
+    $_ |> dump;
+    exit(0);
+};
+
+var exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
+
+var fatal = @{
+    var msg = 'Fatal error';
+    throw $($args.Count) 0: msg, '{0}: {1}' :: [ msg, $args[0] :: ($args @aq.skip(1)) ];
+};

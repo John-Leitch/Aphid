@@ -1,0 +1,168 @@
+﻿var numberBenchmarkRep;
+var numberBenchmark;
+var tests;
+var benchmark;
+
+@{
+    //#'Std';
+    using Components.Aphid;
+    using Components.ObjectDatabase;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+
+    var dir = 'Aphid\\Benchmarks';
+
+    var openDB = @()
+        [ '..\\' * 3 + dir, '..\\' * 4 + dir, '.\\' ]
+        >^ Directory.Exists
+        @() Path.Combine($_, 'history.db')
+        BinaryObjectDatabase.OpenFile;
+
+    var results = new List[AphidObject]();
+
+    var db;
+    var utcTime = DateTime.UtcNow.Ticks;
+    var version = AphidExpression.Assembly.GetName().Version.ToString();
+    var isCompiled = Environment.GetCommandLineArgs().Length == 1;
+
+    tests = {
+        autorun: true,
+        compileFuncs:[],
+        funcs:[],
+        blocks:[],
+
+        run: @{
+            using System.Threading.Tasks;
+            head('Running Benchmarks');
+            print();
+            printInfo('Opening run database');
+            using (db = openDB()) {
+                printSuccess('Database opened: ~Cyan~{0}~R~', db.Filename);
+                subhead('Compiling {0:n0} templates' :: (tests.compileFuncs #!));
+                tests.compileFuncs->@()$_();
+                print();
+                subhead('Starting benchmarks');
+                printInfo('Calling benchmark functions');
+                tests.funcs->@()$_();
+                printSuccess('~Green~Done~R~ calling benchmark functions');
+                { utcTime, version, isCompiled, results } |> db.Create;
+            }
+        },
+    };
+
+    extend list AphidExpression {
+        whereId: @(l, id) l-?@(x) x.isId() && x.id() == id,
+
+        singleId: @(l, id) {
+            matches = l-?@(x) x.isId() && x.id() == id;
+
+
+            if (matches.Count != 1) {
+                fatal("Expected single expression with id '{0}'.", id);
+            }
+
+            ret matches[0];
+        },
+
+        replaceId: @(l, id, block) {
+            using System.Linq;
+            var matches = l.whereId(id);
+
+            for (m in matches |> Enumerable.ToArray) {
+                var i = l.IndexOf(m);
+                l.RemoveAt(i);
+                l.InsertRange(i, block.Body);
+            }
+        }
+    }
+
+    benchmark = @(name, iterations, prologue, action, epilogue) {
+        instrumentCaller();
+
+        @{
+            using System.Linq;
+            using System.Collections;
+
+            if (action.Body.Count != 1) fatal('Action must be single statement.');
+
+            var benchmarkFunc = "@{
+                    using System;
+                    namePlaceholder;
+                    printQuery('Running ~Cyan~{0:n0}~R~ performance tests', n);
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    placeholder;
+                    sw.Stop();
+            
+                    printSuccess(
+                        'Finished ~Cyan~{0}~R~ in ~Magenta~{1:n0}ms~R~ (~Magenta~{2:n0} ticks~R~)',
+                        n,
+                        sw.ElapsedMilliseconds,
+                        sw.ElapsedTicks);
+
+                    { name: n, ticks: sw.ElapsedTicks } |> results.Add;
+            };" |> evalExp;
+
+            
+
+            printInfo('Compiling ~Cyan~{0}~R~ benchmark templates', name);
+            benchmarkFunc.Body.InsertRange(0, prologue.Body);
+
+            if ($args.Count >= 5) {
+                benchmarkFunc.Body.AddRange(epilogue.Body);
+            }
+
+            benchmarkFunc.Body.replaceId(
+                'namePlaceholder',
+                '@{ var n = "' + name + '" }' |> parseExp |> evalExp);
+
+            var actionBlock = '@{}' |> parseExp |> evalExp;
+            var actionStmt = action.Body[0];
+    
+            ArrayList
+                .Repeat(actionStmt, iterations)
+                .ToArray(AphidExpression)
+                |> actionBlock.Body.AddRange;
+
+
+            actionBlock.Body.Count
+            @printInfo('Generated action block contains ~Cyan~{0:n0}~R~ statements');
+
+            benchmarkFunc.Body.replaceId('placeholder', actionBlock);
+
+            if (tests.{name + 'Benchmark'} defined) {
+                throw ('Benchmark ~Yellow~{0}Benchmark~R~ already defined' :: name);
+            }
+
+            tests.{name + 'Benchmark'} = benchmarkFunc;
+            tests.funcs.add(benchmarkFunc);
+        } |> tests.compileFuncs.add;
+    };
+
+    numberBenchmarkRep = 1000000;
+
+    numberBenchmark = @(name, func)
+        benchmark(
+            name,
+            numberBenchmarkRep,
+            @{ var i = 0x10 },
+            func,
+            @{ printSuccess('Final value: {0}', i) });
+
+    var instrumentCaller = @{
+        var block = this.{'$parent'}.{'$parent'}.{'$block'};
+
+        if (block =? tests.blocks.contains) {
+            ret null;
+        }
+
+        block->tests.blocks.add;
+
+        block.AddRange(@{
+            if (tests.autorun) {
+                tests.run();
+            }
+        });
+    };
+}();

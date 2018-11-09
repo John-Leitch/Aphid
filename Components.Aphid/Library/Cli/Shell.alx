@@ -1,0 +1,862 @@
+﻿var shell;
+
+@{
+    // Todo:
+    // * Custom lexer for dynamic syntax using shared parser logic/structures.
+    //   -Perform iterative trasformations to expand token stream with type
+    //    Metadata, inlinined funcs/values, folded constants, etc.
+    //   -Bytecode support.
+    //    * Memoize static and dynamic code, use hash LUT for dynamic code.
+    //      | 0x52 | Type Id (u32) | Type Length (u16) | Type (variable) | Member Count Size (u32) |
+    //      | 0x53 | Object Id (u32) | Type Id (u32) | Member Count (variable) | Member Seq (variable) |
+    // * Custom member access override for IEnumerable<PSObject> e.g. $foo.Name -> $foo->@.Name
+    // * Add | support to command-line, set $_ to piped value.
+    // * Add -> support to command-line, set $_ to piped value.
+    // * Add ; support to command-line
+
+    #'Std';
+    #'Cli\\Powershell';
+
+    using System.IO;
+    using Components.Aphid.UI;
+    //AphidCli.ShowClrStack = true;
+    // var useTracing = true;
+
+    _initTrace = macro(@(name) { _initTraceCore(name, var id(trace, name)) });
+
+    _initTraceCore = macro(@(name, fullName) {
+        fullName = shell.fullName defined && shell.fullName ?
+            @(fmt) shell.outLine(
+                format(
+                    '{0} Trace: ~Magenta~{1}~R~',
+                    name,
+                    ($($args.Count)
+                        0: '[Nothing]',
+                        1: fmt,
+                        format(fmt, $args @aq.skip(1))) |> Cli.StyleEscape)) :
+            @() {};
+    });
+
+    shell = {
+        host: Environment.MachineName,
+        input: '',
+        interpreter: @{
+            var a = new AphidInterpreter();
+            a.Serializer = this.{'$aphid'}.Serializer;
+            ret a 
+        }(),
+        interpret: interpreter.Interpret,
+        waitingForInput: false,
+        waitingForOutput: false,
+        waitingForExecution: false,
+        getState: @() ({
+            waitingForInput: shell.waitingForInput,
+            waitingForOutput: shell.waitingForOutput,
+            waitingForExecution: shell.waitingForExecution }),
+        internal: {
+            tokenize: @(text, offset) {
+                var lexer = new AphidLexer(offset |> text.Substring);
+                lexer.SetShellMode();
+
+                ret lexer.GetTokens();
+            },
+
+            parse: @(tokens, index) {
+                using System.Linq;
+                var expression;
+                var streamOffset;
+                _initTrace('Parse');
+
+                var parser = new AphidParser(tokens);
+                parser.SetToken(index);
+
+                if (parser.CurrentToken.TokenType == AphidTokenType.LeftParenthesis) {
+                    traceParse('~Cyan~Skipping left paren~R~');
+                    parser.NextToken();
+                    traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
+                    expression = parser.ParseExpression();
+                    traceParse('Matching right paren');
+                    parser.PeekRightParenthesis();
+                    streamOffset = parser.CurrentToken.Index + 1;
+                } else {
+                    traceParse('Parsing expression starting at token {0}', parser.CurrentToken);
+                    expression = parser.ParseExpression();
+                    traceParse('Index: {0}, Length: {1}', expression.Index, expression.Length);
+                    parser.PreviousToken();
+                    streamOffset = parser.CurrentToken.Index + parser.CurrentToken.Lexeme.Length;
+                }
+
+                traceParse('Stream continuing at offset: {0}', streamOffset);
+
+                ret { expression, streamOffset };
+            }
+        },
+
+        trace: @{
+            shell.traceParse = true;
+            shell.traceResolve = true;
+            shell.traceTokenize = true;
+            shell.traceEmit = true;
+            shell.traceExec = true;
+            shell.tracePS = true;
+        }
+    };
+
+    shell.run = @{
+        while (shell.execIn()) { }
+    };
+
+    shell.execIn = @() shell.prompt() |> shell.exec;
+
+    shell.prompt = @() {
+        shell.writePrompt();
+        shell.waitingForInput = true;
+        shell.waitingForExecution = false;
+        shell.input = shell.inLine().Trim();
+        shell.waitingForExecution = true;
+        shell.waitingForInput = false;    
+
+        ret shell.input;
+    };
+
+    shell.execNext = @() shell.inLine().Trim() |> shell.exec;
+
+    shell.writePrompt = @() {
+        using System.IO;
+        using Components.External;
+        var prompt = '';
+        _promptToken(hostBegin);
+        _promptStyle(shell.host, host);
+        _promptToken(hostEnd);
+        _promptStyle(Directory.GetCurrentDirectory(), cwd);    
+        _promptToken(promptEnd);
+        shell.out(prompt);
+    };
+
+    shell.token = {
+        text: 0x01,
+        expression: 0x02,
+        concat: 0x03
+    };
+
+    var tokenizeCommand = @(text) {
+        using System.Text;
+        _initTrace('Tokenize');
+        //head('Testing shell parser');
+        traceTokenize('Building command from "{0}"', text);
+        var shellTokens = [];
+        var afterExpression = false;
+        var baseOffset = 0;
+        var lastToken;
+
+        var addToken = @(type, element) {
+            var n = {
+                type,
+                element,
+            
+                isImplicitPrefix: @()
+                    n.type == shell.token.expression || 
+                    (n.type == shell.token.text &&
+                        n.element.Length > 0 &&
+                        !Char.IsWhiteSpace(n.element, n.element.Length - 1)),
+                    
+                isImplicitSuffix: @()
+                    n.type == shell.token.text &&
+                    n.element.Length > 0 &&
+                    !Char.IsWhiteSpace(n.element[0]),
+            };
+            shellTokens.add(n);
+            lastToken = n;
+        };
+
+        var addConcat = @() addToken(shell.token.concat, '+');
+        var tokens = shell.internal.tokenize(text, 0);
+        var streamOffset = null;
+
+        for (var index = 0; index < tokens.Count; index++) {
+            var token = tokens[index];
+
+            if (streamOffset != null) {
+                index = 0;
+                baseOffset += streamOffset;
+                tokens = shell.internal.tokenize(text, baseOffset);
+
+                if (tokens.Count == 0) {
+                    break;
+                }
+
+                token = tokens[index];
+                streamOffset = null;
+                afterExpression = true;
+            }
+
+            traceTokenize('Scanning token: {0} "{1}"', token.TokenType, token.Lexeme);
+
+            if (token.TokenType == AphidTokenType.AphidExpressionOperator) {
+                var result = shell.internal.parse(tokens, index + 1);
+                result.expression |> traceTokenize;      
+                streamOffset = result.streamOffset;
+
+                if (lastToken != null && lastToken.isImplicitPrefix()) {
+                    addConcat();
+                }
+
+                addToken(shell.token.expression, result.expression);
+            } else {
+                if (lastToken != null &&
+                    token.Lexeme.Length > 0 &&
+                    !Char.IsWhiteSpace(token.Lexeme[0])) {
+                    addConcat();
+                }
+
+                addToken(shell.token.text, token.Lexeme);
+            }
+        }
+
+        shellTokens->(serialize) +>(@(x, y) x + '\r\n' + y)
+        @traceTokenize('Shell token count: {0}\r\n{1}\r\n\r\n', shellTokens.Count);
+
+        ret shellTokens;
+    };
+
+    using Components;
+
+    shell.node = {
+        literal: 0x01,
+        expression: 0x02,
+        concat: 0x03,
+    };
+
+    shell.parseCommand = @(commandTokens)
+        commandTokens -< @(t) $(t.type)
+            shell.token.text:
+                t.element.Trim()
+                |> ArgLexer.Tokenize
+                -> @(a)({ type: shell.node.literal, node: a }),
+
+            shell.token.expression: [ { type: shell.node.expression, node: t.element } ],
+            shell.token.concat: [ { type: shell.node.concat, node: t.element } ],
+            fatal('Unknown token type');
+
+    shell.emitCommand = @(commandAst) {
+        _initTrace('Emit');
+
+        var commandObj = {
+            ast: commandAst,
+            code: commandAst != null && commandAst.Count >= 1 ?
+                (commandAst[0].type == shell.node.expression ? 
+                    commandAst[0].node.Code : commandAst[0].node.ToString()) :
+                null,
+            values: [],
+            resolved:
+                commandAst != null &&
+                commandAst.Count == 1 &&
+                commandAst[0].type == shell.node.expression,
+        };
+
+        var index = -1;
+
+        while (++index < commandAst.Count) {
+            var node = commandAst[index];
+
+            switch (node.type) {
+                shell.node.concat: { 
+                    var appendValue = commandAst[++index] |> shell.emitCommandNode;
+                
+                    traceEmit(
+                        'Appending {0} with {1}',
+                        commandObj.values[commandObj.values.Count - 1],
+                        appendValue);
+
+                    commandObj.values[commandObj.values.Count - 1] += appendValue;
+                }
+
+                default: node |> shell.emitCommandNode |> commandObj.values.add
+            }
+        }
+
+        ret commandObj;
+    };
+
+    shell.emitCommandNode = @(commandNode)
+        $(commandNode.type)
+            shell.node.literal: commandNode.node,
+            shell.node.expression: commandNode.node |> shell.interpret,
+            fatal('Invalid command node');
+
+    shell.initCwd = @(path) {
+        shell.cwd = Directory.GetCurrentDirectory();
+        shell.setPSCwd();
+    };
+
+    shell.getClrCwd = Directory.GetCurrentDirectory;
+    shell.setClrCwd = @() Directory.SetCurrentDirectory(shell.cwd);
+    shell.getPSCwd = @() psContext.getItem(".\\")[0].BaseObject.FullName;
+    shell.setPSCwd = @() psContext.execPositional([ 'Set-Location', shell.cwd ]);
+
+    shell.interpretCommand = @(commandObj) {
+        //commandObj |>dump;
+        // commandObj |> keys |> dumpe;
+        var result = null;
+
+        _initTrace('Resolve');
+
+        traceResolve(
+            'Beginning resolution for command {0}',
+            commandObj.values[0]);
+
+        if (!(shell.cwd defined)) {
+            shell.initCwd();
+        }
+
+        var lastCwd = shell.cwd;
+
+        if (commandObj.resolved) {
+            ret commandObj.values[0];
+        }
+
+        // AphidCli.TryAction(
+        //     shell.interpreter,
+        //     commandObj.code,
+        //     @{
+                var tmpCwd;
+                traceResolve('Resolving command {0} args', commandObj.values[0]);
+                var args = (commandObj.values @aq.skip(1) -> shell.resolveMember);
+
+                // traceResolve(
+                //     'Resolving command {0} with args {1}',
+                //     commandObj.values[0],
+                //     args |> serialize);
+
+                var resolved = shell.resolveMethod(commandObj.values[0], args);
+
+                if (resolved != null) {
+                    traceResolve('Calling resolved method {0}', resolved.call);
+                    result = args |> resolved.call;
+
+                    if ((tmpCwd = shell.getClrCwd()) != lastCwd) {
+                        shell.cwd = tmpCwd;
+                        shell.setPSCwd();
+                    }
+                } else {
+                    traceResolve('Resolving as positional argument');
+                    result = commandObj.values |> psContext.execPositional;
+
+                    if (!result.success) {
+                        if (commandObj.values.Count == 1 &&
+                            (resolved = shell.resolveMember(commandObj.values[0])) != null) {
+                            result = resolved;
+
+                            ret result;
+                        } else {
+                            'Error executing command {0}: {1}' :: [ commandObj.values[0], result.error ]
+                            |> shell.outLine;
+                        }
+                    }
+
+                    // traceResolve('Importing object: {0}', result |> serialize);
+                    result = result.obj |> psContext.importPSObject;
+
+                    // traceResolve('Imported object: {0}', result |> serialize);
+
+                    if ((tmpCwd = shell.getPSCwd()) != lastCwd) {
+                        shell.cwd = tmpCwd;
+                        shell.setClrCwd();
+                    }
+                }
+            // });
+
+        ret result;
+    };
+
+    shell.resolveImpl = @(isResolvingMethod, path, resolveArgs) {
+        _initTrace('Resolve');
+        var matches;
+        var resolved = null;
+
+        // traceResolve(
+        //         "Resolving {0} '{1}' with {2}",
+        //         isResolvingMethod ? 'method' : 'member',
+        //         path,
+        //         resolveArgs |> serialize);
+
+        shell.resolvers for (r) {
+            traceResolve(
+                "Resolving {0} '{1}' using {2} with {3} args",
+                isResolvingMethod ? 'method' : 'member',
+                path,
+                r.name,
+                resolveArgs != null ? (resolveArgs #!) : 'null');
+
+            if (resolveArgs != null) {
+                resolveArgs->@traceResolve('  Arg: {0}');
+            }
+
+            if ((matches = path |> r.resolveName) != null) {
+                if (!isResolvingMethod) {
+                    // traceResolve('Resolved path {0} to {1}', path, matches |> serialize);
+
+                    ret matches;                    
+                } else if ((resolved = r.resolveSignature(matches, resolveArgs)) != null) {
+                    // traceResolve(
+                    //     'Resolved signature {0} to {1}',
+                    //     path,
+                    //     resolved |> serialize);
+
+                    ret resolved;
+                }
+            }
+        };
+
+        if (isResolvingMethod) {
+            traceResolve('Failed resolving method');
+            ret null;
+        }
+
+        traceResolve('Failed resolving path {0}, falling back to PS', path);
+        var psResult = path |> psContext.getItem;
+        //psResult @print('~Yellow~PS backup: {0}~R~');
+        var final = (isResolvingMethod ? shell.resolvePSCmd : shell.resolvePSItem)(path, psResult);
+        //final @print('~Yellow~PS backup: {0}~R~');
+
+        ret final;
+    };
+
+    shell.resolvePSCmd = @(path, psResult)
+        psResult != null && psResult.Count > 1 ? psResult : 
+        psResult != null && psResult.Count > 0 ? psResult[0] :null;
+
+    shell.resolvePSItem = @(path, psResult)
+        psResult != null && psResult.Count > 1 ? psResult : 
+        psResult != null && psResult.Count > 0 ? psResult[0] :
+        path != null ? path.ToString() :
+        null;
+
+    shell.resolveMethod = @(path, resolveArgs) shell.resolveImpl(true, path, resolveArgs);
+    shell.resolveMember = @(path, resolveArgs) shell.resolveImpl(false, path, resolveArgs);
+
+    shell.resolvers = [
+        {
+            name: 'Aphid',
+            resolveName: @(name) {
+                _initTrace('Resolve');
+                var nameTokens;
+
+                try {
+                    traceResolve('Attempting Aphid tokenization');
+                    nameTokens = name |> tokenize;
+                    traceResolve('Aphid tokenization succeeded');
+                } catch (e) {
+                    traceResolve('Aphid tokenization failed');
+                }
+
+                if (nameTokens defined && nameTokens != null && nameTokens.Count >= 1) {
+                    try {
+                        traceResolve('Attempting Aphid parsing');
+                        var ast = AphidParser.Parse(name);
+
+                        traceResolve('Attempting Aphid interpretation');
+                        var result = ast != null && ast.Count == 1 ?
+                                ast[0] |> shell.interpret :
+                                null;
+
+                        if (result != null) {
+                            traceResolve('Aphid resolved to {0}' :: [ result.GetType() ]);
+                            ret result;
+                        }
+                    } catch (e) {
+                        traceResolve(
+                            'Aphid resolve failed with exception: {0}',
+                            e.message)
+                            // e |> serialize);
+                    }
+                } else {
+                    _initTrace('Resolve');
+                    traceResolve('Aphid resolve failed due to invalid command');
+                }
+                
+                ret null;
+            },
+
+            resolveSignature: @(nameMatches, signature) {
+                _initTrace('Resolve');
+                var r = { value: nameMatches };
+
+                // Todo: handle Aphid objects
+                var type = (@() nameMatches.GetType()) ?| null;
+
+                if (type == null) {
+                    ret null;
+                }
+
+                switch (type) {
+                    AphidFunction: {
+                        r.call =  @(args) {
+                            traceResolve(
+                                'Calling aphid function {0}',
+                                nameMatches.ToString());
+
+                            ret shell.interpreter.CallFunction(nameMatches, args);
+                        };
+                    
+                        ret r;
+                    }
+
+                    AphidInteropMember: {
+                        try {
+                            r.methodInfo = shell.interpreter.InteropMethodResolver.Resolve(
+                                nameMatches.Members,
+                                signature->psContext.unwrap);
+                        } catch(e) {
+                            traceResolve('Error resolving method: {0}', e.message);
+                            ret null;
+                        }
+
+                        if (r.methodInfo == null) {
+                            ret null;
+                        }
+
+                        r.call =  @(args) {
+                            // print('calling interop function {0}', r.value.Expression);
+                            // head('test');
+                            //exit();
+                        
+
+                            ret shell.interpreter.CallInteropFunction(
+                                r.value.Expression,
+                                r.methodInfo,
+                                r.value);
+                        };
+
+                        ret r;
+                    }
+                }
+            },
+        },
+        {
+            name: 'Powershell',
+            resolveName: @(path) path |> psContext.getItem @shell.resolvePSItem(path),
+            // resolveSignature: @(nameMatches, signature) ({
+            //     value: nameMatches,
+            //     call: @(args) { head('foo');exit(); }
+            // })
+
+            resolveSignature: @(nameMatches, signature) null,
+        }
+    ];
+
+    // Todo: check for assignments, includes, etc. and handle 
+    // accordingly rather than dumping everything to out
+    shell.dumpObject = @{
+        _initTrace('Exec');
+        // traceExec('Dumping object: {0}', $_ |> serialize);
+        
+        ret $_
+        |> psContext.restorePSObject
+        |> psContext.outString
+        |> Cli.StyleEscape;
+    } ;
+
+    shell.inLine = Console.ReadLine;
+    shell.out = Cli.Write;
+    shell.outLine = Cli.WriteLine;
+
+    shell.evalCommand =
+        tokenizeCommand
+        @> shell.parseCommand 
+        @> shell.emitCommand 
+        @> shell.interpretCommand;
+
+    shell.execCore = @(command) {
+        _initTrace('Exec');
+        traceExec('Executing command {0}', command);
+        var peekTokens = command |> tokenize;
+
+        _stdExec = macro(@{
+            command @traceExec('Executing standard command: {0}');
+
+            ret command |> shell.evalCommand |> shell.dumpObject |> shell.out;
+        });
+
+        if (peekTokens.Count >= 1 &&
+            (peekTokens[0].TokenType == AphidTokenType.LoadScriptOperator ||
+            peekTokens[0].TokenType == AphidTokenType.usingKeyword)) {
+            command @traceExec('Executing load script command: {0}');
+
+            ret shell.interpret(command);
+        } else if (!command.Trim().StartsWith('$') && command.Contains('=')) {
+            var lhsAst = null;
+            var opIndex = '=' |> command.IndexOf;
+            traceExec('Assign index: {0}', opIndex);
+            var lhs = (opIndex |> command.Remove).Trim();
+            traceExec('LHS: {0}', lhs);
+            var rhs = (opIndex + 1 |> command.Substring).Trim();
+            traceExec('RHS: {0}', rhs);
+
+            try lhsAst = AphidParser.Parse(lhs);
+            catch (e) traceExec('Error parshing lhs of {0}: {1}', lhs, e.message);
+
+            if (lhsAst != null &&
+                lhsAst.Count == 1 &&
+                // (lhsAst[0].isBinOp() || lhsAst[0].isId())) {
+                (lhsAst[0].Type == AphidExpressionType.BinaryOperatorExpression ||
+                    lhsAst[0].Type == AphidExpressionType.IdentifierExpression)) {
+                command @traceExec('Executing assign command: {0}');
+                var key = 'tmp_' + Guid.NewGuid().ToString().Replace('-', '_');
+                shell.interpreter.CurrentScope.{key} = rhs |> shell.evalCommand;
+                var assign = '{0}=this.{1}; delete {1}' :: [ lhs, key ];
+                assign @traceExec('Running assign script: {0}');
+                shell.interpret(assign);
+
+                ret null;
+            } else {
+                _stdExec();
+            }
+        } else {
+            _stdExec();
+        }
+
+        traceExec('~Red~Error~R~');
+    };
+
+    shell.exec = @(command) {
+        switch (command) {
+            'exit': ret false;
+            '': ret true;
+        }
+
+        AphidCli.TryAction(
+            shell.interpreter,
+            command,
+            @{ command |> shell.execCore });
+
+        try psContext.engine.Commands.Clear();
+        catch (e) Console.WriteLine(
+            'Error clearing PS commands: {0}\r\n\r\n{1}',
+            e.message,
+            e.stack);
+
+        ret true;
+    };
+
+    // Todo: replace with proper lexing/parsing to allow Aphid expressions
+    // that span multiple lines, ops such as |, and ; delimited statements.
+    shell.execScript = @(script) script |> shell.parseScript -> shell.exec;
+
+    shell.parseScript = @(script) script 
+        .Split([ '\r', '\n' ], StringSplitOptions.RemoveEmptyEntries)
+        ->(@() $_.removeAtIndexOf('//').Trim())
+        -?(@() !String.IsNullOrEmpty($_));
+
+    shell.style = {
+        cwd: { foreground: ConsoleColor.White },
+        hostBegin: { token: '[', foreground: ConsoleColor.Gray },
+        hostEnd: { token: '] ', foreground: ConsoleColor.Gray },
+        host: { foreground: ConsoleColor.Green },
+        promptEnd: { token: '> ', foreground: ConsoleColor.Gray },
+    };
+
+    _promptToken = macro(@(name) { _promptStyle(shell.style.name.token, name) });
+
+    _promptStyle = macro(@(value, name) {
+        var id(name, 'HasStyle') = false;
+
+        if (shell.style.name defined) {
+            if (shell.style.name.foreground defined) {
+                prompt += '~' + shell.style.name.foreground + '~';
+                id(name, 'HasStyle') = true;
+            }
+
+            if (shell.style.name.background defined) {
+                prompt += '~|' + shell.style.name.background + '~';
+                id(name, 'HasStyle') = true;
+            }
+        }
+    
+        prompt += value;
+
+        if (id(name, 'HasStyle')) {
+            prompt += '~R~';
+        }
+    });
+
+    shell.listen = @{
+        using System.IO;
+        shell.inStream = new MemoryStream();
+        shell.inReader = new StreamReader(inStream);
+        shell.inWriter = new StreamWriter(inStream);
+    
+        shell.outStream = new MemoryStream();
+        shell.outReader = new StreamReader(outStream);
+        shell.outWriter = new StreamWriter(outStream);
+
+        shell.hostTraceSync = new Object();
+        shell.stdOut = new StreamWriter(Console.OpenStandardOutput());
+
+        shell.hostTrace = @(msg){
+            lock(hostTraceSync) {
+                var id = Thread.CurrentThread.ManagedThreadId;
+                shell.stdOut.WriteLine('[{0:x8}] {1}' :: [ id, msg ]);
+                shell.stdOut.Flush();
+            }
+        };
+
+        shell.writeOut = @(buffer) {
+            // while (shell.waitingForOutput) {
+            //     //ret null;
+            //     Thread.Sleep(10);
+            // }
+            // ThreadPool.QueueUserWorkItem(@{
+                hostTrace('Waiting to write out');
+                Monitor.Enter(outStream);
+                
+                hostTrace('Writing out: {0}' :: [ buffer.ToString() |> Cli.EraseStyles ]);
+
+                outWriter.Write(buffer.ToString());
+                outWriter.Flush();
+                
+                hostTrace('Done writing out');
+                Monitor.Exit(outStream);
+                shell.waitingForOutput = true;
+            // });
+        };
+
+        shell.readOut = @{
+            
+            var buffer;
+
+            //Console.WriteLine('Waiting for read out signal');
+
+            // while (!shell.waitingForOutput) {
+            //     ret null;
+            //     // Thread.Sleep(10);
+            // }
+
+            // hostTrace('Trying to read out');
+
+            while (true) {
+                Monitor.Enter(outStream);
+
+                if (outStream.Length == 0) {
+                    Monitor.Exit(outStream);
+                    // hostTrace('read out sleeping');
+                    // Thread.Sleep(10);
+                    // continue;
+                    ret null;
+                }
+
+                outStream.Position = 0;
+                buffer = outReader.ReadToEnd();
+                hostTrace('Done reading out: {0}' :: [ buffer |> Cli.EraseStyles ]);
+                outStream.SetLength(0);
+
+                // if (shell.waitingForInput)
+                
+
+                Monitor.Exit(outStream);
+                shell.waitingForOutput = false;
+                break;
+            }
+
+            ret buffer;
+        };
+
+        shell.writeInLine = @(buffer) {
+            // ThreadPool.QueueUserWorkItem(@{
+                Monitor.Enter(inStream);
+                inWriter.Write(buffer + '\r\n');
+                inWriter.Flush();        
+                Monitor.Exit(inStream);
+            // });
+        };
+
+        shell.readInLine = @() {
+            hostTrace('Waiting to read inLine');
+            var buffer = null;
+
+            while (true) {
+                Monitor.Enter(inStream);
+
+                if (inStream.Length == 0) {
+                    Monitor.Exit(inStream);
+                    Thread.Sleep(10);
+                    continue;
+                }
+            
+                hostTrace('Reading inLine');
+                var oldPos = inStream.Position;
+                inStream.Position = 0;
+                buffer = inReader.ReadToEnd();
+                
+                hostTrace('Done reading inLine: {0}' :: [ buffer ]);
+
+                if (buffer == null || !buffer.EndsWith('\r\n')) {
+                    inStream.Position = oldPos;
+                    Monitor.Exit(inStream);
+                    Thread.Sleep(10);
+                    continue;
+                }
+            
+                inStream.Position = 0;
+                inStream.SetLength(0);
+                Monitor.Exit(inStream);
+                hostTrace('Done resetting inLine');
+                break;
+            }
+
+            ret buffer;
+        };
+
+
+        shell.out = shell.writeOut;
+        shell.outLine = @(buffer) shell.writeOut(buffer + '\r\n');
+        shell.inLine = shell.readInLine;
+        AphidCli.WriteOut = shell.out;
+        AphidCli.WriteLineOut = shell.outLine;
+        using Components.External.ConsolePlus;
+        Cli.WriteHandler = shell.writeOut;
+        Cli.WriteLineHandler = @(buffer) shell.writeOut(buffer + '\r\n');
+
+        ret true;
+    };
+
+    shell.interpreter.CurrentScope.shell = {};
+    shell.interpreter.CurrentScope.shell.exec = shell.exec;
+    shell.interpreter.CurrentScope.shell.execCore = shell.execCore;
+    shell.interpreter.CurrentScope.shell.evalCommand = shell.evalCommand;
+    shell.interpreter.CurrentScope.shell.psContext = psContext;
+    shell.interpret('@ &| (interopCommand) interopCommand |> shell.evalCommand');
+    //shell |> keys -> @(k) shell.interpreter.CurrentScope.shell.{k} = shell.{k};
+
+    if (useTracing defined && useTracing) shell.trace();
+
+    _shellTry = macro(@(action, friendlyName) {
+        try action;
+        catch (e) shell.out(
+            'Error ' + friendlyName + ': {0}\r\n\r\n{1}',
+            e.message,
+            e.stack);
+    });
+
+    var args = getCommandLineArgs() |> Enumerable.ToList;
+    
+    if (args =? @() Path.GetFileName($_).ToLower() == 'shell.alx') {
+        if (args.Contains('-interactive')) {
+            //shell.trace();
+            shell.run();
+            exit();
+        } else if (args.Contains('-script')) {
+            args = Enumerable
+                .SkipWhile(args, @(x) x != '-script')
+                @() Enumerable.Skip($_, 1);
+
+            var script = Enumerable.Take(args, 1) |> Enumerable.Single;
+            var scriptArgs = Enumerable.Skip(args, 1);
+            //dumpe({ script, scriptArgs });
+            script |> File.ReadAllText |> shell.execScript;
+        } else if (args.Contains('-test')) {
+            testScript -?(@() $_.isText()) ->@.Text |> concat |> shell.execScript;
+            testPrologue();
+        }
+    }
+}();

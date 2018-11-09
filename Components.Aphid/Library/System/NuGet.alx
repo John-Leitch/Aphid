@@ -1,0 +1,153 @@
+var installPackage;
+var nuget;
+
+@{
+    using Components.Aphid.TypeSystem;
+    using System.Reflection;
+    using System.Collections.Generic;
+    var nugetExe = Path.Combine(Path.GetDirectoryName(AphidObject.Assembly.Location), 'nuget.exe');
+    var nugetUrl = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe';
+
+    if (!File.Exists(nugetExe)) {
+        using System.Net;
+        (new WebClient()).DownloadFile(nugetUrl, nugetExe);
+    }
+
+    if (load nugetExe == null) {
+        fatal('Failed loading Nuget.Core');
+    }
+
+    using NuGet;
+
+    nuget = {
+        repoUrl: "https://packages.nuget.org/api/v2",
+        customResolver: false,
+        isResolveSet: false,
+        trace: false,
+        ignoreDependencies: false,
+        allowPrereleaseVersions: true,
+        refMap: new Dictionary[string, string](),
+        createRepo: @() PackageRepositoryFactory.Default.CreateRepository(repoUrl),
+        createPackageManager: @() new PackageManager(createRepo(), '.\\'),
+        getLocalPackages: @() createPackageManager().LocalRepository.GetPackages(),
+        
+        reference: @(packageId) {
+            if ($args.Count > 1) {
+                ret $args-<reference;
+            }
+
+            var packages = getLocalPackages() -? (@(x) x.Id == packageId) -/ @.Version;
+
+            if (packages #! @== 0) {
+                installPackage(packageId);
+
+                ret reference(packageId);
+            } else {
+                var p = packages ^!;
+                var d = '{0}.{1}' :: [ p.Id, p.Version ] |> Path.GetFullPath;
+                
+                var refAsmGroups = p.AssemblyReferences
+                    -<(@(r) $_.SupportedFrameworks->(@()({
+                        path: r, name: $_.FullName, version: $_.Version
+                    })))
+                    -&@.name;
+
+                var filtered = refAsmGroups -? @() $_.Key.StartsWith('.NETFramework');
+
+                var refAsmPaths = ((filtered #!) != 0 ? filtered : refAsmGroups)
+                    -/@.Key
+                    ^!
+                    ->@() Path.Combine(d, $_.path);
+
+                var badAsms = refAsmPaths-?(@(x) !File.Exists(x));
+
+                if (badAsms #! @!= 0) {
+                     fatal('Bad asms: {0}', badAsms @join(', '));
+                     exit(0xbad01);
+                }
+
+                refAsmPaths->@(a) {
+                    var key = a |> Path.GetFileNameWithoutExtension;
+                    traceInfo('Adding ~Magenta~{0}~R~:~Cyan~{1}~R~ to map', key, a);
+                    refMap.Add(key, a);
+                };
+
+                if (customResolver && !isResolveSet) {
+                    AppDomain.CurrentDomain.add_AssemblyResolve(@(o, e) {
+                        trace('Resolving ~Cyan~{0}~R~', e.Name);
+                        var an = new AssemblyName(e.Name);
+                        
+                        // var key = !an.Name.EndsWith('.resources') ?
+                        //     an.Name :
+                        //     an.Name.Remove(an.Name.Length - '.resources'.Length);
+
+                        var key = an.Name;
+
+                        if (refMap.ContainsKey(key)) {
+                            traceSuccess('Assembly in map');
+                            var asm = refMap.get_Item(key) |> Assembly.LoadFrom;
+                            traceSuccess('Resolved from map: ~Cyan~{0}~R~', asm);
+
+                            ret asm;
+                        } else {
+                            traceQuery('Assembly not in map');
+                            var asm = Assembly.LoadFrom(e.Name);
+                            
+                            if (asm != null) {
+                                traceSuccess('Assembly loaded: ~Cyan~{0}~R~', asm);
+                            } else {
+                                traceError('Failed loading assembly: ~Yellow~{0}~R~', e.Name);
+                            }
+
+                            ret asm;
+                        }
+                    });
+
+                    isResolveSet = true;
+                }
+
+                ret refAsmPaths->Assembly.LoadFrom;
+            }
+        },
+    };
+
+    installPackage = @(packageId)
+        nuget
+            .createPackageManager()
+            .InstallPackage(
+                packageId,
+                null,
+                nuget.ignoreDependencies,
+                nuget.allowPrereleaseVersions);
+}();
+
+// Todo: replace with preprocessor looping support
+traceInfo = macro(@(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+    if (nuget.trace) {
+        printInfo(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+    }
+});
+
+traceQuery = macro(@(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+    if (nuget.trace) {
+        printQuery(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+    }
+});
+
+trace = macro(@(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+    if (nuget.trace) {
+        print(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+    }
+});
+
+traceSuccess = macro(@(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+    if (nuget.trace) {
+        printSuccess(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+    }
+});
+
+traceError = macro(@(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+    if (nuget.trace) {
+        printError(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+    }
+});
