@@ -35,23 +35,23 @@ var wmi;
                 ret results.Count == 1 ? results[0] : results;
             }
 
-            var searcher = new ManagementObjectSearcher(wmiQuery);
-            var results = searcher.Get().toList();
+            using (var searcher = new ManagementObjectSearcher(wmiQuery)) {
+                var results = searcher.Get().toList();
+                ret results->@(mo) {
+                    var ao = { wmiObj: mo };
 
-            ret results->@(mo) {
-                var ao = { wmiObj: mo };
+                    var allProps = [$_.SystemProperties, $_.Properties]
+                        -<(@()$_.toList());
 
-                var allProps = [$_.SystemProperties, $_.Properties]
-                    -<(@()$_.toList());
+                    allProps
+                        ->@(p) (preserveFixedNames ?
+                            @() [ p.Name, wmi.fixName(p.Name) ] :
+                            @() [ wmi.fixName(p.Name) ])()
+                            !?->@(n) ao.{n} = p.Value;
 
-                allProps
-                    ->@(p) (preserveFixedNames ?
-                        @() [ p.Name, wmi.fixName(p.Name) ] :
-                        @() [ wmi.fixName(p.Name) ])()
-                        !?->@(n) ao.{n} = p.Value;
-
-                ret ao;
-            };
+                    ret ao;
+                };
+            }
         },
 
         isSystemName: @(n)
