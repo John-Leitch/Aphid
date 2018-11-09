@@ -551,11 +551,22 @@
     <Compile Include="Interpreter\AphidLibraryAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Aphid.alx" />
-    <None Include="Aphid.Code.alx" />
-    <None Include="Aphid.Tokens.alx" />
-    <None Include="Aphid.Tmpl.alx" />
+    <None Include="Library\Meta\Code\Aphid\Aphid.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\Aphid.Code.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\Aphid.Tokens.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\Aphid.Tmpl.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Core\Enums.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Testing\ClrTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Parser\ParserErrorMessageInterop.alx">
@@ -679,7 +690,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="AphidCustomOperators.alx" />
+    <None Include="Library\Meta\Code\Aphid\AphidCustomOperators.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Tools\MakeExe.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

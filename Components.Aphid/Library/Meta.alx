@@ -644,9 +644,7 @@ var loadTokenDetails;
     loadTokenDetails = @{
         var getNumber = @() $_;
         var getString = @() $_;
-        //@{%> c:\source\Aphid\Components.Aphid\Aphid.Tokens.alx <%}[1].Text.Trim() |> serialize |> print
-        #'c:\\source\\Aphid\\Components.Aphid\\Aphid.Tokens.alx';
-
+        #'Meta/Code/Aphid/Aphid.Tokens';
         ret tokens;
     };
 }(); 
