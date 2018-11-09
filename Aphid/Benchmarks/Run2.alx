@@ -1,15 +1,15 @@
 ﻿#'Std';
 
-exec(ArithmeticBenchmark);
-//exec(OperatorBenchmark);
-exec(CallBenchmark);
-exec(ListBenchmark);
-exec(ClrInstanceBenchmark);
-exec(CustomOperatorBenchmark);
-//exec(ConditionalBenchmark);
-exec(IncludeBenchmark);
+exec("ArithmeticBenchmark");
+exec("OperatorBenchmark");
+exec("CallBenchmark");
+exec("ListBenchmark");
+exec("ClrInstanceBenchmark");
+//exec("CustomOperatorBenchmark");
+exec("ConditionalBenchmark");
+exec("IncludeBenchmark");
 
-execOne = macro(@(n) { @{ #quote(n) + ".alx" }() });
+execOne = macro(@(n) { @{ #(n + ".alx") }() });
 
 exec = macro(@(n) {
     execOne(n);
