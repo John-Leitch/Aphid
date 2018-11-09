@@ -118,6 +118,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -307,9 +308,6 @@
     <None Include="Samples\HelloWorld.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Test\TestTools.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
@@ -317,6 +315,7 @@
       <Name>Components.Aphid</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <!-- <ItemGroup> -->
   <!-- <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1"> -->
   <!-- <Visible>False</Visible> -->
