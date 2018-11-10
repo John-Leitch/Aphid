@@ -226,6 +226,9 @@ namespace Components.Aphid.TypeSystem
         }
 
         private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj) =>
+            GetPropertyInfo(obj, allProperties: false);
+
+        private static IEnumerable<AphidPropertyInfo> GetPropertyInfo(object obj, bool allProperties) =>
             obj
                 .GetType()
                 .GetProperties()
@@ -237,9 +240,9 @@ namespace Components.Aphid.TypeSystem
                         .OfType<AphidPropertyAttribute>()
                         .FirstOrDefault(),
                 })
-                .Where(x => x.AphidProperty != null)
+                .Where(x => x.AphidProperty != null || allProperties)
                 .Select(x => new AphidPropertyInfo(
-                    x.AphidProperty.Name ?? x.Property.Name,
+                    x?.AphidProperty?.Name ?? x.Property.Name,
                     x.Property));
 
         private IEnumerable<AphidPropertyValuePair> GetPropertyValuePairs(object obj) =>
@@ -353,9 +356,17 @@ namespace Components.Aphid.TypeSystem
 
         public static AphidObject ConvertFrom(Type t, object o)
         {
+            return ConvertFrom(t, o, allProperties: false);
+        }
+
+        public static AphidObject ConvertFrom(Type t, object o, bool allProperties)
+        {
             IEnumerable enumerable;
 
-            if (t == typeof(sbyte) ||
+            if (t.IsPrimitive ||
+                t == typeof(string) ||
+                t == typeof(decimal) ||
+                t == typeof(sbyte) ||
                 t == typeof(byte) ||
                 t == typeof(short) ||
                 t == typeof(ushort) ||
@@ -366,10 +377,6 @@ namespace Components.Aphid.TypeSystem
                 t == typeof(float) ||
                 t == typeof(double))
             {
-                return Scalar(Convert.ToDecimal(o));
-            }
-            else if (t.IsPrimitive || t == typeof(string) || t == typeof(decimal))
-            {
                 return Scalar(o);
             }
             else if ((enumerable = o as IEnumerable) != null)
@@ -378,7 +385,7 @@ namespace Components.Aphid.TypeSystem
 
                 foreach (var element in enumerable)
                 {
-                    items.Add(ConvertFrom(element.GetType(), element));
+                    items.Add(ConvertFrom(element.GetType(), element, allProperties));
                 }
 
                 return Scalar(items);
@@ -387,7 +394,7 @@ namespace Components.Aphid.TypeSystem
             {
                 var ao = Complex();
 
-                foreach (var p in GetPropertyInfo(o))
+                foreach (var p in GetPropertyInfo(o, allProperties))
                 {
                     var val = ConvertFrom(p.Property.PropertyType, p.Property.GetValue(o, null));
                     ao.Add(p.Name, val);
@@ -397,7 +404,11 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public static AphidObject ConvertFrom<T>(T o) => ConvertFrom(typeof(T), o);
+        public static AphidObject ConvertFrom<T>(T o) =>
+            ConvertFrom(typeof(T), o, allProperties: false);
+
+        public static AphidObject ConvertFrom<T>(T o, bool allProperties) =>
+            ConvertFrom(typeof(T), o, allProperties);
 
         public AphidObject Resolve(AphidInterpreter interpreter, string key, string errorMessage = null)
         {
