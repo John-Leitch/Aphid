@@ -17,7 +17,6 @@ namespace Components.External.ConsolePlus
             //MaxMessageBufferLength = 0x1 << 0x1e;
             MaxMessageBufferLength = 0x1000;
 
-
         private const string _messageFormat = "[~{0}~{1}~R~] {2}";
 
         public const char QueryChar = '?',
@@ -28,13 +27,13 @@ namespace Components.External.ConsolePlus
           ErrorChar = '-',
           FatalErrorChar = 'x';
 
-        private const string nameHeader = "Name";
+        private const string _nameHeader = "Name";
 
-        private const string valueHeader = "Value";
+        private const string _valueHeader = "Value";
 
-        private static int maxNameLength;
+        private static int _maxNameLength;
 
-        private static int maxValueLength;
+        private static int _maxValueLength;
 
         private static object _syncObject = new object();
 
@@ -84,6 +83,11 @@ namespace Components.External.ConsolePlus
         {
             get
             {
+                if (EnableUserBufferWidth)
+                {
+                    return UserBufferWidth;
+                }
+
                 try
                 {
                     return Console.BufferWidth;
@@ -99,6 +103,11 @@ namespace Components.External.ConsolePlus
         {
             get
             {
+                if (EnableUserBufferHeight)
+                {
+                    return UserBufferHeight;
+                }
+
                 try
                 {
                     return Console.BufferHeight;
@@ -109,6 +118,14 @@ namespace Components.External.ConsolePlus
                 }
             }
         }
+
+        public static bool EnableUserBufferWidth { get; set; }
+
+        public static int UserBufferWidth { get; set; } = BufferWidth;
+
+        public static bool EnableUserBufferHeight { get; set; }
+
+        public static int UserBufferHeight { get; set; } = BufferHeight;
 
         public static Action<string> WriteHandler { get; set; }
 
@@ -130,18 +147,18 @@ namespace Components.External.ConsolePlus
 
             try
             {
-                SetLengths(BufferWidth);
+                SetDumpLengths(BufferWidth);
             }
             catch (IOException)
             {
-                SetLengths(100);
+                SetDumpLengths(100);
             }
         }
 
-        private static void SetLengths(int consoleWidth)
+        public static void SetDumpLengths(int consoleWidth)
         {
-            maxNameLength = (int)Math.Floor(((double)consoleWidth - 3) / 2);
-            maxValueLength = (int)Math.Ceiling(((double)consoleWidth - 4) / 2);
+            _maxNameLength = (int)Math.Floor(((double)consoleWidth - 3) / 2);
+            _maxValueLength = (int)Math.Ceiling(((double)consoleWidth - 4) / 2);
         }
 
         /// <summary>
@@ -204,28 +221,28 @@ namespace Components.External.ConsolePlus
             const int paddingSize = 0;
             var longestNameLength = nameValuePairs.OrderByDescending(x => x.Key.Length).First().Key.Length;
 
-            if (longestNameLength < nameHeader.Length)
+            if (longestNameLength < _nameHeader.Length)
             {
-                longestNameLength = nameHeader.Length;
+                longestNameLength = _nameHeader.Length;
             }
-            else if (longestNameLength > maxNameLength)
+            else if (longestNameLength > _maxNameLength)
             {
-                longestNameLength = maxNameLength;
+                longestNameLength = _maxNameLength;
             }
 
             var longestValueLength = nameValuePairs.OrderByDescending(x => x.Value.Length).First().Value.Length;
 
-            if (longestValueLength < valueHeader.Length)
+            if (longestValueLength < _valueHeader.Length)
             {
-                longestValueLength = valueHeader.Length;
+                longestValueLength = _valueHeader.Length;
             }
-            else if (longestValueLength > maxValueLength)
+            else if (longestValueLength > _maxValueLength)
             {
-                longestValueLength = maxValueLength;
+                longestValueLength = _maxValueLength;
 
-                if (longestNameLength < maxNameLength)
+                if (longestNameLength < _maxNameLength)
                 {
-                    longestValueLength += maxNameLength - longestNameLength;
+                    longestValueLength += _maxNameLength - longestNameLength;
                 }
             }
 
@@ -240,9 +257,9 @@ namespace Components.External.ConsolePlus
 
             Func<string, string, bool, string> createRow = (name, value, header) =>
             {
-                if (name.Length > maxNameLength)
+                if (name.Length > _maxNameLength)
                 {
-                    name = name.Remove(maxNameLength - 3) + "~Yellow~...~R~";
+                    name = name.Remove(_maxNameLength - 3) + "~Yellow~...~R~";
                 }
 
                 if (value.Length > longestValueLength)
@@ -270,7 +287,7 @@ namespace Components.External.ConsolePlus
                 .Aggregate((x, y) => x + newLine + y);
 
             WriteLine(hrTop + newLine +
-                createRow(nameHeader, valueHeader, true) + newLine +
+                createRow(_nameHeader, _valueHeader, true) + newLine +
                 hrMiddle + newLine +
                 rows + newLine +
                 hrBottom);
@@ -291,7 +308,7 @@ namespace Components.External.ConsolePlus
 
         public static IEnumerable<KeyValuePair<string, string>> CreateTable(object obj, bool escapeLines)
         {
-            Func<PropertyInfo, string> tryGet = x =>
+            Func<dynamic, string> tryGet = x =>
             {
                 try
                 {
@@ -308,7 +325,14 @@ namespace Components.External.ConsolePlus
             };
             var t = obj.GetType();
             return t
-                .GetProperties()
+                .GetMembers(
+                    BindingFlags.Public |
+                    BindingFlags.Instance |
+                    BindingFlags.Static |
+                    BindingFlags.FlattenHierarchy)                
+                .Where(x =>
+                    x.MemberType == MemberTypes.Field ||
+                    x.MemberType == MemberTypes.Property)
                 .Select(x => new KeyValuePair<string, string>(
                     x.Name,
                     escapeLines ?
@@ -775,6 +799,22 @@ namespace Components.External.ConsolePlus
                 FatalErrorChar,
                 format,
                 arg);
+        }
+
+        public static void Clear()
+        {
+            lock (_syncObject)
+            {
+                Console.Clear();
+            }
+        }
+
+        public static void Lock(Action action)
+        {
+            lock (_syncObject)
+            {
+                action();
+            }
         }
     }
 }
