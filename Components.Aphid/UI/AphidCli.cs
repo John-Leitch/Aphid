@@ -637,17 +637,17 @@ namespace Components.Aphid.UI
         {
             var result = serializer.Serialize(interpreter.ValueHelper.Wrap(value));
 
-            if(result.StartsWith("clrObject("))
-            {
-                string json;
+            //if(result.StartsWith("clrObject("))
+            //{
+            //    string json;
 
-                try
-                {
-                    json = JsonSerializer.Serialize(interpreter.ValueHelper.Unwrap(value));
-                    result = json;
-                }
-                catch { }
-            }
+            //    try
+            //    {
+            //        json = JsonSerializer.Serialize(interpreter.ValueHelper.Unwrap(value));
+            //        result = json;
+            //    }
+            //    catch { }
+            //}
 
             return
                 (ignoreClrObj && result.StartsWith("clrObject(")) ||
