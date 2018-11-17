@@ -1,4 +1,0 @@
-var namespace_components_1_1_aphid_1_1_v_s_package_1_1_test_language_package =
-[
-    [ "AphidPackage", "class_components_1_1_aphid_1_1_v_s_package_1_1_test_language_package_1_1_aphid_package.html", "class_components_1_1_aphid_1_1_v_s_package_1_1_test_language_package_1_1_aphid_package" ]
-];
