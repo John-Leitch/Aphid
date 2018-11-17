@@ -14,25 +14,25 @@ namespace Components.Aphid.Compiler
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream))
             {
-                if (codeObj is CodeCompileUnit)
+                if (codeObj is CodeCompileUnit cu)
                 {
-                    provider.GenerateCodeFromCompileUnit(codeObj as CodeCompileUnit, writer, null);
+                    provider.GenerateCodeFromCompileUnit(cu, writer, null);
                 }
-                else if (codeObj is CodeExpression)
+                else if (codeObj is CodeExpression exp)
                 {
-                    provider.GenerateCodeFromExpression(codeObj as CodeExpression, writer, null);
+                    provider.GenerateCodeFromExpression(exp, writer, null);
                 }
-                else if (codeObj is CodeStatement)
+                else if (codeObj is CodeStatement stmt)
                 {
-                    provider.GenerateCodeFromStatement(codeObj as CodeStatement, writer, null);
+                    provider.GenerateCodeFromStatement(stmt, writer, null);
                 }
-                else if (codeObj is CodeTypeMember)
+                else if (codeObj is CodeTypeMember member)
                 {
-                    provider.GenerateCodeFromMember(codeObj as CodeTypeMember, writer, null);
+                    provider.GenerateCodeFromMember(member, writer, null);
                 }
-                else if (codeObj is CodeNamespace)
+                else if (codeObj is CodeNamespace ns)
                 {
-                    provider.GenerateCodeFromNamespace(codeObj as CodeNamespace, writer, null);
+                    provider.GenerateCodeFromNamespace(ns, writer, null);
                 }
                 else
                 {
