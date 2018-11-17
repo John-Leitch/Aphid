@@ -232,7 +232,7 @@ namespace VSCodeDebug
                 SendErrorResponse(
                     response,
                     0x523000,
-                    ParserErrorMessage.Create(code, e));
+                    ParserErrorMessage.Create(code, e, highlight: false));
 
                 return null;
             }
