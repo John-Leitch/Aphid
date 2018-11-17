@@ -33,12 +33,12 @@ namespace Components.Aphid.Compiler
         public AssemblyBuilder Assembly { get; private set; }
 
         public AphidAssemblyBuilder(AphidInterpreter interpreter)
-            : this(interpreter, string.Format("AphidModule_{0}", Guid.NewGuid()))
+            : this(interpreter, $"AphidModule_{Guid.NewGuid()}")
         {
         }
 
         public AphidAssemblyBuilder(AphidInterpreter interpreter, string assemblyName)
-            : this(interpreter, assemblyName, string.Format("{0}.dll", assemblyName))
+            : this(interpreter, assemblyName, $"{assemblyName}.dll")
         {
         }
 
@@ -260,9 +260,9 @@ namespace Components.Aphid.Compiler
             }
 
             string name = propertyDecl.Identifier,
-                fieldName = string.Format("_{0}", name),
-                getName = string.Format("get_{0}", name),
-                setName = string.Format("set_{0}", name);
+                fieldName = $"_{name}",
+                getName = $"get_{name}",
+                setName = $"set_{name}";
 
             var field = typeBuilder.DefineField(fieldName, t, FieldAttributes.Private);
             var property = typeBuilder.DefineProperty(name, PropertyAttributes.HasDefault, t, null);

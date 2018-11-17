@@ -74,7 +74,7 @@ namespace Components.Aphid.Compiler
             string lambda = type == typeof(decimal) ? "x => x.GetNumber()" :
                 type == typeof(bool) ? "x => x.GetBool()" :
                 type == typeof(string) ? "x => x.GetString()" :
-                string.Format("x => ({0})x.GetNumber()", type.FullName);
+                $"x => ({type.FullName})x.GetNumber()";
 
             var toArray = CodeHelper
                 .Arg("srcObj")
