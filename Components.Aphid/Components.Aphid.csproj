@@ -131,7 +131,45 @@
     <ErrorReport>prompt</ErrorReport>
     <LangVersion>7.2</LangVersion>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>  
+  </PropertyGroup>
+
+  <!--                                -->
+  <!-- DEBUG                          -->
+  <!--                                -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
+  </PropertyGroup>
+  <!--                                -->
+  <!-- RELEASE                        -->
+  <!--                                -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
+  </PropertyGroup>
+  <!--                                -->
+  <!-- APHID SCRIPT DEBUG             -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+  </PropertyGroup>
+  <!--                                -->
+  <!-- BINARY TRACE                   -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
