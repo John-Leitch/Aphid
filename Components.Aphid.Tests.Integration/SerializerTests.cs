@@ -226,7 +226,7 @@ namespace Components.Aphid.Tests.Integration
                     !isNested ? 
                         "{{x:{0},y:{0}}}|>serialize@()$_.Contains('this')" :
                         "{{x:{0},y:{{z:{0}}}}}|>serialize@()$_.Contains('this')",
-                    value));
+                    typeof(T) != typeof(bool) ? value.ToString() : value.ToString().ToLower()));
         }
 
         [Test]
