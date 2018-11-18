@@ -43,7 +43,7 @@ var strEmitter;
 
             BinaryAndOperator: " & ",
             BinaryOrOperator: " | ",
-            XorOperator,  " ^ ",
+            XorOperator:  " ^ ",
             ShiftLeft: " << ",
             ShiftRight: " >> ",
             
