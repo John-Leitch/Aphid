@@ -26,9 +26,17 @@ var mode = tickMode.normal;
 #'std';
 var l = {};
 
+//repl.run();
+
 using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
-    db.ReadUnsafe()
-    -< (@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
+    var flattened =
+        (var r = db.ReadUnsafe)()
+        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }));
+
+    var fullRuns = flattened-&(@.version)-&(@()$_-&@.name#!)-/@.Key^!->@.Key;
+
+    flattened
+    -? (@(x) fullRuns=?@==x.version)
     -& @.name
     -> @(s){
         var i = 0x0;
