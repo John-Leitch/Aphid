@@ -182,8 +182,7 @@ namespace Components.Aphid.UI
             var value = Interpreter.GetReturnValue();
 
             if (value != null &&
-                value.IsComplex ||
-                (value.IsScalar && value.Value != null))
+                (value.IsComplex || (value.IsScalar && value.Value != null)))
             {
                 Console.WriteLine(
                     AphidCli.Highlight(
