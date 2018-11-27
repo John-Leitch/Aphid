@@ -27,23 +27,23 @@ var expressionColor = {
 //$var flat = obj.o.GetType().GetMembers(BindingFlags.Public|BindingFlags.Instance|BindingFlags.FlattenHierarchy|BindingFlags.Static|BindingFlags.CreateInstance|BindingFlags.NonPublic)->str #!
 _get = macro(@(method) {
     ([
-        BindingFlags.NonPublic | 
-        BindingFlags.Public | 
-        BindingFlags.Static | 
-        BindingFlags.Instance | 
-        BindingFlags.FlattenHierarchy |
-        BindingFlags.InvokeMethod |
-        BindingFlags.CreateInstance |
+        //BindingFlags.NonPublic | 
+        //BindingFlags.Public | 
+        //BindingFlags.Static | 
+        //BindingFlags.Instance | 
+        //BindingFlags.FlattenHierarchy |
+        //BindingFlags.InvokeMethod |
+        //BindingFlags.CreateInstance |
         //BindingFlags.GetField |
         //BindingFlags.SetField |
         //BindingFlags.GetProperty |
         //BindingFlags.SetProperty |
-        BindingFlags.PutDispProperty |
-        BindingFlags.PutRefDispProperty,
+        //BindingFlags.PutDispProperty |
+        //BindingFlags.PutRefDispProperty,
         BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
         BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy,
-        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
-        BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy,
+        //BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
+        //BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy,
     ]-<obj.GetType().method)!?
 });
 
@@ -93,7 +93,7 @@ _dump = macro(@(m) {
         var raw = obj |> id(get, m);
 
         var members = !isAphidObject ?
-            raw: //raw-?@(cm) _en('get') && _en('set') && _en('add') && _en('remove') :
+            raw-?@(cm) _en('get') && _en('set') && _en('add') && _en('remove') :
             raw;
 
         var prepared = isAphidObject ?
