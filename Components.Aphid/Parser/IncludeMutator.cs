@@ -78,7 +78,10 @@ namespace Components.Aphid.Parser
 
                 if (mutated.Count != 1 || (scriptExp = mutated[0]).Type != AphidExpressionType.StringExpression)
                 {
-                    throw new AphidParserException("Invalid load script operand", loadExp);
+                    hasChanged = false;
+
+                    return null;
+                    //throw new AphidParserException("Invalid load script operand", loadExp);
                 }
             }
             else
