@@ -54,7 +54,7 @@ namespace Components.Aphid.UI
             new AphidSerializer(interpreter)
             {
                 IgnoreFunctions = true,
-                IgnoreLazyLists = true,
+                IgnoreLazyLists = false,
                 IgnoreSpecialVariables = true,
                 QuoteToStringResults = false,
                 ToStringClrTypes = false,
