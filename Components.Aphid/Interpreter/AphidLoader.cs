@@ -12,6 +12,8 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoader : AphidRuntimeComponent
     {
+        private static string _location = Assembly.GetExecutingAssembly().Location;
+
         private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
 
@@ -19,7 +21,7 @@ namespace Components.Aphid.Interpreter
             new[]
             { 
                 Path.Combine(
-                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    !string.IsNullOrEmpty(_location) ? Path.GetDirectoryName(_location) : ".\\",
                     "Library")
             });
 
