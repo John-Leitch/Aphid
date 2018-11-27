@@ -373,7 +373,7 @@ var viewModel;
                 var map = {};
 
                 aphidObject.Keys->@{
-                    map[$_] = Object.ToString();
+                    map[$_] = Object;
                 };
 
                 printInfo('Created map: ');
