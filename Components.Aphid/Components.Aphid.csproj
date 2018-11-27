@@ -4,7 +4,7 @@
   <Choose>
     <!--                                -->
     <!-- 32 Bit                         -->
-    <!--                                -->    
+    <!--                                -->
     <When Condition="$(Configuration.EndsWith('32'))">
       <PropertyGroup>
         <PlatformTarget>x86</PlatformTarget>
@@ -14,17 +14,17 @@
     </When>
     <!--                                -->
     <!-- 64 Bit                         -->
-    <!--                                -->    
+    <!--                                -->
     <When Condition="$(Configuration.EndsWith('64'))">
       <PropertyGroup>
         <PlatformTarget>x64</PlatformTarget>
         <Bitness>64</Bitness>
         <BitnessDirective>AMD64</BitnessDirective>
       </PropertyGroup>
-    </When>    
+    </When>
     <!--                                -->
     <!-- Any CPU                        -->
-    <!--                                -->    
+    <!--                                -->
     <Otherwise>
       <PropertyGroup>
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -129,10 +129,9 @@
     <TargetFrameworkProfile />
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-
   <!--                                -->
   <!-- DEBUG                          -->
   <!--                                -->
@@ -169,7 +168,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -300,6 +298,11 @@
       <DependentUpon>AphidCliInterop.alx</DependentUpon>
     </Compile>
     <Compile Include="UI\AphidConfig.cs" />
+    <Compile Include="UI\AphidReplInterop.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidReplInterop.alx</DependentUpon>
+    </Compile>
     <Compile Include="UI\AphidScanner.cs" />
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
@@ -725,6 +728,10 @@
     </None>
     <None Include="Tools\TestLoop.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="UI\AphidReplInterop.alx">
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>AphidReplInterop.cs</LastGenOutput>
     </None>
     <None Include="UI\AphidCliInterop.alx">
       <Generator>AphidCodeDomGenerator</Generator>
