@@ -15,6 +15,7 @@ using Components.Aphid.Debugging;
 using Components.External;
 using Components.Json;
 using System.Reflection;
+using System.Threading;
 
 namespace Components.Aphid.UI
 {
@@ -39,6 +40,8 @@ namespace Components.Aphid.UI
         public static Exception LastException { get; set; }
 
         public static int ExcerptDumpCount { get; set; } = 4;
+
+        public static bool IsAborting { get; set; } = false;
 
         static AphidCli()
         {
@@ -83,6 +86,15 @@ namespace Components.Aphid.UI
                 interpreter.SetIsInTryCatchFinally(backup);
 
                 return true;
+            }
+            catch (ThreadAbortException exception)
+            {
+                if (!IsAborting)
+                {
+                    Thread.ResetAbort();
+                    LastException = exception;
+                    DumpException(exception, interpreter);
+                }                
             }
             catch (AphidParserException exception)
             {
@@ -201,22 +213,31 @@ namespace Components.Aphid.UI
                     backup = interpreter.SetIsInTryCatchFinally(true);
                     interpreter.Interpret(code, isTextDocument);
                 }
-                catch(AphidParserException exception)
+                catch (ThreadAbortException exception)
+                {
+                    if (!IsAborting)
+                    {
+                        Thread.ResetAbort();
+                        DumpException(exception, interpreter);
+                        Environment.Exit((int)AphidExitCode.GeneralError);
+                    }
+                }
+                catch (AphidParserException exception)
                 {
                     DumpException(exception, code);
                     Environment.Exit((int)AphidExitCode.ParserError);
                 }
-                catch(AphidLoadScriptException exception)
+                catch (AphidLoadScriptException exception)
                 {
                     DumpException(exception, interpreter);
                     Environment.Exit((int)AphidExitCode.LoadScriptError);
                 }
-                catch(AphidRuntimeException exception)
+                catch (AphidRuntimeException exception)
                 {
                     DumpException(exception, interpreter);
                     Environment.Exit((int)AphidExitCode.RuntimeError);
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
                     DumpException(exception, interpreter);
                     Environment.Exit((int)AphidExitCode.GeneralError);

@@ -12,11 +12,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.UI
 {
-    public class AphidRepl
+    public partial class AphidRepl
     {
         private bool _isSerializerShared = false;
 
@@ -38,6 +39,10 @@ namespace Components.Aphid.UI
 
         public List<AphidExpression> Epilogue { get; set; }
 
+        public static object RunThreadSync { get; set; } = new object();
+
+        public static Thread RunThread { get; set; }        
+
         public AphidRepl()
             : this(new AphidInterpreter())
         {
@@ -58,6 +63,8 @@ namespace Components.Aphid.UI
 
         public void Run()
         {
+            Init();
+
             if (Interpreter == null)
             {
                 Interpreter = new AphidInterpreter();
@@ -124,6 +131,20 @@ namespace Components.Aphid.UI
                         code = console.ReadLine();
                     }
 
+                    RunCancellableThread(code);
+                    Interpreter.ResetState();
+                }
+            }
+        }
+
+        private void RunCancellableThread(string code)
+        {
+            lock (RunThreadSync)
+            {
+                RunThread = new Thread(() =>
+                {
+                    Interpreter.TakeOwnership();
+
                     if (AphidErrorHandling.HandleErrors)
                     {
                         Interpreter.SetIsInTryCatchFinally(true);
@@ -137,9 +158,36 @@ namespace Components.Aphid.UI
                         RunCode(code);
                         RunBlock(Epilogue, handleExceptions: false);
                     }
+                });
 
-                    Interpreter.ResetState();
+                RunThread.Start();
+            }
+
+            RunThread.Join();
+
+            if (AphidCli.IsAborting)
+            {
+                AphidCli.IsAborting = false;
+
+                if (Console.CursorLeft != 0)
+                {
+                    Console.CursorLeft = 0;
+                    Console.CursorTop++;                    
                 }
+
+                Console.ResetColor();
+
+                if (VT100.IsEnabled)
+                {
+                    Console.Write(VT100.Reset);
+                }
+
+                AphidCli.WriteMessage(ConsoleColor.Yellow, '!', "Execution interrupted by Ctrl+C");
+            }
+
+            lock (RunThreadSync)
+            {
+                RunThread = null;
             }
         }
 
@@ -178,6 +226,7 @@ namespace Components.Aphid.UI
                 .WithPositionFrom(exp);
 
             //new AphidCodeVisitor(code).VisitExpression(retExp);
+            //Interpreter.TakeOwnership();
             Interpreter.Interpret(retExp);
             var value = Interpreter.GetReturnValue();
 
