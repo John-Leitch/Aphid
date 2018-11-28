@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Components.PInvoke;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,42 +11,21 @@ namespace AphidUI
 {
     public static class KeyHelper
     {
-        private enum MapType : uint
-        {
-            MAPVK_VK_TO_VSC = 0x0,
-            MAPVK_VSC_TO_VK = 0x1,
-            MAPVK_VK_TO_CHAR = 0x2,
-            MAPVK_VSC_TO_VK_EX = 0x3,
-        }
-
-        [DllImport("user32.dll")]
-        private static extern int ToUnicode(
-            uint wVirtKey,
-            uint wScanCode,
-            byte[] lpKeyState,
-            [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)] 
-            StringBuilder pwszBuff,
-            int cchBuff,
-            uint wFlags);
-
-        [DllImport("user32.dll")]
-        private static extern bool GetKeyboardState(byte[] lpKeyState);
-
-        [DllImport("user32.dll")]
-        private static extern uint MapVirtualKey(uint uCode, MapType uMapType);
-
         public static char GetCharFromKey(Key key, out bool isControlKey)
         {
             isControlKey = false;
             char c = '\0';
             var virtualKey = KeyInterop.VirtualKeyFromKey(key);
             var keyboardState = new byte[256];
-            GetKeyboardState(keyboardState);
-            var code = MapVirtualKey((uint)virtualKey, MapType.MAPVK_VK_TO_VSC);
+            User32.GetKeyboardState(keyboardState);
             var sb = new StringBuilder(2);
-            var result = ToUnicode((uint)virtualKey, code, keyboardState, sb, sb.Capacity, 0);
 
-            switch (result)
+            switch (User32.ToUnicode(
+                (uint)virtualKey,
+                User32.MapVirtualKey((uint)virtualKey, MapType.MAPVK_VK_TO_VSC),
+                keyboardState,
+                sb,
+                sb.Capacity, 0))
             {
                 case -1:
                 case 0:

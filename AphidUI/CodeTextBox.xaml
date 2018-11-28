@@ -11,7 +11,7 @@
     <Border BorderThickness="1" BorderBrush="Gray">
         <ScrollViewer x:Name="Viewer" HorizontalScrollBarVisibility="Auto" Background="White"
                       HorizontalContentAlignment="Stretch"
-                      VerticalContentAlignment="Stretch" SizeChanged="Viewer_SizeChanged">
+                      VerticalContentAlignment="Stretch" SizeChanged="ViewerSizeChanged">
             <!--<Border BorderBrush="Yellow" BorderThickness="2">-->
                 <a:CodeCanvas x:Name="TextBox" Margin="4" />
             <!--</Border>-->

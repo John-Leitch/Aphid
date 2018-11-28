@@ -20,9 +20,6 @@ namespace AphidUI
     /// </summary>
     public partial class AphidWatch : UserControl
     {
-        public AphidWatch()
-        {
-            InitializeComponent();
-        }
+        public AphidWatch() => InitializeComponent();
     }
 }

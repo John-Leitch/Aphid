@@ -270,6 +270,7 @@
     <Compile Include="External\PInvoke\SWP.cs" />
     <Compile Include="External\PInvoke\TokenAccess.cs" />
     <Compile Include="External\PInvoke\TOKEN_TYPE.cs" />
+    <Compile Include="External\PInvoke\MapType.cs" />
     <Compile Include="External\PInvoke\UserEnv.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />

@@ -63,6 +63,12 @@ namespace Components.PInvoke
         public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
 
         [DllImport("user32.dll")]
+        public static extern bool GetKeyboardState(byte[] lpKeyState);
+
+        [DllImport("user32.dll")]
+        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
+
+        [DllImport("user32.dll")]
         public static extern IntPtr SetFocus(IntPtr hWnd);
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -92,6 +98,16 @@ namespace Components.PInvoke
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetCursorPos(out POINT lpPoint);        
+        public static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        public static extern int ToUnicode(
+            uint wVirtKey,
+            uint wScanCode,
+            byte[] lpKeyState,
+            [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
+            StringBuilder pwszBuff,
+            int cchBuff,
+            uint wFlags);
     }
 }
