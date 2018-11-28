@@ -24,85 +24,73 @@ namespace AphidUI
         private CodeCanvas _codeCanvas;
 
         public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
-                "Text",
+                nameof(Text),
                 typeof(string),
                 typeof(CodeTextBox),
-                new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnTextChanged)));
+                new FrameworkPropertyMetadata(
+                    null,
+                    (o, e) =>
+                    {
+                        var v = (string)e.NewValue;
+                        var t = (CodeTextBox)o;
+
+                        if (t.TextBox.Text != v)
+                        {
+                            t.TextBox.SetText(v);
+                        }
+                    }));
 
         public string Text
         {
-            get { return (string)GetValue(TextProperty); }
-            set { SetValue(TextProperty, value); }
-        }
-
-        public static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var v = (string)e.NewValue;
-            var t = (CodeTextBox)d;
-            
-            if (t.TextBox.Text != v)
-            {
-                t.TextBox.SetText(v);
-            }
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
         }
 
         public static readonly DependencyProperty AcceptsReturnProperty = DependencyProperty.Register(
-                "AcceptsReturn",
+                nameof(AcceptsReturn),
                 typeof(bool),
                 typeof(CodeTextBox),
-                new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnAcceptsReturnChanged)));
+                new FrameworkPropertyMetadata(
+                    false,
+                    (o, e) =>
+                    {
+                        var t = (CodeTextBox)o;
+                        t.SetScrollBarVisibility();
+                        t._codeCanvas.AcceptsReturn = (bool)e.NewValue;
+                    }));
 
         public bool AcceptsReturn
         {
-            get { return (bool)GetValue(AcceptsReturnProperty); }
-            set { SetValue(AcceptsReturnProperty, value); }
-        }
-
-        public static void OnAcceptsReturnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var t = (CodeTextBox)d;
-            var b = (bool)e.NewValue;
-
-            t.SetScrollBarVisibility();
-            t._codeCanvas.AcceptsReturn = b;
+            get => (bool)GetValue(AcceptsReturnProperty);
+            set => SetValue(AcceptsReturnProperty, value);
         }
 
         public CodeTextBox()
         {
             InitializeComponent();
-            _codeCanvas = Viewer.Content as CodeCanvas;
 
-            if (_codeCanvas == null)
+            if ((_codeCanvas = Viewer.Content as CodeCanvas) == null &&
+                (_codeCanvas = ((Border)Viewer.Content).Child as CodeCanvas) == null)
             {
-                var border = Viewer.Content as Border;
-
-                _codeCanvas = border.Child as CodeCanvas;
-
-                if (_codeCanvas == null)
-                {
-                    throw new InvalidOperationException();
-                }
+                throw new InvalidOperationException(
+                    "CodeTextBox could not find CodeCanvas.");
             }
 
-            _codeCanvas.TextChanged += CodeEditor_TextChanged;
+            _codeCanvas.TextChanged += (o, e) => SetValue(TextProperty, _codeCanvas.Text);
             Viewer.PreviewKeyDown += _codeCanvas.UserControl_KeyDown;
             SetScrollBarVisibility();
-            //SizeChanged += _codeCanvas.UserControl_SizeChanged;
         }
 
         private void SetScrollBarVisibility()
         {
-            Viewer.HorizontalScrollBarVisibility = AcceptsReturn ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
-            Viewer.VerticalScrollBarVisibility = AcceptsReturn ? ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden;
+            Viewer.HorizontalScrollBarVisibility = AcceptsReturn ?
+                ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
+
+            Viewer.VerticalScrollBarVisibility = AcceptsReturn ?
+                ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden;
         }
 
-        void CodeEditor_TextChanged(object sender, RoutedEventArgs e)
-        {
-            SetValue(TextProperty, _codeCanvas.Text);
-            //Text = _codeCanvas.Text;
-        }
-
-        private void Viewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void ViewerSizeChanged(object sender, SizeChangedEventArgs e)
         {
             var width = Viewer.ActualWidth - 30;
 
