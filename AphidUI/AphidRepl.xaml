@@ -69,8 +69,7 @@
                        AcceptsReturn="true"
                        IsEnabled="{Binding IsExecuting,Converter={StaticResource flipConverter}}"
                        Visibility="{Binding StatementsVisibility}"
-                       Text="{Binding Code,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                       SizeChanged="StatementsTextBox_SizeChanged" />
+                       Text="{Binding Code,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
 
         <l:CodeViewer Grid.Row="2" x:Name="OutputTextBox2"
                       ScrollViewer.HorizontalScrollBarVisibility="Auto" 

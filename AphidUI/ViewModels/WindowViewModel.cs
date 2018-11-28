@@ -5,6 +5,7 @@ using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.UI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,33 +25,19 @@ namespace AphidUI.ViewModels
 
         private Lazy<string[]> _configProperties;
 
-        private CodeViewer _codeViewer;
+        public CodeViewer CodeViewer { get; }
 
-        public CodeViewer CodeViewer
-        {
-            get { return _codeViewer; }
-        }
-
-        private AphidInterpreter _interpreter = new AphidInterpreter();
-
-        public AphidInterpreter Interpreter
-        {
-            get { return _interpreter; }
-        }
+        public AphidInterpreter Interpreter { get; private set; } = new AphidInterpreter();
 
         private List<string> _codeHistory = new List<string>();
 
-        private int _codeHistoryIndex = 0;
+        private int _codeHistoryIndex = 0, _maxQueueSize = 32;
 
-        private int _maxQueueSize = 32;
-
-        private Thread _interpreterThread;
+        private Thread _interpreterThread, _autoSaveThread;
 
         private Action _callback;
 
         private AutoResetEvent _interpreterReset = new AutoResetEvent(false);
-
-        private Thread _autoSaveThread;
 
         private object _autoSaveSync = new object();
 
@@ -60,19 +47,9 @@ namespace AphidUI.ViewModels
 
         private bool _shouldSave = false;
 
-        private ObservableCollection<VariableViewModel> _variables = new ObservableCollection<VariableViewModel>();
+        public ObservableCollection<VariableViewModel> Variables { get; } = new ObservableCollection<VariableViewModel>();
 
-        public ObservableCollection<VariableViewModel> Variables
-        {
-            get { return _variables; }
-        }
-
-        private ObservableCollection<ExpressionViewModel> _expressions = new ObservableCollection<ExpressionViewModel>();
-
-        public ObservableCollection<ExpressionViewModel> Expressions
-        {
-            get { return _expressions; }
-        }
+        public ObservableCollection<ExpressionViewModel> Expressions { get; } = new ObservableCollection<ExpressionViewModel>();
 
         public AphidReplViewModel(CodeViewer outputTextBox)
         {
@@ -96,9 +73,9 @@ namespace AphidUI.ViewModels
             IsMultiLine = false;
             IsExecuting = false;
             LineOptionVisibility = Visibility.Visible;
-            _codeViewer = outputTextBox;
-            _codeViewer.Document.Blocks.Clear();
-            _expressions.CollectionChanged += Expressions_CollectionChanged;
+            CodeViewer = outputTextBox;
+            CodeViewer.Document.Blocks.Clear();
+            Expressions.CollectionChanged += Expressions_CollectionChanged;
             InitInterpreter();
             PropertyChanged += AphidReplViewModel_PropertyChanged;
         }
@@ -160,24 +137,6 @@ namespace AphidUI.ViewModels
                 }
 
                 Thread.Sleep(_autoSaveTimer);
-
-
-                var root = AphidObject.Complex();
-
-                //foreach (var nvp in table)
-                //{
-                //    root.Add(nvp.Key, new AphidObject(nvp.Value));
-                //}
-
-
-
-
-
-
-
-                //var reuslt = new AphidSerializer().Serialize(root);
-
-
             }
         }
 
@@ -200,10 +159,8 @@ namespace AphidUI.ViewModels
             }
         }
 
-        private void Item_ExpressionChanged(object sender, EventArgs e)
-        {
+        private void Item_ExpressionChanged(object sender, EventArgs e) =>
             ExecuteWatchExpression((ExpressionViewModel)sender);
-        }
 
         private void AddHistoricalCode()
         {
@@ -231,35 +188,25 @@ namespace AphidUI.ViewModels
             return _codeHistory[_codeHistoryIndex];
         }
 
-        private string GetPreviousCode()
-        {
-            return GetHistoricalCode(
+        private string GetPreviousCode() =>
+            GetHistoricalCode(
                 () => (--_codeHistoryIndex) == -1,
                 () => _codeHistory.Count - 1);
-        }
 
-        public void SetPreviousCode()
-        {
-            Code = GetPreviousCode();
-        }
+        public void SetPreviousCode() => Code = GetPreviousCode();
 
-        private string GetNextCode()
-        {
-            return GetHistoricalCode(
+        private string GetNextCode() =>
+            GetHistoricalCode(
                 () => (++_codeHistoryIndex) >= _codeHistory.Count,
                 () => _codeHistoryIndex = 0);
-        }
 
-        public void SetNextCode()
-        {
-            Code = GetNextCode();
-        }
+        public void SetNextCode() => Code = GetNextCode();
 
         private void UpdateVariables()
         {
             InvokeDispatcher(Variables.Clear);
 
-            foreach (var v in _interpreter.CurrentScope.Select(x => new VariableViewModel()
+            foreach (var v in Interpreter.CurrentScope.Select(x => new VariableViewModel()
             {
                 Name = x.Key,
                 Value = x.Value != null ? x.Value.Value : null,
@@ -272,17 +219,19 @@ namespace AphidUI.ViewModels
         [AphidInteropFunction("dump", PassInterpreter = true, UnwrapParameters = false)]
         public static void Dump(AphidInterpreter interpreter, object obj)
         {
-            AphidObject vmObj;
-            interpreter.CurrentScope.TryResolve(ViewModelName, out vmObj);
-            var vm = (AphidReplViewModel)vmObj.Value;
-            var serializer = new AphidSerializer(interpreter) { IgnoreFunctions = false };
-            var ao = interpreter.ValueHelper.Wrap(obj);
+            interpreter.CurrentScope.TryResolve(ViewModelName, out var vmObj);
 
-            vm._codeViewer.Dispatcher.Invoke(() =>
+            var serialized = AphidCli
+                .CreateSerializer(interpreter)
+                .Serialize(interpreter.ValueHelper.Wrap(obj));
+
+            var vm = (AphidReplViewModel)vmObj.Value;
+
+            vm.CodeViewer.Dispatcher.Invoke(() =>
             {
                 if (obj != null)
                 {
-                    vm._codeViewer.AppendCode(serializer.Serialize(ao));
+                    vm.CodeViewer.AppendCode(serialized);
                 }
                 else
                 {
@@ -291,22 +240,18 @@ namespace AphidUI.ViewModels
             });
         }
 
-        private void LoadLibrary()
-        {
-            _interpreter.Loader.LoadLibrary<AphidReplViewModel>(_interpreter.CurrentScope);
-        }
+        private void LoadLibrary() =>
+            Interpreter.Loader.LoadLibrary<AphidReplViewModel>(Interpreter.CurrentScope);
 
-        private void AddIsRepl()
-        {
-            _interpreter.CurrentScope.Add(IsReplName, AphidObject.True);
-        }
+        private void AddIsRepl() =>
+            Interpreter.CurrentScope.Add(IsReplName, AphidObject.True);
 
         private void InitInterpreter()
         {
+            Interpreter = new AphidInterpreter();
+            Interpreter.CurrentScope.Add(ViewModelName, AphidObject.Scalar(this));
             AddIsRepl();
-            LoadLibrary();
-
-            _interpreter.CurrentScope.Add(ViewModelName, AphidObject.Scalar(this));
+            LoadLibrary();            
         }
 
         private void ExecuteExpression()
@@ -328,7 +273,7 @@ namespace AphidUI.ViewModels
                 //code += ";";
             }
 
-            List<Components.Aphid.Parser.AphidExpression> ast = null;
+            List<AphidExpression> ast = null;
 
             try
             {
@@ -341,29 +286,24 @@ namespace AphidUI.ViewModels
             }
             catch (AphidParserException ex)
             {
-                InvokeDispatcher(() => _codeViewer.AppendParserException(Code, ex));
+                InvokeDispatcher(() => CodeViewer.AppendParserException(Code, ex));
 
                 return;
             }
             catch (Exception ex)
             {
-                InvokeDispatcher(() => _codeViewer.AppendException(Code, "Internal parser exception (please report)", ex));
+                InvokeDispatcher(() => CodeViewer.AppendException(Code, "Internal parser exception (please report)", ex));
 
                 return;
             }
 
             var exp = ast.First();
-            var unary = exp as UnaryOperatorExpression;
 
-            if (unary == null ||
+            if (!(exp is UnaryOperatorExpression unary) ||
                 unary.Operator != AphidTokenType.retKeyword)
             {
                 ast.Clear();
-
-                var retExp = new UnaryOperatorExpression(
-                    AphidTokenType.retKeyword,
-                    exp);
-
+                var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
                 retExp.Code = exp.Code;
                 retExp.Index = exp.Index;
                 retExp.Length = exp.Length;
@@ -372,54 +312,46 @@ namespace AphidUI.ViewModels
 
             try
             {
-                _interpreter.ResetState();
-                _interpreter.TakeOwnership();
-                _interpreter.Interpret(ast);
+                Interpreter.ResetState();
+                Interpreter.TakeOwnership();
+                Interpreter.Interpret(ast);
             }
             catch (AphidRuntimeException ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendException(Code, "Runtime error", ex));
+                InvokeDispatcher(() => CodeViewer.AppendException(Code, "Runtime error", ex));
 
                 return;
             }
             catch (AphidParserException ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendParserException(Code, ex));
+                InvokeDispatcher(() => CodeViewer.AppendParserException(Code, ex));
 
                 return;
             }
             catch (Exception ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendException(Code, ".NET Runtime error", ex));
+                InvokeDispatcher(() => CodeViewer.AppendException(Code, ".NET Runtime error", ex));
             }
 
-            var retVal = _interpreter.GetReturnValue();
+            var serialized = AphidCli
+                .CreateSerializer(Interpreter)
+                .Serialize(Interpreter.GetReturnValue());
 
-            var serializer = new AphidSerializer(_interpreter) { IgnoreFunctions = false };
-
-            InvokeDispatcher(() =>
-                _codeViewer.AppendOutput(Code, serializer.Serialize(retVal)));
-
+            InvokeDispatcher(() => CodeViewer.AppendOutput(Code, serialized));
             UpdateVariables();
             ExecuteWatchExpressions();
         }
 
-        private void InvokeDispatcher(Action action)
-        {
-
-            _codeViewer.Dispatcher.Invoke(action);
-        }
+        private void InvokeDispatcher(Action action) => CodeViewer.Dispatcher.Invoke(action);
 
         private void ExecuteStatements()
         {
             ResetInterpreter();
+
             InvokeDispatcher(() =>
             {
-                _codeViewer.Document.Blocks.Clear();
-                _codeViewer.AppendOutput("Running script...");
+                CodeViewer.Document.Blocks.Clear();
+                CodeViewer.AppendOutput("Running script...");
             });
 
             if (string.IsNullOrEmpty(Code))
@@ -427,7 +359,7 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            List<Components.Aphid.Parser.AphidExpression> ast = null;
+            List<AphidExpression> ast = null;
 
             try
             {
@@ -435,42 +367,38 @@ namespace AphidUI.ViewModels
             }
             catch (AphidParserException ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendParserException(Code, ex));
+                InvokeDispatcher(() => CodeViewer.AppendParserException(Code, ex));
 
                 return;
             }
             catch (Exception ex)
             {
-                InvokeDispatcher(() => _codeViewer.AppendException(Code, "Internal parser exception (please report)", ex));
+                InvokeDispatcher(() => CodeViewer.AppendException(Code, "Internal parser exception (please report)", ex));
 
                 return;
             }
 
             try
             {
-                _interpreter.ResetState();
-                _interpreter.TakeOwnership();
-                _interpreter.Interpret(ast);
+                Interpreter.ResetState();
+                Interpreter.TakeOwnership();
+                Interpreter.Interpret(ast);
             }
             catch (AphidRuntimeException ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendException(Code, "Runtime error", ex));
+                InvokeDispatcher(() => CodeViewer.AppendException(Code, "Runtime error", ex));
 
                 return;
             }
             catch (AphidParserException ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendParserException(Code, ex));
+                InvokeDispatcher(() => CodeViewer.AppendParserException(Code, ex));
 
                 return;
             }
             catch (Exception ex)
             {
-                InvokeDispatcher(() =>
-                    _codeViewer.AppendException(Code, "Internal error", ex));
+                InvokeDispatcher(() => CodeViewer.AppendException(Code, "Internal error", ex));
             }
 
             UpdateVariables();
@@ -478,8 +406,8 @@ namespace AphidUI.ViewModels
 
             InvokeDispatcher(() =>
             {
-                _codeViewer.AppendOutput("Done");
-                _codeViewer.ScrollToEnd();
+                CodeViewer.AppendOutput("Done");
+                CodeViewer.ScrollToEnd();
             });
         }
 
@@ -519,11 +447,7 @@ namespace AphidUI.ViewModels
                     {
                         Status = "Done";
                         IsExecuting = false;
-
-                        if (_callback != null)
-                        {
-                            _callback();
-                        }
+                        _callback?.Invoke();
                     });
                 }
 
@@ -548,8 +472,8 @@ namespace AphidUI.ViewModels
 
             InvokeDispatcher(() =>
             {
-                _codeViewer.AppendOutput("Stopped");
-                _codeViewer.ScrollToEnd();
+                CodeViewer.AppendOutput("Stopped");
+                CodeViewer.ScrollToEnd();
                 Status = "Script stopped";
             });
 
@@ -560,9 +484,9 @@ namespace AphidUI.ViewModels
         {
             try
             {
-                _interpreter.ResetState();
-                _interpreter.TakeOwnership();
-                _interpreter.Interpret("ret " + vm.Expression + ";");
+                Interpreter.ResetState();
+                Interpreter.TakeOwnership();
+                Interpreter.Interpret("ret " + vm.Expression + ";");
             }
             catch (AphidRuntimeException e)
             {
@@ -583,41 +507,29 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            var retVal = new AphidSerializer(_interpreter) { IgnoreFunctions = false }
-                .Serialize(_interpreter.GetReturnValue());
+            var retVal = new AphidSerializer(Interpreter) { IgnoreFunctions = false }
+                .Serialize(Interpreter.GetReturnValue());
 
             InvokeDispatcher(() => vm.Value = retVal);
         }
 
         private void ExecuteWatchExpressions()
         {
-            foreach (var exp in _expressions)
+            foreach (var exp in Expressions)
             {
                 ExecuteWatchExpression(exp);
             }
         }
 
-        public void ClearCode()
-        {
-            Code = "";
-        }
-
-        public void ClearConsole()
-        {
-            _codeViewer.Document.Blocks.Clear();
-        }
-
-        public void ResetInterpreter()
-        {
-            _interpreter = new AphidInterpreter();
-            InitInterpreter();
-        }
+        public void ClearCode() => Code = "";
+        public void ClearConsole() => CodeViewer.Document.Blocks.Clear();
+        public void ResetInterpreter() => InitInterpreter();
 
         public void Reset()
         {
             Code = "";
-            _codeViewer.Document.Blocks.Clear();
-            _variables.Clear();
+            CodeViewer.Document.Blocks.Clear();
+            Variables.Clear();
         }
     }
 }
