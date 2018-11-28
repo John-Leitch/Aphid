@@ -27,25 +27,6 @@ namespace AphidUI.Internal
     {
         public event RoutedEventHandler TextChanged;
 
-        private bool _acceptsReturn;
-
-        public bool AcceptsReturn
-        {
-            get { return _acceptsReturn; }
-            set 
-            {
-                _acceptsReturn = value;
-                LineBorder.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        private string _text;
-
-        public string Text
-        {
-            get { return _text; }
-        }
-
         private GlyphTypeface glyphFace;
 
         private List<List<TextCell>> _document = new List<List<TextCell>> { new List<TextCell>() };
@@ -54,20 +35,31 @@ namespace AphidUI.Internal
 
         private double _cellWidth = 8, _cellHeight = 12;
 
+        private bool _acceptsReturn;
+
+        public bool AcceptsReturn
+        {
+            get => _acceptsReturn;
+            set => LineBorder.Visibility = (_acceptsReturn = value) ?
+                Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public string Text { get; private set; }        
+
         public CodeCanvas()
         {
             InitializeComponent();
 
             AcceptsReturn = false;
-            FontFamily = new System.Windows.Media.FontFamily("Lucida console");
+            FontFamily = new FontFamily("Lucida console");
             FontSize = 12;
             
             DependencyPropertyDescriptor
-                .FromProperty(Control.FontSizeProperty, typeof(CodeCanvas))
+                .FromProperty(FontSizeProperty, typeof(CodeCanvas))
                 .AddValueChanged(this, FontSizeChanged);
 
             DependencyPropertyDescriptor
-                .FromProperty(Control.FontFamilyProperty, typeof(CodeCanvas))
+                .FromProperty(FontFamilyProperty, typeof(CodeCanvas))
                 .AddValueChanged(this, FontFamilyChanged);
 
             FontSizeChanged(this, new EventArgs());
@@ -76,9 +68,10 @@ namespace AphidUI.Internal
 
         private void SetGlyphFace()
         {
-            var font = FontFamily.GetTypefaces().FirstOrDefault();
-
-            if (!font.TryGetGlyphTypeface(out glyphFace))
+            if (!FontFamily
+                .GetTypefaces()
+                .FirstOrDefault()
+                .TryGetGlyphTypeface(out glyphFace))
             {
                 throw new InvalidOperationException();
             }
@@ -92,11 +85,7 @@ namespace AphidUI.Internal
             {
                 return;
             }
-
-            _currentRow--;
-            var row = _document[_currentRow];
-
-            if (_currentColumn >= row.Count)
+            else if (_currentColumn >= _document[--_currentRow].Count)
             {
                 MoveCaretEnd();
             }
@@ -110,11 +99,7 @@ namespace AphidUI.Internal
             {
                 return;
             }
-
-            _currentRow++;
-            var row = _document[_currentRow];
-
-            if (_currentColumn >= row.Count)
+            else if (_currentColumn >= _document[++_currentRow].Count)
             {
                 MoveCaretEnd();
             }
@@ -171,9 +156,7 @@ namespace AphidUI.Internal
         {
             var viewer = (ScrollViewer)Parent;
             var rows = (int)Math.Ceiling(viewer.ActualHeight / _cellHeight);
-            var nextRow = up ? 
-                _currentRow - rows :
-                _currentRow + rows;
+            var nextRow = up ? _currentRow - rows : _currentRow + rows;
             
             _currentRow = up ? 
                 (nextRow >= 0 ? nextRow : 0) :
@@ -206,7 +189,6 @@ namespace AphidUI.Internal
             else if (_currentColumn != 0)
             {
                 var cells = row.Take(_currentColumn).ToArray();
-
                 var homeIndex = 0;
 
                 for (int i = 0; i < cells.Length; i++)
@@ -238,8 +220,7 @@ namespace AphidUI.Internal
 
             if (_currentColumn == 0)
             {
-                var viewer = (ScrollViewer)Parent;
-                viewer.ScrollToHorizontalOffset(0);
+                ((ScrollViewer)Parent).ScrollToHorizontalOffset(0);
             }
 
             MoveCaretToCurrentCell();
@@ -255,12 +236,9 @@ namespace AphidUI.Internal
             }
             else
             {
-                _currentColumn = row.Count - 1;
-
-                if (_currentRow == _document.Count - 1)
-                {
-                    _currentColumn++;
-                }
+                _currentColumn = _currentRow == _document.Count - 1 ?
+                    row.Count :
+                    row.Count - 1;
             }
             
             MoveCaretToCurrentCell();
@@ -272,7 +250,6 @@ namespace AphidUI.Internal
             var top = y * _cellHeight;
             Canvas.SetTop(_caret, top);
             Canvas.SetTop(LineBorder, top);
-
             _caret.BringIntoView();
 
         }
@@ -406,19 +383,18 @@ namespace AphidUI.Internal
             isi.BeginInit();
             glyphs.GlyphTypeface = glyphFace;
             glyphs.FontRenderingEmSize = FontSize;
-            var chars = new[] { c };
-            glyphs.Characters = chars;
+            glyphs.Characters = new[] { c };
             var codePoint = (int)c;
             var glyphIndex = glyphFace.CharacterToGlyphMap[codePoint];
             var glyphWidth = glyphFace.AdvanceWidths[glyphIndex];
             glyphs.GlyphIndices = new ushort[] { glyphIndex };
             glyphs.AdvanceWidths = new double[] { glyphWidth * FontSize };
             _cellWidth = glyphWidth * FontSize;
-            _cellHeight = (glyphFace.Baseline * FontSize) + (paddingTop);
+            _cellHeight = (glyphFace.Baseline * FontSize) + paddingTop;
 
             glyphs.BaselineOrigin = new Point(
                 glyphWidth * FontSize * column,
-                (glyphFace.Baseline * FontSize * (line + 1)) + (paddingTop * line));
+                glyphFace.Baseline * FontSize * (line + 1) + paddingTop * line);
 
             isi.EndInit();
 
@@ -434,9 +410,7 @@ namespace AphidUI.Internal
                 _currentRow = _document.Count - 1;
             }
 
-            var r = _document[_currentRow];
-
-            if (_currentColumn > r.Count - 1)
+            if (_currentColumn > _document[_currentRow].Count - 1)
             {
                 MoveCaretEnd();
             }
@@ -491,26 +465,19 @@ namespace AphidUI.Internal
         {
             DebugHelper.Trace();
 
-            if (double.IsNaN(this.ActualWidth) ||
-                double.IsNaN(this.ActualHeight))
+            if (double.IsNaN(ActualWidth) || double.IsNaN(ActualHeight))
             {
                 return;
             }
 
-            if (TextChanged != null)
-            {
-                TextChanged(this, new RoutedEventArgs());
-            }
-
+            TextChanged?.Invoke(this, new RoutedEventArgs());
             InvalidateVisual();
         }
 
         private void HandlePrintableKey(KeyEventArgs e)
         {
             DebugHelper.Trace();
-
-            bool isControlKey;
-            var key = KeyHelper.GetCharFromKey(e.Key, out isControlKey).ToString();
+            var key = KeyHelper.GetCharFromKey(e.Key, out var isControlKey).ToString();
 
             if (isControlKey)
             {
@@ -559,7 +526,7 @@ namespace AphidUI.Internal
                     break;
             }
 
-            _text = _text != null ? _text.Insert(cell.Index, key) : key;
+            Text = Text != null ? Text.Insert(cell.Index, key) : key;
 
             if (!isNewLine)
             {
@@ -579,10 +546,8 @@ namespace AphidUI.Internal
         private void SetDefaultSize()
         {
             DebugHelper.Trace();
-
-            var g = BuildGlyphRun(0, 0, 'A');
             Width = 0;
-            Height = g.BaselineOrigin.Y;
+            Height = BuildGlyphRun(0, 0, 'A').BaselineOrigin.Y;
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -593,18 +558,18 @@ namespace AphidUI.Internal
             {
                 return;
             }
-            else if (string.IsNullOrEmpty(_text))
+            else if (string.IsNullOrEmpty(Text))
             {
                 _currentColumn = 0;
                 _currentRow = 0;
                 MoveCaretToCurrentCell();
                 SetDefaultSize();
                 CreateDocument(new List<AphidToken>());
+
                 return;
             }
-
-            var lexer = new AphidLexer(_text);
-            CreateDocument(lexer.GetAllTokens());
+            
+            CreateDocument(AphidLexer.GetAllTokens(Text));
             double greatestX = 0, greatestY = 0;
 
             for (int y = 0; y < _document.Count; y++)
@@ -619,11 +584,7 @@ namespace AphidUI.Internal
                     }
 
                     var glyph = BuildGlyphRun(x, y, cell.Char);
-
-                    drawingContext.DrawGlyphRun(
-                        new SolidColorBrush(GetColor(cell.Type)),
-                        glyph);
-
+                    drawingContext.DrawGlyphRun(new SolidColorBrush(GetColor(cell.Type)), glyph);
                     var x2 = glyph.BaselineOrigin.X + _cellWidth;
 
                     if (x2 > greatestX)
@@ -664,10 +625,9 @@ namespace AphidUI.Internal
                 .Replace('\r', '\n')
                 .Replace("\t", "    ");
 
-            if (t != _text)
+            if (t != Text)
             {
-                _text = t;
-
+                Text = t;
                 UpdateDocument();
             }
         }
@@ -690,19 +650,15 @@ namespace AphidUI.Internal
         public void UpdateSize()
         {
             DebugHelper.Trace();
-            Canvas.Width = this.ActualWidth;
-            Canvas.Height = this.ActualHeight;
+            Canvas.Width = ActualWidth;
+            Canvas.Height = ActualHeight;
 
-            var viewer = Parent as ScrollViewer;
+            ScrollViewer viewer;
 
-            if (viewer == null)
+            if ((viewer = Parent as ScrollViewer) == null &&
+                (viewer = (Parent as FrameworkElement).Parent as ScrollViewer) == null)
             {
-                viewer = (Parent as FrameworkElement).Parent as ScrollViewer;
-
-                if (viewer == null)
-                {
-                    throw new InvalidOperationException();
-                }
+                throw new InvalidOperationException();
             }
 
             var viewerWidth = viewer.ActualWidth - SystemParameters.VerticalScrollBarWidth - 2;
@@ -782,6 +738,7 @@ namespace AphidUI.Internal
                     {
                         _currentRow = _document.Count - 1;
                     }
+
                     MoveCaretEnd();
                     e.Handled = true;
                     break;
@@ -798,9 +755,8 @@ namespace AphidUI.Internal
                         _currentColumn = _document[_currentRow].Count;
                     }
 
-                    var row = _document[_currentRow];
-                    var cell = row[_currentColumn - 1];
-                    _text = _text.Remove(cell.Index, 1);
+                    var cell = _document[_currentRow][_currentColumn - 1];
+                    Text = Text.Remove(cell.Index, 1);
                     _currentColumn--;
                     MoveCaretToCurrentCell();
                     UpdateDocument();
@@ -808,12 +764,12 @@ namespace AphidUI.Internal
                     break;
 
                 case Key.Delete:
-                    row = _document[_currentRow];
+                    var row = _document[_currentRow];
 
                     if (_currentColumn < row.Count)
                     {
                         cell = row[_currentColumn];
-                        _text = _text.Remove(cell.Index, 1);
+                        Text = Text.Remove(cell.Index, 1);
                         UpdateDocument();
                     }
 
@@ -835,20 +791,8 @@ namespace AphidUI.Internal
         {
             DebugHelper.Trace();
             var point = e.GetPosition((IInputElement)sender);
-            double x = point.X + 4, y = point.Y;
-
-            if (x < 0)
-            {
-                x = 0;
-            }
-
-            if (y < 0)
-            {
-                y = 0;
-            }
-
-            _currentColumn = (int)Math.Floor(x / _cellWidth);
-            _currentRow = (int)Math.Floor(y / _cellHeight);
+            _currentColumn = (int)Math.Floor(Math.Max(point.X + 4, 0f) / _cellWidth);
+            _currentRow = (int)Math.Floor(Math.Max(point.Y, 0f) / _cellHeight);
 
             if (_currentRow >= _document.Count)
             {
