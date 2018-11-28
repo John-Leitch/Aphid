@@ -440,12 +440,11 @@ namespace AphidUI.Internal
 
 
                         default:
-                            currentLine.Add(new TextCell()
-                            {
-                                Index = token.Index + x,
-                                Type = GetTokenColor(token),
-                                Char = token.Lexeme[x],
-                            });
+                            currentLine.Add(
+                                new TextCell(
+                                    token.Index + x,
+                                    GetTokenColor(token),
+                                    token.Lexeme[x]));
 
                             if (token.Lexeme[x] == '\n')
                             {
@@ -486,25 +485,11 @@ namespace AphidUI.Internal
 
             var isNewLine = false;
             var row = _document[_currentRow];
-            TextCell cell;
 
-            if (_currentColumn != row.Count)
-            {
-                cell = row[_currentColumn];
-            }
-            else if (_currentColumn == 0 && _document.Count == 1)
-            {
-                cell = new TextCell() { Index = 0 };
-            }
-            else if (_currentColumn != 0)
-            {
-                cell = new TextCell() { Index = row[_currentColumn - 1].Index + 1 };
-            }
-            else
-            {
-                row = _document[_currentRow - 1];
-                cell = new TextCell() { Index = row.Last().Index + 1 };
-            }
+            var cell = _currentColumn != row.Count ? row[_currentColumn] :
+                _currentColumn != 0 ? new TextCell(row[_currentColumn - 1].Index + 1) :
+                _document.Count == 1 ? new TextCell() :
+                new TextCell(_document[_currentRow - 1].Last().Index + 1);
 
             switch (key)
             {

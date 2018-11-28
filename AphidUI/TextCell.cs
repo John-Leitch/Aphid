@@ -13,5 +13,19 @@ namespace AphidUI
         public TextCellType Type;
 
         public char Char;
+
+        public TextCell(int index)
+        {
+            Index = index;
+            Type = default;
+            Char = default;
+        }
+
+        public TextCell(int index, TextCellType type, char cellChar)
+        {
+            Index = index;
+            Type = type;
+            Char = cellChar;
+        }
     }
 }
