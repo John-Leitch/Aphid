@@ -1,0 +1,19 @@
+_im = macro(@{
+    ret __ComObject.InvokeMember(name, BindingFlags.InvokeMethod, null, obj, $args @aq.skip(1))
+});
+
+extend __ComObject {
+    dynamic get: @(obj, name) {
+        if ($args.Count == 1) {
+            try ret __ComObject.InvokeMember(
+                name,
+                BindingFlags.GetField('GetProperty').GetValue(null),
+                null,
+                obj,
+                []);
+            catch _im();
+        } else {
+            _im();
+        }
+    },
+}
