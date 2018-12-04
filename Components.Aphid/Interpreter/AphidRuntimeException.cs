@@ -1,12 +1,15 @@
 ﻿using Components.Aphid.Parser;
+using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
+    [Serializable]
     public class AphidRuntimeException : Exception, IAphidException
     {
         public AphidExceptionType Type
@@ -19,6 +22,7 @@ namespace Components.Aphid.Interpreter
             get { return GetMessage(); }
         }
 
+        [field:NonSerialized]
         public AphidInterpreter Interpreter { get; set; }
 
         public AphidObject ExceptionScope { get; set; }
@@ -28,6 +32,36 @@ namespace Components.Aphid.Interpreter
         public AphidExpression CurrentExpression { get; set; }
 
         public virtual string Details { get; set; }
+
+        private AphidSerializer _serializer = new AphidSerializer(new AphidInterpreter())
+        {
+            IgnoreLazyLists = false,
+            IgnoreFunctions = false,
+            IgnoreSpecialVariables = false,
+            QuoteToStringResults = true,
+            ToStringClrTypes = true,
+        };
+
+        protected AphidRuntimeException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            ExceptionScope = _serializer.Deserialize(info.GetString(nameof(ExceptionScope)));
+            //ExceptionScope = (AphidObject)info.GetValue(nameof(ExceptionScope), typeof(AphidObject));
+            CurrentStatement = (AphidExpression)info.GetValue(nameof(CurrentStatement), typeof(AphidExpression));
+            CurrentExpression = (AphidExpression)info.GetValue(nameof(CurrentExpression), typeof(AphidExpression));
+            Details = info.GetString(nameof(Details));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue(nameof(ExceptionScope), _serializer.Serialize(ExceptionScope));
+            //info.AddValue(nameof(ExceptionScope), ExceptionScope);
+            info.AddValue(nameof(CurrentStatement), CurrentStatement);
+            info.AddValue(nameof(CurrentExpression), CurrentExpression);
+            info.AddValue(nameof(Details), Details);
+            
+        }
 
         public AphidRuntimeException(
             AphidInterpreter interpreter,
