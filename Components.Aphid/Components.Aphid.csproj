@@ -530,7 +530,7 @@
     <Compile Include="Lexer\AphidLexer.cs" />
     <Compile Include="Serialization\AphidObjectLexer.cs" />
     <Compile Include="Lexer\TokenHelper.cs" />
-    <Compile Include="Library\AphidByteConverter.cs" />
+    <Compile Include="Library\Net\AphidByteConverter.cs" />
     <Compile Include="Serialization\AphidSerializer.cs" />
     <Compile Include="Library\Net\Http\HttpServer.cs" />
     <Compile Include="Library\Net\UdpLibrary.cs" />
