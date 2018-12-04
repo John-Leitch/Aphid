@@ -1,0 +1,60 @@
+var rgbToHsv;
+var hsvToRgb;
+
+@{
+    rgbToHsv = @(rgb) {
+        var r = rgb.r / 0xff;
+        var g = rgb.g / 0xff;
+        var b = rgb.b / 0xff;
+        var h;
+
+        _ret = macro(@{
+            while (h < 0) {
+                h += 360;
+            }
+
+            ret {h, s: d / m, v: m}
+        });
+
+        _d = macro(@(x, y, z) { var d = (var m = x) - Math.Min(y, z) });
+
+        if (r >= g && r > b) {
+            _d(r, g, b);
+            h = 60 * (((g - b) / d) % 6);
+            _ret();
+        } else if (g > r && g >= b) {
+            _d(g, b, r);
+            h = 60 * (((b - r)/ d) + 2);
+            _ret();
+        } else if (b >= r && b > g) {
+            _d(b, r, g);
+            h = 60 * (((r - g) / d) + 4);
+            _ret();
+        } else {
+            ret {h: 0, s: 0, v: r};
+        }
+    };
+
+    hsvToRgb = @(hsv) {
+        var c = hsv.v * hsv.s;
+        var h = hsv.h / 60;
+        var x = c * (1 - Math.Abs((h % 2) - 1));
+
+        var rgb = 
+            0 <= h && h <= 1 ? {r: c, g: x, b: 0} :
+            1 < h && h <= 2 ? {r: x, g: c, b: 0} :
+            2 < h && h <= 3 ? {r: 0, g: c, b: x} :
+            3 < h && h <= 4 ? {r: 0, g: x, b: c} :
+            4 < h && h <= 5 ? {r: x, g: 0, b: c} :
+            5 < h && h <= 6 ? {r: c, g: 0, b: x} :
+            throw "Invalid H' value: {0}" :: h;
+
+        var m = hsv.v - c;
+        _cmp = macro(@(n){ rgb.n = (rgb.n + m) * 0xff |> Math.Round; });
+        _cmp(r);
+        _cmp(g);
+        _cmp(b);
+
+        ret rgb;
+    };
+}();

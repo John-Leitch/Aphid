@@ -10,15 +10,11 @@ namespace AphidUI.ViewModels
 
         public string Expression
         {
-            get { return _expression; }
+            get => _expression;
             set
             {
                 SetProperty(ref _expression, value);
-
-                if (ExpressionChanged != null)
-                {
-                    ExpressionChanged(this, new EventArgs());
-                }
+                ExpressionChanged?.Invoke(this, new EventArgs());
             }
         }
     }

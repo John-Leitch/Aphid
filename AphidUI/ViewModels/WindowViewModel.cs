@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Threading;
 
 namespace AphidUI.ViewModels
 {
@@ -263,12 +264,12 @@ namespace AphidUI.ViewModels
 
             AddHistoricalCode();
             var code = Code + " ";
-            var tokens = new AphidLexer(code).GetTokens();
+            var tokens = AphidLexer.GetTokens(code);
 
             if (!tokens.Any(x => x.TokenType == AphidTokenType.EndOfStatement))
             {
                 code += "\r\n;";
-                tokens = new AphidLexer(code).GetTokens();
+                tokens = AphidLexer.GetTokens(code);
                 //tokens.Add(new AphidToken(AphidTokenType.EndOfStatement, "", 0));
                 //code += ";";
             }
@@ -303,11 +304,12 @@ namespace AphidUI.ViewModels
                 unary.Operator != AphidTokenType.retKeyword)
             {
                 ast.Clear();
-                var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
-                retExp.Code = exp.Code;
-                retExp.Index = exp.Index;
-                retExp.Length = exp.Length;
-                ast.Add(retExp);
+                ast.Add(new UnaryOperatorExpression(AphidTokenType.retKeyword, exp)
+                {
+                    Code = exp.Code,
+                    Index = exp.Index,
+                    Length = exp.Length
+                });
             }
 
             try
@@ -336,7 +338,7 @@ namespace AphidUI.ViewModels
             var serialized = AphidCli
                 .CreateSerializer(Interpreter)
                 .Serialize(Interpreter.GetReturnValue());
-
+            
             InvokeDispatcher(() => CodeViewer.AppendOutput(Code, serialized));
             UpdateVariables();
             ExecuteWatchExpressions();

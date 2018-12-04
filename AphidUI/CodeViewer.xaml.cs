@@ -1,4 +1,5 @@
 ﻿using Components.Aphid.Lexer;
+using Components.Aphid.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,28 +24,21 @@ namespace AphidUI
     {
         public string Code
         {
-            get { return (string)this.GetValue(CodeProperty); }
-            set { this.SetValue(CodeProperty, value); }
+            get => (string)GetValue(CodeProperty);
+            set => SetValue(CodeProperty, value);
         }
 
         public static readonly DependencyProperty CodeProperty = DependencyProperty.Register(
-          "Code", typeof(string), typeof(CodeViewer), new PropertyMetadata(null, CodeChanged));
+            "Code",
+            typeof(string),
+            typeof(CodeViewer),
+            new PropertyMetadata(
+                null,
+                (sender, args) => ((CodeViewer)sender).SetCode((string)args.NewValue)));
 
-        public CodeViewer()
-        {
-            InitializeComponent();
-        }
+        public CodeViewer() => InitializeComponent();
 
-        public void Clear()
-        {
-            Document.Blocks.Clear();
-        }
-
-        public static void CodeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
-        {
-            var viewer = (CodeViewer)sender;
-            viewer.SetCode((string)args.NewValue);
-        }
+        public void Clear() => Document.Blocks.Clear();
 
         private Color GetColor(AphidTokenType tokenType)
         {
@@ -108,13 +102,15 @@ namespace AphidUI
             }
 
             Document.Blocks.Add(paragraph);
+
             ScrollToEnd();
         }
 
-        public void AppendCode(string code)
-        {
-            AppendCode(new Paragraph(), code);
-        }
+        private SolidColorBrush GetSyntaxBrush(byte[] rgbBytes) => rgbBytes != null ?
+            new SolidColorBrush(Color.FromRgb(rgbBytes[0], rgbBytes[1], rgbBytes[2])) :
+            null;
+
+        public void AppendCode(string code) => AppendCode(new Paragraph(), code);
 
         public void SetCode(string code)
         {
@@ -150,14 +146,10 @@ namespace AphidUI
             ScrollToEnd();
         }
 
-        public void AppendException(string code, string label, Exception e)
-        {
+        public void AppendException(string code, string label, Exception e) =>
             AppendOutput(code, string.Format("{0}: {1}", label, e.Message), isError: true);
-        }
 
-        public void AppendParserException(string code, Exception e)
-        {
+        public void AppendParserException(string code, Exception e) =>
             AppendException(code, "Parser error", e);
-        }
     }
 }
