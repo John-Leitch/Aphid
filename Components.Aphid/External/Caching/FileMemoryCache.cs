@@ -46,7 +46,14 @@ namespace Components.Caching
 
             using (CreateLock(key))
             {
+                var exists = File.Exists(key);
                 File.WriteAllBytes(key, buffer);
+
+                if (!exists)
+                {
+                    SetHiddenFlag(key);
+                }
+
                 var date = new FileInfo(key).LastWriteTimeUtc;
 
                 if (!_cache.TryGetValue(key, out var bytes))
@@ -70,6 +77,13 @@ namespace Components.Caching
                         .Replace("$", "$$")
                         .Replace(':', '$')
                         .Replace('\\', '$')));
+        }
+
+        private static void SetHiddenFlag(string filename)
+        {
+            File.SetAttributes(
+                filename,
+                File.GetAttributes(filename) | FileAttributes.Hidden);
         }
     }
 }
