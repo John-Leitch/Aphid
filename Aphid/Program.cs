@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Debugging;
+﻿using Components;
+using Components.Aphid.Debugging;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
@@ -140,12 +141,10 @@ namespace Aphid
 
         static void RunRepl()
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-
-            Cli.WriteHeader(
-                string.Format("Aphid Programming Language {0}", version),
-                "~White~~|Blue~");
-
+            var asm = Assembly.GetExecutingAssembly();
+            var version = asm.GetName().Version;
+            var time = asm.GetLinkTime().ToEasternStandardTime();
+            Cli.WriteHeader($"Aphid Programming Language {version} {time} EST", "~White~~|Blue~");
             new AphidRepl().Run();
         }
     }

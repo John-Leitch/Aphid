@@ -52,9 +52,15 @@ namespace Components.External.ConsolePlus
 
         private static string GetDefaultName()
         {
-            var name = Assembly.GetEntryAssembly().GetName();
+            var asm = Assembly.GetEntryAssembly();
+            var name = asm.GetName();
+            var baseName = $"{name.Name} {name.Version}";
 
-            return string.Format("{0} {1}", name.Name, name.Version);
+            DateTime linkTime;
+
+            return (linkTime = asm.GetLinkTimeUtc()) == default ?
+                baseName :
+                $"{baseName} {linkTime.ToEasternStandardTime()} EST";
         }
 
         public virtual void Launch()
