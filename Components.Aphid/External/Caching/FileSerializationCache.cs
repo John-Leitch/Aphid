@@ -78,10 +78,9 @@ namespace Components.Caching
                 using (var s = new MemoryStream())
                 {
                     SerializeCache(s, cache);
-
-                    FileMemoryCache.WriteAllBytes(
-                        GetCacheFilename(filename),
-                        s.ToArray());
+                    var cacheName = GetCacheFilename(filename);
+                    FileMemoryCache.WriteAllBytes(cacheName, s.ToArray());
+                    SetHiddenFlag(cacheName);
                 }
 
                 // Todo: fix race condition by caching begin datetime.
@@ -150,10 +149,9 @@ namespace Components.Caching
             using (var s = new MemoryStream())
             {
                 _serializer.Serialize(s, cacheInfo);
-
-                FileMemoryCache.WriteAllBytes(
-                    GetCacheInfoFilename(filename),
-                    s.ToArray());
+                var cacheInfoName = GetCacheInfoFilename(filename);
+                FileMemoryCache.WriteAllBytes(cacheInfoName, s.ToArray());
+                SetHiddenFlag(cacheInfoName);
             }
         }
 
@@ -185,6 +183,13 @@ namespace Components.Caching
             {
                 return filename + "." + Flags + ".cacheMetadata";
             }
+        }
+
+        private void SetHiddenFlag(string filename)
+        {
+            File.SetAttributes(
+                filename,
+                File.GetAttributes(filename) | FileAttributes.Hidden);
         }
     }
 }
