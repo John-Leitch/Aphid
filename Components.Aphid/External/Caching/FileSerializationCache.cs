@@ -142,7 +142,9 @@ namespace Components.Caching
                         .GetFullPath(filename)
                         .Replace("$", "$$")
                         .Replace(':', '$')
-                        .Replace('\\', '$')));
+                        .Replace('\\', '$')
+                        .Replace('/', '$')
+                        .ToLower()));
         }
 
         private void SaveCacheInfoUnsafe(string filename, FileCacheInfo cacheInfo)

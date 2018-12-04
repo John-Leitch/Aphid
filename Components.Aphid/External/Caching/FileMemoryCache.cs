@@ -47,10 +47,22 @@ namespace Components.Caching
             using (CreateLock(key))
             {
                 var exists = File.Exists(key);
-                File.WriteAllBytes(key, buffer);
 
-                if (!exists)
+                if (exists)
                 {
+                    using (var s = File.Open(key, FileMode.OpenOrCreate))
+                    {
+                        if (s.Length > buffer.Length)
+                        {
+                            s.SetLength(buffer.Length);
+                        }
+
+                        s.Write(buffer);
+                    }
+                }
+                else if (exists)
+                {
+                    File.WriteAllBytes(key, buffer);
                     SetHiddenFlag(key);
                 }
 
@@ -76,7 +88,9 @@ namespace Components.Caching
                         .GetFullPath(filename)
                         .Replace("$", "$$")
                         .Replace(':', '$')
-                        .Replace('\\', '$')));
+                        .Replace('\\', '$')
+                        .Replace('/', '$')
+                        .ToLower()));
         }
 
         private static void SetHiddenFlag(string filename)
