@@ -8,36 +8,39 @@ namespace Components.Caching
         private static Dictionary<string, CacheBlob<byte[]>> _cache =
             new Dictionary<string, CacheBlob<byte[]>>();
 
-        public static byte[] ReadAllBytes(string filename)
-        {
-            var key = Path.GetFullPath(filename);
-
-            using (CreateLock(key))
-            {
-                var time = new FileInfo(key).LastWriteTimeUtc;
-
-                if (!_cache.TryGetValue(key, out CacheBlob<byte[]> bytes))
-                {
-                    var b = File.ReadAllBytes(key);
-                    _cache.Add(key, new CacheBlob<byte[]>(time, b));
-
-                    return b;
-                }
-                else if (bytes.CacheTime != time)
-                {
-                    bytes.CacheTime = time;
-                    return bytes.Value = File.ReadAllBytes(key);
-                }
-                else
-                {
-                    return bytes.Value;
-                }
-            }
-        }
-
         public static Stream OpenRead(string filename)
         {
             return new MemoryStream(ReadAllBytes(filename));
+        }
+
+        public static byte[] ReadAllBytes(string filename)
+        {
+            var cacheName = CacheName.Normalize(filename);
+
+            using (CreateLock(cacheName))
+            {
+                var time = new FileInfo(cacheName).LastWriteTimeUtc;
+
+                lock (_cache)
+                {
+                    if (!_cache.TryGetValue(cacheName, out CacheBlob<byte[]> bytes))
+                    {
+                        var b = File.ReadAllBytes(cacheName);
+                        _cache.Add(cacheName, new CacheBlob<byte[]>(time, b));
+
+                        return b;
+                    }
+                    else if (bytes.CacheTime != time)
+                    {
+                        bytes.CacheTime = time;
+                        return bytes.Value = File.ReadAllBytes(cacheName);
+                    }
+                    else
+                    {
+                        return bytes.Value;
+                    }
+                }
+            }
         }
 
         public static void WriteAllBytes(string filename, byte[] buffer)
@@ -50,17 +53,17 @@ namespace Components.Caching
 
                 if (exists)
                 {
-                    using (var s = File.Open(key, FileMode.OpenOrCreate))
+                    using (var s = File.Open(key, FileMode.Open, FileAccess.Write))
                     {
-                        if (s.Length > buffer.Length)
-                        {
-                            s.SetLength(buffer.Length);
-                        }
-
                         s.Write(buffer);
+
+                        //if (s.Length > buffer.Length)
+                        //{
+                        //    s.SetLength(buffer.Length);
+                        //}
                     }
                 }
-                else if (exists)
+                else
                 {
                     File.WriteAllBytes(key, buffer);
                     SetHiddenFlag(key);
@@ -81,16 +84,7 @@ namespace Components.Caching
 
         private static CrossProcessLock CreateLock(string filename)
         {
-            return new CrossProcessLock(
-                string.Format(
-                    "FileCache_{0}",
-                    Path
-                        .GetFullPath(filename)
-                        .Replace("$", "$$")
-                        .Replace(':', '$')
-                        .Replace('\\', '$')
-                        .Replace('/', '$')
-                        .ToLower()));
+            return new CrossProcessLock($"FileCache_{CacheName.Sanitize(filename)}");
         }
 
         private static void SetHiddenFlag(string filename)

@@ -59,20 +59,24 @@ namespace Components.Caching
 
         private T ReadUnsafe(string filename, out FileCacheSource[] cacheSources)
         {
-            var info = LoadCacheInfoUnsafe(filename);
+            var cacheName = CacheName.Normalize(filename);
+            var info = LoadCacheInfoUnsafe(cacheName);
             T cache;
 
             if (info == null || info.IsOutdated)
             {
-                cache = CreateCache(filename, out var sources);
+                cache = CreateCache(cacheName, out var sources);
 
-                if (_inMemoryCache.ContainsKey(filename))
+                lock (_inMemoryCache)
                 {
-                    _inMemoryCache[filename] = cache;
-                }
-                else
-                {
-                    _inMemoryCache.Add(filename, cache);
+                    if (_inMemoryCache.ContainsKey(cacheName))
+                    {
+                        _inMemoryCache[cacheName] = cache;
+                    }
+                    else
+                    {
+                        _inMemoryCache.Add(cacheName, cache);
+                    }
                 }
 
                 using (var s = new MemoryStream())
@@ -80,13 +84,13 @@ namespace Components.Caching
                     SerializeCache(s, cache);
 
                     FileMemoryCache.WriteAllBytes(
-                        GetCacheFilename(filename),
+                        GetCacheFilename(cacheName),
                         s.ToArray());
                 }
 
                 // Todo: fix race condition by caching begin datetime.
                 SaveCacheInfoUnsafe(
-                    filename,
+                    cacheName,
                     new FileCacheInfo(
                         cacheSources = sources
                             .Select(x => new FileCacheSource(
@@ -102,14 +106,17 @@ namespace Components.Caching
                     fileCacheInfo.Sources :
                     new FileCacheSource[0];
 
-                if (!_inMemoryCache.TryGetValue(filename, out cache))
+                lock (_inMemoryCache)
                 {
-                    using (var s = FileMemoryCache.OpenRead(GetCacheFilename(filename)))
+                    if (!_inMemoryCache.TryGetValue(cacheName, out cache))
                     {
-                        cache = DeserializeCache(s);
-                    }
+                        using (var s = FileMemoryCache.OpenRead(GetCacheFilename(cacheName)))
+                        {
+                            cache = DeserializeCache(s);
+                        }
 
-                    _inMemoryCache.Add(filename, cache);
+                        _inMemoryCache.Add(cacheName, cache);
+                    }
                 }
             }
 
@@ -135,16 +142,7 @@ namespace Components.Caching
 
         private CrossProcessLock CreateLock(string filename)
         {
-            return new CrossProcessLock(
-                string.Format(
-                    "FileSerializationCache_{0}",
-                    Path
-                        .GetFullPath(filename)
-                        .Replace("$", "$$")
-                        .Replace(':', '$')
-                        .Replace('\\', '$')
-                        .Replace('/', '$')
-                        .ToLower()));
+            return new CrossProcessLock($"FileSerializationCache_{CacheName.Sanitize(filename)}");
         }
 
         private void SaveCacheInfoUnsafe(string filename, FileCacheInfo cacheInfo)
@@ -181,11 +179,11 @@ namespace Components.Caching
         {
             if (Flags == 0x0)
             {
-                return filename + ".cacheMetadata";
+                return filename + ".cache.metadata";
             }
             else
             {
-                return filename + "." + Flags + ".cacheMetadata";
+                return filename + "." + Flags + ".cache.metadata";
             }
         }
     }

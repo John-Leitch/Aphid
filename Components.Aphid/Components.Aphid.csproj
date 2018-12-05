@@ -211,6 +211,7 @@
     <Compile Include="Debugging\FrameProfileBinaryWriter.cs" />
     <Compile Include="Debugging\FrameProfileInfo.cs" />
     <Compile Include="External\Caching\CacheBlob.cs" />
+    <Compile Include="External\Caching\CacheName.cs" />
     <Compile Include="External\Caching\PrimitiveCacheInfo.cs" />
     <Compile Include="External\Caching\FileMemoryCache.cs" />
     <Compile Include="External\Caching\FileCacheInfoSerializer.cs" />

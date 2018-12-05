@@ -10,12 +10,17 @@ namespace Components.Aphid.Parser
     {
         private static bool _useBoundSerializer = false;
 
-        private static BinaryFormatter _serializer = new BinaryFormatter();
+        [ThreadStatic]
+        private static BinaryFormatter _serializer, _boundSerializer;
 
-        private static BinaryFormatter _boundSerializer = new BinaryFormatter()
-        {
-            Binder = new AphidExpressionBinder()
-        };
+        public static BinaryFormatter Serializer =>
+            _serializer ?? (_serializer = new BinaryFormatter());
+
+        public static BinaryFormatter BoundSerializer =>
+            _boundSerializer ?? (_boundSerializer = new BinaryFormatter()
+            {
+                Binder = new AphidExpressionBinder()
+            });
 
         public static byte[] Encode(List<AphidExpression> ast)
         {
@@ -29,7 +34,7 @@ namespace Components.Aphid.Parser
 
         public static void Encode(Stream stream, List<AphidExpression> ast)
         {
-            _serializer.Serialize(stream, ast);
+            Serializer.Serialize(stream, ast);
         }
 
         public static List<AphidExpression> Decode(byte[] bytecode)
@@ -46,19 +51,19 @@ namespace Components.Aphid.Parser
             {
                 try
                 {
-                    return (List<AphidExpression>)_serializer.Deserialize(stream);
+                    return (List<AphidExpression>)Serializer.Deserialize(stream);
                 }
                 catch (InvalidCastException)
                 {
                     stream.Position = 0;
-                    var result = (List<AphidExpression>)_boundSerializer.Deserialize(stream);
+                    var result = (List<AphidExpression>)BoundSerializer.Deserialize(stream);
                     _useBoundSerializer = true;
                     return result;
                 }
             }
             else
             {
-                return (List<AphidExpression>)_boundSerializer.Deserialize(stream);
+                return (List<AphidExpression>)BoundSerializer.Deserialize(stream);
             }
         }
 
