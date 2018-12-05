@@ -1,4 +1,5 @@
 ﻿#'Gui\\WinForms';
+#'Charts.Config';
 using Components.ObjectDatabase;
 using System.Reflection;
 using Components.Aphid.Parser;
@@ -7,9 +8,7 @@ AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
     ret e.Name.StartsWith('Components.Aphid') ? AphidExpression.Assembly : null;
 });
 
-
 var chart = winForms.chart();
-
 var area3d = chart.area().Area3DStyle;
 area3d.Enable3D = true;
 area3d.Inclination = 25;
@@ -21,17 +20,17 @@ area3d.WallWidth = 5;
 area3d.LightStyle = LightStyle.Realistic;
 
 var tickMode = { normal: 0, sum: 1, average: 2 };
-
 var mode = tickMode.normal;
-#'std';
-var l = {};
 
-//repl.run();
+#'std';
+
+var l = {};
 
 using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
     var flattened =
         (var r = db.ReadUnsafe)()
-        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }));
+        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
+        -?((@.name) @> testNames.contains);
 
     var fullRuns = flattened-&(@.version)-&(@()$_-&@.name#!)-/@.Key^!->@.Key;
 

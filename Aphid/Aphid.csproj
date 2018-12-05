@@ -213,6 +213,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Benchmarks\Charts.Config.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Benchmarks\ConditionalBenchmark.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

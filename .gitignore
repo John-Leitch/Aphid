@@ -230,4 +230,6 @@ Components.Aphid/Tools/*.exe
 !/Components.Aphid/Library/Net/
 /Aphid/Samples/*/
 
-/AphidLanguageServer/*
+# Temporary hack to ignore the bulk of NuGet packages
+*.dll
+*.exe
