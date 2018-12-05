@@ -203,8 +203,9 @@ InlineIl_*
 ilmerge.*/
 
 # Aphid Caching
-*.cache
-*.cacheMetadata
+*.alx.cache
+*.alx.cacheMetadata
+*.alx.cache.metadata
 
 # AphidDoc files
 Aphid.xml
