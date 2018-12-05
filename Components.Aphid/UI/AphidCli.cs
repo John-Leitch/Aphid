@@ -656,7 +656,18 @@ namespace Components.Aphid.UI
             bool ignoreNull = true,
             bool ignoreClrObj = true)
         {
-            var result = serializer.Serialize(interpreter.ValueHelper.Wrap(value));
+            string result;
+
+            try
+            {
+                result = serializer.Serialize(interpreter.ValueHelper.Wrap(value));
+            }
+            catch (Exception e)
+            {
+                var ex = ExceptionHelper.Unwrap(e);
+
+                return $"Error dumping {value.GetType()}: {ex.Message}";
+            }
 
             //if(result.StartsWith("clrObject("))
             //{
