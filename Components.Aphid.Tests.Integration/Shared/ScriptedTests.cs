@@ -1,8 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
-using Components.Aphid.UI;
-using Components.Caching;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -11,16 +9,81 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration.Shared
 {
-    [TestFixture(Category = "ScriptedTests"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "ScriptedTests")]
     public class ScriptedTests : AphidTests
     {
-        [Test, TestCaseSource("Tests")]
+        private static readonly List<AphidExpression> _prologueAst = AphidParser.Parse(@"
+            using Components.Aphid.Tests.Integration;
+            using Components.Aphid.Tests.Integration.Shared;
+            var isTrue = AphidTests.IsTrue;
+            var isFalse = AphidTests.IsFalse;
+            var isFoo = AphidTests.IsFoo;
+            var is9 = AphidTests.Is9;
+            var isNull = AphidTests.IsNull;
+            var notNull = AphidTests.NotNull;
+            var isThrow = AphidTests.IsThrow;
+        ");
+
+        private static readonly DirectoryInfo _aphidDirectory = new FileInfo(typeof(AphidTests).Assembly.Location).Directory;
+
+        private static readonly string[] _ignoreScripts = new[] { "test.alx", "testbase.alx", "aoptest.alx" };
+
+        private static IEnumerable Tests => _aphidDirectory
+            .GetDirectories("ScriptedTests")
+            .Single()
+            .GetFiles("*.alx", SearchOption.AllDirectories)
+            .Except(x => _ignoreScripts.Contains(x.Name.ToLower()))
+            .AsParallel()
+            .WithDegreeOfParallelism(Environment.ProcessorCount)
+            .WithMergeOptions(ParallelMergeOptions.NotBuffered)
+            .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+            .SelectMany(s =>
+            {
+                WriteQueryMessage($"Caching {s.FullName}");
+                var interpreter = new AphidInterpreter();
+                interpreter.Loader.SearchPaths.Add(_aphidDirectory.FullName);
+                interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
+                interpreter.Interpret(_prologueAst);
+                var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
+                var ast = cache.Read(s.FullName);
+
+                WriteQueryMessage($"Interpreting {s.FullName}");
+                interpreter.Interpret(ast);
+
+                WriteQueryMessage($"Tests in {s.FullName} ready");
+                var scope = interpreter.CurrentScope;
+
+                return interpreter.CurrentScope
+                    .SkipWhile(y => y.Key != "tests")
+                    .Skip(1)
+                    .Member(y => y.Value.Value)
+                    .Is<AphidFunction>()
+                    .Select(y => (s: y.Key, interpreter, s.Name));
+            })
+            .Select(x => new TestCaseData(x.interpreter, x.s)
+                .SetCategory(Path.GetFileNameWithoutExtension(x.Name))
+                .SetName(FormatTestName(x.s)));
+
+        private static string FormatTestName(string funcName)
+        {
+            if (Regex.IsMatch(funcName, @"Test\d*$"))
+            {
+                return funcName;
+            }
+
+            var n = funcName[0].ToString().ToUpper() + funcName.Substring(1);
+            var digits = n.Where(char.IsDigit).ToArray();
+
+            return n.Insert(digits.Any() ? n.IndexOf(digits[0]) : n.Length, "Test");
+        }
+
+        [Test, TestCaseSource("Tests"), Parallelizable(ParallelScope.Self)]
         public void RunTestScript(AphidInterpreter interpreter, string funcName)
         {
+            WriteQueryMessage($"Calling {funcName} method");
             interpreter.TakeOwnership();
             var result = interpreter.CallFunction(funcName);
 
@@ -41,77 +104,6 @@ namespace Components.Aphid.Tests.Integration.Shared
 
                 Assert.True(result.GetBool(), sb.ToString());
             }
-        }
-
-        private static readonly List<AphidExpression> _prologueAst = AphidParser.Parse(@"
-            using Components.Aphid.Tests.Integration;
-            using Components.Aphid.Tests.Integration.Shared;
-            var isTrue = AphidTests.IsTrue;
-            var isFalse = AphidTests.IsFalse;
-            var isFoo = AphidTests.IsFoo;
-            var is9 = AphidTests.Is9;
-            var isNull = AphidTests.IsNull;
-            var notNull = AphidTests.NotNull;
-            var isThrow = AphidTests.IsThrow;
-        ");
-
-        public static IEnumerable Tests
-        {
-            get
-            {
-                var aphidDir = new FileInfo(typeof(AphidTests).Assembly.Location).Directory;
-
-                var testScripts = aphidDir
-                    .GetDirectories("ScriptedTests")
-                    .Single()
-                    .GetFiles("*.alx", SearchOption.AllDirectories)
-                    .Where(x =>
-                        x.Name.ToLower() != "test.alx" &&
-                        x.Name.ToLower() != "testbase.alx" &&
-                        x.Name.ToLower() != "aoptest.alx");
-
-                var testList = new List<TestCaseData>();
-
-                var asm = System.Reflection.Assembly.GetExecutingAssembly();
-
-                foreach (var s in testScripts)
-                {
-                    var script = AphidScript.Read(s.FullName);;
-                    var interpreter = new AphidInterpreter();
-                    interpreter.Loader.SearchPaths.Add(aphidDir.FullName);
-                    interpreter.Loader.SearchPaths.Add(s.Directory.FullName);
-                    interpreter.Interpret(_prologueAst);
-                    interpreter.Interpret(script);
-                    var scope = interpreter.CurrentScope;
-
-                    var tests = scope.Keys
-                        .SkipWhile(x => x != "tests")
-                        .Skip(1)
-                        .Where(x => scope[x].Value != null && scope[x].Value is AphidFunction)
-                        .ToArray();
-
-                    foreach (var t in tests)
-                    {
-                        yield return new TestCaseData(interpreter, t)
-                            .SetCategory(Path.GetFileNameWithoutExtension(s.Name))
-                            .SetName(FormatTestName(t));
-
-                    }
-                }
-            }
-        }
-
-        private static string FormatTestName(string funcName)
-        {
-            if (Regex.IsMatch(funcName, @"Test\d*$"))
-            {
-                return funcName;
-            }
-
-            var n = funcName[0].ToString().ToUpper() + funcName.Substring(1);
-            var digits = n.Where(char.IsDigit).ToArray();
-
-            return n.Insert(digits.Any() ? n.IndexOf(digits[0]) : n.Length, "Test");
         }
     }
 }
