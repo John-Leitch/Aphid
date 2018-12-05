@@ -295,9 +295,12 @@ var viewModel;
 
         var lexer = exp.Attributes->@.Identifier |> getLexer;
 
-        var resolveAlias = @(name) e.aliases[name] defined ?
-            e.aliases[name] |> Type.GetType |> code.typeExp |> code.cs :
-            name;
+        var resolveAlias = @(name)
+            e.aliasTypes defined && e.aliasTypes[name] defined ?
+                e.aliasTypes[name] |> code.typeExp |> code.cs :
+            e.aliases[name] defined ?
+                e.aliases[name] |> Type.GetType |> code.typeExp |> code.cs :
+                name;
         
         var attrTree = {
             access = lexer.oneOrNone(['private', 'public'], 'public'),
@@ -330,17 +333,17 @@ var viewModel;
                 ret vmType;
             },
 
-            compileCode: @(code) {
+            compileCode: @(code, aliasTypes) {
                 e.text.Clear();
-                code |> parse |> compileAst;
+                code |> parse @() compileAst($_, aliasTypes);
                 ret e.text.ToString();
             },
 
             compileFile: File.ReadAllText @> compileCode,
 
-            compileAst: @(ast) {
-
+            compileAst: @(ast, aliasTypes) {
                 var visitor = createVisitor();
+
                 visitor.functionExp = @(func) {
                     if (func.Body.Count == 0 ||
                         !func.Body[0].isId() ||
@@ -353,6 +356,11 @@ var viewModel;
                 };
 
                 visitor.e = e;
+
+                if (aliasTypes defined) {
+                    visitor.e.aliasTypes = aliasTypes;
+                }
+
                 ast |> visitor.visit;
 
                 return e.text;
@@ -362,7 +370,7 @@ var viewModel;
                 var typeMap = {};
                 type.GetProperties()
                     ->@{ typeMap[$_.Name] = $_.PropertyType; };
-
+                // repl.run();
                 printInfo('Created map: ');
                 typeMap |> dump;
                 
@@ -399,14 +407,16 @@ var viewModel;
                 var aliases = {};
                 var aliasMap = {};
                 var aliasIndex = 0;
+                var aliasTypes = {};
                 
                 var addAlias = @(type) {
-                    if (aliasMap[type.FullName] defined) {
-                        ret aliasMap[type.FullName]
+                    if (aliasMap[var n = type.ToString()] defined) {
+                        ret aliasMap[n]
                     } else {
                         var key = 'alias{0}' :: aliasIndex++;
-                        aliases[key] = type.FullName;
-                        aliasMap[type.FullName] = key;
+                        aliases[key] = n;
+                        aliasMap[n] = key;
+                        aliasTypes[key] = type;
 
                         ret key;
                     }
@@ -471,7 +481,7 @@ var viewModel;
 
                 s |> Console.WriteLine;
 
-                ret s |> compileCode;
+                ret compileCode(s, aliasTypes);
             },
         };
     }();

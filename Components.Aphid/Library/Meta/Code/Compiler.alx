@@ -431,14 +431,19 @@ var csharp;
             using Microsoft.CSharp;
             
             var provider = new CSharpCodeProvider();
-            
-            
 
             if (params == null) {
                 params = createDefaultParams();
             }
 
+            cs |> Console.WriteLine;
+
             var results = provider.CompileAssemblyFromSource(params, cs);
+
+            if ((results.Errors #!) > 0) {
+                results.Errors |> dump;
+                throw (results.Errors |> serialize);
+            }
 
             ret results;
         },
