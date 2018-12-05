@@ -189,9 +189,10 @@ namespace Components.Aphid.Tests.Integration.Shared
             return TestClassType.FullName.RemoveAtLastIndexOf('.') + "." + s;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _loader.Dispose();
+            base.Dispose();
         }
     }
 }

@@ -13,11 +13,12 @@ using System.Dynamic;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using System.Collections;
+using Components.External.ConsolePlus;
 
 namespace Components.Aphid.Tests.Integration.Shared
 {
     [Parallelizable(ParallelScope.All)]
-    public class AphidTests
+    public class AphidTests : IDisposable
     {
         private ThreadLocal<AphidInterpreter> _nextInterpreter = new ThreadLocal<AphidInterpreter>();
 
@@ -47,6 +48,32 @@ namespace Components.Aphid.Tests.Integration.Shared
         };
 
         protected virtual bool LoadStd { get { return false; } }
+
+        private static TextWriterTraceListener _listener = new TextWriterTraceListener(@"Tests.log");
+
+        static AphidTests() => Initialize();
+        public AphidTests() => Initialize();
+
+        [Conditional("TRACE_SCRIPTED_TESTS")]
+        protected static void Initialize()
+        {
+            if (!Trace.Listeners.Contains(_listener))
+            {
+                Trace.Listeners.Add(_listener);
+                Trace.AutoFlush = true;
+                Cli.UseTrace = true;
+                WriteInfoMessage("Initialize called");
+            }
+        }
+
+        [Conditional("TRACE_SCRIPTED_TESTS")]
+        protected static void WriteInfoMessage(string message) => Cli.WriteInfoMessage(message);
+
+        [Conditional("TRACE_SCRIPTED_TESTS")]
+        protected static void WriteQueryMessage(string message) => Cli.WriteQueryMessage(message);
+
+        [Conditional("TRACE_SCRIPTED_TESTS")]
+        protected static void WriteSuccessMessage(string message) => Cli.WriteSuccessMessage(message);
 
         protected virtual List<AphidExpression> ParseScript(AphidInterpreter interpreter, string script)
         {
@@ -280,6 +307,17 @@ namespace Components.Aphid.Tests.Integration.Shared
         protected void AssertCollectionIs<TElement>(string script, params TElement[] expected)
         {
             CollectionAssert.AreEqual(expected, (IEnumerable)Execute(script).Value);
+        }
+
+        public virtual void Dispose()
+        {
+            WriteSuccessMessage("Dispose called");
+            Trace.Listeners.Remove(_listener);
+
+            using (_listener)
+            {
+                _listener = null;
+            }
         }
     }
 }
