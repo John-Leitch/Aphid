@@ -6,21 +6,19 @@ namespace Components.Aphid.Parser
 {
     public class AphidByteCodeCache : FileSerializationCache<List<AphidExpression>>
     {
-        public bool InlineScripts { get; set; }
+        public bool InlineScripts { get; set; } = false;
 
         private readonly string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
             : base(typeof(AphidExpression).Assembly.GetName().Version)
         {
-            InlineScripts = true;
             _searchPaths = searchPaths;
         }
 
         public AphidByteCodeCache(string[] searchPaths, uint flags)
             : base(typeof(AphidExpression).Assembly.GetName().Version, flags)
         {
-            InlineScripts = true;
             _searchPaths = searchPaths;
         }
 
