@@ -1,9 +1,9 @@
-#'Std';
-#'Wpf';
-#'Compiler';
-#'ViewModelCompiler';
-#'Process';
-#'Nuget';
+
+#'Gui/Wpf';
+#'Meta/Code/Compiler';
+#'Meta/Code/ViewModelCompiler';
+#'System/Process';
+#'System/Nuget';
 printInfo('Loading Nuget references');
 var asms =
     [ 'Extended.Wpf.Toolkit', 'System.Windows.Controls.DataVisualization.Toolkit' ]
