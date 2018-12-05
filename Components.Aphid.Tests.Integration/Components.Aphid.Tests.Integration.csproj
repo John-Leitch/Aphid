@@ -93,6 +93,7 @@
     <Compile Include="InteropTests\InteropTests.StreamWriter.cs" />
     <Compile Include="InteropTests\InteropTests.Math.cs" />
     <Compile Include="InteropTests\InteropTests.String.Format.cs" />
+    <Compile Include="TraversableEnumerableSmokeTests.cs" />
     <Compile Include="Shared\AphidTests.cs" />
     <Compile Include="ClassTests.cs" />
     <Compile Include="Shared\ValueUpdateEventArgs.cs" />
