@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 
@@ -465,10 +464,27 @@ namespace Components
         // Except
         ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
+        public static IEnumerable<TSource> Except<TSource>(
+            this IEnumerable<TSource> source,
+            Func<TSource, bool> predicate)
+        {
+            return source.Where(x => !predicate(x));
+        }
+
+        [DebuggerStepThrough]
         public static IEnumerable<TSource> ExceptNull<TSource>(this IEnumerable<TSource> source)
             where TSource : class
         {
             return source.Where(x => x != null);
+        }
+
+        [DebuggerStepThrough]
+        public static IEnumerable<TSource> ExceptNull<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector)
+            where TResult : class
+        {
+            return source.Where(x => selector(x) != null);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -501,6 +517,8 @@ namespace Components
         {
             return source.Skip(source.Count() - count);
         }
+
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Iter
@@ -545,7 +563,7 @@ namespace Components
         private static Random _random = new Random();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // TakeRandom
+        // Shuffle
         ////////////////////////////////////////////////////////////////////////////////////////////////
         [DebuggerStepThrough]
         public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source)

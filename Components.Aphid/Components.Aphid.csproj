@@ -222,11 +222,13 @@
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />
     <Compile Include="External\Common\DefaultSingleton.cs" />
+    <Compile Include="External\Linq\EnumerableMember.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
     <Compile Include="External\Common\SelectorComparer.cs" />
     <Compile Include="External\Common\Singleton.cs" />
     <Compile Include="External\Common\StreamExtension.cs" />
     <Compile Include="External\Common\Table.cs" />
+    <Compile Include="External\Linq\TraversableEnumerable.cs" />
     <Compile Include="External\ConsolePlus\CliWriteMessage.cs" />
     <Compile Include="External\ConsolePlus\Autocomplete.cs" />
     <Compile Include="External\ConsolePlus\ConsoleDataEventArgs.cs" />
@@ -374,7 +376,7 @@
     <Compile Include="External\Debugging\ProcessExtension.cs" />
     <Compile Include="External\Debugging\StackDumper.cs" />
     <Compile Include="External\Common\EnvironmentHelper.cs" />
-    <Compile Include="External\Common\EnumerableExtension.cs" />
+    <Compile Include="External\Linq\EnumerableExtension.cs" />
     <Compile Include="External\Json\JsonFormatter.cs" />
     <Compile Include="External\Json\JsonLexer.cs" />
     <Compile Include="External\Json\JsonSerializer.cs" />
@@ -393,7 +395,7 @@
     <Compile Include="External\PInvoke\WindowsHookCallback.cs" />
     <Compile Include="External\Common\RevertibleLazy.cs" />
     <Compile Include="External\ConsolePlus\ScannerTokenType.cs" />
-    <Compile Include="External\Common\StringEnumerableExtension.cs" />
+    <Compile Include="External\Linq\StringEnumerableExtension.cs" />
     <Compile Include="External\Common\StringExtension.cs" />
     <Compile Include="External\Common\StringTree.cs" />
     <Compile Include="External\Common\TypeLoader.cs" />
