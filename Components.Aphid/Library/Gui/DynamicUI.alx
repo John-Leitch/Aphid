@@ -11,7 +11,10 @@ var asms =
 
 printSuccess('Done loading references: {0}', asms |> serialize);
 
+var dynamicViewType = { dataGrid: 1, barGraph: 100, };
+
 class DynamicView {
+    int ViewType,
     string Name,
     string list Columns,
     string list Associations,
@@ -143,7 +146,7 @@ var viewController = {
             var docking = loadDocking();
             app.window.Content = docking;
             pane = docking.FindName('DocPane');
-            print('~Yellow~Pane: {0}~R~', pane);
+            // print('~Yellow~Pane: {0}~R~', pane);
         });
     },
 
@@ -151,8 +154,17 @@ var viewController = {
 
     wait: null,
 
+    addBarGraphView: @(name, loadData) {
+        var view = new DynamicView();
+        view.ViewType = dynamicViewType.barGraph;
+        view.Name = name;
+        view.LoadData = loadData;        
+        table.Add(view.Name, view);
+    },
+
     addListView: @(name, columns, associations, loadData, rowType) {
         var view = new DynamicView();
+        view.ViewType = dynamicViewType.dataGrid;
         view.Name = name;
         
         if (associations != null) {
@@ -186,59 +198,102 @@ var viewController = {
             dynView = view;
         }
 
-        app.invoke(@{
-            var dg = app.createDataGrid();
-            wpf.bindingMode = BindingMode.OneWay;
+        app.invoke(@()
+            ($(dynView.ViewType)
+                dynamicViewType.dataGrid: renderDataGrid,
+                dynamicViewType.barGraph: renderBarGraph)(dynView, navContext));
+    },
 
-            if (dynView.Columns != null) {
-                dg.AutoGenerateColumns = false;
-                dynView.Columns->@() wpf.dataGrid.addTextColumn(dg, $_, $_);
-            } else {
-                dg.Columns.Clear();
-                dg.AutoGenerateColumns = true;
-            }
+    renderDataGrid: @(dynView, navContext) {
+        printInfo('Rendering DataGrid view');
+        var dg = app.createDataGrid();
+        wpf.bindingMode = BindingMode.OneWay;
 
-            if (dynView.Associations != null) {
-                dynView.Associations->@(name) {
-                    wpf.dataGrid.addButtonColumn(
-                        dg,
-                        name,
-                        'Open',
-                        50,
-                        @(sender, e) {
-                            viewController.navigate(
-                                name,
-                                sender.DataContext);
-                        });
-                }
-            }
-                
-            using Xceed.Wpf.AvalonDock.Layout;
-            using System.Linq;
-            var vmData;
+        printQuery('Configuring DataGrid columns');
 
-            if (navContext defined) {
-                vmData = navContext |> dynView.LoadData;
-            } else {
-                vmData = dynView.LoadData();
-            }
-            
-            dg.ItemsSource = vmData
-                ->@bind.typeToViewModel(dynView.ViewModelType)
-                |> Enumerable.AsEnumerable;
+        if (dynView.Columns != null) {
+            printInfo('Adding specified columns');
+            dg.AutoGenerateColumns = false;
+            dynView.Columns->@() wpf.dataGrid.addTextColumn(dg, $_, $_);
+        } else {
+            printInfo('Auto-generating columns');
+            dg.Columns.Clear();
+            dg.AutoGenerateColumns = true;
+        }
 
-            // var docking = loadDocking();
-            // app.window.Content = docking;
+        printQuery('Checking for dynamic view associations');
 
-            //var pane = docking.FindName('DocPane');
-            var doc = new LayoutDocument();
-            doc.Title = dynView.Name;
-            doc.ContentId = dynView.Name;
-            doc.Content = dg;
-            // doc.IsActive = true;
-            pane.Children.Add(doc);
-            print('~Yellow~Pane: {0}~R~', pane);
-            //app.window.Content = dg;
-        });
+        if (dynView.Associations != null) {
+            printInfo('Configuring dynamic view association columns');
+
+            dynView.Associations->@(name)
+                wpf.dataGrid.addButtonColumn(
+                    dg,
+                    name,
+                    'Open',
+                    50,
+                    @(sender, e) {
+                        viewController.navigate(name, sender.DataContext);
+                    });            
+        }
+        
+        _loadData();
+        
+        printInfo('Binding view data');
+
+        dg.ItemsSource = vmData
+            ->@bind.typeToViewModel(dynView.ViewModelType)
+            |> Enumerable.AsEnumerable;
+
+        addDoc(dynView, dg);
+        
+        printSuccess('Done rendering DataGrid view');
+    },
+
+    renderBarGraph: @(dynView, navContext) {
+        printInfo('Rendering BarGraph view');
+        printInfo('Loading view data');
+        var vmData;
+
+        if (navContext defined) {
+            vmData = navContext |> dynView.LoadData;
+        } else {
+            vmData = dynView.LoadData();
+        }
+        
+        printInfo('Creating plot view control');
+        var view = createLinearBarModel(vmData);
+        var grid = new Grid();
+        grid.Children.Add(view);
+        addDoc(dynView, grid);
+
+        printSuccess('Done rendering BarGraph view');        
+    },
+
+    addDoc: @(dynView, content) {
+        using Xceed.Wpf.AvalonDock.Layout;
+
+        printInfo('Creating layout document for pane');
+        var doc = new LayoutDocument();
+        doc.Title = dynView.Name;
+        doc.ContentId = dynView.Name;
+        doc.Content = content;
+        doc.IsActive = true;
+        
+        printInfo('Adding layout document to pane');
+        pane.Children.Add(doc);
+        
+        printSuccess('Pane successfully updated');
     },
 };
+
+_loadData = macro(@{
+    printInfo('Loading view data');
+    var vmData;
+
+    if (navContext defined) {
+        vmData = navContext |> dynView.LoadData;
+    } else {
+        vmData = dynView.LoadData();
+    }
+});

@@ -1,0 +1,66 @@
+nuget.reference('OxyPlot.Core') |> dump;
+nuget.reference('OxyPlot.Wpf') |> dump;
+
+using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
+using OxyPlot.Wpf;
+
+// class PlotViewModel { PlotModel Model, PlotController Controller };
+
+_opt = macro(@(dst, src) {
+    if (src defined && src != null) {
+        dst = src;
+    }
+});
+
+var createLinearBarModel = @(values, title, seriesTitle, xTitle, yTitle) {
+    var model = new PlotModel();
+    _opt(model.Title, title);
+    var linearAxis1 = new LinearAxis();
+    linearAxis1.Position = AxisPosition.Bottom;
+    model.Axes.Add(linearAxis1);
+    var linearAxis2 = new LinearAxis();
+    model.Axes.Add(linearAxis2);
+    
+    var series = new LinearBarSeries();
+    _opt(series.Title, seriesTitle);
+    series.FillColor = OxyColor.FromArgb(69, 76, 175, 80);
+    series.StrokeThickness = 1;
+    series.StrokeColor = OxyColor.FromArgb(255, 76, 175, 80);
+    series.NegativeFillColor = OxyColor.FromArgb(69, 191, 54, 12);
+    series.NegativeStrokeColor = OxyColor.FromArgb(255, 191, 54, 12);
+    _opt(series.XAxis.Title, xTitle);
+    _opt(series.YAxis.Title, yTitle);
+
+    using System.Threading.Tasks;
+    var i = 0;
+    values->@{ series.Points.Add(new DataPoint(i++, $_)); };
+    model.Series.Add(series);
+
+    ret createPlotView(model, new PlotController());
+
+    // var vm = new PlotViewModel();
+    // vm.Model = model;
+    // vm.Controller = new PlotController();
+
+    // ret vm;
+};
+
+var createPlotView = @(model, controller) {
+    var view = new PlotView();
+    view.Model = model;
+    view.Controller = controller;
+
+    ret view;
+};
+
+using System.Windows.Markup;
+
+var createBoundPlotView = @(name, modelPath, controllerPath) XamlReader.Parse('
+    <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Wpf">
+        <oxy:PlotView x:Name="{0}" Model="{{Binding {1}}}" Controller="{{Binding {2}}}"/>
+    </Grid>
+');

@@ -236,7 +236,7 @@ var bind;
                 };
 
 
-            print(vm);
+            // print(vm);
             vm.ViewModelDataSource = context;
 
             ret vm;
