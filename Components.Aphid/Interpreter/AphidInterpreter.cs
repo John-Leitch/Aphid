@@ -632,30 +632,26 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretAndExpression(BinaryOperatorExpression expression)
         {
-            var left = (bool)ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-
-            if (!left)
+            if (!(bool)InterpretExpression(expression.LeftOperand).Value)
             {
                 return AphidObject.False;
             }
             else
             {
-                return AphidObject.Scalar((bool)ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)));
+                return AphidObject.Scalar((bool)InterpretExpression(expression.RightOperand).Value);
             }
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretOrExpression(BinaryOperatorExpression expression)
         {
-            var left = (bool)ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-
-            if (left)
+            if ((bool)InterpretExpression(expression.LeftOperand).Value)
             {
                 return AphidObject.True;
             }
             else
             {
-                return AphidObject.Scalar((bool)ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)));
+                return AphidObject.Scalar((bool)InterpretExpression(expression.RightOperand).Value);
             }
         }
 
@@ -1086,7 +1082,7 @@ namespace Components.Aphid.Interpreter
 
                 case AphidExpressionType.DynamicMemberExpression:
                     var exp = ((DynamicMemberExpression)memberExpression).MemberExpression;
-                    var memberObj = ValueHelper.Unwrap(InterpretExpression(exp));
+                    var memberObj = InterpretExpression(exp).Value;
 
                     try
                     {
@@ -1427,8 +1423,7 @@ namespace Components.Aphid.Interpreter
 
                 for (var i = 0; i < keyObjects.Length; i++)
                 {
-                    keyObjects[i] = ValueHelper.Unwrap(
-                        InterpretExpression(arrayAccessExp.KeyExpressions[i]));
+                    keyObjects[i] = InterpretExpression(arrayAccessExp.KeyExpressions[i]).Value;
                 }
 
                 if (keyObjects.Length != 1)
@@ -1646,7 +1641,7 @@ namespace Components.Aphid.Interpreter
                 return false;
             }
 
-            var v = ValueHelper.Unwrap(value);
+            var v = value.Value;
 
             if (interopRef.Field != null)
             {
@@ -1756,23 +1751,23 @@ namespace Components.Aphid.Interpreter
 
                 case AphidTokenType.LessThanOperator:
                     return AphidObject.Scalar(
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) <
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
+                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) <
+                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case AphidTokenType.LessThanOrEqualOperator:
                     return AphidObject.Scalar(
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) <=
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
+                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) <=
+                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case AphidTokenType.GreaterThanOperator:
                     return AphidObject.Scalar(
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) >
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
+                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) >
+                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case AphidTokenType.GreaterThanOrEqualOperator:
                     return AphidObject.Scalar(
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))) >=
-                        Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand))));
+                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) >=
+                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case AphidTokenType.AndOperator:
                     return InterpretAndExpression(expression);
@@ -1830,8 +1825,8 @@ namespace Components.Aphid.Interpreter
                         InterpretExpression(expression.RightOperand) as AphidObject);
 
                 case AphidTokenType.SelectOperator:
-                    var collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    var func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    var collection = InterpretExpression(expression.LeftOperand).Value;
+                    var func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
@@ -1845,8 +1840,8 @@ namespace Components.Aphid.Interpreter
                             .ToList());
 
                 case AphidTokenType.SelectManyOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
@@ -1862,8 +1857,8 @@ namespace Components.Aphid.Interpreter
                             .ToList());
 
                 case AphidTokenType.GroupByOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
@@ -1876,8 +1871,8 @@ namespace Components.Aphid.Interpreter
                                     new object[] { x }))));
 
                 case AphidTokenType.AggregateOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return ValueHelper.Wrap(
                         ((IEnumerable)collection)
@@ -1890,50 +1885,53 @@ namespace Components.Aphid.Interpreter
                                     new object[] { x, y })));
 
                 case AphidTokenType.AnyOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .Any(x => (bool)ValueHelper.Unwrap(
-                                InterpretCallExpression(
+                            .Any(x => 
+                                (bool)InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
                                     func,
-                                    new object[] { x }))));
+                                    new object[] { x })
+                                    .Value));
 
                 case AphidTokenType.WhereOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .Where(x => (bool)ValueHelper.Unwrap(
-                                InterpretCallExpression(
+                            .Where(x =>
+                                (bool)InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
                                     func,
-                                    new object[] { x }))));
+                                    new object[] { x })
+                                    .Value));
 
                 case AphidTokenType.CountOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .Count(x => (bool)ValueHelper.Unwrap(
-                                InterpretCallExpression(
+                            .Count(x =>
+                                (bool)InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
                                     func,
-                                    new object[] { x }))));
+                                    new object[] { x })
+                                    .Value));
 
                 case AphidTokenType.OrderByOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
@@ -1946,8 +1944,8 @@ namespace Components.Aphid.Interpreter
                                     new object[] { x }))));
 
                 case AphidTokenType.OrderByDescendingOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return AphidObject.Scalar(
                         ((IEnumerable)collection)
@@ -1960,14 +1958,14 @@ namespace Components.Aphid.Interpreter
                                     new object[] { x }))));
 
                 case AphidTokenType.FirstOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return ValueHelper.Wrap(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .First(x => (bool)
-                                InterpretCallExpression(
+                            .First(x =>
+                                (bool)InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
                                     func,
@@ -1976,14 +1974,14 @@ namespace Components.Aphid.Interpreter
 
 
                 case AphidTokenType.LastOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
-                    func = ValueHelper.Unwrap(InterpretExpression(expression.RightOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
+                    func = InterpretExpression(expression.RightOperand).Value;
 
                     return ValueHelper.Wrap(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .Last(x => (bool)
-                                InterpretCallExpression(
+                            .Last(x =>
+                                (bool)InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
                                     func,
@@ -1991,7 +1989,7 @@ namespace Components.Aphid.Interpreter
                                     .Value));
 
                 case AphidTokenType.StartsWithOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
 
                     var pattern = ValueHelper
                         .Unwrap(InterpretExpression(expression.RightOperand))
@@ -2008,7 +2006,7 @@ namespace Components.Aphid.Interpreter
                             }));
 
                 case AphidTokenType.EndsWithOperator:
-                    collection = ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand));
+                    collection = InterpretExpression(expression.LeftOperand).Value;
 
                     pattern = ValueHelper
                         .Unwrap(InterpretExpression(expression.RightOperand))
@@ -2385,8 +2383,8 @@ namespace Components.Aphid.Interpreter
             AphidObject.Scalar(new AphidFunctionComposition(
                 composition.LeftOperand,
                 composition.RightOperand,
-                ValueHelper.Unwrap(InterpretExpression(composition.LeftOperand)),
-                ValueHelper.Unwrap(InterpretExpression(composition.RightOperand))));
+                InterpretExpression(composition.LeftOperand).Value,
+                InterpretExpression(composition.RightOperand).Value));
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretCustomUnaryOperator(UnaryOperatorExpression expression) =>
@@ -2499,7 +2497,7 @@ namespace Components.Aphid.Interpreter
                     {
                         var objectKey = kvp.LeftOperand.Type == AphidExpressionType.IdentifierExpression ?
                             kvp.LeftOperand.ToIdentifier().Identifier :
-                            ValueHelper.Unwrap(InterpretExpression(kvp.LeftOperand)).ToString();
+                            InterpretExpression(kvp.LeftOperand).Value.ToString();
 
                         var objectValue = InterpretExpression(kvp.RightOperand);
 
@@ -2780,7 +2778,7 @@ namespace Components.Aphid.Interpreter
 
             for (var i = 0; i < args.Length; i++)
             {
-                args[i] = ValueHelper.Unwrap(InterpretExpression(callExpression.Args[i]));
+                args[i] = InterpretExpression(callExpression.Args[i]).Value;
             }
 
             var methodInfo = InteropMethodResolver.Resolve(type, methodName, args);
@@ -2919,7 +2917,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretCallExpression(CallExpression expression)
         {
-            var func = ValueHelper.Unwrap(InterpretExpression(expression.FunctionExpression));
+            var func = InterpretExpression(expression.FunctionExpression).Value;
             var args = new object[expression.Args.Count];
 
             for (var i = 0; i < expression.Args.Count; i++)
@@ -4037,16 +4035,15 @@ namespace Components.Aphid.Interpreter
                                     throw CreateRuntimeException("Index expected.");
                                 }
 
-                                var keyObj = ValueHelper.Unwrap(InterpretExpression(arrayExp.KeyExpressions[0]));
+                                var keyObj = InterpretExpression(arrayExp.KeyExpressions[0]).Value;
 
-                                if (keyObj == null || keyObj.GetType() != typeof(string))
+                                if (keyObj == null || !(keyObj is string key))
                                 {
                                     throw CreateRuntimeException(
                                         "Expected string for object key, encountered {0}.",
                                         keyObj != null ? keyObj.GetType().FullName : "null");
                                 }
 
-                                var key = (string)keyObj;
                                 var targetObj = InterpretExpression(arrayExp.ArrayExpression);
                                 AphidObject aphidObj;
 
