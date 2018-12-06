@@ -222,6 +222,7 @@
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />
     <Compile Include="External\Common\DefaultSingleton.cs" />
+    <Compile Include="External\Linq\ParallelEnumerableExtension.cs" />
     <Compile Include="External\Linq\EnumerableMember.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
     <Compile Include="External\Common\SelectorComparer.cs" />
