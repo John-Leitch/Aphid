@@ -85,5 +85,19 @@ namespace Components.IO
 
             return new MemoryManager(dataStream, bitmap, sizeTable, pageSize, zeroMemory);
         }
+
+        public int DeserializeCount(Stream stream)
+        {
+            if (stream.Length <= 0)
+            {
+                return 0;
+            }
+
+            stream.Position = 0;
+            var reader = new BinaryReader(stream);
+            var offset = reader.ReadInt32();
+            stream.Position += offset;
+            return reader.ReadInt32();
+        }
     }
 }
