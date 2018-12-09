@@ -49,8 +49,8 @@ namespace Components.ObjectDatabase
             _serialize = serialize;
             _deserialize = deserialize;
             UseUnsafeMemoryManager = useUnsafeMemoryManager;
-            TrackEntities = true;
-            SetEntityMetaData = true;
+            TrackEntities = false;
+            SetEntityMetaData = false;
         }
 
         protected override void OpenCore()
@@ -239,6 +239,16 @@ namespace Components.ObjectDatabase
             }
         }
 
+        public IEnumerable<TElement> SkipUnsafe(int count)
+        {
+            var mm = !UseUnsafeMemoryManager ? ReadMemoryManagerUnsafe() : _memoryManager;
+
+            foreach (var a in mm.Allocations.Skip(count))
+            {
+                yield return ReadUnsafe((long)a.Key * mm.PageSize);
+            }
+        }
+
         public override void Update(TElement element)
         {
             if (!TrackEntities)
@@ -313,8 +323,7 @@ namespace Components.ObjectDatabase
             {
                 if (!UseUnsafeMemoryManager)
                 {
-                    var mm = ReadMemoryManagerUnsafe();
-                    count = mm.Allocations.Count;
+                    count = _memoryManagerSerializer.DeserializeCount(_memoryManagerStream);
                 }
                 else
                 {
