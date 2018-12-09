@@ -19,6 +19,8 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
+load System.Xml;
+using System.Xml;
 
 var wpf;
 var bind;
@@ -32,9 +34,41 @@ var bind;
     using Components.Aphid.TypeSystem;
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using System.Threading;
     
-    wpf = {
+    wpf = { 
+        loadXaml: @(xamlString) {
+            using (var x = new StringReader(xamlString) |> XmlReader.Create) {
+                ret x |> XamlReader.Load;
+            }
+        },
+
+        saveXaml: @(obj) {
+            if (obj == null) {
+                throw new ArgumentException();
+
+                ret null;
+            }
+
+            var settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.OmitXmlDeclaration = true;
+            settings.NewLineOnAttributes = true;
+            settings.ConformanceLevel = ConformanceLevel.Fragment;            
+            // settings.NamespaceHandling = NamespaceHandling.OmitDuplicates;
+
+            using (var sw = new StringWriter()) {
+                using (var writer = XmlWriter.Create(sw, settings)) {
+                    var sm = new XamlDesignerSerializationManager(writer);            
+                    sm.XamlWriterMode = XamlWriterMode.Expression;
+                    XamlWriter.Save(obj, sm);
+                }
+                
+                ret sw.ToString();
+            }
+        },
+
         createApp: @(init)
             ($args.Count > 0 ? createAppAsync(init) : createAppAsync())
             .waitForExit(),
@@ -131,19 +165,47 @@ var bind;
                 }),
 
             addButtonColumn: @(dataGrid, header, content, width, handler) {
-                var template = new DataTemplate(Button);
+                var isTextContent = content.GetType() == string;
+                var template;
+
+                if (isTextContent) {
+                    template = new DataTemplate(Button);
+                } else {
+                    template = XamlReader.Parse('
+                        <DataTemplate
+                            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                            DataType="Button">
+                            <DataTemplate.Resources>
+                                <Style TargetType="{{x:Type Button}}">
+                                    <Setter Property="ContentTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                {0}
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataTemplate.Resources>
+                        </DataTemplate>
+                    ' :: (content != null ? (content |> XamlWriter.Save) : ''));
+                }
+
                 var dgTemplateColumn = new DataGridTemplateColumn();
                 dgTemplateColumn.Header = header;
                 dgTemplateColumn.CellTemplate = template;
                 
                 var buttonFactory = new FrameworkElementFactory(Button);
                 template.VisualTree = buttonFactory;
-                buttonFactory.SetValue(Button.ContentProperty, content);
+
+                if (isTextContent) {
+                    buttonFactory.SetValue(Button.ContentProperty, content);
+                }
 
                 if (width != null) {
-                    buttonFactory.SetValue(
-                        Button.WidthProperty,
-                        width |> Convert.ToDouble);
+                    buttonFactory.SetValue(Button.WidthProperty, width |> Convert.ToDouble);
+                } else {
+                    buttonFactory.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
                 }
 
                 handler |> wpf.routedEventHandler @buttonFactory.AddHandler(Button.ClickEvent);
