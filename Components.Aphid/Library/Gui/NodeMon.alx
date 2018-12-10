@@ -1,6 +1,3 @@
-// #'Std';
-// #'DynamicUI';
-
 nuget.reference('LiveCharts');
 nuget.reference('LiveCharts.Geared');
 nuget.reference('LiveCharts.Wpf');
@@ -9,53 +6,38 @@ using LiveCharts;
 using LiveCharts.Configurations;
 using LiveCharts.Geared;
 
-class of int RuntimeMetrics {
-    String RunType,
-    Guid RunId,
-    bool IsRunning,
-    String Name,
-    String CommandLine,
-    DateTime RunStartTime,
-    DateTime LastUpdateTime,
-    DateTime RunEndTime,
-    int RunsExecuted,
-    StrategiesTerminated,
-    StrategiesTested,
-    StrategiesSaved,
-    DaysSimulated,
-    TradesOpened,
-    TradesClosed,
-    Double MemoryUsage,
-    Double MemoryUsagePct,
-    Double CpuUsagePct,
-    Int64 Ticks,
+var sleepTime = 1000;
+var maxValues = 100;
+
+class RuntimeMetrics { Double CounterValue, Int64 Ticks };
+
+class of Decimal LiveChart {
+    Object CpuChartValues,
+    Object RamChartValues,
+    Double LastCpuPct,
+    Double LastRamPct,
+    Int32 ActiveNodes,
+    Nodes,
+    Cores,
+    Ram,
+    Double AxisMin,
+    Double AxisMax,
+    Double AxisStep,
+    Double AxisUnit
 };
 
 var RuntimeMetricsViewModel = viewModelLoader.loadFor(RuntimeMetrics);
+var ChartViewModel = viewModelLoader.loadFor(LiveChart);
+
 var unwrap = aphid.ValueHelper.Unwrap;
 var mapper = Mappers.Xy.Members[0].MakeGenericMethod([RuntimeMetricsViewModel]).Invoke(null, [])
     .X(@() $_.Ticks |> Convert.ToDouble)
-    .Y(@() $_.CpuUsagePct |> unwrap);
+    .Y(@() $_.CounterValue |> unwrap);
 
 Charting.For.Members[0]
     .MakeGenericMethod([RuntimeMetricsViewModel])
     .Invoke(null, [mapper, SeriesOrientation.All]);
 
-class LiveChart {
-    CpuChartValues,
-    RamChartValues,
-    LastCpuPct,
-    LastRamPct,
-    Nodes,
-    Cores,
-    Ram,
-    AxisMin,
-    AxisMax,
-    AxisStep,
-    AxisUnit
-};
-
-var ChartViewModel = viewModelLoader.loadFor(LiveChart);
 var chartVM = new ChartViewModel();
 chartVM.Nodes = 0;
 chartVM.Cores = 0;
@@ -63,21 +45,18 @@ chartVM.Ram = 0;
 
 chartVM.CpuChartValues = new GearedValues[RuntimeMetricsViewModel]();
 chartVM.RamChartValues = new GearedValues[RuntimeMetricsViewModel]();
-chartVM.AxisStep = TimeSpan.FromSeconds(1).Ticks;
-chartVM.AxisUnit = TimeSpan.TicksPerSecond;
+chartVM.AxisStep = TimeSpan.FromSeconds(1).Ticks |> Convert.ToDouble;
+chartVM.AxisUnit = TimeSpan.TicksPerSecond |> Convert.ToDouble;
 
 var _setAxisLimits = @(now, ahead, behind) {
     chartVM.AxisMax = now + 10000000;
     chartVM.AxisMin = now - 600000000;
 };
 
-var maxValues = 100;
-var sleepTime = 500;
-
 var fillerTicks = DateTime.UtcNow.Ticks;
 var filler = 0..maxValues |> Enumerable.Reverse ->@{
     var fillerVM = new RuntimeMetricsViewModel();
-    fillerVM.CpuUsagePct = 0;
+    fillerVM.CounterValue = 0;
     fillerVM.Ticks = fillerTicks - sleepTime * 10000 * $_;
 
     ret fillerVM;
@@ -166,8 +145,14 @@ var createNodeMon = @() {
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Margin="10,0,0,0" Opacity=".4">Nodes</TextBlock>
-                    <TextBlock Grid.Column="1" Style="{StaticResource ValueText}" Margin="10, 0, 30, 0"
-                            Text="{Binding Nodes, StringFormat=\\{0:#\\,##0\\}}" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource ValueText}" Margin="10, 0, 30, 0">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0}/{1}">
+                                <Binding Path="ActiveNodes" />
+                                <Binding Path="Nodes" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
                     <TextBlock Grid.Column="2" Opacity=".4">Cores</TextBlock>
                     <TextBlock Grid.Column="3" Style="{StaticResource ValueText}" Margin="10, 0, 30, 0"
                             Text="{Binding Cores, StringFormat=\\{0:#\\,##0\\}}" />
@@ -193,9 +178,13 @@ var createNodeMon = @() {
 
 var createNodeMonWindow = @()
     wpf.createAppAsync(@{
-        $_.window.Content = createNodeMon();
-        $_.window.Width = 600;
-        $_.window.Height = 300;
+        var w = $_.window;
+        w.Title = 'Node Monitor';
+        w.BorderThickness = new Thickness(1);        
+        w.WindowStyle = WindowStyle.ToolWindow;
+        w.Content = createNodeMon();
+        w.Width = 600;
+        w.Height = 300;
     });
 
 var startNodeMonServices = @{
@@ -212,8 +201,8 @@ var startNodeMonServices = @{
 
     using System.Net;
     using System.Net.Sockets;
-    _cacheType = macro(@(name) { this[quote(name)] = name });
 
+    _cacheType = macro(@(name) { this[quote(name)] = name });
     _cacheType(TcpListener);
     _cacheType(HashSet);
     _cacheType(AutoResetEvent);
@@ -221,6 +210,7 @@ var startNodeMonServices = @{
     _cacheType(Thread);
     _cacheType(Convert);
     _cacheType(DateTime);
+
     var i = true;
     var listenerThread = startBackgroundThread(@{
         var tcpListener = new TcpListener(IPAddress.Any, 52300);
@@ -241,21 +231,23 @@ var startNodeMonServices = @{
 
                 sendReset.WaitOne();
                 
-                cpuVM.Ticks = aggrTicks / nodesReady.Count;        
+                var an = nodesReady.Count;
+                cpuVM.Ticks = aggrTicks / an;
                 ramVM.Ticks = cpuVM.Ticks;
                 var c = nodesConnected.Count;
-                cpuVM.CpuUsagePct = aggrCpu / c;        
-                ramVM.CpuUsagePct = aggrRam / c;
+                cpuVM.CounterValue = aggrCpu / c;        
+                ramVM.CounterValue = aggrRam / c;
                 
                 aggrTicks = 0;
                 aggrCpu = 0;
                 aggrRam = 0;
                 nodesReady.Clear();
 
+                chartVM.ActiveNodes = an;
                 chartVM.CpuChartValues.Add(cpuVM);
                 chartVM.RamChartValues.Add(ramVM);
-                chartVM.LastCpuPct = cpuVM.CpuUsagePct;
-                chartVM.LastRamPct = ramVM.CpuUsagePct;
+                chartVM.LastCpuPct = cpuVM.CounterValue;
+                chartVM.LastRamPct = ramVM.CounterValue;
 
                 if (chartVM.CpuChartValues.Count > maxValues) {
                     chartVM.CpuChartValues.RemoveAt(0);
@@ -270,7 +262,9 @@ var startNodeMonServices = @{
             var client = tcpListener.AcceptTcpClient();
             
             var clientThread = startBackgroundThread(@{
-                var reader = new BinaryReader(client.GetStream());
+                var stream = client.GetStream();
+                var reader = new BinaryReader(stream);
+                var writer = new BinaryWriter(stream);
                 var blob = reader.ReadString();            
                 var nodeName;
 
@@ -288,18 +282,38 @@ var startNodeMonServices = @{
                     var cpu = reader.ReadInt16() / 100;
                     var ram = reader.ReadInt16() / 100;
                     var ticks = DateTime.UtcNow.Ticks;
+                    
+                    var tries = 0;
+                    var trySleep = 100;
+                    var maxTries = sleepTime / trySleep * 2;
 
-                    lock (nodesReady) {
-                        if (nodesReady.Contains(nodeName)) {
-                            sendReset.Set();
-                            resumeReset.WaitOne();
+                    while (true) {
+                        lock (nodesReady) {
+                            if (nodesReady.Contains(nodeName)) {
+                                if (nodesConnected.Count == nodesReady.Count || tries >= maxTries) {
+                                    sendReset.Set();
+                                    resumeReset.WaitOne();
+                                    nodesReady.Add(nodeName);
+                                    aggrCpu += cpu;
+                                    aggrRam += ram;
+                                    aggrTicks += ticks;
+                                    break;
+                                }
+                            } else {
+                                nodesReady.Add(nodeName);
+                                aggrCpu += cpu;
+                                aggrRam += ram;
+                                aggrTicks += ticks;
+                                break;
+                            }
                         }
 
-                        nodesReady.Add(nodeName);
-                        aggrCpu += cpu;
-                        aggrRam += ram;
-                        aggrTicks += ticks;
+                        tries++;
+                        // print('Sleep # {0}', tries);
+                        Thread.Sleep(trySleep);
                     }
+
+                    0x1 |> Convert.ToByte |> writer.Write;
                 }
             });
         }
@@ -309,40 +323,75 @@ var startNodeMonServices = @{
     
     nodes>~@{
         #'Remoting/Remote';
-        var c = remote.connect($_);        
-        c.eval("
-            #'Std';
-            #'System/Machine';
+        var c = remote.connect($_);
+        
+        try {
+            using (c.socket) {
+                c.eval("
+                    #'Std';
+                    #'System/Process';
+                    Process.Start(
+                        'cmd.exe',
+                        '/c start aphid64 * #\\'std\\'; #\\'remoting/remote\\'; remote.listen(0x5231)');
 
-            using System.Diagnostics;
+                    exit();
+                ");
+            }
+        } catch (e) {
+            printInfo('Expected error: {0}', e.message);
+        }
+
+        c = remote.connect($_, 0x5231);
+
+        c.eval("
             using System.Threading;
-            var memory = machine.getMemory();
-            var cores = machine.getLogicalProcessorCount();
-            var name = Environment.MachineName;
-            var text = {name, cores, memory} |> serialize;
             
             var cpuCounterThread = new Thread(@{
+                #'Std';
+                #'System/Machine';
+                
+                using System.Diagnostics;
+                
+                var memory = machine.getMemory();
+                var cores = machine.getLogicalProcessorCount();
+                var name = Environment.MachineName;
+                var text = {name, cores, memory} |> serialize;
+
                 var client = new TcpClient();
-                client.Connect('jleitch-laptop', 52300);
-                var writer = new BinaryWriter(client.GetStream());
+                client.Connect('" + Environment.MachineName + "', 52300);
+                var stream = client.GetStream();
+                var reader = new BinaryReader(stream);
+                var writer = new BinaryWriter(stream);
                 text |> writer.Write;
 
-                var cpuCounter = new PerformanceCounter('Processor', '% Processor Time', '_Total');
-                var ramCounter = new PerformanceCounter('Memory', 'Available MBytes');
+                using Components.PInvoke;
+                print('Farewell');
+                Kernel32.FreeConsole();
 
-                while(true) {
-                    // DateTime.UtcNow.Ticks |> writer.Write;
-                    cpuCounter.NextValue() * 100 |> Convert.ToInt16 |> writer.Write;
-                    (memory - ramCounter.NextValue() * 0x100000) / memory * 100 * 100
-                        |> Convert.ToInt16 |> writer.Write;
-                    Thread.Sleep(" + sleepTime + ")
-                    //Thread.Sleep(500)
+                try {
+                    var cpuCounter = new PerformanceCounter('Processor', '% Processor Time', '_Total');
+                    var ramCounter = new PerformanceCounter('Memory', 'Available MBytes');
+                    var _toShort = Convert.ToInt16;
+                    var _write = writer.Write;
+                    var _delay = Thread.Sleep;
+                    var _nextCpu = cpuCounter.NextValue;
+                    var _nextRam = ramCounter.NextValue;
+                    var _readByte = reader.ReadByte;
+
+                    while(true) {
+                        writer.Write(_toShort(_nextCpu() * 100));
+                        writer.Write(_toShort((memory - _nextRam() * 0x100000) / memory * 100 * 100));
+                        _delay(" + sleepTime + ");
+                        _readByte();
+                    }
+                } catch {
+                    exit();
                 }
             });
 
             cpuCounterThread.IsBackground = true;
             cpuCounterThread.Start();
         ");
-        c.socket.Close();
     };
 };
+
