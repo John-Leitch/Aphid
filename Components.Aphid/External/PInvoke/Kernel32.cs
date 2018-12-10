@@ -127,6 +127,9 @@ namespace Components.PInvoke
             Coord dwBufferCoord,
             ref SmallRect lpWriteRegion);
 
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        public static extern bool FreeConsole();
+
         [DllImport("kernel32.dll")]
         public static extern uint GetCurrentThreadId();
 
