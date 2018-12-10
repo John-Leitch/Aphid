@@ -87,6 +87,20 @@ namespace Components.External.ConsolePlus
             return Rgb(true, r, g, b);
         }
 
+        public static bool TryEnable()
+        {
+            try
+            {
+                Enable();
+                
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static void Enable()
         {
             var handle = Kernel32.GetStdHandle(Win32.STD_OUTPUT_HANDLE);

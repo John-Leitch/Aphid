@@ -17,7 +17,9 @@ namespace Components.External.ConsolePlus
             //MaxMessageBufferLength = 0x1 << 0x1e;
             MaxMessageBufferLength = 0x1000;
 
-        private const string _messageFormat = "[~{0}~{1}~R~] {2}";
+        private const string _messageFormat = "[~{0}~{1}~R~] {2}",
+            _nameHeader = "Name",
+            _valueHeader = "Value";
 
         public const char QueryChar = '?',
           InfoChar = 'i',
@@ -27,13 +29,9 @@ namespace Components.External.ConsolePlus
           ErrorChar = '-',
           FatalErrorChar = 'x';
 
-        private const string _nameHeader = "Name";
+        public const string DefaultHeaderStyle = "~|Blue~~White~";
 
-        private const string _valueHeader = "Value";
-
-        private static int _maxNameLength;
-
-        private static int _maxValueLength;
+        private static int _maxNameLength, _maxValueLength;
 
         private static object _syncObject = new object();
 
@@ -55,10 +53,10 @@ namespace Components.External.ConsolePlus
 
         public static bool UseTrace
         {
-            get { return Cli._useTrace; }
+            get => _useTrace;
             set
             {
-                Cli._useTrace = value;
+                _useTrace = value;
 
                 if (value)
                 {
@@ -372,7 +370,7 @@ namespace Components.External.ConsolePlus
 
         public static void WriteHeader(string format, string style)
 #else
-        public static void WriteHeader(string text, string style = "")
+        public static void WriteHeader(string text, string style = DefaultHeaderStyle)
 #endif
         {
             var divider = new string('═', BufferWidth - 3).ToCharArray();

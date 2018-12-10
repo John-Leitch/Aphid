@@ -1,16 +1,12 @@
-﻿using Components;
-using Components.Aphid.Debugging;
+﻿using Components.Aphid.Debugging;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.Aphid.UI;
 using Components.External.ConsolePlus;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace Aphid
 {
@@ -24,11 +20,7 @@ namespace Aphid
 
         static void Main(string[] args)
         {
-            try
-            {
-                VT100.Enable();
-            }
-            catch { }
+            VT100.TryEnable();
 
             if (args.Length > 0 && args[0] == "-ignoreDbg")
             {
@@ -40,7 +32,10 @@ namespace Aphid
                 AphidErrorHandling.IgnoreDebugger = true;
             }
 
-            if (args.Length == 0)
+            var runRepl = args.Length == 0;
+            CliApplication.SetTitle("Aphid", showHeader: runRepl);
+
+            if (runRepl)
             {
                 RunRepl();
             }
@@ -122,15 +117,9 @@ namespace Aphid
             
         }
 
-        static void RunExpression(string[] args)
-        {
-            AphidCli.DumpExpression(GetInlineCode('?'));
-        }
+        static void RunExpression(string[] args) => AphidCli.DumpExpression(GetInlineCode('?'));
 
-        static void RunStatements(string[] args)
-        {
-            AphidCli.ExecuteCode(GetInlineCode('*'));
-        }
+        static void RunStatements(string[] args) => AphidCli.ExecuteCode(GetInlineCode('*'));
 
         static string GetInlineCode(char startToken)
         {
@@ -139,13 +128,6 @@ namespace Aphid
             return index != -1 ? Environment.CommandLine.Substring(index + 1) : null;
         }
 
-        static void RunRepl()
-        {
-            var asm = Assembly.GetExecutingAssembly();
-            var version = asm.GetName().Version;
-            var time = asm.GetLinkTime().ToEasternStandardTime();
-            Cli.WriteHeader($"Aphid Programming Language {version} {time} EST", "~White~~|Blue~");
-            new AphidRepl().Run();
-        }
+        static void RunRepl() => new AphidRepl().Run();
     }
 }

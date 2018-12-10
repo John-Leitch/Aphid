@@ -12,7 +12,7 @@ namespace Components.External.ConsolePlus
     public abstract class CliApplication<TArgs> : Singleton<CliApplication<TArgs>>
         where TArgs : class, new()
     {
-        private const string _defaultHeaderStyle = "~|Blue~~White~", 
+        private const string 
             _defaultErrorHeaderStyle = "~|Red~~White~",
             _fatalError = "Fatal Error",
             _messageFormat = "[~{0}~{1}~R~] {2}";
@@ -41,45 +41,17 @@ namespace Components.External.ConsolePlus
         {
             Name = name;
             ShowHeader = true;
-            HeaderStyle = _defaultHeaderStyle;
             ErrorHeaderStyle = _defaultErrorHeaderStyle;
         }
 
         public CliApplication()
-            : this(GetDefaultName())
+            : this(null)
         {
-        }
-
-        private static string GetDefaultName()
-        {
-            var asm = Assembly.GetEntryAssembly();
-            var name = asm.GetName();
-            var baseName = $"{name.Name} {name.Version}";
-
-            DateTime linkTime;
-
-            return (linkTime = asm.GetLinkTimeUtc()) == default ?
-                baseName :
-                $"{baseName} {linkTime.ToEasternStandardTime()} EST";
         }
 
         public virtual void Launch()
         {
-            var n = Name;
-
-            if (Debugger.IsAttached)
-            {
-                n += " (under debugger)";
-            }
-
-            Console.Title = n;
-
-            if (ShowHeader)
-            {
-                Cli.WriteHeader(n, HeaderStyle);
-                Cli.WriteLine();
-            }
-
+            CliApplication.SetTitle(Name, ShowHeader, HeaderStyle);
             var props = CliArgProperty.GetAll<TArgs>();
 
             if (Environment.GetCommandLineArgs().Length == 1 && props.Any())
@@ -119,10 +91,7 @@ namespace Components.External.ConsolePlus
             Environment.Exit(1);
         }
 
-        public TArgs SetArguments()
-        {
-            return Arguments ?? (Arguments = ParseArguments());
-        }
+        public TArgs SetArguments() => Arguments ?? (Arguments = ParseArguments());
 
         protected virtual TArgs ParseArguments()
         {
@@ -179,57 +148,45 @@ namespace Components.External.ConsolePlus
             Environment.Exit(errorCode);
         }
 
-        public virtual void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)
-        {
+        public virtual void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg) =>
             Cli.WriteLine(
                 string.Format(_messageFormat, tokenColor, token, format),
                 arg);
-        }
 
-        public virtual void WriteInfoMessage(string format, params object[] arg)
-        {
+        public virtual void WriteInfoMessage(string format, params object[] arg) =>
             WriteMessage(
                 ConsoleColor.White,
                 InfoChar,
                 format,
                 arg);
-        }
 
-        public virtual void WriteQueryMessage(string format, params object[] arg)
-        {
+        public virtual void WriteQueryMessage(string format, params object[] arg) =>
             WriteMessage(
                 ConsoleColor.White,
                 QueryChar,
                 format,
                 arg);
-        }
 
-        public virtual void WriteSuccessMessage(string format, params object[] arg)
-        {
+        public virtual void WriteSuccessMessage(string format, params object[] arg) =>
             WriteMessage(
                 ConsoleColor.Green,
                 SuccessChar,
                 format,
                 arg);
-        }
 
-        public virtual void WriteErrorMessage(string format, params object[] arg)
-        {
+        public virtual void WriteErrorMessage(string format, params object[] arg) =>
             WriteMessage(
                 ConsoleColor.Red,
                 ErrorChar,
                 format,
                 arg);
-        }
 
-        public virtual void WriteCriticalErrorMessage(string format, params object[] arg)
-        {
+        public virtual void WriteCriticalErrorMessage(string format, params object[] arg) =>
             WriteMessage(
                 ConsoleColor.Red,
                 FatalErrorChar,
                 format,
                 arg);
-        }
 
         public void Process<TElement>(IEnumerable<TElement> collection, Action<TElement> action)
         {
@@ -267,6 +224,59 @@ namespace Components.External.ConsolePlus
             }
 
             base.Launch();
+        }
+    }
+
+    public static class CliApplication
+    {
+        private const string _titleTimeFormat = "MM/dd/yy hh:mm:ss tt";
+
+        public static void SetTitle() => SetTitle(name: null);
+
+        public static void SetTitle(string name) => SetTitle(name, showHeader: true);
+
+        public static void SetTitle(bool showHeader) => SetTitle(name: null, showHeader: true);
+
+        public static void SetTitle(string name, bool showHeader) => SetTitle(name, showHeader, headerStyle: null);
+
+        public static void SetTitle(
+            string name = null,
+            bool showHeader = true,
+            string headerStyle = null)
+        {
+            var title = GetTitle(name);
+            Console.Title = title;
+
+            if (showHeader)
+            {
+                Cli.WriteHeader(title, headerStyle ?? Cli.DefaultHeaderStyle);                
+            }
+        }
+
+        public static string GetTitle(string name = null)
+        {
+            var asm = Assembly.GetEntryAssembly();
+            var asmName = asm.GetName();
+            var bitness = Environment.Is64BitProcess ? "64" : "32";
+
+            var flags = new StringBuilder();
+#if DEBUG
+            flags.Append(" DEBUG");
+#endif
+
+#if TRACE
+            flags.Append(" TRACE");
+#endif
+
+            var baseTitle = $"{name ?? asmName.Name} {asmName.Version} {bitness}-bit{flags}";
+
+            DateTime linkTime;
+
+            var title = (linkTime = asm.GetLinkTimeUtc()) == default ?
+                baseTitle :
+                $"{baseTitle} {linkTime.ToEasternStandardTime().ToString(_titleTimeFormat)}";
+
+            return !Debugger.IsAttached ? title : $"{title} (under debugger)";
         }
     }
 }
