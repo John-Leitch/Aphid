@@ -28,7 +28,7 @@ var nuget;
         allowPrereleaseVersions: true,
         refMap: new Dictionary[string, string](),
         createRepo: @() PackageRepositoryFactory.Default.CreateRepository(repoUrl),
-        createPackageManager: @() new PackageManager(createRepo(), '.\\'),
+        createPackageManager: @() new PackageManager(createRepo(), getEntryPath('packages')),
         getLocalPackages: @() createPackageManager().LocalRepository.GetPackages(),
         
         reference: @(packageId) {
@@ -44,7 +44,8 @@ var nuget;
                 ret reference(packageId);
             } else {
                 var p = packages ^!;
-                var d = '{0}.{1}' :: [ p.Id, p.Version ] |> Path.GetFullPath;
+                var fs = createPackageManager().FileSystem;
+                var d = '{0}.{1}' :: [ p.Id, p.Version ] |> fs.GetFullPath;
                 
                 var refAsmGroups = p.AssemblyReferences
                     -<(@(r) $_.SupportedFrameworks->(@()({
