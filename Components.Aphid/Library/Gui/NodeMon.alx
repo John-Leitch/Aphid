@@ -182,6 +182,7 @@ var createNodeMonWindow = @()
         w.Title = 'Node Monitor';
         w.BorderThickness = new Thickness(1);        
         w.WindowStyle = WindowStyle.ToolWindow;
+        w.Topmost = true;
         w.Content = createNodeMon();
         w.Width = 600;
         w.Height = 300;
@@ -332,7 +333,7 @@ var startNodeMonServices = @{
                     #'System/Process';
                     Process.Start(
                         'cmd.exe',
-                        '/c start aphid64 * #\\'std\\'; #\\'remoting/remote\\'; remote.listen(0x5231)');
+                        '/c start aphid64 * #\\'std\\'; #\\'remoting/remote\\'; remote.listen(0x5231).listenThread.Join();');
 
                     exit();
                 ");
@@ -351,12 +352,13 @@ var startNodeMonServices = @{
                 #'System/Machine';
                 
                 using System.Diagnostics;
+                using System.Net.Sockets;
                 
                 var memory = machine.getMemory();
                 var cores = machine.getLogicalProcessorCount();
                 var name = Environment.MachineName;
                 var text = {name, cores, memory} |> serialize;
-
+                
                 var client = new TcpClient();
                 client.Connect('" + Environment.MachineName + "', 52300);
                 var stream = client.GetStream();

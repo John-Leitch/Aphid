@@ -17,20 +17,16 @@ namespace Components.Aphid.Interpreter
         private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
 
-        private HashSet<string> _searchPaths = new HashSet<string>(
-            new[]
-            { 
-                Path.Combine(
-                    !string.IsNullOrEmpty(_location) ? Path.GetDirectoryName(_location) : ".\\",
-                    "Library")
-            });
+        private static readonly string _libraryPath = Path.Combine(
+            !string.IsNullOrEmpty(_location) ? Path.GetDirectoryName(_location) : ".\\",
+            "Library");
 
         private List<Assembly> _modules;
 
-        public HashSet<string> SearchPaths
-        {
-            get { return _searchPaths; }
-        }
+        public HashSet<string> SystemSearchPaths { get; } =
+            new HashSet<string>(new[] { _libraryPath });
+
+        public HashSet<string> SearchPaths { get; } = new HashSet<string>();
 
         public AphidLoader(AphidInterpreter interpreter)
             : base(interpreter)
@@ -118,13 +114,20 @@ namespace Components.Aphid.Interpreter
 
         public string FindScriptFile(string appDir, string scriptFile)
         {
-            Func<string, string>[] extensionStrategies = new Func<string, string>[]
+            var extensionStrategies = new Func<string, string>[]
             {
                 x => x + ".alx",
                 x => x,                
             };
 
-            var files = extensionStrategies.Select(x => x(scriptFile));
+            var files = extensionStrategies.Select(x => x(scriptFile)).ToArray();
+
+            string match;
+
+            if ((match = FindScriptFile(SystemSearchPaths, files)) != null)
+            {
+                return match;
+            }
 
             foreach (var file in files)
             {
@@ -134,7 +137,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            var searchPathSets = new List<HashSet<string>> { _searchPaths };
+            var searchPathSets = new List<HashSet<string>> { SearchPaths };
 
             if (appDir != null)
             {
@@ -143,16 +146,26 @@ namespace Components.Aphid.Interpreter
 
             foreach (var paths in searchPathSets)
             {
-                foreach (var file in files)
+                if ((match = FindScriptFile(paths, files)) != null)
                 {
-                    foreach (var p in paths)
+                    return match;
+                }
+            }
+
+            return null;
+        }
+
+        public string FindScriptFile(HashSet<string> paths, IEnumerable<string> possibleNames)
+        {
+            foreach (var file in possibleNames)
+            {
+                foreach (var p in paths)
+                {
+                    var f = Path.Combine(p, file);
+
+                    if (File.Exists(f))
                     {
-                        var f = Path.Combine(p, file);
-                        
-                        if (File.Exists(f))
-                        {
-                            return f;
-                        }
+                        return f;
                     }
                 }
             }
@@ -170,9 +183,9 @@ namespace Components.Aphid.Interpreter
                 {
                     var dir = Path.GetFullPath(Path.GetDirectoryName(f));
                     
-                    if (!_searchPaths.Contains(dir))
+                    if (!SearchPaths.Contains(dir))
                     {
-                        _searchPaths.Add(dir);
+                        SearchPaths.Add(dir);
                     }
                 }
 
@@ -182,7 +195,7 @@ namespace Components.Aphid.Interpreter
                 {
                     if (AphidConfig.Current.ScriptCaching)
                     {
-                        var cache = new AphidByteCodeCache(_searchPaths.ToArray());
+                        var cache = new AphidByteCodeCache(SearchPaths.ToArray());
 
                         ast = cache.Read(f);
                     }

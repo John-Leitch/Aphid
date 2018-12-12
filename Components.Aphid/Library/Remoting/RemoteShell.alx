@@ -93,37 +93,36 @@ var connectShell = @(host) {
     ret remoteShell;
 };
 
-var runInteractive = @(host)
-    run(host, @(remoteShell) Console.ReadLine());
+var runInteractive = @(host) run(host, Console.ReadLine);
+
+var readToPrompt = @(rs){
+    var readBuffer;
+
+    do {
+        // printQuery('~Magenta~Reading out~R~');
+        readBuffer = rs.readOut();
+
+        if (readBuffer != null) {
+            if (readBuffer.success defined) {
+                //dump(readBuffer);
+            } else {
+                readBuffer |> Cli.Write;
+            }                    
+        } else {
+            Thread.Sleep(10);
+        }
+    } while (readBuffer == null || !readBuffer.Trim().EndsWith('> ~R~'));
+
+    // printQuery('~Magenta~Done reading out~R~');
+};
 
 var run = @(host, nextLine) {
-    var remoteShell = connectShell(host);
-
-    var readToPrompt = @{
-        var buffer;
-
-        do {
-            // printQuery('~Magenta~Reading out~R~');
-            buffer = remoteShell.readOut();
-
-            if (buffer != null) {
-                if (buffer.success defined) {
-                    dump(buffer);
-                } else {
-                    buffer |> Cli.Write;
-                }                    
-            } else {
-                Thread.Sleep(10);
-            }
-        } while (buffer == null || !buffer.Trim().EndsWith('> ~R~'));
-
-        // printQuery('~Magenta~Done reading out~R~');
-    };
+    var remoteShell = connectShell(host);   
 
     while (true) {
         // printQuery('~Magenta~Writing prompt out~R~');
         remoteShell.writePrompt();
-        readToPrompt();
+        readToPrompt(remoteShell);
         var line = nextLine();
 
         if (line != null) {

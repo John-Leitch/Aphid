@@ -1,9 +1,10 @@
-
-#'Gui/Wpf';
-#'Meta/Code/Compiler';
-#'Meta/Code/ViewModelCompiler';
 #'System/Process';
 #'System/Nuget';
+#'Meta/Code/Compiler';
+#'Meta/Code/ViewModelCompiler';
+#'Gui/Wpf';
+#'Gui/OxyPlot';
+
 printInfo('Loading Nuget references');
 var asms =
     [ 'Extended.Wpf.Toolkit', 'System.Windows.Controls.DataVisualization.Toolkit' ]
@@ -135,6 +136,7 @@ var viewModelLoader = {
 var viewController = {
     table: new Dictionary[string, DynamicView](),
     app: null,
+    autobind: true,
 
     init: @{
         app = wpf.createAppAsync();
@@ -230,8 +232,9 @@ var viewController = {
                 wpf.dataGrid.addButtonColumn(
                     dg,
                     name,
-                    'Open',
-                    50,
+                    icons.openView(),
+                    //'Open',
+                    null,
                     @(sender, e) {
                         viewController.navigate(name, sender.DataContext);
                     });            
@@ -241,9 +244,13 @@ var viewController = {
         
         printInfo('Binding view data');
 
-        dg.ItemsSource = vmData
-            ->@bind.typeToViewModel(dynView.ViewModelType)
-            |> Enumerable.AsEnumerable;
+        if (autobind) {
+            dg.ItemsSource = vmData
+                ->@bind.typeToViewModel(dynView.ViewModelType)
+                |> Enumerable.AsEnumerable;
+        } else {
+            dg.ItemsSource = vmData;
+        }
 
         addDoc(dynView, dg);
         
@@ -252,14 +259,7 @@ var viewController = {
 
     renderBarGraph: @(dynView, navContext) {
         printInfo('Rendering BarGraph view');
-        printInfo('Loading view data');
-        var vmData;
-
-        if (navContext defined) {
-            vmData = navContext |> dynView.LoadData;
-        } else {
-            vmData = dynView.LoadData();
-        }
+        _loadData();
         
         printInfo('Creating plot view control');
         var view = createLinearBarModel(vmData);
@@ -282,8 +282,50 @@ var viewController = {
         
         printInfo('Adding layout document to pane');
         pane.Children.Add(doc);
+        doc.IsActive = false;
         
         printSuccess('Pane successfully updated');
+    },
+
+    icons: {
+        openView: @() XamlReader.Parse('
+            <Viewbox 
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"  
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                Width="16" Height="16">
+                <Rectangle Width="16" Height="16">
+                    <Rectangle.Fill>
+                        <DrawingBrush>
+                            <DrawingBrush.Drawing>
+                                <DrawingGroup>
+                                    <DrawingGroup.Children>
+                                        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                                        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M1.9998,-0.000199999999999534L2.8548,0.9998 -0.000199999999999978,0.9998 -0.000199999999999978,15.9998 15.9998,15.9998 15.9998,0.9998 7.8528,0.9998 6.9998,-0.000199999999999534z" />
+                                        <GeometryDrawing Brush="#FF414141" Geometry="F1M8.7046,2L9.5566,3 13.9996,3 13.9996,14 1.9996,14 1.9996,8.649C1.6266,8.47,1.2866,8.235,0.999599999999999,7.942L0.999599999999999,15 14.9996,15 14.9996,2z" />
+                                        <GeometryDrawing Brush="#FF414141" Geometry="F1M4,11L6,11 6,12 4,12z M7,11L9,11 9,12 7,12z M7,9L9,9 9,10 7,10z M10,11L12,11 12,12 10,12z M10,9L12,9 12,10 10,10z M10,7L12,7 12,8 10,8z M13,13L13,4 9.586,4 7,7 9,7 9,8 7,8 7,7 6,7 6,8 5,8 5,9 6,9 6,10 4,10 4,9 3.5,9C3.329,9,3.165,8.973,3,8.949L3,13z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M6,7L5,7 5,8 6,8z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M14,14L14,3 9.557,3 10,3.52 9.586,4 13,4 13,13 3,13 3,8.949C2.646,8.898,2.312,8.798,2,8.649L2,14z" />
+                                        <GeometryDrawing Brush="#FF00529C" Geometry="F1M6,1L4,1 5.988,3 3.5,3C2.119,3 1,4.119 1,5.5 1,6.881 2.119,8 3.5,8L4,8 4,7 3.5,7C2.673,7 2,6.327 2,5.5 2,4.673 2.673,4 3.5,4L6.013,4 4,6 6,6 8.5,3.515z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M5.0004,8.9998L3.9994,8.9998 3.9994,9.9998 6.0004,9.9998 6.0004,8.9998z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M5,8L6,8 6,7 5,7z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M7,12L9,12 9,10.999 7,10.999z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M7,8L9,8 9,7 7,7z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M4,12L6.001,12 6.001,10.999 4,10.999z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M10,12L12,12 12,10.999 10,10.999z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M7,10L9,10 9,9 7,9z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M10,8L12,8 12,7 10,7z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M10,10L12,10 12,9 10,9z" />
+                                        <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M9.5566,3L9.9996,3.52 9.5856,4 12.9996,4 12.9996,13 2.9996,13 2.9996,8.949C2.6466,8.898,2.3116,8.798,1.9996,8.649L1.9996,14 13.9996,14 13.9996,3z" />
+                                    </DrawingGroup.Children>
+                                </DrawingGroup>
+                            </DrawingBrush.Drawing>
+                        </DrawingBrush>
+                    </Rectangle.Fill>
+                </Rectangle>            
+            </Viewbox>
+        ')
     },
 };
 

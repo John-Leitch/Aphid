@@ -5020,6 +5020,10 @@ namespace Components.Aphid.Interpreter
             mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
             mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
 
+            Interpret(mutatedAst, resetIsReturning: true);
+
+            return GetReturnValue(true);
+
             foreach (var exp in mutatedAst)
             {
                 InterpretExpression(exp);

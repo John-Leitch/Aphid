@@ -81,5 +81,10 @@ namespace Components
         {
             return ((IEnumerable)_table).GetEnumerator();
         }
+
+        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary)
+        {
+            return new Table<TKey, TValue>() { _table = dictionary };
+        }
     }
 }

@@ -1,0 +1,10 @@
+#'Std';
+#'DynamicUI';
+#'NodeMon';
+createNodeMonWindow();
+startNodeMonServices();
+
+using Components.PInvoke;
+using Components.ConsolePlus;
+Cli.UseTrace = true;
+Kernel32.FreeConsole();
