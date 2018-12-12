@@ -28,10 +28,39 @@ namespace Components.PInvoke
         public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
+        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
         [DllImport("user32.dll")]
-        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+        public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetKeyboardState(byte[] lpKeyState);
+
+        [DllImport("user32.dll")]
+        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        [DllImport("user32.dll")]
+        public static extern void mouse_event(MouseEventFlags dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        public static extern int ToUnicode(
+            uint wVirtKey,
+            uint wScanCode,
+            byte[] lpKeyState,
+            [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
+            StringBuilder pwszBuff,
+            int cchBuff,
+            uint wFlags);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -55,18 +84,9 @@ namespace Components.PInvoke
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool BringWindowToTop(HandleRef hWnd);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, SetWindowPosFlags uFlags);
-
-        [DllImport("user32.dll")]
-        public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-
-        [DllImport("user32.dll")]
-        public static extern bool GetKeyboardState(byte[] lpKeyState);
-
-        [DllImport("user32.dll")]
-        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
 
         [DllImport("user32.dll")]
         public static extern IntPtr SetFocus(IntPtr hWnd);
@@ -88,26 +108,34 @@ namespace Components.PInvoke
         public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
 
         [DllImport("user32.dll")]
-        public static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
-
-        [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
 
         [DllImport("user32.dll")]
-        public static extern void mouse_event(MouseEventFlags dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetCursorPos(out POINT lpPoint);
+        public static WindowStyle GetWindowLong(IntPtr hWnd, GWL nIndex) =>
+            (WindowStyle)(IntPtr.Size == 8 ?
+                GetWindowArchSpecific.GetWindowLongPtr64(hWnd, nIndex) :
+                GetWindowArchSpecific.GetWindowLongPtr32(hWnd, nIndex));
 
-        [DllImport("user32.dll")]
-        public static extern int ToUnicode(
-            uint wVirtKey,
-            uint wScanCode,
-            byte[] lpKeyState,
-            [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
-            StringBuilder pwszBuff,
-            int cchBuff,
-            uint wFlags);
+        public static WindowStyle SetWindowLong(IntPtr hWnd, GWL nIndex, WindowStyle dwNewLong) =>
+            (WindowStyle)(IntPtr.Size == 8 ?
+                GetWindowArchSpecific.SetWindowLongPtr64(hWnd, nIndex, new IntPtr((uint)dwNewLong)) :
+                new IntPtr(GetWindowArchSpecific.SetWindowLong32(hWnd, nIndex, (uint)dwNewLong)));
+
+        private static class GetWindowArchSpecific
+        {
+            [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+            internal static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL nIndex);
+
+            [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+            internal static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL nIndex);
+
+            [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+            internal static extern int SetWindowLong32(IntPtr hWnd, GWL nIndex, uint dwNewLong);
+
+            [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
+            internal static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL nIndex, IntPtr dwNewLong);
+        }
     }
 }

@@ -13,19 +13,23 @@ namespace Components.PInvoke
             STD_OUTPUT_HANDLE = -11,
             STD_ERROR_HANDLE = -12;
 
-        public static Win32Exception CreateWin32Exception()
+        public static int GetLastError() => Marshal.GetLastWin32Error();
+
+        public static Win32Exception CreateWin32Exception() => new Win32Exception(GetLastError());
+
+        public static void ThrowWin32Exception() => throw CreateWin32Exception();
+
+        public static void ThrowLastError() => ThrowWin32Exception();
+
+        public static void ThrowLastErrorIf(bool condition)
         {
-            return new Win32Exception(Marshal.GetLastWin32Error());
+            if (condition)
+            {
+                ThrowLastError();
+            }
         }
 
-        public static void ThrowWin32Exception()
-        {
-            throw CreateWin32Exception();
-        }
-
-        public static bool IsHandleValid(IntPtr handle)
-        {
-            return handle != INVALID_HANDLE_VALUE && handle != IntPtr.Zero;
-        }
+        public static bool IsHandleValid(IntPtr handle) =>
+            handle != INVALID_HANDLE_VALUE && handle != IntPtr.Zero;
     }
 }

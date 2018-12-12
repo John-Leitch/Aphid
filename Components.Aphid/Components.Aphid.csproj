@@ -260,6 +260,7 @@
     <Compile Include="External\PInvoke\ConsoleMode.cs" />
     <Compile Include="External\PInvoke\Coord.cs" />
     <Compile Include="External\PInvoke\FIXED.cs" />
+    <Compile Include="External\PInvoke\GWL.cs" />
     <Compile Include="External\PInvoke\HotkeyFlags.cs" />
     <Compile Include="External\PInvoke\LogonFlags.cs" />
     <Compile Include="External\PInvoke\MouseEventDataXButtons.cs" />
@@ -279,6 +280,7 @@
     <Compile Include="External\PInvoke\MapType.cs" />
     <Compile Include="External\PInvoke\UserEnv.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
+    <Compile Include="External\PInvoke\WindowStyle.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Parser\AphidByteCode.cs" />
     <Compile Include="Parser\AphidDirective.cs" />
