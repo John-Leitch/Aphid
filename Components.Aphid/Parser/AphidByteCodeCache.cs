@@ -86,7 +86,7 @@ namespace Components.Aphid.Parser
                         macroMutator.MutateRecursively(
                             partialOpMutator.MutateRecursively(ast))));
 
-                sources = new string[0];
+                sources = new[] { filename };
 
                 return ast2;
             }
