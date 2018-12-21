@@ -12,7 +12,7 @@ var asms =
 
 printSuccess('Done loading references: {0}', asms |> serialize);
 
-var dynamicViewType = { dataGrid: 1, barGraph: 100, };
+var dynamicViewType = { control: 0, dataGrid: 1, barGraph: 100, };
 
 class DynamicView {
     int ViewType,
@@ -53,7 +53,7 @@ var loadDocking = @() XamlReader.Parse('
             </xcad:DockingManager.DocumentHeaderTemplate>-->
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
-                    <!--<xcad:LayoutAnchorablePane DockWidth="200">
+                    <xcad:LayoutAnchorablePane DockWidth="200">
                         <xcad:LayoutAnchorable ContentId="properties"
                                 Title="Properties"
                                 CanHide="False"
@@ -64,7 +64,7 @@ var loadDocking = @() XamlReader.Parse('
                                             AutoGenerateProperties="True"
                                             IsReadOnly="True" />
                         </xcad:LayoutAnchorable>
-                    </xcad:LayoutAnchorablePane>-->
+                    </xcad:LayoutAnchorablePane>
                     <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane x:Name="DocPane">
                             <!--<xcad:LayoutDocument ContentId="document1"
@@ -87,7 +87,7 @@ var loadDocking = @() XamlReader.Parse('
                             </xcad:LayoutDocumentPane>
                         </xcad:LayoutDocumentPaneGroup>
                 </xcad:LayoutPanel>
-                <!--<xcad:LayoutRoot.LeftSide>
+                <xcad:LayoutRoot.LeftSide>
                     <xcad:LayoutAnchorSide>
                         <xcad:LayoutAnchorGroup>
                             <xcad:LayoutAnchorable Title="Agenda"
@@ -108,7 +108,7 @@ var loadDocking = @() XamlReader.Parse('
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorGroup>
                     </xcad:LayoutAnchorSide>
-                </xcad:LayoutRoot.LeftSide>-->
+                </xcad:LayoutRoot.LeftSide>
             </xcad:LayoutRoot>
         </xcad:DockingManager>
     </Grid>
@@ -155,6 +155,26 @@ var viewController = {
     pane: null,
 
     wait: null,
+
+    addView: @(name, columns, associations, loadData, rowType) {
+        var view = new DynamicView();
+        view.ViewType = dynamicViewType.control;
+        view.Name = name;
+        
+        if (associations != null) {
+            view.Associations = new List[string](associations #!);
+            associations->view.Associations.Add;
+        }
+        
+        if (columns != null ) {
+            view.Columns = new List[string](columns #!);
+            columns->view.Columns.Add;
+        }
+
+        view.LoadData = loadData;
+        view.ViewModelType = viewModelLoader.loadFor(rowType);
+        table.Add(view.Name, view);
+    },
 
     addBarGraphView: @(name, loadData) {
         var view = new DynamicView();

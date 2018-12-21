@@ -335,7 +335,7 @@ var startNodeMonServices = @{
                         'cmd.exe',
                         '/c start aphid64 * #\\'std\\'; #\\'remoting/remote\\'; remote.listen(0x5231).listenThread.Join();');
 
-                    exit();
+                    //exit();
                 ");
             }
         } catch (e) {
@@ -365,11 +365,7 @@ var startNodeMonServices = @{
                 var reader = new BinaryReader(stream);
                 var writer = new BinaryWriter(stream);
                 text |> writer.Write;
-
-                using Components.PInvoke;
-                print('Farewell');
-                Kernel32.FreeConsole();
-
+                                
                 try {
                     var cpuCounter = new PerformanceCounter('Processor', '% Processor Time', '_Total');
                     var ramCounter = new PerformanceCounter('Memory', 'Available MBytes');
@@ -395,5 +391,7 @@ var startNodeMonServices = @{
             cpuCounterThread.Start();
         ");
     };
+
+    console.hide();
 };
 
