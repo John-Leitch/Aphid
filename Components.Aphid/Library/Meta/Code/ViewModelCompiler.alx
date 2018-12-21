@@ -324,6 +324,7 @@ var viewModel;
 
         viewModel = {
             setText: @(sb) e.text = sb,
+            typeSuffix: 'ViewModel',
 
             buildForType: @(namespace, type) {
                 var code = fromType(namespace, type);
@@ -335,7 +336,7 @@ var viewModel;
 
             compileCode: @(code, aliasTypes) {
                 e.text.Clear();
-                code |> parse @() compileAst($_, aliasTypes);
+                code |> parse |> preprocessor.transform @() compileAst($_, aliasTypes);
                 ret e.text.ToString();
             },
 
@@ -366,10 +367,31 @@ var viewModel;
                 return e.text;
             },
 
-            fromType: @(namespace, type) {
+            fromTypeWith: @(namespace, type, propNames) 
+                fromTypeExcept(
+                    namespace,
+                    type,
+                    type
+                        .GetProperties()
+                        ->@.Name
+                        -?(@() !propNames.contains($_))
+                        |> Enumerable.ToList),
+
+            fromType: @(namespace, type) fromTypeExcept(namespace, type),
+
+            fromTypeExcept: @(namespace, type, ignore) {
                 var typeMap = {};
-                type.GetProperties()
+                var props = type.GetProperties();
+
+                (ignore defined && ignore != null ? 
+                    props -? (@(p)
+                        !(ignore =? (@()
+                            ($_ == p.Name) ||
+                            ($_ == type.Name + '.' + p.Name) ||
+                            ($_ == type.FullName + '.' + p.Name)))) :
+                    props)
                     ->@{ typeMap[$_.Name] = $_.PropertyType; };
+                    
                 // repl.run();
                 printInfo('Created map: ');
                 typeMap |> dump;
@@ -390,8 +412,6 @@ var viewModel;
                 ret fromMap(namespace, name, map);
             },
 
-
-
             fromMap: @(namespace, name, typeMap) {
                 var i;
                 var e;
@@ -401,6 +421,7 @@ var viewModel;
                     ->(@(x) Type.IsAssignableFrom(x.GetType()) ?
                         x.Namespace :
                         $(i = x.LastIndexOf('.')) -1: x, x.Remove(i))
+                    -?(@!= null)
                     ->(@format('using {0};'))
                     !?;
 
@@ -466,7 +487,7 @@ var viewModel;
                     alias <%= $_ %> = "<%= aliases[$_]%>";<%
                     }; %>
 
-                    class <%= name %>ViewModel
+                    class <%= name %><%= viewModel.typeSuffix %>
                     {
                         Object ViewModelDataSource,
                         
