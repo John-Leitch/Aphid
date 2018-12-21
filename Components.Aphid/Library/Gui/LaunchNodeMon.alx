@@ -3,5 +3,4 @@
 #'NodeMon';
 createNodeMonWindow();
 startNodeMonServices();
-
-freeConsole();
+console.hide();

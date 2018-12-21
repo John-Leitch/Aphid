@@ -170,6 +170,14 @@ var bind;
                     Key.F6,
                     @() (consoleHidden = !consoleHidden) ? console.hide() : console.show());
 
+                wpfApp.setMain = @{
+                    wpfApp.window.add_Closed(@(o, e) {
+                        exit();
+                    });
+
+                    ret wpfApp;
+                };
+
                 printSuccess('Initialization complete');
 
                 ret wpfApp;
