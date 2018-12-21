@@ -11,7 +11,7 @@ namespace Components.Aphid.UI {
         public static InitDelegate Init {
             get {
                 if ((AphidRepl._Init == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_18bf32e9e8f9bb9877f2b99419a65df8());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_b4193aae9bedabb5274cae212e7a41c1());
                 }
                 return AphidRepl._Init;
             }
@@ -32,7 +32,7 @@ namespace Components.Aphid.UI
     
     public static partial class AphidCompilerResources
     {
-        public static List<AphidExpression> ByteCode_18bf32e9e8f9bb9877f2b99419a65df8()
+        public static List<AphidExpression> ByteCode_b4193aae9bedabb5274cae212e7a41c1()
         {
             return             new List<AphidExpression>
             {
@@ -142,25 +142,6 @@ namespace Components.Aphid.UI
                                     new List<IdentifierExpression>
                                     {
                                     }
-                                ),
-                                false
-                            ),
-                            new UnaryOperatorExpression(
-                                AphidTokenType.usingKeyword,
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "System",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.MemberOperator,
-                                    new IdentifierExpression(
-                                        "Diagnostics",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
                                 ),
                                 false
                             ),
@@ -350,6 +331,25 @@ namespace Components.Aphid.UI
                                                                 new BooleanExpression(
                                                                     false
                                                                 )
+                                                            ),
+                                                            new UnaryOperatorExpression(
+                                                                AphidTokenType.usingKeyword,
+                                                                new BinaryOperatorExpression(
+                                                                    new IdentifierExpression(
+                                                                        "System",
+                                                                        new List<IdentifierExpression>
+                                                                        {
+                                                                        }
+                                                                    ),
+                                                                    AphidTokenType.MemberOperator,
+                                                                    new IdentifierExpression(
+                                                                        "Diagnostics",
+                                                                        new List<IdentifierExpression>
+                                                                        {
+                                                                        }
+                                                                    )
+                                                                ),
+                                                                false
                                                             ),
                                                             new IfExpression(
                                                                 new BinaryOperatorExpression(

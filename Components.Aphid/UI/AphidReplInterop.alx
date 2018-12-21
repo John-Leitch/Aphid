@@ -5,10 +5,8 @@ var isInitialized = false;
 export void AphidRepl.Init = @{
     if (isInitialized) ret null;
     using System;
-    using System.Diagnostics;
 
     isInitialized = true;
-    
 
     Console.add_CancelKeyPress(@(o, e) {
         lock AphidRepl.RunThreadSync
@@ -18,6 +16,7 @@ export void AphidRepl.Init = @{
                 e.Cancel = true;
             } else {
                 e.Cancel = false;
+                using System.Diagnostics;
 
                 if (Debugger.IsAttached) {
                     Environment.Exit(0);
