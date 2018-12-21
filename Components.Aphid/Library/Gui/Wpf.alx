@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Input;
 load System.Xml;
 using System.Xml;
 
@@ -73,7 +74,39 @@ var bind;
             ($args.Count > 0 ? createAppAsync(init) : createAppAsync())
             .waitForExit(),
 
+        createXamlAppAsync: @(loadXaml, init) {
+            if (!(loadXaml defined)) {
+                throw new InvalidOperationException('loadXaml() not defined.');
+            }
+
+            var app = createAppAsync(init);
+
+            var setContent = @()
+                app.invoke(@{
+                    try {
+                        app.window.Content = loadXaml();
+                    } catch (e) {
+                        printError('Error loading XAML: {0}\r\n{1}', e.message, e.exception);
+                    }
+                });
+
+            app.bindKeyAsync(Key.F5, setContent);
+            setContent();
+
+            ret app;
+        },
+
         createAppAsync: @(init){
+            var consoleHidden;
+
+            if (Environment.GetCommandLineArgs()=?@=='-console') {
+                consoleHidden = false;
+                console.show();
+            } else { 
+                consoleHidden = true;
+                console.hide();                
+            }
+            
             printInfo('Creating WPF window');
 
             var wpfApp = {};
@@ -124,6 +157,18 @@ var bind;
                 if ($args.Count > 0) {
                     wpfApp.invoke(@() init(wpfApp));
                 }
+
+                wpfApp.bindKeyAsync = @(key, action) {
+                    wpfApp.window.add_PreviewKeyDown(@(o, e) {
+                        if (e.Key == key) {
+                            action();
+                        }
+                    });
+                };
+
+                wpfApp.bindKeyAsync(
+                    Key.F6,
+                    @() (consoleHidden = !consoleHidden) ? console.hide() : console.show());
 
                 printSuccess('Initialization complete');
 
@@ -325,8 +370,6 @@ var bind;
                     }
                 };
 
-
-            print(vm);
             vm.ViewModelDataSource = context;
 
             ret vm;
