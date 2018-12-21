@@ -295,6 +295,10 @@ namespace Components.Aphid.TypeSystem
             {
                 return value;
             }
+            else if (targetType == typeof(string))
+            {
+                return value.ToString();
+            }
             else
             {
                 throw new NotImplementedException();

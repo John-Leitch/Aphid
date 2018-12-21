@@ -324,7 +324,7 @@ var startNodeMonServices = @{
     
     nodes>~@{
         #'Remoting/Remote';
-        var c = remote.connect($_);
+        var c = remote.connect($_, 0x5232);
         
         try {
             using (c.socket) {
@@ -335,14 +335,14 @@ var startNodeMonServices = @{
                         'cmd.exe',
                         '/c start aphid64 * #\\'std\\'; #\\'remoting/remote\\'; remote.listen(0x5231).listenThread.Join();');
 
-                    //exit();
+                    exit();
                 ");
             }
         } catch (e) {
             printInfo('Expected error: {0}', e.message);
         }
 
-        c = remote.connect($_, 0x5231);
+        c = remote.connect($_, 0x5232);
 
         c.eval("
             using System.Threading;
