@@ -42,6 +42,8 @@ namespace Components.Aphid.TypeSystem
                 return t;
             }
 
+            var importsCopy = imports.ToArray();
+
             var pathStr = string.Join(".", path);
             var offset = !isType ? 1 : 0;
 
@@ -54,7 +56,7 @@ namespace Components.Aphid.TypeSystem
                 })
                 .SelectMany(x =>
                     new[] { "" }
-                        .Concat(imports)
+                        .Concat(importsCopy)
                         .Select(y => new
                         {
                             x.Count,
