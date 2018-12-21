@@ -1,6 +1,6 @@
 ﻿namespace Components.PInvoke
 {
-    public enum WindowStyle : uint
+    public enum NativeWindowStyle : uint
     {
         None = 0,
         WS_OVERLAPPED = 0,

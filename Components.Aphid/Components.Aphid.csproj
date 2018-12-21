@@ -273,6 +273,7 @@
     <Compile Include="External\PInvoke\SHARE_INFO_0.cs" />
     <Compile Include="External\PInvoke\Shell32.cs" />
     <Compile Include="External\PInvoke\SHFILEINFO.cs" />
+    <Compile Include="External\PInvoke\ShowWindowCommands.cs" />
     <Compile Include="External\PInvoke\SmallRect.cs" />
     <Compile Include="External\PInvoke\SWP.cs" />
     <Compile Include="External\PInvoke\TokenAccess.cs" />

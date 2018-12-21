@@ -111,30 +111,33 @@ namespace Components.PInvoke
         public static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
 
         [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, ShowWindowCommands nCmdShow);
+
+        [DllImport("user32.dll")]
         public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
-        public static WindowStyle GetWindowLong(IntPtr hWnd, GWL nIndex) =>
-            (WindowStyle)(IntPtr.Size == 8 ?
+        public static NativeWindowStyle GetWindowLong(IntPtr hWnd, GWL nIndex) =>
+            (NativeWindowStyle)(IntPtr.Size == 8 ?
                 GetWindowArchSpecific.GetWindowLongPtr64(hWnd, nIndex) :
                 GetWindowArchSpecific.GetWindowLongPtr32(hWnd, nIndex));
 
-        public static WindowStyle SetWindowLong(IntPtr hWnd, GWL nIndex, WindowStyle dwNewLong) =>
-            (WindowStyle)(IntPtr.Size == 8 ?
+        public static NativeWindowStyle SetWindowLong(IntPtr hWnd, GWL nIndex, NativeWindowStyle dwNewLong) =>
+            (NativeWindowStyle)(IntPtr.Size == 8 ?
                 GetWindowArchSpecific.SetWindowLongPtr64(hWnd, nIndex, new IntPtr((uint)dwNewLong)) :
                 new IntPtr(GetWindowArchSpecific.SetWindowLong32(hWnd, nIndex, (uint)dwNewLong)));
 
         private static class GetWindowArchSpecific
         {
-            [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+            [DllImport("user32.dll", EntryPoint = "GetWindowLong", SetLastError =true)]
             internal static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL nIndex);
 
-            [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+            [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr", SetLastError = true)]
             internal static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL nIndex);
 
-            [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+            [DllImport("user32.dll", EntryPoint = "SetWindowLong", SetLastError = true)]
             internal static extern int SetWindowLong32(IntPtr hWnd, GWL nIndex, uint dwNewLong);
 
-            [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
+            [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
             internal static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL nIndex, IntPtr dwNewLong);
         }
     }
