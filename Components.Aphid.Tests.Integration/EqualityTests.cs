@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidEquality"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidEquality"), Parallelizable(ParallelScope.All)]
     public class EqualityTests : AphidTests
     {
         private void AssertEquality(object lhs, object rhs)

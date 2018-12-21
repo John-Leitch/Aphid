@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "Serialization"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "Serialization"), Parallelizable(ParallelScope.All)]
     public class SerializerTests : AphidTests
     {
         protected override bool LoadStd

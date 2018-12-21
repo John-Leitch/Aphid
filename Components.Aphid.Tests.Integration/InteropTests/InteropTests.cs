@@ -12,7 +12,7 @@ namespace Components.Aphid.Tests.Integration
 {
     // Todo
     // * Cover static members accessed via instance path
-    [TestFixture(Category = "AphidInterop"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidInterop"), Parallelizable(ParallelScope.All)]
     public partial class InteropTests : InteropTestBase
     {
         private static Expression<Func<object>>

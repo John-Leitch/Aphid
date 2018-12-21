@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidTypeCoercion"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidTypeCoercion"), Parallelizable(ParallelScope.All)]
     public class TypeCoercionTests : AphidTests
     {
         [Test]

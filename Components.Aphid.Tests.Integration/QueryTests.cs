@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidQuery"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidQuery"), Parallelizable(ParallelScope.All)]
     public class QueryTests : AphidTests
     {
         protected override bool LoadStd

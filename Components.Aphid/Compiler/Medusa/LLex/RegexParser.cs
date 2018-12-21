@@ -89,7 +89,10 @@ namespace LLex
                         return new CharExpression(c3);
                     }
                     else
+                    {
                         throw new InvalidOperationException();
+                    }
+
                 default:
                     return null;
             }
@@ -142,7 +145,9 @@ namespace LLex
                 if (_currentToken.Lexeme == null ||
                     _currentToken.TokenType == RegexTokenType.RightParenthesis ||
                     _currentToken.TokenType == RegexTokenType.RightBracket)
+                {
                     break;
+                }
                 else if (expressionStack.Count > 0)
                 {
                     RegexTokenType opType = RegexTokenType.None;

@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "TraversableEnumerableSmokeTest")]
+    [TestFixture(Category = "TraversableEnumerableSmokeTest"), Parallelizable(ParallelScope.All)]
     public class TraversableEnumerableSmokeTests
     {
         private static readonly Dictionary<string, object> dict = new Dictionary<string, object>

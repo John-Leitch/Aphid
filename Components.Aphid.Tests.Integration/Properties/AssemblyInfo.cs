@@ -38,7 +38,7 @@ using System.Threading;
 [assembly: AssemblyVersion("0.6.*")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: LevelOfParallelism(8)]
+[assembly: LevelOfParallelism(4)]
 [assembly: Parallelizable(ParallelScope.Children)]
 [assembly: Apartment(ApartmentState.MTA)]
 

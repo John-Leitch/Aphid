@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidPatternMatching"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidPatternMatching"), Parallelizable(ParallelScope.All)]
     public class PatternMatchingTests : AphidTests
     {
         [Test]

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidLexer"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidLexer"), Parallelizable(ParallelScope.All)]
     public class LexerTests : AphidTests
     {
         [Test]

@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidPrint"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidPrint"), Parallelizable(ParallelScope.All)]
     public class PrintTests : AphidTests
     {
         [Test]

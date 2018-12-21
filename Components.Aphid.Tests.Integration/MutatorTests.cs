@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "ConstantFolding"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "ConstantFolding"), Parallelizable(ParallelScope.All)]
     public class MutatorTests : AphidTests
     {
         private void MutatorTest<TMutator>(string code, Action<List<AphidExpression>> assertAst)

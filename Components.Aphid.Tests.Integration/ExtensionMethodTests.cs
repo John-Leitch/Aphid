@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidExtensionMethod"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidExtensionMethod"), Parallelizable(ParallelScope.All)]
     public class ExtensionMethodTests : AphidTests
     {       
         [Test]

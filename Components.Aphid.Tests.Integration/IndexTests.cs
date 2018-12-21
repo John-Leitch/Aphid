@@ -11,7 +11,7 @@ namespace Components.Aphid.Tests.Integration
     /// <summary>
     /// Todo: Add class tests for lists and arrays.
     /// </summary>
-    [TestFixture(Category = "AphidIndex")]
+    [TestFixture(Category = "AphidIndex"), Parallelizable(ParallelScope.All)]
     public class IndexTests : AphidTests
     {
         [Test]

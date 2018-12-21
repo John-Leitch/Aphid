@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "IdDirective"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "IdDirective"), Parallelizable(ParallelScope.All)]
     public class IdDirectiveTests : AphidTests
     {
         [Test]

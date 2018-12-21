@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Tests.Integration
 {
-    [TestFixture(Category = "AphidDynamicMember"), Parallelizable(ParallelScope.Self)]
+    [TestFixture(Category = "AphidDynamicMember"), Parallelizable(ParallelScope.All)]
     public class DynamicMemberTests : AphidTests
     {
         [Test]
