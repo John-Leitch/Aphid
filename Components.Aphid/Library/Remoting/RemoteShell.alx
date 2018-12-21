@@ -32,6 +32,27 @@ head('AphidShell remoting{0}' :: [
 ]);
 
 var hostRemote = @{
+    log('Starting recovery listeners');
+    0..4->@+0x5232->@(p) {
+        var t = new Thread(@{
+            while (true) {
+                var si = new ProcessStartInfo(
+                    'cmd.exe',
+                    "/c aphid64 * " + 
+                        "#'std'; " + 
+                        "#'remoting/remote'; " + 
+                        "remote.listen({0}).listenThread.Join();"::p);
+                si.UseShellExecute = false;
+                si.CreateNoWindow = true;
+
+                Process.Start(si).WaitForExit();
+            }
+        });
+
+        t.IsBackground = true;
+        t.Start();
+    };
+
     log('Starting host');
 
     while (true) {
@@ -69,6 +90,7 @@ var watchParent = @{
         }
     });
 
+    t.IsBackground = true;
     t.Start();
 };
 
