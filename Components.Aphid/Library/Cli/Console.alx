@@ -7,19 +7,53 @@ var fixColors = @{
     Console.BackgroundColor = ConsoleColor.Black;
 };
 
-var console = {
-    defaultHeaderStyle: '~|Blue~~White~',
-    defaultSubheaderStyle: defaultHeaderStyle,
-};
-
+var console;
 var head = @(msg){ Cli.WriteHeader($_, console.defaultHeaderStyle) };
 var header = head;
 var subhead = @(msg) { Cli.WriteSubheader(msg, console.defaultSubheaderStyle) };
 var subheader = subhead;
-console.head = head;
-console.header = head;
-console.subhead = subhead;
-console.subheader = subhead;
+
+@{
+    using Components.PInvoke;
+    using Components.ConsolePlus;
+
+    console = {
+        head,
+        header,
+        subhead,
+        subheader,
+        defaultHeaderStyle: '~|Blue~~White~',
+        defaultSubheaderStyle: defaultHeaderStyle,
+    
+        free: @{            
+            Cli.UseTrace = true;
+            Kernel32.FreeConsole();
+        },
+
+        getWindow: Kernel32.GetConsoleWindow,
+        runWindowCmd: @User32.ShowWindow(getWindow()),
+        show: @() runWindowCmd(ShowWindowCommands.SW_SHOW),
+        hide: @() runWindowCmd(ShowWindowCommands.SW_HIDE),
+
+        bindKeyAsync: @(key, action) {
+            using System.Threading;
+
+            var t = new Thread(@{
+                while (true) {
+                    action();
+
+                    while (Console.ReadKey(true).Key != key) {
+                    }
+                }
+            });
+
+            t.IsBackground = true;
+            t.Start();
+
+            ret t;
+        },
+    };
+}();
 
 var stdScope = this;
 
