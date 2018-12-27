@@ -3,104 +3,59 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+//using Set = System.Collections.Generic.IEnumerable;
+using static System.Linq.Enumerable;
 
 
 namespace Components
 {
+    [DebuggerStepThrough]
     public static class EnumerableExtension
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // Prepend
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        //[DebuggerStepThrough]
-        //public static IEnumerable<T> Prepend<T>(this IEnumerable<T> source, T value)
-        //{
-        //    return new[] { value }.Concat(source);
-        //}
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        // Append
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        //[DebuggerStepThrough]
-        //public static IEnumerable<T> Append<T>(this IEnumerable<T> source, T value)
-        //{
-        //    return source.Concat(new[] { value });
-        //}
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////
         // None
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static bool None<T>(this IEnumerable<T> source)
-        {
-            return !source.Any();
-        }
+        public static bool None<T>(this IEnumerable<T> source) =>
+            !source.Any();
 
-        [DebuggerStepThrough]
-        public static bool None<T>(this IEnumerable<T> source, Func<T, bool> predicate)
-        {
-            return !source.Any(predicate);
-        }
+        public static bool None<T>(this IEnumerable<T> source, Func<T, bool> predicate) =>
+            !source.Any(predicate);
 
-        [DebuggerStepThrough]
-        public static bool None<T>(this IEnumerable<T> source, T value)
-        {
-            return !source.Contains(value);
-        }
+        public static bool None<T>(this IEnumerable<T> source, T value) =>
+            !source.Contains(value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // All
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static bool All(this IEnumerable<bool> source)
-        {
-            return source.All(x => x);
-        }
+        public static bool All(this IEnumerable<bool> source) =>
+            source.All(x => x);
 
-        [DebuggerStepThrough]
-        public static bool All<T>(this IEnumerable<T> source, T value)
-        {
-            return source.All(x => x.Equals(value));
-        }
+        public static bool All<T>(this IEnumerable<T> source, T value) =>
+            source.All(x => x.Equals(value));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Join
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static IEnumerable<T> Join<T>(this IEnumerable<IEnumerable<T>> source)
-        {
-            return source.SelectMany(x => x);
-        }
+        public static IEnumerable<T> Join<T>(this IEnumerable<IEnumerable<T>> source) =>
+            source.SelectMany(x => x);
 
-        [DebuggerStepThrough]
-        public static string Join<T>(this IEnumerable<string> source)
-        {
-            return source.Aggregate((x, y) => x + y);
-        }
+        public static string Join<T>(this IEnumerable<string> source) =>
+            source.Aggregate((x, y) => x + y);
 
-        [DebuggerStepThrough]
-        public static string Join<T>(this IEnumerable<string> source, string separator)
-        {
-            return source.Aggregate((x, y) => x + separator + y);
-        }
+        public static string Join<T>(this IEnumerable<string> source, string separator) =>
+            source.Aggregate((x, y) => x + separator + y);
 
-        [DebuggerStepThrough]
         public static IEnumerable<KeyValuePair<TInnerKey, TSource>>
             Join<TOuterKey, TInnerKey, TSource>(
-            this IEnumerable<KeyValuePair<TOuterKey, Dictionary<TInnerKey, TSource>>> source)
-        {
-            return source.SelectMany(x => x.Value);
-        }
+            this IEnumerable<KeyValuePair<TOuterKey, Dictionary<TInnerKey, TSource>>> source) =>
+            source.SelectMany(x => x.Value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // ToDictionary
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TKey, TElement> ToDictionary<TKey, TElement>(
-            this IEnumerable<KeyValuePair<TKey, TElement>> source)
-        {
-            return source.ToDictionary(x => x.Key, x => x.Value);
-        }
+            this IEnumerable<KeyValuePair<TKey, TElement>> source) =>
+            source.ToDictionary(x => x.Key, x => x.Value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // GetOrCreate
@@ -122,420 +77,314 @@ namespace Components
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereDictionary
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TKey, TElement> WhereDictionary<TKey, TElement>(
             this IEnumerable<KeyValuePair<TKey, TElement>> source,
-            Func<KeyValuePair<TKey, TElement>, bool> predicate)
-        {
-            return source.Where(predicate).ToDictionary();
-        }
+            Func<KeyValuePair<TKey, TElement>, bool> predicate) =>
+            source.Where(predicate).ToDictionary();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // JoinValues
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TElement> JoinValues<TKey, TElement>(
-            this IEnumerable<Dictionary<TKey, TElement>> source)
-        {
-            return source.SelectMany(x => x.Values);
-        }
+            this IEnumerable<Dictionary<TKey, TElement>> source) =>
+            source.SelectMany(x => x.Values);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // JoinKeys
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TKey> JoinKeys<TKey, TElement>(
-            this IEnumerable<Dictionary<TKey, TElement>> source)
-        {
-            return source.SelectMany(x => x.Keys);
-        }
+            this IEnumerable<Dictionary<TKey, TElement>> source) =>
+            source.SelectMany(x => x.Keys);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // DistinctKeys
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TKey> DistinctKeys<TKey, TElement>(
-            this IEnumerable<Dictionary<TKey, TElement>> source)
-        {
-            return source.SelectMany(x => x.Keys).Distinct();
-        }
+            this IEnumerable<Dictionary<TKey, TElement>> source) =>
+            source.SelectMany(x => x.Keys).Distinct();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WithKey
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TResult, TElement> WithKey<TKey, TElement, TResult>(
             this Dictionary<TKey, TElement> source,
-            Func<KeyValuePair<TKey, TElement>, TResult> keySelector)
-        {
-            return source.ToDictionary(keySelector, x => x.Value);
-        }
+            Func<KeyValuePair<TKey, TElement>, TResult> keySelector) =>
+            source.ToDictionary(keySelector, x => x.Value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WithValue
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TKey, TResult> WithValue<TKey, TElement, TResult>(
             this Dictionary<TKey, TElement> source,
-            Func<KeyValuePair<TKey, TElement>, TResult> elementSelector)
-        {
-            return source.ToDictionary(x => x.Key, elementSelector);
-        }
+            Func<KeyValuePair<TKey, TElement>, TResult> elementSelector) =>
+            source.ToDictionary(x => x.Key, elementSelector);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // AsKeyFor
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TKey, TElement> AsKeyFor<TKey, TElement>(
             this IEnumerable<TKey> source,
-            Func<TKey, TElement> elementSelector)
-        {
-            return source.ToDictionary(x => x, elementSelector);
-        }
+            Func<TKey, TElement> elementSelector) =>
+            source.ToDictionary(x => x, elementSelector);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereAny
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<IEnumerable<TElement>> WhereAny<TElement>(
             this IEnumerable<IEnumerable<TElement>> source,
-            Func<TElement, bool> predicate)
-        {
-            return source.Where(x => x.Any(predicate));
-        }
+            Func<TElement, bool> predicate) =>
+            source.Where(x => x.Any(predicate));
 
-        [DebuggerStepThrough]
         public static IEnumerable<IEnumerable<TElement>> WhereAny<TElement>(
-            this IEnumerable<IEnumerable<TElement>> source)
-        {
-            return source.Where(x => x.Any());
-        }
+            this IEnumerable<IEnumerable<TElement>> source) =>
+            source.Where(x => x.Any());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereNone
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<IEnumerable<TElement>> WhereNone<TElement>(
             this IEnumerable<IEnumerable<TElement>> source,
-            Func<TElement, bool> predicate)
-        {
-            return source.Where(x => x.None(predicate));
-        }
+            Func<TElement, bool> predicate) =>
+            source.Where(x => x.None(predicate));
 
-        [DebuggerStepThrough]
         public static IEnumerable<IEnumerable<TElement>> WhereNone<TElement>(
-            this IEnumerable<IEnumerable<TElement>> source)
-        {
-            return source.Where(x => x.None());
-        }
+            this IEnumerable<IEnumerable<TElement>> source) =>
+            source.Where(x => x.None());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereValue
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TKey>
             WhereValue<TKey, TElement>(
                 this Dictionary<TKey, TElement> source,
-                Func<KeyValuePair<TKey, TElement>, bool> predicate)
-        {
-            return source.Where(predicate).Select(x => x.Key);
-        }
+                Func<KeyValuePair<TKey, TElement>, bool> predicate) =>
+            source.Where(predicate).Select(x => x.Key);
 
-        [DebuggerStepThrough]
         public static IEnumerable<TKey>
             WhereValue<TKeyOuter, TKey, TElement>(
                 this KeyValuePair<TKeyOuter, Dictionary<TKey, TElement>> source,
-                Func<KeyValuePair<TKey, TElement>, bool> predicate)
-        {
-            return source.Value.WhereValue(predicate);
-        }
+                Func<KeyValuePair<TKey, TElement>, bool> predicate) =>
+            source.Value.WhereValue(predicate);
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, IEnumerable<TKey>>
             WhereValue<TKeyOuter, TKey, TElement>(
                 this Dictionary<TKeyOuter, Dictionary<TKey, TElement>> source,
-                Func<KeyValuePair<TKey, TElement>, bool> predicate)
-        {
-            return source.WhereValue(predicate);
-        }
+                Func<KeyValuePair<TKey, TElement>, bool> predicate) =>
+            source.WhereValue(predicate);
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, IEnumerable<TKeyInner>>
             WhereValue<TKeyInner, TKeyOuter, TKeyOuter2, TElement>(
                 this KeyValuePair<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, TElement>>> source,
-                Func<KeyValuePair<TKeyInner, TElement>, bool> predicate)
-        {
-            return source.Value.WithValue(x => x.Value.WhereValue(predicate));
-        }
+                Func<KeyValuePair<TKeyInner, TElement>, bool> predicate) =>
+            source.Value.WithValue(x => x.Value.WhereValue(predicate));
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter2, Dictionary<TKeyOuter, IEnumerable<TKeyInner>>>
             WhereValue<TKeyInner, TKeyOuter, TKeyOuter2, TElement>(
                 this Dictionary<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, TElement>>> source,
-                Func<KeyValuePair<TKeyInner, TElement>, bool> predicate)
-        {
-            return source.WithValue(x => x.Value.WhereValue(predicate));
-        }
-        
-        [DebuggerStepThrough]
-        public static IEnumerable<TKey> 
+                Func<KeyValuePair<TKeyInner, TElement>, bool> predicate) =>
+            source.WithValue(x => x.Value.WhereValue(predicate));
+
+        public static IEnumerable<TKey>
             WhereValue<TKey>(
-                this Dictionary<TKey, bool> source)
-        {
-            return source.Where(x => x.Value).Select(x => x.Key);
-        }
+                this Dictionary<TKey, bool> source) =>
+            source.Where(x => x.Value).Select(x => x.Key);
 
-        [DebuggerStepThrough]
-        public static IEnumerable<TKey> 
+        public static IEnumerable<TKey>
             WhereValue<TKey, TKeyOuter>(
-                this KeyValuePair<TKeyOuter, Dictionary<TKey, bool>> source)
-        {
-            return source.Value.WhereValue();
-        }
+                this KeyValuePair<TKeyOuter, Dictionary<TKey, bool>> source) =>
+            source.Value.WhereValue();
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, IEnumerable<TKeyInner>>
             WhereValue<TKeyInner, TKeyOuter>(
-                this Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>> source)
-        {
-            return source.WithValue(x => x.Value.WhereValue());
-        }
+                this Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>> source) =>
+            source.WithValue(x => x.Value.WhereValue());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, IEnumerable<TKeyInner>>
             WhereValue<TKeyInner, TKeyOuter, TKeyOuter2>(
-                this KeyValuePair<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source)
-        {
-            return source.Value.WithValue(x => x.Value.WhereValue());
-        }
+                this KeyValuePair<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source) =>
+            source.Value.WithValue(x => x.Value.WhereValue());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter2, Dictionary<TKeyOuter, IEnumerable<TKeyInner>>>
             WhereValue<TKeyInner, TKeyOuter, TKeyOuter2>(
-                this Dictionary<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source)
-        {
-            return source.WithValue(x => x.Value.WhereValue());
-        }
+                this Dictionary<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source) =>
+            source.WithValue(x => x.Value.WhereValue());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereValueNot
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TKey>
             WhereValueNot<TKey>(
-                this Dictionary<TKey, bool> source)
-        {
-            return source.Where(x => !x.Value).Select(x => x.Key);
-        }
+                this Dictionary<TKey, bool> source) =>
+            source.Where(x => !x.Value).Select(x => x.Key);
 
-        [DebuggerStepThrough]
         public static IEnumerable<TKey>
             WhereValueNot<TKey, TKeyOuter>(
-                this KeyValuePair<TKeyOuter, Dictionary<TKey, bool>> source)
-        {
-            return source.Value.WhereValueNot();
-        }
+                this KeyValuePair<TKeyOuter, Dictionary<TKey, bool>> source) =>
+            source.Value.WhereValueNot();
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, IEnumerable<TKeyInner>>
             WhereValueNot<TKeyInner, TKeyOuter>(
-                this Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>> source)
-        {
-            return source.WithValue(x => x.Value.WhereValueNot());
-        }
+                this Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>> source) =>
+            source.WithValue(x => x.Value.WhereValueNot());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, IEnumerable<TKeyInner>>
             WhereValueNot<TKeyInner, TKeyOuter, TKeyOuter2>(
-                this KeyValuePair<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source)
-        {
-            return source.Value.WithValue(x => x.Value.WhereValueNot());
-        }
+                this KeyValuePair<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source) =>
+            source.Value.WithValue(x => x.Value.WhereValueNot());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter2, Dictionary<TKeyOuter, IEnumerable<TKeyInner>>>
             WhereValueNot<TKeyInner, TKeyOuter, TKeyOuter2>(
-                this Dictionary<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source)
-        {
-            return source.WithValue(x => x.Value.WhereValueNot());
-        }
+                this Dictionary<TKeyOuter2, Dictionary<TKeyOuter, Dictionary<TKeyInner, bool>>> source) =>
+            source.WithValue(x => x.Value.WhereValueNot());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereValueAny
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TKey, IEnumerable<TElement>>
             WhereValueAny<TKey, TElement>(
-                this Dictionary<TKey, IEnumerable<TElement>> source)
-        {
-            return source.WhereDictionary(x => x.Value.Any());
-        }
+                this Dictionary<TKey, IEnumerable<TElement>> source) =>
+            source.WhereDictionary(x => x.Value.Any());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKeyOuter, Dictionary<TKey, IEnumerable<TElement>>>
             WhereValueAny<TKey, TKeyOuter, TElement>(
-                this Dictionary<TKeyOuter, Dictionary<TKey, IEnumerable<TElement>>> source)
-        {
-            return source.WithValue(x => x.Value.WhereValueAny());
-        }
+                this Dictionary<TKeyOuter, Dictionary<TKey, IEnumerable<TElement>>> source) =>
+            source.WithValue(x => x.Value.WhereValueAny());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKey, IEnumerable<TElement>>
             WhereValueAny<TKey, TElement>(
                 this Dictionary<TKey, IEnumerable<TElement>> source,
-                Func<TElement, bool> predicate)
-        {
-            return source.WhereDictionary(x => x.Value.Any(predicate));
-        }
+                Func<TElement, bool> predicate) =>
+            source.WhereDictionary(x => x.Value.Any(predicate));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // GroupJoin
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TInnerKey, IEnumerable<TSource>> GroupJoin<TOuterKey, TInnerKey, TSource>(
-            this IEnumerable<KeyValuePair<TOuterKey, Dictionary<TInnerKey, TSource>>> source)
-        {
-            return source.Join().GroupToDictionary();
-        }
+            this IEnumerable<KeyValuePair<TOuterKey, Dictionary<TInnerKey, TSource>>> source) =>
+            source.Join().GroupToDictionary();
 
-        [DebuggerStepThrough]
         public static Dictionary<TInnerKey, TElement> GroupJoin<TOuterKey, TInnerKey, TSource, TElement>(
             this IEnumerable<KeyValuePair<TOuterKey, Dictionary<TInnerKey, TSource>>> source,
-            Func<IEnumerable<KeyValuePair<TInnerKey, TSource>>, TElement> elementSelector)
-        {
-            return source.Join().GroupToDictionary(x => x.Key, elementSelector);
-        }
+            Func<IEnumerable<KeyValuePair<TInnerKey, TSource>>, TElement> elementSelector) =>
+            source.Join().GroupToDictionary(x => x.Key, elementSelector);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // GroupToDictionary
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static Dictionary<TKey, IEnumerable<TSource>> GroupToDictionary<TKey, TSource>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
-        {
-            return source
-                .GroupBy(keySelector)
-                .ToDictionary(x => x.Key, x => x.AsEnumerable());
-        }
+            Func<TSource, TKey> keySelector) =>
+            source.GroupBy(keySelector).ToDictionary(x => x.Key, x => x.AsEnumerable());
 
-        [DebuggerStepThrough]
         public static Dictionary<TKey, TElement> GroupToDictionary<TSource, TKey, TElement>(
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<IGrouping<TKey, TSource>, TElement> elementSelector)
-        {
-            return source
-                .GroupBy(keySelector)
-                .ToDictionary(x => x.Key, elementSelector);
-        }
+            Func<IGrouping<TKey, TSource>, TElement> elementSelector) =>
+            source.GroupBy(keySelector).ToDictionary(x => x.Key, elementSelector);
 
-        [DebuggerStepThrough]
         public static Dictionary<TKey, IEnumerable<TSource>> GroupToDictionary<TKey, TSource>(
-            this IEnumerable<KeyValuePair<TKey, TSource>> source)
-        {
-            return source
-                .GroupBy(x => x.Key)
-                .ToDictionary(x => x.Key, x => x.Select(y => y.Value));
-        }
+            this IEnumerable<KeyValuePair<TKey, TSource>> source) =>
+            source.GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.Select(y => y.Value));
 
-        [DebuggerStepThrough]
         public static Dictionary<TKey, TSource[]> GroupToArrayDictionary<TKey, TSource>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
-        {
-            return source
-                .GroupBy(keySelector)
-                .ToDictionary(x => x.Key, x => x.ToArray());
-        }
+            Func<TSource, TKey> keySelector) =>
+            source.GroupBy(keySelector).ToDictionary(x => x.Key, x => x.ToArray());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereContains
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<IEnumerable<TSource>> WhereContains<TSource>(
             this IEnumerable<IEnumerable<TSource>> source,
-            TSource value)
-        {
-            return source.Where(x => x.Contains(value));
-        }
+            TSource value) =>
+            source.Where(x => x.Contains(value));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Except
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TSource> Except<TSource>(
             this IEnumerable<TSource> source,
-            Func<TSource, bool> predicate)
-        {
-            return source.Where(x => !predicate(x));
-        }
+            Func<TSource, bool> predicate) =>
+            source.Where(x => !predicate(x));
 
-        [DebuggerStepThrough]
         public static IEnumerable<TSource> ExceptNull<TSource>(this IEnumerable<TSource> source)
-            where TSource : class
-        {
-            return source.Where(x => x != null);
-        }
+            where TSource : class =>
+            source.Where(x => x != null);
 
-        [DebuggerStepThrough]
         public static IEnumerable<TSource> ExceptNull<TSource, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, TResult> selector)
-            where TResult : class
-        {
-            return source.Where(x => selector(x) != null);
-        }
+            where TResult : class =>
+            source.Where(x => selector(x) != null);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Distinct
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TSource> Distinct<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector)
-        {
-            return source.Distinct(new SelectorComparer<TSource, TKey>(keySelector));
-        }
+            Func<TSource, TKey> keySelector) =>
+            source.Distinct(new SelectorComparer<TSource, TKey>(keySelector));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // GroupEvery
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static IEnumerable<IEnumerable<T>> GroupEvery<T>(this IEnumerable<T> source, int groupSize)
-        {
-            return Enumerable
+        public static IEnumerable<IEnumerable<T>> GroupEvery<T>(this IEnumerable<T> source, int groupSize) =>
+            Enumerable
                 .Range(0, (int)Math.Ceiling((double)source.Count() / groupSize))
                 .Select(x => source.Skip(x * groupSize).Take(groupSize));
-        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // TakeLast
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static IEnumerable<TSource> TakeLast<TSource>(this IEnumerable<TSource> source, int count)
-        {
-            return source.Skip(source.Count() - count);
-        }
-
-
+        public static IEnumerable<TSource> TakeLast<TSource>(this IEnumerable<TSource> source, int count) =>
+            source.Skip(source.Count() - count);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // Iter
+        // Iter/ForEach/For
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
-        public static void Iter<T>(this IEnumerable<T> source, Action<T> action)
+        public static IEnumerable<T> Iter<T>(this IEnumerable<T> source, Action<T> action)
         {
             foreach (var item in source)
             {
                 action(item);
             }
+
+            return source;
         }
+
+        public static IEnumerable<T> Iter<T>(this IEnumerable<T> source, Action<T, int> action)
+        {
+            var i = 0;
+
+            foreach (var item in source)
+            {
+                action(item, i++);
+            }
+
+            return source;
+        }
+
+        public static IEnumerable<T> For<T>(this IEnumerable<T> source, Action<T> action) =>
+            source.Iter(action);
+
+        public static IEnumerable<T> For<T>(this IEnumerable<T> source, Action<T, int> action) =>
+            source.Iter(action);
+
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action) =>
+            source.Iter(action);
+
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T, int> action) =>
+            source.Iter(action);
+
+        public static IEnumerable<T> Each<T>(this IEnumerable<T> source, Action<T> action) =>
+            source.Iter(action);
+
+        public static IEnumerable<T> Each<T>(this IEnumerable<T> source, Action<T, int> action) =>
+            source.Iter(action);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // AsyncIter
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static void AsyncIter<T>(this IEnumerable<T> source, Action<T> action)
         {
             var resets = new List<ManualResetEvent>();
@@ -565,7 +414,6 @@ namespace Components
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Shuffle
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source)
         {
             lock (_random)
@@ -577,7 +425,6 @@ namespace Components
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // TakeRandom
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        [DebuggerStepThrough]
         public static T TakeRandom<T>(this IEnumerable<T> source)
         {
             lock (_random)
@@ -586,7 +433,6 @@ namespace Components
             }
         }
 
-        [DebuggerStepThrough]
         public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> source, int count)
         {
             lock (_random)
@@ -607,5 +453,24 @@ namespace Components
                 return dstList;
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // Then/Do
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        public static IEnumerable<TSource> Then<TSource>(
+            this IEnumerable<TSource> source,
+            SetAction<TSource> action)
+        {
+            action(source);
+            
+            return source;
+        }
+
+        public delegate void SetAction<in T>(IEnumerable<T> collection);
+
+        public static IEnumerable<TSource> Do<TSource>(
+            this IEnumerable<TSource> source,
+            SetAction<TSource> action) =>
+            source.Then(action);
     }
 }
