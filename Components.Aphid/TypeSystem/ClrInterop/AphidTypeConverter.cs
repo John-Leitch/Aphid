@@ -5,8 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using static System.Convert;
 
 namespace Components.Aphid.TypeSystem
 {
@@ -19,7 +18,14 @@ namespace Components.Aphid.TypeSystem
 
         public object[] Convert(AphidInteropMethodArg[] args, Type[] genericArguments)
         {
-            return args.Select(x => Convert(x, genericArguments)).ToArray();
+            var converted = new object[args.Length];
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                converted[i] = Convert(args[i], genericArguments);
+            }
+
+            return converted;
         }
 
         public object Convert(AphidInteropMethodArg arg, Type[] genericArguments)
@@ -213,6 +219,10 @@ namespace Components.Aphid.TypeSystem
             else if (srcType == typeof(decimal))
             {
                 return Convert(targetType, (decimal)srcValue);
+            }
+            else if (targetType == typeof(decimal))
+            {
+                return ChangeType(srcValue, typeof(decimal));
             }
             else if (srcType.IsArray)
             {
