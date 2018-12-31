@@ -222,6 +222,8 @@
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />
     <Compile Include="External\Common\DefaultSingleton.cs" />
+    <Compile Include="External\Common\FluentExtensions.cs" />
+    <Compile Include="External\Common\IfContext.cs" />
     <Compile Include="External\Linq\ParallelEnumerableExtension.cs" />
     <Compile Include="External\Linq\EnumerableMember.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
@@ -592,6 +594,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Gui\DynamicUI.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Gui\LaunchNodeMon.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Gui\NodeMon.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Gui\OxyPlot.alx">
