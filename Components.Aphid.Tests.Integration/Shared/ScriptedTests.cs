@@ -65,7 +65,8 @@ namespace Components.Aphid.Tests.Integration.Shared
             })
             .Select(x => new TestCaseData(x.interpreter, x.s)
                 .SetCategory(Path.GetFileNameWithoutExtension(x.Name))
-                .SetName(FormatTestName(x.s)));
+                .SetName(FormatTestName(x.s)))
+            .AsSequential();
 
         private static string FormatTestName(string funcName)
         {
