@@ -37,11 +37,14 @@ namespace Components.IO
 
             // Write MemoryManager.ZeroMemory
             writer.Write(memoryManager.ZeroMemory);
+
+            // Write MemoryManager.StartingPosition
+            writer.Write(memoryManager.StartingPosition);
         }
 
         public MemoryManager Deserialize(Stream stream, Stream dataStream)
         {
-            var reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream);            
 
             // Read MemoryManager.Bitmap
             var len = reader.ReadInt32();
@@ -54,9 +57,11 @@ namespace Components.IO
             var sizeTable = new Dictionary<int, int>();
             var isCorrupted = false;
 
+            var streamLen = stream.Length;
+
             for (int i = 0; i < len; i++)
             {
-                if (reader.BaseStream.Position + 8 <= reader.BaseStream.Length)
+                if (reader.BaseStream.Position + 8 <= streamLen)
                 {
                     sizeTable.Add(reader.ReadInt32(), reader.ReadInt32());
                 }
@@ -68,6 +73,7 @@ namespace Components.IO
 
             int pageSize;
             bool zeroMemory;
+            int startingPosition;
 
             if (!isCorrupted)
             {
@@ -76,14 +82,30 @@ namespace Components.IO
 
                 // Read MemoryManager.ZeroMemory
                 zeroMemory = reader.ReadBoolean();
+
+                if (stream.Position + 4 <= streamLen)
+                {
+                    startingPosition = reader.ReadInt32();
+                }
+                else
+                {
+                    startingPosition = 0;
+                }
             }
             else
             {
                 pageSize = 0x20;
                 zeroMemory = true;
+                startingPosition = 0;
             }
 
-            return new MemoryManager(dataStream, bitmap, sizeTable, pageSize, zeroMemory);
+            return new MemoryManager(
+                dataStream,
+                bitmap,
+                sizeTable,
+                pageSize,
+                zeroMemory,
+                startingPosition);
         }
 
         public int DeserializeCount(Stream stream)

@@ -1,5 +1,6 @@
 ﻿using Components.External;
 using Components.IO;
+using Components.ObjectDatabase;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,6 +33,8 @@ namespace Components.ObjectDatabase
         private Table<long, ObjectDatabaseRecord<TElement>> _items = new Table<long, ObjectDatabaseRecord<TElement>>();
 
         public bool UseUnsafeMemoryManager { get; private set; }
+
+        public bool IsReadOnly { get; set; }
 
         public string MemoryManagerFilename { get; private set; }
 
@@ -100,7 +103,7 @@ namespace Components.ObjectDatabase
                 FileOptions.WriteThrough);
         }
 
-        private MemoryManager ReadMemoryManagerUnsafe()
+        public MemoryManager ReadMemoryManagerUnsafe()
         {
             _memoryManagerStream.Position = 0;
 
@@ -109,8 +112,10 @@ namespace Components.ObjectDatabase
                 _stream);
         }
 
-        private void WriteMemoryManagerUnsafe(MemoryManager memoryManager)
+        public void WriteMemoryManagerUnsafe(MemoryManager memoryManager)
         {
+            AssertReadOnly("write memory manager");
+
             _memoryManagerStream.Position = 0;
 
             _memoryManagerSerializer.Serialize(
@@ -120,17 +125,13 @@ namespace Components.ObjectDatabase
             _memoryManagerStream.Flush();
         }
 
-        public void LockMemoryManager(Action action)
-        {
+        public void LockMemoryManager(Action action) =>
             // Technically, the ToLower call here creates a bug that will 
             // manifest when a case sensitive file system is used.
             Sync(MemoryManagerFilename.ToLower(), action);
-        }
 
-        public MemoryManager LockMemoryManager(Func<MemoryManager> func)
-        {
-            return Sync(MemoryManagerFilename.ToLower(), func);
-        }
+        public MemoryManager LockMemoryManager(Func<MemoryManager> func) =>
+            Sync(MemoryManagerFilename.ToLower(), func);
 
         //private string GetTypeIndexFilename(Type type)
         //{
@@ -141,18 +142,18 @@ namespace Components.ObjectDatabase
         //        TypeIndexExtension);
         //}
 
-        private string GetMemoryManagerFilename()
-        {
-            return PathHelper.GetSiblingFileName(
+        private string GetMemoryManagerFilename() =>
+            PathHelper.GetSiblingFileName(
                 Filename,
                 string.Format(
                     "{0}.{1}",
                     Path.GetFileNameWithoutExtension(Filename),
                     DatabaseMemoryFileExtension));
-        }
 
         public override void Create(TElement element)
         {
+            AssertReadOnly();
+
             byte[] buffer;
 
             using (var s = new MemoryStream())
@@ -256,6 +257,7 @@ namespace Components.ObjectDatabase
                 throw new InvalidOperationException("Cannot update when TrackEntities is false.");
             }
 
+            AssertReadOnly("updated record");
             var ctxItem = _items.GetDictionary().FirstOrDefault(x => x.Value.Value.Equals(element));
 
             if (ctxItem.Value == null)
@@ -366,7 +368,7 @@ namespace Components.ObjectDatabase
                 throw new ObjectDisposedException("ObjectDatabase");
             }
 
-            if (!_isCommitted)
+            if (!_isCommitted && !IsReadOnly)
             {
                 CommitMemoryManager();
             }
@@ -377,8 +379,9 @@ namespace Components.ObjectDatabase
             base.Dispose();
         }
 
-        private void CommitMemoryManager()
+        public void CommitMemoryManager()
         {
+            AssertReadOnly("commit memory manager");
             _isCommitted = true;
 
             if (UseUnsafeMemoryManager)
@@ -397,9 +400,18 @@ namespace Components.ObjectDatabase
 
         ~ObjectDatabase()
         {
-            if (UseUnsafeMemoryManager && !_isDisposed && !_isCommitted)
+            if (UseUnsafeMemoryManager && !_isDisposed && !_isCommitted && !IsReadOnly)
             {
                 CommitMemoryManager();
+            }
+        }
+
+        private void AssertReadOnly(string name = null)
+        {
+            if (IsReadOnly)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot {name ?? "create record"} in read-only mode.");
             }
         }
     }
@@ -408,9 +420,8 @@ namespace Components.ObjectDatabase
     {
         public static ObjectDatabase<string> OpenStringDatabase(
             string filename,
-            bool useUnsafeMemoryManager = false)
-        {
-            var db = new ObjectDatabase<string>(
+            bool useUnsafeMemoryManager = false) =>
+            new ObjectDatabase<string>(
                 filename,
                 (x, s) =>
                 {
@@ -418,11 +429,7 @@ namespace Components.ObjectDatabase
                     x.Write(s.GetBytes());
                 },
                 (x) => x.Read(BitConverter.ToInt32(x.Read(4), 0)).GetString(),
-                useUnsafeMemoryManager);
-
-            db.Open();
-
-            return db;
-        }
+                useUnsafeMemoryManager)
+                .Do(x => x.Open());
     }
 }

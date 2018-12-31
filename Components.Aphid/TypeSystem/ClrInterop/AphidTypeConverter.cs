@@ -28,9 +28,8 @@ namespace Components.Aphid.TypeSystem
             return converted;
         }
 
-        public object Convert(AphidInteropMethodArg arg, Type[] genericArguments)
-        {
-            return arg.ImplicitConversionOperator != null ?
+        public object Convert(AphidInteropMethodArg arg, Type[] genericArguments) =>
+            arg.ImplicitConversionOperator != null ?
                     Convert(arg.ImplicitConversionOperator, arg.Argument) :
                 arg.ExplicitConversionOperator != null ?
                     Convert(arg.ExplicitConversionOperator, arg.Argument) :
@@ -39,18 +38,13 @@ namespace Components.Aphid.TypeSystem
                     !genericArguments[0].IsValueType ?
                     BoxValueTypeEnumerable((IEnumerable)arg.Argument) :
                 Convert(arg.TargetType, arg.Argument, genericArguments);
-        }
 
-        public IEnumerable<object> BoxValueTypeEnumerable(IEnumerable valueTypeSource)
-        {
-            return valueTypeSource.Cast<object>();
-        }
+        public IEnumerable<object> BoxValueTypeEnumerable(IEnumerable valueTypeSource) =>
+            valueTypeSource.Cast<object>();
 
-        public object Convert(MethodBase opMethod, object argument)
-        {
+        public object Convert(MethodBase opMethod, object argument) =>
             // Todo: possible optimization via delegate memoization.
-            return opMethod.Invoke(null, new[] { argument });
-        }
+            opMethod.Invoke(null, new[] { argument });
 
         public AphidConversionInfo CanConvert(
             AphidInteropMethodArg interopArg,
@@ -137,10 +131,8 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public static bool IsNumber(Type targetType)
-        {
-            return
-                targetType == typeof(byte) ||
+        public static bool IsNumber(Type targetType) =>
+            targetType == typeof(byte) ||
                 targetType == typeof(ushort) ||
                 targetType == typeof(uint) ||
                 targetType == typeof(ulong) ||
@@ -150,7 +142,6 @@ namespace Components.Aphid.TypeSystem
                 targetType == typeof(long) ||
                 targetType == typeof(float) ||
                 targetType == typeof(double);
-        }
 
         public bool CanConvertArray(object value, Type valueType, Type targetType)
         {
@@ -341,63 +332,31 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public byte ToByte(decimal value)
-        {
-            return (byte)value;
-        }
+        public byte ToByte(decimal value) => (byte)value;
 
-        public ushort ToUInt16(decimal value)
-        {
-            return (ushort)value;
-        }
+        public ushort ToUInt16(decimal value) => (ushort)value;
 
-        public uint ToUInt32(decimal value)
-        {
-            return (uint)value;
-        }
+        public uint ToUInt32(decimal value) => (uint)value;
 
-        public ulong ToUInt64(decimal value)
-        {
-            return (ulong)value;
-        }
+        public ulong ToUInt64(decimal value) => (ulong)value;
 
-        public sbyte ToSByte(decimal value)
-        {
-            return (sbyte)value;
-        }
+        public sbyte ToSByte(decimal value) => (sbyte)value;
 
-        public short ToInt16(decimal value)
-        {
-            return (short)value;
-        }
+        public short ToInt16(decimal value) => (short)value;
 
-        public int ToInt32(decimal value)
-        {
-            return (int)value;
-        }
+        public int ToInt32(decimal value) => (int)value;
 
-        public long ToInt64(decimal value)
-        {
-            return (long)value;
-        }
+        public long ToInt64(decimal value) => (long)value;
 
-        public float ToFloat(decimal value)
-        {
-            return (float)value;
-        }
+        public float ToFloat(decimal value) => (float)value;
 
-        public double ToDouble(decimal value)
-        {
-            return (double)value;
-        }
+        public double ToDouble(decimal value) => (double)value;
 
-        private AphidRuntimeException GetConversionError(object value, Type valueType, Type targetType)
-        {
-            return Interpreter.CreateRuntimeException(
+        private AphidRuntimeException GetConversionError(object value, Type valueType, Type targetType) =>
+            Interpreter.CreateRuntimeException(
                 "Cannot convert '{0}' from type {1} to {2}.",
                 value,
                 valueType,
                 targetType);
-        }
     }
 }

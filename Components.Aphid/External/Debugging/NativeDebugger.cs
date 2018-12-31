@@ -341,7 +341,9 @@ namespace Components.Cypress
                         lock (_loaderBreakpointTable)
                         {
                             if (!_loaderBreakpointTable.ContainsKey(debugEvent.dwProcessId))
+                            {
                                 _loaderBreakpointTable.Add(debugEvent.dwProcessId, false);
+                            }
                         }
                         LockProcesses(() =>
                         {

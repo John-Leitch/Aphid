@@ -12,19 +12,15 @@ namespace Components.IO
 
         private int _startingPosition = 0;
 
+        public int StartingPosition => _startingPosition;
+
         private bool[] _bitmap;
 
-        public bool[] Bitmap
-        {
-            get { return _bitmap; }
-        }
+        public bool[] Bitmap => _bitmap;
 
         private Dictionary<int, int> _allocations = new Dictionary<int, int>();
 
-        public Dictionary<int, int> Allocations
-        {
-            get { return _allocations; }
-        }
+        public Dictionary<int, int> Allocations => _allocations;
 
         public int PageSize { get; private set; }
 
@@ -48,13 +44,15 @@ namespace Components.IO
             bool[] bitmap,
             Dictionary<int, int> sizeTable,
             int pageSize,
-            bool zeroMemory)
+            bool zeroMemory,
+            int startingPosition)
         {
             _stream = stream;
             _bitmap = bitmap;
             _allocations = sizeTable;
             PageSize = pageSize;
             ZeroMemory = zeroMemory;
+            _startingPosition = startingPosition;
         }
 
         private void Grow()

@@ -39,13 +39,14 @@ namespace Components.ObjectDatabase
 
         public IEnumerable<T> ReadUnsafe(Expression<Func<T, bool>> predicate)
         {
-            var key = predicate.ToString();
+            return ReadUnsafe().Where(predicate.Compile());
+            //var key = predicate.ToString();
 
             
 
-            var results = ReadUnsafe().Where(predicate.Compile()).ToArray();
+            //var results = ReadUnsafe().Where(predicate.Compile()).ToArray();
 
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 
