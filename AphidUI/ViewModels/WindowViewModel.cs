@@ -48,6 +48,10 @@ namespace AphidUI.ViewModels
 
         private bool _shouldSave = false;
 
+        private Func<AphidObject> _createScope;
+
+        //public AphidObject RootScope { get; set; }
+
         public ObservableCollection<VariableViewModel> Variables { get; } = new ObservableCollection<VariableViewModel>();
 
         public ObservableCollection<ExpressionViewModel> Expressions { get; } = new ObservableCollection<ExpressionViewModel>();
@@ -249,10 +253,19 @@ namespace AphidUI.ViewModels
 
         private void InitInterpreter()
         {
-            Interpreter = new AphidInterpreter();
+            Interpreter = new AphidInterpreter(
+                _createScope == null ? AphidObject.Complex() :
+                _createScope() ?? AphidObject.Complex());
+
             Interpreter.CurrentScope.Add(ViewModelName, AphidObject.Scalar(this));
             AddIsRepl();
             LoadLibrary();            
+        }
+
+        public void SetCreateScope(Func<AphidObject> createScope)
+        {
+            _createScope = createScope;
+            ResetInterpreter();
         }
 
         private void ExecuteExpression()
@@ -334,7 +347,7 @@ namespace AphidUI.ViewModels
             {
                 InvokeDispatcher(() => CodeViewer.AppendException(Code, ".NET Runtime error", ex));
             }
-
+            
             var serialized = AphidCli
                 .CreateSerializer(Interpreter)
                 .Serialize(Interpreter.GetReturnValue());

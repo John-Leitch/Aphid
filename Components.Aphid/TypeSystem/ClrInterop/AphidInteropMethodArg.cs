@@ -22,70 +22,31 @@ namespace Components.Aphid.TypeSystem
 
         public Type ArgumentType { get; private set; }
 
-        public Type TargetType 
-        {
-            get { return _paramInfo.TargetType; }
-        }
+        public Type TargetType => _paramInfo.TargetType;
 
-        public MethodInfo ImplicitConversionOperator
-        {
-            get { return _argInfo.ImplicitConversionOperator; }
-        }
+        public MethodInfo ImplicitConversionOperator => _argInfo.ImplicitConversionOperator;
 
-        public MethodInfo ExplicitConversionOperator
-        {
-            get { return _argInfo.ExplicitConversionOperator; }
-        }
+        public MethodInfo ExplicitConversionOperator => _argInfo.ExplicitConversionOperator;
 
-        public bool HasImplicitConversion
-        {
-            get { return _argInfo.HasImplicitConversion; }
-        }
+        public bool HasImplicitConversion => _argInfo.HasImplicitConversion;
 
-        public bool HasExplicitConversion
-        {
-            get { return _argInfo.HasExplicitConversion; }
-        }
+        public bool HasExplicitConversion => _argInfo.HasExplicitConversion;
 
-        public bool HasToStringConversion
-        {
-            get { return _argInfo.HasToStringConversion; }
-        }
+        public bool HasToStringConversion => _argInfo.HasToStringConversion;
 
-        public bool IsDerivedFromUserReferenceType
-        {
-            get { return _argInfo.IsDerivedFromUserReferenceType; }
-        }
+        public bool IsDerivedFromUserReferenceType => _argInfo.IsDerivedFromUserReferenceType;
 
-        public bool IsNonRootImplementationOfTarget
-        {
-            get { return _argInfo.IsNonRootImplementationOfTarget; }
-        }
+        public bool IsNonRootImplementationOfTarget => _argInfo.IsNonRootImplementationOfTarget;
 
-        public bool IsExactTypeMatch
-        {
-            get { return _argInfo.IsExactTypeMatch; }
-        }
+        public bool IsExactTypeMatch => _argInfo.IsExactTypeMatch;
 
-        public bool IsPrecisionLost
-        {
-            get { return _argInfo.IsPrecisionLost; }
-        }
+        public bool IsPrecisionLost => _argInfo.IsPrecisionLost;
 
-        public bool IsSafeConvertibleNumberPair
-        {
-            get { return IsConvertibleNumberPair && !IsPrecisionLost; }
-        }
+        public bool IsSafeConvertibleNumberPair => IsConvertibleNumberPair && !IsPrecisionLost;
 
-        public bool IsUnsafeConvertibleNumberPair
-        {
-            get { return IsConvertibleNumberPair && IsPrecisionLost; }
-        }
+        public bool IsUnsafeConvertibleNumberPair => IsConvertibleNumberPair && IsPrecisionLost;
 
-        public bool HasParamArray
-        {
-            get { return _paramInfo.HasParamArray; }
-        }
+        public bool HasParamArray => _paramInfo.HasParamArray;
 
         public bool IsConvertibleNumberPair { get; private set; }
 

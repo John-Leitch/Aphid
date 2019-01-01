@@ -22,7 +22,7 @@ namespace Components
             return x;
         }
 
-        public static K Then<T, K>(this T obj, Func<T, K> func) => func(obj);        
+        public static TResult Then<T, TResult>(this T obj, Func<T, TResult> func) => func(obj);        
 
         public static void Then(this Action first, Action action)
         {

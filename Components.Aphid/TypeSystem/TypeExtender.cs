@@ -26,15 +26,9 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public string GetCtorName(string type)
-        {
-            return "$ext." + type + ".$ctor";
-        }
+        public string GetCtorName(string type) => "$ext." + type + ".$ctor";
 
-        private string GetDynamicName(string type)
-        {
-            return "$ext." + type;
-        }
+        private string GetDynamicName(string type) => "$ext." + type;
 
         private string GetName(string type, string nameStr)
         {
@@ -189,24 +183,20 @@ namespace Components.Aphid.TypeSystem
             IdentifierExpression type,
             AphidObject extensions,
             string ctorHandler,
-            string dynamicHandler)
-        {
+            string dynamicHandler) =>
             Extend(
                 type.Identifier,
                 type.Attributes.Select(x => x.Identifier).ToArray(),
                 extensions,
                 ctorHandler,
                 dynamicHandler);
-        }
 
         public void Extend(
             string type,
             AphidObject extensions,
             string ctorHandler,
-            string dynamicHandler)
-        {
+            string dynamicHandler) =>
             Extend(type, new string[0], extensions, ctorHandler, dynamicHandler);
-        }
 
         public void Extend(
             string type,
@@ -294,13 +284,11 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private AphidRuntimeException GetInteropTypeException(string[] attributes, string type)
-        {
-            return Interpreter.CreateRuntimeException(
+        private AphidRuntimeException GetInteropTypeException(string[] attributes, string type) =>
+            Interpreter.CreateRuntimeException(
                 "Unexpected attribute(s) '{0}' for type '{1}'. Expected attribute 'list' or none.",
                 string.Join(", ", attributes),
                 type);
-        }
 
         public AphidObject TryResolve(
             AphidObject scope,
@@ -346,9 +334,8 @@ namespace Components.Aphid.TypeSystem
             bool isAphidType,
             bool isCtor,
             bool isDynamic,
-            bool returnRef)
-        {
-            return TryResolve(
+            bool returnRef) =>
+            TryResolve(
                 scope,
                 null,
                 FanStaticInteropTypeName(staticType),
@@ -358,7 +345,6 @@ namespace Components.Aphid.TypeSystem
                 isDynamic,
                 isStatic: true,
                 returnRef: returnRef);
-        }
 
         public AphidObject TryResolve(
             AphidObject scope,

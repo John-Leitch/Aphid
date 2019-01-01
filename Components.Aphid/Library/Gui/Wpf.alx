@@ -122,11 +122,11 @@ var bind;
                     
                     wpfApp.invoke = @(func) {
                         var result;
-                        printInfo('Invoking WPF with {0}', func);
+                        //printInfo('Invoking WPF with {0}', func);
                         
                         wpfApp.window.Dispatcher.Invoke(@{
                             result = func();
-                            printInfo('Invoke result: {0}', result);
+                            //printInfo('Invoke result: {0}', result);
                         });
 
                         ret result;
@@ -268,6 +268,7 @@ var bind;
 
         eventHandler: @(delegateType, func) {
             var wrapper = new AphidFunctionWrapper(this.{'$aphid'}, func);
+            
 
             var paramTypes = delegateType
                 .GetMethod('Invoke')
