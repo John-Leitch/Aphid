@@ -140,10 +140,8 @@ namespace Components.Caching
             }
         }
 
-        private CrossProcessLock CreateLock(string filename)
-        {
-            return new CrossProcessLock($"FileSerializationCache_{CacheName.Sanitize(filename)}");
-        }
+        private static CrossProcessLock CreateLock(string filename) =>
+            new CrossProcessLock($"FileSerializationCache_{CacheName.Sanitize(filename)}");
 
         private void SaveCacheInfoUnsafe(string filename, FileCacheInfo cacheInfo)
         {

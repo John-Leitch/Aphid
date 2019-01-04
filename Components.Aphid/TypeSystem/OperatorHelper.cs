@@ -82,7 +82,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                var underlyingType = Enum.GetUnderlyingType(t);
+                //var underlyingType = Enum.GetUnderlyingType(t);
                 
                 var o = Enum.ToObject(
                     t,
@@ -231,7 +231,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private AphidObject Repeat(string value, decimal count)
+        private static AphidObject Repeat(string value, decimal count)
         {
             var sb = new StringBuilder();
 
@@ -306,19 +306,19 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public bool EqualsCore(AphidObject x, AphidObject y)
+        public static bool EqualsCore(AphidObject x, AphidObject y)
         {
             return x.Value != null ?
                 x.Value.Equals(y.Value) :
                 (null == y.Value && x.Count == 0 && y.Count == 0);
         }
 
-        public AphidObject Equals(AphidObject x, AphidObject y)
+        public static AphidObject Equals(AphidObject x, AphidObject y)
         {
             return AphidObject.Scalar(EqualsCore(x, y));
         }
 
-        public AphidObject NotEqual(AphidObject x, AphidObject y)
+        public static AphidObject NotEqual(AphidObject x, AphidObject y)
         {
             return AphidObject.Scalar(!EqualsCore(x, y));
         }

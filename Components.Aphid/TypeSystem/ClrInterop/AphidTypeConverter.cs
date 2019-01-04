@@ -39,16 +39,15 @@ namespace Components.Aphid.TypeSystem
                     BoxValueTypeEnumerable((IEnumerable)arg.Argument) :
                 Convert(arg.TargetType, arg.Argument, genericArguments);
 
-        public IEnumerable<object> BoxValueTypeEnumerable(IEnumerable valueTypeSource) =>
+        public static IEnumerable<object> BoxValueTypeEnumerable(IEnumerable valueTypeSource) =>
             valueTypeSource.Cast<object>();
 
-        public object Convert(MethodBase opMethod, object argument) =>
+        public static object Convert(MethodBase opMethod, object argument) =>
             // Todo: possible optimization via delegate memoization.
             opMethod.Invoke(null, new[] { argument });
 
         public AphidConversionInfo CanConvert(
             AphidInteropMethodArg interopArg,
-            MethodBase method,
             object val,
             Type target)
         {
@@ -143,7 +142,7 @@ namespace Components.Aphid.TypeSystem
                 targetType == typeof(float) ||
                 targetType == typeof(double);
 
-        public bool CanConvertArray(object value, Type valueType, Type targetType)
+        public static bool CanConvertArray(object value, Type valueType, Type targetType)
         {
             if (valueType == targetType)
             {
@@ -254,7 +253,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public object Convert(Type targetType, decimal value)
+        public static object Convert(Type targetType, decimal value)
         {
             if (targetType == typeof(byte))
             {
@@ -306,7 +305,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public object ConvertArray(Type targetType, Type srcArrayType, Array srcArray)
+        public static object ConvertArray(Type targetType, Type srcArrayType, Array srcArray)
         {
             if (targetType == srcArrayType)
             {
@@ -332,25 +331,25 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public byte ToByte(decimal value) => (byte)value;
+        public static byte ToByte(decimal value) => (byte)value;
 
-        public ushort ToUInt16(decimal value) => (ushort)value;
+        public static ushort ToUInt16(decimal value) => (ushort)value;
 
-        public uint ToUInt32(decimal value) => (uint)value;
+        public static uint ToUInt32(decimal value) => (uint)value;
 
-        public ulong ToUInt64(decimal value) => (ulong)value;
+        public static ulong ToUInt64(decimal value) => (ulong)value;
 
-        public sbyte ToSByte(decimal value) => (sbyte)value;
+        public static sbyte ToSByte(decimal value) => (sbyte)value;
 
-        public short ToInt16(decimal value) => (short)value;
+        public static short ToInt16(decimal value) => (short)value;
 
-        public int ToInt32(decimal value) => (int)value;
+        public static int ToInt32(decimal value) => (int)value;
 
-        public long ToInt64(decimal value) => (long)value;
+        public static long ToInt64(decimal value) => (long)value;
 
-        public float ToFloat(decimal value) => (float)value;
+        public static float ToFloat(decimal value) => (float)value;
 
-        public double ToDouble(decimal value) => (double)value;
+        public static double ToDouble(decimal value) => (double)value;
 
         private AphidRuntimeException GetConversionError(object value, Type valueType, Type targetType) =>
             Interpreter.CreateRuntimeException(

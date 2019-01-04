@@ -127,7 +127,7 @@ namespace Components.External
 
             var interfaces = type.GetInterfaces();
 
-            foreach (var parentInterface in type.GetInterfaces())
+            foreach (var parentInterface in interfaces)
             {
                 if (parentInterface == interfaceType)
                 {

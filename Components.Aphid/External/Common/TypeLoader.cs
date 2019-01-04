@@ -26,10 +26,7 @@ namespace Components
             _getStaticTypesMemoizer = new Memoizer<HashSet<string>, IEnumerable<Type>>(
                 new NamespaceEqualityComparer());
 
-        public TypeLoader()
-        {
-            AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
-        }
+        public TypeLoader() => AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 
         void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
@@ -57,9 +54,8 @@ namespace Components
             }
         }
 
-        private IEnumerable<Type> GetAllTypesCore(HashSet<string> imports)
-        {
-            return this.GetAssemblies()
+        private IEnumerable<Type> GetAllTypesCore(HashSet<string> imports) =>
+            GetAssemblies()
                 .SelectMany(x => x.GetTypes())
                 .Where(x => imports
                     .Any(y =>
@@ -67,7 +63,6 @@ namespace Components
                         !x.FullName.Substring(y.Length + 1).Contains('.')))
                 .Distinct()
                 .ToArray();
-        }
 
         public IEnumerable<Type> GetStaticTypes(HashSet<string> imports)
         {
@@ -77,12 +72,10 @@ namespace Components
             }
         }
 
-        private IEnumerable<Type> GetStaticTypesCore(HashSet<string> imports)
-        {
-            return GetAllTypes(imports)
+        private IEnumerable<Type> GetStaticTypesCore(HashSet<string> imports) =>
+            GetAllTypes(imports)
                 .Where(x => x.GetMembers(BindingFlags.Public | BindingFlags.Static).Any())
                 .ToArray();
-        }
 
         public Type ResolveFullType(string fullTypeName)
         {
@@ -151,29 +144,20 @@ namespace Components
             }
         }
 
-        public static IEnumerable<TPlugin> LoadType<TPlugin>(Assembly asm)
-        {
-            return asm
+        public static IEnumerable<TPlugin> LoadType<TPlugin>(Assembly asm) =>
+            asm
                 .GetTypes()
                 .Where(x => !x.IsAbstract && x.IsDerivedFromOrImplements(typeof(TPlugin)))
                 .Select(Activator.CreateInstance)
                 .Cast<TPlugin>();
-        }
 
-        public IEnumerable<TPlugin> LoadType<TPlugin>()
-        {
-            return GetAssemblies().SelectMany(LoadType<TPlugin>);
-        }
+        public IEnumerable<TPlugin> LoadType<TPlugin>() =>
+            GetAssemblies().SelectMany(LoadType<TPlugin>);
 
-        private Exception GetResolveException(string name)
-        {
-            return new InvalidOperationException(
+        private static Exception GetResolveException(string name) =>
+            new InvalidOperationException(
                 string.Format("Could not resolve type '{0}'.", name));
-        }
 
-        public void Dispose()
-        {
-            AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
-        }
+        public void Dispose() => AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
     }
 }

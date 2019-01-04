@@ -206,7 +206,6 @@ namespace Components.Aphid.TypeSystem
                     
                     var matchConversion = Interpreter.TypeConverter.CanConvert(
                         matchArg,
-                        match,
                         matchArg.Argument,
                         matchArg.TargetType);
 
@@ -501,7 +500,7 @@ namespace Components.Aphid.TypeSystem
                 else if (args.Length - 1 == index &&
                     (arg = args[index]) != null &&
                     (argType = arg.GetType()).IsArray &&
-                    Interpreter.TypeConverter.CanConvertArray(arg, argType, paramInfo.TargetType))
+                    AphidTypeConverter.CanConvertArray(arg, argType, paramInfo.TargetType))
                 {
                     return new AphidInteropMethodArg(arg, paramInfo, false);
                 }
