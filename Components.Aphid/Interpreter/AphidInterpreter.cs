@@ -958,11 +958,11 @@ namespace Components.Aphid.Interpreter
             GetTypeInteropInstanceMembers(target.GetType(), GetMemberKey(expression.RightOperand));
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetInteropInstanceMembers(object target, string name) =>
+        private static MemberInfo[] GetInteropInstanceMembers(object target, string name) =>
             GetTypeInteropInstanceMembers(target.GetType(), name);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetTypeInteropInstanceMembers(Type targetType, string name)
+        private static MemberInfo[] GetTypeInteropInstanceMembers(Type targetType, string name)
         {
             lock (_instanceMemberNameCache)
             {
@@ -1016,11 +1016,11 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetInteropStaticMembers(Type type, string[] path) =>
+        private static MemberInfo[] GetInteropStaticMembers(Type type, string[] path) =>
             GetInteropStaticMembers(type, path[path.Length - 1]);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetInteropStaticMembers(Type targetType, string name)
+        private static MemberInfo[] GetInteropStaticMembers(Type targetType, string name)
         {
             lock (_staticMemberNameCache)
             {

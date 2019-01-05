@@ -150,7 +150,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private string Format(object value)
+        private static string Format(object value)
         {
             string s;
 

@@ -22,7 +22,7 @@ namespace Components.Json
             ConvertToHex = false;
         }
 
-        public string MakeCompliant(List<JsonToken> tokens)
+        public static string MakeCompliant(List<JsonToken> tokens)
         {
             var sb = new StringBuilder();
 
@@ -47,13 +47,9 @@ namespace Components.Json
             return sb.ToString();
         }
 
-        public string MakeCompliant(string json)
-        {
-            return MakeCompliant(new JsonLexer(json).GetAllTokens());
-            
-        }
+        public static string MakeCompliant(string json) => MakeCompliant(new JsonLexer(json).GetAllTokens());
 
-        private JsonToken[] ConvertNumbersToHex(JsonToken[] tokens)
+        private static JsonToken[] ConvertNumbersToHex(JsonToken[] tokens)
         {
             var tokensCopy = new JsonToken[tokens.Length];
 

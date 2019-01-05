@@ -107,7 +107,7 @@ namespace Components.ObjectDatabase
         {
             _memoryManagerStream.Position = 0;
 
-            return _memoryManagerSerializer.Deserialize(
+            return MemoryManagerSerializer.Deserialize(
                 _memoryManagerStream,
                 _stream);
         }
@@ -115,13 +115,8 @@ namespace Components.ObjectDatabase
         public void WriteMemoryManagerUnsafe(MemoryManager memoryManager)
         {
             AssertReadOnly("write memory manager");
-
             _memoryManagerStream.Position = 0;
-
-            _memoryManagerSerializer.Serialize(
-                _memoryManagerStream,
-                memoryManager);
-
+            MemoryManagerSerializer.Serialize(_memoryManagerStream, memoryManager);
             _memoryManagerStream.Flush();
         }
 
@@ -325,7 +320,7 @@ namespace Components.ObjectDatabase
             {
                 if (!UseUnsafeMemoryManager)
                 {
-                    count = _memoryManagerSerializer.DeserializeCount(_memoryManagerStream);
+                    count = MemoryManagerSerializer.DeserializeCount(_memoryManagerStream);
                 }
                 else
                 {
@@ -395,12 +390,12 @@ namespace Components.ObjectDatabase
                     {
                         using (var s = CreateMemoryManagerStream())
                         {
-                            _memoryManagerSerializer.Serialize(s, _memoryManager);
+                            MemoryManagerSerializer.Serialize(s, _memoryManager);
                         }
                     }
                     else
                     {
-                        _memoryManagerSerializer.Serialize(_memoryManagerStream, _memoryManager);
+                        MemoryManagerSerializer.Serialize(_memoryManagerStream, _memoryManager);
                     }
                 });
             }

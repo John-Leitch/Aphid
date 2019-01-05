@@ -175,35 +175,25 @@ namespace Components.Aphid.Interpreter
             return sb.ToString();
         }
 
-        private string GetType(AphidExpression expression)
-        {
-            return expression != null ? expression.Type.ToString() : null;
-        }
+        private static string GetType(AphidExpression expression) => expression?.Type.ToString();
 
-        private bool IsValid(AphidExpression expression)
-        {
-            return expression != null &&
+        private static bool IsValid(AphidExpression expression) =>
+            expression != null &&
                 expression.Context != null &&
                 expression.Index != -1 &&
                 expression.Length > 0;
-        }
 
-        private bool HasType(AphidExpression expression)
-        {
-            return expression != null;
-        }
+        private static bool HasType(AphidExpression expression) => expression != null;
 
-        private void AppendType(
+        private static void AppendType(
             StringBuilder sb,
             AphidExpression expression,
-            bool isStmt = false)
-        {
+            bool isStmt = false) =>
             sb.AppendFormat(
                 " while evaluating {0}",
                 FormatType(expression, isStmt));
-        }
 
-        private string FormatType(AphidExpression expression, bool isStmt = false)
+        private static string FormatType(AphidExpression expression, bool isStmt = false)
         {
             var t = expression.Type.ToString();
             var uppers = t.Where(char.IsUpper).ToArray();
@@ -216,20 +206,11 @@ namespace Components.Aphid.Interpreter
             return words;
         }
 
-        private void AppendCode(StringBuilder sb, AphidExpression expression)
-        {
-            sb.AppendFormat(" '{0}'", expression.ToString().Trim());
-        }
+        private static void AppendCode(StringBuilder sb, AphidExpression expression) => sb.AppendFormat(" '{0}'", expression.ToString().Trim());
 
-        private void AppendFrom(StringBuilder sb, AphidExpression expression)
-        {
-            sb.AppendFormat(" from {0}", FormatType(expression, isStmt: true));
-        }
+        private static void AppendFrom(StringBuilder sb, AphidExpression expression) => sb.AppendFormat(" from {0}", FormatType(expression, isStmt: true));
 
-        private void TryAppendFile(
-            StringBuilder sb,
-            AphidExpression expression,
-            AphidExpression statement)
+        private static void TryAppendFile(StringBuilder sb, AphidExpression expression, AphidExpression statement)
         {
             var file =
                 expression != null && expression.Filename != null ?

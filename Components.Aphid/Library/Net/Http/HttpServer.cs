@@ -319,7 +319,7 @@ namespace Components.Aphid.Library.Net
 
         private AphidObject GetSession(HttpListenerContext context)
         {
-            var cookie = _sessionManager.GetCookie(context);
+            var cookie = AphidSessionManager.GetCookie(context);
             AphidObject session = null;
 
             if (cookie != null)

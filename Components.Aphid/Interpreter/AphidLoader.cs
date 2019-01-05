@@ -155,7 +155,7 @@ namespace Components.Aphid.Interpreter
             return null;
         }
 
-        public string FindScriptFile(HashSet<string> paths, IEnumerable<string> possibleNames)
+        public static string FindScriptFile(HashSet<string> paths, IEnumerable<string> possibleNames)
         {
             foreach (var file in possibleNames)
             {
@@ -249,7 +249,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public void SetMember(AphidObject scope, string path, object value)
+        public static void SetMember(AphidObject scope, string path, object value)
         {
             var members = path.Split('.');
 

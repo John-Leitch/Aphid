@@ -8,7 +8,7 @@ namespace Components.IO
     // This could be improved by using uints.
     public class MemoryManagerSerializer
     {
-        public void Serialize(Stream stream, MemoryManager memoryManager)
+        public static void Serialize(Stream stream, MemoryManager memoryManager)
         {
             if (memoryManager.Bitmap.Length % 8 != 0)
             {
@@ -42,7 +42,7 @@ namespace Components.IO
             writer.Write(memoryManager.StartingPosition);
         }
 
-        public MemoryManager Deserialize(Stream stream, Stream dataStream)
+        public static MemoryManager Deserialize(Stream stream, Stream dataStream)
         {
             var reader = new BinaryReader(stream);            
 
@@ -108,7 +108,7 @@ namespace Components.IO
                 startingPosition);
         }
 
-        public int DeserializeCount(Stream stream)
+        public static int DeserializeCount(Stream stream)
         {
             if (stream.Length <= 0)
             {
