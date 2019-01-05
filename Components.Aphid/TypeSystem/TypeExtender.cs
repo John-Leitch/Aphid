@@ -500,6 +500,8 @@ namespace Components.Aphid.TypeSystem
 
             if (func != null)
             {
+                func.Clone();
+
                 var function = func.Clone();
                 //var function = func;
                 var skipOffset = isStatic ? 1 : 0;

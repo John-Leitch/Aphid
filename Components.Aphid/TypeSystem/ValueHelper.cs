@@ -38,19 +38,29 @@ namespace Components.Aphid.TypeSystem
 
         public static object Unwrap(object obj)
         {
-            AphidObject aphidObj;
-
-            return (aphidObj = obj as AphidObject) != null && aphidObj.IsScalar ? aphidObj.Value : obj;
+            if (obj is AphidObject aphidObj && aphidObj.IsScalar)
+            {
+                return aphidObj.Value;
+            }
+            else
+            {
+                return obj;
+            }
         }
 
         public static AphidObject Wrap(object obj)
         {
-            AphidObject aphidObj;
-
-            return (aphidObj = obj as AphidObject) != null ? aphidObj : AphidObject.Scalar(obj);
+            if (obj is AphidObject aphidObj)
+            {
+                return aphidObj;
+            }
+            else
+            {
+                return AphidObject.Scalar(obj);
+            }
         }
 
-        public object DeepUnwrap(object obj)
+        public static object DeepUnwrap(object obj)
         {
             AphidObject aphidObj;
             List<AphidObject> list;
@@ -92,9 +102,12 @@ namespace Components.Aphid.TypeSystem
         public IEnumerable UnwrapIEnumerable(object obj)
         {
             var unwrapped = Unwrap(obj);
-            var enumerable = unwrapped as IEnumerable;
 
-            if (enumerable == null)
+            if (unwrapped is IEnumerable noFighting)
+            {
+                return noFighting;
+            }
+            else
             {
                 if (unwrapped == null)
                 {
@@ -116,10 +129,6 @@ namespace Components.Aphid.TypeSystem
                         "Expression evaluated to {0}, IEnumerable expected.",
                         unwrapped.GetType());
                 }
-            }
-            else
-            {
-                return enumerable;
             }
         }
 
@@ -204,7 +213,7 @@ namespace Components.Aphid.TypeSystem
             return array;
         }
 
-        public object[] DeepUnwrapObjectArrayRef(object[] array)
+        public static object[] DeepUnwrapObjectArrayRef(object[] array)
         {
             for (var i = 0; i < array.Length; i++)
             {

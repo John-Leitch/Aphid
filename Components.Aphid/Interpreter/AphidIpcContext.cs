@@ -32,10 +32,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        public void InitializeServer(AphidInterpreter interpreter)
-        {
-            _interpreter = interpreter;
-        }
+        public void InitializeServer(AphidInterpreter interpreter) => _interpreter = interpreter;
 
         public string Eval(string block)
         {

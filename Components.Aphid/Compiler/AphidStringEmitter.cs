@@ -163,7 +163,7 @@ namespace Components.Aphid.Compiler
             return _out.ToString();
         }
 
-        protected string GetOperator(Dictionary<AphidTokenType, string> table, AphidTokenType op)
+        protected static string GetOperator(Dictionary<AphidTokenType, string> table, AphidTokenType op)
         {
             string s;
 
