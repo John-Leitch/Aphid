@@ -55,9 +55,14 @@ var msBuild = [
 var run = @{
     var hasExe = @File.Exists(exe);
 
-    [ 'aphid*.exe', 'components*.dll', '*.alx', '*.cache*' ]
+    [ testBin, testBin2, testDst ]
+        ->@(f) [' /ah ', '']
+            ->@() #> ('cmd /c del ' + f + '\\*.alx.cache* /s /q' + $_);
+
+    [ 'aphid*.exe', 'components*.dll', '*.alx' ]
         ->@(p) [ testBin, testBin2 ]
-            ->@() #> ('cmd /c del ' + $_ + '\\' + p + ' /s /q');
+            ->@(f) [' /ah ', '']
+                ->@() #> ('cmd /c del ' + f + '\\' + p + ' /s /q' + $_);
 
     head('Running MSBuild');
 
@@ -74,7 +79,7 @@ var run = @{
     if (hasExe()) {
         head('Test Fixup');
         #> ('cmd /c copy ' + testSrc + '\\*.alx ' + testDst + ' /y');        
-        #> ('cmd /c del ' + testRoot + '\\*.cache* /s /q');
+        #> ('cmd /c del ' + testRoot + '\\*.alx.cache* /s /q');
         #> ('cmd /c mkdir ' + testBin + '\\Library\\Testing');
         #> ('cmd /c copy ' + testBin + '\\Library\\Benchmarks.alx ' + testBin + '\\Library\\Testing\\Benchmarks.alx /y');
         #> ('cmd /c copy ' + testBin + '\\Library\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
@@ -88,9 +93,8 @@ var run = @{
                 if (txt.Contains(bad)) {
                     print('Bad include detected');
                     txt = txt.Replace(bad, '');
-                }
-
-                File.WriteAllText(f, txt);
+                    File.WriteAllText(f, txt);
+                }                
             };
         
         head('Running Benchmarks');
