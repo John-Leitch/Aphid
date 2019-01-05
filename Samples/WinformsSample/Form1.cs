@@ -1,5 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
+using Components.Aphid.TypeSystem;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace WinformsSample
             OutputPanel.Controls.Clear();
             Console.WriteLine("Running Aphid");
             var interpreter = new AphidInterpreter();
-            interpreter.CurrentScope.Add("root", interpreter.ValueHelper.Wrap(OutputPanel));
+            interpreter.CurrentScope.Add("root", ValueHelper.Wrap(OutputPanel));
             
             try
             {
