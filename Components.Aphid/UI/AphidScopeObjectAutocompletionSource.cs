@@ -48,10 +48,7 @@ namespace Components.Aphid.UI
 
         private TypeLoader _loader = new TypeLoader();
 
-        public AphidScopeObjectAutocompletionSource(AphidObject currentScope)
-        {
-            _currentScope = currentScope;
-        }
+        public AphidScopeObjectAutocompletionSource(AphidObject currentScope) => _currentScope = currentScope;
 
         public IEnumerable<Autocomplete> GetWords(
             string text,
@@ -69,7 +66,7 @@ namespace Components.Aphid.UI
                 tokens = tokens.Skip(lastSkipTokenIndex + 1).ToList();
             }
 
-            AphidToken lastToken = default(AphidToken);
+            var lastToken = default(AphidToken);
 
             var inLastToken =
                 tokens.Count != 0 &&
@@ -162,7 +159,9 @@ namespace Components.Aphid.UI
         private IEnumerable<Autocomplete> ResolveAphidObject(AphidToken[] tokens, bool inLastToken)
         {
             var scope = _currentScope;
+#pragma warning disable CS0168 // The variable 'autocomplete' is declared but never used
             IEnumerable<Autocomplete> autocomplete;
+#pragma warning restore CS0168 // The variable 'autocomplete' is declared but never used
             bool inClrType = false, inStaticClrType = false;
 
             var staticTypes = _loader.GetStaticTypes(GetImports());
@@ -285,12 +284,9 @@ namespace Components.Aphid.UI
             }
         }
 
-        private IEnumerable<Autocomplete> GetGlobalWords()
-        {
-            return CreateAphidMemberAutocompleteSet(_currentScope);
-        }
+        private IEnumerable<Autocomplete> GetGlobalWords() => CreateAphidMemberAutocompleteSet(_currentScope);
 
-        private IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(AphidObject scope)
+        private static IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(AphidObject scope)
         {
             var words = CreateAphidMemberAutocompleteSet(scope, scope.Keys);
 
@@ -302,14 +298,11 @@ namespace Components.Aphid.UI
             return words;
         }
 
-        private IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(
+        private static IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(
             AphidObject scope,
-            IEnumerable<string> keys)
-        {
-            return keys.Select(x => CreateAphidMemberAutocomplete(scope, x));
-        }
+            IEnumerable<string> keys) => keys.Select(x => CreateAphidMemberAutocomplete(scope, x));
 
-        private Autocomplete CreateAphidMemberAutocomplete(AphidObject scope, string key)
+        private static Autocomplete CreateAphidMemberAutocomplete(AphidObject scope, string key)
         {
             var view = key;
             var obj = scope[key];
@@ -358,7 +351,7 @@ namespace Components.Aphid.UI
             return new Autocomplete(view, key);
         }
 
-        private IEnumerable<Autocomplete> CreateTypeMemberObject(Type type)
+        private static IEnumerable<Autocomplete> CreateTypeMemberObject(Type type)
         {
             var scope = new List<Autocomplete>();
 
@@ -370,7 +363,7 @@ namespace Components.Aphid.UI
             return scope;
         }
 
-        private Autocomplete CreateMemberAutocomplete(MemberInfo member)
+        private static Autocomplete CreateMemberAutocomplete(MemberInfo member)
         {
             var view = member.Name;
 
@@ -399,7 +392,7 @@ namespace Components.Aphid.UI
             return new Autocomplete(view, member.Name);
         }
 
-        private string CreateArgTuple(MethodBase method)
+        private static string CreateArgTuple(MethodBase method)
         {
             var methodParams = method.GetParameters();
 
@@ -451,9 +444,8 @@ namespace Components.Aphid.UI
             return typeMatches;
         }
 
-        private IEnumerable<Autocomplete> CreateNamespaceAutocomplete(string match = null)
-        {
-            return _loader
+        private IEnumerable<Autocomplete> CreateNamespaceAutocomplete(string match = null) =>
+            _loader
                 .GetAssemblies()
                 .SelectMany(x => x.GetTypes())
                 .Select(x => new
@@ -461,7 +453,7 @@ namespace Components.Aphid.UI
                     Namespace = x.FullName.Contains('.') ?
                         x.FullName.RemoveAtLastIndexOf('.') :
                         x.FullName,
-                    Assembly = x.Assembly,
+                    x.Assembly,
                 })
                 .Where(x => match == null || x.Namespace.StartsWith(match))
                 .GroupToDictionary(x => x.Namespace, x => x.Select(y => y.Assembly).Distinct())
@@ -475,17 +467,14 @@ namespace Components.Aphid.UI
                                 y.GetName().Name)
                             .Join(", ")),
                     x.Key));
-        }
 
-        private IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words)
-        {
-            return words
+        private static IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words) =>
+            words
                 .Where(x =>
                     _wordContainsIgnore.None(y => x.Text.Contains(y)) &&
                     _wordStartsWithIgnore.None(y => x.Text.StartsWith(y)))
                 .Distinct(x => x.View)
                 .OrderBy(x => x.Text);
-        }
 
         private HashSet<string> GetImports()
         {
@@ -499,9 +488,6 @@ namespace Components.Aphid.UI
             return (HashSet<string>)importObj.Value;
         }
 
-        public void Dispose()
-        {
-            _loader.Dispose();
-        }
+        public void Dispose() => _loader.Dispose();
     }
 }

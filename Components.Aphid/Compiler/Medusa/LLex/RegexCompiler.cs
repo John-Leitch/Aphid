@@ -22,10 +22,8 @@ namespace LLex
                 x++;
             }
 
-            if (exp is BinaryExpression)
+            if (exp is BinaryExpression binExp)
             {
-                var binExp = (exp as BinaryExpression);
-
                 if (binExp.Operator == RegexTokenType.OrOperator)
                 {
                     x++;
@@ -44,10 +42,8 @@ namespace LLex
 
         private string[] CompileToLiterals(RegexExpression exp, string seed = "")
         {
-            if (exp is BinaryExpression)
+            if (exp is BinaryExpression binExp)
             {
-                var binExp = exp as BinaryExpression;
-
                 string[] leftLiterals = CompileToLiterals(binExp.Left),
                     rightLiterals = CompileToLiterals(binExp.Right);
 
@@ -69,10 +65,8 @@ namespace LLex
                     return leftLiterals;
                 }
             }
-            else if (exp is GroupExpression)
+            else if (exp is GroupExpression groupExp)
             {
-                var groupExp = exp as GroupExpression;
-
                 var literals = CompileToLiterals(groupExp.Expression, seed);
 
                 if (groupExp.Quantifier == RegexTokenType.ZeroOrOneQuantifier)
@@ -87,10 +81,8 @@ namespace LLex
 
                 return literals;
             }
-            else if (exp is CharExpression)
+            else if (exp is CharExpression charExp)
             {
-                var charExp = exp as CharExpression;
-
                 if (charExp.Quantifier == RegexTokenType.None)
                 {
                     return new string[] { seed + charExp.Char };
@@ -102,7 +94,9 @@ namespace LLex
                 }
             }
             else
+            {
                 throw new InvalidOperationException();
+            }
         }
 
         public string[] ExpandRegex()

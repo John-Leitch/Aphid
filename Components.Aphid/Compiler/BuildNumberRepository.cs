@@ -12,7 +12,7 @@ namespace Components.Aphid.Compiler
 {
     public class BuildNumberRepository
     {
-        public int NextBuildNumber(string filename)
+        public static int NextBuildNumber(string filename)
         {
             var table = ReadBuildNumberTable();
             BuildNumber build;
@@ -31,12 +31,12 @@ namespace Components.Aphid.Compiler
             return build.Number;
         }
 
-        private XmlSerializer GetSerializer()
+        private static XmlSerializer GetSerializer()
         {
             return new XmlSerializer(typeof(BuildNumber[]));
         }
 
-        private Dictionary<string, BuildNumber> ReadBuildNumberTable()
+        private static Dictionary<string, BuildNumber> ReadBuildNumberTable()
         {
             var serializer = GetSerializer();
             var repoFile = GetBuildRepositoryName();
@@ -55,7 +55,7 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        private void WriteBuildNumberTable(Dictionary<string, BuildNumber> table)
+        private static void WriteBuildNumberTable(Dictionary<string, BuildNumber> table)
         {
             var serializer = GetSerializer();
 
@@ -65,7 +65,7 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        private string GetBuildRepositoryName()
+        private static string GetBuildRepositoryName()
         {
             var asmName = Assembly.GetEntryAssembly().GetName().Name;
 

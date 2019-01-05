@@ -287,7 +287,7 @@ namespace Components.Aphid.Library
 
         [AphidInteropFunction("setValue", PassInterpreter = true, UnwrapParameters = false)]
         public static void SetValue(AphidInterpreter interpreter, AphidObject dst, object src) => 
-            dst.Value = interpreter.ValueHelper.Unwrap(src);
+            dst.Value = ValueHelper.Unwrap(src);
     }
 }
 

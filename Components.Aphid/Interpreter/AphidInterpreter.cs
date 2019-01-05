@@ -986,7 +986,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetTypeInteropInstanceMembersCore(Type targetType, string name)
+        private static MemberInfo[] GetTypeInteropInstanceMembersCore(Type targetType, string name)
         {
             var allMembers = targetType.GetMembers(
                 BindingFlags.FlattenHierarchy |
@@ -1044,7 +1044,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MemberInfo[] GetInteropStaticMembersCore(Type targetType, string name)
+        private static MemberInfo[] GetInteropStaticMembersCore(Type targetType, string name)
         {
             var allMembers = targetType.GetMembers(
                 BindingFlags.Static |
@@ -2451,12 +2451,11 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string GetCustomOperatorKey(AphidTokenType op) =>
+        private static string GetCustomOperatorKey(AphidTokenType op) =>
             $"$customOperator.{op}.body";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string GetCustomOperatorExpressionKey(AphidTokenType op) =>
-            $"$customOperator.{op}.expression";
+        private static string GetCustomOperatorExpressionKey(AphidTokenType op) => $"$customOperator.{op}.expression";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -2575,7 +2574,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretStringExpression(StringExpression expression) =>
+        private static AphidObject InterpretStringExpression(StringExpression expression) =>
             AphidObject.Scalar(StringParser.Parse(expression.Value));
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2706,7 +2705,7 @@ namespace Components.Aphid.Interpreter
         private void SetImplicitArg(AphidObject arg) => SetImplicitArg(CurrentScope, arg);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SetImplicitArg(AphidObject scope, AphidObject arg) =>
+        private static void SetImplicitArg(AphidObject scope, AphidObject arg) =>
             scope[AphidName.ImplicitArg] = arg;
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2864,7 +2863,7 @@ namespace Components.Aphid.Interpreter
             return expressions.ToArray();
         }
 
-        private AphidObject CreateUnsafeArgument(AphidExpression argExp)
+        private static AphidObject CreateUnsafeArgument(AphidExpression argExp)
         {
             var arg = AphidObject.Complex();
             arg.Add("UnsafeArgument", ValueHelper.Wrap(argExp));
@@ -3597,8 +3596,10 @@ namespace Components.Aphid.Interpreter
                         {
                             case Exp.IdentifierExpression:
                             case Exp.BinaryOperatorExpression:
+#pragma warning disable CS0618 // 'Assembly.LoadWithPartialName(string)' is obsolete: 'This method has been deprecated. Please use Assembly.Load() instead. http://go.microsoft.com/fwlink/?linkid=14202'
                                 asm = Assembly.LoadWithPartialName(
                                     path = FlattenAndJoinPath(expression.Operand));
+#pragma warning restore CS0618 // 'Assembly.LoadWithPartialName(string)' is obsolete: 'This method has been deprecated. Please use Assembly.Load() instead. http://go.microsoft.com/fwlink/?linkid=14202'
                                 break;
 
                             case Exp.StringExpression:
@@ -4078,7 +4079,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretBooleanExpression(BooleanExpression expression) =>
+        private static AphidObject InterpretBooleanExpression(BooleanExpression expression) =>
             AphidObject.Scalar(expression.Value);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4096,7 +4097,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretNumberExpression(NumberExpression expression) =>
+        private static AphidObject InterpretNumberExpression(NumberExpression expression) =>
             AphidObject.Scalar(expression.Value);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -5026,7 +5027,9 @@ namespace Components.Aphid.Interpreter
 
             return GetReturnValue(true);
 
+#pragma warning disable CS0162 // Unreachable code detected
             foreach (var exp in mutatedAst)
+#pragma warning restore CS0162 // Unreachable code detected
             {
                 InterpretExpression(exp);
 
@@ -5819,14 +5822,14 @@ namespace Components.Aphid.Interpreter
                 args);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string GetExpressionValueString(AphidExpression expression, object obj) =>
+        private static string GetExpressionValueString(AphidExpression expression, object obj) =>
             string.Format(
                 "{0}, which was evaluated from '{1}'.",
                 GetValueString(obj),
                 expression);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string GetValueString(object obj) => obj != null ?
+        private static string GetValueString(object obj) => obj != null ?
                 string.Format("'{0}' of type '{1}'", obj, AphidType.GetName(obj)) :
                 "null";
 
@@ -5840,7 +5843,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Type GetIpcContextType() => typeof(AphidIpcContext);
+        public static Type GetIpcContextType() => typeof(AphidIpcContext);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RegisterIpcServer() => AphidIpcContext.Register(this);

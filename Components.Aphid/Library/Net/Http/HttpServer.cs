@@ -191,8 +191,7 @@ namespace Components.Aphid.Library.Net
                 .Select(x => new
                 {
                     x.Callback,
-                    Result = handlerInterpreter.ValueHelper.Unwrap(
-                        handlerInterpreter.CallFunction(x.Predicate, scope))
+                    Result = ValueHelper.Unwrap(handlerInterpreter.CallFunction(x.Predicate, scope))
                 })
                 .FirstOrDefault(x => x.Result is bool && (bool)x.Result);
 
@@ -241,12 +240,12 @@ namespace Components.Aphid.Library.Net
                 context);
         }
 
-        private AphidObject CreateQueryObject(HttpListenerContext context)
+        private static AphidObject CreateQueryObject(HttpListenerContext context)
         {
             return CreateQueryObject(context.Request.Url.Query);
         }
 
-        private AphidObject CreateQueryObject(string query)
+        private static AphidObject CreateQueryObject(string query)
         {
             var s = HttpUtility.ParseQueryString(query);
 
@@ -298,7 +297,7 @@ namespace Components.Aphid.Library.Net
             return p;
         }
 
-        private void WriteResponse(HttpListenerContext context, byte[] response)
+        private static void WriteResponse(HttpListenerContext context, byte[] response)
         {
             var r = context.Response;
 
@@ -365,12 +364,12 @@ namespace Components.Aphid.Library.Net
             session[_configCacheTime].Value = config.LastWriteTime;
         }
 
-        private void CacheConfig(AphidObject session)
+        private static void CacheConfig(AphidObject session)
         {
             session[_configCacheTime] = AphidObject.Scalar(DateTime.Now);
         }
 
-        private void SetSessionInterpreter(
+        private static void SetSessionInterpreter(
             AphidObject session,
             AphidInterpreter interpreter)
         {
@@ -386,7 +385,7 @@ namespace Components.Aphid.Library.Net
             }
         }
 
-        private AphidInterpreter GetSessionInterpreter(AphidObject session)
+        private static AphidInterpreter GetSessionInterpreter(AphidObject session)
         {
             return (AphidInterpreter)session[AphidName.Interpreter].Value;
         }

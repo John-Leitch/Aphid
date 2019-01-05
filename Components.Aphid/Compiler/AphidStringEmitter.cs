@@ -154,7 +154,7 @@ namespace Components.Aphid.Compiler
         [DebuggerStepThrough]
         public virtual string Compile(string filename, List<AphidExpression> ast)
         {
-            var buildNumber = new BuildNumberRepository().NextBuildNumber(filename);
+            var buildNumber = BuildNumberRepository.NextBuildNumber(filename);
             ast = new BuildConstMutator(buildNumber).Mutate(ast);
             _out.Clear();
             EmitHeader();

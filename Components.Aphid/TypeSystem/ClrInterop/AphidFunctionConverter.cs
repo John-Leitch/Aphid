@@ -23,7 +23,7 @@ namespace Components.Aphid.TypeSystem
             Type[] genericArguments)
         {
             var methodInfo = methodType.GetMethod("Invoke");
-            var funcObj = Interpreter.ValueHelper.Unwrap(function);
+            var funcObj = ValueHelper.Unwrap(function);
             var func = funcObj as AphidFunction;
 
             if (func == null)

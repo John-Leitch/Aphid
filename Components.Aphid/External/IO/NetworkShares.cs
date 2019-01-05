@@ -33,7 +33,7 @@ namespace Components.IO
                 }
 
                 var structSize = Marshal.SizeOf<SHARE_INFO_0>();
-                var shareInfo = Marshal.PtrToStructure<SHARE_INFO_0>(sharePtr);
+                //var shareInfo = Marshal.PtrToStructure<SHARE_INFO_0>(sharePtr);
 
                 shares = Enumerable
                     .Range(0, entriesRead)

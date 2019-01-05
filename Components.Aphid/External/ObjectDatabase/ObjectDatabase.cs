@@ -343,7 +343,7 @@ namespace Components.ObjectDatabase
 
             foreach (var a in mm.Allocations)
             {
-                var p = _stream.Position = a.Key * mm.PageSize;
+                _stream.Position = a.Key * mm.PageSize;
                 var key = selector(_deserialize(_stream));
 
                 List<int> value;
@@ -375,6 +375,7 @@ namespace Components.ObjectDatabase
 
             _stream.Dispose();
             _memoryManagerStream.Dispose();
+            _memoryManagerStream = null;
             _isDisposed = true;
             base.Dispose();
         }
@@ -390,9 +391,16 @@ namespace Components.ObjectDatabase
                 {
                     // Inlined because the memory _memoryManagerStream may be
                     // closed at this point.
-                    using (var s = CreateMemoryManagerStream())
+                    if (_memoryManagerStream == null)
                     {
-                        _memoryManagerSerializer.Serialize(s, _memoryManager);
+                        using (var s = CreateMemoryManagerStream())
+                        {
+                            _memoryManagerSerializer.Serialize(s, _memoryManager);
+                        }
+                    }
+                    else
+                    {
+                        _memoryManagerSerializer.Serialize(_memoryManagerStream, _memoryManager);
                     }
                 });
             }

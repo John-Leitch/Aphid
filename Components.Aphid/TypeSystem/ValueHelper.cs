@@ -24,7 +24,7 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public object Unwrap(AphidObject obj)
+        public static object Unwrap(AphidObject obj)
         {
             if (obj != null && obj.IsScalar)
             {
@@ -36,14 +36,14 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public object Unwrap(object obj)
+        public static object Unwrap(object obj)
         {
             AphidObject aphidObj;
 
             return (aphidObj = obj as AphidObject) != null && aphidObj.IsScalar ? aphidObj.Value : obj;
         }
 
-        public AphidObject Wrap(object obj)
+        public static AphidObject Wrap(object obj)
         {
             AphidObject aphidObj;
 
@@ -160,7 +160,7 @@ namespace Components.Aphid.TypeSystem
         public string GetTypeName(object value) =>
             value != null ? _typeName[value.GetType()] : "null";
 
-        public AphidObject[] WrapObjectArray(object[] srcArray)
+        public static AphidObject[] WrapObjectArray(object[] srcArray)
         {
             var dstArray = new AphidObject[srcArray.Length];
 
@@ -172,7 +172,7 @@ namespace Components.Aphid.TypeSystem
             return dstArray;
         }
 
-        public object[] WrapObjectArrayRef(object[] array)
+        public static object[] WrapObjectArrayRef(object[] array)
         {
             for (var i = 0; i < array.Length; i++)
             {
@@ -182,7 +182,7 @@ namespace Components.Aphid.TypeSystem
             return array;
         }
 
-        public object[] UnwrapObjectArray(object[] srcArray)
+        public static object[] UnwrapObjectArray(object[] srcArray)
         {
             var dstArray = new object[srcArray.Length];
 
@@ -194,7 +194,7 @@ namespace Components.Aphid.TypeSystem
             return dstArray;
         }
 
-        public object[] UnwrapObjectArrayRef(object[] array)
+        public static object[] UnwrapObjectArrayRef(object[] array)
         {
             for (var i = 0; i < array.Length; i++)
             {

@@ -660,7 +660,7 @@ namespace Components.Aphid.UI
 
             try
             {
-                result = serializer.Serialize(interpreter.ValueHelper.Wrap(value));
+                result = serializer.Serialize(ValueHelper.Wrap(value));
             }
             catch (Exception e)
             {

@@ -66,7 +66,7 @@ namespace Components.Aphid.Interpreter
                 ", ",
                 Arguments.Select((x, i) => GetArgumentType(x, useFullNames)));
 
-        private string GetArgumentType(object argument, bool useFullNames)
+        private static string GetArgumentType(object argument, bool useFullNames)
         {
             if (argument == null)
             {

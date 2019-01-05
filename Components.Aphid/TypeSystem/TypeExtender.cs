@@ -26,11 +26,11 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public string GetCtorName(string type) => "$ext." + type + ".$ctor";
+        public static string GetCtorName(string type) => "$ext." + type + ".$ctor";
 
-        private string GetDynamicName(string type) => "$ext." + type;
+        private static string GetDynamicName(string type) => "$ext." + type;
 
-        private string GetName(string type, string nameStr)
+        private static string GetName(string type, string nameStr)
         {
             if (nameStr != null)
             {
@@ -42,7 +42,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private string[] FanStaticInteropTypeName(Type type)
+        private static string[] FanStaticInteropTypeName(Type type)
         {
             if (type != null)
             {
@@ -54,7 +54,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private string[] FanStaticInteropTypeNameCore(Type type)
+        private static string[] FanStaticInteropTypeNameCore(Type type)
         {
             var names = new List<string>();
 
@@ -67,7 +67,7 @@ namespace Components.Aphid.TypeSystem
             return names.ToArray();
         }
 
-        private string[] FanAphidName(AphidObject obj)
+        private static string[] FanAphidName(AphidObject obj)
         {
             if (obj.IsScalar)
             {
@@ -91,7 +91,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private string[] FanInteropName(AphidObject obj)
+        private static string[] FanInteropName(AphidObject obj)
         {
             if (obj.IsScalar)
             {
@@ -110,7 +110,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        private string[] FanInteropName(Type t)
+        private static string[] FanInteropName(Type t)
         {
             var names = new List<string>();
 
@@ -125,7 +125,7 @@ namespace Components.Aphid.TypeSystem
             return names.ToArray();
         }
         
-        private string[] FanAphidName(Type t)
+        private static string[] FanAphidName(Type t)
         {
             var names = new List<string>();
 
@@ -147,7 +147,7 @@ namespace Components.Aphid.TypeSystem
             return names.ToArray();
         }
 
-        private string GetInteropName(Type t)
+        private static string GetInteropName(Type t)
         {
             if (!t.IsGenericType)
             {

@@ -2,22 +2,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Components
 {
+    [DataContract]
     public class Table<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {
         private Func<TValue> _createValue = null;
 
+        [DataMember]
         private Dictionary<TKey, TValue> _table = new Dictionary<TKey, TValue>();
 
+        [IgnoreDataMember]
         public Dictionary<TKey, TValue>.KeyCollection Keys
         {
             get { return _table.Keys; }
         }
 
+        [IgnoreDataMember]
         public Dictionary<TKey, TValue>.ValueCollection Values
         {
             get { return _table.Values; }
@@ -27,15 +32,11 @@ namespace Components
         {
         }
 
-        public Table(Dictionary<TKey, TValue> dictionary)
-        {
+        public Table(Dictionary<TKey, TValue> dictionary) =>
             _table = dictionary.ToDictionary(x => x.Key, x => x.Value);
-        }
 
-        public Table(Func<TValue> createValue)
-        {
+        public Table(Func<TValue> createValue) =>
             _createValue = createValue;
-        }
 
         public TValue this[TKey key]
         {
@@ -67,24 +68,12 @@ namespace Components
             }
         }
 
-        public Dictionary<TKey, TValue> GetDictionary()
-        {
-            return _table;
-        }
+        public Dictionary<TKey, TValue> GetDictionary() => _table;
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
-            return _table.GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _table.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_table).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_table).GetEnumerator();
 
-        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary)
-        {
-            return new Table<TKey, TValue>() { _table = dictionary };
-        }
+        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary) => new Table<TKey, TValue>() { _table = dictionary };
     }
 }

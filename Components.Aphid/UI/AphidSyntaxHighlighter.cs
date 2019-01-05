@@ -29,7 +29,7 @@ namespace Components.Aphid.UI
         //   - Support custom named colors.
         //   - Live preview of colors.
         // * Unify with VS and VSC syntax highlighters
-        private byte[] GetColor(AphidTokenType type)
+        private static byte[] GetColor(AphidTokenType type)
         {
             switch (type)
             {

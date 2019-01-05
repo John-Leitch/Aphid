@@ -228,7 +228,7 @@ namespace AphidUI.ViewModels
 
             var serialized = AphidCli
                 .CreateSerializer(interpreter)
-                .Serialize(interpreter.ValueHelper.Wrap(obj));
+                .Serialize(ValueHelper.Wrap(obj));
 
             var vm = (AphidReplViewModel)vmObj.Value;
 
