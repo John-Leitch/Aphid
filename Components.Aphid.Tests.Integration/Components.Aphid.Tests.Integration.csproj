@@ -141,16 +141,6 @@
     <Compile Include="TryCatchTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Aphid\Aphid.csproj">
-      <Project>{efde894b-fa3d-4202-9a08-c9f69c0b0799}</Project>
-      <Name>Aphid</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
-      <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
-      <Name>Components.Aphid</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="ScriptedTests\ConditionalOperatorTests.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -232,6 +222,16 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aphid\Aphid.csproj">
+      <Project>{efde894b-fa3d-4202-9a08-c9f69c0b0799}</Project>
+      <Name>Aphid</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
+      <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
+      <Name>Components.Aphid</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

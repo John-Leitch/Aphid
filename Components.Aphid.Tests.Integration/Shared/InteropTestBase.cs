@@ -15,37 +15,22 @@ namespace Components.Aphid.Tests.Integration.Shared
     {
         private static object _sync = new object();
 
-        private TypeLoader _loader = new TypeLoader();
+        protected TypeLoader Loader { get; } = new TypeLoader();
 
-        protected TypeLoader Loader
-        {
-            get { return _loader; }
-        }
-
-        protected virtual Type TestClassType
-        {
-            get { return typeof(TestClass); }
-        }
+        protected virtual Type TestClassType => typeof(TestClass);
 
         protected void StaticGetTest<TValue>(
             LambdaExpression fullMemberName,
-            Action<TValue> assertActual)
-        {
-            StaticGetTest<TValue>(
-                fullMemberName,
-                default(TValue),
-                setExpected: false);
-        }
+            Action<TValue> assertActual) =>
+            StaticGetTest<TValue>(fullMemberName, default, setExpected: false);
 
         // Todo: refactor fullMemberName into expression for strong typing
         protected void StaticGetTest<TValue>(
             LambdaExpression fullMemberName,
             TValue expected,
-            bool setExpected = false)
-        {
+            bool setExpected = false) =>
             StaticSetGetTest(fullMemberName, null, expected, setExpected);
-        }
-        
+
         protected void StaticSetGetTest<TValue>(
             LambdaExpression fullMemberName,
             string setExpression,
@@ -54,7 +39,7 @@ namespace Components.Aphid.Tests.Integration.Shared
         {
             Action<AphidInterpreter, MemberInfo> begin = null, end = null;
 
-            TValue backup = default(TValue);
+            var backup = default(TValue);
 
             if (setExpected)
             {
@@ -103,10 +88,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             var memberExp = GetMemberExp(memberSelector);
             var member = memberExp.Member;
 
-            if (begin != null)
-            {
-                begin(interpreter, member);
-            }
+            begin?.Invoke(interpreter, member);
 
             try
             {
@@ -134,10 +116,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             }
             finally
             {
-                if (end != null)
-                {
-                    end(interpreter, member);
-                }
+                end?.Invoke(interpreter, member);
             }
         }
 
@@ -147,7 +126,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             var fullTypeName = fullMemberName.RemoveAtLastIndexOf('.');
             var ns = fullTypeName.RemoveAtLastIndexOf('.');
             var typeName = fullTypeName.SubstringAtLastIndexOf('.', 1);
-            var type = _loader.ResolveFullType(fullTypeName);
+            var type = Loader.ResolveFullType(fullTypeName);
 
             if (type == null)
             {
@@ -158,7 +137,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             return type.GetMember(memberName);
         }
 
-        protected MemberExpression GetMemberExp(LambdaExpression expr)
+        protected static MemberExpression GetMemberExp(LambdaExpression expr)
         {
             var curExp = expr.Body;
             MemberExpression m;
@@ -176,22 +155,15 @@ namespace Components.Aphid.Tests.Integration.Shared
             }
         }
 
-        protected object GetValue(LambdaExpression expr)
-        {
-            var m = GetMemberExp(expr);
-            return ((dynamic)m.Member).GetValue(null);
-        }
+        protected static object GetValue(LambdaExpression expr) =>
+            ((dynamic)GetMemberExp(expr).Member).GetValue(null);
 
-        protected string GetFullStaticMemberPath(LambdaExpression expr)
-        {
-            var s = GetMemberExp(expr).ToString();
-
-            return TestClassType.FullName.RemoveAtLastIndexOf('.') + "." + s;
-        }
+        protected string GetFullStaticMemberPath(LambdaExpression expr) =>
+            TestClassType.FullName.RemoveAtLastIndexOf('.') + "." + GetMemberExp(expr).ToString();
 
         public override void Dispose()
         {
-            _loader.Dispose();
+            Loader.Dispose();
             base.Dispose();
         }
     }

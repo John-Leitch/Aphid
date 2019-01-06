@@ -101,7 +101,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             return initNodes.Concat(PreprocessAst(AphidParser.Parse(script))).ToList();
         }
 
-        private List<AphidExpression> PreprocessAst(List<AphidExpression> ast)
+        private static List<AphidExpression> PreprocessAst(List<AphidExpression> ast)
         {
             var stage1 = new PartialOperatorMutator().MutateRecursively(ast);
             var stage2 = new AphidMacroMutator().MutateRecursively(stage1);
@@ -114,9 +114,8 @@ namespace Components.Aphid.Tests.Integration.Shared
         {
             lock (_nextInterpreter)
             {
-                return _nextInterpreter.Value != null ?
-                    _nextInterpreter.Value :
-                    _nextInterpreter.Value = new AphidInterpreter();
+                return _nextInterpreter.Value ??
+                    (_nextInterpreter.Value = new AphidInterpreter());
             }
         }
 
@@ -135,27 +134,19 @@ namespace Components.Aphid.Tests.Integration.Shared
             return interpreter.GetReturnValue();
         }
 
-        protected void Execute(string script, Action<AphidObject> action)
-        {
+        protected void Execute(string script, Action<AphidObject> action) =>
             action(Execute(script));
-        }
 
-        protected void Is(string script, Func<AphidObject, bool> predicate)
-        {
+        protected void Is(string script, Func<AphidObject, bool> predicate) =>
             Assert.IsTrue(predicate(Execute(script)));
-        }
 
-        protected void Is<TValue>(string script, Func<TValue, bool> predicate)
-        {
+        protected void Is<TValue>(string script, Func<TValue, bool> predicate) =>
             Assert.IsTrue(predicate((TValue)Execute(script).Value));
-        }
 
-        protected List<AphidToken> GetTokens(string script)
-        {
-            return new AphidLexer(script).GetAllTokens();
-        }
+        protected static List<AphidToken> GetTokens(string script) =>
+            new AphidLexer(script).GetAllTokens();
 
-        protected void AssertTokens(string script, AphidToken[] tokens)
+        protected static void AssertTokens(string script, AphidToken[] tokens)
         {
             var tokens2 = GetTokens(script);
             Assert.AreEqual(tokens.Length, tokens2.Count);
@@ -171,67 +162,31 @@ namespace Components.Aphid.Tests.Integration.Shared
             }
         }
 
-        protected AphidToken Token(AphidTokenType type, string lexeme)
-        {
-            return new AphidToken(type, lexeme, 0);
-        }
+        protected static AphidToken Token(AphidTokenType type, string lexeme) => new AphidToken(type, lexeme, 0);
 
-        protected AphidToken Token(AphidTokenType type)
-        {
-            return Token(type, null);
-        }
+        protected static AphidToken Token(AphidTokenType type) => Token(type, null);
 
-        public static void IsFalse(bool value)
-        {
-            Assert.IsFalse(value);
-        }
+        public static void IsFalse(bool value) => Assert.IsFalse(value);
 
-        public static void IsTrue(bool value)
-        {
-            Assert.IsTrue(value);
-        }
+        public static void IsTrue(bool value) => Assert.IsTrue(value);
 
-        public static void IsFoo(object value)
-        {
-            Assert.AreEqual("foo", value);
-        }
+        public static void IsFoo(object value) => Assert.AreEqual("foo", value);
 
-        public static void Is9(object value)
-        {
-            Assert.AreEqual(9m, value);
-        }
+        public static void Is9(object value) => Assert.AreEqual(9m, value);
 
-        public static void IsNull(object value)
-        {
-            Assert.IsNull(value);
-        }
+        public static void IsNull(object value) => Assert.IsNull(value);
 
-        public static void NotNull(object value)
-        {
-            Assert.NotNull(value);
-        }
+        public static void NotNull(object value) => Assert.NotNull(value);
 
-        public static void IsFail(Action action)
-        {
-            IsThrow<AssertionException>(action);
-        }
+        public static void IsFail(Action action) => IsThrow<AssertionException>(action);
 
-        public static void AllFail(params Action[] actions)
-        {
-            CollectionAssert.IsNotEmpty(actions);
-            actions.Iter(IsFail);
-        }
+        public static void AllFail(params Action[] actions) => actions.Do(CollectionAssert.IsNotEmpty).Iter(IsFail);
 
-        public static Exception IsThrow(Action action)
-        {
-            return Assert.Catch(() => action());
-        }
+        public static Exception IsThrow(Action action) => Assert.Catch(() => action());
 
         public static Exception[] AllThrow(params Action[] actions)
         {
-            CollectionAssert.IsNotEmpty(actions);
-
-            return actions.Select(IsThrow).ToArray();
+            return actions.Do(CollectionAssert.IsNotEmpty).Select(IsThrow).ToArray();
         }
 
         public static TException IsThrow<TException>(Action action)
@@ -274,7 +229,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             AssertEquals(false, script);
         }
 
-        private string CreateStatement(string expression)
+        private static string CreateStatement(string expression)
         {
             return string.Format("ret {0};", expression);
         }

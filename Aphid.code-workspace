@@ -57,6 +57,7 @@
 			"*InlineIL*": true,
 			"**/obj": true,
 			"**/bin": true,
-        }
+		},
+		"git.ignoreLimitWarning": true
     }
 }
