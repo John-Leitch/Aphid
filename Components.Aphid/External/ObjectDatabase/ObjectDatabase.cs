@@ -26,8 +26,6 @@ namespace Components.ObjectDatabase
 
         private MemoryManager _memoryManager;
 
-        private MemoryManagerSerializer _memoryManagerSerializer = new MemoryManagerSerializer();
-
         private bool _isCommitted = false, _isDisposed = false;
 
         private Table<long, ObjectDatabaseRecord<TElement>> _items = new Table<long, ObjectDatabaseRecord<TElement>>();
@@ -393,8 +391,9 @@ namespace Components.ObjectDatabase
                             MemoryManagerSerializer.Serialize(s, _memoryManager);
                         }
                     }
-                    else
+                    else if (_memoryManagerStream.CanWrite)
                     {
+                        _memoryManagerStream.Position = 0;
                         MemoryManagerSerializer.Serialize(_memoryManagerStream, _memoryManager);
                     }
                 });

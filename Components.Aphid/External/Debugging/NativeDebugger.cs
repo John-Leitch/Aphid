@@ -389,7 +389,9 @@ namespace Components.Cypress
                             if (debugEvent.Exception.ExceptionRecord.ExceptionCode == ExceptionCode.EXCEPTION_BREAKPOINT)
                             {
                                 if (!_loaderBreakpointTable.ContainsKey(debugEvent.dwProcessId))
+                                {
                                     _loaderBreakpointTable.Add(debugEvent.dwProcessId, false);
+                                }
 
                                 if (!_loaderBreakpointTable[debugEvent.dwProcessId])
                                 {

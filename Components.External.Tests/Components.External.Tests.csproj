@@ -53,11 +53,18 @@
     <Compile Include="ObjectDatabaseTestContext.cs" />
     <Compile Include="ObjectDatabaseTestExtensions.cs" />
     <Compile Include="ObjectDatabaseReadOnlyTests.cs" />
+    <Compile Include="BenchmarkDatabaseTest.cs" />
     <Compile Include="ObjectDatabaseTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Widget.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Databases\history.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Databases\history.odm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

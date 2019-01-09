@@ -34,8 +34,6 @@ namespace Mantispid
     //   // }
     public class ParserGenerator
     {
-        private Dictionary<string, string> _locals = new Dictionary<string, string>();
-
         private string[] _ruleNames;
 
         private RuleTypeTable _ruleTypes = new RuleTypeTable();
@@ -253,7 +251,7 @@ namespace Mantispid
 
             if (idSeq == null)
             {
-                return new string[0];
+                return Array.Empty<string>();
             }
 
             nodes.Remove(idSeq.Expression);
@@ -437,7 +435,7 @@ namespace Mantispid
                 return null;
                 //return new CodeStatementCollection();
 #pragma warning disable CS0162 // Unreachable code detected
-                body = new CodeStatement[0];
+                body = Array.Empty<CodeStatement>();
 #pragma warning restore CS0162 // Unreachable code detected
             }
             else
@@ -604,15 +602,14 @@ namespace Mantispid
                 default:
                     var funcExp = GenerateImperativeExpression(node.FunctionExpression);
 
-                    if (funcExp is CodePropertyReferenceExpression)
+                    if (funcExp is CodePropertyReferenceExpression prop)
                     {
-                        var prop = (CodePropertyReferenceExpression)funcExp;
                         var parameters = node.Args.Select(x => GenerateImperativeExpression(x, false)).ToArray();
 
                         return new CodeStatementCollection(new[]
                         {
                             CodeHelper.Stmt(CodeHelper.Invoke(
-                                prop.TargetObject, 
+                                prop.TargetObject,
                                 prop.PropertyName,
                                 parameters))
                         });
@@ -696,7 +693,7 @@ namespace Mantispid
 
             var falseStmts = node.ElseBody != null ?
                 GenerateImperativeStatements(node.ElseBody).OfType<CodeStatement>().ToArray() :
-                new CodeStatement[0];
+                Array.Empty<CodeStatement>();
 
             var stmt = new CodeConditionStatement(condition, trueStmts, falseStmts);
 

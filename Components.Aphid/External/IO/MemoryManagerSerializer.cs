@@ -6,7 +6,7 @@ using System.IO;
 namespace Components.IO
 {
     // This could be improved by using uints.
-    public class MemoryManagerSerializer
+    public static class MemoryManagerSerializer
     {
         public static void Serialize(Stream stream, MemoryManager memoryManager)
         {

@@ -219,6 +219,8 @@
     <Compile Include="External\Caching\FileCacheSource.cs" />
     <Compile Include="External\Caching\FileCacheInfo.cs" />
     <Compile Include="External\Caching\ICacheInfo.cs" />
+    <Compile Include="External\Common\ArgLockingMemoizer.cs" />
+    <Compile Include="External\Common\ObjectLockTable.cs" />
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />
     <Compile Include="External\Common\DefaultSingleton.cs" />

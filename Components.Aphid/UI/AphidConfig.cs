@@ -23,8 +23,8 @@ namespace Components.Aphid.UI
             _ignoreDebugger = GetBool(AphidSettings.IgnoreDebugger, defaultValue: false);
 
         private Lazy<string[]>
-            _imports = GetArray(AphidSettings.AutoImport, defaultValue: new string[0]),
-            _includes = GetArray(AphidSettings.AutoInclude, defaultValue: new string[0]);
+            _imports = GetArray(AphidSettings.AutoImport, defaultValue: Array.Empty<string>()),
+            _includes = GetArray(AphidSettings.AutoInclude, defaultValue: Array.Empty<string>());
 
         public string[] Imports
         {

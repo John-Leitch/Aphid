@@ -50,7 +50,7 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                return new string[0];
+                return Array.Empty<string>();
             }
         }
 
@@ -77,7 +77,7 @@ namespace Components.Aphid.TypeSystem
                 }
                 else
                 {
-                    return new string[0];
+                    return Array.Empty<string>();
                 }
             }
             else
@@ -101,7 +101,7 @@ namespace Components.Aphid.TypeSystem
                 }
                 else
                 {
-                    return new string[0];
+                    return Array.Empty<string>();
                 }
             }
             else
@@ -196,7 +196,7 @@ namespace Components.Aphid.TypeSystem
             AphidObject extensions,
             string ctorHandler,
             string dynamicHandler) =>
-            Extend(type, new string[0], extensions, ctorHandler, dynamicHandler);
+            Extend(type, Array.Empty<string>(), extensions, ctorHandler, dynamicHandler);
 
         public void Extend(
             string type,

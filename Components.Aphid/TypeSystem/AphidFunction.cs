@@ -27,7 +27,7 @@ namespace Components.Aphid.TypeSystem
         public List<AphidExpression> Body { get; set; }
 
         public AphidFunction()
-            : this(new string[0], new List<AphidExpression>(), null)
+            : this(Array.Empty<string>(), new List<AphidExpression>(), null)
         {
         }
 

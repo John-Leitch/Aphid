@@ -10,17 +10,13 @@ namespace Components.IO
 
         private Stream _stream;
 
-        private int _startingPosition = 0;
-
-        public int StartingPosition => _startingPosition;
+        public int StartingPosition { get; private set; } = 0;
 
         private bool[] _bitmap;
 
         public bool[] Bitmap => _bitmap;
 
-        private Dictionary<int, int> _allocations = new Dictionary<int, int>();
-
-        public Dictionary<int, int> Allocations => _allocations;
+        public Dictionary<int, int> Allocations { get; } = new Dictionary<int, int>();
 
         public int PageSize { get; private set; }
 
@@ -49,16 +45,13 @@ namespace Components.IO
         {
             _stream = stream;
             _bitmap = bitmap;
-            _allocations = sizeTable;
+            Allocations = sizeTable;
             PageSize = pageSize;
             ZeroMemory = zeroMemory;
-            _startingPosition = startingPosition;
+            StartingPosition = startingPosition;
         }
 
-        private void Grow()
-        {
-            Array.Resize(ref _bitmap, _bitmap.Length + _growSize);
-        }
+        private void Grow() => Array.Resize(ref _bitmap, _bitmap.Length + _growSize);
 
         public Allocation Allocate(int size)
         {
@@ -83,17 +76,14 @@ namespace Components.IO
         public void FreeOffset(long offset)
         {
             var handle = (int)(offset / PageSize);
-            Free(handle, _allocations[handle]);
+            Free(handle, Allocations[handle]);
         }
 
-        public void Free(Allocation allocation)
-        {
-            Free(allocation.Handle, allocation.Size);
-        }
+        public void Free(Allocation allocation) => Free(allocation.Handle, allocation.Size);
 
         public void Free(int handle, int size)
         {
-            var pageCount = _allocations[handle];
+            var pageCount = Allocations[handle];
 
             if (ZeroMemory)
             {
@@ -110,22 +100,16 @@ namespace Components.IO
                 ClearBlock(handle, pageCount);
 
                 // _startingPosition is synchronized via _bitmap
-                if (_startingPosition > handle)
+                if (StartingPosition > handle)
                 {
-                    _startingPosition = handle;
+                    StartingPosition = handle;
                 }
             }            
         }
 
-        public byte[] Read(Allocation allocation)
-        {
-            return Read(allocation, GetSize(allocation));
-        }
+        public byte[] Read(Allocation allocation) => Read(allocation, GetSize(allocation));
 
-        public byte[] Read(int handle)
-        {
-            return Read(handle, GetSize(handle));
-        }
+        public byte[] Read(int handle) => Read(handle, GetSize(handle));
 
         public byte[] Read(int handle, int bufferSize)
         {
@@ -178,7 +162,7 @@ namespace Components.IO
 
         private int FindBlock(int pageCount)
         {
-            for (int x = _startingPosition; x <= _bitmap.Length - pageCount; x++)
+            for (int x = StartingPosition; x <= _bitmap.Length - pageCount; x++)
             {
                 var isMatch = true;
 
@@ -193,7 +177,7 @@ namespace Components.IO
 
                 if (isMatch)
                 {
-                    _startingPosition = x + pageCount;
+                    StartingPosition = x + pageCount;
                     return x;
                 }
             }
@@ -201,25 +185,19 @@ namespace Components.IO
             return -1;
         }
 
-        private void MarkBlock(int index, int pageCount)
-        {
-            SetBlock(index, pageCount, true);
-        }
+        private void MarkBlock(int index, int pageCount) => SetBlock(index, pageCount, true);
 
-        private void ClearBlock(int index, int pageCount)
-        {
-            SetBlock(index, pageCount, false);
-        }
+        private void ClearBlock(int index, int pageCount) => SetBlock(index, pageCount, false);
 
         private void SetBlock(int index, int pageCount, bool value)
         {
             if (value)
             {
-                _allocations.Add(index, pageCount);
+                Allocations.Add(index, pageCount);
             }
             else
             {
-                _allocations.Remove(index);
+                Allocations.Remove(index);
             }
 
             for (int i = index; i < index + pageCount; i++)
@@ -228,39 +206,18 @@ namespace Components.IO
             }
         }
 
-        public int GetSizeFromOffset(long offset)
-        {
-            return _allocations[(int)(offset / PageSize)] * PageSize;
-        }
+        public int GetSizeFromOffset(long offset) => Allocations[(int)(offset / PageSize)] * PageSize;
 
-        private int GetSize(Allocation allocation)
-        {
-            return _allocations[allocation.Handle] * PageSize;
-        }
+        private int GetSize(Allocation allocation) => Allocations[allocation.Handle] * PageSize;
 
-        private int GetSize(int handle)
-        {
-            return _allocations[handle] * PageSize;
-        }
+        private int GetSize(int handle) => Allocations[handle] * PageSize;
 
-        public int GetPosition(Allocation allocation)
-        {
-            return allocation.Handle * PageSize;
-        }
+        public long GetPosition(Allocation allocation) => (long)allocation.Handle * PageSize;
 
-        private int GetPosition(int handle)
-        {
-            return handle * PageSize;
-        }
+        private long GetPosition(int handle) => (long)handle * PageSize;
 
-        private void SetPosition(Allocation allocation)
-        {
-            _stream.Position = GetPosition(allocation);
-        }
+        private void SetPosition(Allocation allocation) => _stream.Position = GetPosition(allocation);
 
-        private void SetPosition(int handle)
-        {
-            _stream.Position = GetPosition(handle);
-        }
+        private void SetPosition(int handle) => _stream.Position = GetPosition(handle);
     }
 }
