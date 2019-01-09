@@ -16,13 +16,13 @@ namespace Components.ObjectDatabase
             IndexFileExtension = "odi",
             TypeIndexExtension = "odt";
 
-        private int _pageSize = 0x20;
+        private readonly int _pageSize = 0x20;
 
         private Stream _stream, _memoryManagerStream;
 
-        private Action<Stream, TElement> _serialize;
+        private readonly Action<Stream, TElement> _serialize;
 
-        private Func<Stream, TElement> _deserialize;
+        private readonly Func<Stream, TElement> _deserialize;
 
         private MemoryManager _memoryManager;
 
@@ -339,9 +339,7 @@ namespace Components.ObjectDatabase
                 _stream.Position = a.Key * mm.PageSize;
                 var key = selector(_deserialize(_stream));
 
-                List<int> value;
-
-                if (indexTable.TryGetValue(key, out value))
+                if (indexTable.TryGetValue(key, out var value))
                 {
                     value.Add(a.Key);
                 }

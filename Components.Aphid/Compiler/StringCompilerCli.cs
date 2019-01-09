@@ -14,17 +14,17 @@ namespace Components.Aphid.Compiler
     {
         private AphidStringEmitter _emitter;
 
-        private string _name;
+        private readonly string _name;
 
-        private string _targetName;
+        private readonly string _targetName;
 
-        private string _extension;
+        private readonly string _extension;
 
         private string[] _args;
 
-        private bool _isText;
+        private readonly bool _isText;
 
-        private BuildNumberRepository _buildNumberRepo = new BuildNumberRepository();
+        private readonly BuildNumberRepository _buildNumberRepo = new BuildNumberRepository();
 
         public StringCompilerCli(
             string name,
@@ -97,7 +97,7 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        private string[] ParseWildcardPath(string fullname)
+        private static string[] ParseWildcardPath(string fullname)
         {
             var dir = Path.GetDirectoryName(fullname);
             var name = Path.GetFileName(fullname);
@@ -134,7 +134,7 @@ namespace Components.Aphid.Compiler
             return _inputFileMemoizer.Call(GetInputFilesCore, fullname);
         }
 
-        private string[] GetInputFilesCore(string fullname)
+        private static string[] GetInputFilesCore(string fullname)
         {
             if (fullname.Contains('*'))
             {

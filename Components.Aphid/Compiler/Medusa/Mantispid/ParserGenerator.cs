@@ -54,7 +54,7 @@ namespace Mantispid
             _scope = _scope.Parent;
         }
 
-        private BinaryOperatorExpression[] GetRules(List<AphidExpression> nodes)
+        private static BinaryOperatorExpression[] GetRules(List<AphidExpression> nodes)
         {
             return nodes
                 .Where(x => x.Type == AphidExpressionType.BinaryOperatorExpression)
@@ -127,7 +127,7 @@ namespace Mantispid
             return str + "\r\n\r\n" + lexer;
         }
 
-        private List<AphidExpression> AddIndexTracking(List<AphidExpression> nodes)
+        private static List<AphidExpression> AddIndexTracking(List<AphidExpression> nodes)
         {
             var ids = nodes
                 .Select(x => x.ToBinaryOperator().LeftOperand.ToIdentifier())
@@ -151,9 +151,7 @@ namespace Mantispid
                 throw new InvalidOperationException();
             }
 
-            var lexerObj = lexerCall.ToCall().Args.SingleOrDefault() as ObjectExpression;
-
-            if (lexerObj == null)
+            if (!(lexerCall.ToCall().Args.SingleOrDefault() is ObjectExpression lexerObj))
             {
                 throw new InvalidOperationException();
             }
@@ -167,9 +165,7 @@ namespace Mantispid
 
             if (initKvp != null)
             {
-                var initFunc = initKvp.RightOperand as FunctionExpression;
-
-                if (initFunc == null)
+                if (!(initKvp.RightOperand is FunctionExpression initFunc))
                 {
                     throw new InvalidOperationException();
                 }
@@ -216,7 +212,7 @@ namespace Mantispid
                 ParseBooleanDirective(nodes, ParserGeneratorDirective.MutableAttribute));
         }
 
-        private string ParseDirective(List<AphidExpression> nodes, string directive)
+        private static string ParseDirective(List<AphidExpression> nodes, string directive)
         {
             var exp = nodes
                 .OfType<IdentifierExpression>()
@@ -224,7 +220,7 @@ namespace Mantispid
 
             nodes.Remove(exp);
 
-            return exp != null ? exp.Identifier : null;
+            return exp?.Identifier;
         }
 
         private string[] ParseDirectiveArray(List<AphidExpression> nodes, string directive)
@@ -262,7 +258,7 @@ namespace Mantispid
                 .ToArray();
         }
 
-        private bool ParseBooleanDirective(List<AphidExpression> nodes, string directive)
+        private static bool ParseBooleanDirective(List<AphidExpression> nodes, string directive)
         {
             var exp = nodes
                 .OfType<IdentifierExpression>()
@@ -349,12 +345,9 @@ namespace Mantispid
             }
         }
 
-        private CodeMethodInvokeExpression GetNextToken()
-        {
-            return CodeHelper.Invoke("NextToken");
-        }
+        private static CodeMethodInvokeExpression GetNextToken() => CodeHelper.Invoke("NextToken");
 
-        private string[] GetRuleNames(List<AphidExpression> nodes)
+        private static string[] GetRuleNames(List<AphidExpression> nodes)
         {
             return nodes
                 .OfType<BinaryOperatorExpression>()
@@ -668,8 +661,8 @@ namespace Mantispid
             if (node.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
             {
                 var id = ((IdentifierExpression)node.LeftOperand).Identifier;
-                AphidObject obj;
-                if (!_scope.TryResolve(id, out obj))
+                
+                if (!_scope.TryResolve(id, out var obj))
                 {
                     _scope.Add(id, AphidObject.Complex());
 
@@ -787,7 +780,7 @@ namespace Mantispid
             });
         }
 
-        private CodeStatementCollection GenerateImperativeStatement(BreakExpression node)
+        private static CodeStatementCollection GenerateImperativeStatement(BreakExpression node)
         {
             return new CodeStatementCollection(new[] { new CodeSnippetStatement("break;") });
         }
@@ -847,7 +840,7 @@ namespace Mantispid
             }
         }
 
-        private CodeExpression GenerateImperativeExpression(BooleanExpression node)
+        private static CodeExpression GenerateImperativeExpression(BooleanExpression node)
         {
             return node.Value ? CodeHelper.True() : CodeHelper.False();
         }
@@ -1022,22 +1015,22 @@ namespace Mantispid
                 node.KeyExpressions.Select(x => GenerateImperativeExpression(x)).ToArray());
         }
 
-        private CodeExpression GenerateImperativeExpression(NumberExpression node)
+        private static CodeExpression GenerateImperativeExpression(NumberExpression node)
         {
             return new CodePrimitiveExpression((int)node.Value);
         }
 
-        private CodePropertyReferenceExpression GetCurrentTokenType()
+        private static CodePropertyReferenceExpression GetCurrentTokenType()
         {
             return GetCurrentTokenProp(ParserGeneratorDirective.CurrentTokenType);
         }
 
-        private CodePropertyReferenceExpression GetCurrentLexeme()
+        private static CodePropertyReferenceExpression GetCurrentLexeme()
         {
             return GetCurrentTokenProp(ParserGeneratorDirective.CurrentLexeme);
         }
 
-        private CodePropertyReferenceExpression GetCurrentTokenProp(string propertyName)
+        private static CodePropertyReferenceExpression GetCurrentTokenProp(string propertyName)
         {
             return CodeHelper.PropRef("_currentToken", propertyName);
         }
@@ -1047,7 +1040,7 @@ namespace Mantispid
             return CodeHelper.FieldRef(CodeHelper.TypeRefExp(_config.TokenType), tokenName);
         }
 
-        private CodeStatement GetNextTokenStatement()
+        private static CodeStatement GetNextTokenStatement()
         {
             return CodeHelper.Stmt(CodeHelper.Invoke("NextToken"));
         }

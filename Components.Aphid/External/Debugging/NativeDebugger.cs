@@ -21,7 +21,7 @@ namespace Components.Cypress
         private Dictionary<IntPtr, string> _breakpointModules = new Dictionary<IntPtr, string>();
         private Dictionary<IntPtr, IntPtr> _breakpointBases = new Dictionary<IntPtr, IntPtr>();
 #endif
-        private Dictionary<IntPtr, string> _moduleTable = new Dictionary<IntPtr, string>();
+        private readonly Dictionary<IntPtr, string> _moduleTable = new Dictionary<IntPtr, string>();
         private Thread _debugThread = null;
         private bool _killProcesses = false;
         private Dictionary<IntPtr, ProcessMemory> _readers;
@@ -185,10 +185,7 @@ namespace Components.Cypress
 
         public void Kill()
         {
-            if (Killing != null)
-            {
-                Killing(this, new EventArgs());
-            }
+            Killing?.Invoke(this, new EventArgs());
 
             LockProcesses(() =>
             {
@@ -222,7 +219,7 @@ namespace Components.Cypress
             process.Process.WaitForExit();
         }
 
-        private ulong CreateInstructionHash(IEnumerable<byte> instructions)
+        private static ulong CreateInstructionHash(IEnumerable<byte> instructions)
         {
             unchecked
             {
@@ -232,7 +229,7 @@ namespace Components.Cypress
             }
         }
 
-        private string GetExceptionHash(Process process, DEBUG_EVENT debugEvent)
+        private static string GetExceptionHash(Process process, DEBUG_EVENT debugEvent)
         {
             var dumper = new StackDumper(process.Handle, debugEvent.dwThreadId);
             
@@ -258,9 +255,7 @@ namespace Components.Cypress
         {
             lock (_readers)
             {
-                ProcessMemory mem;
-
-                if (!_readers.TryGetValue(processHandle, out mem))
+                if (!_readers.TryGetValue(processHandle, out var mem))
                 {
                     _readers.Add(processHandle, mem = new ProcessMemory(processHandle));
                 }
@@ -413,8 +408,6 @@ namespace Components.Cypress
                             if (ReadFaultingInstructions)
                             {
                                 buffer = new byte[32];
-                                int bytesRead;
-
                                 IntPtr exPtr = IntPtr.Zero;
 
                                 try
@@ -431,7 +424,7 @@ namespace Components.Cypress
                                     exPtr,
                                     buffer,
                                     buffer.Length,
-                                    out bytesRead))
+                                    out var bytesRead))
                                 {
                                     if (bytesRead < buffer.Length)
                                     {
