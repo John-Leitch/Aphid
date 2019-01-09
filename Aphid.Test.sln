@@ -28,7 +28,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug|Any CPU.ActiveCfg = AphidDebug|Default
-		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug32|Any CPU.ActiveCfg = AphidDebug32|Default
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug32|Any CPU.ActiveCfg = Debug|Default
+		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug32|Any CPU.Build.0 = Debug|Default
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.AphidDebug64|Any CPU.ActiveCfg = AphidDebug64|Default
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTrace|Any CPU.ActiveCfg = BinaryTrace|Default
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.BinaryTrace32|Any CPU.ActiveCfg = BinaryTrace32|Default
@@ -40,7 +41,8 @@ Global
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.Release32|Any CPU.ActiveCfg = Release32|Default
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.Release64|Any CPU.ActiveCfg = Release64|Default
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug|Any CPU.ActiveCfg = AphidDebug|Default
-		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug32|Any CPU.ActiveCfg = AphidDebug32|Default
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug32|Any CPU.ActiveCfg = Debug|Default
+		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug32|Any CPU.Build.0 = Debug|Default
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.AphidDebug64|Any CPU.ActiveCfg = AphidDebug64|Default
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTrace|Any CPU.ActiveCfg = BinaryTrace|Default
 		{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}.BinaryTrace32|Any CPU.ActiveCfg = BinaryTrace32|Default
