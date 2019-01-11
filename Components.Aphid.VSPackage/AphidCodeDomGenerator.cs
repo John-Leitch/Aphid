@@ -83,7 +83,7 @@ namespace Components.Aphid.VSPackage
                     pGenerateProgress.GeneratorError(
                         0,
                         0,
-                        ParserErrorMessage.Create(bstrInputFileContents, e),
+                        ParserErrorMessage.Create(bstrInputFileContents, e, false),
                         pos == null || pos.Item1 == -1 ? 0xffffffffu : (uint)pos.Item1,
                         pos == null ||pos.Item2 == -1 ? 0xffffffffu : (uint)pos.Item2);
                 }
