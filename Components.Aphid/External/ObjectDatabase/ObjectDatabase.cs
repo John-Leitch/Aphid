@@ -16,7 +16,9 @@ namespace Components.ObjectDatabase
             IndexFileExtension = "odi",
             TypeIndexExtension = "odt";
 
-        private readonly int _pageSize = 0x20;
+        public int PageSize { get; set; } = 0x20;
+
+        private string _memoryManagerLockKey;
 
         private Stream _stream, _memoryManagerStream;
 
@@ -70,6 +72,7 @@ namespace Components.ObjectDatabase
         private void OpenMemoryManager()
         {
             MemoryManagerFilename = GetMemoryManagerFilename();
+            _memoryManagerLockKey = MemoryManagerFilename.ToLower();
 
             LockMemoryManager(() =>
             {
@@ -79,7 +82,7 @@ namespace Components.ObjectDatabase
 
                 if (!hasMMFile)
                 {
-                    var m = new MemoryManager(_stream, _pageSize);
+                    var m = new MemoryManager(_stream, PageSize);
                     WriteMemoryManagerUnsafe(m);
                 }
 
@@ -121,19 +124,10 @@ namespace Components.ObjectDatabase
         public void LockMemoryManager(Action action) =>
             // Technically, the ToLower call here creates a bug that will 
             // manifest when a case sensitive file system is used.
-            Sync(MemoryManagerFilename.ToLower(), action);
+            Sync(_memoryManagerLockKey, action);
 
         public MemoryManager LockMemoryManager(Func<MemoryManager> func) =>
-            Sync(MemoryManagerFilename.ToLower(), func);
-
-        //private string GetTypeIndexFilename(Type type)
-        //{
-        //    return string.Format(
-        //        "{0}.{1}.{2}",
-        //        Path.GetFileNameWithoutExtension(Filename),
-        //        type.ToString(),
-        //        TypeIndexExtension);
-        //}
+            Sync(_memoryManagerLockKey, func);
 
         private string GetMemoryManagerFilename() =>
             PathHelper.GetSiblingFileName(
@@ -306,7 +300,7 @@ namespace Components.ObjectDatabase
                 var allocation = memoryManager.Allocate(buffer.Length);
                 allocation.Write(buffer);
 
-                return allocation.Handle * _pageSize;
+                return allocation.Handle * PageSize;
             }
         }
 

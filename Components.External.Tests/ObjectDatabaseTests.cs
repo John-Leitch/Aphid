@@ -39,11 +39,13 @@ namespace Components.External.Tests
         public void TestCreateReadManyUnique(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) =>
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) =>
             TestCreateReadManyUniqueCore(
                 setEntityMetaData,
                 trackEntities,
                 isReadOnly,
+                pageSize,
                 i =>
                 {
                     var w = Context.NextWidget();
@@ -56,11 +58,13 @@ namespace Components.External.Tests
         public void TestCreateReadManyUniqueVarLen(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) =>
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) =>
             TestCreateReadManyUniqueCore(
                 setEntityMetaData,
                 trackEntities,
                 isReadOnly,
+                pageSize,
                 i =>
                 {
                     var w = Context.NextWidget();
@@ -73,11 +77,13 @@ namespace Components.External.Tests
         public void TestCreateReadManyUniqueVarLenWithParent(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) =>
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) =>
             TestCreateReadManyUniqueCore(
                 setEntityMetaData,
                 trackEntities,
                 isReadOnly,
+                pageSize,
                 i =>
                 {
                     var p = Context.NextWidget();
@@ -87,32 +93,6 @@ namespace Components.External.Tests
 
                     return w;
                 });
-
-        public void TestCreateReadManyUniqueCore(
-            bool setEntityMetaData,
-            bool trackEntities,
-            bool isReadOnly,
-            Func<int, Widget> createWidget)
-        {
-            DB.SetEntityMetaData = setEntityMetaData;
-            DB.TrackEntities = trackEntities;            
-            DB.AssertNoFragmentation();
-            var count = 0x10;
-
-            for (var i = 0; i < count; i++)
-            {
-                DB.Create(createWidget(i));
-            }
-
-            DB.IsReadOnly = isReadOnly;
-            var rows = DB.ReadUnsafe();
-            AreNotEqual(Widget, rows.First());
-            AreEqual(Widget, rows.Last());
-            AreEqual(count, rows.Count());
-
-            DB.ReadMemoryManagerUnsafe()
-                .Do(x => AreEqual(count, x.Allocations.Count))
-                .Do(x => x.AssertNoFragmentation());
-        }
+        
     }
 }

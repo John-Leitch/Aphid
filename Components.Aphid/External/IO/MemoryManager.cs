@@ -6,7 +6,9 @@ namespace Components.IO
 {
     public class MemoryManager
     {
-        private const int _growSize = 0x1000;
+        private const int _initialGrowSize = 0x1000;
+
+        private int _growSize = _initialGrowSize;
 
         private Stream _stream;
 
@@ -18,7 +20,7 @@ namespace Components.IO
 
         public Dictionary<int, int> Allocations { get; } = new Dictionary<int, int>();
 
-        public int PageSize { get; private set; }
+        public int PageSize { get; set; }
 
         public bool ZeroMemory { get; set; }
 
@@ -51,7 +53,15 @@ namespace Components.IO
             StartingPosition = startingPosition;
         }
 
-        private void Grow() => Array.Resize(ref _bitmap, _bitmap.Length + _growSize);
+        private void Grow(int pagesNeeded)
+        {
+            while (_growSize < pagesNeeded)
+            {
+                _growSize += _initialGrowSize;
+            }
+
+            Array.Resize(ref _bitmap, _bitmap.Length + _growSize);
+        }
 
         public Allocation Allocate(int size)
         {
@@ -62,7 +72,7 @@ namespace Components.IO
             {
                 while ((index = FindBlock(pageCount)) == -1)
                 {
-                    Grow();
+                    Grow(pageCount);
                 }
 
                 MarkBlock(index, pageCount);

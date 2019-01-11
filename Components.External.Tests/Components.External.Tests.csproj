@@ -65,22 +65,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DelegateExtensions.cs" />
-    <Compile Include="ObjectDatabaseFluentExtensions.cs" />
-    <Compile Include="ObjectDatabaseTestBase.cs" />
-    <Compile Include="ObjectDatabaseTestContext.cs" />
-    <Compile Include="ObjectDatabaseTestExtensions.cs" />
+    <Compile Include="Common\ObjectDatabaseFluentExtensions.cs" />
+    <Compile Include="Common\ObjectDatabaseTestBase.cs" />
+    <Compile Include="Common\ObjectDatabaseTestContext.cs" />
+    <Compile Include="Common\ObjectDatabaseTestExtensions.cs" />
     <Compile Include="ObjectDatabaseReadOnlyTests.cs" />
     <Compile Include="BenchmarkDatabaseTest.cs" />
+    <Compile Include="ObjectDatabaseStressTests.cs" />
     <Compile Include="ObjectDatabaseTests.cs" />
+    <Compile Include="Common\PageSizeAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Widget.cs" />
+    <Compile Include="Common\Widget.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Databases\history.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Databases\history.odm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Databases\history2.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Databases\history2.odm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

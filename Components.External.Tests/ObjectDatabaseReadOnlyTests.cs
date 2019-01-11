@@ -20,54 +20,53 @@ namespace Components.External.Tests
         public void TestIsReadOnly(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) =>
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) =>
                 CatchReadOnlyFault(
                     setEntityMetaData,
                     trackEntities,
                     isReadOnly,
+                    pageSize,
                     x => x.Create(Context.NextWidget()));
 
         [Test]
         public void TestIsReadOnlyWriteMemoryManager(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) =>
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) =>
                 CatchReadOnlyFault(
                     setEntityMetaData,
                     trackEntities,
                     isReadOnly,
+                    pageSize,
                     x => x.WriteMemoryManagerUnsafe(x.ReadMemoryManagerUnsafe()));
 
         [Test]
         public void TestIsReadOnlyUpdate(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) => DB
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) => DB
             .Do(x => x.Create(Context.NextWidget()))
             .Do(x => CatchReadOnlyFault(
                 setEntityMetaData,
                 x.TrackEntities = isReadOnly ? trackEntities : true,
                 isReadOnly,
+                pageSize,
                 y => y.Update(y.ReadUnsafe().First())));
 
         [Test]
         public void TestIsReadOnlyCommitMemoryManager(
             [Values] bool setEntityMetaData,
             [Values] bool trackEntities,
-            [Values] bool isReadOnly) =>
+            [Values] bool isReadOnly,
+            [PageSize] int pageSize) =>
                 CatchReadOnlyFault(
                     setEntityMetaData,
                     trackEntities,
                     isReadOnly,
+                    pageSize,
                     x => x.CommitMemoryManager());
-
-        private void CatchReadOnlyFault(
-            bool setEntityMetaData,
-            bool trackEntities,
-            bool isReadOnly,
-            Action<BinDB> action) => DB
-            .Set(setEntityMetaData, trackEntities, isReadOnly: isReadOnly)
-            .If(isReadOnly, x => Catch<InvalidOperationException>(() => action(x)))
-            .Else(x => x.Do(y => y.ReadMemoryManagerUnsafe().AssertNoFragmentation()).Do(action));
     }
 }

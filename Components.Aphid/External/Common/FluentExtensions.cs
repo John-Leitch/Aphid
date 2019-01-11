@@ -14,6 +14,26 @@ namespace Components
             return obj;
         }
 
+        public static T DoIf<T>(this T obj, bool condition, Action<T> action)
+        {
+            if (condition)
+            {
+                action(obj);
+            }
+
+            return obj;
+        }
+
+        public static T DoIf<T>(this T obj, Func<bool> condition, Action<T> action)
+        {
+            if (condition())
+            {
+                action(obj);
+            }
+
+            return obj;
+        }
+
         public static T As<T>(this object obj, Action<T> action)
         {
             var x = (T)obj;

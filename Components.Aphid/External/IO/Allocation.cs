@@ -5,6 +5,8 @@ namespace Components.IO
     {
         private MemoryManager _manager;
 
+        //public bool IsCommitted;
+
         public int Handle, UserSize, Size;
 
         public Allocation(
