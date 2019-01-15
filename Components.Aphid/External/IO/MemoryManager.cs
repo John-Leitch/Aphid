@@ -6,9 +6,7 @@ namespace Components.IO
 {
     public class MemoryManager
     {
-        private const int _initialGrowSize = 0x1000;
-
-        private int _growSize = _initialGrowSize;
+        private int _initialGrowSize, _growSize;
 
         private Stream _stream;
 
@@ -32,7 +30,7 @@ namespace Components.IO
         public MemoryManager(Stream stream, int pageSize)
         {
             _stream = stream;
-            PageSize = pageSize;
+            _initialGrowSize = _growSize = PageSize = pageSize;
             _bitmap = new bool[_growSize];
             ZeroMemory = true;
         }
@@ -48,7 +46,7 @@ namespace Components.IO
             _stream = stream;
             _bitmap = bitmap;
             Allocations = sizeTable;
-            PageSize = pageSize;
+            _initialGrowSize = _growSize = PageSize = pageSize;
             ZeroMemory = zeroMemory;
             StartingPosition = startingPosition;
         }

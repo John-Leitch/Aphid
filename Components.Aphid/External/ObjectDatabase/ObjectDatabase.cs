@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 
 namespace Components.ObjectDatabase
@@ -22,11 +23,19 @@ namespace Components.ObjectDatabase
 
         private Stream _stream, _memoryManagerStream;
 
+        private MemoryMappedFile _memoryManagerVersionFile;
+
+        private BinaryReader _memoryManagerVersionReader;
+
+        private BinaryWriter _memoryManagerVersionWriter;
+
+        private int _memoryManagerVersion;
+
         private readonly Action<Stream, TElement> _serialize;
 
         private readonly Func<Stream, TElement> _deserialize;
 
-        private MemoryManager _memoryManager;
+        private MemoryManager _memoryManager, _lastSafeMemoryManager;
 
         private bool _isCommitted = false, _isDisposed = false;
 
@@ -73,6 +82,17 @@ namespace Components.ObjectDatabase
         {
             MemoryManagerFilename = GetMemoryManagerFilename();
             _memoryManagerLockKey = MemoryManagerFilename.ToLower();
+            
+            _memoryManagerVersionFile = MemoryMappedFile.CreateOrOpen(
+                _memoryManagerLockKey.Replace('\\', '$'),
+                0x4,
+                MemoryMappedFileAccess.ReadWrite,
+                MemoryMappedFileOptions.None,
+                HandleInheritability.None);
+
+            var s =_memoryManagerVersionFile.CreateViewStream();
+            _memoryManagerVersionReader = new BinaryReader(s);
+            _memoryManagerVersionWriter = new BinaryWriter(s);
 
             LockMemoryManager(() =>
             {
@@ -90,27 +110,34 @@ namespace Components.ObjectDatabase
                 {
                     _memoryManager = ReadMemoryManagerUnsafe();
                 }
+                else
+                {
+                    _memoryManagerVersion = ReadVersion();
+                    _lastSafeMemoryManager = ReadMemoryManagerUnsafe();
+                }
             });
         }
 
-        private FileStream CreateMemoryManagerStream()
+        private int ReadVersion()
         {
-            return new FileStream(
+            _memoryManagerVersionReader.BaseStream.Position = 0;
+            return _memoryManagerVersionReader.ReadInt32();
+        }
+
+        private FileStream CreateMemoryManagerStream() =>
+            new FileStream(
                 MemoryManagerFilename,
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
                 FileShare.ReadWrite,
                 0x1000,
                 FileOptions.WriteThrough);
-        }
 
         public MemoryManager ReadMemoryManagerUnsafe()
         {
             _memoryManagerStream.Position = 0;
 
-            return MemoryManagerSerializer.Deserialize(
-                _memoryManagerStream,
-                _stream);
+            return MemoryManagerSerializer.Deserialize(_memoryManagerStream, _stream);
         }
 
         public void WriteMemoryManagerUnsafe(MemoryManager memoryManager)
@@ -156,10 +183,11 @@ namespace Components.ObjectDatabase
             {
                 if (!UseUnsafeMemoryManager)
                 {
-                    var mm = ReadMemoryManagerUnsafe();
+                    var mm = ReadVersionedMemoryManagerUnsafe(out var version);
                     alloc = mm.Allocate(buffer.Length);
                     WriteMemoryManagerUnsafe(mm);
                     offset = mm.GetPosition(alloc);
+                    IncrementVersion(version);
                 }
                 else
                 {
@@ -172,9 +200,33 @@ namespace Components.ObjectDatabase
 
             if (TrackEntities)
             {
-                _items[offset] = new ObjectDatabaseRecord<TElement>(element, offset, this);
+                lock (_items)
+                {
+                    _items[offset] = new ObjectDatabaseRecord<TElement>(element, offset, this);
+                }
             }
         }
+
+        private void IncrementVersion(int version)
+        {
+            _memoryManagerVersionWriter.BaseStream.Position = 0;
+            _memoryManagerVersionWriter.Write(_memoryManagerVersion = ++version);
+        }
+
+        private MemoryManager ReadVersionedMemoryManagerUnsafe(out int version)
+        {
+            if ((version = ReadVersion()) != _memoryManagerVersion)
+            {
+                _memoryManagerVersion = version;
+                return _lastSafeMemoryManager = ReadMemoryManagerUnsafe();
+            }
+            else
+            {
+                return _lastSafeMemoryManager;
+            }
+        }
+
+        private MemoryManager ReadVersionedMemoryManagerUnsafe() => ReadVersionedMemoryManagerUnsafe(out var version);
 
         public override TElement ReadUnsafe(long offset)
         {
@@ -193,7 +245,10 @@ namespace Components.ObjectDatabase
 
             if (TrackEntities)
             {
-                _items[offset] = new ObjectDatabaseRecord<TElement>(element, offset, this);
+                lock (_items)
+                {
+                    _items[offset] = new ObjectDatabaseRecord<TElement>(element, offset, this);
+                }
             }
 
             return element;
@@ -201,7 +256,7 @@ namespace Components.ObjectDatabase
 
         public override IEnumerable<TElement> ReadUnsafe()
         {
-            var mm = !UseUnsafeMemoryManager ? ReadMemoryManagerUnsafe() : _memoryManager;
+            var mm = !UseUnsafeMemoryManager ? ReadVersionedMemoryManagerUnsafe() : _memoryManager;
 
             foreach (var a in mm.Allocations)
             {
@@ -229,7 +284,7 @@ namespace Components.ObjectDatabase
 
         public IEnumerable<TElement> SkipUnsafe(int count)
         {
-            var mm = !UseUnsafeMemoryManager ? ReadMemoryManagerUnsafe() : _memoryManager;
+            var mm = !UseUnsafeMemoryManager ? ReadVersionedMemoryManagerUnsafe() : _memoryManager;
 
             foreach (var a in mm.Allocations.Skip(count))
             {
@@ -245,11 +300,16 @@ namespace Components.ObjectDatabase
             }
 
             AssertReadOnly("updated record");
-            var ctxItem = _items.GetDictionary().FirstOrDefault(x => x.Value.Value.Equals(element));
+            KeyValuePair<long, ObjectDatabaseRecord<TElement>> ctxItem;
 
-            if (ctxItem.Value == null)
+            lock (_items)
             {
-                throw new InvalidOperationException();
+                ctxItem = _items.GetDictionary().FirstOrDefault(x => x.Value.Value.Equals(element));
+
+                if (ctxItem.Value == null)
+                {
+                    throw new InvalidOperationException();
+                }
             }
 
             byte[] buffer;
@@ -265,14 +325,20 @@ namespace Components.ObjectDatabase
             {
                 if (!UseUnsafeMemoryManager)
                 {
-                    var mm = ReadMemoryManagerUnsafe();
+                    var mm = ReadVersionedMemoryManagerUnsafe(out var version);
                     var offset = Update(mm, ctxItem.Key, buffer);
 
                     if (offset != -1)
                     {
                         WriteMemoryManagerUnsafe(mm);
-                        _items[ctxItem.Key] = null;
-                        _items[offset] = ctxItem.Value;
+
+                        lock (_items)
+                        {
+                            _items.GetDictionary().Remove(ctxItem.Key);
+                            _items[offset] = ctxItem.Value;
+                        }
+
+                        IncrementVersion(version);
                     }
                 }
                 else
@@ -313,6 +379,9 @@ namespace Components.ObjectDatabase
                 if (!UseUnsafeMemoryManager)
                 {
                     count = MemoryManagerSerializer.DeserializeCount(_memoryManagerStream);
+                    //count = ReadVersion() != _memoryManagerVersion ? 
+                    //    MemoryManagerSerializer.DeserializeCount(_memoryManagerStream) :
+                    //    _lastSafeMemoryManager.Allocations.Count;
                 }
                 else
                 {
@@ -326,7 +395,7 @@ namespace Components.ObjectDatabase
         public override Dictionary<TIndex, List<int>> Index<TIndex>(Func<TElement, TIndex> selector)
         {
             var indexTable = new Dictionary<TIndex, List<int>>();
-            var mm = !UseUnsafeMemoryManager ? ReadMemoryManagerUnsafe() : _memoryManager;
+            var mm = !UseUnsafeMemoryManager ? ReadVersionedMemoryManagerUnsafe() : _memoryManager;
 
             foreach (var a in mm.Allocations)
             {

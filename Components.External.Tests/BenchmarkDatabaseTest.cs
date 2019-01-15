@@ -88,6 +88,6 @@ namespace Components.External.Tests
                 setEntityMetaData,
                 trackEntities,
                 isReadOnly,
-                x => x.SkipUnsafe(skip).Count().Do(y => AreEqual(y, Max(0, x.Count() - skip))));
+                x => AreEqual(x.SkipUnsafe(skip).Count(), Max(0, x.Count() - skip)));
     }
 }

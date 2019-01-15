@@ -18,12 +18,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -72,6 +73,7 @@
     <Compile Include="ObjectDatabaseReadOnlyTests.cs" />
     <Compile Include="BenchmarkDatabaseTest.cs" />
     <Compile Include="ObjectDatabaseStressTests.cs" />
+    <Compile Include="ObjectDatabaseConcurrencyTests.cs" />
     <Compile Include="ObjectDatabaseTests.cs" />
     <Compile Include="Common\PageSizeAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
