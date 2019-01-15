@@ -12,7 +12,7 @@ namespace Components.Caching
 
         private static Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
 
-        public uint Flags { get; private set; }
+        public uint Flags { get; protected set; }
 
         public FileSerializationCache(Assembly dependency)
         {

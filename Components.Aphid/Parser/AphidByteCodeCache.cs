@@ -6,7 +6,21 @@ namespace Components.Aphid.Parser
 {
     public class AphidByteCodeCache : FileSerializationCache<List<AphidExpression>>
     {
-        public bool InlineScripts { get; set; } = false;
+        public bool InlineScripts
+        {
+            get => (Flags & 0x2) != 0;
+            set
+            {
+                if (value)
+                {
+                    Flags |= 0x2u;
+                }
+                else
+                {
+                    Flags &= ~0x2u;
+                }
+            }
+        }
 
         private readonly string[] _searchPaths;
 

@@ -28,6 +28,8 @@ namespace Components.Aphid.Interpreter
 
         public HashSet<string> SearchPaths { get; } = new HashSet<string>();
 
+        public bool InlineCachedScripts { get; set; }
+
         public AphidLoader(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -196,7 +198,7 @@ namespace Components.Aphid.Interpreter
                     if (AphidConfig.Current.ScriptCaching)
                     {
                         var cache = new AphidByteCodeCache(SearchPaths.ToArray());
-
+                        cache.InlineScripts = InlineCachedScripts;
                         ast = cache.Read(f);
                     }
                     else
