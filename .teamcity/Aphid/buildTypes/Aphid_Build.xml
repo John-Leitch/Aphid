@@ -126,6 +126,16 @@ Components.External.Tests\bin\Release\Components.External.Tests.dll]]></param>
           <param name="patch-global-assembly-info" value="true" />
         </parameters>
       </extension>
+      <extension id="BUILD_EXT_2" type="BuildFailureOnMetric">
+        <parameters>
+          <param name="anchorBuild" value="lastSuccessful" />
+          <param name="metricKey" value="buildTestCount" />
+          <param name="metricThreshold" value="20" />
+          <param name="metricUnits" value="metricUnitsPercents" />
+          <param name="moreOrLess" value="less" />
+          <param name="withBuildAnchor" value="true" />
+        </parameters>
+      </extension>
     </build-extensions>
     <cleanup />
   </settings>
