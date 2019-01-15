@@ -136,6 +136,16 @@ Components.External.Tests\bin\Release\Components.External.Tests.dll]]></param>
           <param name="withBuildAnchor" value="true" />
         </parameters>
       </extension>
+      <extension id="BUILD_EXT_3" type="BuildFailureOnMetric">
+        <parameters>
+          <param name="anchorBuild" value="lastFinished" />
+          <param name="metricKey" value="buildIgnoredTestCount" />
+          <param name="metricThreshold" value="10" />
+          <param name="metricUnits" value="metricUnitsPercents" />
+          <param name="moreOrLess" value="more" />
+          <param name="withBuildAnchor" value="true" />
+        </parameters>
+      </extension>
     </build-extensions>
     <cleanup />
   </settings>
