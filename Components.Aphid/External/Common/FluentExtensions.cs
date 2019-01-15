@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Components
 {
+    [DebuggerStepThrough]
     public static partial class FluentExtensions
     {
         public static T Do<T>(this T obj, Action<T> action)
@@ -14,21 +16,49 @@ namespace Components
             return obj;
         }
 
-        public static T DoIf<T>(this T obj, bool condition, Action<T> action)
+        public static T DoIf<T>(this T obj, bool condition, Action<T> trueAction)
         {
             if (condition)
             {
-                action(obj);
+                trueAction(obj);
             }
 
             return obj;
         }
 
-        public static T DoIf<T>(this T obj, Func<bool> condition, Action<T> action)
+        public static T DoIf<T>(this T obj, Func<bool> condition, Action<T> trueAction)
         {
             if (condition())
             {
-                action(obj);
+                trueAction(obj);
+            }
+
+            return obj;
+        }
+
+        public static T DoIf<T>(this T obj, bool condition, Action<T> trueAction, Action<T> falseAction)
+        {
+            if (condition)
+            {
+                trueAction(obj);
+            }
+            else
+            {
+                falseAction(obj);
+            }
+
+            return obj;
+        }
+
+        public static T DoIf<T>(this T obj, Func<bool> condition, Action<T> trueAction, Action<T> falseAction)
+        {
+            if (condition())
+            {
+                trueAction(obj);
+            }
+            else
+            {
+                falseAction(obj);
             }
 
             return obj;
