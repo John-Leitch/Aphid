@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="ffdf7904-0a95-4bfb-bec9-e19e681f4402" xsi:noNamespaceSchemaLocation="http://www.jetbrains.com/teamcity/schemas/2018.1/project-config.xsd">
+  <name>Build</name>
+  <description>Aphid Programming Language</description>
+  <settings>
+    <options>
+      <option name="artifactRules" value="Aphid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidUI\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidHdl\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToVerilog/&#xA;Mantispid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/ParserGenerator/&#xA;LLex\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/LexerGenerator/&#xA;Coywolf\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPhp/&#xA;Boxelder\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPython/" />
+      <option name="buildNumberPattern" value="0.7.1.%build.counter%" />
+    </options>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_5" name="" type="jb.nuget.installer">
+        <parameters>
+          <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.updatePackages.mode" value="perConfig" />
+          <param name="nuget.use.restore" value="restore" />
+          <param name="sln.path" value="Aphid.sln" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_2" name="" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid.sln" />
+          <param name="msbuild.prop.Configuration" value="Release" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Rebuild" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_4" name="" type="jb.nuget.installer">
+        <parameters>
+          <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.use.restore" value="restore" />
+          <param name="sln.path" value="Aphid.Samples.sln" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_1" name="" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid.Samples.sln" />
+          <param name="msbuild.prop.Configuration" value="Release" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Rebuild" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_6" name="" type="jb.nuget.installer">
+        <parameters>
+          <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.use.restore" value="restore" />
+          <param name="sln.path" value="Aphid.Test.sln" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_3" name="" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid.Test.sln" />
+          <param name="msbuild.prop.Configuration" value="Release" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Rebuild" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_7" name="Aphid Tests" type="NUnit">
+        <parameters>
+          <param name="dotNetCoverage.NCover.HTMLReport.File.Sort" value="0" />
+          <param name="dotNetCoverage.NCover.HTMLReport.File.Type" value="1" />
+          <param name="dotNetCoverage.NCover.Reg" value="selected" />
+          <param name="dotNetCoverage.NCover.platformBitness" value="x86" />
+          <param name="dotNetCoverage.NCover.platformVersion" value="v2.0" />
+          <param name="dotNetCoverage.NCover3.Reg" value="selected" />
+          <param name="dotNetCoverage.NCover3.args" value="//ias .*" />
+          <param name="dotNetCoverage.NCover3.platformBitness" value="x86" />
+          <param name="dotNetCoverage.NCover3.platformVersion" value="v2.0" />
+          <param name="dotNetCoverage.NCover3.reporter.executable.args" value="//or FullCoverageReport:Html:{teamcity.report.path}" />
+          <param name="dotNetCoverage.PartCover.Reg" value="selected" />
+          <param name="dotNetCoverage.PartCover.includes" value="[*]*" />
+          <param name="dotNetCoverage.PartCover.platformBitness" value="x86" />
+          <param name="dotNetCoverage.PartCover.platformVersion" value="v2.0" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="dotNetTestRunner.Type" value="NUnit" />
+          <param name="nunit_command_line" value="--process=Multiple --agents=16 --workers=64" />
+          <param name="nunit_enabled" value="checked" />
+          <param name="nunit_environment" value="v4.0" />
+          <param name="nunit_include"><![CDATA[Components.Aphid.Tests.Integration\bin\Release\Components.Aphid.Tests.Integration.dll
+Components.External.Tests\bin\Release\Components.External.Tests.dll]]></param>
+          <param name="nunit_path" value="%teamcity.tool.NUnit.Console.DEFAULT%" />
+          <param name="nunit_platform" value="MSIL" />
+          <param name="nunit_version" value="NUnit-3.0.0" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers>
+      <build-trigger id="vcsTrigger" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter" value="+:*" />
+          <param name="enableQueueOptimization" value="true" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <build-extensions>
+      <extension id="BUILD_EXT_1" type="VcsLabeling">
+        <parameters>
+          <param name="labelingPattern" value="build-%system.build.number%" />
+          <param name="vcsRootId" value="Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster" />
+        </parameters>
+      </extension>
+      <extension id="JetBrains.AssemblyInfo" type="JetBrains.AssemblyInfo">
+        <parameters>
+          <param name="assembly-format" value="%system.build.number%" />
+          <param name="patch-global-assembly-info" value="true" />
+        </parameters>
+      </extension>
+    </build-extensions>
+    <cleanup />
+  </settings>
+</build-type>
+
