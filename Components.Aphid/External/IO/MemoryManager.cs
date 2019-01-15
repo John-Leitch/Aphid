@@ -6,15 +6,17 @@ namespace Components.IO
 {
     public class MemoryManager
     {
-        private int _initialGrowSize, _growSize;
+        private readonly int _initialGrowSize;
+
+        private int _growSize;
 
         private Stream _stream;
-
-        public int StartingPosition { get; private set; } = 0;
 
         private bool[] _bitmap;
 
         public bool[] Bitmap => _bitmap;
+
+        public int StartingPosition { get; private set; } = 0;
 
         public Dictionary<int, int> Allocations { get; } = new Dictionary<int, int>();
 

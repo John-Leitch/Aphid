@@ -73,9 +73,12 @@ namespace Components.Aphid.Tests.Integration.Shared
                     .Is<AphidFunction>()
                     .Select(y => (Name: y.Key, interpreter, Filename: file.Name))
                     .Select(x =>
-                        new TestCaseData(x.interpreter, x.Name, strictMode, cacheInlining)
-                            .SetCategory(Path.GetFileNameWithoutExtension(x.Filename))
-                            .SetName(FormatTestName(x.Name, strictMode, cacheInlining)));
+                        new TestCaseData(x.interpreter, x.Name, strictMode, cacheInlining)                        
+                            .SetCategory(x.Name)
+                            //.SetCategory(Path.GetFileNameWithoutExtension(x.Filename))
+                            //.SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}({{2}}, {{3}})"));
+                            .SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}"));
+
             });
 
         private static string FormatTestName(string funcName, bool strictMode, bool cacheInlining)
@@ -117,9 +120,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             {
                 var sb = new StringBuilder(string.Format("Function {0} returned false.", funcName));
 
-                AphidObject lastException;
-                
-                if (interpreter.CurrentScope.TryResolve("lastException", out lastException) &&
+                if (interpreter.CurrentScope.TryResolve("lastException", out var lastException) &&
                     lastException != null)
                 {
                     foreach (var kvp in lastException)

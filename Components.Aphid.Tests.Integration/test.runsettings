@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+
+    <TargetPlatform>x64</TargetPlatform>
+
+    <TargetFrameworkVersion>Framework45</TargetFrameworkVersion>
+    <!--<CollectSourceInformation>False</CollectSourceInformation>-->
+    <MaxCpuCount>128</MaxCpuCount>
+    <!--<DisableAppDomain>False</DisableAppDomain>-->
+
+    <DesignMode>false</DesignMode>
+    <DisableParallelization>false</DisableParallelization>
+    <DisableAppDomain>false</DisableAppDomain>
+    <CollectSourceInformation>False</CollectSourceInformation>
+    <BatchSize>10</BatchSize>
+    <ExecutionThreadApartmentState>MTA</ExecutionThreadApartmentState>
+  </RunConfiguration>
+
+  <NUnit>
+    <BasePath>C:\source\Aphid</BasePath>
+    <PrivateBinPath>Components.Aphid.Tests.Integration\bin\x64\Release;Components.External.Tests\bin\x64\Release</PrivateBinPath>
+    <!--<UseVsKeepEngineRunning>true</UseVsKeepEngineRunning>-->
+    <NumberOfTestWorkers>12</NumberOfTestWorkers>
+    <!--<ShadowCopyFiles>true</ShadowCopyFiles>-->
+    <InternalTraceLevel>Info</InternalTraceLevel>
+    <!-- <DefaultTimeout>60000</DefaultTimeout> -->
+    <VsTestCategoryType>NUnit</VsTestCategoryType>
+  </NUnit>
+
+</RunSettings>

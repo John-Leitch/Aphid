@@ -12,7 +12,7 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoader : AphidRuntimeComponent
     {
-        private static string _location = Assembly.GetExecutingAssembly().Location;
+        private static readonly string _location = Assembly.GetExecutingAssembly().Location;
 
         private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
@@ -276,9 +276,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    var o = value as AphidObject;
-
-                    if (o == null)
+                    if (!(value is AphidObject o))
                     {
                         o = AphidObject.Scalar(value);
                     }

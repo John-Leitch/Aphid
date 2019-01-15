@@ -82,7 +82,7 @@ namespace Components.ObjectDatabase
         {
             MemoryManagerFilename = GetMemoryManagerFilename();
             _memoryManagerLockKey = MemoryManagerFilename.ToLower();
-            
+
             _memoryManagerVersionFile = MemoryMappedFile.CreateOrOpen(
                 _memoryManagerLockKey.Replace('\\', '$'),
                 0x4,
@@ -90,7 +90,7 @@ namespace Components.ObjectDatabase
                 MemoryMappedFileOptions.None,
                 HandleInheritability.None);
 
-            var s =_memoryManagerVersionFile.CreateViewStream();
+            var s = _memoryManagerVersionFile.CreateViewStream();
             _memoryManagerVersionReader = new BinaryReader(s);
             _memoryManagerVersionWriter = new BinaryWriter(s);
 
@@ -430,6 +430,13 @@ namespace Components.ObjectDatabase
             _stream.Dispose();
             _memoryManagerStream.Dispose();
             _memoryManagerStream = null;
+
+            if (_memoryManagerVersionReader != null)
+            {
+                _memoryManagerVersionReader.BaseStream.Dispose();
+                _memoryManagerVersionFile.Dispose();
+            }
+
             _isDisposed = true;
             base.Dispose();
         }

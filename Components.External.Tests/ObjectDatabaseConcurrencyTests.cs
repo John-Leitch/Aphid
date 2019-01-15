@@ -127,10 +127,7 @@ namespace Components.External.Tests
                 For(i => concurrentAction(db, rows[i], i));
             }
 
-            if (finalize != null)
-            {
-                finalize(db, getRows());
-            }
+            finalize?.Invoke(db, getRows());
 
             AreEqual(count, rows.Distinct(x => x.X).Count());
             AreEqual(count, rows.Count());
