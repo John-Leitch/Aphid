@@ -19,12 +19,12 @@ namespace Components.Aphid.Library
             {
                 Serializer = interpreter.Serializer
             };
-            
-            Action call = () =>
+
+            void call()
             {
                 interpreter2.CallFunction(function, parms);
                 reset.Set();
-            };
+            }
 
             start(call);
 

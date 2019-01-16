@@ -21,40 +21,20 @@ namespace Components.Aphid.UI
             _stackTraceParams = GetBool(AphidSettings.StackTraceParams, defaultValue: false),
             _scriptCaching = GetBool(AphidSettings.ScriptCaching, defaultValue: false),
             _ignoreDebugger = GetBool(AphidSettings.IgnoreDebugger, defaultValue: false);
+        private Lazy<string[]> _imports = GetArray(AphidSettings.AutoImport, defaultValue: Array.Empty<string>());
+        private readonly Lazy<string[]> _includes = GetArray(AphidSettings.AutoInclude, defaultValue: Array.Empty<string>());
 
-        private Lazy<string[]>
-            _imports = GetArray(AphidSettings.AutoImport, defaultValue: Array.Empty<string>()),
-            _includes = GetArray(AphidSettings.AutoInclude, defaultValue: Array.Empty<string>());
+        public string[] Imports => _imports.Value;
 
-        public string[] Imports
-        {
-            get { return _imports.Value; }
-        }
+        public bool StrictMode => _strictMode.Value;
 
-        public bool StrictMode
-        {
-            get { return _strictMode.Value; }
-        }
+        public bool SaveErrors => _saveErrors.Value;
 
-        public bool SaveErrors
-        {
-            get { return _saveErrors.Value; }
-        }
+        public bool StackTraceParams => _stackTraceParams.Value;
 
-        public bool StackTraceParams
-        {
-            get { return _stackTraceParams.Value; }
-        }
+        public bool ScriptCaching => _scriptCaching.Value;
 
-        public bool ScriptCaching
-        {
-            get { return _scriptCaching.Value; }
-        }
-
-        public bool IgnoreDebugger
-        {
-            get { return _ignoreDebugger.Value; }
-        }
+        public bool IgnoreDebugger => _ignoreDebugger.Value;
 
         public bool ExceptionHandlingDisabled { get; set; }
 
@@ -78,29 +58,20 @@ namespace Components.Aphid.UI
 
         }
 
-        private static Lazy<bool> GetBool(string name, bool defaultValue = false)
-        {
-            return _config.Value != null ?
+        private static Lazy<bool> GetBool(string name, bool defaultValue = false) =>
+            _config.Value != null ?
                 new Lazy<bool>(() => Convert.ToBoolean(GetSetting(name))) :
                 new Lazy<bool>(() => defaultValue);
-        }
 
-        private static Lazy<string[]> GetArray(string name, string[] defaultValue = null)
-        {
-            return _config.Value != null ?
+        private static Lazy<string[]> GetArray(string name, string[] defaultValue = null) =>
+            _config.Value != null ?
                 new Lazy<string[]>(() => (GetSetting(name) ?? "")
                     .Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
                     .ToArray()) :
                 new Lazy<string[]>(() => defaultValue);
-        }
 
-        private static string GetSetting(string name)
-        {
-            var setting = _config.Value.AppSettings.Settings[name];
-
-            return setting != null ? setting.Value : null;
-        }
+        private static string GetSetting(string name) => _config.Value.AppSettings.Settings[name]?.Value;
 
         private static Configuration LoadConfig()
         {

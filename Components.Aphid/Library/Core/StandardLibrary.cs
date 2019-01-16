@@ -237,14 +237,12 @@ namespace Components.Aphid.Library
         private static List<AphidObject> StringSplit(AphidInterpreter interpreter, string str, object separator)
         {
             string[] s;
-            string separatorString;
-            List<AphidObject> separatorList;
 
-            if ((separatorString = separator as string) != null)
+            if (separator is string separatorString)
             {
                 s = new[] { separatorString };
             }
-            else if ((separatorList = separator as List<AphidObject>) != null)
+            else if (separator is List<AphidObject> separatorList)
             {
                 s = separatorList.Select(x => x.GetString()).ToArray();
             }

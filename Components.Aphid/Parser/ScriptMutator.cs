@@ -15,7 +15,7 @@ namespace Components.Aphid.Parser
 
         private string _script;
 
-        private AphidObject _parentScope;
+        private readonly AphidObject _parentScope;
 
         public AphidInterpreter Interpreter { get; set; }
 
@@ -67,10 +67,9 @@ namespace Components.Aphid.Parser
                     })));
 
                 Interpreter.Interpret(_mutateImplementation.Value);
-                AphidObject hasChangedObj;
                 List<AphidExpression> mutated = null;
 
-                if (Interpreter.CurrentScope.TryResolve("hasChanged", out hasChangedObj) &&
+                if (Interpreter.CurrentScope.TryResolve("hasChanged", out var hasChangedObj) &&
                     hasChangedObj.GetValueType() == AphidType.Boolean &&
                     hasChangedObj.GetBool())
                 {

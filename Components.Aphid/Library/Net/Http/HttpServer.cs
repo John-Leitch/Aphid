@@ -24,15 +24,15 @@ namespace Components.Aphid.Library.Net
 
         private const string _formUrlEncoded = "application/x-www-form-urlencoded";
 
-        private string[] _prefixes;
+        private readonly string[] _prefixes;
 
-        private string _webRoot;
+        private readonly string _webRoot;
 
         private Encoding _encoding = Encoding.GetEncoding(1252);
 
         private AphidSessionManager _sessionManager = new AphidSessionManager();
 
-        private AphidObject _globals = AphidObject.Scope();
+        private readonly AphidObject _globals = AphidObject.Scope();
 
         //private string _config = "Config.alx";
 
@@ -341,9 +341,7 @@ namespace Components.Aphid.Library.Net
 
         private void HandleConfigCaching(AphidObject session)
         {
-            AphidObject lastWriteObj;
-            
-            if (!session.TryGetValue(_configCacheTime, out lastWriteObj))
+            if (!session.TryGetValue(_configCacheTime, out var lastWriteObj))
             {
                 session.Add(
                     _configCacheTime,
@@ -488,14 +486,11 @@ namespace Components.Aphid.Library.Net
             }
             else
             {
-                byte[] buffer;
-                string text;
-
-                if ((buffer = content.Value as byte[]) != null)
+                if (content.Value is byte[] buffer)
                 {
                     return buffer;
                 }
-                else if ((text = content.Value as string) != null)
+                else if (content.Value is string text)
                 {
                     return _encoding.GetBytes(text);
                 }

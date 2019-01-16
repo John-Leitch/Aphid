@@ -90,13 +90,13 @@ namespace Components.Aphid.Library
 
             var sb = new StringBuilder();
 
-            DataReceivedEventHandler handler = (o, e) =>
+            void handler(object o, DataReceivedEventArgs e)
             {
                 lock (sb)
                 {
                     sb.AppendLine(e.Data);
                 }
-            };
+            }
 
             if (opt.RedirectOutput)
             {

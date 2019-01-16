@@ -43,29 +43,19 @@ namespace Components.Aphid.Tests.Integration.Shared
         {
             var oldValue = _value;
 
-            if (OnValueChanging != null)
-            {
-                OnValueChanging(
-                    this,
-                    new ValueUpdateEventArgs<string>(
-                        oldValue,
-                        value,
-                        canCancel: true,
-                        canChange: true));
-            }
-            
+            OnValueChanging?.Invoke(
+                this,
+                new ValueUpdateEventArgs<string>(
+                    oldValue,
+                    value,
+                    canCancel: true,
+                    canChange: true));
+
             _value = value;
 
-            if (OnValueChanged != null)
-            {
-                OnValueChanged(
-                    this,
-                    new ValueUpdateEventArgs<string>(
-                        oldValue,
-                        value,
-                        canCancel: false,
-                        canChange: false));
-            }
+            OnValueChanged?.Invoke(
+                this,
+                new ValueUpdateEventArgs<string>(oldValue, value, canCancel: false, canChange: false));
         }
     }
 }

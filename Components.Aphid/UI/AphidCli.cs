@@ -161,9 +161,9 @@ namespace Components.Aphid.UI
         {
             AphidObject result = null;
 
-            Action action = () =>
+            void action()
             {
-                if(code.Trim() == "")
+                if (code.Trim() == "")
                 {
                     return;
                 }
@@ -176,7 +176,7 @@ namespace Components.Aphid.UI
                 interpreter.Interpret(retExp);
                 result = interpreter.GetReturnValue();
 
-                if(result != null && (result.Value != null || result.Any()))
+                if (result != null && (result.Value != null || result.Any()))
                 {
                     DumpValue(
                         interpreter,
@@ -185,9 +185,9 @@ namespace Components.Aphid.UI
                         ignoreNull: false,
                         ignoreClrObj: false);
                 }
-            };
+            }
 
-            if(AphidErrorHandling.HandleErrors)
+            if (AphidErrorHandling.HandleErrors)
             {
                 TryAction(interpreter, code, action);
             }
@@ -425,13 +425,13 @@ namespace Components.Aphid.UI
                     for(var x = 0; x < colors.Length; x++)
                     {
                         var old = colors[x].ForegroundRgb;
+
                         var top = old
                             .OrderByDescending(a => a)
                             .GroupToArrayDictionary(a => a)
                             .First();
 
-                        Func<byte, byte> increase = a => Math.Max(a, (byte)(a * 1.4));
-
+                        byte increase(byte a) => Math.Max(a, (byte)(a * 1.4));
                         byte[] color;
 
                         if(top.Value.Length == 3)
@@ -560,20 +560,22 @@ namespace Components.Aphid.UI
             var tuples = new[]
             {
                 Tuple.Create<string, string, Func<List<AphidExpression>>>(
-                    "Expression", expFile, () => new List<AphidExpression>(new[] { interpreter.CurrentExpression })),
+                    "Expression",
+                    expFile,
+                    () => new List<AphidExpression>(new[] { interpreter.CurrentExpression })),
+
                 Tuple.Create<string, string, Func<List<AphidExpression>>>(
-                    "Statement", stmtFile, () => new List<AphidExpression>(new[] { interpreter.CurrentStatement })),
+                    "Statement",
+                    stmtFile,
+                    () => new List<AphidExpression>(new[] { interpreter.CurrentStatement })),
+
                 Tuple.Create<string, string, Func<List<AphidExpression>>>(
                     "Interpreter",
                     file,
-                    () =>
-                    {
-                        AphidObject val;
-
-                        return interpreter.CurrentScope.TryResolve(AphidName.Block, out val) ?
-                            (List<AphidExpression>)val.Value :
-                            new List<AphidExpression>();
-                    })
+                    () => interpreter.CurrentScope.TryResolve(AphidName.Block, out var val) ?
+                        (List<AphidExpression>)val.Value :
+                        new List<AphidExpression>())
+                    
             };
 
 

@@ -42,9 +42,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public List<string> GetField(string field)
         {
-            List<string> values;
-
-            if (!_fieldDictionary.TryGetValue(field, out values))
+            if (!_fieldDictionary.TryGetValue(field, out var values))
             {
                 values = new List<string>();
                 _fieldDictionary.Add(field, values);

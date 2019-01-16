@@ -10,8 +10,7 @@ namespace Components.Aphid.Parser
         public static TAttributes Parse<TAttributes>(IdentifierExpression identifierExpression)
             where TAttributes : new()
         {
-            string[] unparsed;
-            var attributes = Parse<TAttributes>(identifierExpression, out unparsed);
+            var attributes = Parse<TAttributes>(identifierExpression, out var unparsed);
 
             if (unparsed.Any())
             {

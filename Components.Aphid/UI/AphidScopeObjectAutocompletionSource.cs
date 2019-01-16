@@ -228,9 +228,7 @@ namespace Components.Aphid.UI
                         }
                         else if (inClrType)
                         {
-                            AphidObject obj;
-
-                            if (!scope.TryGetValue(t.Lexeme, out obj))
+                            if (!scope.TryGetValue(t.Lexeme, out var obj))
                             {
                                 return new Autocomplete[0];
                             }
@@ -409,9 +407,7 @@ namespace Components.Aphid.UI
 
         private IEnumerable<Autocomplete> CreateTypeAutocomplete(string match = null)
         {
-            AphidObject importObj;
-            
-            if (!_currentScope.TryGetValue(AphidName.Imports, out importObj))
+            if (!_currentScope.TryGetValue(AphidName.Imports, out var importObj))
             {
                 return new Autocomplete[0];
             }
@@ -478,9 +474,7 @@ namespace Components.Aphid.UI
 
         private HashSet<string> GetImports()
         {
-            AphidObject importObj;
-
-            if (!_currentScope.TryGetValue(AphidName.Imports, out importObj))
+            if (!_currentScope.TryGetValue(AphidName.Imports, out var importObj))
             {
                 return new HashSet<string>();
             }

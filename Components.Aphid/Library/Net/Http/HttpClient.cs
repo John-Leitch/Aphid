@@ -181,10 +181,9 @@ namespace Components.Aphid.Library.Net.Http
             var bodyStr = headerBuffer.Substring(endOfHeader + 4);
             buffer = encoder.GetBytes(bodyStr);
             var bodyBytesRead = buffer.Length;
-
             resp.ParseFields(headerBuffer.Remove(endOfHeader), true);
-            int contentLen;
-            if (resp.TryGetInt(HttpField.ContentLength, out contentLen))
+            
+            if (resp.TryGetInt(HttpField.ContentLength, out var contentLen))
             {
                 bodyStream.Write(buffer, 0, buffer.Length);
                 buffer = new byte[bufferSize];
@@ -222,7 +221,7 @@ namespace Components.Aphid.Library.Net.Http
                         }
                     }
 
-                    
+
                 }
 
                 if (!bodyStr.EndsWith("0\r\n\r\n"))

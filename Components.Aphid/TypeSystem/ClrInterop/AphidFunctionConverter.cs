@@ -24,9 +24,8 @@ namespace Components.Aphid.TypeSystem
         {
             var methodInfo = methodType.GetMethod("Invoke");
             var funcObj = ValueHelper.Unwrap(function);
-            var func = funcObj as AphidFunction;
 
-            if (func == null)
+            if (!(funcObj is AphidFunction func))
             {
                 throw Interpreter.CreateRuntimeException(
                     "Conversion from {0} to {1} not supported.",

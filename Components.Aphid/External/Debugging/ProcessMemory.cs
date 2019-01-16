@@ -12,10 +12,7 @@ namespace Components.Cypress
     {
         public IntPtr Handle { get; private set; }
 
-        public ProcessMemory(IntPtr handle)
-        {
-            Handle = handle;
-        }
+        public ProcessMemory(IntPtr handle) => Handle = handle;
 
         public byte[] ReadBytes(IntPtr address, int count)
         {
@@ -125,6 +122,7 @@ namespace Components.Cypress
         {
             var sb = new StringBuilder();
             var inString = true;
+
             do
             {
                 var tmp = ReadBytes(address, bufferSize);
@@ -155,6 +153,7 @@ namespace Components.Cypress
 
         public int Write(IntPtr address, byte[] buffer)
         {
+            // Todo: check return value
             int bytesWritten;
 
             return Kernel32.WriteProcessMemory(
@@ -167,26 +166,22 @@ namespace Components.Cypress
 
         public IntPtr Allocate(
             uint size,
-            MemoryProtection memoryProtection)
-        {
-            return Allocate(
+            MemoryProtection memoryProtection) =>
+            Allocate(
                 size,
                 AllocationType.Reserve | AllocationType.Commit,
                 memoryProtection);
-        }
 
         public IntPtr Allocate(
             uint size,
             AllocationType allocationType,
-            MemoryProtection memoryProtection)
-        {
-            return Kernel32.VirtualAllocEx(
+            MemoryProtection memoryProtection) =>
+            Kernel32.VirtualAllocEx(
                 Handle,
                 IntPtr.Zero,
                 size,
                 allocationType,
                 memoryProtection);
-        }
 
         public bool ReadArg(IntPtr thread, int number, out uint value)
         {

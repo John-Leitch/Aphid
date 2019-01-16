@@ -30,13 +30,14 @@ namespace Components.Aphid.Interpreter
 
             foreach (var exp in ast)
             {
-                var loadExp = exp as LoadScriptExpression;
+                LoadScriptExpression loadExp;
 
-                if (loadExp != null && loadExp.FileExpression is StringExpression)
+                if (exp.Type == AphidExpressionType.LoadScriptExpression &&
+                    (loadExp = (LoadScriptExpression)exp).FileExpression != null &&
+                    loadExp.FileExpression.Type == AphidExpressionType.StringExpression)
                 {
                     var filename = StringParser.Parse(((StringExpression)loadExp.FileExpression).Value);
                     filename = _loader.FindScriptFile(null, filename);
-
                     var childAst = Optimize(File.ReadAllText(filename));
                     optimizedAst.AddRange(childAst);
                 }

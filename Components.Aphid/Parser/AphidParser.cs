@@ -56,7 +56,7 @@ namespace Components.Aphid.Parser
             else
             {
                 var i = _currentToken.Index + _currentToken.Lexeme.Length;
-                _currentToken = default(AphidToken);
+                _currentToken = default;
                 _currentToken.Index = i;
                 return false;
             }
@@ -67,7 +67,7 @@ namespace Components.Aphid.Parser
         {
             if (_tokens.Count == 0 || _tokenIndex == 0)
             {
-                _currentToken = default(AphidToken);
+                _currentToken = default;
                 _currentToken.Index = -1;
 
                 return false;
@@ -92,7 +92,7 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                _currentToken = default(AphidToken);
+                _currentToken = default;
                 _currentToken.Index = -1;
                 return false;
             }

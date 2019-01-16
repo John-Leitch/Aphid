@@ -496,9 +496,8 @@ namespace Components.Aphid.TypeSystem
             }
 
             AphidObject result;
-            var func = val.Value as AphidFunction;
 
-            if (func != null)
+            if (val.Value is AphidFunction func)
             {
                 func.Clone();
 

@@ -13,7 +13,7 @@ namespace Components.Aphid.Tests.Integration.Shared
 {
     public abstract class InteropTestBase : AphidTests, IDisposable
     {
-        private static object _sync = new object();
+        private static readonly object _sync = new object();
 
         protected TypeLoader Loader { get; } = new TypeLoader();
 

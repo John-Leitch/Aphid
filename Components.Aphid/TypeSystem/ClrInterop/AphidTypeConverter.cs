@@ -158,9 +158,7 @@ namespace Components.Aphid.TypeSystem
             //    return true;
             //}
 
-            var valueCollection = value as IEnumerable;
-
-            if (valueCollection == null)
+            if (!(value is IEnumerable valueCollection))
             {
                 return false;
             }

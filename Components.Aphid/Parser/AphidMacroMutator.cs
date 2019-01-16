@@ -67,9 +67,7 @@ namespace Components.Aphid.Parser
 
             var callIdExp = (IdentifierExpression)callExp.FunctionExpression;
 
-            AphidMacro macro;
-
-            if (!_macros.TryGetValue(callIdExp.Identifier, out macro))
+            if (!_macros.TryGetValue(callIdExp.Identifier, out var macro))
             {
                 hasChanged = false;
 

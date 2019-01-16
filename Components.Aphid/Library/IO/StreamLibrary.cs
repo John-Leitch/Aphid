@@ -16,10 +16,9 @@ namespace Components.Aphid.Library
         public static void StreamWrite(AphidInterpreter interpreter, Stream stream, object buffer)
         {
             byte[] bytes;
-            List<AphidObject> objects;
             string str;
 
-            if ((objects = buffer as List<AphidObject>) != null)
+            if (buffer is List<AphidObject> objects)
             {
                 bytes = objects.Select(x => (byte)(decimal)x.Value).ToArray();
             }

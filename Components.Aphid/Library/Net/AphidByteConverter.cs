@@ -18,14 +18,12 @@ namespace Components.Aphid.Library
         {
             var v = obj.Value;
             byte[] bytes;
-            List<AphidObject> objects;
-            string str;
 
-            if ((objects = v as List<AphidObject>) != null)
+            if (v is List<AphidObject> objects)
             {
                 bytes = objects.Select(x => (byte)(decimal)x.Value).ToArray();
             }
-            else if ((str = v as string) != null)
+            else if (v is string str)
             {
                 bytes = StandardLibrary.Encoding.GetBytes(str);
             }

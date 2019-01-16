@@ -62,14 +62,11 @@ namespace Components.Aphid.TypeSystem
 
         public static object DeepUnwrap(object obj)
         {
-            AphidObject aphidObj;
-            List<AphidObject> list;
-
-            if ((list = obj as List<AphidObject>) != null)
+            if (obj is List<AphidObject> list)
             {
                 return list.Select(DeepUnwrap).ToArray();
             }
-            if ((aphidObj = obj as AphidObject) == null)
+            if (!(obj is AphidObject aphidObj))
             {
                 return obj;
             }

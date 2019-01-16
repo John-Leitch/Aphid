@@ -105,8 +105,7 @@ namespace Components.Aphid.Parser
             }
 
             Ancestors.Push(expression);
-            bool hasChanged;
-            var mutated = MutateCore(expression, out hasChanged);            
+            var mutated = MutateCore(expression, out var hasChanged);
 
             if (hasChanged)
             {

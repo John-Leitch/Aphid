@@ -11,7 +11,9 @@ namespace Components.Aphid.Parser
     {
         private const string _buildId = "__BUILD__";
 
+#pragma warning disable IDE0044 // Add readonly modifier
         private int _buildNumber;
+#pragma warning restore IDE0044 // Add readonly modifier
 
         public BuildConstMutator(int buildNumber)
         {

@@ -9,19 +9,14 @@ namespace Components.Aphid.Parser
     {
         protected Dictionary<string, AphidExpression> _arguments;
 
-        public AphidMacroBodyMutator(Dictionary<string, AphidExpression> arguments)
-        {
-            _arguments = arguments;
-        }
+        public AphidMacroBodyMutator(Dictionary<string, AphidExpression> arguments) => _arguments = arguments;
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
-            AphidExpression argument;
-
             if (expression.Type != AphidExpressionType.IdentifierExpression ||
                 !_arguments.TryGetValue(
                     ((IdentifierExpression)expression).Identifier,
-                    out argument))
+                    out var argument))
             {
                 hasChanged = false;
 

@@ -32,9 +32,7 @@ namespace Components.Aphid.Library.Net
 
         private static IPAddress GetIPV4Address(string host)
         {
-            IPAddress address;
-
-            if (!_ipv4DnsCache.TryGetValue(host, out address))
+            if (!_ipv4DnsCache.TryGetValue(host, out var address))
             {
                 address = Dns
                     .GetHostAddresses("localhost")

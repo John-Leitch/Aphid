@@ -20,7 +20,7 @@ namespace Components.Aphid.Parser
 
         public AphidExpression Expression { get; set; }
 
-        private string _message;
+        private readonly string _message;
 
         public override string Message
         {

@@ -13,15 +13,11 @@ namespace Components.Aphid.Parser
         }
 
         // Todo: use Equals and GetHashCode overrides as template for Mantispid.
-        public override bool Equals(object obj)
-        {
-            var other = obj as IdentifierExpression;
-
-            return other != null &&
+        public override bool Equals(object obj) =>
+            obj is IdentifierExpression other &&
                 Identifier == other.Identifier &&
                 ((Attributes == null && other.Attributes == null) ||
                 (Attributes.SequenceEqual(other.Attributes)));
-        }
 
         public override int GetHashCode()
         {

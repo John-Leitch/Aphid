@@ -14,7 +14,9 @@ namespace Components.PInvoke
         public uint dwThreadId;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 86, ArraySubType = UnmanagedType.U1)]
+#pragma warning disable IDE0044 // Add readonly modifier
         byte[] debugInfo;
+#pragma warning restore IDE0044 // Add readonly modifier
 
         public EXCEPTION_DEBUG_INFO Exception
         {

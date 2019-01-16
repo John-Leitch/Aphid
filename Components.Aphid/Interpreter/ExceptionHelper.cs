@@ -13,9 +13,7 @@ namespace Components.Aphid.Interpreter
         {
             while (true)
             {
-                var ex = exception as TargetInvocationException;
-                
-                if (ex != null)
+                if (exception is TargetInvocationException ex)
                 {
                     exception = ex.InnerException;
                 }

@@ -16,7 +16,7 @@ namespace Components.Aphid.Parser
     {
         AphidLoader _loader = new AphidLoader(null);
 
-        private string _applicationDirectory;
+        private readonly string _applicationDirectory;
 
         public bool UseImplicitReturns { get; private set; }
 

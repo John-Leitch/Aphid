@@ -88,7 +88,7 @@ namespace Components.Aphid.Serialization
 
             var circular = false;
 
-            Action<object> checkGraph = x =>
+            void checkGraph(object x)
             {
                 AphidObject ao2;
 
@@ -114,7 +114,7 @@ namespace Components.Aphid.Serialization
                                 .Reverse()));
                     _traversed.Add(x);
                 }
-            };
+            }
 
             checkGraph(obj);
 

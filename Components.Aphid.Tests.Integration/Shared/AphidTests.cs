@@ -14,6 +14,7 @@ using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using System.Collections;
 using Components.External.ConsolePlus;
+using static NUnit.Framework.Assert;
 
 namespace Components.Aphid.Tests.Integration.Shared
 {
@@ -22,36 +23,31 @@ namespace Components.Aphid.Tests.Integration.Shared
     {
         private ThreadLocal<AphidInterpreter> _nextInterpreter = new ThreadLocal<AphidInterpreter>();
 
-        private static object _cachedStdNodesSync = new object();
+        private static readonly object _cachedStdNodesSync = new object();
 
         private static List<AphidExpression> _cachedStdNodes;
 
-        private static AphidExpression _cachedUsing = new UnaryOperatorExpression(
+        private static readonly AphidExpression _cachedUsing = new UnaryOperatorExpression(
             AphidTokenType.usingKeyword,
             new IdentifierExpression("System"));
 
-        private static List<AphidExpression> _cachedUsingBlock = new List<AphidExpression>
+        private static readonly List<AphidExpression> _cachedUsingBlock = new List<AphidExpression>
         {
-            new UnaryOperatorExpression(
-                AphidTokenType.usingKeyword,
-                new IdentifierExpression("System"))
+            new UnaryOperatorExpression(AphidTokenType.usingKeyword, new IdentifierExpression("System"))
         };
 
-        private static List<AphidExpression> _cachedUsingIncludeBlock = new List<AphidExpression>
+        private static readonly List<AphidExpression> _cachedUsingIncludeBlock = new List<AphidExpression>
         {
-            new UnaryOperatorExpression(
-                AphidTokenType.usingKeyword,
-                new IdentifierExpression("System")),
-            new UnaryOperatorExpression(
-                AphidTokenType.LoadScriptOperator,
-                new StringExpression("'Std.alx'")),
+            new UnaryOperatorExpression(AphidTokenType.usingKeyword, new IdentifierExpression("System")),
+            new UnaryOperatorExpression(AphidTokenType.LoadScriptOperator, new StringExpression("'Std.alx'")),
         };
-
-        protected virtual bool LoadStd { get { return false; } }
 
         private static TextWriterTraceListener _listener = new TextWriterTraceListener(@"Tests.log");
 
+        protected virtual bool LoadStd => false;
+
         static AphidTests() => Initialize();
+
         public AphidTests() => Initialize();
 
         [Conditional("TRACE_SCRIPTED_TESTS")]
@@ -138,10 +134,10 @@ namespace Components.Aphid.Tests.Integration.Shared
             action(Execute(script));
 
         protected void Is(string script, Func<AphidObject, bool> predicate) =>
-            Assert.IsTrue(predicate(Execute(script)));
+            IsTrue(predicate(Execute(script)));
 
         protected void Is<TValue>(string script, Func<TValue, bool> predicate) =>
-            Assert.IsTrue(predicate((TValue)Execute(script).Value));
+            IsTrue(predicate((TValue)Execute(script).Value));
 
         protected static List<AphidToken> GetTokens(string script) =>
             new AphidLexer(script).GetAllTokens();
@@ -149,15 +145,15 @@ namespace Components.Aphid.Tests.Integration.Shared
         protected static void AssertTokens(string script, AphidToken[] tokens)
         {
             var tokens2 = GetTokens(script);
-            Assert.AreEqual(tokens.Length, tokens2.Count);
+            AreEqual(tokens.Length, tokens2.Count);
 
             for (int i = 0; i < tokens.Length; i++)
             {
-                Assert.AreEqual(tokens[i].TokenType, tokens2[i].TokenType);
+                AreEqual(tokens[i].TokenType, tokens2[i].TokenType);
 
                 if (tokens[i].Lexeme != null)
                 {
-                    Assert.AreEqual(tokens[i].Lexeme, tokens2[i].Lexeme);
+                    AreEqual(tokens[i].Lexeme, tokens2[i].Lexeme);
                 }
             }
         }
@@ -166,103 +162,80 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         protected static AphidToken Token(AphidTokenType type) => Token(type, null);
 
-        public static void IsFalse(bool value) => Assert.IsFalse(value);
+        public static void IsFalse(bool value) =>
+            IsFalse(value);
 
-        public static void IsTrue(bool value) => Assert.IsTrue(value);
+        public static void IsTrue(bool value) =>
+            IsTrue(value);
 
-        public static void IsFoo(object value) => Assert.AreEqual("foo", value);
+        public static void IsFoo(object value) =>
+            AreEqual("foo", value);
 
-        public static void Is9(object value) => Assert.AreEqual(9m, value);
+        public static void Is9(object value) =>
+            AreEqual(9m, value);
 
-        public static void IsNull(object value) => Assert.IsNull(value);
+        public static void IsNull(object value) =>
+            IsNull(value);
 
-        public static void NotNull(object value) => Assert.NotNull(value);
+        public static void NotNull(object value) =>
+            NotNull(value);
 
-        public static void IsFail(Action action) => IsThrow<AssertionException>(action);
+        public static void IsFail(Action action) =>
+            IsThrow<AssertionException>(action);
 
-        public static void AllFail(params Action[] actions) => actions.Do(CollectionAssert.IsNotEmpty).Iter(IsFail);
+        public static void AllFail(params Action[] actions) =>
+            actions.Do(CollectionAssert.IsNotEmpty).Iter(IsFail);
 
-        public static Exception IsThrow(Action action) => Assert.Catch(() => action());
+        public static Exception IsThrow(Action action) =>
+            Catch(() => action());
 
-        public static Exception[] AllThrow(params Action[] actions)
-        {
-            return actions.Do(CollectionAssert.IsNotEmpty).Select(IsThrow).ToArray();
-        }
+        public static Exception[] AllThrow(params Action[] actions) =>
+            actions.Do(CollectionAssert.IsNotEmpty).Select(IsThrow).ToArray();
 
         public static TException IsThrow<TException>(Action action)
-            where TException : Exception
-        {
-            return Assert.Catch<TException>(() => action());
-        }
+            where TException : Exception =>
+            Catch<TException>(() => action());
 
         public static TException[] AllThrow<TException>(
             params Action[] actions)
-            where TException : Exception
-        {
-            CollectionAssert.IsNotEmpty(actions);
+            where TException : Exception =>
+            actions.Do(CollectionAssert.IsNotEmpty).Select(IsThrow<TException>).ToArray();
 
-            return actions.Select(IsThrow<TException>).ToArray();
-        }
+        protected void AssertEquals(object expected, string script) =>
+            AreEqual(expected, Execute(script).Value);
 
-        protected void AssertEquals(object expected, string script)
-        {
-            Assert.AreEqual(expected, Execute(script).Value);
-        }
-
-        protected void AssertFoo(string script)
-        {
+        protected void AssertFoo(string script) =>
             AssertEquals("foo", script);
-        }
 
-        protected void Assert9(string script)
-        {
+        protected void Assert9(string script) =>
             AssertEquals(9m, script);
-        }
 
-        protected void AssertTrue(string script)
-        {
+        protected void AssertTrue(string script) =>
             AssertEquals(true, script);
-        }
 
-        protected void AssertFalse(string script)
-        {
+        protected void AssertFalse(string script) =>
             AssertEquals(false, script);
-        }
 
-        private static string CreateStatement(string expression)
-        {
-            return string.Format("ret {0};", expression);
-        }
+        private static string CreateStatement(string expression) =>
+            string.Format("ret {0};", expression);
 
-        protected void AssertExpEquals(object expected, string expression)
-        {
+        protected void AssertExpEquals(object expected, string expression) =>
             AssertEquals(expected, CreateStatement(expression));
-        }
 
-        protected void AssertExpFoo(string expression)
-        {
+        protected void AssertExpFoo(string expression) =>
             AssertFoo(CreateStatement(expression));
-        }
 
-        protected void AssertExp9(string expression)
-        {
+        protected void AssertExp9(string expression) =>
             Assert9(CreateStatement(expression));
-        }
 
-        protected void AssertExpTrue(string expression)
-        {
+        protected void AssertExpTrue(string expression) =>
             AssertTrue(CreateStatement(expression));
-        }
 
-        protected void AssertExpFalse(string expression)
-        {
+        protected void AssertExpFalse(string expression) =>
             AssertFalse(CreateStatement(expression));
-        }
 
-        protected void AssertCollectionIs<TElement>(string script, params TElement[] expected)
-        {
+        protected void AssertCollectionIs<TElement>(string script, params TElement[] expected) =>
             CollectionAssert.AreEqual(expected, (IEnumerable)Execute(script).Value);
-        }
 
         public virtual void Dispose()
         {

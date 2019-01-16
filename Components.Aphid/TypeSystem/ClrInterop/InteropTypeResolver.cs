@@ -35,9 +35,8 @@ namespace Components.Aphid.TypeSystem
         private Type ResolveTypeCore(HashSet<string> imports, string[] path, bool isFatal, bool isType)
         {
             var ctx = new InteropTypeContext(imports, path, isType);
-            Type t;
 
-            if (_typeCache.TryGetValue(ctx, out t))
+            if (_typeCache.TryGetValue(ctx, out var t))
             {
                 return t;
             }

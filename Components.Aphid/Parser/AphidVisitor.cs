@@ -54,9 +54,7 @@ namespace Components.Aphid.Parser
 
             if (!_ignoreChildren)
             {
-                var parent = expression as IParentNode;
-
-                if (parent == null)
+                if (!(expression is IParentNode parent))
                 {
                     return;
                 }
