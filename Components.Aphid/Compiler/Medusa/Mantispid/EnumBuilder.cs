@@ -11,7 +11,7 @@ namespace Mantispid
 {
     public class EnumBuilder
     {
-        private string _baseTypeName;
+        private readonly string _baseTypeName;
 
         private IEnumerable<string> _ruleTypes;
 

@@ -101,7 +101,9 @@ namespace LLex
                             }
 
                             if (!tokenTypes.Contains(token.TokenType))
+                            {
                                 tokenTypes.Add(token.TokenType);
+                            }
 
                             if (!string.IsNullOrEmpty(token.NewMode))
                             {

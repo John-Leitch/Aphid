@@ -58,7 +58,7 @@ namespace Components
             var offset = -1;
             var i = 0;
 
-            Action<int> add = (int nextOffset) =>
+            void add(int nextOffset)
             {
                 var end = i + nextOffset;
 
@@ -76,7 +76,7 @@ namespace Components
                 }
 
                 offset = end;
-            };
+            }
 
             for (i = 0; i < args.Length; i++)
             {

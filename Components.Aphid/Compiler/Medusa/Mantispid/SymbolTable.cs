@@ -10,7 +10,7 @@ namespace Mantispid
     {
         private Dictionary<string, TValue> _table = new Dictionary<string, TValue>();
 
-        private Func<TValue> _init;
+        private readonly Func<TValue> _init;
 
         public SymbolTable<TValue> Parent { get; private set; }
 

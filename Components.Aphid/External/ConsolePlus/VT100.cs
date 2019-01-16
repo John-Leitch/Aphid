@@ -109,15 +109,11 @@ namespace Components.External.ConsolePlus
             {
                 throw CreateException("Kernel32!GetStdHandle()");
             }
-
-            ConsoleMode mode;
-
-            if (!Kernel32.GetConsoleMode(handle, out mode))
+            else if (!Kernel32.GetConsoleMode(handle, out var mode))
             {
                 throw CreateException("kernel32!GetConsoleMode()");
             }
-
-            if (!Kernel32.SetConsoleMode(handle, mode | ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+            else if (!Kernel32.SetConsoleMode(handle, mode | ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING))
             {
                 throw CreateException("kernel32!SetConsoleMode()");
             }
@@ -180,7 +176,7 @@ namespace Components.External.ConsolePlus
 
             char c = '-';
 
-            Func<char> nextChar = () =>
+            char nextChar()
             {
                 if (c == '-')
                 {
@@ -200,7 +196,7 @@ namespace Components.External.ConsolePlus
                 }
 
                 return c;
-            };
+            }
 
             for (var x = 0; x < 100; x++)
             {

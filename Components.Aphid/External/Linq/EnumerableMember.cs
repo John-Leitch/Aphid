@@ -18,7 +18,7 @@ namespace Components
         private int _state = 0;
         private IEnumerable<TSource> _source;
         private IEnumerator<TSource> _enumerator;
-        private Func<TSource, TMember> _selector;
+        private readonly Func<TSource, TMember> _selector;
         private EqualityComparer<TMember> _comparer = EqualityComparer<TMember>.Default;
 
         public TSource Current { get; private set; }

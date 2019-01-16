@@ -12,7 +12,9 @@ namespace Components
         public static void Serialize(this XmlSerializer Serializer, string Filename, object o)
         {
             using (var s = File.Create(Filename))
+            {
                 Serializer.Serialize(s, o);
+            }
         }
 
         public static string Serialize(this XmlSerializer Serializer, object o)
@@ -24,14 +26,18 @@ namespace Components
                 s.Position = 0;
 
                 using (var reader = new StreamReader(s))
+                {
                     return reader.ReadToEnd();
+                }
             }
         }
 
         public static object Deserialize(this XmlSerializer Serializer, string Filename)
         {
             using (var s = File.OpenRead(Filename))
+            {
                 return Serializer.Deserialize(s);
+            }
         }
     }
 }

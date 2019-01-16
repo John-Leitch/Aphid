@@ -46,7 +46,9 @@ namespace LLex
         public void SetMode(int mode)
         {
             if (!_lists.ContainsKey(mode))
+            {
                 _lists.Add(mode, new List<TokenEntry>());
+            }
 
             _mode = mode;
         }
@@ -59,7 +61,9 @@ namespace LLex
         public void Add(string[] lexemes, string tokenType)
         {
             foreach (var lexeme in lexemes)
+            {
                 Add(new TokenEntry(lexeme, tokenType));
+            }
         }
 
         public void AddKeyword(string keyword)

@@ -4,11 +4,9 @@ namespace Components
 {
     public class IfContext<TInput, TResult>
     {
-        private TInput _input;
-
-        bool _condition;
-
-        Func<TInput, TResult> _ifResultFunc;
+        private readonly TInput _input;
+        readonly bool _condition;
+        readonly Func<TInput, TResult> _ifResultFunc;
 
         internal IfContext(
             TInput input,

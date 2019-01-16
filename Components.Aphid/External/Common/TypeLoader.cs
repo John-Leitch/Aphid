@@ -11,7 +11,7 @@ namespace Components
 {
     public sealed class TypeLoader : IDisposable
     {
-        private object _cacheSync = new object();
+        private readonly object _cacheSync = new object();
 
         private RevertibleLazy<Dictionary<string, Assembly[]>> _assemblies =
             new RevertibleLazy<Dictionary<string, Assembly[]>>(() =>
@@ -130,11 +130,9 @@ namespace Components
             {
                 var t = _assemblies.Value;
 
-                Assembly[] asms;
-
                 for (var i = 0; i < namespaces.Length; i++)
                 {
-                    if (t.TryGetValue(namespaces[i], out asms))
+                    if (t.TryGetValue(namespaces[i], out var asms))
                     {
                         return asms;
                     }

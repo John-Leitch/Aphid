@@ -106,7 +106,7 @@ namespace Components.External.ConsolePlus
                 Cli.WriteLine();
                 WriteFatalError(0x1, e.Message);
 
-                return default(TArgs);
+                return default;
             }
         }
 

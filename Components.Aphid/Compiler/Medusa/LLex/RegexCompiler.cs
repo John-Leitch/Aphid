@@ -7,7 +7,7 @@ namespace LLex
 {
     public class RegexCompiler
     {
-        private RegexExpression _expression;
+        private readonly RegexExpression _expression;
 
         public RegexCompiler(RegexExpression expression)
         {

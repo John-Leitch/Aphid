@@ -50,11 +50,13 @@ namespace LLex
             string keywordDefault = "";
             string keywordTail = "";
 
-            Action<string> registerMode = x =>
+            void registerMode(string x)
             {
                 if (!lexerModes.ContainsKey(x))
+                {
                     lexerModes.Add(x, lexerMode++);
-            };
+                }
+            }
 
             foreach (var line in lines)
             {
@@ -102,7 +104,9 @@ namespace LLex
                                 continue;
                             }
                             else if (!tokenTypes.Contains(tokenType))
+                            {
                                 tokenTypes.Add(tokenType);
+                            }
 
                             var newMode = m.Groups[6].Value;
 
@@ -113,7 +117,9 @@ namespace LLex
                                 tokenTable.Add(lexeme, tokenType, lexerModes[newMode]);
                             }
                             else
+                            {
                                 tokenTable.Add(lexeme, tokenType);
+                            }
                         }
                     }
                 }
@@ -122,15 +128,21 @@ namespace LLex
                     if (line == CodeDelimiter)
                     {
                         if (codeLexeme != null)
+                        {
                             tokenTable.AddLexemeCode(codeLexeme, code);
+                        }
                         else
+                        {
                             tokenTable.AddCode(code);
+                        }
 
                         lexFileMode = LexFileMode.Normal;
                         continue;
                     }
                     else
+                    {
                         code += line + "\r\n";
+                    }
                 }
                 else if (lexFileMode == LexFileMode.Keyword)
                 {

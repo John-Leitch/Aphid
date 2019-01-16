@@ -11,7 +11,7 @@ namespace Components
     [DataContract]
     public class Table<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {
-        private Func<TValue> _createValue = null;
+        private readonly Func<TValue> _createValue = null;
 
         [DataMember]
         private Dictionary<TKey, TValue> _table = new Dictionary<TKey, TValue>();
@@ -42,15 +42,9 @@ namespace Components
         {
             get
             {
-                TValue a;
-
-                if (!_table.TryGetValue(key, out a))
+                if (!_table.TryGetValue(key, out var a))
                 {
-                    a = _createValue == null ? 
-                        default(TValue) :
-                        _createValue();
-
-                    _table.Add(key, a);
+                    _table.Add(key, a = _createValue == null ?  default : _createValue());
                 }
 
                 return a;

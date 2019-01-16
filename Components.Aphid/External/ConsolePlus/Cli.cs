@@ -253,7 +253,7 @@ namespace Components.External.ConsolePlus
             //var newLine = totalLength == BufferWidth ? "" : "\r\n";
             var newLine = "\r\n";
 
-            Func<string, string, bool, string> createRow = (name, value, header) =>
+            string createRow(string name, string value, bool header)
             {
                 if (name.Length > _maxNameLength)
                 {
@@ -269,7 +269,7 @@ namespace Components.External.ConsolePlus
                 var reset = (header ? "~R~" : "");
                 return delim + name.PadRight(longestNameLength + paddingSize) + reset +
                     delim + value.PadRight(longestValueLength + paddingSize) + reset + "║";
-            };
+            }
 
             var divider = new string('═', totalLength - 2).ToCharArray();
             var verticalRuleOffset = longestNameLength + paddingSize * 2;
@@ -306,7 +306,7 @@ namespace Components.External.ConsolePlus
 
         public static IEnumerable<KeyValuePair<string, string>> CreateTable(object obj, bool escapeLines)
         {
-            Func<dynamic, string> tryGet = x =>
+            string tryGet(dynamic x)
             {
                 try
                 {
@@ -320,7 +320,7 @@ namespace Components.External.ConsolePlus
                 {
                     return string.Format("Error getting value: {0}", e);
                 }
-            };
+            }
             var t = obj.GetType();
             return t
                 .GetMembers(

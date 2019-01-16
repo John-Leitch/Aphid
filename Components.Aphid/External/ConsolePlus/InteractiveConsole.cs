@@ -60,10 +60,9 @@ namespace Components.External.ConsolePlus
                 return;
             }
 
-            Action a = null;
             Action<string[]> a2 = null;
 
-            if (!_actionMap.TryGetValue(command[0], out a) &&
+            if (!_actionMap.TryGetValue(command[0], out var a) &&
                 !_paramActionMap.TryGetValue(command[0], out a2) &&
                 _defaultAction == null)
             {

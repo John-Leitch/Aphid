@@ -60,7 +60,7 @@ namespace LLex
             }
             else
             {
-                _currentToken = default(RegexToken);
+                _currentToken = default;
                 return false;
             }
         }                

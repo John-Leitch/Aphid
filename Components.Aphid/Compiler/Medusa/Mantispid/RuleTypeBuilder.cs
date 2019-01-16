@@ -20,9 +20,9 @@ namespace Mantispid
 
         private RuleStructResolver _resolver;
 
-        private string _helperName;
+        private readonly string _helperName;
 
-        private string _baseTypeName;
+        private readonly string _baseTypeName;
 
         public RuleTypeBuilder(ParserGeneratorConfig config, IEnumerable<RuleStruct> ruleTypes)
         {

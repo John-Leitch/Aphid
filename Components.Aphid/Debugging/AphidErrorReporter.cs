@@ -14,7 +14,7 @@ namespace Components.Aphid.Debugging
 {
     public static class AphidErrorReporter
     {
-        private static object _sync = new object();
+        private static readonly object _sync = new object();
 
         private static bool _isEnabledSet;
 
@@ -79,7 +79,6 @@ namespace Components.Aphid.Debugging
         private static void SaveErrorInformationCore(Exception o, AphidInterpreter interpreter)
         {
             var dumpFile = AphidMemoryDump.Create();
-            AphidLoadScriptException ale;
             AphidRuntimeException are;
             AphidInterpreter exInterpreter = null;
 
@@ -99,7 +98,7 @@ namespace Components.Aphid.Debugging
                 writeLineOut(x);
             };
 
-            if ((ale = o as AphidLoadScriptException) != null)
+            if (o is AphidLoadScriptException ale)
             {
                 exInterpreter = ale.Interpreter;
                 AphidCli.DumpException(ale, ale.Interpreter);
@@ -133,7 +132,7 @@ namespace Components.Aphid.Debugging
                     writer.WriteLine(sb.ToString().Trim());
                     writer.WriteLine();
 
-                    Action<string, Func<object>> writeValue = (name, getValue) =>
+                    void writeValue(string name, Func<object> getValue) =>
                         TryWriteValue(writer, name, getValue);
 
                     writeValue("Command Line", () => Environment.CommandLine);
@@ -224,9 +223,7 @@ namespace Components.Aphid.Debugging
                         if (typeof(Exception)
                             .IsAssignableFrom(x.PropertyType))
                         {
-                            var n = x.GetValue(node) as Exception;
-
-                            if (n != null && !exceptionHistory.Contains(n))
+                            if (x.GetValue(node) is Exception n && !exceptionHistory.Contains(n))
                             {
                                 nested.Add(n);
                             }
@@ -234,9 +231,7 @@ namespace Components.Aphid.Debugging
                         else if (typeof(IEnumerable<Exception>)
                             .IsAssignableFrom(x.PropertyType))
                         {
-                            var n = x.GetValue(node) as IEnumerable<Exception>;
-
-                            if (n != null)
+                            if (x.GetValue(node) is IEnumerable<Exception> n)
                             {
                                 nested.AddRange(n.Where(y => !exceptionHistory.Contains(y)));
                             }

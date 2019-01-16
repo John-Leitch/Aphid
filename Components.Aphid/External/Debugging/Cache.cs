@@ -9,7 +9,7 @@ namespace Components.Cypress
 {
     public class Cache<TKey, TValue> : IEnumerable<KeyValuePair<TKey,TValue>>
     {
-        private Func<TKey, TValue> _createValue;
+        private readonly Func<TKey, TValue> _createValue;
 
         private Dictionary<TKey, TValue> _values = new Dictionary<TKey, TValue>();
 
@@ -22,9 +22,7 @@ namespace Components.Cypress
         {
             get
             {
-                TValue value;
-
-                if (!_values.TryGetValue(key, out value))
+                if (!_values.TryGetValue(key, out var value))
                 {
                     _values.Add(key, value = _createValue(key));
                 }

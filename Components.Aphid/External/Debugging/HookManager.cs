@@ -8,9 +8,9 @@ namespace Components.Cypress
 {
     public class HookManager
     {
-        private ProcessMemory _memory;
+        private readonly ProcessMemory _memory;
 
-        private TrampolineHeap _heap;
+        private readonly TrampolineHeap _heap;
 
         public HookManager(ProcessMemory memory)
         {

@@ -63,9 +63,7 @@ namespace Components
         public static TValue GetOrCreate<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key)
             where TValue : new()
         {
-            TValue value;
-
-            if (!d.TryGetValue(key, out value))
+            if (!d.TryGetValue(key, out var value))
             {
                 value = new TValue();
                 d.Add(key, value);

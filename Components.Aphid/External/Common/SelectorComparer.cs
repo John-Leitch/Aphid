@@ -8,7 +8,7 @@ namespace Components
 {
     public class SelectorComparer<TSource, TResult> : IEqualityComparer<TSource>
     {
-        private Func<TSource, TResult> _selector;
+        private readonly Func<TSource, TResult> _selector;
 
         public SelectorComparer(Func<TSource, TResult> selector)
         {

@@ -20,14 +20,13 @@ namespace Components.Cypress
         public byte[] ReadBytes(IntPtr address, int count)
         {
             var buffer = new byte[count];
-            var bytesRead = 0;
 
             if (!Kernel32.ReadProcessMemory(
                 Handle,
                 address,
                 buffer,
                 buffer.Length,
-                out bytesRead))
+                out var bytesRead))
             {
                 return null;
             }
@@ -58,12 +57,11 @@ namespace Components.Cypress
 
         public MEMORY_BASIC_INFORMATION ReadMemoryInfo(IntPtr address)
         {
-            MEMORY_BASIC_INFORMATION m;
-
+            //Todo: check result
             var result = Kernel32.VirtualQueryEx(
                 Handle,
                 address,
-                out m,
+                out var m,
                 (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION)));
 
             return m;

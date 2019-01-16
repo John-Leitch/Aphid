@@ -151,9 +151,7 @@ namespace Components.External.ConsolePlus
                         }
                         else if (x.Length > 0 && char.IsDigit(x[0]))
                         {
-                            long l;
-
-                            if (!long.TryParse(x, out l))
+                            if (!long.TryParse(x, out var l))
                             {
                                 throw new ArgumentException("Could not parse number \"{0}\".", x);
                             }

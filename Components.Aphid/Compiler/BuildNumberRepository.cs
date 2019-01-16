@@ -15,9 +15,8 @@ namespace Components.Aphid.Compiler
         public static int NextBuildNumber(string filename)
         {
             var table = ReadBuildNumberTable();
-            BuildNumber build;
 
-            if (table.TryGetValue(filename, out build))
+            if (table.TryGetValue(filename, out var build))
             {
                 build.Number++;
             }

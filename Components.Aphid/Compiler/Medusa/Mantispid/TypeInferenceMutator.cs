@@ -30,9 +30,8 @@ namespace Mantispid
             {
                 var idExp = expression.ToIdentifier();
                 var currentId = ParserIdentifier.FromIdentifierExpression(idExp);
-                ParserIdentifier inferredId;
 
-                if (!_idTable.TryResolve(idExp.Identifier, out inferredId))
+                if (!_idTable.TryResolve(idExp.Identifier, out var inferredId))
                 {
                     _idTable.Add(idExp.Identifier, currentId);
                     hasChanged = true;
@@ -45,13 +44,13 @@ namespace Mantispid
                         currentId.Type = inferredId.Type;
                         hasChanged = true;
 
-                        return new List<AphidExpression> 
-                        { 
+                        return new List<AphidExpression>
+                        {
                             new BinaryOperatorExpression(
                                 currentId.ToIdentifierExpression(),
                                 AphidTokenType.AssignmentOperator,
                                 new IdentifierExpression(
-                                    currentId.Type ?? _config.BaseClass, 
+                                    currentId.Type ?? _config.BaseClass,
                                     new List<IdentifierExpression> { new IdentifierExpression("list") }))
                         };
                     }
@@ -69,9 +68,8 @@ namespace Mantispid
                 binOpExp.RightOperand.ToIdentifier().Identifier == "Add")
             {
                 var id = binOpExp.LeftOperand.ToIdentifier().Identifier;
-                ParserIdentifier ids;
 
-                if (!_idTable.TryResolve(id, out ids))
+                if (!_idTable.TryResolve(id, out var ids))
                 {
                     _idTable.Add(id, ids = new ParserIdentifier() { Name = id });
                 }

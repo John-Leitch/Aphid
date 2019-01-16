@@ -131,18 +131,24 @@ namespace LLex
                         string body = "";
 
                         if (isCode)
+                        {
                             body += x.Code;
+                        }
 
                         if (x.NewMode != null)
+                        {
                             body += "mode = " + x.NewMode.ToString() + ";\r\n";
+                        }
 
                         if (x.Token != "None")
                         {
                             body += "return {TokenType}." + x.Token.ToString() + ";\r\n";
                         }
                         else
+                        {
                             body += "\r\nbreak;\r\n";
-                        
+                        }
+
                         var t = Components.Aphid.Properties.Resources.CaseTemplate
                             .Replace("{{Cases}}", CreateCases(EncodeChar(x.State)))
                             .Replace("{{Body}}", body)
@@ -158,9 +164,10 @@ namespace LLex
             }
 
             if (defaults != null && defaults.Any())
+            {
                 childTemplates += "\r\ndefault:\r\n" +
                     defaults.Aggregate((x, y) => x + "\r\n" + y) + "\r\nbreak;\r\n";
-
+            }
 
             var template = !root ? 
                 Components.Aphid.Properties.Resources.StateTemplate : 

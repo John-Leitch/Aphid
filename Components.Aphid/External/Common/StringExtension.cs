@@ -165,7 +165,9 @@ namespace Components
         public static int GetLineIndex(this string s, int lineNumber)
         {
             if (lineNumber == 0)
+            {
                 return 0;
+            }
 
             var currentLine = 0;
             for (int i = 0; i < s.Length; i++)
@@ -173,7 +175,9 @@ namespace Components
                 if (s[i] == '\n')
                 {
                     if (++currentLine == lineNumber)
+                    {
                         return i + 1;
+                    }
                 }
             }
 
@@ -191,11 +195,8 @@ namespace Components
         public static string InsertLineNumbers(this string s, int startLine)
         {
             var sb = new StringBuilder(s);
-
             int line = startLine;
-
-            Func<string> getLineStr = () => (line++.ToString().PadLeft(4, '0') + ": ");
-
+            string getLineStr() => (line++.ToString().PadLeft(4, '0') + ": ");
             sb.Insert(0, getLineStr());
 
             for (int i = 0; i < sb.Length; i++)

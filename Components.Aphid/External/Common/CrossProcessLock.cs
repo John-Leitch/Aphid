@@ -84,13 +84,11 @@ namespace Components
             }
 #endif
 
-            bool isHandleNew;
-
             Handle = new EventWaitHandle(
                 initialState,
                 EventResetMode.AutoReset,
                 name,
-                out isHandleNew);
+                out var isHandleNew);
 
             if (!isHandleNew)
             {

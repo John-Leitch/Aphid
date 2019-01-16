@@ -8,7 +8,7 @@ namespace Components
 {
     public class RevertibleLazy<T>
     {
-        private Func<T> _valueFactory;
+        private readonly Func<T> _valueFactory;
 
         private Lazy<T> _lazy;
 

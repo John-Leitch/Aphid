@@ -165,9 +165,7 @@ namespace Components.Aphid.Compiler
 
         protected static string GetOperator(Dictionary<AphidTokenType, string> table, AphidTokenType op)
         {
-            string s;
-
-            if (!table.TryGetValue(op, out s))
+            if (!table.TryGetValue(op, out var s))
             {
                 throw new NotImplementedException();
             }

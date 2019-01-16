@@ -44,15 +44,14 @@ namespace Components.External.ConsolePlus
 
             _stdOut = Kernel32.GetStdHandle(Win32.STD_OUTPUT_HANDLE);
 
-            ConsoleMode mode;
-            if (!Kernel32.GetConsoleMode(_stdOut, out mode))
+            if (!Kernel32.GetConsoleMode(_stdOut, out var mode))
             {
                 Win32.ThrowWin32Exception();
             }
 
             //mode &= ~ConsoleMode.ENABLE_PROCESSED_OUTPUT |
-                //ConsoleMode.DISABLE_NEWLINE_AUTO_RETURN
-                
+            //ConsoleMode.DISABLE_NEWLINE_AUTO_RETURN
+
             mode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
             if (!Kernel32.SetConsoleMode(_stdOut, mode))
