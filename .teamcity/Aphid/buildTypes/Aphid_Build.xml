@@ -86,7 +86,8 @@
           <param name="dotNetCoverage.PartCover.includes" value="[*]*" />
           <param name="dotNetCoverage.PartCover.platformBitness" value="x86" />
           <param name="dotNetCoverage.PartCover.platformVersion" value="v2.0" />
-          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.bundled%" />
+          <param name="dotNetCoverage.tool" value="dotcover" />
           <param name="dotNetTestRunner.Type" value="NUnit" />
           <param name="nunit_command_line" value="--process=Multiple --agents=16 --workers=64" />
           <param name="nunit_enabled" value="checked" />
