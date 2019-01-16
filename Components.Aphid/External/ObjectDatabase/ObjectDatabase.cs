@@ -18,8 +18,6 @@ namespace Components.ObjectDatabase
             IndexFileExtension = "odi",
             TypeIndexExtension = "odt";
 
-        public int PageSize { get; set; } = 0x20;
-
         private string _memoryManagerLockKey;
 
         private Stream _stream, _memoryManagerStream;
@@ -40,7 +38,7 @@ namespace Components.ObjectDatabase
 
         private bool _isCommitted = false, _isDisposed = false;
 
-        private Table<long, ObjectDatabaseRecord<TElement>> _items = new Table<long, ObjectDatabaseRecord<TElement>>();
+        private Dictionary<long, ObjectDatabaseRecord<TElement>> _items = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
 
         public bool UseUnsafeMemoryManager { get; private set; }
 
@@ -103,7 +101,7 @@ namespace Components.ObjectDatabase
 
                 if (!hasMMFile)
                 {
-                    var m = new MemoryManager(_stream, PageSize);
+                    var m = new MemoryManager(_stream);
                     WriteMemoryManagerUnsafe(m);
                 }
 
@@ -210,7 +208,7 @@ namespace Components.ObjectDatabase
             {
                 lock (_items)
                 {
-                    _items[offset] = new ObjectDatabaseRecord<TElement>(element, offset, this);
+                    _items.Add(offset, new ObjectDatabaseRecord<TElement>(element, offset, this));
                 }
             }
         }
@@ -262,7 +260,16 @@ namespace Components.ObjectDatabase
             {
                 lock (_items)
                 {
-                    _items[offset] = new ObjectDatabaseRecord<TElement>(element, offset, this);
+                    var record = new ObjectDatabaseRecord<TElement>(element, offset, this);
+
+                    if (!_items.ContainsKey(offset))
+                    {
+                        _items.Add(offset, record);
+                    }
+                    else
+                    {
+                        _items[offset] = record;
+                    }
                 }
             }
 
@@ -326,7 +333,12 @@ namespace Components.ObjectDatabase
 
             lock (_items)
             {
-                ctxItem = _items.GetDictionary().FirstOrDefault(x => x.Value.Value.Equals(element));
+                ctxItem = _items.FirstOrDefault(x => x.Value.Value.Equals(element));
+
+                if (ctxItem.Key == 0 && ctxItem.Value == null)
+                {
+                    throw new InvalidOperationException("Could not find entity in tracking table.");
+                }
 
 #if ODB_NULL_CHECKS
                 if (ctxItem.Value == null)
@@ -358,8 +370,11 @@ namespace Components.ObjectDatabase
 
                         lock (_items)
                         {
-                            _items.GetDictionary().Remove(ctxItem.Key);
-                            _items[offset] = ctxItem.Value;
+                            _items.Remove(ctxItem.Key);
+
+                            _items.Add(
+                                offset,
+                                new ObjectDatabaseRecord<TElement>(ctxItem.Value.Value, offset, this));
                         }
 
                         IncrementVersion(version);
@@ -390,7 +405,7 @@ namespace Components.ObjectDatabase
                 var allocation = memoryManager.Allocate(buffer.Length);
                 allocation.Write(buffer);
 
-                return allocation.Handle * PageSize;
+                return allocation.Handle * memoryManager.PageSize;
             }
         }
 

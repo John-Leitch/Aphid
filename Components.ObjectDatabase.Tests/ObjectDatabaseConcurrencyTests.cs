@@ -103,7 +103,7 @@ namespace Components.ObjectDatabase.Tests
             Action<BinDB, List<Widget>> finalize = null,
             int count = 0x100)
         {
-            var db = DB;
+            var db = Context.NextDB();
             db.UpdateMemoryManager(x => x.PageSize = pageSize);            
             db.SetEntityMetaData = setEntityMetaData;
             db.TrackEntities = trackEntities;
