@@ -10,10 +10,7 @@ namespace Components
 
         private Dictionary<string, CrossProcessLock> _locks = new Dictionary<string, CrossProcessLock>();
 
-        public void AcquireLock()
-        {
-            AcquireLock(DefaultLockName);
-        }
+        public void AcquireLock() => AcquireLock(DefaultLockName);
 
         public void AcquireLock(string key)
         {
@@ -34,10 +31,7 @@ namespace Components
             }
         }
 
-        public void ReleaseLock()
-        {
-            ReleaseLock(DefaultLockName);
-        }
+        public void ReleaseLock() => ReleaseLock(DefaultLockName);
 
         public void ReleaseLock(string key)
         {
@@ -55,17 +49,12 @@ namespace Components
             l.Handle.Set();
         }
 
-        public CrossProcessLock CreateLock(string key)
-        {
-            return CreateLock(key, false);
-        }
+        public static CrossProcessLock CreateLock(string key) => CreateLock(key, false);
 
-        public CrossProcessLock CreateLock(string key, bool initialState)
-        {
-            return new CrossProcessLock(
+        public static CrossProcessLock CreateLock(string key, bool initialState) =>
+            new CrossProcessLock(
                 "SnowFlea_" + key.Replace(Path.DirectorySeparatorChar, '$'),
                 initialState);
-        }
 
         public void Dispose()
         {

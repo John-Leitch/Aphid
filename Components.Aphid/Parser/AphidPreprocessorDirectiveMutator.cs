@@ -57,7 +57,7 @@ namespace Components.Aphid.Parser
             };
         }
 
-        private List<AphidExpression> CreateString(CallExpression callExp)
+        private static List<AphidExpression> CreateString(CallExpression callExp)
         {
             if (callExp.Args.Count != 1)
             {

@@ -69,7 +69,7 @@ namespace Components.Aphid.Parser
             }
         }
 
-        private string CreateUnexpectedMessage(AphidToken token)
+        private static string CreateUnexpectedMessage(AphidToken token)
         {
             return string.Format(
                 "Unexpected {0} ({1}) at offset {2}",

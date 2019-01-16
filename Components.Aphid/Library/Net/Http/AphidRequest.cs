@@ -53,7 +53,7 @@ namespace Components.Aphid.Library.Net.Http
             };
         }
 
-        private FieldValuePair[] GetPairs(AphidObject source, string property)
+        private static FieldValuePair[] GetPairs(AphidObject source, string property)
         {
             if (source.ContainsKey(property))
             {

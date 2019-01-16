@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Components.External.ConsolePlus
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class CliArgAttribute : Attribute
+    public sealed class CliArgAttribute : Attribute
     {
         public string[] Names { get; set; }
 

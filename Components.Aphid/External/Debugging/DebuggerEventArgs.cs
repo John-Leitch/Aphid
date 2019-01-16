@@ -51,7 +51,7 @@ namespace Components.Cypress
 
         }
 
-        private string GetExceptionMessage(uint exceptionCode)
+        private static string GetExceptionMessage(uint exceptionCode)
         {
             var msg = new Win32Exception((int)exceptionCode).Message.Replace(' ', '_');
 

@@ -290,7 +290,7 @@ namespace Components.Aphid.TypeSystem
                 string.Join(", ", attributes),
                 type);
 
-        public AphidObject TryResolve(
+        public static AphidObject TryResolve(
             AphidObject scope,
             AphidObject obj,
             string key,
@@ -327,7 +327,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public AphidObject TryResolve(
+        public static AphidObject TryResolve(
             AphidObject scope,
             Type staticType,
             string key,
@@ -346,7 +346,7 @@ namespace Components.Aphid.TypeSystem
                 isStatic: true,
                 returnRef: returnRef);
 
-        public AphidObject TryResolve(
+        public static AphidObject TryResolve(
             AphidObject scope,
             AphidObject obj,
             string[] classHierarchy,

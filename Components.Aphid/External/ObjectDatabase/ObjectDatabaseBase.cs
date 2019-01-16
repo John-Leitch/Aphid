@@ -45,7 +45,7 @@ namespace Components.ObjectDatabase
 
         public void Sync(string key, Action action)
         {
-            using (_locks.CreateLock(key))
+            using (CrossProcessLockContext.CreateLock(key))
             {
                 action();
             }
@@ -53,7 +53,7 @@ namespace Components.ObjectDatabase
 
         public TResult Sync<TResult>(string key, Func<TResult> func)
         {
-            using (_locks.CreateLock(key))
+            using (CrossProcessLockContext.CreateLock(key))
             {
                 return func();
             }

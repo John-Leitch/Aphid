@@ -8,29 +8,11 @@ namespace Components.Aphid.TypeSystem
 {
     public partial class AphidTypeConverter
     {
-        private static readonly Type[] _numberTypes = new[]
-        {
-            typeof(byte),
-            typeof(ushort),
-            typeof(uint),
-            typeof(ulong),
-            typeof(sbyte),
-            typeof(short),
-            typeof(int),
-            typeof(long),
-            typeof(float),
-            typeof(double)
-        };
+        public static bool CanConvertOrBoxDecimal(decimal value, Type targetType) =>
+            targetType == typeof(object) || CanConvertDecimal(value, targetType);
 
-        public static bool CanConvertOrBoxDecimal(decimal value, Type targetType)
-        {
-            return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        }
-
-        public static bool CanConvertDecimal(decimal value, Type targetType)
-        {
-            return IsNumber(targetType) && CanDecimalFit(value, targetType);
-        }
+        public static bool CanConvertDecimal(decimal value, Type targetType) =>
+            IsNumber(targetType) && CanDecimalFit(value, targetType);
 
         public static bool CanDecimalFit(decimal value, Type targetType)
         {
@@ -75,57 +57,5 @@ namespace Components.Aphid.TypeSystem
                 throw new NotImplementedException("Unknown number type: " + targetType);
             }
         }
-
-        //public static bool CanConvertOrBoxSByte(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxShort(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxInt(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxLong(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxByte(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxUShort(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxUInt(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxULong(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxFloat(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        //public static bool CanConvertOrBoxDouble(decimal value, Type targetType)
-        //{
-        //    return targetType == typeof(object) || CanConvertDecimal(value, targetType);
-        //}
-
-        
     }
 }

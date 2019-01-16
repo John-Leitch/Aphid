@@ -162,32 +162,18 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         protected static AphidToken Token(AphidTokenType type) => Token(type, null);
 
-        public static void IsFalse(bool value) =>
-            IsFalse(value);
-
-        public static void IsTrue(bool value) =>
-            IsTrue(value);
-
-        public static void IsFoo(object value) =>
-            AreEqual("foo", value);
-
-        public static void Is9(object value) =>
-            AreEqual(9m, value);
-
-        public static void IsNull(object value) =>
-            IsNull(value);
-
-        public static void NotNull(object value) =>
-            NotNull(value);
-
-        public static void IsFail(Action action) =>
-            IsThrow<AssertionException>(action);
+        public static void IsFalse(bool value) => Assert.IsFalse(value);
+        public static void IsTrue(bool value) => Assert.IsTrue(value);
+        public static void IsFoo(object value) => AreEqual("foo", value);
+        public static void Is9(object value) => AreEqual(9m, value);
+        public static void IsNull(object value) => Assert.IsNull(value);
+        public static void NotNull(object value) => Assert.NotNull(value);
+        public static void IsFail(Action action) => IsThrow<AssertionException>(action);
 
         public static void AllFail(params Action[] actions) =>
             actions.Do(CollectionAssert.IsNotEmpty).Iter(IsFail);
 
-        public static Exception IsThrow(Action action) =>
-            Catch(() => action());
+        public static Exception IsThrow(Action action) => Catch(() => action());
 
         public static Exception[] AllThrow(params Action[] actions) =>
             actions.Do(CollectionAssert.IsNotEmpty).Select(IsThrow).ToArray();
@@ -204,17 +190,10 @@ namespace Components.Aphid.Tests.Integration.Shared
         protected void AssertEquals(object expected, string script) =>
             AreEqual(expected, Execute(script).Value);
 
-        protected void AssertFoo(string script) =>
-            AssertEquals("foo", script);
-
-        protected void Assert9(string script) =>
-            AssertEquals(9m, script);
-
-        protected void AssertTrue(string script) =>
-            AssertEquals(true, script);
-
-        protected void AssertFalse(string script) =>
-            AssertEquals(false, script);
+        protected void AssertFoo(string script) => AssertEquals("foo", script);
+        protected void Assert9(string script) => AssertEquals(9m, script);
+        protected void AssertTrue(string script) => AssertEquals(true, script);
+        protected void AssertFalse(string script) => AssertEquals(false, script);
 
         private static string CreateStatement(string expression) =>
             string.Format("ret {0};", expression);

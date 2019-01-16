@@ -1,6 +1,6 @@
 ﻿using Components.ObjectDatabase;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     public static class ObjectDatabaseFluentExtensions
     {

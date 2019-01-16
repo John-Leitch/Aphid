@@ -1,20 +1,19 @@
-﻿//using static NUnit.Framework.CollectionAssert;
-using NUnit.Framework;
-using System.Threading;
-using System.Linq;
-using System.Threading.Tasks;
-using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
-using static System.IO.File;
-using static NUnit.Framework.Assert;
+﻿using NUnit.Framework;
 using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using static NUnit.Framework.Assert;
+using static System.IO.File;
+using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     public class ObjectDatabaseTestBase
     {
         private ThreadLocal<ObjectDatabaseTestContext> _context =
             new ThreadLocal<ObjectDatabaseTestContext>(() =>
-                new ObjectDatabaseTestContext().Do(x => x.NextDB()));
+                new ObjectDatabaseTestContext());
 
         public ObjectDatabaseTestContext Context => _context.Value;
 

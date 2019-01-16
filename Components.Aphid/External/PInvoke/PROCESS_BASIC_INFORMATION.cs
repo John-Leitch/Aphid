@@ -16,9 +16,6 @@ namespace Components.PInvoke
         public UIntPtr UniqueProcessId;
         public IntPtr InheritedFromUniqueProcessId;
 
-        public int Size
-        {
-            get { return (int)Marshal.SizeOf(typeof(PROCESS_BASIC_INFORMATION)); }
-        }
+        public int Size => Marshal.SizeOf(typeof(PROCESS_BASIC_INFORMATION));
     }
 }

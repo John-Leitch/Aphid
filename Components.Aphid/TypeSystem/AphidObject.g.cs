@@ -14,7 +14,7 @@ namespace Components.Aphid.TypeSystem {
     
     public partial class AphidObject {
         
-        private bool TrySetProperty(System.Reflection.PropertyInfo property, object destObj, Components.Aphid.TypeSystem.AphidObject srcObj) {
+        private static bool TrySetProperty(System.Reflection.PropertyInfo property, object destObj, Components.Aphid.TypeSystem.AphidObject srcObj) {
             if ((property.PropertyType == typeof(byte))) {
                 property.SetValue(destObj, System.Convert.ToByte(srcObj.Value), null);
                 return true;

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     public class PageSizeAttribute : ValuesAttribute
     {

@@ -218,9 +218,9 @@ namespace Components.Aphid.Serialization
             {
                 s.Append(value.ToString());
             }
-            else if (value is string)
+            else if (value is string str)
             {
-                s.Append(Quote((string)value));
+                s.Append(Quote(str));
             }
             else if (value is List<AphidObject> list)
             {
@@ -390,7 +390,7 @@ namespace Components.Aphid.Serialization
             return objInterpreter.CurrentScope[Root];
         }
 
-        private bool ShouldQuote(string key)
+        private static bool ShouldQuote(string key)
         {
             if (key.Contains('$'))
             {
@@ -409,14 +409,10 @@ namespace Components.Aphid.Serialization
             }
         }
 
-        private string Quote(string value)
-        {
-            return string.Format("'{0}'", Escape(value));
-        }
+        private static string Quote(string value) =>
+            string.Format("'{0}'", Escape(value));
 
-        private string Escape(string s)
-        {
-            return Regex.Replace(s, @"([\\'])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
-        }
+        private static string Escape(string s) =>
+            Regex.Replace(s, @"([\\'])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
     }
 }

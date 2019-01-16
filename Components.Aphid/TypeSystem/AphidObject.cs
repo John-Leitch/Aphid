@@ -60,7 +60,7 @@ namespace Components.Aphid.TypeSystem
             get { return _isScalar || _isComplex; }
         }
 #else
-        public bool IsComplexitySet { get { return true; } }
+        public bool IsComplexitySet => true;
 #endif
 
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
@@ -170,10 +170,10 @@ namespace Components.Aphid.TypeSystem
             printMemberValues ? ToString(this, printMemberValues) :
             "{ ... }";
 
-        private string ToString(AphidObject x, bool printMemberValues) =>
+        private static string ToString(AphidObject x, bool printMemberValues) =>
             $"{{ {x.Where(y => !y.Key.StartsWith("$")).Take(MaxToStringMembers).Select(y => ToString(y, printMemberValues)).Join(", ")}{(x.Count > MaxToStringMembers ? ", ..." : "")} }}";
 
-        private string ToString(KeyValuePair<string, AphidObject> x, bool printMemberValues) =>
+        private static string ToString(KeyValuePair<string, AphidObject> x, bool printMemberValues) =>
             printMemberValues ? 
                 $"{x.Key}: {(x.Value != null ? x.Value.ToString(false) : AphidType.Null)}" :
                 x.Key;

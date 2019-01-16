@@ -65,10 +65,8 @@ namespace Components.External.ConsolePlus
             return argDictionary;
         }
 
-        private void ThrowArgumentException(string Message, params object[] Args)
-        {
+        private static void ThrowArgumentException(string Message, params object[] Args) =>
             throw new ArgumentException(string.Format(Message, Args));
-        }
 
         public void SetProperties(object target)
         {

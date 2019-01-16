@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.External.Benchmarks
+namespace Components.ObjectDatabase.Benchmarks
 {
     class Program
     {
@@ -17,7 +17,7 @@ namespace Components.External.Benchmarks
 
         static void SizeTest()
         {
-            var db = ObjectDatabase.ObjectDatabase.OpenStringDatabase("test2.sdb");
+            var db = ObjectDatabase.OpenStringDatabase("test2.sdb");
             var mm = db.ReadMemoryManagerUnsafe();
             mm.PageSize = 0x2;
             db.WriteMemoryManagerUnsafe(mm);
@@ -49,7 +49,7 @@ namespace Components.External.Benchmarks
 
         static void PerfTest()
         {
-            var db = ObjectDatabase.ObjectDatabase.OpenStringDatabase("test.sdb");
+            var db = ObjectDatabase.OpenStringDatabase("test.sdb");
 
             for (var i = 0; i < 10000000; i++)
             {

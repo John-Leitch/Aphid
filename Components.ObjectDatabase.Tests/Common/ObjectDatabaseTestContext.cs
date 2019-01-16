@@ -1,12 +1,8 @@
-﻿using Components.ObjectDatabase;
-using System;
-using System.IO;
+﻿using System;
 using static System.IO.Path;
-//using static NUnit.Framework.CollectionAssert;
-using System.Threading;
 using BinDB = Components.ObjectDatabase.BinaryObjectDatabase<object>;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     public class ObjectDatabaseTestContext
     {

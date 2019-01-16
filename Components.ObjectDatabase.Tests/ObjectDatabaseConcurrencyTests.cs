@@ -1,17 +1,12 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static System.Math;
 using static NUnit.Framework.Assert;
-using System.Threading;
-using Components.IO;
-using static System.IO.File;
-using System;
 using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "ObjectDatabaseConcurrency"), Parallelizable(ParallelScope.All)]
     public partial class ObjectDatabaseConcurrencyTests : ObjectDatabaseTestBase
@@ -90,7 +85,7 @@ namespace Components.External.Tests
                     return w;
                 },
                 checkContains: false,
-                noFragmentation: false,
+                noFragmentation: pageSize == 0x2000 || pageSize == 0x200000,
                 (db, widget, i) =>
                     widget.Do(x => x.Message = $"Async_{i}").Do(db.Update),
                 (db, widgets) =>
@@ -109,7 +104,7 @@ namespace Components.External.Tests
             int count = 0x100)
         {
             var db = DB;
-            db.ReadMemoryManagerUnsafe().Do(x => x.PageSize = pageSize).Do(db.WriteMemoryManagerUnsafe);
+            db.UpdateMemoryManager(x => x.PageSize = pageSize);            
             db.SetEntityMetaData = setEntityMetaData;
             db.TrackEntities = trackEntities;
             db.AssertNoFragmentation();
@@ -136,6 +131,8 @@ namespace Components.External.Tests
             {
                 Contains(Widget, rows);
             }
+
+            CollectionAssert.AreEqual(rows, getRows());
 
             db.ReadMemoryManagerUnsafe()
                 .Do(x => AreEqual(count, x.Allocations.Count))

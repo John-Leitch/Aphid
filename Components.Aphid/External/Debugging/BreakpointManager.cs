@@ -71,10 +71,10 @@ namespace Components.Cypress
                     lock (HitTable)
                     {
                         hits = ++HitTable[addr];
-                        var hits2 = HitTable.OrderByDescending(x => x.Value).ToArray();
+                        //var hits2 = HitTable.OrderByDescending(x => x.Value).ToArray();
                     }
 
-                    var writeResult = mem.Write(addr, new[] { originalByte });
+                    //var writeResult = mem.Write(addr, new[] { originalByte });
 
                     if (MaxHits <= 0 || hits < MaxHits)
                     {

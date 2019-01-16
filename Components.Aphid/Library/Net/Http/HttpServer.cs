@@ -67,30 +67,31 @@ namespace Components.Aphid.Library.Net
         public void Start()
         {
             Cli.WriteInfoMessage("Web root: ~Cyan~{0}~R~", _webRoot);
-            var listener = new HttpListener();
-
-            foreach (var p in _prefixes)
+            using (var listener = new HttpListener())
             {
-                listener.Prefixes.Add(p);
-                Cli.WriteQueryMessage("Listening on ~Cyan~{0}~R~", p);
-            }
-
-            listener.Start();
-            Cli.WriteInfoMessage("Server started");
-
-            while (true)
-            {
-                var context = listener.GetContext();
-
-                ThreadPool.QueueUserWorkItem(x =>
+                foreach (var p in _prefixes)
                 {
-                    Cli.WriteQueryMessage(
-                        "Client ~Green~{0}~R~ requested ~Cyan~{1}~R~",
-                        context.Request.RemoteEndPoint.Address,
-                        context.Request.Url);
+                    listener.Prefixes.Add(p);
+                    Cli.WriteQueryMessage("Listening on ~Cyan~{0}~R~", p);
+                }
 
-                    HandleClient(context);
-                });
+                listener.Start();
+                Cli.WriteInfoMessage("Server started");
+
+                while (true)
+                {
+                    var context = listener.GetContext();
+
+                    ThreadPool.QueueUserWorkItem(x =>
+                    {
+                        Cli.WriteQueryMessage(
+                            "Client ~Green~{0}~R~ requested ~Cyan~{1}~R~",
+                            context.Request.RemoteEndPoint.Address,
+                            context.Request.Url);
+
+                        HandleClient(context);
+                    });
+                }
             }
         }
 

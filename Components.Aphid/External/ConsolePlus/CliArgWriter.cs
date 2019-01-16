@@ -63,7 +63,7 @@ namespace Components.External.ConsolePlus
             string valueStyle, 
             string delimiterStyle)
         {
-            var name = arg.Names.First();
+            //var name = arg.Names.First();
             
             var argStr = CreateArg(
                 arg, argStyle, 

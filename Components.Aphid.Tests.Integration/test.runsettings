@@ -20,7 +20,7 @@
 
   <NUnit>
     <BasePath>C:\source\Aphid</BasePath>
-    <PrivateBinPath>Components.Aphid.Tests.Integration\bin\x64\Release;Components.External.Tests\bin\x64\Release</PrivateBinPath>
+    <PrivateBinPath>Components.Aphid.Tests.Integration\bin\x64\Release;Components.Aphid.Tests.Integration\bin\x64\Debug;Components.ObjectDatabase.Tests\bin\x64\Release;Components.ObjectDatabase.Tests\bin\x64\Debug</PrivateBinPath>
     <!--<UseVsKeepEngineRunning>true</UseVsKeepEngineRunning>-->
     <NumberOfTestWorkers>12</NumberOfTestWorkers>
     <!--<ShadowCopyFiles>true</ShadowCopyFiles>-->

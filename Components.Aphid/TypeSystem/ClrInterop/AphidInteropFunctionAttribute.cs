@@ -3,7 +3,7 @@ using System;
 namespace Components.Aphid.TypeSystem
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class AphidInteropFunctionAttribute : Attribute
+    public sealed class AphidInteropFunctionAttribute : Attribute
     {
         public string Name { get; set; }
 

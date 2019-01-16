@@ -19,7 +19,7 @@ namespace Components.Cypress
             ThreadId = threadId;
         }
 
-        private bool IsStackAddress(CONTEXT context, uint address)
+        private static bool IsStackAddress(CONTEXT context, uint address)
         {
             var delta = context.Esp > address ?
                 context.Esp - address :
@@ -28,7 +28,7 @@ namespace Components.Cypress
             return delta < 1000;
         }
 
-        private IntPtr[] GetIntPtrs(IEnumerable<uint> uints)
+        private static IntPtr[] GetIntPtrs(IEnumerable<uint> uints)
         {
             var ptrs = new List<IntPtr>();
 
@@ -50,7 +50,7 @@ namespace Components.Cypress
         {
             var pointers = new List<uint>();
             var reader = new ProcessMemory(Process);
-            var context = reader.GetContext(ThreadId);
+            var context = ProcessMemory.GetContext(ThreadId);
             //var pointers = new List<uint> { context.Eip };
 
             uint[] stack = null;

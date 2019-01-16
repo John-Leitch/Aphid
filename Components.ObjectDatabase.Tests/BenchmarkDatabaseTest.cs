@@ -1,21 +1,14 @@
-﻿using Components;
+﻿using Components.Aphid.Parser;
+using Components.External;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Math;
-using static NUnit.Framework.Assert;
-using System.Threading;
-using Components.IO;
-using static System.IO.File;
 using System;
-using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
+using System.Linq;
 using System.Reflection;
-using Components.Aphid.Parser;
-using Components.ObjectDatabase;
+using static NUnit.Framework.Assert;
+using static System.Math;
+using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "BenchmarkDatabase"), Parallelizable(ParallelScope.All)]
     public partial class BenchmarkDatabaseTest : ObjectDatabaseTestBase

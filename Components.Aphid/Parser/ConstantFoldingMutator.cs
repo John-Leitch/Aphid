@@ -8,23 +8,12 @@ namespace Components.Aphid.Parser
 {
     public class ConstantFoldingMutator : AphidMutator
     {
-        private bool OperandsAre(
-            BinaryOperatorExpression binOp,
-            AphidExpressionType type)
-        {
-            return binOp.LeftOperand.Type == type &&
-                binOp.RightOperand.Type == type;
-        }
+        private static bool OperandsAre(BinaryOperatorExpression binOp, AphidExpressionType type) =>
+            binOp.LeftOperand.Type == type && binOp.RightOperand.Type == type;
 
-        private decimal GetNumber(AphidExpression exp)
-        {
-            return ((NumberExpression)exp).Value;
-        }
+        private static decimal GetNumber(AphidExpression exp) => ((NumberExpression)exp).Value;
 
-        private string GetString(AphidExpression exp)
-        {
-            return ((StringExpression)exp).Value;
-        }
+        private static string GetString(AphidExpression exp) => ((StringExpression)exp).Value;
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {

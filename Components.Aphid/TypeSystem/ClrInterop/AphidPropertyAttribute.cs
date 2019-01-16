@@ -6,7 +6,7 @@ using System.Text;
 namespace Components.Aphid.TypeSystem
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class AphidPropertyAttribute : Attribute
+    public sealed class AphidPropertyAttribute : Attribute
     {
         public string Name { get; set; }
 

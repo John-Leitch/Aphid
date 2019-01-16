@@ -766,7 +766,7 @@ namespace Components.Aphid.UI
             //    "");
         }
 
-        public static void SafeWriteSubheader(string text, string style = "~|Blue~~White~")
+        public static void SafeWriteSubheader(string text)
         {
             if(!Console.IsOutputRedirected)
             {

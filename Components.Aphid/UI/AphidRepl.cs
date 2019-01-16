@@ -114,13 +114,11 @@ namespace Components.Aphid.UI
 
                             AphidErrorReporter.SaveErrorInformation(e, Interpreter);
 
-                            if (e is ReflectionTypeLoadException)
+                            if (e is ReflectionTypeLoadException le)
                             {
-                                var loaderExceptions = ((ReflectionTypeLoadException)e).LoaderExceptions;
-
                                 Cli.WriteCriticalErrorMessage(
                                     "Loader exceptions:\r\n{0}",
-                                    loaderExceptions.Select(x => x.Message).JoinLines());
+                                    le.LoaderExceptions.Select(x => x.Message).JoinLines());
                             }
 
                             continue;

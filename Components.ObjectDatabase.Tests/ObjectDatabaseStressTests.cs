@@ -1,17 +1,6 @@
 ﻿using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Math;
-using static NUnit.Framework.Assert;
-using System.Threading;
-using Components.IO;
-using static System.IO.File;
-using System;
-using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "ObjectDatabaseStressTest"),
         Parallelizable(ParallelScope.None),

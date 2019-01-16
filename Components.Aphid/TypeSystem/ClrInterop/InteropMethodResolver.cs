@@ -65,7 +65,7 @@ namespace Components.Aphid.TypeSystem
                     Interpreter.FlattenPath(expression.LeftOperand),
                     isType: true);
 
-                var extension = Interpreter.TypeExtender.TryResolve(
+                var extension = TypeExtender.TryResolve(
                     Interpreter.CurrentScope,
                     staticType,
                     key,
@@ -79,7 +79,7 @@ namespace Components.Aphid.TypeSystem
                     return extension;
                 }
 
-                dynamicHandler = () => Interpreter.TypeExtender.TryResolve(
+                dynamicHandler = () => TypeExtender.TryResolve(
                     Interpreter.CurrentScope,
                     staticType,
                     key,
@@ -118,7 +118,7 @@ namespace Components.Aphid.TypeSystem
             if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
             {
                 var key = expression.RightOperand.ToIdentifier().Identifier;
-                var extension = Interpreter.TypeExtender.TryResolve(
+                var extension = TypeExtender.TryResolve(
                     Interpreter.CurrentScope,
                     obj,
                     key,
@@ -132,7 +132,7 @@ namespace Components.Aphid.TypeSystem
                     return extension;
                 }
 
-                dynamicHandler = () => Interpreter.TypeExtender.TryResolve(
+                dynamicHandler = () => TypeExtender.TryResolve(
                     Interpreter.CurrentScope,
                     obj,
                     key,
@@ -256,7 +256,7 @@ namespace Components.Aphid.TypeSystem
             throw CreateSignatureException(args, signatureMatches);
         }
 
-        private Type[] ZipGenericParameters(
+        private static Type[] ZipGenericParameters(
             MethodBase method,
             AphidConversionInfo[] conversionInfo,
             AphidInteropMethodArg[] args)
@@ -305,7 +305,7 @@ namespace Components.Aphid.TypeSystem
             return mappedGenericArgs.ToArray();
         }
 
-        private ulong WeightInference(AphidInteropMethodArg[] args)
+        private static ulong WeightInference(AphidInteropMethodArg[] args)
         {
             var u = 0ul;
 
@@ -317,7 +317,7 @@ namespace Components.Aphid.TypeSystem
             return u;
         }
 
-        private uint WeightInference(AphidInteropMethodArg arg)
+        private static uint WeightInference(AphidInteropMethodArg arg)
         {
             if (arg.IsExactBasicTypeMatch)
             {
@@ -404,7 +404,7 @@ namespace Components.Aphid.TypeSystem
                 string.Join("\r\n", matches.Select(GetMethodDescription)),
                 CreateArgumentString(args));
 
-        private string CreateArgumentString(object[] args)
+        private static string CreateArgumentString(object[] args)
         {
             var sb = new StringBuilder();
             IEnumerable enumerable;
@@ -459,7 +459,7 @@ namespace Components.Aphid.TypeSystem
         private string GetParamDescription(ParameterInfo parameter) =>
             string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
 
-        private bool CheckArgumentCount(MethodBase method, object[] args)
+        private static bool CheckArgumentCount(MethodBase method, object[] args)
         {
             var p = method.GetParameters();
             ParameterInfo lp;

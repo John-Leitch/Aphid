@@ -32,11 +32,11 @@ namespace Components.Aphid.Serialization
         {
             if (_member != null && _member == expression && IsRef(_member.RightOperand))
             {
-                AddMemberReference(expression);
+                AddMemberReference();
             }
         }
 
-        private void AddMemberReference(AphidExpression expression)
+        private void AddMemberReference()
         {
             AphidExpression lhs = null;
 
@@ -113,7 +113,8 @@ namespace Components.Aphid.Serialization
             Ancestors.Count >= 1 &&
             Ancestors.Peek().Type == AphidExpressionType.ObjectExpression;
 
-        private static bool IsArray(AphidExpression expression) => expression != null && expression.Type == AphidExpressionType.ArrayExpression;
+        private static bool IsArray(AphidExpression expression) =>
+            expression != null && expression.Type == AphidExpressionType.ArrayExpression;
 
         private static bool IsRef(AphidExpression expression) =>
             expression.Type == AphidExpressionType.IdentifierExpression ||

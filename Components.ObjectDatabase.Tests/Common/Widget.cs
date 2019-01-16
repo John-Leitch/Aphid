@@ -1,8 +1,7 @@
-﻿using Components.ObjectDatabase;
-using System;
+﻿using System;
 using System.Linq;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     [Serializable]
     public class Widget : ObjectDatabaseEntityBase, IEquatable<Widget>

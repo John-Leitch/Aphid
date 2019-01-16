@@ -75,7 +75,7 @@ namespace Components.Cypress
                 memInfo.Protect == AllocationProtect.PAGE_EXECUTE_WRITECOPY;
         }
 
-        public CONTEXT GetContext(uint threadId)
+        public static CONTEXT GetContext(uint threadId)
         {
             var threadHandle = Kernel32.OpenThread(ThreadAccess.THREAD_GET_CONTEXT, false, threadId);
             var context = new CONTEXT();

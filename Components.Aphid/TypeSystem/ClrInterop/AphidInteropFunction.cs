@@ -19,7 +19,7 @@ namespace Components.Aphid.TypeSystem
             return InvokeDelegate(interpreter, parms);
         }
 
-        private object[] PrefixScope(AphidInterpreter interpreter, object[] parms)
+        private static object[] PrefixScope(AphidInterpreter interpreter, object[] parms)
         {
             var dst = new object[parms.Length + 1];
             dst[0] = interpreter;

@@ -128,7 +128,7 @@ namespace Mantispid
             return decl;
         }
 
-        private CodeTypeDeclaration CreateType(string name)
+        private static CodeTypeDeclaration CreateType(string name)
         {
             // Todo: extract code helper methods from this bullshit
             var decl = new CodeTypeDeclaration(name)
@@ -295,21 +295,19 @@ namespace Mantispid
             }
             else
             {
-                var condition = CodeHelper.BinOpExp(
-                    CodeHelper.VarRef(paramName),
-                    CodeBinaryOperatorType.IdentityInequality,
-                    CodeHelper.Null());
-
-                var createStmt = CodeHelper.Assign(
-                    fieldName,
-                    new CodeObjectCreateExpression(property.Type));
-
-                var conditionStmt = new CodeConditionStatement(
-                    condition,
-                    new[] { assignStmt },
-                    new[] { createStmt });
-
-                stmts.Add(conditionStmt);
+                stmts.Add(
+                    new CodeConditionStatement(
+                        CodeHelper.BinOpExp(
+                            CodeHelper.VarRef(paramName),
+                            CodeBinaryOperatorType.IdentityInequality,
+                            CodeHelper.Null()),
+                        new[] { assignStmt },
+                        new[]
+                        { 
+                            CodeHelper.Assign(
+                                fieldName,
+                                new CodeObjectCreateExpression(property.Type))
+                        }));
             }
 
             return stmts.ToArray();
@@ -411,19 +409,11 @@ namespace Mantispid
             decl.Members.Add(prop);
         }
 
-        private string GetFieldName(string name)
-        {
-            return "_" + GetLocalName(name);
-        }
+        private static string GetFieldName(string name) => "_" + GetLocalName(name);
 
-        private string GetLocalName(string name)
-        {
-            return name.Substring(0, 1).ToLower() + name.Substring(1);
-        }
+        private static string GetLocalName(string name) => name.Substring(0, 1).ToLower() + name.Substring(1);
 
-        private bool IsOptional(RuleStruct rule, CodeMemberProperty property)
-        {
-            return rule.Properties.Single(x => x.Name == property.Name).IsOptional;
-        }
+        private static bool IsOptional(RuleStruct rule, CodeMemberProperty property) =>
+            rule.Properties.Single(x => x.Name == property.Name).IsOptional;
     }
 }

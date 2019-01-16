@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid", "Compone
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.Tests.Integration", "Components.Aphid.Tests.Integration\Components.Aphid.Tests.Integration.csproj", "{B94E7BEF-5277-4BCB-82E1-BA5616EB7E42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.External.Tests", "Components.External.Tests\Components.External.Tests.csproj", "{4BF52650-185C-47F4-A244-5E89BD142E7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.ObjectDatabase.Tests", "Components.ObjectDatabase.Tests\Components.ObjectDatabase.Tests.csproj", "{4BF52650-185C-47F4-A244-5E89BD142E7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.External.Benchmarks", "Components.External.Benchmarks\Components.External.Benchmarks.csproj", "{6F06E9D3-B5E6-46E2-99F8-DCACF13022B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.ObjectDatabase.Benchmarks", "Components.ObjectDatabase.Benchmarks\Components.ObjectDatabase.Benchmarks.csproj", "{6F06E9D3-B5E6-46E2-99F8-DCACF13022B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

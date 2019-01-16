@@ -85,10 +85,7 @@ namespace Components.External.ConsolePlus
             }
         }
 
-        public void DrawPrompt()
-        {
-            Cli.Write("~Cyan~#~R~ ");
-        }
+        public static void DrawPrompt() => Cli.Write("~Cyan~#~R~ ");
 
         public void Update(Action action)
         {
@@ -97,9 +94,6 @@ namespace Components.External.ConsolePlus
             DrawPrompt();
         }
 
-        public void Stop()
-        {
-            IsRunning = false;
-        }
+        public void Stop() => IsRunning = false;
     }
 }

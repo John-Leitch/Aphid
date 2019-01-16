@@ -1,4 +1,5 @@
-﻿using Components.External;
+﻿//#define ODB_NULL_CHECKS
+using Components.External;
 using Components.IO;
 using Components.ObjectDatabase;
 using System;
@@ -168,6 +169,13 @@ namespace Components.ObjectDatabase
         {
             AssertReadOnly();
 
+#if ODB_NULL_CHECKS
+            if (element == null)
+            {
+                throw new NullReferenceException("Create serializing null value.");
+            }
+#endif
+
             byte[] buffer;
 
             using (var s = new MemoryStream())
@@ -234,6 +242,13 @@ namespace Components.ObjectDatabase
 
             var element = _deserialize(_stream);
 
+#if ODB_NULL_CHECKS
+            if (element == null)
+            {
+                throw new NullReferenceException("ReadUnsafe deserialized null value.");
+            }
+#endif
+
             IObjectDatabaseEntity entity;
 
             if (SetEntityMetaData && (entity = element as IObjectDatabaseEntity) != null)
@@ -299,6 +314,13 @@ namespace Components.ObjectDatabase
                 throw new InvalidOperationException("Cannot update when TrackEntities is false.");
             }
 
+#if ODB_NULL_CHECKS
+            if (element == null)
+            {
+                throw new NullReferenceException("Updated attempted to serialize null element.");
+            }
+#endif
+
             AssertReadOnly("updated record");
             KeyValuePair<long, ObjectDatabaseRecord<TElement>> ctxItem;
 
@@ -306,10 +328,12 @@ namespace Components.ObjectDatabase
             {
                 ctxItem = _items.GetDictionary().FirstOrDefault(x => x.Value.Value.Equals(element));
 
+#if ODB_NULL_CHECKS
                 if (ctxItem.Value == null)
                 {
-                    throw new InvalidOperationException();
+                    throw new NullReferenceException("Null value found in entity tracking table.");
                 }
+#endif
             }
 
             byte[] buffer;
@@ -367,6 +391,24 @@ namespace Components.ObjectDatabase
                 allocation.Write(buffer);
 
                 return allocation.Handle * PageSize;
+            }
+        }
+
+        public void UpdateMemoryManager(Action<MemoryManager> update)
+        {
+            if (!UseUnsafeMemoryManager)
+            {
+                LockMemoryManager(() =>
+                {
+                    var mm = ReadVersionedMemoryManagerUnsafe(out var version);
+                    update(mm);
+                    WriteMemoryManagerUnsafe(mm);
+                    IncrementVersion(version);
+                });
+            }
+            else
+            {
+                LockMemoryManager(() => update(_memoryManager));
             }
         }
 
@@ -468,20 +510,20 @@ namespace Components.ObjectDatabase
             }
         }
 
-        ~ObjectDatabase()
-        {
-            if (UseUnsafeMemoryManager && !_isDisposed && !_isCommitted && !IsReadOnly)
-            {
-                CommitMemoryManager();
-            }
-        }
-
         private void AssertReadOnly(string name = null)
         {
             if (IsReadOnly)
             {
                 throw new InvalidOperationException(
                     $"Cannot {name ?? "create record"} in read-only mode.");
+            }
+        }
+
+        ~ObjectDatabase()
+        {
+            if (UseUnsafeMemoryManager && !_isDisposed && !_isCommitted && !IsReadOnly)
+            {
+                CommitMemoryManager();
             }
         }
     }

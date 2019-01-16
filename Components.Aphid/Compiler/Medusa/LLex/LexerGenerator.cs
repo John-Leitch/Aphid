@@ -12,18 +12,13 @@ namespace LLex
 
         public bool IgnoreCase { get; set; }
 
-        public LexerGenerator(TokenTable table)
-        {
-            this.table = table;
-        }
+        public LexerGenerator(TokenTable table) => this.table = table;
 
-        private string EncodeChar(char c)
-        {
-            return c < 32 ? "\\x" + Convert.ToString(c, 16).PadLeft(2, '0') :
+        private static string EncodeChar(char c) =>
+            c < 32 ? "\\x" + Convert.ToString(c, 16).PadLeft(2, '0') :
                 c == '\\' ? "\\\\" :
                 c == '\'' ? "\\'" :
                 c.ToString();
-        }
 
         private void SetNone(LexerState state, bool ancestralExitState)
         {
@@ -92,10 +87,7 @@ namespace LLex
             }
         }
 
-        private string CreateCase(string charString)
-        {
-            return string.Format("case '{0}':", charString);
-        }
+        private string CreateCase(string charString) => string.Format("case '{0}':", charString);
 
         private string CreateCases(string charString)
         {
@@ -176,14 +168,12 @@ namespace LLex
             return template.Replace("{{States}}", childTemplates);
         }
 
-        public string GenerateIsKeyword()
-        {
-            return table.KeywordTokens.Any() ? 
+        public string GenerateIsKeyword() =>
+            table.KeywordTokens.Any() ?
                 table.KeywordTokens
                     .Select(x => "TokenType == {TokenType}." + x)
                     .Aggregate((x, y) => x + "||\r\n" + new string(' ', 16) + y) :
                 "false";
-        }
 
         private string GenerateIgnore()
         {
@@ -246,9 +236,7 @@ namespace LLex
                 .Replace("PreviousChar();", "charIndex--;");
         }
 
-        private IEnumerable<string> GetDefaults(List<TokenEntry> tokens)
-        {
-            return tokens.Where(y => y.Lexeme == null).Select(y => y.Code);
-        }
+        private static IEnumerable<string> GetDefaults(List<TokenEntry> tokens) =>
+            tokens.Where(y => y.Lexeme == null).Select(y => y.Code);
     }
 }

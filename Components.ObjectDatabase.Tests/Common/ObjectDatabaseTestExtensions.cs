@@ -1,11 +1,9 @@
-﻿using Components.ObjectDatabase;
+﻿using Components.IO;
 using System.Linq;
 using static NUnit.Framework.Assert;
-//using static NUnit.Framework.CollectionAssert;
-using Components.IO;
 using Odb = Components.ObjectDatabase.ObjectDatabase<object>;
 
-namespace Components.External.Tests
+namespace Components.ObjectDatabase.Tests
 {
     public static class ObjectDatabaseTestExtensions
     {
