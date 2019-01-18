@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Components.Cypress;
 
 namespace Components.External.ConsolePlus
 {
@@ -114,6 +115,18 @@ namespace Components.External.ConsolePlus
         {
             try
             {
+                var name = Name ?? Assembly.GetEntryAssembly().GetName().ToString();
+
+                try 
+                {
+                    var dmp = PathHelper.GetEntryPath($"{name}_{Guid.NewGuid()}.dmp");
+                    MemoryDump.Create(dmp);
+                }
+                catch (Exception e2)
+                {
+                    Cli.WriteErrorMessage("Error creating dump: {0}", e2);
+                }
+
                 string msg = e != null ?
                     e.ToString() :
                     "Unknown exception";
@@ -121,7 +134,10 @@ namespace Components.External.ConsolePlus
                 Console.WriteLine("Crash: {0}", msg);
 
                 var logPath = PathHelper.GetExecutingPath(
-                    string.Format("Crash.{0}.{1}.log", Name, Guid.NewGuid()));
+                    string.Format(
+                        "Crash.{0}.{1}.log",
+                        name,
+                        Guid.NewGuid()));
 
                 File.WriteAllText(logPath, msg);
 
