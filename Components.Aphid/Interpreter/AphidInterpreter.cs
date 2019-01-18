@@ -1110,7 +1110,7 @@ namespace Components.Aphid.Interpreter
         private object InterpretMemberExpression(BinaryOperatorExpression expression, bool returnRef = false)
         {
             // Todo: cleanup and improve perf by evaluating and saving key early
-            var obj = InterpretExpression(expression.LeftOperand) as AphidObject;
+            var obj = InterpretExpression(expression.LeftOperand);
             var key = GetMemberKey(expression.RightOperand);
             Type type;
             AphidObject val;
@@ -1693,23 +1693,23 @@ namespace Components.Aphid.Interpreter
             {
                 case AdditionOperator:
                     return OperatorHelper.Add(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case MinusOperator:
                     return OperatorHelper.Subtract(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case MultiplicationOperator:
                     return OperatorHelper.Multiply(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case DivisionOperator:
                     return OperatorHelper.Divide(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case MemberOperator:
                     return InterpretMemberExpression(expression, returnRef);
@@ -1779,27 +1779,27 @@ namespace Components.Aphid.Interpreter
 
                 case ModulusOperator:
                     return OperatorHelper.Mod(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case ShiftLeft:
                     return OperatorHelper.BinaryShiftLeft(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case ShiftRight:
                     return OperatorHelper.BinaryShiftRight(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case BinaryAndOperator:
                     return OperatorHelper.BinaryAnd(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case BinaryOrOperator:
-                    AphidObject pipeLhs = InterpretExpression(expression.LeftOperand) as AphidObject,
-                        pipeRhs = InterpretExpression(expression.RightOperand) as AphidObject;
+                    AphidObject pipeLhs = InterpretExpression(expression.LeftOperand),
+                        pipeRhs = InterpretExpression(expression.RightOperand);
 
                     return pipeRhs.Value is IAphidCallable ?
                         InterpretCallExpression(
@@ -1811,8 +1811,8 @@ namespace Components.Aphid.Interpreter
 
                 case XorOperator:
                     return OperatorHelper.Xor(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case PipelineOperator:
                     return InterpretCallExpression(
@@ -1823,8 +1823,8 @@ namespace Components.Aphid.Interpreter
 
                 case RangeOperator:
                     return OperatorHelper.Range(
-                        InterpretExpression(expression.LeftOperand) as AphidObject,
-                        InterpretExpression(expression.RightOperand) as AphidObject);
+                        InterpretExpression(expression.LeftOperand),
+                        InterpretExpression(expression.RightOperand));
 
                 case SelectOperator:
                     var collection = InterpretExpression(expression.LeftOperand).Value;
