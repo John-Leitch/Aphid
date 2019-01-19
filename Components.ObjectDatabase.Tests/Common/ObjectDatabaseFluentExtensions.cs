@@ -10,11 +10,7 @@ namespace Components.ObjectDatabase.Tests
             bool trackEntities = false,
             bool isReadOnly = false,
             int pageSize = -1) => db
-            .DoIf(
-                pageSize > 0,
-                x => x.ReadMemoryManagerUnsafe()
-                .Do(y => y.PageSize = pageSize)
-                .Do(x.WriteMemoryManagerUnsafe))
+            .DoIf(pageSize > 0, x => x.UpdateMemoryManager(y => y.PageSize = pageSize))
             .Do(x => x.SetEntityMetaData = setEntityMetaData)
             .Do(x => x.TrackEntities = trackEntities)
             .Do(x => x.IsReadOnly = isReadOnly);

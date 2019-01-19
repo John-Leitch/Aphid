@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static NUnit.Framework.Assert;
@@ -71,9 +72,9 @@ namespace Components.ObjectDatabase.Tests
                 });
 
         [Test]
-        public void TestConcurrentUpdate([Values] bool setEntityMetaData, [PageSize] int pageSize) =>
+        public void TestConcurrentUpdate([PageSize] int pageSize) =>
             TestConcurrency(
-                setEntityMetaData,
+                true,
                 true,
                 false,
                 pageSize,
@@ -85,9 +86,10 @@ namespace Components.ObjectDatabase.Tests
                     return w;
                 },
                 checkContains: false,
-                noFragmentation: pageSize == 0x2000 || pageSize == 0x200000,
-                (db, widget, i) =>
-                    widget.Do(x => x.Message = $"Async_{i}").Do(db.Update),
+                noFragmentation: pageSize == 0x100 || pageSize == 0x2000 || pageSize == 0x200000,
+                (db, widget, i) => widget
+                    .Do(x => x.Message = $"Async_{i}")
+                    .Do(x => x.Context.As<BinDB>(y => y.Update(x))),
                 (db, widgets) =>
                     AreEqual(db.Count(), widgets.Distinct(x => x.Message).Count()));
 
@@ -103,40 +105,56 @@ namespace Components.ObjectDatabase.Tests
             Action<BinDB, List<Widget>> finalize = null,
             int count = 0x100)
         {
-            var db = Context.NextDB();
-            db.UpdateMemoryManager(x => x.PageSize = pageSize);            
-            db.SetEntityMetaData = setEntityMetaData;
-            db.TrackEntities = trackEntities;
-            db.AssertNoFragmentation();
+            var dbFile = Context.NextDBName();
 
-            void For(Action<int> action) => Parallel.For(0, count, action);
-            
-            For(i => db.Create(createWidget(i).Do(y => y.X = i)));
-            db.IsReadOnly = isReadOnly;
+            BinDB nextDb() => BinaryObjectDatabase
+                .OpenFile(dbFile)
+                .Set(setEntityMetaData, trackEntities, false, pageSize)
+                .Do(x => x.AssertNoFragmentation());
 
-            List<Widget> getRows() => db.ReadUnsafe().Cast<Widget>().ToList();
-            var rows = getRows();
+            var dbs = Enumerable.Range(0, 8).Select(x => nextDb()).ToArray();
 
-            if (concurrentAction != null)
+            try
             {
-                For(i => concurrentAction(db, rows[i], i));
+                BinDB getDB() => dbs.TakeRandom();
+
+                void For(Action<int> action) => Parallel.For(0, count, action);
+
+                For(i => getDB().Create(createWidget(i).Do(y => y.X = i)));
+                dbs.For(x => x.IsReadOnly = isReadOnly);
+
+                List<Widget> getRows() => getDB().ReadUnsafe().Cast<Widget>().ToList();
+                var rows = getRows();
+
+                if (concurrentAction != null)
+                {
+                    For(i => concurrentAction(getDB(), rows[i], i));
+                }
+
+                finalize?.Invoke(getDB(), getRows());
+
+                AreEqual(count, rows.Distinct(x => x.X).Count());
+                AreEqual(count, rows.Count());
+
+                if (checkContains)
+                {
+                    Contains(Widget, rows);
+                }
+
+                var rows2 = getRows().OrderBy(x => x.Message).ToList();
+                var rows3 = getRows().OrderBy(x => x.Message).ToList();
+                CollectionAssert.AreEqual(rows2, rows3);
+
+                getDB().ReadMemoryManagerUnsafe()
+                    .Do(x => AreEqual(count, x.Allocations.Count))
+                    .DoIf(noFragmentation, x => x.AssertNoFragmentation(), x => x.AssertFragmentation());
             }
-
-            finalize?.Invoke(db, getRows());
-
-            AreEqual(count, rows.Distinct(x => x.X).Count());
-            AreEqual(count, rows.Count());
-
-            if (checkContains)
+            finally
             {
-                Contains(Widget, rows);
+                dbs.For(x => x.Dispose());
+                File.Delete(dbFile);
+                File.Delete(Path.ChangeExtension(dbFile, "odm"));
             }
-
-            CollectionAssert.AreEqual(rows, getRows());
-
-            db.ReadMemoryManagerUnsafe()
-                .Do(x => AreEqual(count, x.Allocations.Count))
-                .DoIf(noFragmentation, x => x.AssertNoFragmentation(), x => x.AssertFragmentation());
         }
     }
 }

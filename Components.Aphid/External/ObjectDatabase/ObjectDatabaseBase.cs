@@ -59,7 +59,11 @@ namespace Components.ObjectDatabase
             }
         }
 
-        public virtual void Dispose() => _locks.Dispose();
+        public virtual void Dispose()
+        {
+            _locks.Dispose();
+            IsOpened = false;
+        }
 
         protected abstract void OpenCore();
 

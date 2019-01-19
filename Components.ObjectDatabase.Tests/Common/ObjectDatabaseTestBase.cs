@@ -28,7 +28,7 @@ namespace Components.ObjectDatabase.Tests
         public Task TearDown() => Task.Factory.StartNew(x => x.As<BinDB>(Cleanup), DB);
 
         private void Cleanup(BinDB x) => x
-            .Do(y => y.Dispose())
+            .DoIf(!x.IsDisposed, y => y.Dispose())
             .Do(y => new[] { y.Filename, y.MemoryManagerFilename }.For(Delete));
 
         protected void TestCreateReadManyUniqueCore(

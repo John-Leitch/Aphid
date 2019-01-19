@@ -89,7 +89,7 @@ namespace Components.IO
             Free(handle, Allocations[handle]);
         }
 
-        public void Free(Allocation allocation) => Free(allocation.Handle, allocation.Size);
+        public void Free(in Allocation allocation) => Free(allocation.Handle, allocation.Size);
 
         public void Free(int handle, int size)
         {
@@ -117,7 +117,7 @@ namespace Components.IO
             }            
         }
 
-        public byte[] Read(Allocation allocation) => Read(allocation, GetSize(allocation));
+        public byte[] Read(in Allocation allocation) => Read(allocation, GetSize(allocation));
 
         public byte[] Read(int handle) => Read(handle, GetSize(handle));
 
@@ -131,7 +131,7 @@ namespace Components.IO
             }
         }
 
-        public byte[] Read(Allocation allocation, int bufferSize)
+        public byte[] Read(in Allocation allocation, int bufferSize)
         {
             lock (_stream)
             {
@@ -141,7 +141,7 @@ namespace Components.IO
             }
         }
 
-        public void Write(Allocation allocation, byte[] buffer)
+        public void Write(in Allocation allocation, byte[] buffer)
         {
             var size = GetSize(allocation);
 
@@ -218,15 +218,15 @@ namespace Components.IO
 
         public int GetSizeFromOffset(long offset) => Allocations[(int)(offset / PageSize)] * PageSize;
 
-        private int GetSize(Allocation allocation) => Allocations[allocation.Handle] * PageSize;
+        private int GetSize(in Allocation allocation) => Allocations[allocation.Handle] * PageSize;
 
         private int GetSize(int handle) => Allocations[handle] * PageSize;
 
-        public long GetPosition(Allocation allocation) => (long)allocation.Handle * PageSize;
+        public long GetPosition(in Allocation allocation) => (long)allocation.Handle * PageSize;
 
         private long GetPosition(int handle) => (long)handle * PageSize;
 
-        private void SetPosition(Allocation allocation) => _stream.Position = GetPosition(allocation);
+        private void SetPosition(in Allocation allocation) => _stream.Position = GetPosition(allocation);
 
         private void SetPosition(int handle) => _stream.Position = GetPosition(handle);
     }

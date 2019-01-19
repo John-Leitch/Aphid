@@ -365,14 +365,13 @@ namespace Components.Aphid.UI
         {
             var view = member.Name;
 
-            if (member is ConstructorInfo || member is MethodBase)
+            if (member is MethodBase mb)
             {
-                view += CreateArgTuple((MethodBase)member);
+                view += CreateArgTuple(mb);
             }
-            else if (member is PropertyInfo)
+            else if (member is PropertyInfo prop)
             {
-                view += " { ";
-                var prop = (PropertyInfo)member;
+                view += " { ";                
                 var accessors = prop.GetAccessors();
                 if (accessors.Any(x => x.ReturnType != typeof(void)))
                 {
