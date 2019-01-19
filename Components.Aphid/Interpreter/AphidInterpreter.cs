@@ -1532,9 +1532,8 @@ namespace Components.Aphid.Interpreter
             }
             else if (destinationExpression.Type == Exp.BinaryOperatorExpression)
             {
-                var obj = InterpretBinaryOperatorExpression(
-                    (BinaryOperatorExpression)destinationExpression,
-                    true);
+                var destBinOp = (BinaryOperatorExpression)destinationExpression;
+                var obj = InterpretBinaryOperatorExpression(destBinOp, true);
 
 
                 if (obj is AphidRef objRef)
@@ -1581,11 +1580,7 @@ namespace Components.Aphid.Interpreter
 
                 if (!(ValueHelper.Unwrap(obj) is AphidInteropReference interopRef))
                 {
-                    obj = InterpretMemberInteropExpression(
-                        null,
-                        (BinaryOperatorExpression)destinationExpression,
-                        returnRef: true);
-
+                    obj = InterpretMemberInteropExpression(null, destBinOp, returnRef: true);
                     interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
                 }
 
@@ -5837,7 +5832,7 @@ namespace Components.Aphid.Interpreter
         public bool SetIsInTryCatchFinally(bool value)
         {
             var old = _isInTryCatchFinally;
-            _isInTryCatchFinally = true;
+            _isInTryCatchFinally = value;
 
             return old;
         }

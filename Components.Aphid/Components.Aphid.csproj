@@ -145,10 +145,12 @@
   <!-- RELEASE                        -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
+    <CodeAnalysisRuleSet>Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
+    <CodeAnalysisRuleSet>Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <!--                                -->
   <!-- APHID SCRIPT DEBUG             -->
@@ -628,6 +630,7 @@
     <None Include="Library\Testing\ClrTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="Parser\ParserErrorMessageInterop.alx">
       <Generator>AphidCodeDomGenerator</Generator>
       <LastGenOutput>ParserErrorMessageInterop.cs</LastGenOutput>
@@ -865,7 +868,13 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Analyzer Include="..\packages\ErrorProne.NET.0.1.5898.41180\analyzers\dotnet\cs\ErrorProne.NET.dll" />
+    <Analyzer Include="..\packages\ErrorProne.NET.CoreAnalyzers.0.1.2\analyzers\dotnet\cs\ErrorProne.Net.CoreAnalyzers.dll" />
+    <Analyzer Include="..\packages\ErrorProne.NET.Structs.0.1.2\analyzers\dotnet\cs\ErrorProne.NET.Core.dll" />
+    <Analyzer Include="..\packages\ErrorProne.NET.Structs.0.1.2\analyzers\dotnet\cs\ErrorProne.Net.StructAnalyzers.dll" />
+    <Analyzer Include="..\packages\ErrorProne.NET.Structs.0.1.2\analyzers\dotnet\cs\RuntimeContracts.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)Library\Meta\Code\Aphid\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs

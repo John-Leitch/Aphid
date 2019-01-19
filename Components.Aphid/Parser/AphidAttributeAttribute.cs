@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Components.Aphid.Parser
 {
-    public class AphidAttributeAttribute : Attribute
+    public sealed class AphidAttributeAttribute : Attribute
     {
         public string Name { get; private set; }
 

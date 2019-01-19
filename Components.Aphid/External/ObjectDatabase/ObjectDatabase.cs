@@ -36,7 +36,7 @@ namespace Components.ObjectDatabase
 
         private MemoryManager _memoryManager, _lastSafeMemoryManager;
 
-        private bool _isCommitted = false, _isDisposed = false;
+        private bool _isCommitted = false;
 
         private Dictionary<long, ObjectDatabaseRecord<TElement>> _items = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
 
@@ -49,6 +49,8 @@ namespace Components.ObjectDatabase
         public bool TrackEntities { get; set; }
 
         public bool SetEntityMetaData { get; set; }
+
+        public bool IsDisposed { get; set; }
 
         public ObjectDatabase(
             string filename,
@@ -200,6 +202,10 @@ namespace Components.ObjectDatabase
                     alloc = _memoryManager.Allocate(buffer.Length);
                     offset = _memoryManager.GetPosition(alloc);
                 }
+
+                
+
+
             });
 
             alloc.Write(buffer);
@@ -474,7 +480,7 @@ namespace Components.ObjectDatabase
 
         public override void Dispose()
         {
-            if (_isDisposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("ObjectDatabase");
             }
@@ -494,7 +500,7 @@ namespace Components.ObjectDatabase
                 _memoryManagerVersionFile.Dispose();
             }
 
-            _isDisposed = true;
+            IsDisposed = true;
             base.Dispose();
         }
 
@@ -536,7 +542,7 @@ namespace Components.ObjectDatabase
 
         ~ObjectDatabase()
         {
-            if (UseUnsafeMemoryManager && !_isDisposed && !_isCommitted && !IsReadOnly)
+            if (UseUnsafeMemoryManager && !IsDisposed && !_isCommitted && !IsReadOnly)
             {
                 CommitMemoryManager();
             }

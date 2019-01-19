@@ -31,7 +31,9 @@ namespace Components.External.ConsolePlus
 
         public const string DefaultHeaderStyle = "~|Blue~~White~";
 
-        private static int _maxNameLength, _maxValueLength;
+        private static int
+            _maxNameLength = Environment.UserInteractive ? (int)Math.Floor(((double)BufferWidth - 3) / 2) : 100,
+            _maxValueLength = Environment.UserInteractive ? (int)Math.Ceiling(((double)BufferWidth - 4) / 2) : 100;
 
         private static object _syncObject = new object();
 
@@ -125,39 +127,11 @@ namespace Components.External.ConsolePlus
 
         public static int UserBufferHeight { get; set; } = BufferHeight;
 
-        public static Action<string> WriteHandler { get; set; }
+        public static Action<string> WriteHandler { get; set; } =
+            !Environment.UserInteractive ? x => { } : (Action<string>)Console.Write;
 
-        public static Action<string> WriteLineHandler { get; set; }
-
-        static Cli()
-        {
-            if (!Environment.UserInteractive)
-            {
-                WriteHandler = x => { };
-                WriteLineHandler = x => { };
-                return;
-            }
-            else
-            {
-                WriteHandler = Console.Write;
-                WriteLineHandler = Console.WriteLine;
-            }
-
-            try
-            {
-                SetDumpLengths(BufferWidth);
-            }
-            catch (IOException)
-            {
-                SetDumpLengths(100);
-            }
-        }
-
-        public static void SetDumpLengths(int consoleWidth)
-        {
-            _maxNameLength = (int)Math.Floor(((double)consoleWidth - 3) / 2);
-            _maxValueLength = (int)Math.Ceiling(((double)consoleWidth - 4) / 2);
-        }
+        public static Action<string> WriteLineHandler { get; set; } =
+            !Environment.UserInteractive ? x => { } : (Action<string>)Console.WriteLine;
 
         /// <summary>
         /// Writes a format string to the console.

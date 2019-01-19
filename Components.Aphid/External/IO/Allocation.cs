@@ -1,13 +1,16 @@
 ﻿
+using System;
+using System.Collections.Generic;
+
 namespace Components.IO
 {
-    public struct Allocation
+    public readonly struct Allocation
     {
-        private MemoryManager _manager;
+        private readonly MemoryManager _manager;
 
         //public bool IsCommitted;
 
-        public int Handle, UserSize, Size;
+        public readonly int Handle, UserSize, Size;
 
         public Allocation(
             MemoryManager manager, 
@@ -21,19 +24,26 @@ namespace Components.IO
             Size = size;
         }
 
-        public byte[] Read()
+        public byte[] Read() => _manager.Read(this);
+
+        public byte[] Read(int bufferSize) => _manager.Read(this, bufferSize);
+
+        public void Write(byte[] buffer) => _manager.Write(this, buffer);
+
+        public override bool Equals(object obj) => obj is Allocation && Equals((Allocation)obj);
+
+        public override int GetHashCode()
         {
-            return _manager.Read(this);
+            var hashCode = 1675899751;
+            hashCode = hashCode * -1521134295 + EqualityComparer<MemoryManager>.Default.GetHashCode(_manager);
+            hashCode = hashCode * -1521134295 + Handle.GetHashCode();
+            hashCode = hashCode * -1521134295 + UserSize.GetHashCode();
+            hashCode = hashCode * -1521134295 + Size.GetHashCode();
+            return hashCode;
         }
 
-        public byte[] Read(int bufferSize)
-        {
-            return _manager.Read(this, bufferSize);
-        }
+        public static bool operator ==(Allocation allocation1, Allocation allocation2) => allocation1.Equals(allocation2);
 
-        public void Write(byte[] buffer)
-        {
-            _manager.Write(this, buffer);
-        }
+        public static bool operator !=(Allocation allocation1, Allocation allocation2) => !(allocation1 == allocation2);
     }
 }

@@ -244,7 +244,7 @@ namespace Components.Aphid.TypeSystem
                 }
                 else
                 {
-                    var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo, x.Args);
+                    var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo);
 
                     if (genericArgs.Length == x.Method.GetGenericArguments().Distinct().Count())
                     {
@@ -256,10 +256,7 @@ namespace Components.Aphid.TypeSystem
             throw CreateSignatureException(args, signatureMatches);
         }
 
-        private static Type[] ZipGenericParameters(
-            MethodBase method,
-            AphidConversionInfo[] conversionInfo,
-            AphidInteropMethodArg[] args)
+        private static Type[] ZipGenericParameters(MethodBase method, AphidConversionInfo[] conversionInfo)
         {
             if (!method.IsGenericMethod)
             {
