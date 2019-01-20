@@ -249,7 +249,7 @@ namespace AphidUI.ViewModels
             Interpreter.Loader.LoadLibrary<AphidReplViewModel>(Interpreter.CurrentScope);
 
         private void AddIsRepl() =>
-            Interpreter.CurrentScope.Add(IsReplName, AphidObject.True);
+            Interpreter.CurrentScope.Add(IsReplName, AphidObject.InternedTrue);
 
         private void InitInterpreter()
         {
