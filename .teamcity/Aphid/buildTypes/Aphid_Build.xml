@@ -7,6 +7,9 @@
       <option name="artifactRules" value="Aphid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidUI\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidHdl\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToVerilog/&#xA;Mantispid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/ParserGenerator/&#xA;LLex\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/LexerGenerator/&#xA;Coywolf\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPhp/&#xA;Boxelder\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPython/" />
       <option name="buildNumberPattern" value="0.7.1.%build.counter%" />
     </options>
+    <disabled-settings>
+      <setting-ref ref="BUILD_EXT_3" />
+    </disabled-settings>
     <parameters />
     <build-runners>
       <runner id="RUNNER_5" name="" type="jb.nuget.installer">
