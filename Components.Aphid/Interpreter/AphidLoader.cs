@@ -30,6 +30,8 @@ namespace Components.Aphid.Interpreter
 
         public bool InlineCachedScripts { get; set; }
 
+        public bool DisableConstantFolding { get; set; }
+
         public AphidLoader(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -199,6 +201,7 @@ namespace Components.Aphid.Interpreter
                     {
                         var cache = new AphidByteCodeCache(SearchPaths.ToArray());
                         cache.InlineScripts = InlineCachedScripts;
+                        cache.DisableConstantFolding = DisableConstantFolding;
                         ast = cache.Read(f);
                     }
                     else
@@ -208,6 +211,11 @@ namespace Components.Aphid.Interpreter
                                 new AphidMacroMutator().MutateRecursively(
                                     new PartialOperatorMutator().MutateRecursively(
                                         AphidParser.Parse(File.ReadAllText(f), f, isTextDocument))));
+
+                        if (!DisableConstantFolding)
+                        {
+                            ast = new ConstantFoldingMutator().MutateRecursively(ast);
+                        }
                     }
                 }
                 catch (AphidParserException e)

@@ -22,6 +22,22 @@ namespace Components.Aphid.Parser
             }
         }
 
+        public bool DisableConstantFolding
+        {
+            get => (Flags & 0x4) != 0;
+            set
+            {
+                if (value)
+                {
+                    Flags |= 0x4u;
+                }
+                else
+                {
+                    Flags &= ~0x4u;
+                }
+            }
+        }
+
         private readonly string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
@@ -81,11 +97,15 @@ namespace Components.Aphid.Parser
                 }
 
                 var ast2 =
-                    constantFoldingMutator.MutateRecursively(
-                        includeMutator.MutateRecursively(
-                            directiveMutator.MutateRecursively(
-                                macroMutator.MutateRecursively(
-                                    partialOpMutator.MutateRecursively(ast)))));
+                    includeMutator.MutateRecursively(
+                        directiveMutator.MutateRecursively(
+                            macroMutator.MutateRecursively(
+                                partialOpMutator.MutateRecursively(ast))));
+
+                if (!DisableConstantFolding)
+                {
+                    ast2 = constantFoldingMutator.MutateRecursively(ast2);
+                }
 
                 includeMutator.Included.Add(filename);
                 sources = new string[includeMutator.Included.Count];
@@ -95,10 +115,15 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                var ast2 = constantFoldingMutator.MutateRecursively(
+                var ast2 = 
                     directiveMutator.MutateRecursively(
                         macroMutator.MutateRecursively(
-                            partialOpMutator.MutateRecursively(ast))));
+                            partialOpMutator.MutateRecursively(ast)));
+
+                if (!DisableConstantFolding)
+                {
+                    ast2 = constantFoldingMutator.MutateRecursively(ast2);
+                }
 
                 sources = new[] { filename };
 

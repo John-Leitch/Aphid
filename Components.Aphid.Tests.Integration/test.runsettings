@@ -24,7 +24,7 @@
     <!--<UseVsKeepEngineRunning>true</UseVsKeepEngineRunning>-->
     <NumberOfTestWorkers>12</NumberOfTestWorkers>
     <!--<ShadowCopyFiles>true</ShadowCopyFiles>-->
-    <InternalTraceLevel>Warning</InternalTraceLevel>
+    <InternalTraceLevel>Info</InternalTraceLevel>
     <!-- <DefaultTimeout>60000</DefaultTimeout> -->
     <VsTestCategoryType>NUnit</VsTestCategoryType>
   </NUnit>

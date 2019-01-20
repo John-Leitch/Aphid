@@ -522,7 +522,6 @@
     <Compile Include="TypeSystem\ClrInterop\AphidInteropPartialFunction.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReference.cs" />
     <Compile Include="Interpreter\AphidInterpreter.g.cs" />
-    <Compile Include="TypeSystem\AphidObjectEqualityComparer.cs" />
     <Compile Include="TypeSystem\AphidOperationException.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidPropertyAttribute.cs" />
     <Compile Include="TypeSystem\AphidObject.g.cs" />
@@ -539,7 +538,6 @@
     <Compile Include="TypeSystem\ClrInterop\InteropMethodResolver.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeResolver.cs" />
     <Compile Include="TypeSystem\AphidFunction.cs" />
-    <Compile Include="TypeSystem\AphidObjectConverter.cs" />
     <Compile Include="TypeSystem\OperatorHelper.cs" />
     <Compile Include="TypeSystem\TypeExtender.cs" />
     <Compile Include="TypeSystem\ValueHelper.cs" />

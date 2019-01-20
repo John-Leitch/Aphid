@@ -20,9 +20,9 @@ namespace Components.Aphid.TypeSystem
         public const int MaxToStringMembers = 0x8;
 
         public static readonly AphidObject
-            Null = Scalar(null),
-            True = Scalar(true),
-            False = Scalar(false);
+            InternedNull = Scalar(null),
+            InternedTrue = Scalar(true),
+            InternedFalse = Scalar(false);
 
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
         private bool _isScalar;

@@ -21,9 +21,9 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("addition");
             }
-            else if (x.Value is decimal && y.Value is decimal)
+            else if (x.Value is decimal dx && y.Value is decimal dy)
             {
-                return AphidObject.Scalar((decimal)x.Value + (decimal)y.Value);
+                return AphidObject.Scalar(dx + dy);
             }
             else if ((x.Value is sbyte ||
                 x.Value is short ||
@@ -34,8 +34,8 @@ namespace Components.Aphid.TypeSystem
                 x.Value is uint ||
                 x.Value is ulong ||
                 x.Value is float ||
-                x.Value is double || 
-                x.Value is decimal) && 
+                x.Value is double ||
+                x.Value is decimal) &&
                 (y.Value is sbyte ||
                 y.Value is short ||
                 y.Value is int ||
@@ -49,7 +49,7 @@ namespace Components.Aphid.TypeSystem
                 y.Value is decimal))
             {
                 return AphidObject.Scalar(Convert.ToDecimal(x.Value) + Convert.ToDecimal(y.Value));
-            }            
+            }
             else
             {
                 return AphidObject.Scalar(Convert.ToString(x.Value) + Convert.ToString(y.Value));
@@ -83,7 +83,7 @@ namespace Components.Aphid.TypeSystem
             else
             {
                 //var underlyingType = Enum.GetUnderlyingType(t);
-                
+
                 var o = Enum.ToObject(
                     t,
                     Convert.ToUInt64(x.Value) | Convert.ToUInt64(y.Value));
@@ -240,7 +240,7 @@ namespace Components.Aphid.TypeSystem
                 sb.Append(value);
             }
 
-            return AphidObject.Scalar(sb.ToString());  
+            return AphidObject.Scalar(sb.ToString());
         }
 
         public AphidObject Multiply(AphidObject x, AphidObject y)
@@ -271,7 +271,7 @@ namespace Components.Aphid.TypeSystem
                     // throw the following exception.
                     // throw new AphidRuntimeException("Could not multiply type");
 
-                    return AphidObject.Scalar(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));                    
+                    return AphidObject.Scalar(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));
                 }
 
                 return AphidObject.Scalar(val);
@@ -308,29 +308,28 @@ namespace Components.Aphid.TypeSystem
 
         public static bool EqualsCore(AphidObject x, AphidObject y)
         {
-            return x.Value != null ?
-                x.Value.Equals(y.Value) :
-                (null == y.Value && x.Count == 0 && y.Count == 0);
+            if (x.Value != null)
+            {
+                return x.Value.Equals(y.Value);
+            }
+            else
+            {
+                return (null == y.Value && x.Count == 0 && y.Count == 0);
+            }
         }
 
-        public static AphidObject Equals(AphidObject x, AphidObject y)
-        {
-            return AphidObject.Scalar(EqualsCore(x, y));
-        }
+        public static AphidObject Equals(AphidObject x, AphidObject y) =>
+            AphidObject.Scalar(EqualsCore(x, y));
 
-        public static AphidObject NotEqual(AphidObject x, AphidObject y)
-        {
-            return AphidObject.Scalar(!EqualsCore(x, y));
-        }
+        public static AphidObject NotEqual(AphidObject x, AphidObject y) =>
+            AphidObject.Scalar(!EqualsCore(x, y));
 
-        private AphidOperationException CreateOperationException(string op)
-        {
-            return new AphidOperationException(
+        private AphidOperationException CreateOperationException(string op) =>
+            new AphidOperationException(
                 Interpreter,
                 Interpreter.CurrentScope,
                 Interpreter.CurrentStatement,
                 Interpreter.CurrentExpression,
                 op);
-        }
     }
 }

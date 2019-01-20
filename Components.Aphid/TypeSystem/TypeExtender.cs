@@ -512,7 +512,7 @@ namespace Components.Aphid.TypeSystem
                     function.ParentScope.Add(AphidName.ImplicitArg, obj);
                 }
 
-                function.ParentScope.Add(AphidName.Extension, AphidObject.True);
+                function.ParentScope.Add(AphidName.Extension, AphidObject.InternedTrue);
                 function.ParentScope.Add(AphidName.StaticExtension, AphidObject.Scalar(isStatic));
 
                 if (function.Args.Any())

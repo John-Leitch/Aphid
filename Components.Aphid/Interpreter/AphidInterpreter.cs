@@ -29,12 +29,16 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using LinqExp = System.Linq.Expressions.Expression;
+using static System.Convert;
+using static Components.Aphid.TypeSystem.AphidObject;
+using static Components.Aphid.TypeSystem.ValueHelper;
+using static Components.Aphid.TypeSystem.TypeExtender;
 
 namespace Components.Aphid.Interpreter
 {
     // Todo:
     // * Fix all methods that return object instead of AphidObject,
-    //   then remove excessive ValueHelper.Wrap/Unwrap and casting.
+    //   then remove excessive Wrap/Unwrap and casting.
     // * Add support for token macros--transform during lexical analysis
     //   instead of parsing.
     // * Text mutators as well, akin to C macros
@@ -247,7 +251,7 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidInterpreter(bool createLoader)
-            : this(AphidObject.Scope(), createLoader)
+            : this(Scope(), createLoader)
         {
             // Optimize by generating all built-in
             // variables here without having to perform
@@ -266,7 +270,7 @@ namespace Components.Aphid.Interpreter
         }
 
         private AphidInterpreter(AphidLoader loader)
-            : this(AphidObject.Scope(), loader)
+            : this(Scope(), loader)
         {
         }
 
@@ -391,17 +395,17 @@ namespace Components.Aphid.Interpreter
 
             if (!CurrentScope.ContainsKey(AphidName.FramesKey))
             {
-                CurrentScope.Add(AphidName.FramesKey, AphidObject.Scalar(_frames));
+                CurrentScope.Add(AphidName.FramesKey, Scalar(_frames));
             }
 
             if (!CurrentScope.ContainsKey(AphidName.AsmBuilder))
             {
-                CurrentScope.Add(AphidName.AsmBuilder, AphidObject.Scalar(AsmBuilder));
+                CurrentScope.Add(AphidName.AsmBuilder, Scalar(AsmBuilder));
             }
 
             if (!CurrentScope.ContainsKey(AphidName.Interpreter))
             {
-                CurrentScope.Add(AphidName.Interpreter, AphidObject.Scalar(this));
+                CurrentScope.Add(AphidName.Interpreter, Scalar(this));
             }
 
             _initialScope = CurrentScope;
@@ -433,7 +437,7 @@ namespace Components.Aphid.Interpreter
             else
             {
                 var list = new HashSet<string>(AphidConfig.Current.Imports);
-                CurrentScope.Add(AphidName.Imports, AphidObject.Scalar(list));
+                CurrentScope.Add(AphidName.Imports, Scalar(list));
 
                 return list;
             }
@@ -470,7 +474,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetScriptFilename(string filename)
         {
-            var obj = AphidObject.Scalar(filename);
+            var obj = Scalar(filename);
 
             if (!CurrentScope.ContainsKey(AphidName.Script))
             {
@@ -505,7 +509,7 @@ namespace Components.Aphid.Interpreter
             _scopeTrace.Trace("Enter scope begin");
 #endif
 
-            CurrentScope = AphidObject.Scope(CurrentScope);
+            CurrentScope = Scope(CurrentScope);
             CurrentScope.Add(AphidName.Scope, CurrentScope);
             CurrentScope.Add(AphidName.Parent, CurrentScope.Parent);
 
@@ -574,7 +578,7 @@ namespace Components.Aphid.Interpreter
 
             CurrentScope = !createChild ?
                 sharedScope :
-                AphidObject.Scope(sharedScope);
+                Scope(sharedScope);
 
             PushFrame("[Shared Scope]");
         }
@@ -611,10 +615,10 @@ namespace Components.Aphid.Interpreter
         //[TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         //private AphidObject CompareDecimals(BinaryOperatorExpression expression, Func<decimal, decimal, bool> equal)
         //{
-        //    return AphidObject.Scalar(
+        //    return Scalar(
         //        equal(
-        //            Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.LeftOperand))),
-        //            Convert.ToDecimal(ValueHelper.Unwrap(InterpretExpression(expression.RightOperand)))));
+        //            ToDecimal(Unwrap(InterpretExpression(expression.LeftOperand))),
+        //            ToDecimal(Unwrap(InterpretExpression(expression.RightOperand)))));
         //}
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -636,11 +640,11 @@ namespace Components.Aphid.Interpreter
         {
             if (!(bool)InterpretExpression(expression.LeftOperand).Value)
             {
-                return AphidObject.False;
+                return InternedFalse;
             }
             else
             {
-                return AphidObject.Scalar((bool)InterpretExpression(expression.RightOperand).Value);
+                return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
             }
         }
 
@@ -649,11 +653,11 @@ namespace Components.Aphid.Interpreter
         {
             if ((bool)InterpretExpression(expression.LeftOperand).Value)
             {
-                return AphidObject.True;
+                return InternedTrue;
             }
             else
             {
-                return AphidObject.Scalar((bool)InterpretExpression(expression.RightOperand).Value);
+                return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
             }
         }
 
@@ -680,53 +684,53 @@ namespace Components.Aphid.Interpreter
                     Type leftType = left.Value.GetType();
                     if (InterpretEqualityExpression(left.Value, leftType, right.Value, right.Value.GetType()))
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                     else
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                 }
                 else if (left.Value != null)
                 {
                     if (left.Value.Equals(right.Value))
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                     else
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                 }
                 else if (right.Value != null)
                 {
                     if (right.Value.Equals(left.Value))
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                     else
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                 }
                 else if (left.IsScalar && right.IsScalar)
                 {
-                    return AphidObject.True;
+                    return InternedTrue;
                 }
                 else if (left.IsComplex && right.IsComplex)
                 {
                     if (left == right)
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                     else
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                 }
                 else
                 {
-                    return AphidObject.False;
+                    return InternedFalse;
                 }
             }
             else
@@ -744,53 +748,53 @@ namespace Components.Aphid.Interpreter
                     Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
                     if (InterpretEqualityExpression(left.Value, leftType, right.Value, rightType))
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                     else
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                 }
                 else if (left.Value != null)
                 {
                     if (left.Value.Equals(right.Value))
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                     else
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                 }
                 else if (right.Value != null)
                 {
                     if (right.Value.Equals(left.Value))
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                     else
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                 }
                 else if (left.IsScalar && right.IsScalar)
                 {
-                    return AphidObject.False;
+                    return InternedFalse;
                 }
                 else if (left.IsComplex && right.IsComplex)
                 {
                     if (left == right)
                     {
-                        return AphidObject.False;
+                        return InternedFalse;
                     }
                     else
                     {
-                        return AphidObject.True;
+                        return InternedTrue;
                     }
                 }
                 else
                 {
-                    return AphidObject.True;
+                    return InternedTrue;
                 }
             }
 
@@ -799,7 +803,7 @@ namespace Components.Aphid.Interpreter
             //    val = !val;
             //}
 
-            //return AphidObject.Scalar(val);
+            //return Scalar(val);
         }
 
         // Todo: add interop support for dynamic members e.g. Path.{'Combine'}
@@ -835,7 +839,7 @@ namespace Components.Aphid.Interpreter
                 if (members.Length == 1 &&
                     (nestedTypeInfo = members[0] as TypeInfo) != null)
                 {
-                    return AphidObject.Scalar(nestedTypeInfo);
+                    return Scalar(nestedTypeInfo);
                 }
             }
 
@@ -890,11 +894,11 @@ namespace Components.Aphid.Interpreter
                         {
                             if (!propInfo.PropertyType.IsAssignableFrom(typeof(AphidObject)))
                             {
-                                return AphidObject.Scalar(propInfo.GetValue(lhs));
+                                return Scalar(propInfo.GetValue(lhs));
                             }
                             else
                             {
-                                return ValueHelper.Wrap(propInfo.GetValue(lhs));
+                                return Wrap(propInfo.GetValue(lhs));
                             }
                         }
                         else
@@ -904,7 +908,7 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        return AphidObject.Scalar(new AphidInteropReference(lhs, propInfo));
+                        return Scalar(new AphidInteropReference(lhs, propInfo));
                     }
                 }
 
@@ -918,11 +922,11 @@ namespace Components.Aphid.Interpreter
                         {
                             if (!fieldInfo.FieldType.IsAssignableFrom(typeof(AphidObject)))
                             {
-                                return AphidObject.Scalar(fieldInfo.GetValue(lhs));
+                                return Scalar(fieldInfo.GetValue(lhs));
                             }
                             else
                             {
-                                return ValueHelper.Wrap(fieldInfo.GetValue(lhs));
+                                return Wrap(fieldInfo.GetValue(lhs));
                             }
                         }
                         else
@@ -932,7 +936,7 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        return AphidObject.Scalar(new AphidInteropReference(lhs, fieldInfo));
+                        return Scalar(new AphidInteropReference(lhs, fieldInfo));
                     }
                 }
             }
@@ -950,7 +954,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return AphidObject.Scalar(new AphidInteropMember(expression, lhs, members));
+            return Scalar(new AphidInteropMember(expression, lhs, members));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1154,7 +1158,7 @@ namespace Components.Aphid.Interpreter
                                 }
                                 else
                                 {
-                                    return AphidObject.Scalar(nestedType);
+                                    return Scalar(nestedType);
                                 }
                             }
 
@@ -1201,12 +1205,12 @@ namespace Components.Aphid.Interpreter
                                 }
                                 else
                                 {
-                                    return AphidObject.Scalar(nestedType);
+                                    return Scalar(nestedType);
                                 }
                             }
                         }
 
-                        var ext = TypeExtender.TryResolve(
+                        var ext = TryResolve(
                             CurrentScope,
                             type,
                             key: key,
@@ -1247,7 +1251,7 @@ namespace Components.Aphid.Interpreter
                     {
                         var aphidType = obj.IsAphidType();
 
-                        if ((val = TypeExtender.TryResolve(
+                        if ((val = TryResolve(
                             CurrentScope,
                             obj,
                             key,
@@ -1262,7 +1266,7 @@ namespace Components.Aphid.Interpreter
                             obj.Value,
                             expression,
                             returnRef,
-                            () => TypeExtender.TryResolve(
+                            () => TryResolve(
                                 CurrentScope,
                                 obj,
                                 key,
@@ -1299,7 +1303,7 @@ namespace Components.Aphid.Interpreter
                     obj,
                     expression,
                     returnRef,
-                    () => TypeExtender.TryResolve(
+                    () => TryResolve(
                         CurrentScope,
                         obj,
                         key,
@@ -1363,7 +1367,7 @@ namespace Components.Aphid.Interpreter
             AphidExpression completeExpression = null)
         {
             //var value = InterpretExpression(expression.RightOperand);
-            var value2 = ValueHelper.Wrap(value);
+            var value2 = Wrap(value);
 
             if (destinationExpression.Type == Exp.IdentifierExpression)
             {
@@ -1402,7 +1406,7 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            CurrentScope.Add(id, AphidObject.Scalar(value2.Value));
+                            CurrentScope.Add(id, Scalar(value2.Value));
                         }
                     }
                     else
@@ -1419,7 +1423,7 @@ namespace Components.Aphid.Interpreter
             {
                 var arrayAccessExp = (ArrayAccessExpression)destinationExpression;
                 var targetObj = InterpretExpression(arrayAccessExp.ArrayExpression);
-                var targetObjUnwrapped = ValueHelper.Unwrap(targetObj);
+                var targetObjUnwrapped = Unwrap(targetObj);
 
                 var keyObjects = new object[arrayAccessExp.KeyExpressions.Count];
 
@@ -1441,19 +1445,19 @@ namespace Components.Aphid.Interpreter
                 if (targetObjUnwrapped is Array targetArray)
                 {
                     targetArray.SetValue(
-                        Convert.ChangeType(
+                        ChangeType(
                             value2.Value,
                             targetArray.GetType().GetElementType()),
-                        Convert.ToInt32(keyObj));
+                        ToInt32(keyObj));
                 }
                 else if ((targetAphidList = targetObjUnwrapped as List<AphidObject>) != null)
                 {
                     if (value2.Count == 0 && value2.Value != null)
                     {
-                        value = value2 = AphidObject.Scalar(value2.Value);
+                        value = value2 = Scalar(value2.Value);
                     }
 
-                    targetAphidList[Convert.ToInt32(keyObj)] = value2;
+                    targetAphidList[ToInt32(keyObj)] = value2;
                 }
                 else if ((aphidObj = targetObjUnwrapped as AphidObject) != null)
                 {
@@ -1519,10 +1523,10 @@ namespace Components.Aphid.Interpreter
 
                         index.Property.SetValue(
                             targetObjUnwrapped,
-                            Convert.ChangeType(
+                            ChangeType(
                                 value2.Value,
                                 index.Property.PropertyType),
-                            new object[] { Convert.ToInt32(keyObj) });
+                            new object[] { ToInt32(keyObj) });
                     }
                     else
                     {
@@ -1550,7 +1554,7 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            objRef.Object[objRef.Name] = AphidObject.Scalar(value2.Value);
+                            objRef.Object[objRef.Name] = Scalar(value2.Value);
 
                             if (value2.Value is AphidFunction func)
                             {
@@ -1566,7 +1570,7 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            objRef.Object.Add(objRef.Name, AphidObject.Scalar(value2.Value));
+                            objRef.Object.Add(objRef.Name, Scalar(value2.Value));
 
                             if (value2.Value is AphidFunction func)
                             {
@@ -1578,10 +1582,10 @@ namespace Components.Aphid.Interpreter
                     return value2;
                 }
 
-                if (!(ValueHelper.Unwrap(obj) is AphidInteropReference interopRef))
+                if (!(Unwrap(obj) is AphidInteropReference interopRef))
                 {
                     obj = InterpretMemberInteropExpression(null, destBinOp, returnRef: true);
-                    interopRef = ValueHelper.Unwrap(obj) as AphidInteropReference;
+                    interopRef = Unwrap(obj) as AphidInteropReference;
                 }
 
                 if (interopRef != null)
@@ -1655,7 +1659,7 @@ namespace Components.Aphid.Interpreter
                         null);
             }
 
-            if (ValueHelper.Unwrap(value) is AphidFunction func)
+            if (Unwrap(value) is AphidFunction func)
             {
                 if (interopRef.Object is AphidObject ao)
                 {
@@ -1747,24 +1751,24 @@ namespace Components.Aphid.Interpreter
                     return InterpretEqualityExpression(expression);
 
                 case LessThanOperator:
-                    return AphidObject.Scalar(
-                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) <
-                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
+                    return Scalar(
+                        ToDecimal(InterpretExpression(expression.LeftOperand).Value) <
+                        ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case LessThanOrEqualOperator:
-                    return AphidObject.Scalar(
-                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) <=
-                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
+                    return Scalar(
+                        ToDecimal(InterpretExpression(expression.LeftOperand).Value) <=
+                        ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case GreaterThanOperator:
-                    return AphidObject.Scalar(
-                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) >
-                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
+                    return Scalar(
+                        ToDecimal(InterpretExpression(expression.LeftOperand).Value) >
+                        ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case GreaterThanOrEqualOperator:
-                    return AphidObject.Scalar(
-                        Convert.ToDecimal(InterpretExpression(expression.LeftOperand).Value) >=
-                        Convert.ToDecimal(InterpretExpression(expression.RightOperand).Value));
+                    return Scalar(
+                        ToDecimal(InterpretExpression(expression.LeftOperand).Value) >=
+                        ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case AndOperator:
                     return InterpretAndExpression(expression);
@@ -1825,7 +1829,7 @@ namespace Components.Aphid.Interpreter
                     var collection = InterpretExpression(expression.LeftOperand).Value;
                     var func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Select(x =>
@@ -1840,27 +1844,27 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .SelectMany(x =>
-                                (IEnumerable<object>)(ValueHelper.Unwrap(
+                                (IEnumerable<object>)(Unwrap(
                                     InterpretCallExpression(
                                         expression,
                                         expression.RightOperand,
                                         func,
                                         new object[] { x }))))
-                            .Select(ValueHelper.Wrap)
+                            .Select(Wrap)
                             .ToList());
 
                 case GroupByOperator:
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .GroupBy(x => ValueHelper.Unwrap(
+                            .GroupBy(x => Unwrap(
                                 InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
@@ -1871,7 +1875,7 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return ValueHelper.Wrap(
+                    return Wrap(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Aggregate((x, y) =>
@@ -1885,7 +1889,7 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Any(x => 
@@ -1900,7 +1904,7 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Where(x =>
@@ -1915,7 +1919,7 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Count(x =>
@@ -1930,10 +1934,10 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .OrderBy(x => ValueHelper.Unwrap(
+                            .OrderBy(x => Unwrap(
                                 InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
@@ -1944,10 +1948,10 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .OrderByDescending(x => ValueHelper.Unwrap(
+                            .OrderByDescending(x => Unwrap(
                                 InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
@@ -1958,7 +1962,7 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return ValueHelper.Wrap(
+                    return Wrap(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .First(x =>
@@ -1974,7 +1978,7 @@ namespace Components.Aphid.Interpreter
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
 
-                    return ValueHelper.Wrap(
+                    return Wrap(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Last(x =>
@@ -1992,12 +1996,12 @@ namespace Components.Aphid.Interpreter
                         .Unwrap(InterpretExpression(expression.RightOperand))
                         .ToString();
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Where(x =>
                             {
-                                var v = ValueHelper.Unwrap(x);
+                                var v = Unwrap(x);
 
                                 return v != null && v.ToString().StartsWith(pattern);
                             }));
@@ -2009,12 +2013,12 @@ namespace Components.Aphid.Interpreter
                         .Unwrap(InterpretExpression(expression.RightOperand))
                         .ToString();
 
-                    return AphidObject.Scalar(
+                    return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
                             .Where(x =>
                             {
-                                var v = ValueHelper.Unwrap(x);
+                                var v = Unwrap(x);
 
                                 return v != null && v.ToString().EndsWith(pattern);
                             }));
@@ -2369,7 +2373,7 @@ namespace Components.Aphid.Interpreter
             else
             {
                 CurrentScope.Add(key, func);
-                CurrentScope.Add(key2, AphidObject.Scalar(expression));
+                CurrentScope.Add(key2, Scalar(expression));
 
                 return func;
             }
@@ -2377,7 +2381,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretFunctionComposition(BinaryOperatorExpression composition) =>
-            AphidObject.Scalar(new AphidFunctionComposition(
+            Scalar(new AphidFunctionComposition(
                 composition.LeftOperand,
                 composition.RightOperand,
                 InterpretExpression(composition.LeftOperand).Value,
@@ -2484,7 +2488,7 @@ namespace Components.Aphid.Interpreter
                 expression.Identifier.Attributes[0].Identifier != AphidName.Class)
             {
                 var parent = CurrentScope;
-                var obj = AphidObject.Scope(parent);
+                var obj = Scope(parent);
                 CurrentScope = obj;
 
                 try
@@ -2503,7 +2507,7 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            obj.Add(objectKey, AphidObject.Scalar(objectValue.Value));
+                            obj.Add(objectKey, Scalar(objectValue.Value));
                         }
                     }
 
@@ -2531,7 +2535,7 @@ namespace Components.Aphid.Interpreter
 
                 var t = AsmBuilder.CreateType(expression, GetImports());
 
-                return AphidObject.Scalar(t); ;
+                return Scalar(t); ;
             }
         }
 
@@ -2556,7 +2560,7 @@ namespace Components.Aphid.Interpreter
                     new[] { expression.Identifier },
                     isType: true)) != null)
             {
-                return AphidObject.Scalar(t);
+                return Scalar(t);
             }
             else //if (!StrictMode)
             {
@@ -2570,7 +2574,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static AphidObject InterpretStringExpression(StringExpression expression) =>
-            AphidObject.Scalar(StringParser.Parse(expression.Value));
+            Scalar(StringParser.Parse(expression.Value));
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunction(string name, params object[] parms)
@@ -2595,7 +2599,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunctionWithScope(AphidFunction function, AphidObject scope, params object[] parms)
         {
-            var parmsWrapped = parms.Select(ValueHelper.Wrap).ToArray();
+            var parmsWrapped = parms.Select(Wrap).ToArray();
 
             if (Thread.CurrentThread.ManagedThreadId == OwnerThread)
             {
@@ -2642,7 +2646,7 @@ namespace Components.Aphid.Interpreter
                 extensionArg = null;
             }
 
-            var functionScope = AphidObject.Scope(function.ParentScope);
+            var functionScope = Scope(function.ParentScope);
             functionScope.Add(AphidName.Parent, function.ParentScope);
             functionScope.Add(AphidName.Scope, functionScope);
 
@@ -2671,7 +2675,7 @@ namespace Components.Aphid.Interpreter
                 functionScope[AphidName.ImplicitArg] = extensionArg;
             }
 
-            functionScope[AphidName.ImplicitArgs] = AphidObject.Scalar(argList);
+            functionScope[AphidName.ImplicitArgs] = Scalar(argList);
 
             if (scope != null)
             {
@@ -2716,7 +2720,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return ValueHelper.Wrap(func.Invoke(this, args));
+            return Wrap(func.Invoke(this, args));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2798,7 +2802,7 @@ namespace Components.Aphid.Interpreter
                 method = m.MakeGenericMethod(generics);
             }
 
-            return ValueHelper.Wrap(
+            return Wrap(
                 method.Invoke(null,
                     TypeConverter.Convert(
                         methodInfo.Arguments,
@@ -2858,8 +2862,8 @@ namespace Components.Aphid.Interpreter
 
         private static AphidObject CreateUnsafeArgument(AphidExpression argExp)
         {
-            var arg = AphidObject.Complex();
-            arg.Add("UnsafeArgument", ValueHelper.Wrap(argExp));
+            var arg = Complex();
+            arg.Add("UnsafeArgument", Wrap(argExp));
 
             return arg;
         }
@@ -2900,7 +2904,7 @@ namespace Components.Aphid.Interpreter
                 catch (Exception e)
                 {
                     var a = CreateUnsafeArgument(argExpressions[i]);
-                    a.Add("ArgumentException", AphidObject.Scalar(e));
+                    a.Add("ArgumentException", Scalar(e));
                     args[i] = a;
                 }
             }
@@ -2938,7 +2942,7 @@ namespace Components.Aphid.Interpreter
                     {
                         for (var i = 0; i < args.Length; i++)
                         {
-                            interopArgs[i] = ValueHelper.Unwrap(interopArgs[i]);
+                            interopArgs[i] = Unwrap(interopArgs[i]);
                         }
                     }
 
@@ -2946,7 +2950,7 @@ namespace Components.Aphid.Interpreter
 
                     try
                     {
-                        return ValueHelper.Wrap(func.Invoke(this, interopArgs));
+                        return Wrap(func.Invoke(this, interopArgs));
                     }
                     finally
                     {
@@ -2956,7 +2960,7 @@ namespace Components.Aphid.Interpreter
                     return InterpretInteropCallExpression(
                         callExpression,
                         functionExpression,
-                        ValueHelper.DeepUnwrapObjectArrayRef(args),
+                        DeepUnwrapObjectArrayRef(args),
                         interopMembers);
 
                 case AphidInteropPartialFunction interopPartial:
@@ -2964,7 +2968,7 @@ namespace Components.Aphid.Interpreter
                         callExpression,
                         functionExpression,
                         interopPartial.Applied
-                            .Concat(ValueHelper.DeepUnwrapObjectArrayRef(args))
+                            .Concat(DeepUnwrapObjectArrayRef(args))
                             .ToArray(),
                         interopPartial.Member);
 
@@ -2973,7 +2977,7 @@ namespace Components.Aphid.Interpreter
 
                     try
                     {
-                        return ValueHelper.Wrap(del.DynamicInvoke(ValueHelper.UnwrapObjectArrayRef(args)));
+                        return Wrap(del.DynamicInvoke(UnwrapObjectArrayRef(args)));
                     }
                     finally
                     {
@@ -2985,7 +2989,7 @@ namespace Components.Aphid.Interpreter
 
                     try
                     {
-                        return CallFunctionCore(aphidFunc, ValueHelper.WrapObjectArray(args));
+                        return CallFunctionCore(aphidFunc, WrapObjectArray(args));
                     }
                     finally
                     {
@@ -3015,22 +3019,22 @@ namespace Components.Aphid.Interpreter
                         (refObj = InterpretMemberExpression(
                             (BinaryOperatorExpression)functionExpression,
                             returnRef: true)) != null &&
-                        (memberRef = ValueHelper.Unwrap(refObj) as AphidInteropReference) != null)
+                        (memberRef = Unwrap(refObj) as AphidInteropReference) != null)
                     {
                         if (memberRef != null)
                         {
-                            if (((extObj = TypeExtender.TryResolve(
+                            if (((extObj = TryResolve(
                                     CurrentScope,
-                                    ValueHelper.Wrap(memberRef.Object),
+                                    Wrap(memberRef.Object),
                                     memberRef.Name,
                                     isAphidType: false,
                                     isCtor: false,
                                     isDynamic: false,
                                     returnRef: false)) != null &&
                                 (func2 = extObj.Value as AphidFunction) != null) ||
-                                ((extObj = TypeExtender.TryResolve(
+                                ((extObj = TryResolve(
                                     CurrentScope,
-                                    ValueHelper.Wrap(memberRef.Object),
+                                    Wrap(memberRef.Object),
                                     memberRef.Name,
                                     isAphidType: false,
                                     isCtor: false,
@@ -3044,7 +3048,7 @@ namespace Components.Aphid.Interpreter
                                 {
                                     return CallFunctionCore(
                                         func2,
-                                        ValueHelper.WrapObjectArray(args));
+                                        WrapObjectArray(args));
                                 }
                                 finally
                                 {
@@ -3248,7 +3252,7 @@ namespace Components.Aphid.Interpreter
 
             try
             {
-                return ValueHelper.Wrap(
+                return Wrap(
                     method.Invoke(
                         interopMembers.Target,
                         convertedArgs));
@@ -3291,7 +3295,7 @@ namespace Components.Aphid.Interpreter
 
             try
             {
-                return ValueHelper.Wrap(
+                return Wrap(
                     method.Invoke(
                         interopMembers.Target,
                         convertedArgs));
@@ -3305,9 +3309,9 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject WrapInteropValue(object value)
         {
-            if (AphidObject.IsAphidType(value))
+            if (IsAphidType(value))
             {
-                return ValueHelper.Wrap(value);
+                return Wrap(value);
             }
             else
             {
@@ -3327,14 +3331,14 @@ namespace Components.Aphid.Interpreter
 
                     for (var i = 0; i < args.Length; i++)
                     {
-                        args[i] = ValueHelper.DeepUnwrap(InterpretExpression(call.Args[i]));
+                        args[i] = DeepUnwrap(InterpretExpression(call.Args[i]));
                     }
 
                     PushFrame(operand, call.FunctionExpression, args);
 
                     try
                     {
-                        var typeObj = ValueHelper.Unwrap(InterpretExpression(call.FunctionExpression));
+                        var typeObj = Unwrap(InterpretExpression(call.FunctionExpression));
 
                         if (typeObj == null)
                         {
@@ -3369,7 +3373,7 @@ namespace Components.Aphid.Interpreter
 
                             if (type != typeof(AphidObject))
                             {
-                                obj = AphidObject.Scalar(result);
+                                obj = Scalar(result);
                             }
                             else
                             {
@@ -3378,13 +3382,13 @@ namespace Components.Aphid.Interpreter
                         }
                         else
                         {
-                            obj = AphidObject.Scalar(result = Activator.CreateInstance(type));
+                            obj = Scalar(result = Activator.CreateInstance(type));
                         }
 
-                        var extension = TypeExtender.TryResolve(
+                        var extension = TryResolve(
                             CurrentScope,
                             obj,
-                            TypeExtender.GetCtorName(type.FullName),
+                            GetCtorName(type.FullName),
                             false,
                             isCtor: true,
                             isDynamic: false,
@@ -3429,7 +3433,7 @@ namespace Components.Aphid.Interpreter
                 args[i] = ((IdentifierExpression)expression.Args[i]).Identifier;
             }
 
-            return AphidObject.Scalar(new AphidFunction(args, expression.Body, CurrentScope));
+            return Scalar(new AphidFunction(args, expression.Body, CurrentScope));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3449,16 +3453,16 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        list.Add(AphidObject.Scalar(ao.Value));
+                        list.Add(Scalar(ao.Value));
                     }
                 }
                 else
                 {
-                    list.Add(AphidObject.Scalar(element));
+                    list.Add(Scalar(element));
                 }
             }
 
-            return AphidObject.Scalar(list);
+            return Scalar(list);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3472,7 +3476,7 @@ namespace Components.Aphid.Interpreter
                         return InterpretExpression(expression.Operand);
 
                     case MinusOperator:
-                        var val = ValueHelper.Unwrap(InterpretExpression(expression.Operand));
+                        var val = Unwrap(InterpretExpression(expression.Operand));
 
                         if (!(val is decimal))
                         {
@@ -3481,16 +3485,16 @@ namespace Components.Aphid.Interpreter
                                 val.GetType());
                         }
 
-                        return AphidObject.Scalar((decimal)val * -1);
+                        return Scalar((decimal)val * -1);
 
                     case ComplementOperator:
                         val = InterpretAndUnwrap(expression.Operand);
                         ValueHelper.AssertNumber(val, "unary operator '~'");
 
-                        return AphidObject.Scalar((decimal)~Convert.ToUInt64(val));
+                        return Scalar((decimal)~ToUInt64(val));
 
                     case throwKeyword:
-                        var exceptionObj = ValueHelper.Unwrap(InterpretExpression(expression.Operand));
+                        var exceptionObj = Unwrap(InterpretExpression(expression.Operand));
 
                         switch (exceptionObj)
                         {
@@ -3513,10 +3517,10 @@ namespace Components.Aphid.Interpreter
 
                     case deleteKeyword:
                         var operand = ((IdentifierExpression)expression.Operand).Identifier;
-                        return AphidObject.Scalar(CurrentScope.TryResolveAndRemove(operand));
+                        return Scalar(CurrentScope.TryResolveAndRemove(operand));
 
                     case NotOperator:
-                        return AphidObject.Scalar(!(bool)InterpretExpression(expression.Operand).Value);
+                        return Scalar(!(bool)InterpretExpression(expression.Operand).Value);
 
                     case IncrementOperator:
                         var obj = InterpretExpression(expression.Operand);
@@ -3531,45 +3535,45 @@ namespace Components.Aphid.Interpreter
                     case DistinctOperator:
                         var result = ValueHelper
                             .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
-                            .Select(ValueHelper.Unwrap)
+                            .Select(Unwrap)
                             .Distinct()
-                            .Select(ValueHelper.Wrap) // To maintain backwards compat with Aphid
+                            .Select(Wrap) // To maintain backwards compat with Aphid
                             .ToList()
                             ;                // list extension such as __list.count().
 
-                        return AphidObject.Scalar(result);
+                        return Scalar(result);
 
                     case PostfixCountOperator:
-                        return AphidObject.Scalar(
+                        return Scalar(
                             ValueHelper
                                 .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
                                 .Count());
 
                     case PostfixFirstOperator:
-                        return ValueHelper.Wrap(
+                        return Wrap(
                             ValueHelper
                                 .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
                                 .First());
 
                     case PostfixLastOperator:
-                        return ValueHelper.Wrap(
+                        return Wrap(
                             ValueHelper
                                 .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
                                 .Last());
 
                     case PostfixOrderOperator:
-                        return ValueHelper.Wrap(
+                        return Wrap(
                             ValueHelper
                                 .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
-                                .OrderBy(ValueHelper.Unwrap));
+                                .OrderBy(Unwrap));
 
                     case PostfixOrderDescendingOperator:
-                        return ValueHelper.Wrap(
+                        return Wrap(
                             ValueHelper
                                 .UnwrapIEnumerableObject(InterpretExpression(expression.Operand))
-                                .OrderByDescending(ValueHelper.Unwrap));
+                                .OrderByDescending(Unwrap));
 
-                    //return AphidObject.Scalar(list.Distinct(_comparer).ToList());
+                    //return Scalar(list.Distinct(_comparer).ToList());
 
                     case usingKeyword:
                         AddImport(FlattenAndJoinPath(expression.Operand));
@@ -3611,11 +3615,11 @@ namespace Components.Aphid.Interpreter
                             // Todo: safely deref member expression to avoid
                             // null ref exception on fallback.
                             var loadOperand = InterpretExpression(expression.Operand);
-                            var unwrappedPath = ValueHelper.Unwrap((object)loadOperand);
+                            var unwrappedPath = Unwrap((object)loadOperand);
 
                             if (unwrappedPath == null)
                             {
-                                return AphidObject.Null;
+                                return InternedNull;
                             }
 
                             if (File.Exists(path = unwrappedPath.ToString()))
@@ -3624,7 +3628,7 @@ namespace Components.Aphid.Interpreter
                             }
                         }
 
-                        return AphidObject.Scalar(asm);
+                        return Scalar(asm);
 
                     case InteropOperator:
                         switch (GetInteropAttribute(expression.Operand))
@@ -3986,33 +3990,33 @@ namespace Components.Aphid.Interpreter
                         var obj = InterpretExpression(expression.Operand);
                         var v = obj.Value;
                         obj.Value = ((decimal)obj.Value) + 1;
-                        return AphidObject.Scalar(v);
+                        return Scalar(v);
 
                     case DecrementOperator:
                         obj = InterpretExpression(expression.Operand);
                         v = obj.Value;
                         obj.Value = ((decimal)obj.Value) - 1;
-                        return AphidObject.Scalar(v);
+                        return Scalar(v);
 
                     case definedKeyword:
                         switch (expression.Operand.Type)
                         {
                             case Exp.IdentifierExpression:
-                                return AphidObject.Scalar(
+                                return Scalar(
                                     CurrentScope.IsDefined(
                                         ((IdentifierExpression)expression.Operand).Identifier));
 
                             case Exp.BinaryOperatorExpression:
                                 try
                                 {
-                                    var memberRefObj = ValueHelper.Unwrap(
+                                    var memberRefObj = Unwrap(
                                         InterpretBinaryOperatorExpression(
                                             (BinaryOperatorExpression)expression.Operand,
                                             returnRef: true));
 
                                     var memberRef = memberRefObj as AphidRef;
 
-                                    return AphidObject.Scalar(
+                                    return Scalar(
                                         (memberRef != null &&
                                             (!memberRef.Object.IsComplexitySet || memberRef.Object.IsComplex) &&
                                             memberRef.Object.IsDefined(memberRef.Name)) ||
@@ -4020,7 +4024,7 @@ namespace Components.Aphid.Interpreter
                                 }
                                 catch
                                 {
-                                    return AphidObject.False;
+                                    return InternedFalse;
                                 }
 
                             case Exp.ArrayAccessExpression:
@@ -4047,13 +4051,13 @@ namespace Components.Aphid.Interpreter
                                 {
                                     if (aphidObj.IsScalar)
                                     {
-                                        return AphidObject.Scalar(
+                                        return Scalar(
                                             aphidObj.Value != null &&
                                             aphidObj.Value.GetType().GetMember(key).Length != 0);
                                     }
                                     else
                                     {
-                                        return AphidObject.Scalar(aphidObj.ContainsKey(key));
+                                        return Scalar(aphidObj.ContainsKey(key));
                                     }
                                 }
                                 else
@@ -4073,7 +4077,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static AphidObject InterpretBooleanExpression(BooleanExpression expression) =>
-            AphidObject.Scalar(expression.Value);
+            Scalar(expression.Value);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretIfExpression(IfExpression expression)
@@ -4091,7 +4095,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static AphidObject InterpretNumberExpression(NumberExpression expression) =>
-            AphidObject.Scalar(expression.Value);
+            Scalar(expression.Value);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretArrayAccessExpression(ArrayAccessExpression expression)
@@ -4133,7 +4137,7 @@ namespace Components.Aphid.Interpreter
 
                 var constructedGenericType = genericType.MakeGenericType(typeParams);
 
-                return AphidObject.Scalar(constructedGenericType);
+                return Scalar(constructedGenericType);
             }
             else if (indexes.Length == 1 &&
                 indexes[0] != null &&
@@ -4178,7 +4182,7 @@ namespace Components.Aphid.Interpreter
                     {
                         if (aphidObj.TryGetValue(key, out var val))
                         {
-                            return val.IsScalar ? AphidObject.Scalar(val.Value) : val;
+                            return val.IsScalar ? Scalar(val.Value) : val;
                         }
                         else
                         {
@@ -4201,8 +4205,8 @@ namespace Components.Aphid.Interpreter
                     throw CreateRuntimeException("Multi-dimensional arrays not yet supported.");
                 }
 
-                var val = ValueHelper.Unwrap(InterpretExpression(expression.ArrayExpression));
-                var index = Convert.ToInt32(indexes[0].Value);
+                var val = Unwrap(InterpretExpression(expression.ArrayExpression));
+                var index = ToInt32(indexes[0].Value);
 
                 switch (val)
                 {
@@ -4220,7 +4224,7 @@ namespace Components.Aphid.Interpreter
                             throw CreateOutOfBoundsException(expression, val, index, str.Length);
                         }
 
-                        return AphidObject.Scalar(str[index].ToString());
+                        return Scalar(str[index].ToString());
 
                     case IList list:
                         if (index < 0 || index >= list.Count)
@@ -4228,7 +4232,7 @@ namespace Components.Aphid.Interpreter
                             throw CreateOutOfBoundsException(expression, val, index, list.Count);
                         }
 
-                        return ValueHelper.Wrap(list[index]);
+                        return Wrap(list[index]);
 
                     case IEnumerable<AphidObject> aphidObjEnumerable:
                         var count = aphidObjEnumerable.Count();
@@ -4247,7 +4251,7 @@ namespace Components.Aphid.Interpreter
                         {
                             if (i++ == index)
                             {
-                                return ValueHelper.Wrap(o);
+                                return Wrap(o);
                             }
                         }
 
@@ -4283,7 +4287,7 @@ namespace Components.Aphid.Interpreter
 
                 if (i == 0)
                 {
-                    var obj = ValueHelper.Unwrap(index);
+                    var obj = Unwrap(index);
                     Type t;
                     isTypeArgument = obj != null &&
                         (((t = obj.GetType()) == typeof(Type)) ||
@@ -4291,7 +4295,7 @@ namespace Components.Aphid.Interpreter
                         (t.BaseType != null && t.BaseType.BaseType == typeof(Type)));
                 }
 
-                indexes[i] = ValueHelper.Wrap(index);
+                indexes[i] = Wrap(index);
             }
 
             return indexes;
@@ -4369,7 +4373,7 @@ namespace Components.Aphid.Interpreter
 
                 try
                 {
-                    var obj = ValueHelper.Wrap(element);
+                    var obj = Wrap(element);
                     SetImplicitArg(obj);
 
                     if (elementId != null)
@@ -4405,7 +4409,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretUsingExpression(UsingExpression expression)
         {
-            var result = ValueHelper.Unwrap(InterpretExpression(expression.Disposable));
+            var result = Unwrap(InterpretExpression(expression.Disposable));
 
             if (!(result is IDisposable disposable))
             {
@@ -4495,7 +4499,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadScriptExpression(LoadScriptExpression expression)
         {
-            var file = ValueHelper.Unwrap(InterpretExpression(expression.FileExpression)) as string;
+            var file = Unwrap(InterpretExpression(expression.FileExpression)) as string;
 
             if (Loader == null || file == null)
             {
@@ -4522,7 +4526,7 @@ namespace Components.Aphid.Interpreter
                     ast = Loader.LoadScript(file);
                 }
 
-                return AphidObject.Scalar(ast);
+                return Scalar(ast);
             }
             finally
             {
@@ -4533,7 +4537,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadLibraryExpression(LoadLibraryExpression expression)
         {
-            var library = ValueHelper.Unwrap(InterpretExpression(expression.LibraryExpression)) as string;
+            var library = Unwrap(InterpretExpression(expression.LibraryExpression)) as string;
 
             if (Loader == null || library == null)
             {
@@ -4589,7 +4593,7 @@ namespace Components.Aphid.Interpreter
                             .WithPositionFrom(expression.Call.Args[i]));
                 }
 
-                return AphidObject.Scalar(
+                return Scalar(
                     new AphidFunction(
                         paramSet,
                         new List<AphidExpression>
@@ -4617,10 +4621,10 @@ namespace Components.Aphid.Interpreter
 
                 for (var i = 0; i < applied.Length; i++)
                 {
-                    applied[i] = ValueHelper.DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
+                    applied[i] = DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
                 }
 
-                return AphidObject.Scalar(new AphidInteropPartialFunction(interopObj, applied));
+                return Scalar(new AphidInteropPartialFunction(interopObj, applied));
             }
         }
 
@@ -4632,7 +4636,7 @@ namespace Components.Aphid.Interpreter
                 "Cannot perform partial function application on");
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretPartialOperatorExpression(PartialOperatorExpression expression) => AphidObject.Scalar(
+        private AphidObject InterpretPartialOperatorExpression(PartialOperatorExpression expression) => Scalar(
                 new AphidFunction(
                     new[] { "$po" },
                     new List<AphidExpression>
@@ -4686,7 +4690,7 @@ namespace Components.Aphid.Interpreter
                 }
             }
 
-            return AphidObject.Null;
+            return InternedNull;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4796,10 +4800,10 @@ namespace Components.Aphid.Interpreter
             {
                 if (expression.CatchArg != null)
                 {
-                    var ex = AphidObject.Complex();
-                    ex.Add("message", AphidObject.Scalar(ExceptionHelper.Unwrap(e).Message));
-                    ex.Add("exception", AphidObject.Scalar(e));
-                    ex.Add("stack", AphidObject.Scalar(ExceptionHelper.StackTrace(GetRawStackTrace())));
+                    var ex = Complex();
+                    ex.Add("message", Scalar(ExceptionHelper.Unwrap(e).Message));
+                    ex.Add("exception", Scalar(e));
+                    ex.Add("stack", Scalar(ExceptionHelper.StackTrace(GetRawStackTrace())));
 
                     CurrentScope.Add(expression.CatchArg.Identifier, ex);
                 }
@@ -4911,7 +4915,7 @@ namespace Components.Aphid.Interpreter
                 return;
             }
 
-            var result = ValueHelper.Unwrap(obj).ToString();
+            var result = Unwrap(obj).ToString();
 
             if (GatorEmitFilter != null)
             {
@@ -5065,7 +5069,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    CurrentScope.Add(id, AphidObject.Null);
+                    CurrentScope.Add(id, InternedNull);
 
                     return null;
                 }
@@ -5175,7 +5179,7 @@ namespace Components.Aphid.Interpreter
                     return InterpretLoadLibraryExpression((LoadLibraryExpression)expression);
 
                 case Exp.NullExpression:
-                    return AphidObject.Null;
+                    return InternedNull;
 
                 case Exp.ContinueExpression:
                     return InterpretContinueExpression();
@@ -5252,7 +5256,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private object InterpretAndUnwrap(AphidExpression expression) =>
-            ValueHelper.Unwrap(InterpretExpression(expression));
+            Unwrap(InterpretExpression(expression));
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void InterpretFile(string filename) => InterpretFile(filename, false);
@@ -5368,7 +5372,7 @@ namespace Components.Aphid.Interpreter
 
             if (!CurrentScope.ContainsKey(AphidName.Block))
             {
-                CurrentScope.Add(AphidName.Block, AphidObject.Scalar(expressions));
+                CurrentScope.Add(AphidName.Block, Scalar(expressions));
             }
 
             for (var i = 0; i < expressions.Count || _insertNextBuffer != null; i++)
@@ -5430,7 +5434,7 @@ namespace Components.Aphid.Interpreter
                         throw CreateStrictModeException(id);
                     }
 
-                    CurrentScope.Add(id, AphidObject.Null);
+                    CurrentScope.Add(id, InternedNull);
                 }
                 else
                 {
@@ -5536,7 +5540,7 @@ namespace Components.Aphid.Interpreter
             }
 
             var node = ast.FirstOrDefault(x => x.Code != null);
-            CurrentScope.Add(AphidName.Code, AphidObject.Scalar(node != null ? node.Code : null));
+            CurrentScope.Add(AphidName.Code, Scalar(node != null ? node.Code : null));
         }
 #endif
 

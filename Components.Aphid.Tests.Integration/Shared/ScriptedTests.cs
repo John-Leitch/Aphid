@@ -49,16 +49,19 @@ namespace Components.Aphid.Tests.Integration.Shared
                 .ToArray());
 
         private static IEnumerable<TestCaseData> GetTestsCasesFromFiles(FileInfo file) =>
-            new Variations<bool>(new[] { true, false }, 2, GenerateOption.WithRepetition)
+            new Variations<bool>(new[] { true, false }, 3, GenerateOption.WithRepetition)
             .SelectMany(flags =>
             {
-                var (strictMode, cacheInlining) = (flags[0], flags[1]);
+                var (strictMode, cacheInlining, disableConstantFolding) =
+                    (flags[0], flags[1], flags[2]);
+
                 WriteQueryMessage($"Caching {file.FullName}");
                 var interpreter = new AphidInterpreter();
                 interpreter.Loader.SearchPaths.Add(_aphidDirectory.FullName);
                 interpreter.Loader.SearchPaths.Add(file.Directory.FullName);
                 interpreter.Interpret(_prologueAst);                
                 var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
+                interpreter.Loader.DisableConstantFolding = cache.DisableConstantFolding = disableConstantFolding;
                 interpreter.Loader.InlineCachedScripts = cache.InlineScripts = cacheInlining;
                 
                 var ast = cache.Read(file.FullName);
@@ -77,10 +80,17 @@ namespace Components.Aphid.Tests.Integration.Shared
                     .Select(y => (Name: y.Key, interpreter, Filename: file.Name))
                     .Select(x =>
                         new TestCaseData(x.interpreter, x.Name, strictMode, cacheInlining)                        
-                            .SetCategory(x.Name)
+                            .SetCategory(x.Filename)
+                            .SetArgDisplayNames(
+                                x.Name,
+                                strictMode ? "StrictMode" : "NoStrictMode",
+                                cacheInlining ? "CacheInlining" : "NoCacheInlining",
+                                disableConstantFolding ? "NoConstantFolding" : "ConstantFolding")
+                            .SetDescription($"{FormatTestName(x.Name, strictMode, cacheInlining)}"))
                             //.SetCategory(Path.GetFileNameWithoutExtension(x.Filename))
                             //.SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}({{2}}, {{3}})"));
-                            .SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}"));
+                            //.SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}"));
+                            ;
 
             });
 

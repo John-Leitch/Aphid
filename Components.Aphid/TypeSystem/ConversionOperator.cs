@@ -9,20 +9,13 @@ namespace Components.Aphid.TypeSystem
 {
     public static class ConversionOperator
     {
-        public static MethodInfo GetImplicitOperator(Type valueType, Type targetType)
-        {
-            return GetConversionOperator(valueType, targetType, isImplicit: true);
-        }
+        public static MethodInfo GetImplicitOperator(Type valueType, Type targetType) =>
+            GetConversionOperator(valueType, targetType, isImplicit: true);
 
-        public static MethodInfo GetExplicitOperator(Type valueType, Type targetType)
-        {
-            return GetConversionOperator(valueType, targetType, isImplicit: false);
-        }
+        public static MethodInfo GetExplicitOperator(Type valueType, Type targetType) =>
+            GetConversionOperator(valueType, targetType, isImplicit: false);
 
-        public static MethodInfo GetConversionOperator(
-            Type valueType,
-            Type targetType,
-            bool isImplicit)
+        public static MethodInfo GetConversionOperator(Type valueType, Type targetType, bool isImplicit)
         {
             if (isImplicit)
             {
