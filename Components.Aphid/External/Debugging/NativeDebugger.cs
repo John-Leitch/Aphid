@@ -18,8 +18,8 @@ namespace Components.Cypress
 #if FULL_DBG
         private Dictionary<IntPtr, HookManager> _hookManagers = new Dictionary<IntPtr, HookManager>();
         private Dictionary<IntPtr, BreakpointManager> _breakpointManagers = new Dictionary<IntPtr, BreakpointManager>();
-        private Dictionary<IntPtr, string> _breakpointModules = new Dictionary<IntPtr, string>();
-        private Dictionary<IntPtr, IntPtr> _breakpointBases = new Dictionary<IntPtr, IntPtr>();
+        private readonly Dictionary<IntPtr, string> _breakpointModules = new Dictionary<IntPtr, string>();
+        private readonly Dictionary<IntPtr, IntPtr> _breakpointBases = new Dictionary<IntPtr, IntPtr>();
 #endif
         private readonly Dictionary<IntPtr, string> _moduleTable = new Dictionary<IntPtr, string>();
         private Thread _debugThread = null;
@@ -460,13 +460,12 @@ namespace Components.Cypress
                     }
 
 #if FULL_DBG
-                    BreakpointManager breakpoints;
-                    if (!_breakpointManagers.TryGetValue(handle, out breakpoints))
+                    if (!_breakpointManagers.TryGetValue(handle, out var breakpoints))
                     {
                         _breakpointManagers.Add(handle, breakpoints = new BreakpointManager(GetMemory(handle)));
                     }
-                    HookManager hooks;
-                    if (!_hookManagers.TryGetValue(handle, out hooks))
+
+                    if (!_hookManagers.TryGetValue(handle, out var hooks))
                     {
                         _hookManagers.Add(handle, hooks = new HookManager(GetMemory(handle)));
                     }

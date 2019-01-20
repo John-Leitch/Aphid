@@ -71,7 +71,6 @@ namespace Components.Aphid.TypeSystem
         private TResult GetResult<TResult>(AphidObject result)
         {
             Type t;
-            ConstructorInfo ctor;
 
             if ((result == null || (result.IsScalar && result.Value == null)) &&
                 typeof(TResult).IsClass)
@@ -82,7 +81,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return (TResult)result.Value;
             }
-            else if (result.IsComplex && (ctor = t.GetConstructor(new Type[0])).IsPublic)
+            else if (result.IsComplex && (t.GetConstructor(new Type[0])).IsPublic)
             {
                 var obj = Activator.CreateInstance(t);
                 result.Bind(obj, true);

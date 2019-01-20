@@ -154,7 +154,9 @@ namespace Components.Aphid.Lexer
 
             AphidTokenType[] braces;
 
+#pragma warning disable ERP031 // Some enum cases are not covered by switch statement.
             switch (tokens[0].TokenType)
+#pragma warning restore ERP031 // Some enum cases are not covered by switch statement.
             {
                 case AphidTokenType.LeftBrace:
                 case AphidTokenType.RightBrace:

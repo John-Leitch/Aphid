@@ -2765,8 +2765,6 @@ namespace Components.Aphid.Interpreter
         public AphidObject CallStaticInteropFunction(CallExpression callExpression)
         {
             var path = FlattenPath(callExpression.FunctionExpression);
-            var pathStr = string.Join(".", path);
-            var imports = GetImports();
             var type = InteropTypeResolver.ResolveType(GetImports(), path);
             var methodName = path.Last();
 
@@ -3136,7 +3134,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushFrame(AphidFrame frame)
+        public void PushFrame(in AphidFrame frame)
         {
             while (_queuedFramePops > 0)
             {
@@ -4926,7 +4924,9 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretTernaryOperatorExpression(TernaryOperatorExpression expression)
         {
+#pragma warning disable ERP031 // Some enum cases are not covered by switch statement.
             switch (expression.Operator)
+#pragma warning restore ERP031 // Some enum cases are not covered by switch statement.
             {
                 case ConditionalOperator:
                     bool conditionResult;

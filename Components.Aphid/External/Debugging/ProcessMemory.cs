@@ -154,7 +154,9 @@ namespace Components.Cypress
         public int Write(IntPtr address, byte[] buffer)
         {
             // Todo: check return value
+#pragma warning disable IDE0018 // Inline variable declaration
             int bytesWritten;
+#pragma warning restore IDE0018 // Inline variable declaration
 
             return Kernel32.WriteProcessMemory(
                 Handle,
