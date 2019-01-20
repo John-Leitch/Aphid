@@ -32,18 +32,21 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         private static readonly string[] _ignoreScripts = new[] { "test.alx", "testbase.alx", "aoptest.alx" };
 
-        private static IEnumerable Tests => _aphidDirectory
-            .GetDirectories("ScriptedTests")
-            .Single()
-            .GetFiles("*.alx", SearchOption.AllDirectories)
-            .Except(x => _ignoreScripts.Contains(x.Name.ToLower()))
-            .AsParallel()
-            .WithDegreeOfParallelism(Environment.ProcessorCount)
-            .WithMergeOptions(ParallelMergeOptions.NotBuffered)
-            .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-            .SelectMany(GetTestsCasesFromFiles)
-            .AsSequential()
-            .ToArray();
+        private static IEnumerable Tests => _tests.Value;
+            
+        private static Lazy<IEnumerable> _tests = new Lazy<IEnumerable>(() =>
+            _aphidDirectory
+                .GetDirectories("ScriptedTests")
+                .Single()
+                .GetFiles("*.alx", SearchOption.AllDirectories)
+                .Except(x => _ignoreScripts.Contains(x.Name.ToLower()))
+                .AsParallel()
+                .WithDegreeOfParallelism(Environment.ProcessorCount)
+                .WithMergeOptions(ParallelMergeOptions.NotBuffered)
+                .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                .SelectMany(GetTestsCasesFromFiles)
+                .AsSequential()
+                .ToArray());
 
         private static IEnumerable<TestCaseData> GetTestsCasesFromFiles(FileInfo file) =>
             new Variations<bool>(new[] { true, false }, 2, GenerateOption.WithRepetition)

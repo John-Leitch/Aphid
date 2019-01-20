@@ -16,6 +16,14 @@ namespace Components.ObjectDatabase
             Context = context;
         }
 
-        public void UpdateOffset(long offset) => Offset = offset;
+        public void UpdateOffset(long offset)
+        {
+            Offset = offset;
+
+            if (Entity is IObjectDatabaseEntity dbEntity)
+            {
+                dbEntity.Offset = offset;
+            }
+        }
     }
 }

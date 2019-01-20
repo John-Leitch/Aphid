@@ -21,6 +21,8 @@ namespace Components.ObjectDatabase.Tests
 
         public Widget Widget => Context.CurrentWidget;
 
+        public Widget NextWidget() => Context.NextWidget();
+
         [SetUp]
         public void Setup() => Context.NextDB();
 

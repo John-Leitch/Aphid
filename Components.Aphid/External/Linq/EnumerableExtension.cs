@@ -58,15 +58,40 @@ namespace Components
             source.ToDictionary(x => x.Key, x => x.Value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        // GetOrCreate
+        // GetOrAdd
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public static TValue GetOrCreate<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key)
+        public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key)
             where TValue : new()
         {
             if (!d.TryGetValue(key, out var value))
             {
-                value = new TValue();
-                d.Add(key, value);
+                d.Add(key, value = new TValue());
+            }
+
+            return value;
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(
+            this Dictionary<TKey, TValue> d,
+            TKey key,
+            TValue defaultValue)
+        {
+            if (!d.TryGetValue(key, out var value))
+            {
+                d.Add(key, value = defaultValue);
+            }
+
+            return value;
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(
+            this Dictionary<TKey, TValue> d,
+            TKey key,
+            Func<TValue> createDefaultValue)
+        {
+            if (!d.TryGetValue(key, out var value))
+            {
+                d.Add(key, value = createDefaultValue());
             }
 
             return value;
@@ -124,6 +149,13 @@ namespace Components
             this IEnumerable<TKey> source,
             Func<TKey, TElement> elementSelector) =>
             source.ToDictionary(x => x, elementSelector);
+
+        public static Dictionary<TKey, TValue> AsKeyFor<TKey, TValue>(
+            this IEnumerable<TKey> source,
+            IEnumerable<TValue> second) =>
+            source
+                .Zip(second, (x, y) => new { Key = x, Value = y })
+                .ToDictionary(x => x.Key, x => x.Value);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // WhereAny

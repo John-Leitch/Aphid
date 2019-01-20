@@ -38,9 +38,9 @@ namespace Components.ObjectDatabase
 
         private bool _isCommitted = false;
 
-        private Dictionary<long, ObjectDatabaseRecord<TElement>> _entityOffsetTable = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
+        private readonly Dictionary<long, ObjectDatabaseRecord<TElement>> _entityOffsetTable = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
 
-        private Dictionary<TElement, ObjectDatabaseRecord<TElement>> _recordTable = new Dictionary<TElement, ObjectDatabaseRecord<TElement>>(new ReferenceEqualityComparer<TElement>());
+        private readonly Dictionary<TElement, ObjectDatabaseRecord<TElement>> _recordTable = new Dictionary<TElement, ObjectDatabaseRecord<TElement>>(new ReferenceEqualityComparer<TElement>());
 
         public bool UseUnsafeMemoryManager { get; private set; }
 
@@ -179,11 +179,20 @@ namespace Components.ObjectDatabase
 #endif
 
             byte[] buffer;
+            int bufferLength;
 
             using (var s = new MemoryStream())
             {
                 _serialize(s, element);
                 buffer = s.ToArray();
+
+                if (s.Length > int.MaxValue)
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Entity cannot be more than {0:n0} bytes", int.MaxValue));
+                }
+
+                bufferLength = (int)s.Length;
             }
 
             var alloc = default(Allocation);
@@ -194,14 +203,14 @@ namespace Components.ObjectDatabase
                 if (!UseUnsafeMemoryManager)
                 {
                     var mm = ReadVersionedMemoryManagerUnsafe(out var version);
-                    alloc = mm.Allocate(buffer.Length);
+                    alloc = mm.Allocate(bufferLength);
                     WriteMemoryManagerUnsafe(mm);
                     offset = mm.GetPosition(alloc);
                     IncrementVersion(version);
                 }
                 else
                 {
-                    alloc = _memoryManager.Allocate(buffer.Length);
+                    alloc = _memoryManager.Allocate(bufferLength);
                     offset = _memoryManager.GetPosition(alloc);
                 }
 
@@ -210,7 +219,7 @@ namespace Components.ObjectDatabase
 
             });
 
-            alloc.Write(buffer);
+            alloc.Write(buffer, bufferLength);
 
             if (TrackEntities)
             {

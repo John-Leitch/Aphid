@@ -6,7 +6,7 @@
     <TargetPlatform>x64</TargetPlatform>
 
     <TargetFrameworkVersion>Framework45</TargetFrameworkVersion>
-    <!--<CollectSourceInformation>False</CollectSourceInformation>-->
+    <CollectSourceInformation>False</CollectSourceInformation>
     <MaxCpuCount>128</MaxCpuCount>
     <!--<DisableAppDomain>False</DisableAppDomain>-->
 
@@ -14,7 +14,7 @@
     <DisableParallelization>false</DisableParallelization>
     <DisableAppDomain>false</DisableAppDomain>
     <CollectSourceInformation>False</CollectSourceInformation>
-    <BatchSize>10</BatchSize>
+    <!--<BatchSize>10</BatchSize>-->
     <ExecutionThreadApartmentState>MTA</ExecutionThreadApartmentState>
   </RunConfiguration>
 
@@ -24,7 +24,7 @@
     <!--<UseVsKeepEngineRunning>true</UseVsKeepEngineRunning>-->
     <NumberOfTestWorkers>12</NumberOfTestWorkers>
     <!--<ShadowCopyFiles>true</ShadowCopyFiles>-->
-    <InternalTraceLevel>Info</InternalTraceLevel>
+    <InternalTraceLevel>Warning</InternalTraceLevel>
     <!-- <DefaultTimeout>60000</DefaultTimeout> -->
     <VsTestCategoryType>NUnit</VsTestCategoryType>
   </NUnit>
