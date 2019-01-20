@@ -141,11 +141,13 @@ namespace Components.IO
             }
         }
 
-        public void Write(in Allocation allocation, byte[] buffer)
+        public void Write(in Allocation allocation, byte[] buffer) => Write(allocation, buffer, buffer.Length);
+
+        public void Write(in Allocation allocation, byte[] buffer, int length)
         {
             var size = GetSize(allocation);
 
-            if (buffer.Length > size)
+            if (length > size)
             {
                 throw new InternalBufferOverflowException();
             }
@@ -153,7 +155,7 @@ namespace Components.IO
             lock (_stream)
             {
                 SetPosition(allocation);
-                _stream.Write(buffer);
+                _stream.Write(buffer, 0, length);
                 _stream.Flush();
             }
         }

@@ -31,24 +31,17 @@ namespace Components.Aphid.UI
 
         public static bool ShowClrStack { get; set; } = false;
 
-        public static int ExcerptSurroundingLines { get; set; }
+        public static int ExcerptSurroundingLines { get; set; } = 4;
 
-        public static Action<string> WriteOut { get; set; }
+        public static Action<string> WriteOut { get; set; } = Cli.Write;
 
-        public static Action<string> WriteLineOut { get; set; }
+        public static Action<string> WriteLineOut { get; set; } = Cli.WriteLine;
 
         public static Exception LastException { get; set; }
 
         public static int ExcerptDumpCount { get; set; } = 4;
 
         public static bool IsAborting { get; set; } = false;
-
-        static AphidCli()
-        {
-            ExcerptSurroundingLines = 4;
-            WriteOut = Cli.Write;
-            WriteLineOut = Cli.WriteLine;
-        }
 
         public static AphidSerializer CreateSerializer(AphidInterpreter interpreter) =>
             new AphidSerializer(interpreter)

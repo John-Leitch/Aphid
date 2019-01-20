@@ -38,7 +38,9 @@ namespace Components.ObjectDatabase
 
         private bool _isCommitted = false;
 
-        private Dictionary<long, ObjectDatabaseRecord<TElement>> _items = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
+        private Dictionary<long, ObjectDatabaseRecord<TElement>> _entityOffsetTable = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
+
+        private Dictionary<TElement, ObjectDatabaseRecord<TElement>> _recordTable = new Dictionary<TElement, ObjectDatabaseRecord<TElement>>(new ReferenceEqualityComparer<TElement>());
 
         public bool UseUnsafeMemoryManager { get; private set; }
 
@@ -212,9 +214,9 @@ namespace Components.ObjectDatabase
 
             if (TrackEntities)
             {
-                lock (_items)
+                lock (_recordTable)
                 {
-                    _items.Add(offset, new ObjectDatabaseRecord<TElement>(element, offset, this));
+                    _recordTable.Add(element, new ObjectDatabaseRecord<TElement>(element, offset, this));
                 }
             }
         }
@@ -264,17 +266,17 @@ namespace Components.ObjectDatabase
 
             if (TrackEntities)
             {
-                lock (_items)
+                lock (_recordTable)
                 {
                     var record = new ObjectDatabaseRecord<TElement>(element, offset, this);
 
-                    if (!_items.ContainsKey(offset))
+                    if (!_recordTable.ContainsKey(element))
                     {
-                        _items.Add(offset, record);
+                        _recordTable.Add(element, record);
                     }
                     else
                     {
-                        _items[offset] = record;
+                        _recordTable[element] = record;
                     }
                 }
             }
@@ -335,13 +337,11 @@ namespace Components.ObjectDatabase
 #endif
 
             AssertReadOnly("updated record");
-            KeyValuePair<long, ObjectDatabaseRecord<TElement>> ctxItem;
+            ObjectDatabaseRecord<TElement> record;
 
-            lock (_items)
+            lock (_recordTable)
             {
-                ctxItem = _items.FirstOrDefault(x => x.Value.Value.Equals(element));
-
-                if (ctxItem.Key == 0 && ctxItem.Value == null)
+                if (!_recordTable.TryGetValue(element, out record))
                 {
                     throw new InvalidOperationException("Could not find entity in tracking table.");
                 }
@@ -355,12 +355,21 @@ namespace Components.ObjectDatabase
             }
 
             byte[] buffer;
+            int bufferLength;
 
             using (var s = new MemoryStream())
             {
-                _serialize(s, ctxItem.Value.Value);
+                _serialize(s, record.Entity);
                 s.Position = 0;
                 buffer = s.GetBuffer();
+
+                if (s.Length > int.MaxValue)
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Entity cannot be more than {0:n0} bytes", int.MaxValue));
+                }
+
+                bufferLength = (int)s.Length;
             }
 
             LockMemoryManager(() =>
@@ -368,48 +377,39 @@ namespace Components.ObjectDatabase
                 if (!UseUnsafeMemoryManager)
                 {
                     var mm = ReadVersionedMemoryManagerUnsafe(out var version);
-                    var offset = Update(mm, ctxItem.Key, buffer);
+                    var offset = Update(mm, record.Offset, buffer, bufferLength);
 
                     if (offset != -1)
                     {
                         WriteMemoryManagerUnsafe(mm);
-
-                        lock (_items)
-                        {
-                            _items.Remove(ctxItem.Key);
-
-                            _items.Add(
-                                offset,
-                                new ObjectDatabaseRecord<TElement>(ctxItem.Value.Value, offset, this));
-                        }
-
+                        record.UpdateOffset(offset);
                         IncrementVersion(version);
                     }
                 }
                 else
                 {
-                    Update(_memoryManager, ctxItem.Key, buffer);
+                    Update(_memoryManager, record.Offset, buffer, bufferLength);
                 }
             });
         }
 
         // Todo: add option to zero memory to avoid info disclosure
-        private long Update(MemoryManager memoryManager, long offset, byte[] buffer)
+        private long Update(MemoryManager memoryManager, long offset, byte[] buffer, int length)
         {
             var size = memoryManager.GetSizeFromOffset(offset);
 
-            if (buffer.Length <= size)
+            if (length <= size)
             {
                 _stream.Position = offset;
-                _stream.Write(buffer);
-
+                _stream.Write(buffer, 0, length);
+                _stream.Flush();
                 return -1;
             }
             else
             {
                 memoryManager.FreeOffset(offset);
-                var allocation = memoryManager.Allocate(buffer.Length);
-                allocation.Write(buffer);
+                var allocation = memoryManager.Allocate(length);
+                allocation.Write(buffer, length);
 
                 return allocation.Handle * memoryManager.PageSize;
             }

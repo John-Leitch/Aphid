@@ -26,16 +26,14 @@ namespace Components.ObjectDatabase.Tests
             Parent = parent;
         }
 
-        public bool Equals(Widget other)
-        {
-            return other != null &&
+        public bool Equals(Widget other) =>
+            other != null &&
                 X == other.X &&
                 Y == other.Y &&
                 ((Data == other.Data) ||
                     (Data != null && other.Data != null && Data.SequenceEqual(other.Data))) &&
                 Message == other.Message &&
                 (Parent == other.Parent || (Parent?.Equals(other.Parent) ?? false));
-        }
 
         public override int GetHashCode()
         {
@@ -54,5 +52,8 @@ namespace Components.ObjectDatabase.Tests
                 return h;
             }
         }
+
+        public override string ToString() =>
+            $"X={X}, Y={Y}, Data={Data}, Message={Message}, Parent={Parent}";
     }
 }

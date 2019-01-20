@@ -3,17 +3,19 @@ namespace Components.ObjectDatabase
 {
     public class ObjectDatabaseRecord<T>
     {
-        public T Value { get; private set; }
+        public T Entity { get; private set; }
 
         public long Offset { get; private set; }
 
         public IDatabaseContext<T> Context { get; private set; }
 
-        public ObjectDatabaseRecord(T value, long offset, IDatabaseContext<T> context)
+        public ObjectDatabaseRecord(T entity, long offset, IDatabaseContext<T> context)
         {
-            Value = value;
+            Entity = entity;
             Offset = offset;
             Context = context;
         }
+
+        public void UpdateOffset(long offset) => Offset = offset;
     }
 }

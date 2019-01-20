@@ -259,6 +259,7 @@
     <Compile Include="External\ObjectDatabase\ObjectDatabaseBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseRecord.cs" />
+    <Compile Include="External\Common\ReferenceEqualityComparer.cs" />
     <Compile Include="External\PInvoke\AdvApi32.cs" />
     <Compile Include="External\PInvoke\CharAttributes.cs" />
     <Compile Include="External\PInvoke\CharInfo.cs" />

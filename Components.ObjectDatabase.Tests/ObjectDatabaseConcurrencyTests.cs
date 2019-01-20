@@ -86,7 +86,8 @@ namespace Components.ObjectDatabase.Tests
                     return w;
                 },
                 checkContains: false,
-                noFragmentation: pageSize == 0x100 || pageSize == 0x2000 || pageSize == 0x200000,
+                noFragmentation: true,
+                //noFragmentation: pageSize == 0x100 || pageSize == 0x2000 || pageSize == 0x200000,
                 (db, widget, i) => widget
                     .Do(x => x.Message = $"Async_{i}")
                     .Do(x => x.Context.As<BinDB>(y => y.Update(x))),
@@ -141,9 +142,7 @@ namespace Components.ObjectDatabase.Tests
                     Contains(Widget, rows);
                 }
 
-                var rows2 = getRows().OrderBy(x => x.Message).ToList();
-                var rows3 = getRows().OrderBy(x => x.Message).ToList();
-                CollectionAssert.AreEqual(rows2, rows3);
+                CollectionAssert.AreEqual(rows, getRows());
 
                 getDB().ReadMemoryManagerUnsafe()
                     .Do(x => AreEqual(count, x.Allocations.Count))
