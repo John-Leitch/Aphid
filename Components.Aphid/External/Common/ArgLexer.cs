@@ -34,10 +34,8 @@ namespace Components
             Value = value;
         }
 
-        public override string ToString()
-        {
-            return string.Format("[{0}] {1:x4}-{2:x4} {3}: {4}", Type, Offset, EndOffset, Lexeme, Value);
-        }
+        public override string ToString() =>
+            $"[{Type}] {Offset:x4}-{EndOffset:x4} {Lexeme}: {Value}";
     }
 
     public static class ArgLexer

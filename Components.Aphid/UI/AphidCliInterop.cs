@@ -2,12 +2,10 @@ using global::Components.Aphid.Parser;
 using global::Components.Aphid.Interpreter;
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static UnwrapDelegate _Unwrap;
-        
+
         public static UnwrapDelegate Unwrap {
             get {
                 if ((AphidCli._Unwrap == null)) {
@@ -15,22 +13,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._Unwrap;
             }
-            set {
-                AphidCli._Unwrap = value;
-            }
+            set => AphidCli._Unwrap = value;
         }
-        
+
         public delegate System.Type UnwrapDelegate(object obj);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetUnwrappedTypeDelegate _GetUnwrappedType;
-        
+
         public static GetUnwrappedTypeDelegate GetUnwrappedType {
             get {
                 if ((AphidCli._GetUnwrappedType == null)) {
@@ -38,22 +32,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetUnwrappedType;
             }
-            set {
-                AphidCli._GetUnwrappedType = value;
-            }
+            set => AphidCli._GetUnwrappedType = value;
         }
-        
+
         public delegate System.Type GetUnwrappedTypeDelegate(object obj);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetAphidObjectTypeNameDelegate _GetAphidObjectTypeName;
-        
+
         public static GetAphidObjectTypeNameDelegate GetAphidObjectTypeName {
             get {
                 if ((AphidCli._GetAphidObjectTypeName == null)) {
@@ -61,22 +51,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetAphidObjectTypeName;
             }
-            set {
-                AphidCli._GetAphidObjectTypeName = value;
-            }
+            set => AphidCli._GetAphidObjectTypeName = value;
         }
-        
+
         public delegate string GetAphidObjectTypeNameDelegate(object obj);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetAphidTypeNameDelegate _GetAphidTypeName;
-        
+
         public static GetAphidTypeNameDelegate GetAphidTypeName {
             get {
                 if ((AphidCli._GetAphidTypeName == null)) {
@@ -84,22 +70,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetAphidTypeName;
             }
-            set {
-                AphidCli._GetAphidTypeName = value;
-            }
+            set => AphidCli._GetAphidTypeName = value;
         }
-        
+
         public delegate string GetAphidTypeNameDelegate(System.Type type);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetTypeNameDelegate _GetTypeName;
-        
+
         public static GetTypeNameDelegate GetTypeName {
             get {
                 if ((AphidCli._GetTypeName == null)) {
@@ -107,22 +89,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetTypeName;
             }
-            set {
-                AphidCli._GetTypeName = value;
-            }
+            set => AphidCli._GetTypeName = value;
         }
-        
+
         public delegate string GetTypeNameDelegate(System.Type type);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetTypeFullNameDelegate _GetTypeFullName;
-        
+
         public static GetTypeFullNameDelegate GetTypeFullName {
             get {
                 if ((AphidCli._GetTypeFullName == null)) {
@@ -130,22 +108,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetTypeFullName;
             }
-            set {
-                AphidCli._GetTypeFullName = value;
-            }
+            set => AphidCli._GetTypeFullName = value;
         }
-        
+
         public delegate string GetTypeFullNameDelegate(System.Type type);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetObjectTypeNameDelegate _GetObjectTypeName;
-        
+
         public static GetObjectTypeNameDelegate GetObjectTypeName {
             get {
                 if ((AphidCli._GetObjectTypeName == null)) {
@@ -153,22 +127,18 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetObjectTypeName;
             }
-            set {
-                AphidCli._GetObjectTypeName = value;
-            }
+            set => AphidCli._GetObjectTypeName = value;
         }
-        
+
         public delegate string GetObjectTypeNameDelegate(object obj);
     }
 }
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidCli {
-        
         private static GetObjectTypeFullNameDelegate _GetObjectTypeFullName;
-        
+
         public static GetObjectTypeFullNameDelegate GetObjectTypeFullName {
             get {
                 if ((AphidCli._GetObjectTypeFullName == null)) {
@@ -176,11 +146,9 @@ namespace Components.Aphid.UI {
                 }
                 return AphidCli._GetObjectTypeFullName;
             }
-            set {
-                AphidCli._GetObjectTypeFullName = value;
-            }
+            set => AphidCli._GetObjectTypeFullName = value;
         }
-        
+
         public delegate string GetObjectTypeFullNameDelegate(object obj);
     }
 }
@@ -190,7 +158,7 @@ namespace Components.Aphid.UI
     using global::Components.Aphid.Lexer;
     using global::Components.Aphid.Parser;
     using System.Collections.Generic;
-    
+
     public static partial class AphidCompilerResources
     {
         public static List<AphidExpression> ByteCode_98985a32c2f876ecca5fb39f8ab84aea()

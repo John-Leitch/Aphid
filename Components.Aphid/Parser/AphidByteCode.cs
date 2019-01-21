@@ -32,10 +32,7 @@ namespace Components.Aphid.Parser
             }
         }
 
-        public static void Encode(Stream stream, List<AphidExpression> ast)
-        {
-            Serializer.Serialize(stream, ast);
-        }
+        public static void Encode(Stream stream, List<AphidExpression> ast) => Serializer.Serialize(stream, ast);
 
         public static List<AphidExpression> Decode(byte[] bytecode)
         {

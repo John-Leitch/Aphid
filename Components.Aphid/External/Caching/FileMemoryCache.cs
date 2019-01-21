@@ -8,10 +8,8 @@ namespace Components.Caching
         private static Dictionary<string, CacheBlob<byte[]>> _cache =
             new Dictionary<string, CacheBlob<byte[]>>();
 
-        public static Stream OpenRead(string filename)
-        {
-            return new MemoryStream(ReadAllBytes(filename));
-        }
+        public static Stream OpenRead(string filename) =>
+            new MemoryStream(ReadAllBytes(filename));
 
         public static byte[] ReadAllBytes(string filename)
         {
@@ -82,10 +80,8 @@ namespace Components.Caching
             }
         }
 
-        private static CrossProcessLock CreateLock(string filename)
-        {
-            return new CrossProcessLock($"FileCache_{CacheName.Sanitize(filename)}");
-        }
+        private static CrossProcessLock CreateLock(string filename) =>
+            new CrossProcessLock($"FileCache_{CacheName.Sanitize(filename)}");
 
         private static void SetHiddenFlag(string filename)
         {

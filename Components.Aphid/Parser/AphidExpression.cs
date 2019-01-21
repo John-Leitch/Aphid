@@ -10,36 +10,36 @@ namespace Components.Aphid.Parser
 
         public AphidExpressionContext Context
         {
-            get { return _context; }
-            set { _context = value; }
+            get => _context;
+            set => _context = value;
         }
 
         private int _index = -1;
 
         public int Index
         {
-            get { return _index; }
-            set { _index = value; }
+            get => _index;
+            set => _index = value;
         }
 
         private int _length = -1;
 
         public int Length
         {
-            get { return _length; }
-            set { _length = value; }
+            get => _length;
+            set => _length = value;
         }
 
         public string Code
         {
-            get { return _context.Code; }
-            set { _context.Code = value; }
+            get => _context.Code;
+            set => _context.Code = value;
         }
 
         public string Filename
         {
-            get { return _context.Filename; }
-            set { _context.Filename = value; }
+            get => _context.Filename;
+            set => _context.Filename = value;
         }
 
 #if APHID_DEBUGGING_ENABLED

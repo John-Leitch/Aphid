@@ -61,7 +61,6 @@ namespace Components.Cypress.IA32
                                     size += 4;
                                     i += 3;
                                     break;
-
                             }
                             break;
 

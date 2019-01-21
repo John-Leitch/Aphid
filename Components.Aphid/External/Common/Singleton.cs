@@ -11,7 +11,7 @@ namespace Components
     {
         public static T Current { get; private set; }
 
-        public Singleton()
+        protected Singleton()
         {
             if (Current != null)
             {
@@ -27,7 +27,7 @@ namespace Components
     {
         public static object Current { get; private set; }
 
-        public Singleton()
+        protected Singleton()
         {
             if (Current != null)
             {

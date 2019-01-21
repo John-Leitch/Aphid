@@ -9,11 +9,11 @@ namespace Components.Aphid.Debugging
 {
     public class FrameProfileInfo
     {
-        public int ThreadId { get; private set; }
+        public int ThreadId { get; }
 
-        public int NameId { get; private set; }
+        public int NameId { get; }
 
-        public Stopwatch Stopwatch { get; private set; }
+        public Stopwatch Stopwatch { get; }
 
         public FrameProfileInfo(int threadId, int nameId, Stopwatch stopwatch)
         {

@@ -8,10 +8,7 @@ namespace Components.External.ConsolePlus
 {
     public static class CommandString
     {
-        public static string Create(string[] parts)
-        {
-            return string.Join(" ", parts.Select(Escape));
-        }
+        public static string Create(string[] parts) => string.Join(" ", parts.Select(Escape));
 
         private static string Escape(string part)
         {

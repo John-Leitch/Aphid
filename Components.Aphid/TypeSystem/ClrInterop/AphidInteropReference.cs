@@ -9,22 +9,19 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropReference
     {
-        public bool IsStatic
-        {
-            get { return Object == null; }
-        }
+        public bool IsStatic => Object == null;
 
-        public AphidInteropReferenceType ReferenceType { get; private set; }
+        public AphidInteropReferenceType ReferenceType { get; }
 
-        public object Object { get; private set; }
+        public object Object { get; }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public FieldInfo Field { get; private set; }
+        public FieldInfo Field { get; }
 
-        public PropertyInfo Property { get; private set; }
+        public PropertyInfo Property { get; }
 
-        public Type NestedType { get; private set; }
+        public Type NestedType { get; }
 
         public AphidInteropReference(object obj, FieldInfo field)
             : this(obj, field.Name)
@@ -50,14 +47,8 @@ namespace Components.Aphid.TypeSystem
         }
 
         private AphidInteropReference(object obj, string name)
-            : this(name)
-        {
-            Object = obj;
-        }
+            : this(name) => Object = obj;
 
-        private AphidInteropReference(string name)
-        {
-            Name = name;
-        }
+        private AphidInteropReference(string name) => Name = name;
     }
 }

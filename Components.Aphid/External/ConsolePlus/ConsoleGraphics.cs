@@ -9,7 +9,7 @@ namespace Components.External.ConsolePlus
 {
     public class ConsoleGraphics
     {
-        IntPtr _stdOut;
+        private IntPtr _stdOut;
 
         private SmallRect _writeRegion;
 
@@ -61,7 +61,6 @@ namespace Components.External.ConsolePlus
 
             IsInitialized = true;
 
-
             for (var cursorY = 0; cursorY < CanvasWidth; cursorY++)
             {
                 for (var cursorX = 0; cursorX < CanvasHeight; cursorX++)
@@ -76,20 +75,14 @@ namespace Components.External.ConsolePlus
             short y,
             short width,
             short height,
-            CharAttributes brush)
-        {
-            DrawRectangleCore(x, y, width, height, brush, null);
-        }
+            CharAttributes brush) => DrawRectangleCore(x, y, width, height, brush, null);
 
         public void DrawRectangle(
             short x,
             short y,
             short width,
             short height,
-            char asciiChar)
-        {
-            DrawRectangleCore(x, y, width, height, null, asciiChar);
-        }
+            char asciiChar) => DrawRectangleCore(x, y, width, height, null, asciiChar);
 
         public void DrawRectangle(
             short x,
@@ -97,10 +90,7 @@ namespace Components.External.ConsolePlus
             short width,
             short height,
             CharAttributes brush,
-            char asciiChar)
-        {
-            DrawRectangleCore(x, y, width, height, brush, asciiChar);
-        }
+            char asciiChar) => DrawRectangleCore(x, y, width, height, brush, asciiChar);
 
         private void DrawRectangleCore(
             short x,
@@ -155,20 +145,11 @@ namespace Components.External.ConsolePlus
             _bufferCoords = new Coord(x, y);
         }
 
-        public void Paint(short x, short y, CharAttributes brush)
-        {
-            Canvas[y, x].Attributes = brush;
-        }
+        public void Paint(short x, short y, CharAttributes brush) => Canvas[y, x].Attributes = brush;
 
-        public void Write(short x, short y, string text)
-        {
-            WriteCore(x, y, text, null);
-        }
+        public void Write(short x, short y, string text) => WriteCore(x, y, text, null);
 
-        public void Write(short x, short y, string text, CharAttributes brush)
-        {
-            WriteCore(x, y, text, brush);
-        }
+        public void Write(short x, short y, string text, CharAttributes brush) => WriteCore(x, y, text, brush);
 
         private void WriteCore(short x, short y, string text, CharAttributes? brush)
         {

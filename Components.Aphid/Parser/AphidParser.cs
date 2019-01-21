@@ -16,10 +16,7 @@ namespace Components.Aphid.Parser
 
         private AphidToken _currentToken;
 
-        public AphidToken CurrentToken
-        {
-            get { return _currentToken; }
-        }
+        public AphidToken CurrentToken => _currentToken;
 
         public bool UseImplicitReturns { get; set; }
 
@@ -98,18 +95,12 @@ namespace Components.Aphid.Parser
             }
         }
 
-        public static List<AphidExpression> Parse(List<AphidToken> tokens, string code)
-        {
-            return Parse(tokens, code, useImplicitReturns: true);
-        }
+        public static List<AphidExpression> Parse(List<AphidToken> tokens, string code) => Parse(tokens, code, useImplicitReturns: true);
 
         public static List<AphidExpression> Parse(
             List<AphidToken> tokens,
             string code,
-            bool useImplicitReturns = true)
-        {
-            return Parse(tokens, code, null, useImplicitReturns);
-        }
+            bool useImplicitReturns = true) => Parse(tokens, code, null, useImplicitReturns);
 
         public static List<AphidExpression> Parse(
             List<AphidToken> tokens,
@@ -147,16 +138,13 @@ namespace Components.Aphid.Parser
                     ast[0].Filename = filename;
                 }
             }
-            
+
             new AphidCodeVisitor().Visit(ast);
 
             return ast;
         }
 
-        public static AphidExpression ParseExpression(string code)
-        {
-            return ParseExpression(new AphidLexer(code).GetTokens(), code);
-        }
+        public static AphidExpression ParseExpression(string code) => ParseExpression(new AphidLexer(code).GetTokens(), code);
 
         public static AphidExpression ParseExpression(List<AphidToken> tokens, string code)
         {
@@ -172,18 +160,12 @@ namespace Components.Aphid.Parser
             return ast[0];
         }
 
-        public static List<AphidExpression> Parse(string code)
-        {
-            return Parse(code, useImplicitReturns: true);
-        }
+        public static List<AphidExpression> Parse(string code) => Parse(code, useImplicitReturns: true);
 
         public static List<AphidExpression> Parse(
             string code,
             bool isTextDocument = false,
-            bool useImplicitReturns = true)
-        {
-            return Parse(code, null, isTextDocument, useImplicitReturns);
-        }
+            bool useImplicitReturns = true) => Parse(code, null, isTextDocument, useImplicitReturns);
 
         public static List<AphidExpression> Parse(
             string code,

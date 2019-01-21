@@ -9,24 +9,24 @@ namespace LLex
 {
     public static class LLexFile
     {
-        const string CodeDelimiter = "%%";
+        private const string CodeDelimiter = "%%";
 
-        const string KeywordDelimiter = "@@";
+        private const string KeywordDelimiter = "@@";
 
         public static string Interpret(string file)
         {
             var tokenTable = new TokenTable();
 
             var lexFileMode = LexFileMode.Normal;
-            
+
             var llText = File.ReadAllText(file);
 
             var modeRegex = new Regex(@"^[a-zA-Z_][0-9a-zA-Z_-]*$");
-            var tokenRegex = new Regex(@"^([^\s]+)\s+(([a-zA-Z_][0-9a-zA-Z_-]*)|(%%))(\s+([a-zA-Z_][0-9a-zA-Z_-]*))?$");            
+            var tokenRegex = new Regex(@"^([^\s]+)\s+(([a-zA-Z_][0-9a-zA-Z_-]*)|(%%))(\s+([a-zA-Z_][0-9a-zA-Z_-]*))?$");
 
             var lines = llText
                 .Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim());            
+                .Select(x => x.Trim());
 
             var lexerMode = 0;
             var lexerModes = new Dictionary<string, int>();
@@ -71,7 +71,7 @@ namespace LLex
                     }
                     else if (line == KeywordDelimiter)
                     {
-                        lexFileMode = LexFileMode.Keyword;                        
+                        lexFileMode = LexFileMode.Keyword;
                         continue;
                     }
                     else if (line == CodeDelimiter)
@@ -186,7 +186,7 @@ namespace LLex
                     }
                 }
             }
-            
+
             foreach (var keyword in keywords)
             {
                 var t = keyword + "Keyword";
@@ -216,6 +216,7 @@ namespace LLex
                     {
                         continue;
                     }
+
                     tokenTable.AddLexemeCode(i, keywordDefault);
                 }
             }

@@ -2,12 +2,10 @@ using global::Components.Aphid.Parser;
 using global::Components.Aphid.Interpreter;
 
 namespace Components.Aphid.UI {
-    
-    
+
     public partial class AphidRepl {
-        
         private static InitDelegate _Init;
-        
+
         public static InitDelegate Init {
             get {
                 if ((AphidRepl._Init == null)) {
@@ -15,11 +13,9 @@ namespace Components.Aphid.UI {
                 }
                 return AphidRepl._Init;
             }
-            set {
-                AphidRepl._Init = value;
-            }
+            set => AphidRepl._Init = value;
         }
-        
+
         public delegate void InitDelegate();
     }
 }
@@ -29,7 +25,7 @@ namespace Components.Aphid.UI
     using global::Components.Aphid.Lexer;
     using global::Components.Aphid.Parser;
     using System.Collections.Generic;
-    
+
     public static partial class AphidCompilerResources
     {
         public static List<AphidExpression> ByteCode_b4193aae9bedabb5274cae212e7a41c1()

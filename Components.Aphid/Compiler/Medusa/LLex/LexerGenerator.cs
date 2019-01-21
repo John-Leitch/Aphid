@@ -70,7 +70,7 @@ namespace LLex
 
                 var returnToken = returnTokens.FirstOrDefault();
 
-                if (returnToken != null && returnToken.Lexeme != null)
+                if (returnToken?.Lexeme != null)
                 {
                     groupState.Token = returnToken.TokenType;
                     groupState.Code = returnToken.Code;
@@ -113,7 +113,7 @@ namespace LLex
 
             string childTemplates;
 
-            if (state.Children.Any())
+            if (state.Children.Count > 0)
             {
                 childTemplates = state.Children
                     .Select(x =>
@@ -144,7 +144,7 @@ namespace LLex
                         var t = Components.Aphid.Properties.Resources.CaseTemplate
                             .Replace("{{Cases}}", CreateCases(EncodeChar(x.State)))
                             .Replace("{{Body}}", body)
-                            .Replace("{{States}}", x.Children.Any() ? EmitState(x, false) : "");
+                            .Replace("{{States}}", x.Children.Count > 0 ? EmitState(x, false) : "");
 
                         return t;
                     })
@@ -155,7 +155,7 @@ namespace LLex
                 return "";
             }
 
-            if (defaults != null && defaults.Any())
+            if (defaults?.Any() == true)
             {
                 childTemplates += "\r\ndefault:\r\n" +
                     defaults.Aggregate((x, y) => x + "\r\n" + y) + "\r\nbreak;\r\n";
@@ -169,7 +169,7 @@ namespace LLex
         }
 
         public string GenerateIsKeyword() =>
-            table.KeywordTokens.Any() ?
+            table.KeywordTokens.Count > 0 ?
                 table.KeywordTokens
                     .Select(x => "TokenType == {TokenType}." + x)
                     .Aggregate((x, y) => x + "||\r\n" + new string(' ', 16) + y) :

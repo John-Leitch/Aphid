@@ -1,5 +1,8 @@
-﻿namespace Components.PInvoke
+﻿using System;
+
+namespace Components.PInvoke
 {
+    [Flags]
     public enum NativeWindowStyle : uint
     {
         None = 0,
@@ -26,7 +29,6 @@
         WS_TILED = WS_OVERLAPPED,
         WS_ICONIC = WS_MINIMIZE,
         WS_SIZEBOX = WS_THICKFRAME,
-
 
         // Extended Window Styles 
         WS_EX_DLGMODALFRAME = 0x0001,

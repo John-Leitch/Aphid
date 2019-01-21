@@ -27,10 +27,7 @@ namespace Components.External.ConsolePlus
             return sb.ToString();
         }
 
-        public static string GetString(ColoredText coloredText)
-        {
-            return Append(new StringBuilder(), coloredText).ToString();
-        }
+        public static string GetString(ColoredText coloredText) => Append(new StringBuilder(), coloredText).ToString();
 
         public static StringBuilder Append(StringBuilder sb, ColoredText coloredText)
         {
@@ -67,32 +64,20 @@ namespace Components.External.ConsolePlus
                 b);
         }
 
-        public static string Foreground(byte[] rgb)
-        {
-            return Rgb(false, rgb[0], rgb[1], rgb[2]);
-        }
+        public static string Foreground(byte[] rgb) => Rgb(false, rgb[0], rgb[1], rgb[2]);
 
-        public static string Foreground(byte r, byte g, byte b)
-        {
-            return Rgb(false, r, g, b);
-        }
+        public static string Foreground(byte r, byte g, byte b) => Rgb(false, r, g, b);
 
-        public static string Background(byte[] rgb)
-        {
-            return Rgb(true, rgb[0], rgb[1], rgb[2]);
-        }
+        public static string Background(byte[] rgb) => Rgb(true, rgb[0], rgb[1], rgb[2]);
 
-        public static string Background(byte r, byte g, byte b)
-        {
-            return Rgb(true, r, g, b);
-        }
+        public static string Background(byte r, byte g, byte b) => Rgb(true, r, g, b);
 
         public static bool TryEnable()
         {
             try
             {
                 Enable();
-                
+
                 return true;
             }
             catch

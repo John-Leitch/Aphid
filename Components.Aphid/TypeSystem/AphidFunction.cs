@@ -18,8 +18,8 @@ namespace Components.Aphid.TypeSystem
         [ScriptIgnore, IgnoreDataMember]
         public AphidObject ParentScope
         {
-            get { return _parentScope; }
-            set { _parentScope = value; }
+            get => _parentScope;
+            set => _parentScope = value;
         }
 
         public string[] Args { get; set; }
@@ -38,10 +38,7 @@ namespace Components.Aphid.TypeSystem
             ParentScope = parentScope;
         }
 
-        public AphidFunction Clone()
-        {
-            return new AphidFunction(Args, Body, ParentScope);
-        }
+        public AphidFunction Clone() => new AphidFunction(Args, Body, ParentScope);
 
         public IEnumerator<AphidExpression> GetEnumerator()
         {

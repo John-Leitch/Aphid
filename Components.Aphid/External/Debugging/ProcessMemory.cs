@@ -10,7 +10,7 @@ namespace Components.Cypress
 {
     public class ProcessMemory
     {
-        public IntPtr Handle { get; private set; }
+        public IntPtr Handle { get; }
 
         public ProcessMemory(IntPtr handle) => Handle = handle;
 
@@ -22,7 +22,7 @@ namespace Components.Cypress
                 Handle,
                 address,
                 buffer,
-                buffer.Length,
+                new IntPtr(buffer.Length),
                 out var bytesRead))
             {
                 return null;
@@ -59,7 +59,7 @@ namespace Components.Cypress
                 Handle,
                 address,
                 out var m,
-                (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION)));
+                new IntPtr(Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION))));
 
             return m;
         }
@@ -114,7 +114,6 @@ namespace Components.Cypress
                 address += bufferSize;
             } while (inString);
 
-
             return sb.ToString();
         }
 
@@ -131,7 +130,7 @@ namespace Components.Cypress
                 {
                     return sb.ToString();
                 }
-                
+
                 int i = 0;
                 for (i = 0; i < tmp.Length; i += 2)
                 {
@@ -147,7 +146,6 @@ namespace Components.Cypress
                 address += bufferSize;
             } while (inString);
 
-
             return sb.ToString();
         }
 
@@ -160,10 +158,11 @@ namespace Components.Cypress
 
             return Kernel32.WriteProcessMemory(
                 Handle,
-                address, buffer, buffer.Length,
-                out bytesWritten) ? 
-                bytesWritten :
-                -1;
+                address,
+                buffer,
+                new IntPtr(buffer.Length),
+                out bytesWritten) ?
+                    bytesWritten : -1;
         }
 
         public IntPtr Allocate(
@@ -181,7 +180,7 @@ namespace Components.Cypress
             Kernel32.VirtualAllocEx(
                 Handle,
                 IntPtr.Zero,
-                size,
+                new IntPtr(size),
                 allocationType,
                 memoryProtection);
 

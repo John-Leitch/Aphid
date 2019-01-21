@@ -26,7 +26,6 @@ namespace Components.External.ConsolePlus
         public CliProgressBar(double maximum)
             : this (0, maximum, 0)
         {
-
         }
 
         public void Write()

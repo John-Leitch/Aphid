@@ -9,11 +9,11 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidConversionInfo
     {
-        public AphidInteropMethodArg InteropArg { get; private set; }  
+        public AphidInteropMethodArg InteropArg { get; }
 
-        public bool CanConvert { get; private set; }
+        public bool CanConvert { get; }
 
-        public Type[] GenericArguments { get; private set; }
+        public Type[] GenericArguments { get; }
 
         public AphidConversionInfo(
             AphidInteropMethodArg interopArg,

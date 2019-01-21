@@ -19,10 +19,9 @@ namespace Components.Aphid.Parser
 
         public AphidInterpreter Interpreter { get; set; }
 
-        public ScriptMutator()
-        {
-            _mutateImplementation = new Lazy<List<AphidExpression>>(() => AphidParser.Parse(_script));
-        }
+        public ScriptMutator() =>
+            _mutateImplementation =
+                new Lazy<List<AphidExpression>>(() => AphidParser.Parse(_script));
 
         public ScriptMutator(AphidInterpreter interpreter, string script)
             : this()
@@ -40,10 +39,7 @@ namespace Components.Aphid.Parser
         public ScriptMutator(AphidFunction mutateImplementation)
             : this(
                 (AphidInterpreter)mutateImplementation.ParentScope.Resolve(null, "$aphid").Value,
-                mutateImplementation.Body)
-        {
-            _parentScope = mutateImplementation.ParentScope;
-        }
+                mutateImplementation.Body) => _parentScope = mutateImplementation.ParentScope;
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {

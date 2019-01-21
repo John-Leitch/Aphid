@@ -8,10 +8,7 @@ namespace Components.Aphid.TypeSystem
 {
     public static class AphidAlias
     {
-        public static string Resolve(Type type)
-        {
-            return Resolve(type.Name);
-        }
+        public static string Resolve(Type type) => Resolve(type.Name);
 
         public static string Resolve(string name)
         {

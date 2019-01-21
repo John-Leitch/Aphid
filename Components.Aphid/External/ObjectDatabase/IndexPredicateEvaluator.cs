@@ -23,7 +23,7 @@ namespace Components.ObjectDatabase
         [DataMember]
         public string Predicate
         {
-            get { return _predicate; }
+            get => _predicate;
             set
             {
                 _predicate = value;

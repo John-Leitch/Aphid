@@ -12,12 +12,9 @@ namespace Components.Aphid.TypeSystem
     {
         public Func<AphidInterpreter, object[], object> InvokeDelegate { get; private set; }
 
-        public bool UnwrapParameters { get; private set; }
+        public bool UnwrapParameters { get; }
 
-        public object Invoke(AphidInterpreter interpreter, params object[] parms)
-        {
-            return InvokeDelegate(interpreter, parms);
-        }
+        public object Invoke(AphidInterpreter interpreter, params object[] parms) => InvokeDelegate(interpreter, parms);
 
         private static object[] PrefixScope(AphidInterpreter interpreter, object[] parms)
         {
@@ -30,8 +27,7 @@ namespace Components.Aphid.TypeSystem
         private void CreateInvokeDelegate(AphidInteropFunctionAttribute attribute, MethodInfo method)
         {
             var parameters = method.GetParameters();
-            var paramsParam = parameters
-                .FirstOrDefault(x => x
+            var paramsParam = Array.Find(parameters, x => x
                     .GetCustomAttributes(true)
                     .Any(y => y is ParamArrayAttribute));
 
@@ -43,12 +39,12 @@ namespace Components.Aphid.TypeSystem
                 }
                 else
                 {
-                    InvokeDelegate = (callerScope, x) => method.Invoke(null, PrefixScope(callerScope, x));                    
+                    InvokeDelegate = (callerScope, x) => method.Invoke(null, PrefixScope(callerScope, x));
                 }
             }
             else
             {
-                var paramCount = parameters.Count();
+                var paramCount = parameters.Length;
 
                 if (attribute.PassInterpreter)
                 {
@@ -85,10 +81,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public AphidInteropFunction(Func<AphidInterpreter, object[], object> function)
-        {
-            InvokeDelegate = function;
-        }
+        public AphidInteropFunction(Func<AphidInterpreter, object[], object> function) => InvokeDelegate = function;
 
         public AphidInteropFunction(AphidInteropFunctionAttribute attribute, MethodInfo method)
         {

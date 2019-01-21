@@ -9,19 +9,19 @@ namespace Components.Aphid.TypeSystem
 {
     public class ParameterInfoCache
     {
-        public Type TargetType { get; private set; }
+        public Type TargetType { get; }
 
-        public bool HasParamArray { get; private set; }
+        public bool HasParamArray { get; }
 
-        public bool IsClass { get; private set; }
+        public bool IsClass { get; }
 
-        public bool IsCharArray { get; private set; }
+        public bool IsCharArray { get; }
 
-        public bool IsArray { get; private set; }
+        public bool IsArray { get; }
 
-        public Dictionary<Type, ArgumentTypeCache> ArgumentTypeCache { get; private set; }
+        public Dictionary<Type, ArgumentTypeCache> ArgumentTypeCache { get; }
 
-        public ArgumentTypeCache InitialArgumentTypeCache { get; private set; }
+        public ArgumentTypeCache InitialArgumentTypeCache { get; }
 
         public ParameterInfoCache(ParameterInfo parameter)
         {

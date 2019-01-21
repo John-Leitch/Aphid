@@ -36,12 +36,12 @@ namespace Components.Json
 
                     case JsonTokenType.HexNumber:
                         sb.Append(Convert.ToInt64(tokens[i].Lexeme, 16));
-                        break;                    
+                        break;
 
                     default:
                         sb.Append(tokens[i].Lexeme);
                         break;
-                }                
+                }
             }
 
             return sb.ToString();
@@ -93,7 +93,7 @@ namespace Components.Json
                     case JsonTokenType.RightBracket:
                         _currentIndent--;
                         var indent = new string(' ', _currentIndent * IndentSize);
-                        sb.Append("\r\n" + indent);
+                        sb.Append("\r\n").Append(indent);
                         break;
                 }
 
@@ -118,7 +118,7 @@ namespace Components.Json
                     case JsonTokenType.LeftBracket:
                     case JsonTokenType.Comma:
                         var indent = new string(' ', _currentIndent * IndentSize);
-                        sb.Append("\r\n" + indent);
+                        sb.Append("\r\n").Append(indent);
                         break;
                 }
             }

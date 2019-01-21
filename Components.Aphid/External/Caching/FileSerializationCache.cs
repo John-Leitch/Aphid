@@ -14,27 +14,17 @@ namespace Components.Caching
 
         public uint Flags { get; protected set; }
 
-        public FileSerializationCache(Assembly dependency)
-        {
+        protected FileSerializationCache(Assembly dependency) =>
             _serializer = new FileCacheInfoSerializer(dependency);
-        }
 
-        public FileSerializationCache(Version dependencyVersion)
-        {
+        protected FileSerializationCache(Version dependencyVersion) =>
             _serializer = new FileCacheInfoSerializer(dependencyVersion);
-        }
 
-        public FileSerializationCache(Assembly dependency, uint flags)
-            : this(dependency)
-        {
-            Flags = flags;
-        }
+        protected FileSerializationCache(Assembly dependency, uint flags)
+            : this(dependency) => Flags = flags;
 
-        public FileSerializationCache(Version dependencyVersion, uint flags)
-            : this(dependencyVersion)
-        {
-            Flags = flags;
-        }
+        protected FileSerializationCache(Version dependencyVersion, uint flags)
+            : this(dependencyVersion) => Flags = flags;
 
         public T Read(string filename)
         {
@@ -52,10 +42,7 @@ namespace Components.Caching
             }
         }
 
-        private T ReadUnsafe(string filename)
-        {
-            return ReadUnsafe(filename, out _);
-        }
+        private T ReadUnsafe(string filename) => ReadUnsafe(filename, out _);
 
         private T ReadUnsafe(string filename, out FileCacheSource[] cacheSources)
         {
@@ -63,7 +50,7 @@ namespace Components.Caching
             var info = LoadCacheInfoUnsafe(cacheName);
             T cache;
 
-            if (info == null || info.IsOutdated)
+            if (info?.IsOutdated != false)
             {
                 cache = CreateCache(cacheName, out var sources);
 

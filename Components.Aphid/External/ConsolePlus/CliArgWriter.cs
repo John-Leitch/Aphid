@@ -17,15 +17,12 @@ namespace Components.External.ConsolePlus
             _valueDelimterLeft = "",
             _valueDelimterRight = "";
 
-        private static string GetReset(string value)
-        {
-            return !string.IsNullOrEmpty(value) ? "~R~" : "";
-        }
+        private static string GetReset(string value) => !string.IsNullOrEmpty(value) ? "~R~" : "";
 
         private static string CreateArg(CliArgAttribute arg, string argStyle, string valueStyle, string delimiterStyle, bool useOptionalDelimiters = true)
         {
-            var name = arg.Names.First();
-            
+            var name = arg.Names[0];
+
             if (!string.IsNullOrEmpty(arg.ValueName))
             {
                 return string.Format(
@@ -58,17 +55,17 @@ namespace Components.External.ConsolePlus
         }
 
         private static string CreateArgDescription(
-            CliArgAttribute arg, 
-            string argStyle, 
-            string valueStyle, 
+            CliArgAttribute arg,
+            string argStyle,
+            string valueStyle,
             string delimiterStyle)
         {
             //var name = arg.Names.First();
-            
+
             var argStr = CreateArg(
-                arg, argStyle, 
-                valueStyle, 
-                delimiterStyle, 
+                arg, argStyle,
+                valueStyle,
+                delimiterStyle,
                 useOptionalDelimiters: false);
 
             var requiredStr = arg.IsRequired ? " ~DarkYellow~(Required)~R~" : "";
@@ -133,7 +130,7 @@ namespace Components.External.ConsolePlus
             foreach (var a in args)
             {
                 Cli.WriteLine(a);
-            }                
+            }
         }
     }
 }

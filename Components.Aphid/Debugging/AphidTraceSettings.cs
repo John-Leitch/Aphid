@@ -24,8 +24,8 @@ namespace Components.Aphid.Debugging
 
         public static AphidTraceSettings Default
         {
-            get { return AphidTraceSettings._default; }
-            set { AphidTraceSettings._default = value; }
+            get => AphidTraceSettings._default;
+            set => AphidTraceSettings._default = value;
         }
 
         public bool TraceTimestamp { get; set; }

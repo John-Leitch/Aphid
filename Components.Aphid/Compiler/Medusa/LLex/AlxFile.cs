@@ -39,7 +39,7 @@ namespace LLex
             public string KeywordDefault { get; set; }
 
             [AphidProperty("keywordTail")]
-            public string KeywordTail { get; set; }            
+            public string KeywordTail { get; set; }
         }
 
         public class LLexFile
@@ -160,6 +160,7 @@ namespace LLex
                         {
                             continue;
                         }
+
                         tokenTable.AddLexemeCode(i, mode.KeywordDefault);
                     }
                 }
@@ -167,7 +168,6 @@ namespace LLex
 
             var generator = new LexerGenerator(tokenTable) { IgnoreCase = llexFile.IgnoreCase };
             var lexer = generator.Generate();
-
 
             return lexer
                 .Replace("{Lexer}", nameInfo.LexerName)

@@ -94,7 +94,7 @@ namespace AphidUI
             };
         }
 
-        private void ExecutionCallback() => ExecutionCompleted?.Invoke(this, new EventArgs());
+        private void ExecutionCallback() => ExecutionCompleted?.Invoke(this, EventArgs.Empty);
 
         public void InputTextBox_KeyDown(object sender, KeyEventArgs e)
         {

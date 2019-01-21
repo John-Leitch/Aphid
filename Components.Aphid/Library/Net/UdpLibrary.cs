@@ -34,9 +34,8 @@ namespace Components.Aphid.Library.Net
         {
             if (!_ipv4DnsCache.TryGetValue(host, out var address))
             {
-                address = Dns
-                    .GetHostAddresses("localhost")
-                    .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork);
+                address = Array.Find(Dns
+                    .GetHostAddresses("localhost"), x => x.AddressFamily == AddressFamily.InterNetwork);
 
                 _ipv4DnsCache.Add(host, address);
             }
@@ -58,7 +57,7 @@ namespace Components.Aphid.Library.Net
             var datagram = new Datagram()
             {
                 LocalPort = ep.Port,
-                RemotePort = (int)port,                
+                RemotePort = (int)port,
                 RemoteHost = host,
                 Data = buffer,
             };

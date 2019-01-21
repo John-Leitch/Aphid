@@ -31,19 +31,13 @@ namespace Components.External.ConsolePlus
         public override int GetHashCode()
         {
             var hashCode = 1772380982;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(View);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Text);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(View);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(Text);
             return hashCode;
         }
 
-        public static bool operator ==(Autocomplete autocomplete1, Autocomplete autocomplete2)
-        {
-            return autocomplete1.Equals(autocomplete2);
-        }
+        public static bool operator ==(Autocomplete autocomplete1, Autocomplete autocomplete2) => autocomplete1.Equals(autocomplete2);
 
-        public static bool operator !=(Autocomplete autocomplete1, Autocomplete autocomplete2)
-        {
-            return !(autocomplete1 == autocomplete2);
-        }
+        public static bool operator !=(Autocomplete autocomplete1, Autocomplete autocomplete2) => !(autocomplete1 == autocomplete2);
     }
 }

@@ -16,10 +16,7 @@ namespace Components.Cypress
             return context;
         }
 
-        public static bool SetContext(IntPtr thread, CONTEXT context)
-        {
-            return Kernel32.SetThreadContext(thread, ref context);
-        }
+        public static bool SetContext(IntPtr thread, CONTEXT context) => Kernel32.SetThreadContext(thread, ref context);
 
         public static bool SetEip(IntPtr thread, uint eip)
         {
@@ -34,7 +31,7 @@ namespace Components.Cypress
             var context = ThreadContext.GetContext(thread, CONTEXT_FLAGS.CONTEXT_CONTROL);
             context.EFlags |= 0x100;
             context.Eip = eip;
-            
+
             return ThreadContext.SetContext(thread, context);
         }
 
@@ -42,7 +39,7 @@ namespace Components.Cypress
         {
             var context = ThreadContext.GetContext(thread, CONTEXT_FLAGS.CONTEXT_CONTROL);
             context.EFlags &= ~0x100u;
-            
+
             return ThreadContext.SetContext(thread, context);
         }
 

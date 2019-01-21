@@ -9,10 +9,7 @@ namespace Components.Aphid.Debugging
 {
     public static class AphidErrorHandling
     {
-        public static bool HandleErrors
-        {
-            get { return !Debugger.IsAttached || IgnoreDebugger; }
-        }
+        public static bool HandleErrors => !Debugger.IsAttached || IgnoreDebugger;
 
         public static bool IgnoreDebugger { get; set; }
     }

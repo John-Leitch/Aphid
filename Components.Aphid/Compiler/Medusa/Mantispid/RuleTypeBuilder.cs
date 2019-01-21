@@ -348,7 +348,7 @@ namespace Mantispid
                 .Select(x => CodeHelper.VarRef(x.Name))
                 .ToArray(); ;
 
-            CodeExpression childExpression = scalarChildren.Any() ?
+            CodeExpression childExpression = scalarChildren.Length > 0 ?
                 new CodeArrayCreateExpression(_baseTypeName, scalarChildren) :
                 null;
 

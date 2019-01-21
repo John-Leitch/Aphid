@@ -9,9 +9,9 @@ namespace Components.Cypress
 {
     public class StackDumper
     {
-        public IntPtr Process { get; private set; }
+        public IntPtr Process { get; }
 
-        public uint ThreadId { get; private set; }
+        public uint ThreadId { get; }
 
         public StackDumper(IntPtr process, uint threadId)
         {
@@ -90,9 +90,6 @@ namespace Components.Cypress
             return pointers;
         }
 
-        public List<uint> GetFunctionPointers()
-        {
-            return GetFunctionPointers(0x100);
-        }
+        public List<uint> GetFunctionPointers() => GetFunctionPointers(0x100);
     }
 }

@@ -17,10 +17,7 @@ namespace Mantispid
 
         private ParserGeneratorConfig _config;
 
-        public TypeInferenceMutator(ParserGeneratorConfig config)
-        {
-            _config = config;
-        }
+        public TypeInferenceMutator(ParserGeneratorConfig config) => _config = config;
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {

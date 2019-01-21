@@ -19,7 +19,7 @@ namespace AphidHdl
         private Dictionary<AphidTokenType, string> _operatorMap = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.AssignmentOperator, "<=" },
-            
+
             { AphidTokenType.LessThanOperator, "<" },
             { AphidTokenType.LessThanOrEqualOperator, "<=" },
             { AphidTokenType.GreaterThanOperator, ">" },
@@ -274,7 +274,6 @@ namespace AphidHdl
                     throw new NotImplementedException();
             }
 
-
         }
 
         private void EmitModule(IdentifierExpression id, FunctionExpression body)
@@ -353,9 +352,8 @@ namespace AphidHdl
 
         private TValue Resolve<TKey, TValue>(Dictionary<TKey, TValue> table, TKey key)
         {
-            TValue size;
 
-            if (!table.TryGetValue(key, out size))
+            if (!table.TryGetValue(key, out var size))
             {
                 throw new InvalidOperationException(string.Format("Could not resolve '{0}'.", key));
             }
@@ -379,7 +377,7 @@ namespace AphidHdl
 
             bool isInput = false, isWire = true;
 
-            if (attrStack.Any())
+            if (attrStack.Count > 0)
             {
                 switch (attrStack.Peek())
                 {
@@ -394,7 +392,7 @@ namespace AphidHdl
                 }
             }
 
-            if (attrStack.Any())
+            if (attrStack.Count > 0)
             {
                 switch (attrStack.Peek())
                 {
@@ -413,7 +411,7 @@ namespace AphidHdl
             var isSizeParam = false;
             string sizeParam = null;
 
-            if (attrStack.Any())
+            if (attrStack.Count > 0)
             {
                 var sizeAttr = attrStack.Dequeue();
 
@@ -434,7 +432,7 @@ namespace AphidHdl
                 }
             }
 
-            if (attrStack.Any())
+            if (attrStack.Count > 0)
             {
                 throw new InvalidOperationException("Unknown attributes.");
             }
@@ -488,8 +486,8 @@ namespace AphidHdl
                 attrs.IsWire ? VerilogKeyword.Wire : VerilogKeyword.Reg,
             };
 
-            var sizeStr = !attrs.IsSizeParam ? 
-                GetConstSize(attrs.Size) : 
+            var sizeStr = !attrs.IsSizeParam ?
+                GetConstSize(attrs.Size) :
                 GetParamSizeRange(attrs.SizeParam);
 
             if (sizeStr != null)
@@ -520,7 +518,7 @@ namespace AphidHdl
             for (int i = 0; i < items.Length; i++)
             {
                 emit(items[i]);
-                
+
                 if (i != items.Length - 1)
                 {
                     AppendUnindented(",");
@@ -595,7 +593,7 @@ namespace AphidHdl
 
         private bool CallHasArgs(CallExpression call, params AphidExpressionType[] args)
         {
-            return call.Args.Count() == args.Length ?
+            return call.Args.Count == args.Length ?
                 call.Args.Select((x, i) => x.Type == args[i]).All(x => x) :
                 false;
         }
@@ -633,18 +631,18 @@ namespace AphidHdl
             {
                 case VerilogKeyword.Initial:
                 case VerilogKeyword.Forever:
-                    if (call.Args.Count() != 1)
+                    if (call.Args.Count != 1)
                     {
                         throw new InvalidOperationException();
                     }
 
                     Append(id.Identifier + "\r\n");
-                    EmitBlock(call.Args.First());
+                    EmitBlock(call.Args[0]);
                     break;
 
                 case "sleep":
                     CheckCallArgs(call, AphidExpressionType.NumberExpression);
-                    var number = ((NumberExpression)call.Args.First()).Value;
+                    var number = ((NumberExpression)call.Args[0]).Value;
                     Append("#{0}\r\n", number);
                     break;
 
@@ -743,10 +741,10 @@ namespace AphidHdl
                         .ToArray(),
                     x => Append(x));
             }
-            else if (call.Args.Count() == 1 &&
-                call.Args.First().Type == AphidExpressionType.ObjectExpression)
+            else if (call.Args.Count == 1 &&
+                call.Args[0].Type == AphidExpressionType.ObjectExpression)
             {
-                var objExp = (ObjectExpression)call.Args.First();
+                var objExp = (ObjectExpression)call.Args[0];
 
                 EmitTuple(
                     objExp.Pairs

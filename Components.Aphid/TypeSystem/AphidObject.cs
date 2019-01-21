@@ -49,9 +49,9 @@ namespace Components.Aphid.TypeSystem
             }
         }
 #else
-        public bool IsScalar { get; private set; }
+        public bool IsScalar { get; }
 
-        public bool IsComplex { get; private set; }
+        public bool IsComplex { get; }
 #endif       
 
 #if CHECK_COMPLEXITY_SET
@@ -174,7 +174,7 @@ namespace Components.Aphid.TypeSystem
             $"{{ {x.Where(y => !y.Key.StartsWith("$")).Take(MaxToStringMembers).Select(y => ToString(y, printMemberValues)).Join(", ")}{(x.Count > MaxToStringMembers ? ", ..." : "")} }}";
 
         private static string ToString(KeyValuePair<string, AphidObject> x, bool printMemberValues) =>
-            printMemberValues ? 
+            printMemberValues ?
                 $"{x.Key}: {(x.Value != null ? x.Value.ToString(false) : AphidType.Null)}" :
                 x.Key;
 
@@ -354,10 +354,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public static AphidObject ConvertFrom(Type t, object o)
-        {
-            return ConvertFrom(t, o, allProperties: false);
-        }
+        public static AphidObject ConvertFrom(Type t, object o) => ConvertFrom(t, o, allProperties: false);
 
         public static AphidObject ConvertFrom(Type t, object o, bool allProperties)
         {
@@ -584,7 +581,6 @@ namespace Components.Aphid.TypeSystem
         public static AphidObject Complex(IEnumerable<KeyValuePair<string, AphidObject>> members)
         {
             var obj = new AphidObject();
-
 
             foreach (var m in members)
             {

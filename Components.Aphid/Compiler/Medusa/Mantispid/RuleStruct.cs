@@ -8,11 +8,11 @@ namespace Mantispid
 {
     public class RuleStruct
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public string BaseName { get; private set; }
+        public string BaseName { get; }
 
-        public ParserIdentifier[] Properties { get; private set; }
+        public ParserIdentifier[] Properties { get; }
 
         public RuleStruct(string name, string baseName, ParserIdentifier[] properties)
         {

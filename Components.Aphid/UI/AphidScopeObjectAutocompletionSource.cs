@@ -88,7 +88,7 @@ namespace Components.Aphid.UI
                 tokens[tokens.Count - 2].TokenType == AphidTokenType.newKeyword)
             {
                 searchBuffer = tokens[tokens.Count - 1].Lexeme;
-                
+
                 return FilterAndSortWords(CreateTypeAutocomplete(searchBuffer));
             }
             else if (lastToken.TokenType == AphidTokenType.usingKeyword)
@@ -102,7 +102,7 @@ namespace Components.Aphid.UI
             else if (tokens.Count >= 2 && tokens[0].TokenType == AphidTokenType.usingKeyword)
             {
                 searchBuffer = tokens.Skip(1).Select(x => x.Lexeme).Join();
-                
+
                 return FilterAndSortWords(CreateNamespaceAutocomplete(searchBuffer));
             }
 
@@ -180,7 +180,7 @@ namespace Components.Aphid.UI
                         if (staticTypes.Any(x => x.Name == t.Lexeme))
                         {
                             inStaticClrType = true;
-                            
+
                             // First() hack until folding for overlapping types
                             // is implemented.
                             var staticType = staticTypes.First(x => x.Name == t.Lexeme);
@@ -282,7 +282,8 @@ namespace Components.Aphid.UI
             }
         }
 
-        private IEnumerable<Autocomplete> GetGlobalWords() => CreateAphidMemberAutocompleteSet(_currentScope);
+        private IEnumerable<Autocomplete> GetGlobalWords() =>
+            CreateAphidMemberAutocompleteSet(_currentScope);
 
         private static IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(AphidObject scope)
         {
@@ -371,7 +372,7 @@ namespace Components.Aphid.UI
             }
             else if (member is PropertyInfo prop)
             {
-                view += " { ";                
+                view += " { ";
                 var accessors = prop.GetAccessors();
                 if (accessors.Any(x => x.ReturnType != typeof(void)))
                 {
@@ -412,7 +413,7 @@ namespace Components.Aphid.UI
             }
 
             var imports = (HashSet<string>)importObj.Value;
-            
+
             var types = _loader
                 .GetAssemblies()
                 .SelectMany(x => x.GetTypes())

@@ -12,10 +12,7 @@ namespace Components.Aphid.Library
     public class EnvironmentLibrary
     {
         [AphidInteropFunction("env.expand")]
-        public static string EnvExpand(string str)
-        {
-            return Environment.ExpandEnvironmentVariables(str);
-        }
+        public static string EnvExpand(string str) => Environment.ExpandEnvironmentVariables(str);
 
         private static string[] _envArgs;
 
@@ -133,21 +130,18 @@ namespace Components.Aphid.Library
         }
 
         [AphidInteropFunction("env.exit")]
-        public static void Exit(decimal exitCode)
-        {
-            Environment.Exit((int)exitCode);
-        }
+        public static void Exit(decimal exitCode) => Environment.Exit((int)exitCode);
 
         [AphidInteropFunction("env.processes")]
         public static List<AphidObject> GetProcesses()
         {
             return Process
                 .GetProcesses()
-                .Select(x => AphidObject.Complex( 
+                .Select(x => AphidObject.Complex(
                     new Dictionary<string, AphidObject>
-                    { 
-                        { "id", AphidObject.Scalar((decimal)x.Id) }, 
-                        { "name", AphidObject.Scalar(x.ProcessName) } 
+                    {
+                        { "id", AphidObject.Scalar((decimal)x.Id) },
+                        { "name", AphidObject.Scalar(x.ProcessName) }
                     }))
                 .ToList();
         }

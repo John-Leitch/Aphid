@@ -44,7 +44,7 @@ namespace AphidUI.Internal
                 Visibility.Visible : Visibility.Collapsed;
         }
 
-        public string Text { get; private set; }        
+        public string Text { get; private set; }
 
         public CodeCanvas()
         {
@@ -53,7 +53,7 @@ namespace AphidUI.Internal
             AcceptsReturn = false;
             FontFamily = new FontFamily("Lucida console");
             FontSize = 12;
-            
+
             DependencyPropertyDescriptor
                 .FromProperty(FontSizeProperty, typeof(CodeCanvas))
                 .AddValueChanged(this, FontSizeChanged);
@@ -62,8 +62,8 @@ namespace AphidUI.Internal
                 .FromProperty(FontFamilyProperty, typeof(CodeCanvas))
                 .AddValueChanged(this, FontFamilyChanged);
 
-            FontSizeChanged(this, new EventArgs());
-            FontFamilyChanged(this, new EventArgs());            
+            FontSizeChanged(this, EventArgs.Empty);
+            FontFamilyChanged(this, EventArgs.Empty);
         }
 
         private void SetGlyphFace()
@@ -89,7 +89,7 @@ namespace AphidUI.Internal
             {
                 MoveCaretEnd();
             }
-            
+
             MoveCaretToCurrentCell();
         }
 
@@ -116,7 +116,7 @@ namespace AphidUI.Internal
             else if (_currentRow != 0)
             {
                 _currentRow--;
-                MoveCaretEnd();                
+                MoveCaretEnd();
             }
             else
             {
@@ -157,8 +157,8 @@ namespace AphidUI.Internal
             var viewer = (ScrollViewer)Parent;
             var rows = (int)Math.Ceiling(viewer.ActualHeight / _cellHeight);
             var nextRow = up ? _currentRow - rows : _currentRow + rows;
-            
-            _currentRow = up ? 
+
+            _currentRow = up ?
                 (nextRow >= 0 ? nextRow : 0) :
                 (nextRow < _document.Count ? nextRow : _document.Count - 1);
 
@@ -232,7 +232,7 @@ namespace AphidUI.Internal
 
             if (row.Count == 0)
             {
-                _currentColumn = 0;                
+                _currentColumn = 0;
             }
             else
             {
@@ -240,7 +240,7 @@ namespace AphidUI.Internal
                     row.Count :
                     row.Count - 1;
             }
-            
+
             MoveCaretToCurrentCell();
         }
 
@@ -251,7 +251,6 @@ namespace AphidUI.Internal
             Canvas.SetTop(_caret, top);
             Canvas.SetTop(LineBorder, top);
             _caret.BringIntoView();
-
         }
 
         private void MoveCaretToCurrentCell()
@@ -394,7 +393,7 @@ namespace AphidUI.Internal
 
             glyphs.BaselineOrigin = new Point(
                 glyphWidth * FontSize * column,
-                glyphFace.Baseline * FontSize * (line + 1) + paddingTop * line);
+                (glyphFace.Baseline * FontSize * (line + 1)) + (paddingTop * line));
 
             isi.EndInit();
 
@@ -437,7 +436,6 @@ namespace AphidUI.Internal
                         //    currentLine = new List<TextCell>();
                         //    _document.Add(currentLine);    
                         //    break;
-
 
                         default:
                             currentLine.Add(
@@ -524,7 +522,7 @@ namespace AphidUI.Internal
             }
 
             MoveCaretToCurrentCell();
-            UpdateDocument();            
+            UpdateDocument();
             e.Handled = true;
         }
 
@@ -553,7 +551,7 @@ namespace AphidUI.Internal
 
                 return;
             }
-            
+
             CreateDocument(AphidLexer.GetAllTokens(Text));
             double greatestX = 0, greatestY = 0;
 
@@ -650,7 +648,7 @@ namespace AphidUI.Internal
 
             if (viewerWidth > Canvas.Width)
             {
-                LineBorder.Width = viewerWidth; 
+                LineBorder.Width = viewerWidth;
                 Canvas.Width = viewerWidth;
             }
             else
@@ -792,12 +790,12 @@ namespace AphidUI.Internal
             MoveCaretToCurrentCell();
             Keyboard.Focus(Canvas);
             e.Handled = true;
-        }        
+        }
 
         private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             DebugHelper.Trace();
             UpdateSize();
-        }        
+        }
     }
 }

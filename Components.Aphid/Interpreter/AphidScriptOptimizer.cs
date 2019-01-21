@@ -12,16 +12,13 @@ namespace Components.Aphid.Interpreter
     {
         private AphidLoader _loader;
 
-        public AphidScriptOptimizer(AphidLoader loader)
-        {
-            _loader = loader;
-        }
+        public AphidScriptOptimizer(AphidLoader loader) => _loader = loader;
 
         public List<AphidExpression> Optimize(string script)
         {
             var ast = AphidParser.Parse(script, isTextDocument: false);
 
-            return Optimize(ast);            
+            return Optimize(ast);
         }
 
         public List<AphidExpression> Optimize(List<AphidExpression> ast)

@@ -8,15 +8,9 @@ namespace Components.Aphid.Parser
 
         public Stack<AphidExpression> Ancestors { get; private set; }
 
-        protected void IgnoreChildren()
-        {
-            _ignoreChildren = true;
-        }
+        protected void IgnoreChildren() => _ignoreChildren = true;
 
-        public void VisitExpression(AphidExpression node)
-        {
-            Visit(new List<AphidExpression> { node });
-        }
+        public void VisitExpression(AphidExpression node) => Visit(new List<AphidExpression> { node });
 
         public void Visit(List<AphidExpression> ast)
         {
@@ -29,7 +23,7 @@ namespace Components.Aphid.Parser
                 Ancestors.Push(exp);
                 VisitNode(exp);
                 Ancestors.Pop();
-                EndVisitNode(exp);                
+                EndVisitNode(exp);
             }
 
             EndVisit(ast);
@@ -65,7 +59,7 @@ namespace Components.Aphid.Parser
                     Ancestors.Push(n);
                     VisitNode(n);
                     Ancestors.Pop();
-                    EndVisitNode(n);                    
+                    EndVisitNode(n);
                 }
             }
             else
@@ -84,9 +78,6 @@ namespace Components.Aphid.Parser
 
         protected abstract void Visit(AphidExpression expression);
 
-        protected virtual IEnumerable<AphidExpression> GetChildren(IParentNode parent)
-        {
-            return parent.GetChildren();
-        }
+        protected virtual IEnumerable<AphidExpression> GetChildren(IParentNode parent) => parent.GetChildren();
     }
 }

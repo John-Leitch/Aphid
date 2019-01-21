@@ -9,9 +9,9 @@ namespace AphidHdl
 {
     public class ReplacementMutator : AphidMutator
     {
-        private Func<AphidExpression, bool> _predicate;
+        private readonly Func<AphidExpression, bool> _predicate;
 
-        private Func<AphidExpression, List<AphidExpression>> _selector;
+        private readonly Func<AphidExpression, List<AphidExpression>> _selector;
 
         public ReplacementMutator(
             Func<AphidExpression, bool> predicate,

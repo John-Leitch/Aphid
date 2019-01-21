@@ -8,45 +8,21 @@ namespace Components.Aphid.Lexer
     // Todo: generate based on Mantispin input
     public partial class AphidLexer
     {
-        public int GetMode()
-        {
-            return mode;
-        }
+        public int GetMode() => mode;
 
-        public void SetMode(int m)
-        {
-            mode = m;
-        }
+        public void SetMode(int m) => mode = m;
 
-        public void SetCodeMode()
-        {
-            mode = 0;
-        }
+        public void SetCodeMode() => mode = 0;
 
-        public void SetTextMode()
-        {
-            mode = 1;
-        }
+        public void SetTextMode() => mode = 1;
 
-        public void SetShellMode()
-        {
-            mode = 2;
-        }
+        public void SetShellMode() => mode = 2;
 
-        public static List<AphidToken> GetTokens(string text)
-        {
-            return new AphidLexer(text).GetTokens();
-        }
+        public static List<AphidToken> GetTokens(string text) => new AphidLexer(text).GetTokens();
 
-        public static List<AphidToken> GetAllTokens(string text)
-        {
-            return new AphidLexer(text).GetAllTokens();
-        }
+        public static List<AphidToken> GetAllTokens(string text) => new AphidLexer(text).GetAllTokens();
 
-        public static AphidToken GetToken(string text)
-        {
-            return GetToken(text, 0);
-        }
+        public static AphidToken GetToken(string text) => GetToken(text, 0);
 
         public static AphidToken GetToken(string text, int offset)
         {
@@ -59,10 +35,7 @@ namespace Components.Aphid.Lexer
             return new AphidToken(type, lexeme, index);
         }
 
-        public static AphidTokenType GetTokenType(string text)
-        {
-            return GetTokenType(text, 0);
-        }
+        public static AphidTokenType GetTokenType(string text) => GetTokenType(text, 0);
 
         public static AphidTokenType GetTokenType(string text, int offset)
         {

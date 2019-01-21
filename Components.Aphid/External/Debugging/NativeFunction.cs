@@ -20,8 +20,8 @@ namespace Components.Cypress
 
         public Instruction[] Disassembly
         {
-            get { return _disassembly; }
-            set 
+            get => _disassembly;
+            set
             {
                 //if (Size == 0 && value != null)
                 //{
@@ -29,7 +29,7 @@ namespace Components.Cypress
                 //        .Sum(x => x.ByteString != null ? x.ByteString.Length / 2 : 0);
                 //}
 
-                _disassembly = value; 
+                _disassembly = value;
             }
         }
 
@@ -45,10 +45,7 @@ namespace Components.Cypress
             Size = size;
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0:X8}: {1}", Address, Name);
-        }
+        public override string ToString() => string.Format("{0:X8}: {1}", Address, Name);
 
         public void Serialize(StringTable table, BinaryWriter writer)
         {
@@ -75,7 +72,7 @@ namespace Components.Cypress
                 f.Serialize(table, writer);
             }
 
-            table.Serialize(writer);           
+            table.Serialize(writer);
         }
 
         public static NativeFunction Deserialize(StringTable table, BinaryReader reader)
@@ -122,7 +119,7 @@ namespace Components.Cypress
             var table = StringTable.Deserialize(reader);
             reader.BaseStream.Position = 0x4;
             var funcCount = reader.ReadInt32();
-            
+
             var funcs = Enumerable
                 .Range(0, funcCount)
                 .Select(x => NativeFunction.Deserialize(table, reader))

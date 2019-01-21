@@ -8,11 +8,8 @@ namespace Components.External.ConsolePlus
 {
     public class ConsoleDataEventArgs : EventArgs
     {
-        public string Data { get; private set; }
+        public string Data { get; }
 
-        public ConsoleDataEventArgs(string data)
-        {
-            Data = data;
-        }
+        public ConsoleDataEventArgs(string data) => Data = data;
     }
 }

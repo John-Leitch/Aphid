@@ -10,20 +10,14 @@ namespace Mantispid
     {
         public SymbolTable<TValue> Table { get; private set; }
 
-        public void EnterChildScope()
-        {
+        public void EnterChildScope() =>
             Table = Table.ToChild();
-        }
 
-        public void LeaveChildScope()
-        {
+        public void LeaveChildScope() =>
             Table = Table.Parent;
-        }
 
-        public SymbolScope(Func<TValue> init)
-        {
+        public SymbolScope(Func<TValue> init) =>
             Table = new SymbolTable<TValue>(init, null);
-        }
 
         public SymbolScope()
             : this(null)

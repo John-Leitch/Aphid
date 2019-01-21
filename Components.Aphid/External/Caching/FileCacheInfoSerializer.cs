@@ -17,15 +17,12 @@ namespace Components.Caching
 
         private Version _dependencyVersion;
 
-        public FileCacheInfoSerializer(Version dependencyVersion)
-        {
+        public FileCacheInfoSerializer(Version dependencyVersion) =>
             _dependencyVersion = dependencyVersion;
-        }
 
         public FileCacheInfoSerializer(Assembly dependency)
             : this(dependency.GetName().Version)
         {
-
         }
 
         public void Serialize(Stream s, FileCacheInfo cacheInfo)
@@ -50,7 +47,7 @@ namespace Components.Caching
         {
             var reader = new BinaryReader(s);
 
-            if (s.Length < sizeof(uint) + sizeof(int) * 4 ||
+            if (s.Length < sizeof(uint) + (sizeof(int) * 4) ||
                 reader.ReadUInt32() != _header ||
                 new Version(
                     reader.ReadInt32(),
@@ -61,7 +58,7 @@ namespace Components.Caching
             {
                 return PrimitiveCacheInfo.Outdated;
             }
-            
+
             var sources = new FileCacheSource[reader.ReadInt32()];
 
             for (var i = 0; i < sources.Length; i++)

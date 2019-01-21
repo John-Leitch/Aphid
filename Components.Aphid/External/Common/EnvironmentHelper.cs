@@ -20,19 +20,11 @@ namespace Components
                 .Join(" ");
         }
 
-        public static string GetArchitecture()
-        {
-            return Environment.GetEnvironmentVariable(architectureVariable);
-        }
+        public static string GetArchitecture() =>
+            Environment.GetEnvironmentVariable(architectureVariable);
 
-        public static bool IsX86()
-        {
-            return GetArchitecture().ToLower() == _x86;
-        }
+        public static bool IsX86() => GetArchitecture().ToLower() == _x86;
 
-        public static bool IsAmd64()
-        {
-            return GetArchitecture().ToLower() == _amd64;
-        }
+        public static bool IsAmd64() => GetArchitecture().ToLower() == _amd64;
     }
 }

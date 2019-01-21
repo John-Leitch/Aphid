@@ -17,10 +17,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public Stream Stream { get; set; }
 
-        public HttpUpload()
-        {
-            FileMimeType = MimeType.ApplicationOctetStream;
-        }
+        public HttpUpload() => FileMimeType = MimeType.ApplicationOctetStream;
 
         public HttpUpload(string name, string filename, Stream stream)
             : this()

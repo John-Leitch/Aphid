@@ -25,17 +25,17 @@ namespace Components.Aphid.Compiler
         {
             typeof(decimal),
             typeof(string),
-            typeof(bool),            
+            typeof(bool),
         };
 
-        public string CodeFile { get { return @"Interpreter\AphidObject.g.cs"; } }
+        public string CodeFile => @"Interpreter\AphidObject.g.cs";
 
-        static CodeMethodInvokeExpression CreateSetValue(CodeExpression src)
+        private static CodeMethodInvokeExpression CreateSetValue(CodeExpression src)
         {
             return CodeHelper
                 .Arg("property")
                 .GetMethod("SetValue")
-                .Invoke(new CodeExpression[] 
+                .Invoke(new CodeExpression[]
                 {
                     CodeHelper.Arg("destObj"),
                     src,
@@ -43,7 +43,7 @@ namespace Components.Aphid.Compiler
                 });
         }
 
-        static CodeConditionStatement CreateSetValueCondition(Type type, CodeExpression src)
+        private static CodeConditionStatement CreateSetValueCondition(Type type, CodeExpression src)
         {
             var prop = CodeHelper.Arg("property");
             var propType = prop.GetProperty("PropertyType");
@@ -59,7 +59,7 @@ namespace Components.Aphid.Compiler
             return condition;
         }
 
-        static CodeConditionStatement CreateNumberSetValueCondition(Type type)
+        private static CodeConditionStatement CreateNumberSetValueCondition(Type type)
         {
             return CreateSetValueCondition(
                 type,
@@ -69,7 +69,7 @@ namespace Components.Aphid.Compiler
                     .Invoke(CodeHelper.Arg("srcObj").GetProperty("Value")));
         }
 
-        static CodeConditionStatement CreateArraySetValueCondition(Type type)
+        private static CodeConditionStatement CreateArraySetValueCondition(Type type)
         {
             string lambda = type == typeof(decimal) ? "x => x.GetNumber()" :
                 type == typeof(bool) ? "x => x.GetBool()" :
@@ -85,7 +85,7 @@ namespace Components.Aphid.Compiler
             return CreateSetValueCondition(type.MakeArrayType(), toArray);
         }
 
-        static CodeMemberMethod TrySetProperty(CodeStatement firstCondition)
+        private static CodeMemberMethod TrySetProperty(CodeStatement firstCondition)
         {
             var method = new CodeMemberMethod();
             method.ReturnType = CodeHelper.TypeRef(typeof(bool));
@@ -116,8 +116,8 @@ namespace Components.Aphid.Compiler
             }
 
             currentCondition.FalseStatements.Add(CodeHelper.Return(CodeHelper.False()));
-            
-            var type = new CodeTypeDeclaration("AphidObject") { IsPartial = true };            
+
+            var type = new CodeTypeDeclaration("AphidObject") { IsPartial = true };
             type.Members.Add(TrySetProperty(firstCondition));
 
             var ns = new CodeNamespace();
@@ -129,6 +129,6 @@ namespace Components.Aphid.Compiler
             unit.Namespaces.Add(ns);
 
             return unit;
-        }        
+        }
     }
 }

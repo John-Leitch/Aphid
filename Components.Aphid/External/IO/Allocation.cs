@@ -13,9 +13,9 @@ namespace Components.IO
         public readonly int Handle, UserSize, Size;
 
         public Allocation(
-            MemoryManager manager, 
-            int handle, 
-            int userSize, 
+            MemoryManager manager,
+            int handle,
+            int userSize,
             int size)
         {
             _manager = manager;
@@ -37,15 +37,15 @@ namespace Components.IO
         public override int GetHashCode()
         {
             var hashCode = 1675899751;
-            hashCode = hashCode * -1521134295 + EqualityComparer<MemoryManager>.Default.GetHashCode(_manager);
-            hashCode = hashCode * -1521134295 + Handle.GetHashCode();
-            hashCode = hashCode * -1521134295 + UserSize.GetHashCode();
-            hashCode = hashCode * -1521134295 + Size.GetHashCode();
+            hashCode = (hashCode * -1521134295) + EqualityComparer<MemoryManager>.Default.GetHashCode(_manager);
+            hashCode = (hashCode * -1521134295) + Handle.GetHashCode();
+            hashCode = (hashCode * -1521134295) + UserSize.GetHashCode();
+            hashCode = (hashCode * -1521134295) + Size.GetHashCode();
             return hashCode;
         }
 
-        public static bool operator ==(Allocation allocation1, Allocation allocation2) => allocation1.Equals(allocation2);
+        public static bool operator ==(in Allocation allocation1, in Allocation allocation2) => allocation1.Equals(allocation2);
 
-        public static bool operator !=(Allocation allocation1, Allocation allocation2) => !(allocation1 == allocation2);
+        public static bool operator !=(in Allocation allocation1, in Allocation allocation2) => !(allocation1 == allocation2);
     }
 }

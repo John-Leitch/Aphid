@@ -10,63 +10,30 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidFunctionWrapper : AphidRuntimeComponent
     {
-        public AphidFunction Function { get; private set; }
+        public AphidFunction Function { get; }
 
         public AphidFunctionWrapper(AphidInterpreter interpreter, AphidFunction function)
-            : base(interpreter)
-        {
-            Function = function;
-        }
+            : base(interpreter) => Function = function;
 
-        public void Call()
-        {
-            Interpreter.CallFunction(Function);
-        }
+        public void Call() => Interpreter.CallFunction(Function);
 
-        public void Call<T1>(T1 arg)
-        {
-            Interpreter.CallFunction(Function, arg);
-        }
+        public void Call<T1>(T1 arg) => Interpreter.CallFunction(Function, arg);
 
-        public void Call<T1, T2>(T1 arg, T2 arg2)
-        {
-            Interpreter.CallFunction(Function, arg, arg2);
-        }
+        public void Call<T1, T2>(T1 arg, T2 arg2) => Interpreter.CallFunction(Function, arg, arg2);
 
-        public void Call<T1, T2, T3>(T1 arg, T2 arg2, T3 arg3)
-        {
-            Interpreter.CallFunction(Function, arg, arg2, arg3);
-        }
+        public void Call<T1, T2, T3>(T1 arg, T2 arg2, T3 arg3) => Interpreter.CallFunction(Function, arg, arg2, arg3);
 
-        public void Call<T1, T2, T3, T4>(T1 arg, T2 arg2, T3 arg3, T4 arg4)
-        {
-            Interpreter.CallFunction(Function, arg, arg2, arg3, arg4);
-        }
+        public void Call<T1, T2, T3, T4>(T1 arg, T2 arg2, T3 arg3, T4 arg4) => Interpreter.CallFunction(Function, arg, arg2, arg3, arg4);
 
-        public TResult Call<TResult>()
-        {
-            return GetResult<TResult>(Interpreter.CallFunction(Function));
-        }
+        public TResult Call<TResult>() => GetResult<TResult>(Interpreter.CallFunction(Function));
 
-        public TResult Call<T1, TResult>(T1 arg)
-        {
-            return GetResult<TResult>(Interpreter.CallFunction(Function, arg));
-        }
+        public TResult Call<T1, TResult>(T1 arg) => GetResult<TResult>(Interpreter.CallFunction(Function, arg));
 
-        public TResult Call<T1, T2, TResult>(T1 arg, T2 arg2)
-        {
-            return GetResult<TResult>(Interpreter.CallFunction(Function, arg, arg2));
-        }
+        public TResult Call<T1, T2, TResult>(T1 arg, T2 arg2) => GetResult<TResult>(Interpreter.CallFunction(Function, arg, arg2));
 
-        public TResult Call<T1, T2, T3, TResult>(T1 arg, T2 arg2, T3 arg3)
-        {
-            return GetResult<TResult>(Interpreter.CallFunction(Function, arg, arg2, arg3));
-        }
+        public TResult Call<T1, T2, T3, TResult>(T1 arg, T2 arg2, T3 arg3) => GetResult<TResult>(Interpreter.CallFunction(Function, arg, arg2, arg3));
 
-        public TResult Call<T1, T2, T3, T4, TResult>(T1 arg, T2 arg2, T3 arg3, T4 arg4)
-        {
-            return GetResult<TResult>(Interpreter.CallFunction(Function, arg, arg2, arg3, arg4));
-        }
+        public TResult Call<T1, T2, T3, T4, TResult>(T1 arg, T2 arg2, T3 arg3, T4 arg4) => GetResult<TResult>(Interpreter.CallFunction(Function, arg, arg2, arg3, arg4));
 
         private TResult GetResult<TResult>(AphidObject result)
         {

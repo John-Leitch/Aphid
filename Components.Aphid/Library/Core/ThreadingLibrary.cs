@@ -32,28 +32,16 @@ namespace Components.Aphid.Library
         }
 
         [AphidInteropFunction("threadPool", PassInterpreter = true)]
-        public static ManualResetEvent ThreadPoolQueue(AphidInterpreter interpreter, AphidFunction function, params object[] parms)
-        {
-            return ThreadCore(interpreter, x => ThreadPool.QueueUserWorkItem(y => x()), function, parms);            
-        }
+        public static WaitHandle ThreadPoolQueue(AphidInterpreter interpreter, AphidFunction function, params object[] parms) => ThreadCore(interpreter, x => ThreadPool.QueueUserWorkItem(y => x()), function, parms);
 
         [AphidInteropFunction("thread", PassInterpreter = true)]
-        public static ManualResetEvent StartThread(AphidInterpreter interpreter, AphidFunction function, params object[] parms)
-        {
-            return ThreadCore(interpreter, x => new Thread(y => x()).Start(), function, parms);
-        }
+        public static WaitHandle StartThread(AphidInterpreter interpreter, AphidFunction function, params object[] parms) => ThreadCore(interpreter, x => new Thread(y => x()).Start(), function, parms);
 
         [AphidInteropFunction("join")]
-        public static void Join(ManualResetEvent reset)
-        {
-            reset.WaitOne();
-        }
+        public static void Join(WaitHandle reset) => reset.WaitOne();
 
         [AphidInteropFunction("sleep")]
-        public static void Sleep(decimal timeout)
-        {
-            Thread.Sleep((int)timeout);
-        }
+        public static void Sleep(decimal timeout) => Thread.Sleep((int)timeout);
 
         [AphidInteropFunction("lock", PassInterpreter = true, UnwrapParameters = false)]
         public static void Lock(AphidInterpreter interpreter, AphidObject obj, AphidObject body)

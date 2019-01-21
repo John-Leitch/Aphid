@@ -5,8 +5,8 @@ namespace Components
     public class IfContext<TInput, TResult>
     {
         private readonly TInput _input;
-        readonly bool _condition;
-        readonly Func<TInput, TResult> _ifResultFunc;
+        private readonly bool _condition;
+        private readonly Func<TInput, TResult> _ifResultFunc;
 
         internal IfContext(
             TInput input,
@@ -31,7 +31,6 @@ namespace Components
 
             return _input;
         }
-
 
         public TResult Else(Func<TInput, TResult> func)
         {

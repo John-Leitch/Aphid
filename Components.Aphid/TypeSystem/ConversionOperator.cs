@@ -24,7 +24,6 @@ namespace Components.Aphid.TypeSystem
             else
             {
                 return valueType.GetMethod("op_Explicit", new[] { targetType });
-
             }
         }
     }

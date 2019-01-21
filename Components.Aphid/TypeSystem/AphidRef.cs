@@ -12,9 +12,6 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject Object { get; set; }
 
-        public AphidObject Get()
-        {
-            return Object[Name];
-        }
+        public AphidObject Get() => Object[Name];
     }
 }

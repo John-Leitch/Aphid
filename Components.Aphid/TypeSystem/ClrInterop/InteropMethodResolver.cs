@@ -14,16 +14,14 @@ namespace Components.Aphid.TypeSystem
 {
     public class InteropMethodResolver : AphidRuntimeComponent
     {
-        Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject>
-            InterpretMemberInteropExpression { get; set; }
+        private Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject>
+            InterpretMemberInteropExpression
+        { get; }
 
         public InteropMethodResolver(
             AphidInterpreter interpreter,
             Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject> interpretMemberInteropExpression)
-            : base(interpreter)
-        {
-            InterpretMemberInteropExpression = interpretMemberInteropExpression;
-        }
+            : base(interpreter) => InterpretMemberInteropExpression = interpretMemberInteropExpression;
 
         public object TryResolveMember(BinaryOperatorExpression expression, AphidObject obj, bool returnRef)
         {
@@ -39,7 +37,7 @@ namespace Components.Aphid.TypeSystem
                 }
             }
 
-            if (obj != null && !obj.IsAphidType())
+            if (obj?.IsAphidType() == false)
             {
                 return TryResolveInstanceMember(
                     expression,
@@ -95,7 +93,6 @@ namespace Components.Aphid.TypeSystem
                 returnRef,
                 dynamicHandler);
 
-
             if (staticObj.Value is AphidInteropReference staticRef && staticRef.Property != null)
             {
                 return staticRef;
@@ -149,10 +146,7 @@ namespace Components.Aphid.TypeSystem
                 dynamicHandler);
         }
 
-        public AphidInteropMethodInfo Resolve<TTargetType>(string methodName, object[] args)
-        {
-            return Resolve(typeof(TTargetType), methodName, args);
-        }
+        public AphidInteropMethodInfo Resolve<TTargetType>(string methodName, object[] args) => Resolve(typeof(TTargetType), methodName, args);
 
         //Todo: memoize resolved types 
         public AphidInteropMethodInfo Resolve(Type targetType, string methodName, object[] args)
@@ -203,7 +197,7 @@ namespace Components.Aphid.TypeSystem
                 for (var j = 0; j < matchParams.Length; j++)
                 {
                     var matchArg = CreateMethodArg(matchParams[j], j, args);
-                    
+
                     var matchConversion = Interpreter.TypeConverter.CanConvert(
                         matchArg,
                         matchArg.Argument,
@@ -214,7 +208,7 @@ namespace Components.Aphid.TypeSystem
                         canCall = false;
                         break;
                     }
-                    
+
                     matchConversions[j] = matchConversion;
                     matchArgs[j] = matchArg;
                 }

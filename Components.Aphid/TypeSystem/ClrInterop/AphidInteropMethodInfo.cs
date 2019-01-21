@@ -9,11 +9,11 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropMethodInfo
     {
-        public MethodBase Method { get; private set; }
+        public MethodBase Method { get; }
 
-        public Type[] GenericArguments { get; private set; }
+        public Type[] GenericArguments { get; }
 
-        public AphidInteropMethodArg[] Arguments { get; private set; }        
+        public AphidInteropMethodArg[] Arguments { get; }
 
         public AphidInteropMethodInfo(
             MethodBase method, 

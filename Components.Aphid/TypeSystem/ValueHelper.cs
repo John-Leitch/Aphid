@@ -26,7 +26,7 @@ namespace Components.Aphid.TypeSystem
 
         public static object Unwrap(AphidObject obj)
         {
-            if (obj != null && obj.IsScalar)
+            if (obj?.IsScalar == true)
             {
                 return obj.Value;
             }
@@ -66,6 +66,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return list.Select(DeepUnwrap).ToArray();
             }
+
             if (!(obj is AphidObject aphidObj))
             {
                 return obj;

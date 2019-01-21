@@ -30,10 +30,8 @@ namespace Components.Aphid.Compiler
             return build.Number;
         }
 
-        private static XmlSerializer GetSerializer()
-        {
-            return new XmlSerializer(typeof(BuildNumber[]));
-        }
+        private static XmlSerializer GetSerializer() =>
+            new XmlSerializer(typeof(BuildNumber[]));
 
         private static Dictionary<string, BuildNumber> ReadBuildNumberTable()
         {

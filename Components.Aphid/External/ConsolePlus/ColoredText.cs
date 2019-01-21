@@ -62,20 +62,14 @@ namespace Components.External.ConsolePlus
         public override int GetHashCode()
         {
             var hashCode = 1709251333;
-            hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(ForegroundRgb);
-            hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(BackgroundRgb);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Text);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<byte[]>.Default.GetHashCode(ForegroundRgb);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<byte[]>.Default.GetHashCode(BackgroundRgb);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(Text);
             return hashCode;
         }
 
-        public static bool operator ==(ColoredText text1, ColoredText text2)
-        {
-            return text1.Equals(text2);
-        }
+        public static bool operator ==(ColoredText text1, ColoredText text2) => text1.Equals(text2);
 
-        public static bool operator !=(ColoredText text1, ColoredText text2)
-        {
-            return !(text1 == text2);
-        }
+        public static bool operator !=(ColoredText text1, ColoredText text2) => !(text1 == text2);
     }
 }

@@ -7,11 +7,11 @@ namespace Components.Aphid.Parser
 {
     public class AphidMacro
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public FunctionExpression Declaration { get; private set; }
+        public FunctionExpression Declaration { get; }
 
-        public BinaryOperatorExpression OriginalExpression { get; private set; }
+        public BinaryOperatorExpression OriginalExpression { get; }
 
         public AphidMacro(string name, FunctionExpression declaration, BinaryOperatorExpression originalExpression)
         {

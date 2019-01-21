@@ -8,9 +8,9 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropPartialFunction : IAphidCallable
     {
-        public AphidInteropMember Member { get; private set; }
+        public AphidInteropMember Member { get; }
 
-        public object[] Applied { get; private set; }
+        public object[] Applied { get; }
 
         public AphidInteropPartialFunction(AphidInteropMember member, object[] applied)
         {

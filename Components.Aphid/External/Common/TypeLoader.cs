@@ -28,7 +28,7 @@ namespace Components
 
         public TypeLoader() => AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 
-        void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        private void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
             lock (_cacheSync)
             {
@@ -74,7 +74,7 @@ namespace Components
 
         private IEnumerable<Type> GetStaticTypesCore(HashSet<string> imports) =>
             GetAllTypes(imports)
-                .Where(x => x.GetMembers(BindingFlags.Public | BindingFlags.Static).Any())
+                .Where(x => x.GetMembers(BindingFlags.Public | BindingFlags.Static).Length > 0)
                 .ToArray();
 
         public Type ResolveFullType(string fullTypeName)

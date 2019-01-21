@@ -44,7 +44,7 @@ if (!function_exists('__add')) {
 
         public override string Compile(string filename, List<AphidExpression> ast)
         {
-            var mutators = new AphidMutator[] 
+            var mutators = new AphidMutator[]
             {
                 new IncludeMutator
                 {
@@ -215,7 +215,7 @@ if (!function_exists('__add')) {
 
                             var id = call.FunctionExpression.ToIdentifier();
 
-                            if (id.Attributes.Any())
+                            if (id.Attributes.Count > 0)
                             {
                                 throw new InvalidOperationException("Unexpected attributes in new expression.");
                             }
@@ -371,7 +371,7 @@ if (!function_exists('__add')) {
                 .Select(x => new IdentifierExpression(x))
                 .ToArray();
 
-            if (used.Any())
+            if (used.Length > 0)
             {
                 Append("use (");
                 EmitTuple(used, prefix: "&");
@@ -399,7 +399,7 @@ if (!function_exists('__add')) {
                     Indent();
                     AppendTabs();
                     Emit(expression.FunctionExpression);
-                    if (expression.Args.Any())
+                    if (expression.Args.Count > 0)
                     {
                         Append(",\r\n{0}", GetTabs());
                         EmitTuple(expression.Args);
@@ -504,11 +504,10 @@ if (!function_exists('__add')) {
 
         protected void EmitClassDeclaration(ObjectExpression classDecl)
         {
-            string[] unparsed;
 
             var attrs = AphidAttributeParser.Parse<ObjectStatementAttributes>(
                 classDecl.Identifier,
-                out unparsed);
+                out var unparsed);
 
             if (attrs.IsInterface && attrs.IsAbstract)
             {
@@ -691,5 +690,4 @@ if (!function_exists('__add')) {
             return string.Format("id_{0:X8}", _varNumber++);
         }
     }
-
 }

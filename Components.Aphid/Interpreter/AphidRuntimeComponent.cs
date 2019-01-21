@@ -8,11 +8,8 @@ namespace Components.Aphid.Interpreter
 {
     public abstract class AphidRuntimeComponent
     {
-        public AphidInterpreter Interpreter { get; private set; }
+        public AphidInterpreter Interpreter { get; }
 
-        public AphidRuntimeComponent(AphidInterpreter interpreter)
-        {
-            Interpreter = interpreter;
-        }
+        protected AphidRuntimeComponent(AphidInterpreter interpreter) => Interpreter = interpreter;
     }
 }

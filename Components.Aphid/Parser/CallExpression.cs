@@ -10,7 +10,6 @@ namespace Components.Aphid.Parser
         public CallExpression(AphidExpression functionExpression, AphidExpression expression)
             : this(functionExpression, new List<AphidExpression> { expression })
         {
-
         }
     }
 }

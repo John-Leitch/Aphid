@@ -5,7 +5,6 @@ using System.Text;
 
 namespace Components.PInvoke
 {
-    
     public enum HookType : int
     {
         WH_JOURNALRECORD = 0,

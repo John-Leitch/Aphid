@@ -9,32 +9,23 @@ namespace Mantispid
 {
     public class ParserGeneratorConfig : Singleton<ParserGeneratorConfig>
     {
-        public string TokenType { get; private set; }
+        public string TokenType { get; }
 
-        public string BaseClass { get; private set; }
+        public string BaseClass { get; }
 
-        public string NodeType { get; private set; }
+        public string NodeType { get; }
 
-        public string[] Namespace { get; private set; }
+        public string[] Namespace { get; }
 
-        public string ParserClass { get; private set; }
+        public string ParserClass { get; }
 
-        public bool IsAstMutable { get; private set; }
+        public bool IsAstMutable { get; }
 
-        public string ExceptionClass
-        {
-            get { return ParserClass + "Exception"; }
-        }
+        public string ExceptionClass => ParserClass + "Exception";
 
-        public string ExpressionContextClass
-        {
-            get { return BaseClass + "Context"; }
-        }
+        public string ExpressionContextClass => BaseClass + "Context";
 
-        public string HelperClass
-        {
-            get { return BaseClass + "Helper"; }
-        }
+        public string HelperClass => BaseClass + "Helper";
 
         public ParserGeneratorConfig(
             string tokenType,

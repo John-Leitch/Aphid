@@ -36,11 +36,11 @@ namespace Components.External.ConsolePlus
 
         public int MaxListSize { get; set; }
 
-        public IScanner Scanner { get; private set; }
+        public IScanner Scanner { get; }
 
-        public ISyntaxHighlighter Highlighter { get; private set; }
+        public ISyntaxHighlighter Highlighter { get; }
 
-        public IAutocompletionSource Source { get; private set; }
+        public IAutocompletionSource Source { get; }
 
         public int MaxHistoryCount { get; set; }
 
@@ -292,10 +292,7 @@ namespace Components.External.ConsolePlus
             _oldTop = Console.CursorTop;
         }
 
-        private void RestoreCursor()
-        {
-            Console.SetCursorPosition(_oldLeft, _oldTop);
-        }
+        private void RestoreCursor() => Console.SetCursorPosition(_oldLeft, _oldTop);
 
         private void Erase(int left, int top, int width, int height)
         {
@@ -321,10 +318,7 @@ namespace Components.External.ConsolePlus
             Console.CursorVisible = backup;
         }
 
-        private void UpdateAutocomplete()
-        {
-            UpdateAutocomplete(clearMatches: true);
-        }
+        private void UpdateAutocomplete() => UpdateAutocomplete(clearMatches: true);
 
         private void UpdateAutocomplete(bool clearMatches)
         {
@@ -370,7 +364,7 @@ namespace Components.External.ConsolePlus
             }
 
             var oldTop = Console.CursorTop;
-            
+
             _autocompleteWidth = _matches.Length != 0 ?
                 _matches.Max(x => Cli.EraseStyles(x.View).Length) : 0;
 
@@ -462,10 +456,8 @@ namespace Components.External.ConsolePlus
             Console.SetCursorPosition(_prompt.Length + _cursorIndex, oldTop);
         }
 
-        private void SetCursor()
-        {
+        private void SetCursor() =>
             Console.SetCursorPosition(_prompt.Length + _cursorIndex, Console.CursorTop);
-        }
 
         private void SetHistoryValue(bool up)
         {
@@ -520,14 +512,8 @@ namespace Components.External.ConsolePlus
             Console.CursorVisible = true;
         }
 
-        private int GetMaxResults()
-        {
-            return Math.Min(Console.WindowHeight - 6, MaxListSize);
-        }
+        private int GetMaxResults() => Math.Min(Console.WindowHeight - 6, MaxListSize);
 
-        private int GetMaxWidth()
-        {
-            return Console.WindowWidth - _autocompleteLeft - 1;
-        }
+        private int GetMaxWidth() => Console.WindowWidth - _autocompleteLeft - 1;
     }
 }

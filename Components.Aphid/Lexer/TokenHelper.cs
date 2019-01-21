@@ -243,10 +243,9 @@ namespace Components.Aphid.Lexer
                     return new[]
                     {
                         new[] { leftLineCol.Item1, leftLineCol.Item2 },
-                        new[] { line, col },                        
+                        new[] { line, col },
                     };
                 }
-
             }
             else
             {
@@ -256,10 +255,7 @@ namespace Components.Aphid.Lexer
             return null;
         }
 
-        public static string GetCodeExcerpt(string code, AphidToken token, int surroundingLines = 4)
-        {
-            return GetCodeExcerpt(code, token.Index, surroundingLines);
-        }
+        public static string GetCodeExcerpt(string code, AphidToken token, int surroundingLines = 4) => GetCodeExcerpt(code, token.Index, surroundingLines);
 
         public static string GetCodeExcerpt(string code, int index, int surroundingLines = 4)
         {
@@ -270,7 +266,7 @@ namespace Components.Aphid.Lexer
 
             code = code.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n", "\r\n");
             var matches = Regex.Matches(code, @"\r\n").OfType<Match>().ToArray();
-            var firstAfter = matches.FirstOrDefault(x => x.Index > index);
+            var firstAfter = Array.Find(matches, x => x.Index > index);
             int line;
 
             if (firstAfter != null)
@@ -279,7 +275,7 @@ namespace Components.Aphid.Lexer
             }
             else
             {
-                line = matches.Count();
+                line = matches.Length;
             }
 
             var lines = code.Split(new[] { "\r\n" }, StringSplitOptions.None);
@@ -289,7 +285,7 @@ namespace Components.Aphid.Lexer
             {
                 if (i >= 0 && i < lines.Length)
                 {
-                    sb.AppendLine(string.Format("({0}) {1}", i + 1, lines[i]));
+                    sb.AppendFormat("({0}) {1}", i + 1, lines[i]).AppendLine();
                 }
             }
 

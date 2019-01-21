@@ -30,14 +30,17 @@ namespace Components.Aphid.Library.Net.Http
                 _rng.GetBytes(bytes);
             }
 
-            return string.Join("", bytes.Select(x => string.Format("{0:X2}", x)));
+            return string.Concat(bytes.Select(x => string.Format("{0:X2}", x)));
         }
 
-        public Cookie CreateCookie() => new Cookie(CookieName, NextSessionId()) { Expires = DateTime.Now.AddMinutes(60) };
+        public Cookie CreateCookie() =>
+            new Cookie(CookieName, NextSessionId()) { Expires = DateTime.Now.AddMinutes(60) };
 
-        public static Cookie GetCookie(HttpListenerContext context) => context.Request.Cookies[CookieName];
+        public static Cookie GetCookie(HttpListenerContext context) =>
+            context.Request.Cookies[CookieName];
 
-        public AphidObject GetSession(string key) => _sessions.TryGetValue(key, out var session) ? session : null;
+        public AphidObject GetSession(string key) =>
+            _sessions.TryGetValue(key, out var session) ? session : null;
 
         public AphidObject CreateSession(string id)
         {

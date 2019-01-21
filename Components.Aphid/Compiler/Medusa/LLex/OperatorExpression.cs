@@ -7,11 +7,8 @@ namespace LLex
 {
     public class OperatorExpression : RegexExpression
     {
-        public RegexTokenType Type { get; private set; }
+        public RegexTokenType Type { get; }
 
-        public OperatorExpression(RegexTokenType type)
-        {
-            Type = type;
-        }
+        public OperatorExpression(RegexTokenType type) => Type = type;
     }
 }

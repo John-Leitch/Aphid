@@ -32,12 +32,12 @@ namespace Components.External.ConsolePlus
             {
                 var a = p.GetCustomAttributes(typeof(CliArgAttribute), true);
 
-                if (!a.Any())
+                if (a.Length == 0)
                 {
                     continue;
                 }
 
-                var attr = a.First() as CliArgAttribute;
+                var attr = a[0] as CliArgAttribute;
 
                 var names = attr.Names;
 
@@ -48,7 +48,7 @@ namespace Components.External.ConsolePlus
 
                 var dupes = names.Where(argDictionary.ContainsKey).ToArray();
 
-                if (dupes.Any())
+                if (dupes.Length > 0)
                 {
                     throw new InvalidOperationException(
                         string.Format(
@@ -129,7 +129,6 @@ namespace Components.External.ConsolePlus
                 {
                     getValue = () =>
                     {
-
                         var x = Arguments[i].Trim();
                         object result;
 
@@ -196,7 +195,7 @@ namespace Components.External.ConsolePlus
             var missingRequiredArgs = argDictionary
                 .Select(x => x.Value.Item1)
                 .Where(x => x.IsRequired && !argsSet.Contains(x))
-                .Select(x => x.Names.First())
+                .Select(x => x.Names[0])
                 .Distinct();
 
             if (missingRequiredArgs.Any())
@@ -224,6 +223,5 @@ namespace Components.External.ConsolePlus
                 .Select(x => x.GetCustomAttribute<CliArgAttribute>())
                 .ToArray();
         }
-
     }
 }

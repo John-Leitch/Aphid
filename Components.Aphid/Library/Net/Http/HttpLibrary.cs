@@ -32,10 +32,7 @@ namespace Components.Aphid.Library.Net
                 {
                     foreach (var f in req.Files)
                     {
-                        if (f.Stream != null)
-                        {
-                            f.Stream.Dispose();
-                        }
+                        f.Stream?.Dispose();
                     }
                 }
             }

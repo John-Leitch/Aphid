@@ -108,13 +108,12 @@ namespace Components.Aphid.Serialization
         }
 
         private bool IsMember(AphidExpression expression) =>
-            expression != null &&
-            expression.Type == AphidExpressionType.BinaryOperatorExpression &&
+            expression?.Type == AphidExpressionType.BinaryOperatorExpression &&
             Ancestors.Count >= 1 &&
             Ancestors.Peek().Type == AphidExpressionType.ObjectExpression;
 
         private static bool IsArray(AphidExpression expression) =>
-            expression != null && expression.Type == AphidExpressionType.ArrayExpression;
+            expression?.Type == AphidExpressionType.ArrayExpression;
 
         private static bool IsRef(AphidExpression expression) =>
             expression.Type == AphidExpressionType.IdentifierExpression ||

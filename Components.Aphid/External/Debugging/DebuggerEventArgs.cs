@@ -10,26 +10,26 @@ namespace Components.Cypress
 {
     public class DebuggerEventArgs : EventArgs
     {
-        public IntPtr ProcessHandle { get; private set; }
+        public IntPtr ProcessHandle { get; }
 
-        public DEBUG_EVENT DebugEvent { get; private set; }
+        public DEBUG_EVENT DebugEvent { get; }
 
-        public byte[] FaultingInstructions { get; private set; }
+        public byte[] FaultingInstructions { get; }
 
-        public string InstructionHash { get; private set; }
+        public string InstructionHash { get; }
 
-        public ProcessMemory Memory { get; private set; }
+        public ProcessMemory Memory { get; }
 
 #if FULL_DBG
-        public BreakpointManager Breakpoints { get; private set; }
+        public BreakpointManager Breakpoints { get; }
 
-        public HookManager Hooks { get; private set; }
+        public HookManager Hooks { get; }
 #endif
 
         public DebuggerEventArgs(
-            IntPtr processHandle, 
+            IntPtr processHandle,
             byte[] faultingInstructions,
-            string instructionHash, 
+            string instructionHash,
             DEBUG_EVENT debugEvent,
             ProcessMemory memory
 #if FULL_DBG
@@ -70,7 +70,7 @@ namespace Components.Cypress
             switch (DebugEvent.Exception.ExceptionRecord.ExceptionCode)
             {
                 case ExceptionCode.EXCEPTION_BREAKPOINT:
-                    sb.Append(ExceptionType.Breakpoint + "_");
+                    sb.Append(ExceptionType.Breakpoint).Append("_");
                     break;
 
                 case ExceptionCode.EXCEPTION_ACCESS_VIOLATION:
@@ -114,9 +114,9 @@ namespace Components.Cypress
                     break;
             }
 
-            sb.Append(DebugEvent.Exception.dwFirstChance == 1 ? "FC_" : "SC_");            
+            sb.Append(DebugEvent.Exception.dwFirstChance == 1 ? "FC_" : "SC_");
             sb.Append(InstructionHash);
-            
+
             return sb.ToString();
         }
     }

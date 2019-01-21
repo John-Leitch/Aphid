@@ -17,16 +17,10 @@ namespace Components
         private Dictionary<TKey, TValue> _table = new Dictionary<TKey, TValue>();
 
         [IgnoreDataMember]
-        public Dictionary<TKey, TValue>.KeyCollection Keys
-        {
-            get { return _table.Keys; }
-        }
+        public Dictionary<TKey, TValue>.KeyCollection Keys => _table.Keys;
 
         [IgnoreDataMember]
-        public Dictionary<TKey, TValue>.ValueCollection Values
-        {
-            get { return _table.Values; }
-        }
+        public Dictionary<TKey, TValue>.ValueCollection Values => _table.Values;
 
         public Table()
         {

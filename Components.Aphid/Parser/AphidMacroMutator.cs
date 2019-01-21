@@ -92,9 +92,6 @@ namespace Components.Aphid.Parser
         }
 
         protected virtual AphidMacroBodyMutator CreateBodyMutator(
-            Dictionary<string, AphidExpression> argTable)
-        {
-            return new AphidMacroBodyMutator(argTable);
-        }
+            Dictionary<string, AphidExpression> argTable) => new AphidMacroBodyMutator(argTable);
     }
 }

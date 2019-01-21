@@ -12,7 +12,7 @@ namespace Mantispid
 
         private readonly Func<TValue> _init;
 
-        public SymbolTable<TValue> Parent { get; private set; }
+        public SymbolTable<TValue> Parent { get; }
 
         public bool TryResolve(string key, out TValue value)
         {
@@ -30,10 +30,7 @@ namespace Mantispid
             }
         }
 
-        public void Add(string key, TValue value)
-        {
-            _table.Add(key, value);
-        }
+        public void Add(string key, TValue value) => _table.Add(key, value);
 
         public SymbolTable(Func<TValue> init, SymbolTable<TValue> parent)
         {
@@ -51,9 +48,6 @@ namespace Mantispid
         {
         }
 
-        public SymbolTable<TValue> ToChild()
-        {
-            return new SymbolTable<TValue>(_init, this);
-        }
+        public SymbolTable<TValue> ToChild() => new SymbolTable<TValue>(_init, this);
     }
 }

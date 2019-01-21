@@ -79,7 +79,8 @@ namespace Components.Aphid.Interpreter
                 (useFullNames ? t.FullName : t.Name);
         }
 
-        private string CreateArgString() => string.Join(", ", Arguments.Select(CreateObjectString));
+        private string CreateArgString() =>
+            string.Join(", ", Arguments.Select(CreateObjectString));
 
         private string CreateObjectString(object value)
         {
@@ -113,23 +114,17 @@ namespace Components.Aphid.Interpreter
         public override int GetHashCode()
         {
             var hashCode = 1404356713;
-            hashCode = hashCode * -1521134295 + EqualityComparer<AphidSerializer>.Default.GetHashCode(_serializer);
-            hashCode = hashCode * -1521134295 + EqualityComparer<Lazy<string>>.Default.GetHashCode(_name);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AphidObject>.Default.GetHashCode(Scope);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AphidExpression>.Default.GetHashCode(Expression);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IEnumerable<object>>.Default.GetHashCode(Arguments);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AphidInterpreter>.Default.GetHashCode(Interpreter);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<AphidSerializer>.Default.GetHashCode(_serializer);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<Lazy<string>>.Default.GetHashCode(_name);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<AphidObject>.Default.GetHashCode(Scope);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<AphidExpression>.Default.GetHashCode(Expression);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<IEnumerable<object>>.Default.GetHashCode(Arguments);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<AphidInterpreter>.Default.GetHashCode(Interpreter);
             return hashCode;
         }
 
-        public static bool operator ==(AphidFrame frame1, AphidFrame frame2)
-        {
-            return frame1.Equals(frame2);
-        }
+        public static bool operator ==(in AphidFrame frame1, in AphidFrame frame2) => frame1.Equals(frame2);
 
-        public static bool operator !=(AphidFrame frame1, AphidFrame frame2)
-        {
-            return !(frame1 == frame2);
-        }
+        public static bool operator !=(in AphidFrame frame1, in AphidFrame frame2) => !(frame1 == frame2);
     }
 }

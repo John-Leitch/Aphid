@@ -45,16 +45,13 @@ namespace Components.Aphid.Library.Net.Http
             ResetField(HttpField.ContentType, MimeType.Multipart + "; boundary=" + boundary);
         }
 
-        public void SetContentLength()
-        {
-            ResetField(HttpField.ContentLength, 0);
-        }        
+        public void SetContentLength() => ResetField(HttpField.ContentLength, 0);
 
         public string BuildRelativeUrl()
         {
             var url = (Path[0] == '/' ? "" : "/") + Path;
 
-            if (QueryString != null && QueryString.Any())
+            if (QueryString?.Length > 0)
             {
                 url += "?" + FormUrlEncoder.Encode(QueryString);
             }
@@ -62,15 +59,12 @@ namespace Components.Aphid.Library.Net.Http
             return url;
         }
 
-        public string BuildAbsoluteUrl(string host)
-        {
-            return "http://" + host + BuildRelativeUrl();
-        }
+        public string BuildAbsoluteUrl(string host) => "http://" + host + BuildRelativeUrl();
 
         public string CreateHeader(string host)
         {
             return Method + " " + BuildRelativeUrl() + " HTTP/" + Version + "\r\n" +
                 GetAttributeString() + "\r\n\r\n";
-        }        
+        }
     }
 }

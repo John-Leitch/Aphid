@@ -14,7 +14,6 @@ namespace Components.Aphid.TypeSystem
         public AphidFunctionConverter(AphidInterpreter interpreter)
             : base(interpreter)
         {
-
         }
 
         public Delegate Convert(
@@ -44,17 +43,16 @@ namespace Components.Aphid.TypeSystem
         {
             var methodParams = method.GetParameters();
             var wrapper = new AphidFunctionWrapper(Interpreter, function);
-            
+
             var call = wrapper
                 .GetType()
                 .GetMethods()
-                .Where(x =>
+                .SingleOrDefault(x =>
                     x.Name == "Call" &&
-                    (method.ReturnType == typeof(void) ? 
+                    (method.ReturnType == typeof(void) ?
                         x.ReturnType == typeof(void) :
                         x.ReturnType != typeof(void)) &&
-                    methodParams.Length == x.GetParameters().Length)
-                .SingleOrDefault();
+                    methodParams.Length == x.GetParameters().Length);
 
             if (call == null)
             {

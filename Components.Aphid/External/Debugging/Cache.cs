@@ -13,10 +13,7 @@ namespace Components.Cypress
 
         private Dictionary<TKey, TValue> _values = new Dictionary<TKey, TValue>();
 
-        public Cache(Func<TKey, TValue> createValue)
-        {
-            _createValue = createValue;
-        }
+        public Cache(Func<TKey, TValue> createValue) => _createValue = createValue;
 
         public TValue this[TKey key]
         {
@@ -31,14 +28,8 @@ namespace Components.Cypress
             }
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
-            return _values.GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _values.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_values).GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
     }
 }

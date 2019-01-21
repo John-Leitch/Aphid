@@ -11,37 +11,22 @@ namespace LLex
 
         private List<string> _keywordTokens = new List<string>();
 
-        public List<string> KeywordTokens
-        {
-            get { return _keywordTokens; }
-        }
+        public List<string> KeywordTokens => _keywordTokens;
 
         private List<string> _keywords = new List<string>();
 
-        public List<string> Keywords
-        {
-            get { return _keywords; }
-        }
+        public List<string> Keywords => _keywords;
 
         private Dictionary<int, List<TokenEntry>> _lists =
             new Dictionary<int, List<TokenEntry>>();
 
-        public Dictionary<int, List<TokenEntry>> Lists
-        {
-            get { return _lists; }
-        }
+        public Dictionary<int, List<TokenEntry>> Lists => _lists;
 
         private int _mode = 0;
 
-        public int Mode
-        {
-            get { return _mode; }
-        }
+        public int Mode => _mode;
 
-        public TokenTable()
-        {
-            SetMode(0);
-        }
+        public TokenTable() => SetMode(0);
 
         public void SetMode(int mode)
         {
@@ -53,10 +38,7 @@ namespace LLex
             _mode = mode;
         }
 
-        public void Add(TokenEntry entry)
-        {
-            _lists[_mode].Add(entry);
-        }
+        public void Add(TokenEntry entry) => _lists[_mode].Add(entry);
 
         public void Add(string[] lexemes, string tokenType)
         {
@@ -74,29 +56,19 @@ namespace LLex
             //Add(keyword, tokenType);
         }
 
-        public void Add(string lexeme, string tokenType)
-        {
+        public void Add(string lexeme, string tokenType) =>
             Add(new TokenEntry(lexeme, tokenType));
-        }
 
-        public void Add(string lexeme, string tokenType, int newMode)
-        {
+        public void Add(string lexeme, string tokenType, int newMode) =>
             Add(new TokenEntry(lexeme, tokenType) { NewMode = newMode });
-        }
 
-        public void AddLexemeCode(string lexeme, string code)
-        {
+        public void AddLexemeCode(string lexeme, string code) =>
             Add(new TokenEntry(lexeme, "None", code));
-        }
 
-        public void AddCode(string code)
-        {
+        public void AddCode(string code) =>
             Add(new TokenEntry(null, "None", code));
-        }
 
-        public void AddLexemeCode(string lexeme, string code, int newMode)
-        {
+        public void AddLexemeCode(string lexeme, string code, int newMode) =>
             Add(new TokenEntry(lexeme, "None", code) { NewMode = newMode });
-        }
     }
 }

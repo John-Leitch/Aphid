@@ -7,10 +7,7 @@ namespace Components.Aphid.Parser
 {
     public partial class IdentifierExpression : AphidExpression, IParentNode
     {
-        public override string ToString()
-        {
-            return Code == null ? Identifier : base.ToString();
-        }
+        public override string ToString() => Code == null ? Identifier : base.ToString();
 
         // Todo: use Equals and GetHashCode overrides as template for Mantispid.
         public override bool Equals(object obj) =>
@@ -43,7 +40,6 @@ namespace Components.Aphid.Parser
                 }
 
                 hash *= tmp;
-
 
                 return hash;
             }

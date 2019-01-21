@@ -55,11 +55,11 @@ namespace Components.Aphid.Parser
 
         public static AphidExpression First(
             AphidExpression[] expressions,
-            Func<AphidExpression, bool> predicate)
+            Predicate<AphidExpression> predicate)
         {
             do
             {
-                var first = expressions.FirstOrDefault(predicate);
+                var first = Array.Find(expressions, predicate);
 
                 if (first != null)
                 {

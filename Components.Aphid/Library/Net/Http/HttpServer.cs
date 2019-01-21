@@ -144,7 +144,7 @@ namespace Components.Aphid.Library.Net
             return _encoding.GetBytes(errorMsg);
         }
 
-        byte[] CreateResponse(HttpListenerContext context)
+        private byte[] CreateResponse(HttpListenerContext context)
         {
             var session = GetSession(context);
             var result = TryInterpretHandler(context, session);
@@ -179,7 +179,6 @@ namespace Components.Aphid.Library.Net
             HttpListenerContext context,
             AphidObject session)
         {
-            
             var scope = AphidObject.Scope();
             var oldLoaderPaths = handlerInterpreter.Loader.SearchPaths.ToArray();
             SetupInterpreterScope(handlerInterpreter, scope, null, context, session);
@@ -199,7 +198,6 @@ namespace Components.Aphid.Library.Net
             if (handler != null)
             {
 
-
                 var callback = handler.Callback;
                 //AphidFunction callback = handler.Callback.Clone();
                 //callback.Body = callback.Body.ToList();
@@ -207,7 +205,7 @@ namespace Components.Aphid.Library.Net
                 //var include = string.Format(
                 //    "#'{0}'",
                 //    GetHeaderFile().FullName.Replace("\\", "\\\\"));
-                
+
                 //callback.Body.Insert(0, AphidParser.ParseExpression(include));
 
                 return RenderResponse(
@@ -233,7 +231,7 @@ namespace Components.Aphid.Library.Net
         {
             var interpreter = new AphidInterpreter();
             SetupInterpreterScope(interpreter, codeFile, context, session);
-            
+
             return RenderResponse(
                 interpreter,
                 () => interpreter.Interpret(code, isTextDocument: true),
@@ -241,10 +239,7 @@ namespace Components.Aphid.Library.Net
                 context);
         }
 
-        private static AphidObject CreateQueryObject(HttpListenerContext context)
-        {
-            return CreateQueryObject(context.Request.Url.Query);
-        }
+        private static AphidObject CreateQueryObject(HttpListenerContext context) => CreateQueryObject(context.Request.Url.Query);
 
         private static AphidObject CreateQueryObject(string query)
         {
@@ -268,7 +263,7 @@ namespace Components.Aphid.Library.Net
         {
             var relativePath = uri.LocalPath.Replace('/', '\\');
 
-            if (relativePath.Any() && relativePath[0] == '\\')
+            if (relativePath.Length > 0 && relativePath[0] == '\\')
             {
                 relativePath = relativePath.Remove(0, 1);
             }
@@ -363,10 +358,7 @@ namespace Components.Aphid.Library.Net
             session[_configCacheTime].Value = config.LastWriteTime;
         }
 
-        private static void CacheConfig(AphidObject session)
-        {
-            session[_configCacheTime] = AphidObject.Scalar(DateTime.Now);
-        }
+        private static void CacheConfig(AphidObject session) => session[_configCacheTime] = AphidObject.Scalar(DateTime.Now);
 
         private static void SetSessionInterpreter(
             AphidObject session,
@@ -384,34 +376,19 @@ namespace Components.Aphid.Library.Net
             }
         }
 
-        private static AphidInterpreter GetSessionInterpreter(AphidObject session)
-        {
-            return (AphidInterpreter)session[AphidName.Interpreter].Value;
-        }
+        private static AphidInterpreter GetSessionInterpreter(AphidObject session) => (AphidInterpreter)session[AphidName.Interpreter].Value;
 
-        private FileInfo GetConfigFile()
-        {
-            return GetWebRootFile("Config.alx");
-        }
+        private FileInfo GetConfigFile() => GetWebRootFile("Config.alx");
 
-        private FileInfo GetHeaderFile()
-        {
-            return GetWebRootFile("HttpServer.alx");
-        }
+        private FileInfo GetHeaderFile() => GetWebRootFile("HttpServer.alx");
 
-        private FileInfo GetWebRootFile(string name)
-        {
-            return new FileInfo(Path.Combine(_webRoot, name));
-        }
+        private FileInfo GetWebRootFile(string name) => new FileInfo(Path.Combine(_webRoot, name));
 
         private void SetupInterpreterScope(
             AphidInterpreter interpreter,
             string codeFile,
             HttpListenerContext context,
-            AphidObject session)
-        {
-            SetupInterpreterScope(interpreter, interpreter.CurrentScope, codeFile, context, session);
-        }
+            AphidObject session) => SetupInterpreterScope(interpreter, interpreter.CurrentScope, codeFile, context, session);
 
         private void SetupInterpreterScope(
             AphidInterpreter interpreter,
@@ -443,8 +420,7 @@ namespace Components.Aphid.Library.Net
 
             scope.Add(
                 "post",
-                context.Request.ContentType != null &&
-                context.Request.ContentType.StartsWith(_formUrlEncoded) ?
+                context.Request.ContentType?.StartsWith(_formUrlEncoded) == true ?
                     CreateQueryObject(body) :
                     AphidObject.Complex());
 
@@ -466,7 +442,7 @@ namespace Components.Aphid.Library.Net
 
             using (interpreter.Out = new StringWriter())
             {
-                renderAction();                
+                renderAction();
                 interpreter.Out.Flush();
 
                 scriptOut = interpreter.Out.ToString();

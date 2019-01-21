@@ -55,7 +55,6 @@ namespace Components.Aphid.UI
         public AphidConfig()
             : base()
         {
-
         }
 
         private static Lazy<bool> GetBool(string name, bool defaultValue = false) =>

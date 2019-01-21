@@ -7,7 +7,7 @@ namespace AphidUI.ViewModels
     using global::Components.Aphid.Lexer;
     using global::Components.Aphid.Parser;
     using System.Collections.Generic;
-    
+
     public static partial class AphidCompilerResources
     {
         public static List<AphidExpression> ByteCode_221ad5a3a1876e7a60e51ed97b2b3efd()
@@ -771,51 +771,51 @@ namespace AphidUI.ViewModels
         private void OnIsControlInitializedChanged()
         {
         }
-        
+
         private void OnIsExecutingChanged()
         {
             RunVisibility = IsExecuting ? Visibility.Collapsed : Visibility.Visible;
             StopVisibility = IsExecuting ? Visibility.Visible : Visibility.Collapsed;
         }
-        
+
         private void OnIsMultiLineChanged()
         {
             ExpressionVisibility = IsMultiLine ? Visibility.Collapsed : Visibility.Visible;
             StatementsVisibility = IsMultiLine ? Visibility.Visible : Visibility.Collapsed;
         }
-        
+
         private void OnCodeChanged()
         {
         }
-        
+
         private void OnOutputChanged()
         {
         }
-        
+
         private void OnStatusChanged()
         {
         }
-        
+
         private void OnExpressionVisibilityChanged()
         {
         }
-        
+
         private void OnStatementsVisibilityChanged()
         {
         }
-        
+
         private void OnRunVisibilityChanged()
         {
         }
-        
+
         private void OnStopVisibilityChanged()
         {
         }
-        
+
         private void OnLineOptionVisibilityChanged()
         {
         }
-        
+
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
@@ -875,11 +875,11 @@ namespace AphidUI.ViewModels
         private void OnNameChanged()
         {
         }
-        
+
         private void OnValueChanged()
         {
         }
-        
+
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
@@ -923,7 +923,7 @@ namespace AphidUI.ViewModels
         private void OnValueChanged()
         {
         }
-        
+
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
@@ -945,6 +945,5 @@ namespace AphidUI.ViewModels
             InvokePropertyChanged(callerName);
         }
     }
-
 }
 

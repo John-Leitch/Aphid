@@ -12,13 +12,12 @@ namespace Boxelder
         private static Stack<AphidExpression> _expressions = new Stack<AphidExpression>();
 
         public static AphidExpression[] FirstOrDefaultPath(
-            List<AphidExpression> ast, 
+            List<AphidExpression> ast,
             Func<AphidExpression, bool> predicate)
         {
             return ast
                 .Select(x => FirstOrDefaultPath(x, predicate))
-                .Where(x => x != null)
-                .FirstOrDefault();
+                .FirstOrDefault(x => x != null);
         }
 
         public static AphidExpression[] FirstOrDefaultPath(
@@ -39,8 +38,7 @@ namespace Boxelder
                     return parent
                         .GetChildren()
                         .Select(x => FirstOrDefaultPath(x, predicate))
-                        .Where(x => x != null)
-                        .FirstOrDefault();
+                        .FirstOrDefault(x => x != null);
                 }
                 else
                 {

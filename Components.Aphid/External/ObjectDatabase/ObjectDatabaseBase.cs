@@ -11,7 +11,7 @@ namespace Components.ObjectDatabase
 
         public bool IsOpened { get; private set; }
 
-        public string Filename { get; private set; }
+        public string Filename { get; }
 
         public void Open()
         {
@@ -24,12 +24,12 @@ namespace Components.ObjectDatabase
             IsOpened = true;
         }
 
-        public ObjectDatabaseBase()
+        protected ObjectDatabaseBase()
             : this(typeof(TElement).FullName + ".odb")
         {
         }
 
-        public ObjectDatabaseBase(string filename) => Filename = Path.GetFullPath(filename);
+        protected ObjectDatabaseBase(string filename) => Filename = Path.GetFullPath(filename);
 
         public void AcquireLock() => _locks.AcquireLock();
 
@@ -77,7 +77,6 @@ namespace Components.ObjectDatabase
 
         public abstract int Count();
 
-        public abstract Dictionary<TIndex, List<int>> Index<TIndex>(Func<TElement, TIndex> selector);        
+        public abstract Dictionary<TIndex, List<int>> Index<TIndex>(Func<TElement, TIndex> selector);
     }
-
 }

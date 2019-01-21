@@ -12,10 +12,7 @@ namespace Components.Aphid.Library
     public class DebugLibrary
     {
         [AphidInteropFunction("dbg.breakpoint")]
-        private static void DebuggerBreak()
-        {
-            Debugger.Break();
-        }        
+        private static void DebuggerBreak() => Debugger.Break();
     }
 }
 

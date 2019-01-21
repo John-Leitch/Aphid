@@ -15,10 +15,7 @@ namespace Components.Aphid.Parser
         private int _buildNumber;
 #pragma warning restore IDE0044 // Add readonly modifier
 
-        public BuildConstMutator(int buildNumber)
-        {
-            _buildNumber = buildNumber;
-        }
+        public BuildConstMutator(int buildNumber) => _buildNumber = buildNumber;
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
@@ -39,7 +36,7 @@ namespace Components.Aphid.Parser
             {
                 new StringExpression(
                     string.Format(
-                        "'{0}'", 
+                        "'{0}'",
                         string.Format("{0:D2}{1:D2}.{2}", utc.Month, utc.Day, _buildNumber)))
             };
         }

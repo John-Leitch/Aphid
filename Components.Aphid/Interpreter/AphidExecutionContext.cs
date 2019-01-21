@@ -33,20 +33,11 @@ namespace Components.Aphid.Interpreter
         public TExpression Expression { get; set; }
 
         public AphidExecutionContext(TExpression expression)
-            : base()
-        {
-            Expression = expression;
-        }
+            : base() => Expression = expression;
 
         public AphidExecutionContext(TExpression expression, bool isModified, bool isHandled)
-            : base(isModified, isHandled)
-        {
-            Expression = expression;
-        }
+            : base(isModified, isHandled) => Expression = expression;
 
-        public static implicit operator AphidExecutionContext<TExpression>(TExpression expression)
-        {
-            return new AphidExecutionContext<TExpression>(expression);
-        }
+        public static implicit operator AphidExecutionContext<TExpression>(TExpression expression) => new AphidExecutionContext<TExpression>(expression);
     }
 }

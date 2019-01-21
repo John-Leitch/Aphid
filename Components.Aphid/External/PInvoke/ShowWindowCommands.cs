@@ -1,5 +1,8 @@
-﻿namespace Components.PInvoke
+﻿using System;
+
+namespace Components.PInvoke
 {
+    [Flags]
     public enum ShowWindowCommands : uint
     {
         /// <summary>

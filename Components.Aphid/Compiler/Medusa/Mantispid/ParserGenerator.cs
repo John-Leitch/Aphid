@@ -44,15 +44,9 @@ namespace Mantispid
 
         private string[] _tokenTypes;
 
-        private void EnterChildScope()
-        {
-            _scope = AphidObject.Scope(_scope);
-        }
+        private void EnterChildScope() => _scope = AphidObject.Scope(_scope);
 
-        private void LeaveChildScope()
-        {
-            _scope = _scope.Parent;
-        }
+        private void LeaveChildScope() => _scope = _scope.Parent;
 
         private static BinaryOperatorExpression[] GetRules(List<AphidExpression> nodes)
         {
@@ -195,7 +189,7 @@ namespace Mantispid
             _tokenTypes = tokenTypeEnum.Groups[2].Value
                 .Split(new[] { '\r', '\n', ',', }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim())
-                .Where(x => x.Any())
+                .Where(x => x.Length > 0)
                 .ToArray();
 
             return lexerCode;
@@ -216,7 +210,7 @@ namespace Mantispid
         {
             var exp = nodes
                 .OfType<IdentifierExpression>()
-                .SingleOrDefault(x => x.Attributes.Count == 1 && x.Attributes.First().Identifier == directive);
+                .SingleOrDefault(x => x.Attributes.Count == 1 && x.Attributes[0].Identifier == directive);
 
             nodes.Remove(exp);
 
@@ -242,8 +236,8 @@ namespace Mantispid
                 })
                 .SingleOrDefault(x =>
                     x.Values.All(y => y.Type == AphidExpressionType.IdentifierExpression) &&
-                    ((IdentifierExpression)x.Values.First()).Attributes.Count == 1 &&
-                    ((IdentifierExpression)x.Values.First()).Attributes.First().Identifier == directive);
+                    ((IdentifierExpression)x.Values[0]).Attributes.Count == 1 &&
+                    ((IdentifierExpression)x.Values[0]).Attributes[0].Identifier == directive);
 
             if (idSeq == null)
             {
@@ -335,7 +329,7 @@ namespace Mantispid
                 })
                 .Select(x => new RuleStruct(
                     x.Name.Identifier,
-                    x.Name.Attributes.Any() ? x.Name.Attributes.Single().Identifier : _config.BaseClass,
+                    x.Name.Attributes.Count > 0 ? x.Name.Attributes.Single().Identifier : _config.BaseClass,
                     x.Properties))
                 .ToArray();
 
@@ -373,7 +367,6 @@ namespace Mantispid
             {
                 Attributes = MemberAttributes.Private,
             };
-
         }
 
         private CodeMemberMethod Generate(AphidExpression node)
@@ -423,7 +416,7 @@ namespace Mantispid
 
             CodeStatement[] body;
 
-            if (!func.Body.Any())
+            if (func.Body.Count == 0)
             {
                 return null;
                 //return new CodeStatementCollection();
@@ -581,14 +574,14 @@ namespace Mantispid
                             {
                                 CodeHelper.Stmt(
                                     CodeHelper.Invoke(
-                                        ParserGeneratorDirective.MatchFunc, 
+                                        ParserGeneratorDirective.MatchFunc,
                                         GenerateImperativeExpression(node.Args.Single())))
                             });
 
                         default:
-                            return new CodeStatementCollection(new[] 
-                            { 
-                                new CodeExpressionStatement(GenerateImperativeExpression(node)) 
+                            return new CodeStatementCollection(new[]
+                            {
+                                new CodeExpressionStatement(GenerateImperativeExpression(node))
                             });
                     }
 
@@ -616,9 +609,9 @@ namespace Mantispid
 
         private CodeStatementCollection GenerateImperativeRetStatement(UnaryOperatorExpression node)
         {
-            return new CodeStatementCollection(new[] 
-            { 
-                CodeHelper.Return(GenerateImperativeExpression(node.Operand)) 
+            return new CodeStatementCollection(new[]
+            {
+                CodeHelper.Return(GenerateImperativeExpression(node.Operand))
             });
         }
 
@@ -657,11 +650,10 @@ namespace Mantispid
             //    }
             //}
 
-
             if (node.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
             {
                 var id = ((IdentifierExpression)node.LeftOperand).Identifier;
-                
+
                 if (!_scope.TryResolve(id, out var obj))
                 {
                     _scope.Add(id, AphidObject.Complex());
@@ -733,7 +725,7 @@ namespace Mantispid
                 setSwitchStmt(new CodeConditionStatement(exp, body.Cast<CodeStatement>().ToArray()));
             }
 
-            if (node.DefaultCase != null && node.DefaultCase.Any())
+            if (node.DefaultCase?.Count > 0)
             {
                 if (setSwitchStmt == null)
                 {
@@ -774,8 +766,8 @@ namespace Mantispid
                     CodeHelper.False()),
                 new CodeSnippetStatement("break;")));
 
-            return new CodeStatementCollection(new[] 
-            { 
+            return new CodeStatementCollection(new[]
+            {
                 CodeHelper.While(CodeHelper.True(), body.OfType<CodeStatement>().ToArray())
             });
         }
@@ -798,10 +790,7 @@ namespace Mantispid
             return new CodeStatementCollection(stmts);
         }
 
-        private bool IsTokenType(string name)
-        {
-            return _tokenTypes.Contains(name);
-        }
+        private bool IsTokenType(string name) => _tokenTypes.Contains(name);
 
         private CodeExpression GenerateImperativeExpression(AphidExpression node, bool isCondition = false)
         {
@@ -836,14 +825,11 @@ namespace Mantispid
 
                 default:
                     throw new NotImplementedException();
-
             }
         }
 
-        private static CodeExpression GenerateImperativeExpression(BooleanExpression node)
-        {
-            return node.Value ? CodeHelper.True() : CodeHelper.False();
-        }
+        private static CodeExpression GenerateImperativeExpression(BooleanExpression node) =>
+            node.Value ? CodeHelper.True() : CodeHelper.False();
 
         private CodeExpression GenerateImperativeExpression(IdentifierExpression node, bool isCondition = false)
         {
@@ -872,7 +858,7 @@ namespace Mantispid
                                 exp);
                         }
                     }
-                    else if (node.Attributes.Any())
+                    else if (node.Attributes.Count > 0)
                     {
                         var attr = node.Attributes.Single().Identifier;
 
@@ -890,7 +876,6 @@ namespace Mantispid
                     {
                         return CodeHelper.VarRef(node.Identifier);
                     }
-
 
             }
         }
@@ -1015,34 +1000,22 @@ namespace Mantispid
                 node.KeyExpressions.Select(x => GenerateImperativeExpression(x)).ToArray());
         }
 
-        private static CodeExpression GenerateImperativeExpression(NumberExpression node)
-        {
-            return new CodePrimitiveExpression((int)node.Value);
-        }
+        private static CodeExpression GenerateImperativeExpression(NumberExpression node) =>
+            new CodePrimitiveExpression((int)node.Value);
 
-        private static CodePropertyReferenceExpression GetCurrentTokenType()
-        {
-            return GetCurrentTokenProp(ParserGeneratorDirective.CurrentTokenType);
-        }
+        private static CodePropertyReferenceExpression GetCurrentTokenType() =>
+            GetCurrentTokenProp(ParserGeneratorDirective.CurrentTokenType);
 
-        private static CodePropertyReferenceExpression GetCurrentLexeme()
-        {
-            return GetCurrentTokenProp(ParserGeneratorDirective.CurrentLexeme);
-        }
+        private static CodePropertyReferenceExpression GetCurrentLexeme() =>
+            GetCurrentTokenProp(ParserGeneratorDirective.CurrentLexeme);
 
-        private static CodePropertyReferenceExpression GetCurrentTokenProp(string propertyName)
-        {
-            return CodeHelper.PropRef("_currentToken", propertyName);
-        }
+        private static CodePropertyReferenceExpression GetCurrentTokenProp(string propertyName) =>
+            CodeHelper.PropRef("_currentToken", propertyName);
 
-        private CodeFieldReferenceExpression GetTokenTypeRef(string tokenName)
-        {
-            return CodeHelper.FieldRef(CodeHelper.TypeRefExp(_config.TokenType), tokenName);
-        }
+        private CodeFieldReferenceExpression GetTokenTypeRef(string tokenName) =>
+            CodeHelper.FieldRef(CodeHelper.TypeRefExp(_config.TokenType), tokenName);
 
-        private static CodeStatement GetNextTokenStatement()
-        {
-            return CodeHelper.Stmt(CodeHelper.Invoke("NextToken"));
-        }
+        private static CodeStatement GetNextTokenStatement() =>
+            CodeHelper.Stmt(CodeHelper.Invoke("NextToken"));
     }
 }

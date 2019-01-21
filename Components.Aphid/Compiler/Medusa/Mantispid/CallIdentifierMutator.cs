@@ -14,10 +14,7 @@ namespace Mantispid
 
         private bool _skip = false;
 
-        public CallIdentifierMutator(string[] parseFunctions)
-        {
-            _parseFunctions = parseFunctions;
-        }
+        public CallIdentifierMutator(string[] parseFunctions) => _parseFunctions = parseFunctions;
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {

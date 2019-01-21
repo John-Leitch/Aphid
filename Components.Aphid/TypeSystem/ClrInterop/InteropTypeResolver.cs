@@ -19,10 +19,7 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public Type TryResolveType(HashSet<string> imports, string[] path, bool isType = false)
-        {
-            return ResolveType(imports, path, isFatal: false, isType: isType);
-        }
+        public Type TryResolveType(HashSet<string> imports, string[] path, bool isType = false) => ResolveType(imports, path, isFatal: false, isType: isType);
 
         public Type ResolveType(HashSet<string> imports, string[] path, bool isFatal = true, bool isType = false)
         {
@@ -59,7 +56,7 @@ namespace Components.Aphid.TypeSystem
                         .Select(y => new
                         {
                             x.Count,
-                            Path = y.Any() ? y + "." + x.Path : x.Path,
+                            Path = y.Length > 0 ? y + "." + x.Path : x.Path,
                         }))
                 .Select(x => new
                 {

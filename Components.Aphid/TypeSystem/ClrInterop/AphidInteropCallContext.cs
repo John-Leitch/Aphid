@@ -4,13 +4,13 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropCallContext
     {
-        public MethodBase Method { get; private set; }
+        public MethodBase Method { get; }
 
-        public AphidConversionInfo[] ConversionInfo { get; private set; }
+        public AphidConversionInfo[] ConversionInfo { get; }
 
-        public AphidInteropMethodArg[] Args { get; private set; }
+        public AphidInteropMethodArg[] Args { get; }
 
-        public uint Weight { get; private set; }
+        public uint Weight { get; }
 
         public AphidInteropCallContext(
             MethodBase method,

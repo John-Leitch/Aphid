@@ -52,7 +52,7 @@ namespace Components.Aphid.Parser
             return new List<AphidExpression>
             {
                 new IdentifierExpression(
-                    string.Join("", callExp.Args.Select(ParseArgument)),
+                    string.Concat(callExp.Args.Select(ParseArgument)),
                     callIdExp.Attributes),
             };
         }

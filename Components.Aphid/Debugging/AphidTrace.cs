@@ -21,13 +21,13 @@ namespace Components.Aphid.Debugging
 
         public AphidTraceSettings Settings
         {
-            get { return _settings; }
-            set { _settings = value; }
+            get => _settings;
+            set => _settings = value;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public string OutputFile { get; private set; }
+        public string OutputFile { get; }
 
         public bool IsOpened { get; private set; }
 
@@ -36,10 +36,7 @@ namespace Components.Aphid.Debugging
         public bool ThreadSafe { get; set; }
 
         public AphidTrace(string name, string outputFile, AphidInterpreter interpreter)
-            : this(name, interpreter)
-        {
-            OutputFile = Path.GetFullPath(outputFile);
-        }
+            : this(name, interpreter) => OutputFile = Path.GetFullPath(outputFile);
 
         public AphidTrace(string name, Stream outputStream, AphidInterpreter interpreter)
             : this(name, interpreter)
@@ -75,20 +72,14 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        public void Trace(string format, params object[] args)
-        {
+        public void Trace(string format, params object[] args) =>
             Trace(Settings.DefaultMessageTraceLevel, format, args);
-        }
 
-        public void Trace(string message)
-        {
+        public void Trace(string message) =>
             Trace(Settings.DefaultMessageTraceLevel, message);
-        }
 
-        public void Trace(TraceLevel level, string format, params object[] args)
-        {
+        public void Trace(TraceLevel level, string format, params object[] args) =>
             Trace(level, string.Format(format, args));
-        }
 
         public void Trace(TraceLevel level, string message)
         {
@@ -159,7 +150,6 @@ namespace Components.Aphid.Debugging
 
             if (_settings.TraceClrStack)
             {
-
                 _writer.WriteLine("CLR stack trace:\r\n" +
                     new StackTrace()
                         .GetFrames()
@@ -172,10 +162,8 @@ namespace Components.Aphid.Debugging
             _writer.Flush();
         }
 
-        public void TraceText(string format, params object[] args)
-        {
+        public void TraceText(string format, params object[] args) =>
             TraceText(string.Format(format, args));
-        }
 
         public void TraceText(string message)
         {
@@ -199,10 +187,7 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        private void TraceTextUnsafe(string message)
-        {
-            _writer.Write(message);
-        }
+        private void TraceTextUnsafe(string message) => _writer.Write(message);
 
         private string GetLockName()
         {
@@ -231,9 +216,6 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        public void Flush()
-        {
-            _stream.Flush();
-        }
+        public void Flush() => _stream.Flush();
     }
 }

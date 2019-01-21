@@ -31,10 +31,7 @@ namespace LLex
 
         private RegexToken _currentToken;
 
-        public RegexParser(RegexToken[] tokens)
-        {
-            _tokens = tokens;
-        }
+        public RegexParser(RegexToken[] tokens) => _tokens = tokens;
 
         private bool Match(RegexTokenType tokenType)
         {
@@ -63,7 +60,7 @@ namespace LLex
                 _currentToken = default;
                 return false;
             }
-        }                
+        }
 
         private RegexExpression Char()
         {

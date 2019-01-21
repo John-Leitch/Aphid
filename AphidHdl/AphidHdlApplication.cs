@@ -12,7 +12,7 @@ namespace AphidHdl
 {
     public class AphidHdlApplication : CliApplication<AphidHdlArgs>
     {
-        static void Compile(string filename, string outputPath)
+        private static void Compile(string filename, string outputPath)
         {
             var dir = Path.GetDirectoryName(Path.GetFullPath(filename));
             Directory.SetCurrentDirectory(dir);
@@ -36,9 +36,9 @@ namespace AphidHdl
 
             //var mutatorGroup = new AphidMutatorGroup();
 
-            foreach (var m in new AphidMutator[] 
+            foreach (var m in new AphidMutator[]
             {
-                new IncludeMutator(dir, false), 
+                new IncludeMutator(dir, false),
                 new AphidMacroMutator(),
                 new ConstantFoldingMutator(),
                 new ForUnrollMutator(),

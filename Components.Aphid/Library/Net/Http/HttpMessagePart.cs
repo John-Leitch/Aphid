@@ -10,10 +10,7 @@ namespace Components.Aphid.Library.Net.Http
     {
         private Dictionary<string, List<string>> _fieldDictionary = new Dictionary<string, List<string>>();
 
-        protected Dictionary<string, List<string>> FieldDictionary
-        {
-            get { return _fieldDictionary; }
-        }
+        protected Dictionary<string, List<string>> FieldDictionary => _fieldDictionary;
 
         public void ParseFields(string fields, bool skipFirstLine)
         {
@@ -46,36 +43,20 @@ namespace Components.Aphid.Library.Net.Http
             {
                 values = new List<string>();
                 _fieldDictionary.Add(field, values);
-
             }
 
             return values;
         }
 
-        public bool HasField(string field)
-        {
-            return GetField(field).Any();
-        }
+        public bool HasField(string field) => GetField(field).Count > 0;
 
-        public void SetField(string field, string value)
-        {
-            GetField(field).Add(value);
-        }
+        public void SetField(string field, string value) => GetField(field).Add(value);
 
-        public void SetField(string field, int value)
-        {
-            SetField(field, value.ToString());
-        }
+        public void SetField(string field, int value) => SetField(field, value.ToString());
 
-        public void SetField(string field, long value)
-        {
-            SetField(field, value.ToString());
-        }
+        public void SetField(string field, long value) => SetField(field, value.ToString());
 
-        public bool FieldContains(string field, string value)
-        {
-            return GetField(field).Contains(value);
-        }
+        public bool FieldContains(string field, string value) => GetField(field).Contains(value);
 
         public void ResetField(string field, string value)
         {

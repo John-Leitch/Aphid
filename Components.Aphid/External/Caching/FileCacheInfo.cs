@@ -11,19 +11,15 @@ namespace Components.Caching
     {
         private Lazy<bool> _isOutdated;
 
-        public bool IsOutdated
-        {
-            get { return _isOutdated.Value; }
-        }
+        public bool IsOutdated => _isOutdated.Value;
 
-        public FileCacheSource[] Sources { get; private set; }
+        public FileCacheSource[] Sources { get; }
 
         public FileCacheInfo(FileCacheSource[] sources)
         {
             Sources = sources;
             _isOutdated = new Lazy<bool>(GetIsOutdated);
         }
-
 
         public bool GetIsOutdated()
         {

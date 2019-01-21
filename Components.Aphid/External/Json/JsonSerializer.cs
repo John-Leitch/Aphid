@@ -22,10 +22,7 @@ namespace Components.Json
             return _serializer.Deserialize<T>(json);
         }
 
-        public static T DeserializeFile<T>(string filename)
-        {
-            return Deserialize<T>(File.ReadAllText(filename));
-        }
+        public static T DeserializeFile<T>(string filename) => Deserialize<T>(File.ReadAllText(filename));
 
         public static object DeserializeObject(string json)
         {
@@ -33,10 +30,7 @@ namespace Components.Json
             return _serializer.DeserializeObject(json);
         }
 
-        public static object DeserializeObjectFile(string filename)
-        {
-            return DeserializeObject(File.ReadAllText(filename));
-        }
+        public static object DeserializeObjectFile(string filename) => DeserializeObject(File.ReadAllText(filename));
 
         public static string Serialize(object o)
         {
@@ -47,10 +41,7 @@ namespace Components.Json
             //return _serializer.Serialize(o);
         }
 
-        public static void SerializeToFile(string filename, object o)
-        {
-            File.WriteAllText(filename, Serialize(o));
-        }
+        public static void SerializeToFile(string filename, object o) => File.WriteAllText(filename, Serialize(o));
     }
 }
 #endif

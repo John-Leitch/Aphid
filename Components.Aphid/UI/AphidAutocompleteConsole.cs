@@ -19,9 +19,7 @@ namespace Components.Aphid.UI
         {
         }
 
-        public void Dispose()
-        {
+        public void Dispose() =>
             ((AphidScopeObjectAutocompletionSource)Source).Dispose();
-        }
     }
 }

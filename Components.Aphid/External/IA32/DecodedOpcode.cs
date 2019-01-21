@@ -30,9 +30,6 @@ namespace Components.Cypress.IA32
             };
         }
 
-        public override string ToString()
-        {
-            return Opcode.ToString();
-        }
+        public override string ToString() => Opcode.ToString();
     }
 }

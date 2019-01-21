@@ -3,11 +3,11 @@ using System.IO;
 
 namespace LLex
 {
-    class Program
+    internal class Program
     {
-        static void TestCompiler()
+        private static void TestCompiler()
         {
-            foreach (var regex in new[] 
+            foreach (var regex in new[]
             {
                 @"<(\?(php)?)|%",
                 @"<(\?|%)=",
@@ -34,7 +34,8 @@ namespace LLex
                 Console.WriteLine();
             }
         }
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             //TestCompiler();
 
@@ -58,8 +59,8 @@ namespace LLex
                 LLexFile.Interpret(args[0]);
 
             File.WriteAllText(outputFile, lexer);
-           
-            Console.WriteLine("Lexer written to {0}", outputFile);            
+
+            Console.WriteLine("Lexer written to {0}", outputFile);
         }
     }
 }

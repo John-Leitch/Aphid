@@ -9,9 +9,9 @@ namespace Components.External.ConsolePlus
 {
     public class CliArgProperty
     {
-        public PropertyInfo Property { get; private set; }
+        public PropertyInfo Property { get; }
 
-        public CliArgAttribute Attribute { get; private set; }
+        public CliArgAttribute Attribute { get; }
 
         public CliArgProperty(PropertyInfo property, CliArgAttribute attribute)
         {

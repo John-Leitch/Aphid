@@ -1,13 +1,11 @@
 ﻿//#define ODB_NULL_CHECKS
-using Components.External;
-using Components.IO;
-using Components.ObjectDatabase;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
+using Components.External;
+using Components.IO;
 
 namespace Components.ObjectDatabase
 {
@@ -42,7 +40,7 @@ namespace Components.ObjectDatabase
 
         private readonly Dictionary<TElement, ObjectDatabaseRecord<TElement>> _recordTable = new Dictionary<TElement, ObjectDatabaseRecord<TElement>>(new ReferenceEqualityComparer<TElement>());
 
-        public bool UseUnsafeMemoryManager { get; private set; }
+        public bool UseUnsafeMemoryManager { get; }
 
         public bool IsReadOnly { get; set; }
 
@@ -214,8 +212,6 @@ namespace Components.ObjectDatabase
                     offset = _memoryManager.GetPosition(alloc);
                 }
 
-                
-
 
             });
 
@@ -249,7 +245,8 @@ namespace Components.ObjectDatabase
             }
         }
 
-        private MemoryManager ReadVersionedMemoryManagerUnsafe() => ReadVersionedMemoryManagerUnsafe(out var version);
+        private MemoryManager ReadVersionedMemoryManagerUnsafe() =>
+            ReadVersionedMemoryManagerUnsafe(out var version);
 
         public override TElement ReadUnsafe(long offset)
         {

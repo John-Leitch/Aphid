@@ -17,15 +17,9 @@ namespace Mantispid
 
         private int _indexNumber = 0;
 
-        public IndexTrackingMutator(string[] nonListRules)
-        {
-            _nonListRules = nonListRules;
-        }
+        public IndexTrackingMutator(string[] nonListRules) => _nonListRules = nonListRules;
 
-        private string GetNextIndexName()
-        {
-            return string.Format("index{0:X4}", _indexNumber++);
-        }
+        private string GetNextIndexName() => $"index{_indexNumber++:X4}";
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
@@ -85,7 +79,6 @@ namespace Mantispid
                     currentTokenIndex,
                     AphidTokenType.MinusOperator,
                     lastIndexId));
-
 
             var ifStmt = new IfExpression(
                 condition,

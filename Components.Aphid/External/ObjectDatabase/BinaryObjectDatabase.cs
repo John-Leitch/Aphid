@@ -27,22 +27,15 @@ namespace Components.ObjectDatabase
         {
         }
 
-        private static void Serialize(Stream stream, T element)
-        {
-            _formatter.Serialize(stream, element);
-        }
+        private static void Serialize(Stream stream, T element) => _formatter.Serialize(stream, element);
 
-        private static T Deserialize(Stream stream)
-        {
-            return (T)_formatter.Deserialize(stream);
-        }
+        private static T Deserialize(Stream stream) => (T)_formatter.Deserialize(stream);
 
         public IEnumerable<T> ReadUnsafe(Expression<Func<T, bool>> predicate)
         {
             return ReadUnsafe().Where(predicate.Compile());
             //var key = predicate.ToString();
 
-            
 
             //var results = ReadUnsafe().Where(predicate.Compile()).ToArray();
 
@@ -52,20 +45,11 @@ namespace Components.ObjectDatabase
 
     public static class BinaryObjectDatabase
     {
-        public static BinaryObjectDatabase<object> OpenFile()
-        {
-            return OpenFile<object>();
-        }
+        public static BinaryObjectDatabase<object> OpenFile() => OpenFile<object>();
 
-        public static BinaryObjectDatabase<object> OpenFile(string filename)
-        {
-            return OpenFile<object>(filename);
-        }
+        public static BinaryObjectDatabase<object> OpenFile(string filename) => OpenFile<object>(filename);
 
-        public static BinaryObjectDatabase<object> OpenFile(string filename, bool useUnsafeMemoryManager)
-        {
-            return OpenFile<object>(filename, useUnsafeMemoryManager);
-        }
+        public static BinaryObjectDatabase<object> OpenFile(string filename, bool useUnsafeMemoryManager) => OpenFile<object>(filename, useUnsafeMemoryManager);
 
         public static BinaryObjectDatabase<T> OpenFile<T>()
         {

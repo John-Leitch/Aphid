@@ -11,7 +11,7 @@ namespace Components
     {
         public static T Current { get; private set; }
 
-        public DefaultSingleton()
+        protected DefaultSingleton()
         {
             if (Current != null)
             {

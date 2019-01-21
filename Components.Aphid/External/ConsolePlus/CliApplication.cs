@@ -13,7 +13,7 @@ namespace Components.External.ConsolePlus
     public abstract class CliApplication<TArgs> : Singleton<CliApplication<TArgs>>
         where TArgs : class, new()
     {
-        private const string 
+        private const string
             _defaultErrorHeaderStyle = "~|Red~~White~",
             _fatalError = "Fatal Error",
             _messageFormat = "[~{0}~{1}~R~] {2}";
@@ -26,7 +26,7 @@ namespace Components.External.ConsolePlus
           ErrorChar = '-',
           FatalErrorChar = 'x';
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public TArgs Arguments { get; private set; }
 
@@ -38,14 +38,14 @@ namespace Components.External.ConsolePlus
 
         public bool IsProcessing { get; private set; }
 
-        public CliApplication(string name)
+        protected CliApplication(string name)
         {
             Name = name;
             ShowHeader = true;
             ErrorHeaderStyle = _defaultErrorHeaderStyle;
         }
 
-        public CliApplication()
+        protected CliApplication()
             : this(null)
         {
         }
@@ -55,7 +55,7 @@ namespace Components.External.ConsolePlus
             CliApplication.SetTitle(Name, ShowHeader, HeaderStyle);
             var props = CliArgProperty.GetAll<TArgs>();
 
-            if (Environment.GetCommandLineArgs().Length == 1 && props.Any())
+            if (Environment.GetCommandLineArgs().Length == 1 && props.Length > 0)
             {
                 WriteDirections();
             }
@@ -70,7 +70,7 @@ namespace Components.External.ConsolePlus
             {
                 try
                 {
-                    AppDomain.CurrentDomain.UnhandledException += (o, e) => 
+                    AppDomain.CurrentDomain.UnhandledException += (o, e) =>
                         HandleUnexpectedException(e.ExceptionObject as Exception);
 
                     Main(Arguments);
@@ -117,7 +117,7 @@ namespace Components.External.ConsolePlus
             {
                 var name = Name ?? Assembly.GetEntryAssembly().GetName().ToString();
 
-                try 
+                try
                 {
                     var dmp = PathHelper.GetEntryPath($"{name}_{Guid.NewGuid()}.dmp");
                     MemoryDump.Create(dmp);
@@ -265,7 +265,7 @@ namespace Components.External.ConsolePlus
 
             if (showHeader)
             {
-                Cli.WriteHeader(title, headerStyle ?? Cli.DefaultHeaderStyle);                
+                Cli.WriteHeader(title, headerStyle ?? Cli.DefaultHeaderStyle);
             }
         }
 

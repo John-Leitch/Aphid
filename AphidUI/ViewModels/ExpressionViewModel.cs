@@ -14,7 +14,7 @@ namespace AphidUI.ViewModels
             set
             {
                 SetProperty(ref _expression, value);
-                ExpressionChanged?.Invoke(this, new EventArgs());
+                ExpressionChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }

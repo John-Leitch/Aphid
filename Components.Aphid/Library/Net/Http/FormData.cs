@@ -15,19 +15,10 @@ namespace Components.Aphid.Library.Net.Http
 
         public HttpUpload UploadValue { get; set; }
 
-        public FormData(string value)
-        {
-            StringValue = value;
-        }
+        public FormData(string value) => StringValue = value;
 
-        public FormData(HttpUpload value)
-        {
-            UploadValue = value;
-        }
+        public FormData(HttpUpload value) => UploadValue = value;
 
-        public void SetHeader()
-        {
-            Header = GetAttributeString() + "\r\n\r\n";
-        }
+        public void SetHeader() => Header = GetAttributeString() + "\r\n\r\n";
     }
 }

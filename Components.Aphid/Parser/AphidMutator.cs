@@ -9,7 +9,7 @@ namespace Components.Aphid.Parser
 {
     public abstract class AphidMutator
     {
-        protected Stack<AphidExpression> Ancestors { get; private set; }
+        protected Stack<AphidExpression> Ancestors { get; }
 
         public bool HasMutated { get; private set; }
 
@@ -17,22 +17,13 @@ namespace Components.Aphid.Parser
 
         protected bool IsStatement { get; private set; }
 
-        protected virtual bool UpdatePosition
-        {
-            get { return true; }
-        }
+        protected virtual bool UpdatePosition => true;
 
-        public AphidMutator()
-        {
-            Ancestors = new Stack<AphidExpression>();
-        }
+        protected AphidMutator() => Ancestors = new Stack<AphidExpression>();
 
         protected abstract List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged);
 
-        protected virtual List<AphidExpression> OnMutate(List<AphidExpression> ast)
-        {
-            return ast;
-        }
+        protected virtual List<AphidExpression> OnMutate(List<AphidExpression> ast) => ast;
 
         protected virtual void BeginRecursiveMutationPass(List<AphidExpression> ast) { }
 
@@ -120,7 +111,7 @@ namespace Components.Aphid.Parser
                     {
                         m.WithPositionFrom(expression);
                     }
-                    
+
                     //var f = m.Index < 0 || m.Length < 0 ?
                     //    m.WithPositionFrom(expression) :
                     //    m;
@@ -129,7 +120,7 @@ namespace Components.Aphid.Parser
                 }
 
                 Ancestors.Pop();
-                
+
                 return recursivelyMutated;
             }
 
@@ -167,7 +158,7 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new UnaryOperatorExpression(
                             unOp.Operator,
-                            MutateSingle(unOp.Operand), 
+                            MutateSingle(unOp.Operand),
                             unOp.IsPostfix)
                             .WithPositionFrom(unOp));
 
@@ -187,7 +178,7 @@ namespace Components.Aphid.Parser
 
                 case AphidExpressionType.BinaryOperatorBodyExpression:
                     var binOpBody = (BinaryOperatorBodyExpression)expression;
-                    
+
                     expanded.Add(
                         new BinaryOperatorBodyExpression(
                             binOpBody.Operator,
@@ -257,7 +248,7 @@ namespace Components.Aphid.Parser
 
                 case AphidExpressionType.WhileExpression:
                     var cfExp = (WhileExpression)expression;
-                    
+
                     expanded.Add(
                         new WhileExpression(
                             MutateSingle(cfExp.Condition),
@@ -268,7 +259,7 @@ namespace Components.Aphid.Parser
 
                 case AphidExpressionType.DoWhileExpression:
                     var dwExp = (DoWhileExpression)expression;
-                    
+
                     expanded.Add(
                         new DoWhileExpression(
                             MutateSingle(dwExp.Condition),
@@ -279,7 +270,7 @@ namespace Components.Aphid.Parser
 
                 case AphidExpressionType.LoadScriptExpression:
                     var lsExp = (LoadScriptExpression)expression;
-                    
+
                     expanded.Add(
                         new LoadScriptExpression(MutateSingle(lsExp.FileExpression))
                             .WithPositionFrom(lsExp));
@@ -288,7 +279,7 @@ namespace Components.Aphid.Parser
 
                 case AphidExpressionType.LoadLibraryExpression:
                     var llExp = (LoadLibraryExpression)expression;
-                    
+
                     expanded.Add(
                         new LoadLibraryExpression(MutateSingle(llExp.LibraryExpression))
                             .WithPositionFrom(llExp));
@@ -420,7 +411,7 @@ namespace Components.Aphid.Parser
                                 .Select(x => (PatternExpression)MutateSingle(x))
                                 .ToList())
                             .WithPositionFrom(patternMatchingExp));
-                    
+
                     break;
 
                 case AphidExpressionType.PatternExpression:
@@ -508,24 +499,18 @@ namespace Components.Aphid.Parser
             return ast;
         }
 
-        public virtual void Reset()
-        {
-            HasMutated = false;
-        }
+        public virtual void Reset() => HasMutated = false;
 
 #if CHECK_ANCESTORS
         private void CheckAncestorStack()
         {
-            if (Ancestors.Any())
+            if (Ancestors.Count > 0)
             {
                 throw new InvalidOperationException("Mutator Ancestor stack unbalanced.");
             }
         }
 #endif
 
-        protected void FinalizeMutation()
-        {
-            HasFinalized = true;
-        }
+        protected void FinalizeMutation() => HasFinalized = true;
     }
 }

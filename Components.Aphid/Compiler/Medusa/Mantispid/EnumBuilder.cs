@@ -21,16 +21,13 @@ namespace Mantispid
             _ruleTypes = ruleTypes;
         }
 
-        private string GetEnumName()
-        {
-            return _baseTypeName + "Type";
-        }
+        private string GetEnumName() => _baseTypeName + "Type";
 
         public CodeTypeDeclaration CreateEnum()
         {
             var name = GetEnumName();
             var decl = new CodeTypeDeclaration(name) { IsEnum = true };
-            
+
             decl.CustomAttributes.Add(
                 new CodeAttributeDeclaration(
                     CodeHelper.TypeRef<DataContractAttribute>(),

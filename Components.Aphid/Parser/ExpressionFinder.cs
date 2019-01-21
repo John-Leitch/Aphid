@@ -29,10 +29,7 @@ namespace Components.Aphid.Parser
         public List<AphidExpression> Find(
             List<AphidExpression> source,
             AphidExpressionType expressionType,
-            bool ignoreMatchChildren = false)
-        {
-            return Find(source, x => x.Type == expressionType);
-        }
+            bool ignoreMatchChildren = false) => Find(source, x => x.Type == expressionType);
 
         public List<AphidExpression> Find(
             List<AphidExpression> source,

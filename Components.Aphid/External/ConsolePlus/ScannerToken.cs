@@ -43,20 +43,14 @@ namespace Components.External.ConsolePlus
         public override int GetHashCode()
         {
             var hashCode = -379766517;
-            hashCode = hashCode * -1521134295 + Type.GetHashCode();
-            hashCode = hashCode * -1521134295 + Index.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Lexeme);
+            hashCode = (hashCode * -1521134295) + Type.GetHashCode();
+            hashCode = (hashCode * -1521134295) + Index.GetHashCode();
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(Lexeme);
             return hashCode;
         }
 
-        public static bool operator ==(ScannerToken token1, ScannerToken token2)
-        {
-            return token1.Equals(token2);
-        }
+        public static bool operator ==(ScannerToken token1, ScannerToken token2) => token1.Equals(token2);
 
-        public static bool operator !=(ScannerToken token1, ScannerToken token2)
-        {
-            return !(token1 == token2);
-        }
+        public static bool operator !=(ScannerToken token1, ScannerToken token2) => !(token1 == token2);
     }
 }

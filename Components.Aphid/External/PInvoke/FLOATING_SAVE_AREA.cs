@@ -9,7 +9,6 @@ namespace Components.PInvoke
     [StructLayout(LayoutKind.Sequential)]
     public struct FLOATING_SAVE_AREA
     {
-
         public uint ControlWord;
         public uint StatusWord;
         public uint TagWord;

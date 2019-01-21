@@ -24,21 +24,18 @@ namespace Components.External
             }
         }
 
-        public static bool IsDerivedFrom<TBaseType>(this Type type)
-        {
-            return type.IsDerivedFrom(typeof(TBaseType));
-        }
+        public static bool IsDerivedFrom<TBaseType>(this Type type) => type.IsDerivedFrom(typeof(TBaseType));
 
         private static bool ShouldDeconstructTypes(Type type)
         {
             return
-                !type.IsConstructedGenericType || 
+                !type.IsConstructedGenericType ||
                 type.GetGenericArguments().All(x => x.IsGenericParameter);
         }
 
         private static Type[] GetComparableType(Type sourceType, Type targetType, List<Type> genericArguments)
         {
-            var deconstruct = 
+            var deconstruct =
                 sourceType.IsConstructedGenericType &&
                 targetType.IsGenericType &&
                 (ShouldDeconstructTypes(sourceType) || ShouldDeconstructTypes(targetType));
@@ -51,7 +48,7 @@ namespace Components.External
             {
                 if (!sourceType.ContainsGenericParameters)
                 {
-                    if (genericArguments.Any())
+                    if (genericArguments.Count > 0)
                     {
                         throw new NotImplementedException();
                     }
@@ -62,9 +59,8 @@ namespace Components.External
                     var tmpSource = sourceType;
 
                     if (targetStripped.IsInterface &&
-                        (tmpSource = sourceType
-                            .GetInterfaces()
-                            .FirstOrDefault(x =>
+                        (tmpSource = Array.Find(sourceType
+                            .GetInterfaces(), x =>
                                 x.IsGenericType &&
                                 x.GetGenericTypeDefinition() == targetStripped)) != null)
                     {
@@ -80,14 +76,13 @@ namespace Components.External
 
                             if (targetStripped == sourceStripped)
                             {
-                                break;                                
+                                break;
                             }
                             else if ((sourceType = sourceType.BaseType) == null)
                             {
                                 sourceType = tmpSource;
                                 break;
                             }
-                            
                         }
                     }
 
@@ -100,7 +95,7 @@ namespace Components.External
 
         private static Type StripGenericArguments(Type type)
         {
-            while (type.IsConstructedGenericType && type.GetGenericArguments().Any())
+            while (type.IsConstructedGenericType && type.GetGenericArguments().Length > 0)
             {
                 type = type.GetGenericTypeDefinition();
             }
@@ -147,19 +142,10 @@ namespace Components.External
             return false;
         }
 
-        public static bool IsDerivedFromOrImplements(this Type type, Type baseType)
-        {
-            return type.IsDerivedFromOrImplements(baseType, new List<Type>());
-        }
+        public static bool IsDerivedFromOrImplements(this Type type, Type baseType) => type.IsDerivedFromOrImplements(baseType, new List<Type>());
 
-        public static bool IsDerivedFromOrImplements(this Type type, Type baseType, List<Type> genericArguments)
-        {
-            return baseType.IsInterface ? type.Implements(baseType, genericArguments) : type.IsDerivedFrom(baseType);
-        }
+        public static bool IsDerivedFromOrImplements(this Type type, Type baseType, List<Type> genericArguments) => baseType.IsInterface ? type.Implements(baseType, genericArguments) : type.IsDerivedFrom(baseType);
 
-        public static bool IsDerivedFromOrImplements<TBaseType>(this Type type, List<Type> genericArguments)
-        {
-            return type.IsDerivedFromOrImplements(typeof(TBaseType), genericArguments);
-        }
+        public static bool IsDerivedFromOrImplements<TBaseType>(this Type type, List<Type> genericArguments) => type.IsDerivedFromOrImplements(typeof(TBaseType), genericArguments);
     }
 }

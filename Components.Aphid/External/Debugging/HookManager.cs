@@ -12,14 +12,8 @@ namespace Components.Cypress
 
         private readonly TrampolineHeap _heap;
 
-        public HookManager(ProcessMemory memory)
-        {
-            _heap = new TrampolineHeap(_memory = memory);
-        }
+        public HookManager(ProcessMemory memory) => _heap = new TrampolineHeap(_memory = memory);
 
-        public bool Hook(IntPtr funcAddr)
-        {
-            return NativeHook.Hook(_memory, funcAddr, _heap);
-        }
+        public bool Hook(IntPtr funcAddr) => NativeHook.Hook(_memory, funcAddr, _heap);
     }
 }

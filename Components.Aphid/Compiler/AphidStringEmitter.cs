@@ -39,9 +39,9 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.XorOperator,  " ^ " },
             { AphidTokenType.ShiftLeft, " << " },
             { AphidTokenType.ShiftRight, " >> " },
-            
+
             { AphidTokenType.MemberOperator, "." },
-            
+
             { AphidTokenType.EqualityOperator, " == " },
             { AphidTokenType.NotEqualOperator, " != " },
             { AphidTokenType.LessThanOperator, " < " },
@@ -70,50 +70,23 @@ namespace Components.Aphid.Compiler
 
         private Stack<List<AphidExpression>> _scope = new Stack<List<AphidExpression>>();
 
-        protected Stack<List<AphidExpression>> Scope
-        {
-            get { return _scope; }
-        }
+        protected Stack<List<AphidExpression>> Scope => _scope;
 
-        protected void Indent()
-        {
-            _tabs.Push("    ");
-        }
+        protected void Indent() => _tabs.Push("    ");
 
-        protected void Unindent()
-        {
-            _tabs.Pop();
-        }
+        protected void Unindent() => _tabs.Pop();
 
-        protected string GetTabs()
-        {
-            return string.Join("", _tabs);
-        }
+        protected string GetTabs() => string.Concat(_tabs);
 
-        protected void AppendTabs()
-        {
-            Append(GetTabs());
-        }
+        protected void AppendTabs() => Append(GetTabs());
 
-        protected void AppendLine()
-        {
-            Append("\r\n");
-        }
+        protected void AppendLine() => Append("\r\n");
 
-        protected void Append(string format, params object[] args)
-        {
-            _out.AppendFormat(format, args);
-        }
+        protected void Append(string format, params object[] args) => _out.AppendFormat(format, args);
 
-        protected void Append(string value)
-        {
-            _out.Append(value);
-        }
+        protected void Append(string value) => _out.Append(value);
 
-        protected void Append(object value)
-        {
-            _out.Append(value.ToString());
-        }
+        protected void Append(object value) => _out.Append(value.ToString());
 
         protected virtual void EmitHeader() { }
 
@@ -173,20 +146,14 @@ namespace Components.Aphid.Compiler
             return s;
         }
 
-        protected virtual string GetUnaryPrefixOperator(AphidTokenType op)
-        {
-            return GetOperator(_unaryPrefixOperators, op);
-        }
+        protected virtual string GetUnaryPrefixOperator(AphidTokenType op) =>
+            GetOperator(_unaryPrefixOperators, op);
 
-        protected virtual string GetUnaryPostfixOperator(AphidTokenType op)
-        {
-            return GetOperator(_unaryPostfixOperators, op);
-        }
+        protected virtual string GetUnaryPostfixOperator(AphidTokenType op) =>
+            GetOperator(_unaryPostfixOperators, op);
 
-        protected virtual string GetBinaryOperator(AphidTokenType op)
-        {
-            return GetOperator(_binaryOperators, op);
-        }
+        protected virtual string GetBinaryOperator(AphidTokenType op) =>
+            GetOperator(_binaryOperators, op);
 
         [DebuggerStepThrough]
         protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
@@ -234,21 +201,15 @@ namespace Components.Aphid.Compiler
             Append("\"{0}\"", escaped);
         }
 
-        protected virtual void EmitNumberExpression(NumberExpression expression, bool isStatement = false)
-        {
+        protected virtual void EmitNumberExpression(NumberExpression expression, bool isStatement = false) =>
             Append(expression.Value);
-        }
 
         [DebuggerStepThrough]
-        protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false)
-        {
+        protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false) =>
             Append("null");
-        }
 
-        protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false)
-        {
+        protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false) =>
             Append(expression.Value ? "true" : "false");
-        }
 
         protected virtual void EmitCallExpression(CallExpression expression, bool isStatement = false)
         {

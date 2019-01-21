@@ -7,16 +7,12 @@ namespace LLex
 {
     public class GroupExpression : RegexExpression
     {
-        public RegexExpression Expression { get; private set; }
+        public RegexExpression Expression { get; }
 
-        public GroupExpression(RegexExpression expression)
-        {
+        public GroupExpression(RegexExpression expression) =>
             Expression = expression;
-        }
 
-        public override string ToString()
-        {
-            return string.Format("({0}){1}", Expression, base.ToString());
-        }
+        public override string ToString() =>
+            $"({Expression}){base.ToString()}";
     }
 }

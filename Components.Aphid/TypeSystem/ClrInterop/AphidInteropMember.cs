@@ -10,11 +10,11 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidInteropMember : IAphidCallable
     {
-        public AphidExpression Expression { get; private set; }
+        public AphidExpression Expression { get; }
 
-        public object Target { get; private set; }
+        public object Target { get; }
 
-        public MemberInfo[] Members { get; private set; }
+        public MemberInfo[] Members { get; }
 
         public AphidInteropMember(
             AphidExpression expression,

@@ -28,13 +28,11 @@ namespace LLex
         public LexerState(List<LexerState> children)
             : this((char)0, "None", children)
         {
-
         }
 
         public LexerState()
             : this((char)0, "None", new List<LexerState>())
         {
-
         }
     }
 }

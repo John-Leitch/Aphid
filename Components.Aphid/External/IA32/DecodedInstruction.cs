@@ -20,9 +20,6 @@ namespace Components.Cypress.IA32
 
         public int Size { get; set; }
 
-        public override string ToString()
-        {
-            return Opcode.ToString();
-        }
+        public override string ToString() => Opcode.ToString();
     }
 }

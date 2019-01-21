@@ -11,10 +11,8 @@ namespace Components.Aphid.Parser
     {
         private int _id = 0;
 
-        private IdentifierExpression GetNextId()
-        {
-            return new IdentifierExpression(string.Format("___p_op_{0}", _id++));
-        }
+        private IdentifierExpression GetNextId() =>
+            new IdentifierExpression($"___p_op_{_id++}");
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
@@ -28,7 +26,7 @@ namespace Components.Aphid.Parser
             hasChanged = true;
             var partialOpExp = (PartialOperatorExpression)expression;
             var id = GetNextId().WithPositionFrom(expression);
-            
+
             return new List<AphidExpression>
             {
                 new FunctionExpression(

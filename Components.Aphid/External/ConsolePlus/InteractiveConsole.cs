@@ -32,10 +32,7 @@ namespace Components.External.ConsolePlus
             }
         }
 
-        public void RegisterAction(Action<string[]> defaultAction)
-        {
-            _defaultAction = defaultAction;
-        }
+        public void RegisterAction(Action<string[]> defaultAction) => _defaultAction = defaultAction;
 
         public void Run()
         {

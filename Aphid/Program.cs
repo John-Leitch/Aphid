@@ -10,15 +10,15 @@ using System.Linq;
 
 namespace Aphid
 {
-    class Program
+    internal class Program
     {
-        static void DisplayDirections()
+        private static void DisplayDirections()
         {
             Console.WriteLine("aphid [Script]");
             Environment.Exit(0);
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             VT100.TryEnable();
 
@@ -53,7 +53,7 @@ namespace Aphid
             }
         }
 
-        static void RunScript(string[] args)
+        private static void RunScript(string[] args)
         {
             if (!File.Exists(args[0]))
             {
@@ -114,20 +114,20 @@ namespace Aphid
 #if !APHID_DEBUGGING_ENABLED
             }
 #endif
-            
+
         }
 
-        static void RunExpression(string[] args) => AphidCli.DumpExpression(GetInlineCode('?'));
+        private static void RunExpression(string[] args) => AphidCli.DumpExpression(GetInlineCode('?'));
 
-        static void RunStatements(string[] args) => AphidCli.ExecuteCode(GetInlineCode('*'));
+        private static void RunStatements(string[] args) => AphidCli.ExecuteCode(GetInlineCode('*'));
 
-        static string GetInlineCode(char startToken)
+        private static string GetInlineCode(char startToken)
         {
             var index = Environment.CommandLine.IndexOf(startToken);
 
             return index != -1 ? Environment.CommandLine.Substring(index + 1) : null;
         }
 
-        static void RunRepl() => new AphidRepl().Run();
+        private static void RunRepl() => new AphidRepl().Run();
     }
 }

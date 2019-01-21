@@ -32,8 +32,8 @@ namespace Components.External
             {
                 sb.Append(
                     lastChild && i == indentation - 1 ? "└" :
-                    siblingDepths.Any() && siblingDepths.Last() == i && i == indentation - 1 ? "├" :
-                    siblingDepths.Any() && siblingDepths.Contains(i) ? "│" :
+                    siblingDepths.Length > 0 && siblingDepths.Last() == i && i == indentation - 1 ? "├" :
+                    siblingDepths.Length > 0 && siblingDepths.Contains(i) ? "│" :
                     " ");
             }
 

@@ -18,9 +18,9 @@ namespace Components.Aphid.TypeSystem
 
         private ArgumentTypeCache _argInfo;
 
-        public object Argument { get; private set; }
+        public object Argument { get; }
 
-        public Type ArgumentType { get; private set; }
+        public Type ArgumentType { get; }
 
         public Type TargetType => _paramInfo.TargetType;
 
@@ -48,17 +48,17 @@ namespace Components.Aphid.TypeSystem
 
         public bool HasParamArray => _paramInfo.HasParamArray;
 
-        public bool IsConvertibleNumberPair { get; private set; }
+        public bool IsConvertibleNumberPair { get; }
 
-        public bool IsExactBasicTypeMatch { get; private set; }
+        public bool IsExactBasicTypeMatch { get; }
 
-        public bool IsExactUserReferenceTypeMatch { get; private set; }
+        public bool IsExactUserReferenceTypeMatch { get; }
 
-        public bool ConstructsParamArray { get; private set; }
+        public bool ConstructsParamArray { get; }
 
-        public bool PassesParamArray { get; private set; }
+        public bool PassesParamArray { get; }
 
-        public bool IsGeneric { get; private set; }
+        public bool IsGeneric { get; }
 
         public bool IsValueTypeEnumerable { get; set; }
 
@@ -119,7 +119,7 @@ namespace Components.Aphid.TypeSystem
                 }
 
                 //IsExactUserReferenceTypeMatch = false;
-                
+
             }
             else if (_argInfo.NeedsDecimalFitCheck)
             {
@@ -146,8 +146,7 @@ namespace Components.Aphid.TypeSystem
                     else
                     {
                         if (!IsExactTypeMatch &&
-                            ArgumentType != null &&
-                            ArgumentType.GetInterface("IEnumerable") != null)
+                            ArgumentType?.GetInterface("IEnumerable") != null)
                         {
                             ConstructsParamArray = true;
                             PassesParamArray = false;
@@ -170,7 +169,6 @@ namespace Components.Aphid.TypeSystem
         public AphidInteropMethodArg(object argument, ParameterInfoCache parameterInfo)
             : this(argument, parameterInfo, constructsParamArray: null)
         {
-            
         }
 
         public AphidInteropMethodArg(
@@ -237,8 +235,7 @@ namespace Components.Aphid.TypeSystem
                     else
                     {
                         if (!IsExactTypeMatch &&
-                            ArgumentType != null &&
-                            ArgumentType.GetInterface("IEnumerable") != null)
+                            ArgumentType?.GetInterface("IEnumerable") != null)
                         {
                             ConstructsParamArray = true;
                             PassesParamArray = false;

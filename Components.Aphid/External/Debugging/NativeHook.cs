@@ -26,10 +26,7 @@ namespace Components.Cypress
             };
         }
 
-        private static byte[] CreateJmpRel32(uint source, uint destination)
-        {
-            return CreateJmpRel32(destination - source - 0x5);
-        }
+        private static byte[] CreateJmpRel32(uint source, uint destination) => CreateJmpRel32(destination - source - 0x5);
 
         private static byte[] _nops = Enumerable
             .Range(0x0, 0x100)
@@ -44,7 +41,7 @@ namespace Components.Cypress
             var originalCode = memory.ReadBytes(funcAddr, 0x100);
             var bytes = originalCode.Select(x => string.Format("{0:X2}", x)).Join(" ");
             var dasm = IA32Disassembler.Disassemble(originalCode);
-            
+
             var matches = dasm
                 .TakeWhile(x => ((Opcode[])Enum.GetValues(typeof(Opcode))).Contains(x.Opcode.Opcode))
                 .ToArray();
@@ -78,7 +75,6 @@ namespace Components.Cypress
 
             var originalCodeOffset = 0x10;
 
-            
             originalCode.CopyTo(objectCode, originalCodeOffset);
             var jmpToFuncOffset = (uint)originalCodeOffset + (uint)originalCode.Length + 0x4;
             //objectCode[(uint)originalCodeOffset + (uint)originalCode.Length + 1] = 0xCC;

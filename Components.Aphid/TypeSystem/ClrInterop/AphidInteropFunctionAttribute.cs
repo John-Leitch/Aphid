@@ -5,7 +5,7 @@ namespace Components.Aphid.TypeSystem
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class AphidInteropFunctionAttribute : Attribute
     {
-        public string Name { get; set; }
+        public string Name { get; internal set; }
 
         public bool PassInterpreter { get; set; }
 
@@ -15,7 +15,7 @@ namespace Components.Aphid.TypeSystem
         {
             UnwrapParameters = true;
             Name = name;
-        }        
+        }
     }
 }
 

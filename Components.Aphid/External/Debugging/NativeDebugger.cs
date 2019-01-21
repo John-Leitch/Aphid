@@ -33,7 +33,7 @@ namespace Components.Cypress
         public bool CreateNewConsole { get; set; }
         public bool HashException { get; set; }
         public int HashSize { get; set; }
-        public List<DebugProcess> Processes { get; private set; }
+        public List<DebugProcess> Processes { get; }
         public DateTime StartTime { get; private set; }
         public int Timeout { get; set; }
         public bool ReadFaultingInstructions { get; set; }
@@ -60,7 +60,7 @@ namespace Components.Cypress
                 {
                     return x.Process.Id == (int)id;
                 }
-                catch 
+                catch
                 {
                     return false;
                 }
@@ -89,6 +89,7 @@ namespace Components.Cypress
             {
                 return;
             }
+
             var p = Process.GetProcessById((int)id);
             _processTable.Add(id, p);
             DebugProcess parent;
@@ -100,6 +101,7 @@ namespace Components.Cypress
             {
                 parent = null;
             }
+
             var dp = new DebugProcess(p, parent);
             if (parent != null)
             {
@@ -109,7 +111,6 @@ namespace Components.Cypress
             {
                 Processes.Add(dp);
             }
-            
         }
 
         private void RemoveProcess(uint id)
@@ -185,7 +186,7 @@ namespace Components.Cypress
 
         public void Kill()
         {
-            Killing?.Invoke(this, new EventArgs());
+            Killing?.Invoke(this, EventArgs.Empty);
 
             LockProcesses(() =>
             {
@@ -215,7 +216,7 @@ namespace Components.Cypress
                 process.Process.Kill();
             }
             catch { }
-            
+
             process.Process.WaitForExit();
         }
 
@@ -232,7 +233,7 @@ namespace Components.Cypress
         private static string GetExceptionHash(Process process, DEBUG_EVENT debugEvent)
         {
             var dumper = new StackDumper(process.Handle, debugEvent.dwThreadId);
-            
+
             var functionPointers = dumper.GetFunctionPointers();
 
             if (functionPointers == null)
@@ -240,7 +241,7 @@ namespace Components.Cypress
                 return "ERROR_" + (ushort)(debugEvent.Exception.ExceptionRecord.ExceptionAddress & 0xFFFF);
             }
 
-            if (functionPointers.Count == 0 || 
+            if (functionPointers.Count == 0 ||
                 functionPointers[0] != debugEvent.Exception.ExceptionRecord.ExceptionAddress)
             {
                 functionPointers.Insert(0, debugEvent.Exception.ExceptionRecord.ExceptionAddress);
@@ -248,7 +249,7 @@ namespace Components.Cypress
 
             var fp2 = functionPointers.Select(x => (ushort)(x & 0xFFFF)).Take(4).ToArray();
 
-            return string.Join("", fp2.Select(x => string.Format("{0:X4}", x)));
+            return string.Concat(fp2.Select(x => string.Format("{0:X4}", x)));
         }
 
         public ProcessMemory GetMemory(IntPtr processHandle)
@@ -291,7 +292,7 @@ namespace Components.Cypress
                             (DateTime.Now - StartTime).TotalMilliseconds > Timeout)
                         {
                             Kill();
-                            
+
                             return;
                         }
                         else
@@ -302,7 +303,7 @@ namespace Components.Cypress
                 }
 
                 Process p = null;
-                
+
                 LockProcesses(() =>
                 {
                     if (_processTable.ContainsKey(debugEvent.dwProcessId))
@@ -416,14 +417,13 @@ namespace Components.Cypress
                                 }
                                 catch (OverflowException)
                                 {
-
                                 }
 
                                 if (Kernel32.ReadProcessMemory(
                                     p.Handle,
                                     exPtr,
                                     buffer,
-                                    buffer.Length,
+                                    new IntPtr(buffer.Length),
                                     out var bytesRead))
                                 {
                                     if (bytesRead < buffer.Length)
@@ -473,9 +473,9 @@ namespace Components.Cypress
                     DebugEventReceived(this,
                         new DebuggerEventArgs(
                             handle,
-                            buffer, 
-                            hash, 
-                            debugEvent, 
+                            buffer,
+                            hash,
+                            debugEvent,
                             GetMemory(handle)
 #if FULL_DBG
                             ,
@@ -578,10 +578,8 @@ namespace Components.Cypress
         }
 
 #if FULL_DBG
-        public BreakpointManager[] GetBreakpoints()
-        {
-            return _breakpointManagers.Select(x => x.Value).ToArray();
-        }
+        public BreakpointManager[] GetBreakpoints() =>
+            _breakpointManagers.Select(x => x.Value).ToArray();
 #endif
     }
 }

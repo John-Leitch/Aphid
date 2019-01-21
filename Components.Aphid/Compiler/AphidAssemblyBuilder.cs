@@ -52,10 +52,8 @@ namespace Components.Aphid.Compiler
 
         public void SetAssemblyFile(
             string assemblyName,
-            string assemblyFilename)
-        {
+            string assemblyFilename) =>
             SetAssemblyFile(assemblyName, assemblyFilename, null);
-        }
 
         public void SetAssemblyFile(
             string assemblyName,
@@ -98,7 +96,7 @@ namespace Components.Aphid.Compiler
 
         public Type CreateType(ObjectExpression type, HashSet<string> imports)
         {
-            if (type.Identifier == null || !type.Identifier.Attributes.Any())
+            if (type.Identifier == null || type.Identifier.Attributes.Count == 0)
             {
                 throw new InvalidOperationException("ObjectExpression has no type class attributes.");
             }
@@ -305,7 +303,7 @@ namespace Components.Aphid.Compiler
             IdentifierExpression property,
             HashSet<string> imports)
         {
-            if (property.Attributes == null || !property.Attributes.Any())
+            if (property.Attributes == null || property.Attributes.Count == 0)
             {
                 return Interpreter.InteropTypeResolver.ResolveType(
                     imports,
@@ -351,14 +349,8 @@ namespace Components.Aphid.Compiler
             return t;
         }
 
-        public string[] GetTypeNames()
-        {
-            return _types.ToArray();
-        }
+        public string[] GetTypeNames() => _types.ToArray();
 
-        public bool IsTypeDefined(string typeName)
-        {
-            return _types.Contains(typeName);
-        }
+        public bool IsTypeDefined(string typeName) => _types.Contains(typeName);
     }
 }

@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Mantispid
 {
+    [Serializable]
     public class RuleTypeTable : Dictionary<string, RuleStruct>
     {
-        public void Add(RuleStruct type)
+        protected RuleTypeTable(SerializationInfo info, StreamingContext context) :
+            base(info, context)
         {
-            Add(type.Name, type);
         }
+
+        public RuleTypeTable()
+        {
+        }
+
+        public void Add(RuleStruct type) => Add(type.Name, type);
     }
 }

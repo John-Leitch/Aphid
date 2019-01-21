@@ -9,7 +9,7 @@ namespace Components.External.ConsolePlus
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class CliArgAttribute : Attribute
     {
-        public string[] Names { get; set; }
+        public string[] Names { get; internal set; }
 
         public bool IsRequired { get; set; }
 

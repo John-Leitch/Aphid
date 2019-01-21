@@ -12,15 +12,9 @@ namespace Components.Aphid.Interpreter
     [Serializable]
     public class AphidRuntimeException : Exception, IAphidException
     {
-        public AphidExceptionType Type
-        {
-            get { return AphidExceptionType.RuntimeException; }
-        }
+        public AphidExceptionType Type => AphidExceptionType.RuntimeException;
 
-        public override string Message
-        {
-            get { return GetMessage(); }
-        }
+        public override string Message => GetMessage();
 
         [field:NonSerialized]
         public AphidInterpreter Interpreter { get; set; }
@@ -60,7 +54,6 @@ namespace Components.Aphid.Interpreter
             info.AddValue(nameof(CurrentStatement), CurrentStatement);
             info.AddValue(nameof(CurrentExpression), CurrentExpression);
             info.AddValue(nameof(Details), Details);
-            
         }
 
         public AphidRuntimeException(
@@ -85,7 +78,7 @@ namespace Components.Aphid.Interpreter
             : this(
                 interpreter,
                 exceptionScope,
-                args != null && args.Length > 0 ?
+                args?.Length > 0 ?
                     string.Format(details, args) :
                     details)
         {
@@ -123,7 +116,7 @@ namespace Components.Aphid.Interpreter
                     CurrentExpression.Length != CurrentStatement.Length)
                 {
                     AppendFrom(sb, CurrentStatement);
-                    AppendCode(sb, CurrentStatement);                    
+                    AppendCode(sb, CurrentStatement);
                 }
             }
             else if (expValid)
@@ -178,8 +171,7 @@ namespace Components.Aphid.Interpreter
         private static string GetType(AphidExpression expression) => expression?.Type.ToString();
 
         private static bool IsValid(AphidExpression expression) =>
-            expression != null &&
-                expression.Context != null &&
+            expression?.Context != null &&
                 expression.Index != -1 &&
                 expression.Length > 0;
 
@@ -213,9 +205,9 @@ namespace Components.Aphid.Interpreter
         private static void TryAppendFile(StringBuilder sb, AphidExpression expression, AphidExpression statement)
         {
             var file =
-                expression != null && expression.Filename != null ?
+                expression?.Filename != null ?
                     expression.Filename :
-                statement != null && statement.Filename != null ?
+                statement?.Filename != null ?
                     statement.Filename :
                 null;
 

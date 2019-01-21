@@ -60,7 +60,7 @@ namespace AphidUI.ViewModels
         {
             _configProperties = new Lazy<string[]>(() => GetType()
                 .GetMembers()
-                .Where(x => x.GetCustomAttributes(typeof(SettingAttribute), true).Any())
+                .Where(x => x.GetCustomAttributes(typeof(SettingAttribute), true).Length > 0)
                 .Select(x => x.Name)
                 .ToArray());
 
@@ -85,9 +85,8 @@ namespace AphidUI.ViewModels
             PropertyChanged += AphidReplViewModel_PropertyChanged;
         }
 
-        void AphidReplViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void AphidReplViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            
 
             //type2.Members
             //    .Add(new CodeMemberProperty { Attributes = MemberAttributes.Public });
@@ -106,7 +105,6 @@ namespace AphidUI.ViewModels
 
             //table.Select(x => type.DefineProperty(x.Key, PropertyAttributes. x.PropertyType))
             //type.DefineProperty(
-
 
             if (IsControlInitialized && _configProperties.Value.Contains(e.PropertyName))
             {
@@ -181,7 +179,7 @@ namespace AphidUI.ViewModels
 
         private string GetHistoricalCode(Func<bool> changeAndCheck, Func<int> resetIndex)
         {
-            if (!_codeHistory.Any())
+            if (_codeHistory.Count == 0)
             {
                 return null;
             }
@@ -214,7 +212,7 @@ namespace AphidUI.ViewModels
             foreach (var v in Interpreter.CurrentScope.Select(x => new VariableViewModel()
             {
                 Name = x.Key,
-                Value = x.Value != null ? x.Value.Value : null,
+                Value = x.Value?.Value,
             }))
             {
                 InvokeDispatcher(() => Variables.Add(v));
@@ -259,7 +257,7 @@ namespace AphidUI.ViewModels
 
             Interpreter.CurrentScope.Add(ViewModelName, AphidObject.Scalar(this));
             AddIsRepl();
-            LoadLibrary();            
+            LoadLibrary();
         }
 
         public void SetCreateScope(Func<AphidObject> createScope)
@@ -311,7 +309,7 @@ namespace AphidUI.ViewModels
                 return;
             }
 
-            var exp = ast.First();
+            var exp = ast[0];
 
             if (!(exp is UnaryOperatorExpression unary) ||
                 unary.Operator != AphidTokenType.retKeyword)
@@ -347,11 +345,11 @@ namespace AphidUI.ViewModels
             {
                 InvokeDispatcher(() => CodeViewer.AppendException(Code, ".NET Runtime error", ex));
             }
-            
+
             var serialized = AphidCli
                 .CreateSerializer(Interpreter)
                 .Serialize(Interpreter.GetReturnValue());
-            
+
             InvokeDispatcher(() => CodeViewer.AppendOutput(Code, serialized));
             UpdateVariables();
             ExecuteWatchExpressions();
@@ -465,7 +463,6 @@ namespace AphidUI.ViewModels
                         _callback?.Invoke();
                     });
                 }
-
             })
             {
                 IsBackground = true

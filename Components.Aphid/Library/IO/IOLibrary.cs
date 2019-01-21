@@ -14,7 +14,7 @@ namespace Components.Aphid.Library
         private static List<AphidObject> ReadBytes(string filename)
         {
             var list = new List<AphidObject>();
-            
+
             foreach (var b in File.ReadAllBytes(filename))
             {
                 list.Add(AphidObject.Scalar((decimal)b));
@@ -37,34 +37,19 @@ namespace Components.Aphid.Library
         }
 
         [AphidInteropFunction("io.file.readText")]
-        private static string ReadText(string filename)
-        {
-            return File.ReadAllText(filename);
-        }
+        private static string ReadText(string filename) => File.ReadAllText(filename);
 
         [AphidInteropFunction("io.file.writeText")]
-        private static void WriteText(string filename, string text)
-        {
-            File.WriteAllText(filename, text);
-        }
+        private static void WriteText(string filename, string text) => File.WriteAllText(filename, text);
 
         [AphidInteropFunction("io.dir.exists")]
-        public static bool DirExists(string dir)
-        {
-            return Directory.Exists(dir);
-        }
+        public static bool DirExists(string dir) => Directory.Exists(dir);
 
         [AphidInteropFunction("io.file.exists")]
-        public static bool FileExists(string file)
-        {
-            return File.Exists(file);
-        }
+        public static bool FileExists(string file) => File.Exists(file);
 
         [AphidInteropFunction("io.dir.create")]
-        public static string DirCreate(string dir)
-        {
-            return Directory.CreateDirectory(dir).FullName;
-        }
+        public static string DirCreate(string dir) => Directory.CreateDirectory(dir).FullName;
 
         private static List<AphidObject> GetFileSystemObjects(
             Func<string, string, SearchOption, string[]> func,
@@ -78,16 +63,10 @@ namespace Components.Aphid.Library
         }
 
         [AphidInteropFunction("io.dir.getFilesInternal")]
-        public static List<AphidObject> DirGetFiles(string dir, string pattern, bool recurse)
-        {
-            return GetFileSystemObjects(Directory.GetFiles, dir, pattern, recurse);
-        }
+        public static List<AphidObject> DirGetFiles(string dir, string pattern, bool recurse) => GetFileSystemObjects(Directory.GetFiles, dir, pattern, recurse);
 
         [AphidInteropFunction("io.dir.getDirsInternal")]
-        public static List<AphidObject> DirGetDirs(string dir, string pattern, bool recurse)
-        {
-            return GetFileSystemObjects(Directory.GetFiles, dir, pattern, recurse);
-        }
+        public static List<AphidObject> DirGetDirs(string dir, string pattern, bool recurse) => GetFileSystemObjects(Directory.GetFiles, dir, pattern, recurse);
     }
 }
 

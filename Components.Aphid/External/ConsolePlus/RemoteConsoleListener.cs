@@ -33,7 +33,7 @@ namespace Components.External.ConsolePlus
             Console.SetError(_writer);
         }
 
-        void DataReceived(object sender, ConsoleDataEventArgs e)
+        private void DataReceived(object sender, ConsoleDataEventArgs e)
         {
             lock (_outBuffer)
             {

@@ -3,10 +3,12 @@ using Components.Aphid.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
+    [Serializable]
     public class AphidInternalException : AphidRuntimeException
     {
         public AphidInternalException(
@@ -23,6 +25,11 @@ namespace Components.Aphid.Interpreter
                 currentExpression,
                 message,
                 args)
+        {
+        }
+
+        protected AphidInternalException(SerializationInfo info, StreamingContext context) :
+            base(info, context)
         {
         }
     }

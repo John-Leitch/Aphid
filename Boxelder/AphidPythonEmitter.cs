@@ -21,7 +21,7 @@ namespace Boxelder
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.AndOperator, " and " },
-            { AphidTokenType.OrOperator, " or " },   
+            { AphidTokenType.OrOperator, " or " },
         };
 
         private const string _initName = "__init__";
@@ -32,7 +32,7 @@ namespace Boxelder
 
         public override string Compile(string filename, List<AphidExpression> ast)
         {
-            var mutators = new AphidMutator[] 
+            var mutators = new AphidMutator[]
             {
                 new IncludeMutator
                 {
@@ -100,7 +100,7 @@ namespace Boxelder
         {
             if (!isStatement)
             {
-                if (expression.Attributes.Any())
+                if (expression.Attributes.Count > 0)
                 {
                     throw new NotImplementedException();
                 }
@@ -120,10 +120,9 @@ namespace Boxelder
 
         protected void EmitIdentifierStatement(IdentifierExpression expression)
         {
-            string[] unparsed;
-            var attrs = AphidAttributeParser.Parse<IdentifierStatementAttributes>(expression, out unparsed);
+            var attrs = AphidAttributeParser.Parse<IdentifierStatementAttributes>(expression, out var unparsed);
 
-            if (unparsed.Any())
+            if (unparsed.Length > 0)
             {
                 throw new NotImplementedException();
             }
@@ -186,10 +185,9 @@ namespace Boxelder
         {
             var id = expression.LeftOperand.ToIdentifier();
             var func = expression.RightOperand.ToFunction();
-            string[] unparsed;
-            var attrs = AphidAttributeParser.Parse<FunctionDeclarationAttributes>(id, out unparsed);
+            var attrs = AphidAttributeParser.Parse<FunctionDeclarationAttributes>(id, out var unparsed);
 
-            if ((!isMember && attrs.IsStatic) || unparsed.Any())
+            if ((!isMember && attrs.IsStatic) || unparsed.Length > 0)
             {
                 throw new NotImplementedException();
             }
@@ -204,7 +202,7 @@ namespace Boxelder
 
             if (isMember && !attrs.IsStatic)
             {
-                Append("self{0}", func.Args.Any() ? ", " : "");
+                Append("self{0}", func.Args.Count > 0 ? ", " : "");
             }
 
             EmitTuple(func.Args);
@@ -234,7 +232,7 @@ namespace Boxelder
             Emit(expression.Body);
             Unindent();
 
-            if (expression.ElseBody != null && expression.ElseBody.Any())
+            if (expression.ElseBody?.Count > 0)
             {
                 AppendTabs();
                 Append("else:\r\n");
@@ -353,8 +351,7 @@ namespace Boxelder
                 throw new NotImplementedException();
             }
 
-            string[] otherAttrs;
-            var attrs = AphidAttributeParser.Parse<ClassDeclarationAttributes>(statement.Identifier, out otherAttrs);
+            var attrs = AphidAttributeParser.Parse<ClassDeclarationAttributes>(statement.Identifier, out var otherAttrs);
 
             if (attrs.IsClass)
             {
@@ -389,7 +386,7 @@ namespace Boxelder
             Append(
                 "class {0}({1}):",
                 statement.Identifier.Identifier,
-                unparsedAttributes.Any() ? unparsedAttributes.First() : "");
+                unparsedAttributes.Length > 0 ? unparsedAttributes[0] : "");
 
             Indent();
             AppendLine();
@@ -430,7 +427,7 @@ namespace Boxelder
                 {
                     var attrs = string.Join(
                         ", ",
-                        expression.CatchArg.Attributes.Any() ?
+                        expression.CatchArg.Attributes.Count > 0 ?
                         expression.CatchArg.Attributes
                             .Select(x => x.Identifier)
                             .ToArray() :
@@ -459,7 +456,7 @@ namespace Boxelder
 
         protected void EmitImportStatement(CallExpression statement)
         {
-            if (!statement.Args.Any() || !HasAllStringArgs(statement))
+            if (statement.Args.Count == 0 || !HasAllStringArgs(statement))
             {
                 throw new NotImplementedException();
             }
@@ -512,18 +509,16 @@ namespace Boxelder
 
         protected override string GetBinaryOperator(AphidTokenType op)
         {
-            string value;
 
-            return !_binaryOperators.TryGetValue(op, out value) ?
+            return !_binaryOperators.TryGetValue(op, out var value) ?
                 base.GetBinaryOperator(op) :
                 value;
         }
 
         protected override string GetUnaryPrefixOperator(AphidTokenType op)
         {
-            string value;
 
-            return !_unaryPrefixOperators.TryGetValue(op, out value) ?
+            return !_unaryPrefixOperators.TryGetValue(op, out var value) ?
                 base.GetUnaryPrefixOperator(op) :
                 value;
         }

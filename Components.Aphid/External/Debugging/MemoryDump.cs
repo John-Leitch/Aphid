@@ -14,15 +14,9 @@ namespace Components.Cypress
 {
     public static class MemoryDump
     {
-        public static void Create(string filename)
-        {
-            Create(Process.GetCurrentProcess(), filename);
-        }
+        public static void Create(string filename) => Create(Process.GetCurrentProcess(), filename);
 
-        public static void Create(int processId, string filename)
-        {
-            Create(Process.GetProcessById(processId), filename);
-        }
+        public static void Create(int processId, string filename) => Create(Process.GetProcessById(processId), filename);
 
         public static void Create(Process process, string filename)
         {

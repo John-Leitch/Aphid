@@ -18,10 +18,7 @@ namespace Components.Aphid.Interpreter
 
         public Exception RuntimeException { get; set; }
 
-        public override string Details
-        {
-            get { return GetMessage(); }
-        }
+        public override string Details => GetMessage();
 
         public AphidExceptionType LoadScriptExceptionType
         {
@@ -48,10 +45,7 @@ namespace Components.Aphid.Interpreter
                 currentStatement,
                 currentExpression,
                 parserException,
-                scriptFile)
-        {
-            ParserException = parserException;
-        }
+                scriptFile) => ParserException = parserException;
 
         public AphidLoadScriptException(
             AphidInterpreter interpreter,
@@ -66,10 +60,7 @@ namespace Components.Aphid.Interpreter
                 currentStatement,
                 currentExpression,
                 runtimeException,
-                scriptFile)
-        {
-            AphidRuntimeException = runtimeException;
-        }
+                scriptFile) => AphidRuntimeException = runtimeException;
 
         public AphidLoadScriptException(
             AphidInterpreter interpreter,
@@ -84,10 +75,7 @@ namespace Components.Aphid.Interpreter
                 currentStatement,
                 currentExpression,
                 runtimeException,
-                scriptFile)
-        {
-            RuntimeException = runtimeException;
-        }
+                scriptFile) => RuntimeException = runtimeException;
 
         private AphidLoadScriptException(
             AphidInterpreter interpreter,
@@ -101,10 +89,7 @@ namespace Components.Aphid.Interpreter
                 exceptionScope,
                 currentStatement,
                 currentExpression,
-                innerException)
-        {
-            ScriptFile = scriptFile;
-        }
+                innerException) => ScriptFile = scriptFile;
 
         public AphidLoadScriptException(
             AphidInterpreter interpreter,
@@ -126,7 +111,7 @@ namespace Components.Aphid.Interpreter
         private string GetMessage()
         {
             var sb = new StringBuilder();
-            
+
             sb.AppendFormat(
                 "Exception encountered while {0} included script {1}",
                 LoadScriptExceptionType == AphidExceptionType.ParserException ? "parsing" :

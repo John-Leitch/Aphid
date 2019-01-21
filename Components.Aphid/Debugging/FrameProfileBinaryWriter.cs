@@ -17,9 +17,9 @@ namespace Components.Aphid.Debugging
 
         private Stack<FrameProfileInfo> _frames = new Stack<FrameProfileInfo>(0x100);
 
-        public string NameFile { get; private set; }
+        public string NameFile { get; }
 
-        public string TraceFile { get; private set; }
+        public string TraceFile { get; }
 
         public FrameProfileBinaryWriter(string traceFile)
         {
@@ -36,7 +36,6 @@ namespace Components.Aphid.Debugging
                         "AphidFramePerformance.{0}.dat",
                         traceGuid)))
         {
-
         }
 
         public void Dispose()

@@ -9,13 +9,13 @@ namespace Components.Aphid.TypeSystem
 {
     public class AphidFunctionComposition : IAphidCallable
     {
-        public AphidExpression LeftExpression { get; private set; }
+        public AphidExpression LeftExpression { get; }
 
-        public AphidExpression RightExpression { get; private set; }
+        public AphidExpression RightExpression { get; }
 
-        public object LeftFunction { get; private set; }        
+        public object LeftFunction { get; }
 
-        public object RightFunction { get; private set; }
+        public object RightFunction { get; }
 
         public AphidFunctionComposition(
             AphidExpression leftExpression,

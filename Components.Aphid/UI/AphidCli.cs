@@ -87,7 +87,7 @@ namespace Components.Aphid.UI
                     Thread.ResetAbort();
                     LastException = exception;
                     DumpException(exception, interpreter);
-                }                
+                }
             }
             catch (AphidParserException exception)
             {
@@ -156,7 +156,7 @@ namespace Components.Aphid.UI
 
             void action()
             {
-                if (code.Trim() == "")
+                if (code.Trim()?.Length == 0)
                 {
                     return;
                 }
@@ -303,12 +303,8 @@ namespace Components.Aphid.UI
 
                 if (frame.Expression != null && frame.Expression.Filename == null)
                 {
-                    var complete = AphidParent.FirstComplete(frame.Expression);
-
-                    if(complete == null)
-                    {
-                        complete = AphidParent.FirstNearComplete(frame.Expression);
-                    }
+                    var complete = AphidParent.FirstComplete(frame.Expression) ??
+                        AphidParent.FirstNearComplete(frame.Expression);
 
                     if(complete != null)
                     {
@@ -439,7 +435,6 @@ namespace Components.Aphid.UI
                             color = colors[x].ForegroundRgb.ToArray();
                             color[off1] = increase(color[off1]);
                             color[off2] = increase(color[off2]);
-
                         }
                         else
                         {
@@ -477,7 +472,7 @@ namespace Components.Aphid.UI
                             "$args[{0}] = {1} {2}",
                             y,
                             GetAphidObjectTypeName(x),
-                            DumpValue(interpreter, serializer, x)))                       
+                            DumpValue(interpreter, serializer, x)))
                         .JoinLines();
 
                     if (args.Length > 0)
@@ -506,7 +501,7 @@ namespace Components.Aphid.UI
             var ctxPairs = new Tuple<string, AphidExpression>[]
             {
                 Tuple.Create("Expression", interpreter.CurrentExpression),
-                Tuple.Create("Statement", interpreter.CurrentStatement),                
+                Tuple.Create("Statement", interpreter.CurrentStatement),
             };
 
             foreach(var kvp in ctxPairs)
@@ -568,7 +563,6 @@ namespace Components.Aphid.UI
                     () => interpreter.CurrentScope.TryResolve(AphidName.Block, out var val) ?
                         (List<AphidExpression>)val.Value :
                         new List<AphidExpression>())
-                    
             };
 
 
@@ -622,7 +616,7 @@ namespace Components.Aphid.UI
                     .Distinct()
                     .ToArray();
 
-                if(!files.Any())
+                if(files.Length == 0)
                 {
                     break;
                 }
@@ -811,7 +805,6 @@ namespace Components.Aphid.UI
             {
                 x.ForegroundRgb = x.BackgroundRgb;
                 x.BackgroundRgb = SystemColor.White;
-
             }
             else
             {
@@ -825,7 +818,7 @@ namespace Components.Aphid.UI
 
         public static string Highlight(string code)
         {
-            if(!code.Trim().Any())
+            if(code.Trim().Length == 0)
             {
                 return code;
             }

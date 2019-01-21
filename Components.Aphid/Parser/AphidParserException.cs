@@ -7,12 +7,10 @@ using System.Text;
 
 namespace Components.Aphid.Parser
 {
+    [Serializable]
     public class AphidParserException : Exception, IAphidException
     {
-        public AphidExceptionType Type
-        {
-            get { return AphidExceptionType.ParserException; }
-        }
+        public AphidExceptionType Type => AphidExceptionType.ParserException;
 
         public AphidToken UnexpectedToken { get; set; }
 
@@ -22,10 +20,7 @@ namespace Components.Aphid.Parser
 
         private readonly string _message;
 
-        public override string Message
-        {
-            get { return _message; }
-        }
+        public override string Message => _message;
 
         public string Filename { get; set; }
 
@@ -39,7 +34,7 @@ namespace Components.Aphid.Parser
         {
             UnexpectedToken = unexpectedToken;
             ExpectedToken = expectedToken;
-            
+
             _message = string.Format(
                 "{0}; expected {1}.",
                 CreateUnexpectedMessage(unexpectedToken),
@@ -59,7 +54,7 @@ namespace Components.Aphid.Parser
 
         public AphidParserException(string format, params object[] args)
         {
-            if (args != null && args.Length > 0)
+            if (args?.Length > 0)
             {
                 _message = string.Format(format, args);
             }

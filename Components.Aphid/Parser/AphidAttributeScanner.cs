@@ -61,9 +61,6 @@ namespace Components.Aphid.Parser
             Next();
         }
 
-        public bool EndOfStream()
-        {
-            return !_attributes.Any() && CurrentAttribute == null;
-        }
+        public bool EndOfStream() => _attributes.Count == 0 && CurrentAttribute == null;
     }
 }

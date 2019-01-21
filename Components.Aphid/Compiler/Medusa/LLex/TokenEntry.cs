@@ -30,9 +30,6 @@ namespace LLex
         {
         }
 
-        public override string ToString()
-        {
-            return Lexeme;
-        }
+        public override string ToString() => Lexeme;
     }
 }

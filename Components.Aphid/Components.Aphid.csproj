@@ -136,6 +136,7 @@
   <!-- DEBUG                          -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
+    <CodeAnalysisRuleSet>Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
   </PropertyGroup>
@@ -289,6 +290,7 @@
     <Compile Include="External\PInvoke\UserEnv.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="External\PInvoke\WindowStyle.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Parser\AphidByteCode.cs" />
     <Compile Include="Parser\AphidDirective.cs" />

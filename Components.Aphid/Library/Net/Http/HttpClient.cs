@@ -22,10 +22,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public Stream DebugStream { get; set; }
 
-        public HttpClient()
-        {
-            Port = 80;
-        }
+        public HttpClient() => Port = 80;
 
         private void WriteToStream(byte[] buffer, int offset, int count)
         {
@@ -43,7 +40,7 @@ namespace Components.Aphid.Library.Net.Http
             long len = 0;
             Action writeBody = null;
 
-            if (request.Uploads != null && request.Uploads.Length > 0)
+            if (request.Uploads?.Length > 0)
             {
                 request.SetMultipart();
             }
@@ -131,7 +128,7 @@ namespace Components.Aphid.Library.Net.Http
                             }
                             WriteToStream(endOfValue, 0, endOfValue.Length);
                         }
-                        
+
                         WriteToStream(endBoundary, 0, endBoundary.Length);
                     };
                 }
@@ -164,7 +161,7 @@ namespace Components.Aphid.Library.Net.Http
             var resp = new HttpResponse() { BodyStream = bodyStream };
             var encoder = Encoding.GetEncoding(1252);
             var bufferSize = 8192;
-            
+
             var headerBuffer = "";
             var buffer = new byte[bufferSize];
             var endOfHeader = -1;
@@ -182,7 +179,7 @@ namespace Components.Aphid.Library.Net.Http
             buffer = encoder.GetBytes(bodyStr);
             var bodyBytesRead = buffer.Length;
             resp.ParseFields(headerBuffer.Remove(endOfHeader), true);
-            
+
             if (resp.TryGetInt(HttpField.ContentLength, out var contentLen))
             {
                 bodyStream.Write(buffer, 0, buffer.Length);
@@ -220,7 +217,6 @@ namespace Components.Aphid.Library.Net.Http
                             tailBuffer[i + offset] = (byte)bodyStr[i];
                         }
                     }
-
 
                 }
 
@@ -262,10 +258,7 @@ namespace Components.Aphid.Library.Net.Http
             return resp;
         }
 
-        public HttpResponse Read()
-        {
-            return Read(new MemoryStream());
-        }
+        public HttpResponse Read() => Read(new MemoryStream());
 
         public static HttpClient Connect(string host, int port)
         {
@@ -274,10 +267,7 @@ namespace Components.Aphid.Library.Net.Http
             return client;
         }
 
-        public static HttpClient Connect(string host)
-        {
-            return Connect(host, 80);
-        }
+        public static HttpClient Connect(string host) => Connect(host, 80);
 
         public void Connect()
         {
@@ -294,15 +284,9 @@ namespace Components.Aphid.Library.Net.Http
 
         private void Close()
         {
-            if (Stream != null)
-            {
-                Stream.Dispose();
-            }
+            Stream?.Dispose();
 
-            if (TcpClient != null)
-            {
-                TcpClient.Close();
-            }
+            TcpClient?.Close();
         }
 
         public void Disconnect()
@@ -316,9 +300,6 @@ namespace Components.Aphid.Library.Net.Http
             IsConnected = false;
         }
 
-        public void Dispose()
-        {
-            Close();
-        }
+        public void Dispose() => Close();
     }
 }

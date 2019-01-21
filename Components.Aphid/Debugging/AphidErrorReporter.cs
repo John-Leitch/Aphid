@@ -49,21 +49,17 @@ namespace Components.Aphid.Debugging
                     {
                         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
                     }
-                    
+
                     IsInitialized = true;
                 }
             }
         }
 
-        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) =>
             SaveErrorInformation((Exception)e.ExceptionObject);
-        }
 
-        public static void SaveErrorInformation(Exception o)
-        {
+        public static void SaveErrorInformation(Exception o) =>
             SaveErrorInformation(o, null);
-        }
 
         public static void SaveErrorInformation(Exception o, AphidInterpreter interpreter)
         {
@@ -125,7 +121,7 @@ namespace Components.Aphid.Debugging
             if (dumpFile != null)
             {
                 var logFile = Path.ChangeExtension(dumpFile, "log");
-                
+
                 using (var writer = new StreamWriter(File.Create(logFile)))
                 {
                     writer.AutoFlush = true;
@@ -136,7 +132,7 @@ namespace Components.Aphid.Debugging
                         TryWriteValue(writer, name, getValue);
 
                     writeValue("Command Line", () => Environment.CommandLine);
-                    
+
                     writeValue(
                         "Command Line Arguments",
                         () => Environment.GetCommandLineArgs().JoinLines());
@@ -192,7 +188,7 @@ namespace Components.Aphid.Debugging
             var exceptionHistory = new List<Exception>();
             var exceptionQueue = new Queue<Exception>(new[] { rootException });
 
-            while (exceptionQueue.Any())
+            while (exceptionQueue.Count > 0)
             {
                 var ex = exceptionQueue.Dequeue();
                 writer.WriteLine("{0}\r\n", ex);

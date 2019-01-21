@@ -8,11 +8,11 @@ namespace Components.Cypress
 {
     public class DebugProcess
     {
-        public Process Process { get; private set; }
+        public Process Process { get; }
 
-        public DebugProcess Parent { get; private set; }
+        public DebugProcess Parent { get; }
 
-        public List<DebugProcess> Children { get; private set; }
+        public List<DebugProcess> Children { get; }
 
         public DebugProcess(Process process, DebugProcess parent)
         {
@@ -21,9 +21,7 @@ namespace Components.Cypress
             Children = new List<DebugProcess>();
         }
 
-        public IEnumerable<DebugProcess> Flatten()
-        {
-            return new[] { this }.Concat(Children.SelectMany(x => x.Flatten()));
-        }
+        public IEnumerable<DebugProcess> Flatten() =>
+            new[] { this }.Concat(Children.SelectMany(x => x.Flatten()));
     }
 }

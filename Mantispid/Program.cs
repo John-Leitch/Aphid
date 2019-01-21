@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 
 namespace Mantispid
 {
-    class Program
+    internal class Program
     {
-        static void DisplayDirections()
+        private static void DisplayDirections()
         {
             Console.WriteLine("mantispid [Parser Script] [Output File]");
             Environment.Exit(0);
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (args.Length != 2)
             {

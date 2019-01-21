@@ -141,18 +141,12 @@ namespace Components.External.ConsolePlus
 #if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
 #endif
-        public static void Write(string format, params object[] arg)
-        {
-            WriteCore(format, false, arg);
-        }
+        public static void Write(string format, params object[] arg) => WriteCore(format, false, arg);
 
 #if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
 #endif
-        public static void Write(string message)
-        {
-            WriteCore(message, false, null);
-        }
+        public static void Write(string message) => WriteCore(message, false, null);
 
         /// <summary>
         /// Writes a format string and a new line to the console.
@@ -162,30 +156,21 @@ namespace Components.External.ConsolePlus
 #if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
 #endif
-        public static void WriteLine(string format, params object[] arg)
-        {
-            WriteCore(format, true, arg);
-        }
+        public static void WriteLine(string format, params object[] arg) => WriteCore(format, true, arg);
 
 #if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
 #endif
-        public static void WriteLine(string message)
-        {
-            WriteCore(message, true, null);
-        }
+        public static void WriteLine(string message) => WriteCore(message, true, null);
 
 #if !DEBUG_CONSOLE_OUT
         [DebuggerStepThrough]
 #endif
-        public static void WriteLine()
-        {
-            WriteLineHandler("");
-        }
+        public static void WriteLine() => WriteLineHandler("");
 
         public static void DumpTable(IEnumerable<KeyValuePair<string, string>> nameValuePairs)
         {
-            if (nameValuePairs.Count() == 0)
+            if (!nameValuePairs.Any())
             {
                 return;
             }
@@ -222,7 +207,7 @@ namespace Components.External.ConsolePlus
 
             var headerColor = "~White~~|DarkGray~";
 
-            var totalLength = paddingSize * 4 + 3 + longestNameLength + longestValueLength;
+            var totalLength = (paddingSize * 4) + 3 + longestNameLength + longestValueLength;
 
             //var newLine = totalLength == BufferWidth ? "" : "\r\n";
             var newLine = "\r\n";
@@ -246,7 +231,7 @@ namespace Components.External.ConsolePlus
             }
 
             var divider = new string('═', totalLength - 2).ToCharArray();
-            var verticalRuleOffset = longestNameLength + paddingSize * 2;
+            var verticalRuleOffset = longestNameLength + (paddingSize * 2);
             divider[verticalRuleOffset] = '╦';
             var hrTop = "╔" + new string(divider) + "╗";
             divider[verticalRuleOffset] = '╬';
@@ -301,7 +286,7 @@ namespace Components.External.ConsolePlus
                     BindingFlags.Public |
                     BindingFlags.Instance |
                     BindingFlags.Static |
-                    BindingFlags.FlattenHierarchy)                
+                    BindingFlags.FlattenHierarchy)
                 .Where(x =>
                     x.MemberType == MemberTypes.Field ||
                     x.MemberType == MemberTypes.Property)
@@ -331,10 +316,7 @@ namespace Components.External.ConsolePlus
             }
         }
 
-        public static void Dump<T>(T obj)
-        {
-            Dump(obj, DumpMode.Table);
-        }
+        public static void Dump<T>(T obj) => Dump(obj, DumpMode.Table);
 
 #if NET35
         public static void WriteHeader(string format)
@@ -616,20 +598,11 @@ namespace Components.External.ConsolePlus
                             .Replace("~", "~~")/*)*/ :
                 value;
 
-        public static string FormatEscape(string value)
-        {
-            return value.Replace("{", "{{").Replace("}", "}}");
-        }
+        public static string FormatEscape(string value) => value.Replace("{", "{{").Replace("}", "}}");
 
-        public static string FormatEscape(object value)
-        {
-            return FormatEscape(value.ToString());
-        }
+        public static string FormatEscape(object value) => FormatEscape(value.ToString());
 
-        public static string StyleEscape(object value)
-        {
-            return StyleEscape(value.ToString());
-        }
+        public static string StyleEscape(object value) => StyleEscape(value.ToString());
 
         public static string StyleEscape(string value) =>
             !string.IsNullOrEmpty(value) ? value.Replace("~", "~~") :
@@ -707,7 +680,6 @@ namespace Components.External.ConsolePlus
                             throw new NotImplementedException();
                     }
                 }
-
 
                 if (state == CliLexerState.ReadingToken)
                 {

@@ -10,15 +10,11 @@ namespace Mantispid
     {
         public IEnumerable<RuleStruct> _ruleTypes;
 
-        public RuleStructResolver(IEnumerable<RuleStruct> ruleTypes)
-        {
+        public RuleStructResolver(IEnumerable<RuleStruct> ruleTypes) =>
             _ruleTypes = ruleTypes;
-        }
 
-        public RuleStruct Resolve(string name)
-        {
-            return _ruleTypes.SingleOrDefault(x => x.Name == name);
-        }
+        public RuleStruct Resolve(string name) =>
+            _ruleTypes.SingleOrDefault(x => x.Name == name);
 
         public bool Is(RuleStruct ruleStruct, string name)
         {
@@ -34,7 +30,7 @@ namespace Mantispid
         {
             RuleStruct rule;
 
-            return ruleStruct == name || 
+            return ruleStruct == name ||
                 ((rule = Resolve(ruleStruct)) != null && Is(rule, name));
         }
     }

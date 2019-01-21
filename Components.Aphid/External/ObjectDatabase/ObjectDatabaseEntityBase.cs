@@ -14,8 +14,8 @@ namespace Components.ObjectDatabase
         [IgnoreDataMember, XmlIgnore, ScriptIgnore]
         public long Offset
         {
-            get { return _offset; }
-            set { _offset = value; }
+            get => _offset;
+            set => _offset = value;
         }
 
         [NonSerialized]
@@ -24,8 +24,8 @@ namespace Components.ObjectDatabase
         [IgnoreDataMember, XmlIgnore, ScriptIgnore]
         public string Filename
         {
-            get { return _filename; }
-            set { _filename = value; }
+            get => _filename;
+            set => _filename = value;
         }
 
         [NonSerialized]
@@ -34,8 +34,8 @@ namespace Components.ObjectDatabase
         [IgnoreDataMember, XmlIgnore, ScriptIgnore]
         public IDatabaseContext Context
         {
-            get { return _context; }
-            set { _context = value; }
+            get => _context;
+            set => _context = value;
         }
     }
 }

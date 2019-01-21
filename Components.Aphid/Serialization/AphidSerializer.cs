@@ -55,13 +55,10 @@ namespace Components.Aphid.Serialization
 
         public bool QuoteToStringResults { get; set; }
 
-        public bool ToStringClrTypes { get; set; }        
+        public bool ToStringClrTypes { get; set; }
 
         public AphidSerializer(AphidInterpreter interpreter)
-            : base(interpreter)
-        {
-            IgnoreFunctions = true;
-        }
+            : base(interpreter) => IgnoreFunctions = true;
 
         public string Serialize(AphidObject o)
         {
@@ -201,6 +198,7 @@ namespace Components.Aphid.Serialization
 
                 return;
             }
+
             var objType = value.GetType();
 
             if (objType == typeof(AphidObject))
@@ -268,7 +266,7 @@ namespace Components.Aphid.Serialization
                     return;
                 }
             }
-            
+
             var hasAny = false;
 
             foreach (var x in enumerable)

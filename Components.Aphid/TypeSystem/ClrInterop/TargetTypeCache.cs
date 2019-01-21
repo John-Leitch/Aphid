@@ -10,33 +10,33 @@ namespace Components.Aphid.TypeSystem
 {
     public class ArgumentTypeCache
     {
-        public bool IsExactTypeMatch { get; private set; }
+        public bool IsExactTypeMatch { get; }
 
-        public bool IsExactBasicTypeMatch { get; private set; }
+        public bool IsExactBasicTypeMatch { get; }
 
-        public bool IsExactUserReferenceTypeMatch { get; private set; }
+        public bool IsExactUserReferenceTypeMatch { get; }
 
-        public bool IsDerivedFromUserReferenceType { get; private set; }
+        public bool IsDerivedFromUserReferenceType { get; }
 
-        public bool IsNonRootImplementationOfTarget { get; private set; }
+        public bool IsNonRootImplementationOfTarget { get; }
 
-        public MethodInfo ImplicitConversionOperator { get; private set; }
+        public MethodInfo ImplicitConversionOperator { get; }
 
-        public MethodInfo ExplicitConversionOperator { get; private set; }
+        public MethodInfo ExplicitConversionOperator { get; }
 
-        public bool HasImplicitConversion { get; private set; }
+        public bool HasImplicitConversion { get; }
 
-        public bool HasExplicitConversion { get; private set; }
+        public bool HasExplicitConversion { get; }
 
-        public bool HasToStringConversion { get; private set; }
+        public bool HasToStringConversion { get; }
 
-        public bool NeedsStringToCharCheck { get; private set; }
+        public bool NeedsStringToCharCheck { get; }
 
-        public bool NeedsDecimalFitCheck { get; private set; }
+        public bool NeedsDecimalFitCheck { get; }
 
-        public bool IsPrecisionLost { get; private set; }
+        public bool IsPrecisionLost { get; }
 
-        public bool IsConvertibleNumberPair { get; private set; }
+        public bool IsConvertibleNumberPair { get; }
 
         public ArgumentTypeCache(
             Type argumentType,

@@ -25,12 +25,10 @@ namespace Components.Aphid.Library
 
         public void OnBinding(AphidObject source)
         {
-
         }
 
         public void OnBound(AphidObject source)
         {
-
         }
     }
 }

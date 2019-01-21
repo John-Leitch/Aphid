@@ -12,11 +12,8 @@ namespace Components.Caching
             Outdated = new PrimitiveCacheInfo(true),
             Valid = new PrimitiveCacheInfo(false);
 
-        public bool IsOutdated { get; private set; }
+        public bool IsOutdated { get; }
 
-        public PrimitiveCacheInfo(bool isOutdated)
-        {
-            IsOutdated = isOutdated;
-        }
+        public PrimitiveCacheInfo(bool isOutdated) => IsOutdated = isOutdated;
     }
 }

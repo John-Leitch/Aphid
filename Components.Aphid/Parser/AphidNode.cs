@@ -25,7 +25,6 @@ namespace Components.Aphid.Parser
                 default:
                     return false;
             }
-                
         }
     }
 }

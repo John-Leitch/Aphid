@@ -89,7 +89,7 @@ namespace Components.Aphid.Compiler
                     Environment.Exit(5);
                 }
 
-                if (!GetInputFiles(fullname).Any())
+                if (GetInputFiles(fullname).Length == 0)
                 {
                     Cli.WriteCriticalErrorMessage("Could not find input files in directory '~Yellow~{0}~R~'.", _args[0]);
                     Environment.Exit(6);
@@ -129,10 +129,8 @@ namespace Components.Aphid.Compiler
             TryEmitCode(ast, outFilename);
         }
 
-        private string[] GetInputFiles(string fullname)
-        {
-            return _inputFileMemoizer.Call(GetInputFilesCore, fullname);
-        }
+        private string[] GetInputFiles(string fullname) =>
+            _inputFileMemoizer.Call(GetInputFilesCore, fullname);
 
         private static string[] GetInputFilesCore(string fullname)
         {
@@ -149,7 +147,6 @@ namespace Components.Aphid.Compiler
 
         private string GetOutFilename(string filename)
         {
-            
             return Path.Combine(
                 _args.Length == 1 ? Path.GetDirectoryName(filename) : _args[1],
                 Path.GetFileNameWithoutExtension(filename) + "." + _extension);

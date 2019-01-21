@@ -26,12 +26,11 @@ namespace Components
         private static List<string> _partialNames = new List<string>();
 #endif
 
-        public EventWaitHandle Handle { get; private set; }
+        public EventWaitHandle Handle { get; }
 
         public CrossProcessLock()
             : this(DefaultInitialState)
         {
-            
         }
 
         public CrossProcessLock(string name)

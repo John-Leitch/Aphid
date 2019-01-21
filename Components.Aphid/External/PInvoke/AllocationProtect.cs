@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Components.PInvoke
 {
+    [Flags]
     public enum AllocationProtect : uint
     {
         None = 0x00000000,

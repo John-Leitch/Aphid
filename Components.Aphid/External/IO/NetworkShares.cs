@@ -38,7 +38,7 @@ namespace Components.IO
                 shares = Enumerable
                     .Range(0, entriesRead)
                     .Select(x => Marshal
-                        .PtrToStructure<SHARE_INFO_0>(sharePtr + x * structSize)
+                        .PtrToStructure<SHARE_INFO_0>(sharePtr + (x * structSize))
                         .shi0_netname)
                     .ToArray();
             }

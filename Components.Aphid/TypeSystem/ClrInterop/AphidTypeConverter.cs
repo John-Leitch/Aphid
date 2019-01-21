@@ -230,7 +230,6 @@ namespace Components.Aphid.TypeSystem
                     }
 
                     return s[0];
-
                 }
                 else if (targetType == typeof(char[]))
                 {

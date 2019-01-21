@@ -33,10 +33,7 @@ namespace Components.Aphid.Interpreter
         public bool DisableConstantFolding { get; set; }
 
         public AphidLoader(AphidInterpreter interpreter)
-            : base(interpreter)
-        {
-            _modules = new List<Assembly> { Assembly.GetExecutingAssembly() };
-        }
+            : base(interpreter) => _modules = new List<Assembly> { Assembly.GetExecutingAssembly() };
 
         public void LoadModule(string moduleFile)
         {
@@ -78,8 +75,7 @@ namespace Components.Aphid.Interpreter
                     Method = x,
                     Attributes = x
                         .GetCustomAttributes(true)
-                        .Where(y => y is AphidInteropFunctionAttribute)
-                        .Cast<AphidInteropFunctionAttribute>()
+                        .OfType<AphidInteropFunctionAttribute>()
                         .ToArray()
                 })
                 .SelectMany(x => x.Attributes
@@ -104,10 +100,7 @@ namespace Components.Aphid.Interpreter
             throw new InvalidOperationException();
         }
 
-        public void LoadLibrary<TLibrary>(AphidObject scope)
-        {
-            LoadLibrary(typeof(TLibrary), scope);
-        }
+        public void LoadLibrary<TLibrary>(AphidObject scope) => LoadLibrary(typeof(TLibrary), scope);
 
         public string FindScriptFile(string scriptFile)
         {
@@ -121,7 +114,7 @@ namespace Components.Aphid.Interpreter
             var extensionStrategies = new Func<string, string>[]
             {
                 x => x + ".alx",
-                x => x,                
+                x => x,
             };
 
             var files = extensionStrategies.Select(x => x(scriptFile)).ToArray();
@@ -186,7 +179,7 @@ namespace Components.Aphid.Interpreter
                 if (f.Contains(Path.DirectorySeparatorChar))
                 {
                     var dir = Path.GetFullPath(Path.GetDirectoryName(f));
-                    
+
                     if (!SearchPaths.Contains(dir))
                     {
                         SearchPaths.Add(dir);
@@ -250,7 +243,7 @@ namespace Components.Aphid.Interpreter
                 }
 
                 Interpreter.Interpret(ast);
-                
+
                 return ast;
             }
             else

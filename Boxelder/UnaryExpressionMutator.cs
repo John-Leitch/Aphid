@@ -33,9 +33,8 @@ namespace Boxelder
                 return null;
             }
 
-            AphidTokenType op;
 
-            if (!_operatorTable.TryGetValue(unOpExp.Operator, out op))
+            if (!_operatorTable.TryGetValue(unOpExp.Operator, out var op))
             {
                 return null;
             }

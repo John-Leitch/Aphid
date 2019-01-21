@@ -8,137 +8,59 @@ namespace Components
 {
     public static class StringExtension
     {
-        public static string Repeat(this string s, int Count)
-        {
-            return new StringBuilder().Insert(0, s, Count).ToString();
-        }
+        public static string Repeat(this string s, int Count) => new StringBuilder().Insert(0, s, Count).ToString();
 
-        public static string Indent(this string s, string indent = "\t")
-        {
-            return s.Insert(0, indent).Replace("\n", "\n" + indent);
-        }
+        public static string Indent(this string s, string indent = "\t") => s.Insert(0, indent).Replace("\n", "\n" + indent);
 
-        public static string SubstringAtIndexOf(this string s, string Value)
-        {
-            return s.Substring(s.IndexOf(Value));
-        }
+        public static string SubstringAtIndexOf(this string s, string Value) => s.Substring(s.IndexOf(Value));
 
-        public static string SubstringAtIndexOf(this string s, string Value, int Offset)
-        {
-            return s.Substring(s.IndexOf(Value) + Offset);
-        }
+        public static string SubstringAtIndexOf(this string s, string Value, int Offset) => s.Substring(s.IndexOf(Value) + Offset);
 
-        public static string SubstringAtIndexOf(this string s, char Value)
-        {
-            return s.Substring(s.IndexOf(Value));
-        }
+        public static string SubstringAtIndexOf(this string s, char Value) => s.Substring(s.IndexOf(Value));
 
-        public static string SubstringAtIndexOf(this string s, char Value, int Offset)
-        {
-            return s.Substring(s.IndexOf(Value) + Offset);
-        }
+        public static string SubstringAtIndexOf(this string s, char Value, int Offset) => s.Substring(s.IndexOf(Value) + Offset);
 
-        public static string SubstringAtLastIndexOf(this string s, string Value)
-        {
-            return s.Substring(s.LastIndexOf(Value));
-        }
+        public static string SubstringAtLastIndexOf(this string s, string Value) => s.Substring(s.LastIndexOf(Value));
 
-        public static string SubstringAtLastIndexOf(this string s, string Value, int Offset)
-        {
-            return s.Substring(s.LastIndexOf(Value) + Offset);
-        }
+        public static string SubstringAtLastIndexOf(this string s, string Value, int Offset) => s.Substring(s.LastIndexOf(Value) + Offset);
 
-        public static string SubstringAtLastIndexOf(this string s, char Value)
-        {
-            return s.Substring(s.LastIndexOf(Value));
-        }
+        public static string SubstringAtLastIndexOf(this string s, char Value) => s.Substring(s.LastIndexOf(Value));
 
-        public static string SubstringAtLastIndexOf(this string s, char Value, int Offset)
-        {
-            return s.Substring(s.LastIndexOf(Value) + Offset);
-        }
+        public static string SubstringAtLastIndexOf(this string s, char Value, int Offset) => s.Substring(s.LastIndexOf(Value) + Offset);
 
-        public static string RemoveAtIndexOf(this string s, string Value)
-        {
-            return s.Remove(s.IndexOf(Value));
-        }
+        public static string RemoveAtIndexOf(this string s, string Value) => s.Remove(s.IndexOf(Value));
 
-        public static string RemoveAtIndexOf(this string s, string Value, int Offset)
-        {
-            return s.Remove(s.IndexOf(Value) + Offset);
-        }
+        public static string RemoveAtIndexOf(this string s, string Value, int Offset) => s.Remove(s.IndexOf(Value) + Offset);
 
-        public static string RemoveAtIndexOf(this string s, char Value)
-        {
-            return s.Remove(s.IndexOf(Value));
-        }
+        public static string RemoveAtIndexOf(this string s, char Value) => s.Remove(s.IndexOf(Value));
 
-        public static string RemoveAtIndexOf(this string s, char Value, int Offset)
-        {
-            return s.Remove(s.IndexOf(Value) + Offset);
-        }
+        public static string RemoveAtIndexOf(this string s, char Value, int Offset) => s.Remove(s.IndexOf(Value) + Offset);
 
-        public static string RemoveAtLastIndexOf(this string s, string Value)
-        {
-            return s.Remove(s.LastIndexOf(Value));
-        }
+        public static string RemoveAtLastIndexOf(this string s, string Value) => s.Remove(s.LastIndexOf(Value));
 
-        public static string RemoveAtLastIndexOf(this string s, string Value, int Offset)
-        {
-            return s.Remove(s.LastIndexOf(Value) + Offset);
-        }
+        public static string RemoveAtLastIndexOf(this string s, string Value, int Offset) => s.Remove(s.LastIndexOf(Value) + Offset);
 
-        public static string RemoveAtLastIndexOf(this string s, char Value)
-        {
-            return s.Remove(s.LastIndexOf(Value));
-        }
+        public static string RemoveAtLastIndexOf(this string s, char Value) => s.Remove(s.LastIndexOf(Value));
 
-        public static string RemoveAtLastIndexOf(this string s, char Value, int Offset)
-        {
-            return s.Remove(s.LastIndexOf(Value) + Offset);
-        }
+        public static string RemoveAtLastIndexOf(this string s, char Value, int Offset) => s.Remove(s.LastIndexOf(Value) + Offset);
 
-        public static string Slice(this string s, int StartIndex, int EndIndex)
-        {
-            return s.Substring(StartIndex, EndIndex - StartIndex);
-        }
+        public static string Slice(this string s, int StartIndex, int EndIndex) => s.Substring(StartIndex, EndIndex - StartIndex);
 
-        public static string[] Split(this string s, int Index)
-        {
-            return new[] { s.Remove(Index), s.Substring(Index) };
-        }
+        public static string[] Split(this string s, int Index) => new[] { s.Remove(Index), s.Substring(Index) };
 
-        public static string[] SplitLines(this string s, StringSplitOptions Options)
-        {
-            return s.Split(new[] { "\r\n" }, Options);
-        }
+        public static string[] SplitLines(this string s, StringSplitOptions Options) => s.Split(new[] { "\r\n" }, Options);
 
-        public static int LeastIndexOf(this string s, params char[] Chars)
-        {
-            return Chars.Select(x => s.IndexOf(x)).OrderBy(x => x).First();
-        }
+        public static int LeastIndexOf(this string s, params char[] Chars) => Chars.Select(x => s.IndexOf(x)).OrderBy(x => x).First();
 
         private static Encoding _encoding = Encoding.GetEncoding("iso-8859-1");
 
-        public static byte[] GetBytes(this string s)
-        {
-            return _encoding.GetBytes(s);
-        }
+        public static byte[] GetBytes(this string s) => _encoding.GetBytes(s);
 
-        public static string[] SplitLines(this string s)
-        {
-            return SplitLines(s, StringSplitOptions.None);
-        }
+        public static string[] SplitLines(this string s) => SplitLines(s, StringSplitOptions.None);
 
-        public static string Aggregate(this IEnumerable<string> s)
-        {
-            return s.Aggregate((x, y) => x + y);
-        }
+        public static string Aggregate(this IEnumerable<string> s) => s.Aggregate((x, y) => x + y);
 
-        public static string Aggregate(this IEnumerable<string> s, string Delimiter)
-        {
-            return s.Aggregate((x, y) => x + Delimiter + y);
-        }
+        public static string Aggregate(this IEnumerable<string> s, string Delimiter) => s.Aggregate((x, y) => x + Delimiter + y);
 
         public static string GetSurroundingLines(this string s, int Index,
             int LinesAbove, int LinesBelow)
@@ -152,15 +74,9 @@ namespace Components
                 strings[1].Take(LinesBelow + 1).Aggregate("\r\n");
         }
 
-        public static string GetLine(this string s, int Index)
-        {
-            return s.GetSurroundingLines(Index, 0, 0);
-        }
+        public static string GetLine(this string s, int Index) => s.GetSurroundingLines(Index, 0, 0);
 
-        public static int GetLineNumber(this string s, int Index)
-        {
-            return s.Split(Index)[0].SplitLines().Length - 1;
-        }
+        public static int GetLineNumber(this string s, int Index) => s.Split(Index)[0].SplitLines().Length - 1;
 
         public static int GetLineIndex(this string s, int lineNumber)
         {
@@ -189,7 +105,7 @@ namespace Components
             return s
                 .Replace("\r\n", "\n")
                 .Replace('\r', '\n')
-                .Replace("\n", "\r\n");            
+                .Replace("\n", "\r\n");
         }
 
         public static string InsertLineNumbers(this string s, int startLine)
@@ -210,10 +126,7 @@ namespace Components
             return sb.ToString();
         }
 
-        public static string InsertLineNumbers(this string s)
-        {
-            return InsertLineNumbers(s, 1);
-        }
+        public static string InsertLineNumbers(this string s) => InsertLineNumbers(s, 1);
 
         public static int[] IndexesOf(this string s, string value)
         {

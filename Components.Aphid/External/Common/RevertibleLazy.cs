@@ -12,24 +12,12 @@ namespace Components
 
         private Lazy<T> _lazy;
 
-        public bool IsValueCreated
-        {
-            get { return _lazy.IsValueCreated; }
-        }
+        public bool IsValueCreated => _lazy.IsValueCreated;
 
-        public T Value
-        {
-            get { return _lazy.Value; }
-        }
+        public T Value => _lazy.Value;
 
-        public RevertibleLazy(Func<T> valueFactory)
-        {
-            _lazy = new Lazy<T>(_valueFactory = valueFactory);
-        }
+        public RevertibleLazy(Func<T> valueFactory) => _lazy = new Lazy<T>(_valueFactory = valueFactory);
 
-        public void Revert()
-        {
-            _lazy = new Lazy<T>(_valueFactory);
-        }
+        public void Revert() => _lazy = new Lazy<T>(_valueFactory);
     }
 }

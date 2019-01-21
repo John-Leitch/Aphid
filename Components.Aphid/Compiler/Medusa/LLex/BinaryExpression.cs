@@ -7,11 +7,11 @@ namespace LLex
 {
     public class BinaryExpression : RegexExpression
     {
-        public RegexExpression Left { get; private set; }
+        public RegexExpression Left { get; }
 
-        public RegexTokenType Operator { get; private set; }
+        public RegexTokenType Operator { get; }
 
-        public RegexExpression Right { get; private set; }
+        public RegexExpression Right { get; }
 
         public BinaryExpression(RegexExpression left, RegexTokenType op, RegexExpression right)
         {

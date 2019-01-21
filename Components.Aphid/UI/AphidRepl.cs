@@ -25,7 +25,7 @@ namespace Components.Aphid.UI
 
         public AphidSerializer Serializer
         {
-            get { return _serializer; }
+            get => _serializer;
             set
             {
                 _serializer = value;
@@ -41,7 +41,7 @@ namespace Components.Aphid.UI
 
         public static object RunThreadSync { get; set; } = new object();
 
-        public static Thread RunThread { get; set; }        
+        public static Thread RunThread { get; set; }
 
         public AphidRepl()
             : this(new AphidInterpreter())
@@ -170,7 +170,7 @@ namespace Components.Aphid.UI
                 if (Console.CursorLeft != 0)
                 {
                     Console.CursorLeft = 0;
-                    Console.CursorTop++;                    
+                    Console.CursorTop++;
                 }
 
                 Console.ResetColor();
@@ -191,7 +191,7 @@ namespace Components.Aphid.UI
 
         private void RunBlock(List<AphidExpression> block, bool handleExceptions)
         {
-            if (block != null && block.Any())
+            if (block?.Count > 0)
             {
                 if (handleExceptions)
                 {
@@ -199,8 +199,7 @@ namespace Components.Aphid.UI
                         Interpreter,
                         block
                             .Select(x => x.Code)
-                            .Where(x => x != null)
-                            .FirstOrDefault(),
+                            .FirstOrDefault(x => x != null),
                         () => Interpreter.Interpret(block));
                 }
                 else
@@ -212,7 +211,7 @@ namespace Components.Aphid.UI
 
         private void RunCode(string code)
         {
-            if (code.Trim() == "")
+            if (code.Trim().Length == 0)
             {
                 return;
             }

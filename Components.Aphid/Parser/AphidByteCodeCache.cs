@@ -41,16 +41,10 @@ namespace Components.Aphid.Parser
         private readonly string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
-            : base(typeof(AphidExpression).Assembly.GetName().Version)
-        {
-            _searchPaths = searchPaths;
-        }
+            : base(typeof(AphidExpression).Assembly.GetName().Version) => _searchPaths = searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths, uint flags)
-            : base(typeof(AphidExpression).Assembly.GetName().Version, flags)
-        {
-            _searchPaths = searchPaths;
-        }
+            : base(typeof(AphidExpression).Assembly.GetName().Version, flags) => _searchPaths = searchPaths;
 
         protected override List<AphidExpression> CreateCache(
             string filename,
@@ -115,7 +109,7 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                var ast2 = 
+                var ast2 =
                     directiveMutator.MutateRecursively(
                         macroMutator.MutateRecursively(
                             partialOpMutator.MutateRecursively(ast)));
@@ -131,14 +125,8 @@ namespace Components.Aphid.Parser
             }
         }
 
-        protected override void SerializeCache(Stream stream, List<AphidExpression> cache)
-        {
-            AphidByteCode.Encode(stream, cache);
-        }
+        protected override void SerializeCache(Stream stream, List<AphidExpression> cache) => AphidByteCode.Encode(stream, cache);
 
-        protected override List<AphidExpression> DeserializeCache(Stream stream)
-        {
-            return AphidByteCode.Decode(stream);
-        }
+        protected override List<AphidExpression> DeserializeCache(Stream stream) => AphidByteCode.Decode(stream);
     }
 }

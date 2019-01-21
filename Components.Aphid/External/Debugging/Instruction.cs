@@ -28,10 +28,7 @@ namespace Components.Cypress
             }
         }
 
-        public string this[int key]
-        {
-            get { return _values[key]; }
-        }
+        public string this[int key] => _values[key];
 
         public int GetKey(string value)
         {
@@ -50,25 +47,13 @@ namespace Components.Cypress
         {
         }
 
-        public StringTable(List<string> values)
-        {
-            _values = values;
-        }
+        public StringTable(List<string> values) => _values = values;
 
-        public static implicit operator StringTable(List<string> value)
-        {
-            return new StringTable(value);
-        }
+        public static implicit operator StringTable(List<string> value) => new StringTable(value);
 
-        public IEnumerator<string> GetEnumerator()
-        {
-            return _values.GetEnumerator();
-        }
+        public IEnumerator<string> GetEnumerator() => _values.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_values).GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
 
         public void Serialize(BinaryWriter writer)
         {
@@ -77,7 +62,7 @@ namespace Components.Cypress
             writer.Write(pos);
             writer.BaseStream.Position = pos;
             writer.Write(_values.Count);
-            
+
             foreach (var v in _values)
             {
                 var bytes = v.GetBytes();

@@ -9,10 +9,7 @@ namespace LLex
     {
         private readonly RegexExpression _expression;
 
-        public RegexCompiler(RegexExpression expression)
-        {
-            _expression = expression;
-        }
+        public RegexCompiler(RegexExpression expression) => _expression = expression;
 
         private int CountStrings(RegexExpression exp, int seed = 1)
         {

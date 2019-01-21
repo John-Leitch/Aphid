@@ -8,12 +8,9 @@ namespace Components.Aphid.Parser
 {
     public class AphidMutatorGroup
     {
-        public ReadOnlyCollection<AphidMutator> Mutators { get; private set; }
+        public ReadOnlyCollection<AphidMutator> Mutators { get; }
 
-        public AphidMutatorGroup(IEnumerable<AphidMutator> mutators)
-        {
-            Mutators = new ReadOnlyCollection<AphidMutator>(mutators.ToList());
-        }
+        public AphidMutatorGroup(IEnumerable<AphidMutator> mutators) => Mutators = new ReadOnlyCollection<AphidMutator>(mutators.ToList());
 
         public List<AphidExpression> MutateRecursively(List<AphidExpression> ast)
         {

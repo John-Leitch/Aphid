@@ -148,7 +148,7 @@ namespace Components.Aphid.Interpreter
         private int _queuedFramePops;
 
         private IEnumerable<AphidExpression> _insertNextBuffer;
-        
+
 #if APHID_DEBUGGING_ENABLED
         private List<AphidExpression> _currentBlock;
 
@@ -180,7 +180,7 @@ namespace Components.Aphid.Interpreter
 
         public AphidObject CurrentScope
         {
-            get { return _currentScope; }
+            get => _currentScope;
             private set
             {
 #if TRACE_SCOPE
@@ -211,21 +211,21 @@ namespace Components.Aphid.Interpreter
 
         public int OwnerThread { get; private set; }
 
-        public AphidAssemblyBuilder AsmBuilder { get; private set; }
+        public AphidAssemblyBuilder AsmBuilder { get; }
 
-        public InteropMethodResolver InteropMethodResolver { get; private set; }
+        public InteropMethodResolver InteropMethodResolver { get; }
 
-        public OperatorHelper OperatorHelper { get; private set; }
+        public OperatorHelper OperatorHelper { get; }
 
-        public ValueHelper ValueHelper { get; private set; }
+        public ValueHelper ValueHelper { get; }
 
-        public InteropTypeResolver InteropTypeResolver { get; private set; }
+        public InteropTypeResolver InteropTypeResolver { get; }
 
-        public TypeExtender TypeExtender { get; private set; }
+        public TypeExtender TypeExtender { get; }
 
-        public AphidTypeConverter TypeConverter { get; private set; }
+        public AphidTypeConverter TypeConverter { get; }
 
-        public AphidFunctionConverter FunctionConverter { get; private set; }
+        public AphidFunctionConverter FunctionConverter { get; }
 
         public AphidIpcContext IpcContext { get; private set; }
 
@@ -237,7 +237,7 @@ namespace Components.Aphid.Interpreter
 
         public Func<string, string> GatorEmitFilter { get; set; }
 
-        public AphidLoader Loader { get; private set; }
+        public AphidLoader Loader { get; }
 
         public AphidExpression CurrentStatement { get; private set; }
 
@@ -266,7 +266,6 @@ namespace Components.Aphid.Interpreter
         public AphidInterpreter(AphidObject currentScope, bool createLoader)
             : this(currentScope, createLoader, null)
         {
-
         }
 
         private AphidInterpreter(AphidLoader loader)
@@ -1221,7 +1220,7 @@ namespace Components.Aphid.Interpreter
 
                         if (ext == null)
                         {
-                            throw CreateMemberException(key, obj, expression);                            
+                            throw CreateMemberException(key, obj, expression);
                         }
 
                         return ext;
@@ -1317,7 +1316,7 @@ namespace Components.Aphid.Interpreter
                 else
                 {
                     throw CreateMemberException(key, obj, expression);
-                }                    
+                }
             }
             else
             {
@@ -1539,7 +1538,6 @@ namespace Components.Aphid.Interpreter
                 var destBinOp = (BinaryOperatorExpression)destinationExpression;
                 var obj = InterpretBinaryOperatorExpression(destBinOp, true);
 
-
                 if (obj is AphidRef objRef)
                 {
                     if (objRef.Object == null)
@@ -1621,7 +1619,6 @@ namespace Components.Aphid.Interpreter
 
                     return value2;
                 }
-
 
             }
             else
@@ -1892,7 +1889,7 @@ namespace Components.Aphid.Interpreter
                     return Scalar(
                         ((IEnumerable)collection)
                             .Cast<object>()
-                            .Any(x => 
+                            .Any(x =>
                                 (bool)InterpretCallExpression(
                                     expression,
                                     expression.RightOperand,
@@ -1973,7 +1970,6 @@ namespace Components.Aphid.Interpreter
                                     new object[] { x })
                                     .Value));
 
-
                 case LastOperator:
                     collection = InterpretExpression(expression.LeftOperand).Value;
                     func = InterpretExpression(expression.RightOperand).Value;
@@ -2003,7 +1999,7 @@ namespace Components.Aphid.Interpreter
                             {
                                 var v = Unwrap(x);
 
-                                return v != null && v.ToString().StartsWith(pattern);
+                                return v?.ToString().StartsWith(pattern) == true;
                             }));
 
                 case EndsWithOperator:
@@ -2020,7 +2016,7 @@ namespace Components.Aphid.Interpreter
                             {
                                 var v = Unwrap(x);
 
-                                return v != null && v.ToString().EndsWith(pattern);
+                                return v?.ToString().EndsWith(pattern) == true;
                             }));
 
                 case CompositionOperator:
@@ -2484,7 +2480,7 @@ namespace Components.Aphid.Interpreter
 
             if (expression.Identifier == null ||
                 expression.Identifier.Attributes == null ||
-                !expression.Identifier.Attributes.Any() ||
+                expression.Identifier.Attributes.Count == 0 ||
                 expression.Identifier.Attributes[0].Identifier != AphidName.Class)
             {
                 var parent = CurrentScope;
@@ -3651,7 +3647,6 @@ namespace Components.Aphid.Interpreter
 
                             default:
                                 throw new NotImplementedException();
-
                         }
 
                     #region Custom Operator Cases
@@ -4140,8 +4135,7 @@ namespace Components.Aphid.Interpreter
                 return Scalar(constructedGenericType);
             }
             else if (indexes.Length == 1 &&
-                indexes[0] != null &&
-                indexes[0].Value != null &&
+                indexes[0]?.Value != null &&
                 indexes[0].Value.GetType() == typeof(string))
             {
                 var key = (string)indexes[0].Value;
@@ -4453,6 +4447,7 @@ namespace Components.Aphid.Interpreter
                                 "null",
                                 expression.Expressions[i]);
                         }
+
                         if (references[i].GetType().IsValueType)
                         {
                             // Todo: possibly support locking value types using internal
@@ -5310,7 +5305,6 @@ namespace Components.Aphid.Interpreter
             }
             else if (OwnerThread == Thread.CurrentThread.ManagedThreadId)
             {
-
 #if APHID_SET_CODE_VAR
                 SetAstCode(expressions);
 #endif
@@ -5489,7 +5483,7 @@ namespace Components.Aphid.Interpreter
                 _frames.Pop();
                 _queuedFramePops--;
             }
-            
+
             var c = _frames.Count - 1 - skip;
             var src = _getFrameArray();
             var arr = new AphidFrame[c];
@@ -5514,7 +5508,7 @@ namespace Components.Aphid.Interpreter
             {
                 throw new IndexOutOfRangeException($"Frame index out of range: {offset}");
             }
-            
+
             return _getFrameArray()[c - offset];
         }
 
@@ -5862,6 +5856,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TakeOwnership() => OwnerThread = Thread.CurrentThread.ManagedThreadId;
+        public void TakeOwnership() =>
+            OwnerThread = Thread.CurrentThread.ManagedThreadId;
     }
 }

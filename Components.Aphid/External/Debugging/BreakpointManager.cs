@@ -14,9 +14,9 @@ namespace Components.Cypress
     {
         private ProcessMemory mem;
 
-        public Dictionary<IntPtr, byte> BreakpointTable { get; private set; }
+        public Dictionary<IntPtr, byte> BreakpointTable { get; }
 
-        public Dictionary<IntPtr, uint> HitTable { get; private set; }
+        public Dictionary<IntPtr, uint> HitTable { get; }
 
         public int MaxHits { get; set; }
 

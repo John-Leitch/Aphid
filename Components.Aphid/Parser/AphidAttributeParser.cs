@@ -12,7 +12,7 @@ namespace Components.Aphid.Parser
         {
             var attributes = Parse<TAttributes>(identifierExpression, out var unparsed);
 
-            if (unparsed.Any())
+            if (unparsed.Length > 0)
             {
                 throw new InvalidOperationException();
             }

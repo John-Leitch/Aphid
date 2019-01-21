@@ -8,11 +8,11 @@ namespace Components.Aphid.TypeSystem
 {
     public class InteropTypeContext
     {
-        public HashSet<string> Imports { get; private set; }
+        public HashSet<string> Imports { get; }
 
-        public string[] Path { get; private set; }
+        public string[] Path { get; }
 
-        public bool IsType { get; private set; }
+        public bool IsType { get; }
 
         public bool IsResolved { get; set; }
 

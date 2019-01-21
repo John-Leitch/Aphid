@@ -36,12 +36,10 @@ namespace Boxelder
                 var label = AphidTreeHelper.FirstOrDefaultPath(
                     ast,
                     x =>
-                        x != null &&
-                        x.Type == AphidExpressionType.IdentifierExpression &&
+                        x?.Type == AphidExpressionType.IdentifierExpression &&
                         x.ToIdentifier().Identifier == nvp.Key);
 
-                AphidExpression before;
-                var parent = GetEligibleMethodContainer(label, out before);
+                var parent = GetEligibleMethodContainer(label, out var before);
                 List<AphidExpression> body;
 
                 if (parent != null)
@@ -94,8 +92,7 @@ namespace Boxelder
                     return null;
                 }
 
-                AphidExpression after;
-                var eligible = GetEligibleMethodContainer(parents, out after);
+                var eligible = GetEligibleMethodContainer(parents, out var after);
 
                 if (eligible != null)
                 {

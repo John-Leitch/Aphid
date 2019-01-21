@@ -15,7 +15,7 @@ namespace Component.AphidUI
     public class DynamicDataClassExtractor<TType, TAttribute>
         where TAttribute : Attribute
     {
-        Lazy<Dictionary<string, PropertyInfo>> _sourcePropertyTable;
+        private Lazy<Dictionary<string, PropertyInfo>> _sourcePropertyTable;
 
         public DynamicDataClassExtractor()
         {
@@ -27,7 +27,7 @@ namespace Component.AphidUI
         {
             return type
                 .GetProperties()
-                .Where(x => x.GetCustomAttributes(typeof(TAttribute), true).Any())
+                .Where(x => x.GetCustomAttributes(typeof(TAttribute), true).Length > 0)
                 .ToDictionary(x => x.Name, x => x);
         }
 
@@ -45,7 +45,6 @@ namespace Component.AphidUI
                 .ToDictionary(
                 x => x.Key,
                 x => new CodeMemberField(x.Value.PropertyType, string.Format("_autoField_{0}", x.Key)));
-
 
             var props = nameTable
                     .Select(x => new CodeMemberProperty
@@ -78,7 +77,6 @@ namespace Component.AphidUI
                 {
                     GenerateExecutable = false,
                     GenerateInMemory = true,
-
                 };
 
                 var references = nameTable

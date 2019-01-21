@@ -14,27 +14,21 @@ namespace Components.Aphid.Parser
 {
     public class IncludeMutator : AphidMutator
     {
-        AphidLoader _loader = new AphidLoader(null);
+        private AphidLoader _loader = new AphidLoader(null);
 
         private readonly string _applicationDirectory;
 
-        public bool UseImplicitReturns { get; private set; }
+        public bool UseImplicitReturns { get; }
 
-        public HashSet<string> Included { get; private set; }
+        public HashSet<string> Included { get; }
 
         public bool PerformCommonTransformations { get; set; }
 
         public bool DisableCaching { get; set; }
 
-        public AphidLoader Loader
-        {
-            get { return _loader; }
-        }
+        public AphidLoader Loader => _loader;
 
-        protected override bool UpdatePosition
-        {
-            get { return false; }
-        }
+        protected override bool UpdatePosition => false;
 
         public IncludeMutator(string applicationDirectory, bool useImplicitReturns)
         {

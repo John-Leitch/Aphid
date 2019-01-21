@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Components.PInvoke
 {
+    [SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#")]
     public static class Kernel32
     {
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -60,7 +62,7 @@ namespace Components.PInvoke
             IntPtr hProcess,
             IntPtr lpBaseAddress,
             [Out] byte[] lpBuffer,
-            int dwSize,
+            IntPtr dwSize,
             out int lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -68,7 +70,7 @@ namespace Components.PInvoke
             IntPtr hProcess,
             IntPtr lpBaseAddress,
             byte[] lpBuffer,
-            int nSize,
+            IntPtr nSize,
             out int lpNumberOfBytesWritten);
 
         [DllImport("kernel32.dll")]
@@ -85,15 +87,23 @@ namespace Components.PInvoke
             IntPtr hProcess,
             IntPtr lpAddress,
             out MEMORY_BASIC_INFORMATION lpBuffer,
-            uint dwLength);
+            IntPtr dwLength);
 
         [DllImport("kernel32.dll")]
-        public static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress,
-           UIntPtr dwSize, MemoryProtection flNewProtect, out MemoryProtection lpflOldProtect);
+        public static extern bool VirtualProtectEx(
+            IntPtr hProcess,
+            IntPtr lpAddress,
+            UIntPtr dwSize,
+            MemoryProtection flNewProtect,
+            out MemoryProtection lpflOldProtect);
 
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        public static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
-           uint dwSize, AllocationType flAllocationType, MemoryProtection flProtect);
+        public static extern IntPtr VirtualAllocEx(
+            IntPtr hProcess,
+            IntPtr lpAddress,
+            IntPtr dwSize,
+            AllocationType flAllocationType,
+            MemoryProtection flProtect);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr VirtualAlloc(UIntPtr lpAddress, UIntPtr dwSize,
