@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
@@ -14,7 +15,9 @@ namespace Components.Aphid.TypeSystem
         private static Dictionary<InteropTypeContext, Type> _typeCache =
             new Dictionary<InteropTypeContext, Type>(new InteropTypeContextComparer());
 
-        private static LockTable<InteropTypeContext> _contextLocks = 
+        private static ReaderWriterLockSlim _typeCacheLock = new ReaderWriterLockSlim();
+
+        private static LockTable<InteropTypeContext> _contextLocks =
             new LockTable<InteropTypeContext>(new InteropTypeContextComparer());
 
         public InteropTypeResolver(AphidInterpreter interpreter)
@@ -27,7 +30,7 @@ namespace Components.Aphid.TypeSystem
         public Type ResolveType(HashSet<string> imports, string[] path, bool isFatal = true, bool isType = false)
         {
             var ctx = new InteropTypeContext(imports, path, isType);
-            
+
             lock (_contextLocks[ctx])
             {
                 return ResolveTypeCore(ctx, imports, path, isFatal, isType);
@@ -41,12 +44,18 @@ namespace Components.Aphid.TypeSystem
             bool isFatal,
             bool isType)
         {
-            lock (_typeCache)
+            _typeCacheLock.EnterReadLock();
+
+            try
             {
                 if (_typeCache.TryGetValue(ctx, out var t))
                 {
                     return t;
                 }
+            }
+            finally
+            {
+                _typeCacheLock.ExitReadLock();
             }
 
             var importsCopy = imports.ToArray();
@@ -89,9 +98,15 @@ namespace Components.Aphid.TypeSystem
 #if TYPE_CACHE_NULL
                     ctx.IsResolved = false;
 
-                    lock (_typeCache)
+                    _typeCacheLock.EnterWriteLock();
+
+                    try
                     {
                         _typeCache.Add(ctx, null);
+                    }
+                    finally
+                    {
+                        _typeCacheLock.ExitWriteLock();
                     }
 #endif
 
@@ -108,9 +123,15 @@ namespace Components.Aphid.TypeSystem
 
             ctx.IsResolved = type.Type != null;
 
-            lock (_typeCache)
+            _typeCacheLock.EnterWriteLock();
+
+            try
             {
                 _typeCache.Add(ctx, type.Type);
+            }
+            finally
+            {
+                _typeCacheLock.ExitWriteLock();
             }
 
             return type.Type;

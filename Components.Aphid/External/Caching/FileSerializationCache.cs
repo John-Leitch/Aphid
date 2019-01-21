@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Components.Caching
 {
@@ -11,6 +12,8 @@ namespace Components.Caching
         private FileCacheInfoSerializer _serializer;
 
         private static Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
+
+        private static ReaderWriterLockSlim _inMemoryCacheLock = new ReaderWriterLockSlim();
 
         public uint Flags { get; protected set; }
 
@@ -54,7 +57,9 @@ namespace Components.Caching
             {
                 cache = CreateCache(cacheName, out var sources);
 
-                lock (_inMemoryCache)
+                _inMemoryCacheLock.EnterWriteLock();
+
+                try
                 {
                     if (_inMemoryCache.ContainsKey(cacheName))
                     {
@@ -64,6 +69,10 @@ namespace Components.Caching
                     {
                         _inMemoryCache.Add(cacheName, cache);
                     }
+                }
+                finally
+                {
+                    _inMemoryCacheLock.ExitWriteLock();
                 }
 
                 using (var s = new MemoryStream())
@@ -93,7 +102,9 @@ namespace Components.Caching
                     fileCacheInfo.Sources :
                     new FileCacheSource[0];
 
-                lock (_inMemoryCache)
+                _inMemoryCacheLock.EnterUpgradeableReadLock();
+
+                try
                 {
                     if (!_inMemoryCache.TryGetValue(cacheName, out cache))
                     {
@@ -102,8 +113,21 @@ namespace Components.Caching
                             cache = DeserializeCache(s);
                         }
 
-                        _inMemoryCache.Add(cacheName, cache);
+                        _inMemoryCacheLock.EnterWriteLock();
+
+                        try
+                        {
+                            _inMemoryCache.Add(cacheName, cache);
+                        }
+                        finally
+                        {
+                            _inMemoryCacheLock.ExitWriteLock();
+                        }
                     }
+                }
+                finally
+                {
+                    _inMemoryCacheLock.ExitUpgradeableReadLock();
                 }
             }
 
