@@ -11,7 +11,7 @@ using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
 namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "BenchmarkDatabase"), Parallelizable(ParallelScope.All)]
-    public partial class BenchmarkDatabaseTest : ObjectDatabaseTestBase
+    public partial class BenchmarkDatabase : ObjectDatabaseTestBase
     {
         private string _dbFile = PathHelper.GetExecutingPath("Databases\\history.db");
 
@@ -23,17 +23,6 @@ namespace Components.ObjectDatabase.Tests
 
         [OneTimeTearDown]
         public void TearDownAppDomain() => AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
-
-        private BinDB TestBenchmarkDB(
-            bool useUnsafeMemoryManager,
-            bool setEntityMetaData,
-            bool trackEntities,
-            bool isReadOnly,
-            Action<BinDB> action) =>
-            BinaryObjectDatabase
-                .OpenFile(_dbFile, useUnsafeMemoryManager)
-                .Set(setEntityMetaData, trackEntities, isReadOnly)
-                .Do(action);
 
         [Test]
         public void TestOpenBenchmarkDB(
@@ -57,6 +46,19 @@ namespace Components.ObjectDatabase.Tests
                 x => x.ReadUnsafe().First().Do(NotNull).Do(y => y.ToString()));
 
         [Test]
+        public void TestLazyReadFirstBenchmarkDB(
+            [Values] bool useUnsafeMemoryManager,
+            [Values] bool setEntityMetaData,
+            [Values] bool trackEntities,
+            [Values] bool isReadOnly) =>
+            TestBenchmarkDB(
+                useUnsafeMemoryManager,
+                setEntityMetaData,
+                trackEntities,
+                isReadOnly,
+                x => x.LazyReadUnsafe().First().Do(NotNull).Do(y => y.Value.ToString()));
+
+        [Test]
         public void TestReadCountBenchmarkDB(
             [Values] bool useUnsafeMemoryManager,
             [Values] bool setEntityMetaData,
@@ -68,6 +70,19 @@ namespace Components.ObjectDatabase.Tests
                 trackEntities,
                 isReadOnly,
                 x => x.ReadUnsafe().Count().Do(y => AreEqual(y, x.Count())));
+
+        [Test]
+        public void TestLazyReadCountBenchmarkDB(
+            [Values] bool useUnsafeMemoryManager,
+            [Values] bool setEntityMetaData,
+            [Values] bool trackEntities,
+            [Values] bool isReadOnly) =>
+            TestBenchmarkDB(
+                useUnsafeMemoryManager,
+                setEntityMetaData,
+                trackEntities,
+                isReadOnly,
+                x => x.LazyReadUnsafe().Count().Do(y => AreEqual(y, x.Count())));
 
         [Test]
         public void TestSkipCountBenchmarkDB(
@@ -82,5 +97,30 @@ namespace Components.ObjectDatabase.Tests
                 trackEntities,
                 isReadOnly,
                 x => AreEqual(x.SkipUnsafe(skip).Count(), Max(0, x.Count() - skip)));
+
+        [Test]
+        public void TestLazySkipCountBenchmarkDB(
+            [Values] bool useUnsafeMemoryManager,
+            [Values] bool setEntityMetaData,
+            [Values] bool trackEntities,
+            [Values] bool isReadOnly,
+            [Values(0, 1, 10, 1000000)] int skip) =>
+            TestBenchmarkDB(
+                useUnsafeMemoryManager,
+                setEntityMetaData,
+                trackEntities,
+                isReadOnly,
+                x => AreEqual(x.LazySkipUnsafe(skip).Count(), Max(0, x.Count() - skip)));
+
+        private BinDB TestBenchmarkDB(
+            bool useUnsafeMemoryManager,
+            bool setEntityMetaData,
+            bool trackEntities,
+            bool isReadOnly,
+            Action<BinDB> action) =>
+            BinaryObjectDatabase
+                .OpenFile(_dbFile, useUnsafeMemoryManager)
+                .Set(setEntityMetaData, trackEntities, isReadOnly)
+                .Do(action);
     }
 }

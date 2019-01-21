@@ -7,7 +7,7 @@ using static NUnit.Framework.Assert;
 namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "ObjectDatabaseUpdate"), Parallelizable(ParallelScope.All)]
-    public partial class ObjectDatabaseUpdateTests : ObjectDatabaseTestBase
+    public partial class Update : ObjectDatabaseTestBase
     {
         [Test, ObjectDatabaseSetup]
         public void TestUpdatePositionChange(
@@ -15,6 +15,7 @@ namespace Components.ObjectDatabase.Tests
             [PageSize] int pageSize)
         {
             DB.TrackEntities = true;
+            DB.UpdateMemoryManager(x => x.PageSize = pageSize);
             var first = NextWidget();
             DB.Create(first);
             DB.Create(NextWidget());
@@ -57,19 +58,5 @@ namespace Components.ObjectDatabase.Tests
             AreNotEqual(first.Message, updated.Message);
             AreEqual(widget.Message, updated.Message);
         }
-
-
-
-        //public void RunTest(
-        //    bool setEntityMetaData,
-        //    bool trackEntities,
-        //    bool isReadOnly,
-        //    int pageSize) =>
-        //    DB
-        //        .Set(setEntityMetaData, trackEntities, false, pageSize)
-        //        .Do(x => x.Create(Context.NextWidget()))
-        //        .Do(x => x.IsReadOnly = isReadOnly)
-        //        .Do(x => x.ReadUnsafe().For(y => AreEqual(Widget, y)))
-        //        .Do(x => x.AssertNoFragmentation());
     }
 }

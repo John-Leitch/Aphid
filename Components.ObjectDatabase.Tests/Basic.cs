@@ -6,7 +6,7 @@ using static NUnit.Framework.Assert;
 namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "ObjectDatabase"), Parallelizable(ParallelScope.All)]
-    public partial class ObjectDatabaseTests : ObjectDatabaseTestBase
+    public partial class Basic : ObjectDatabaseTestBase
     {
         [Test]
         public void TestWidgetHashCode() => NotZero(Context.NextWidget().GetHashCode());

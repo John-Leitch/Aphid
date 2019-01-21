@@ -5,7 +5,7 @@ namespace Components.ObjectDatabase.Tests
     [TestFixture(Category = "ObjectDatabaseStressTest"),
         Parallelizable(ParallelScope.None),
         Explicit("High memory usage")]
-    public partial class ObjectDatabaseStressTests : ObjectDatabaseTestBase
+    public partial class Stress : ObjectDatabaseTestBase
     {
         private readonly string _message = new string('A', 100 * 0x100000);
 

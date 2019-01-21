@@ -4,7 +4,7 @@ using System.Linq;
 namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "ObjectDatabaseReadOnly"), Parallelizable(ParallelScope.All)]
-    public partial class ObjectDatabaseReadOnlyTests : ObjectDatabaseTestBase
+    public partial class ReadOnly : ObjectDatabaseTestBase
     {
         [Test]
         public void TestIsReadOnly(

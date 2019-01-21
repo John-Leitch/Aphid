@@ -10,7 +10,7 @@ using BinDB = Components.ObjectDatabase.ObjectDatabase<object>;
 namespace Components.ObjectDatabase.Tests
 {
     [TestFixture(Category = "ObjectDatabaseConcurrency"), Parallelizable(ParallelScope.All)]
-    public partial class ObjectDatabaseConcurrencyTests : ObjectDatabaseTestBase
+    public partial class Concurrency : ObjectDatabaseTestBase
     {
         [Test]
         public void TestConcurrentCreateReadManyUnique(

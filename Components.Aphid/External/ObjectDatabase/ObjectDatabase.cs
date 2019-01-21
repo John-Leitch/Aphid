@@ -318,6 +318,17 @@ namespace Components.ObjectDatabase
             }
         }
 
+        public IEnumerable<Lazy<TElement>> LazyReadUnsafe()
+        {
+            var mm = !UseUnsafeMemoryManager ? ReadVersionedMemoryManagerUnsafe() : _memoryManager;
+
+            foreach (var a in mm.Allocations)
+            {
+                yield return new Lazy<TElement>(() =>
+                    ReadUnsafe((long)a.Key * mm.PageSize));
+            }
+        }
+
         public IEnumerable<TElement> SkipUnsafe(int count)
         {
             var mm = !UseUnsafeMemoryManager ? ReadVersionedMemoryManagerUnsafe() : _memoryManager;
@@ -325,6 +336,17 @@ namespace Components.ObjectDatabase
             foreach (var a in mm.Allocations.Skip(count))
             {
                 yield return ReadUnsafe((long)a.Key * mm.PageSize);
+            }
+        }
+
+        public IEnumerable<Lazy<TElement>> LazySkipUnsafe(int count)
+        {
+            var mm = !UseUnsafeMemoryManager ? ReadVersionedMemoryManagerUnsafe() : _memoryManager;
+
+            foreach (var a in mm.Allocations.Skip(count))
+            {
+                yield return new Lazy<TElement>(() =>
+                    ReadUnsafe((long)a.Key * mm.PageSize));
             }
         }
 
