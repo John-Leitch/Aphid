@@ -14,6 +14,8 @@ namespace Components.Aphid.TypeSystem
         public static Dictionary<ParameterInfo, ParameterInfoCache> ParamCache =
             new Dictionary<ParameterInfo, ParameterInfoCache>();
 
+        private static LockTable<ParameterInfoCache> _paramInfoLocks = new LockTable<ParameterInfoCache>();
+
         private ParameterInfoCache _paramInfo;
 
         private ArgumentTypeCache _argInfo;
@@ -183,14 +185,17 @@ namespace Components.Aphid.TypeSystem
             {
                 ArgumentType = argument.GetType();
 
-                if (!_paramInfo.ArgumentTypeCache.TryGetValue(ArgumentType, out _argInfo))
+                lock (_paramInfoLocks[_paramInfo])
                 {
-                    _paramInfo.ArgumentTypeCache.Add(
-                        ArgumentType,
-                        _argInfo = new ArgumentTypeCache(
+                    if (!_paramInfo.ArgumentTypeCache.TryGetValue(ArgumentType, out _argInfo))
+                    {
+                        _paramInfo.ArgumentTypeCache.Add(
                             ArgumentType,
-                            _paramInfo,
-                            _paramInfo.TargetType));
+                            _argInfo = new ArgumentTypeCache(
+                                ArgumentType,
+                                _paramInfo,
+                                _paramInfo.TargetType));
+                    }
                 }
             }
             else

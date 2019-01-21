@@ -170,7 +170,22 @@ namespace Components.Aphid.TypeSystem
 
         public AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
         {
-            var signatureMatches = nameMatches.Where(x => CheckArgumentCount(x, args)).ToArray();
+            var signatureMatches = new MethodBase[nameMatches.Length];
+            var x = 0;
+
+            for (var i = 0; i < nameMatches.Length; i++)
+            {
+                var nm = nameMatches[i];
+
+                if (CheckArgumentCount(nm, args))
+                {
+                    signatureMatches[x++] = nm;
+                }
+            }
+
+            Array.Resize(ref signatureMatches, x);
+
+            //var signatureMatches = nameMatches.Where(x => CheckArgumentCount(x, args)).ToArray();
 
             if (signatureMatches.Length == 0)
             {
@@ -472,70 +487,72 @@ namespace Components.Aphid.TypeSystem
 
         private AphidInteropMethodArg CreateMethodArg(ParameterInfo parameter, int index, object[] args)
         {
+            ParameterInfoCache paramInfo;
+
             lock (AphidInteropMethodArg.ParamCache)
             {
-                if (!AphidInteropMethodArg.ParamCache.TryGetValue(parameter, out var paramInfo))
+                if (!AphidInteropMethodArg.ParamCache.TryGetValue(parameter, out paramInfo))
                 {
                     AphidInteropMethodArg.ParamCache.Add(
                         parameter,
                         paramInfo = new ParameterInfoCache(parameter));
                 }
+            }
 
-                Type argType;
-                object arg;
+            Type argType;
+            object arg;
 
-                if (!paramInfo.HasParamArray)
+            if (!paramInfo.HasParamArray)
+            {
+                return new AphidInteropMethodArg(args[index], paramInfo);
+            }
+            else if (args.Length - 1 == index &&
+                (arg = args[index]) != null &&
+                (argType = arg.GetType()).IsArray &&
+                AphidTypeConverter.CanConvertArray(arg, argType, paramInfo.TargetType))
+            {
+                return new AphidInteropMethodArg(arg, paramInfo, false);
+            }
+            else if (args.Length > index &&
+                (arg = args[index]) != null &&
+                arg.GetType() == typeof(string) &&
+                paramInfo.IsCharArray)
+            {
+                return new AphidInteropMethodArg(arg, paramInfo);
+            }
+            else if (paramInfo.IsArray)
+            {
+                object a;
+                IEnumerable seq;
+
+                if (index >= args.Length ||
+                    (a = args[index]) == null ||
+                    a is string ||
+                    (seq = a as IEnumerable) == null)
                 {
-                    return new AphidInteropMethodArg(args[index], paramInfo);
-                }
-                else if (args.Length - 1 == index &&
-                    (arg = args[index]) != null &&
-                    (argType = arg.GetType()).IsArray &&
-                    AphidTypeConverter.CanConvertArray(arg, argType, paramInfo.TargetType))
-                {
-                    return new AphidInteropMethodArg(arg, paramInfo, false);
-                }
-                else if (args.Length > index &&
-                    (arg = args[index]) != null &&
-                    arg.GetType() == typeof(string) &&
-                    paramInfo.IsCharArray)
-                {
-                    return new AphidInteropMethodArg(arg, paramInfo);
-                }
-                else if (paramInfo.IsArray)
-                {
-                    object a;
-                    IEnumerable seq;
+                    var p = new object[args.Length - index];
+                    Array.Copy(args, index, p, 0, p.Length);
 
-                    if (index >= args.Length ||
-                        (a = args[index]) == null ||
-                        a is string ||
-                        (seq = a as IEnumerable) == null)
-                    {
-                        var p = new object[args.Length - index];
-                        Array.Copy(args, index, p, 0, p.Length);
-
-                        return new AphidInteropMethodArg(p, paramInfo);
-                    }
-                    else
-                    {
-                        var p = new List<object>();
-
-                        foreach (var x in seq)
-                        {
-                            p.Add(x);
-                        }
-
-                        return new AphidInteropMethodArg(p.ToArray(), paramInfo);
-                    }
+                    return new AphidInteropMethodArg(p, paramInfo);
                 }
                 else
                 {
-                    throw Interpreter.CreateRuntimeException(
-                        "Invalid param array element type {0}, only {1} currently supported.",
-                        parameter.ParameterType.GetElementType(),
-                        typeof(object));
+                    var p = new List<object>();
+
+                    foreach (var x in seq)
+                    {
+                        p.Add(x);
+                    }
+
+                    return new AphidInteropMethodArg(p.ToArray(), paramInfo);
                 }
+            }
+            else
+            {
+                throw Interpreter.CreateRuntimeException(
+                    "Invalid param array element type {0}, only {1} currently supported.",
+                    parameter.ParameterType.GetElementType(),
+                    typeof(object));
             }
         }
     }

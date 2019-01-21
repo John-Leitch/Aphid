@@ -14,6 +14,9 @@ namespace Components.Aphid.TypeSystem
         private static Dictionary<InteropTypeContext, Type> _typeCache =
             new Dictionary<InteropTypeContext, Type>(new InteropTypeContextComparer());
 
+        private static LockTable<InteropTypeContext> _contextLocks = 
+            new LockTable<InteropTypeContext>(new InteropTypeContextComparer());
+
         public InteropTypeResolver(AphidInterpreter interpreter)
             : base(interpreter)
         {
@@ -23,19 +26,27 @@ namespace Components.Aphid.TypeSystem
 
         public Type ResolveType(HashSet<string> imports, string[] path, bool isFatal = true, bool isType = false)
         {
-            lock (_typeCache)
+            var ctx = new InteropTypeContext(imports, path, isType);
+            
+            lock (_contextLocks[ctx])
             {
-                return ResolveTypeCore(imports, path, isFatal, isType);
+                return ResolveTypeCore(ctx, imports, path, isFatal, isType);
             }
         }
 
-        private Type ResolveTypeCore(HashSet<string> imports, string[] path, bool isFatal, bool isType)
+        private Type ResolveTypeCore(
+            InteropTypeContext ctx,
+            HashSet<string> imports,
+            string[] path,
+            bool isFatal,
+            bool isType)
         {
-            var ctx = new InteropTypeContext(imports, path, isType);
-
-            if (_typeCache.TryGetValue(ctx, out var t))
+            lock (_typeCache)
             {
-                return t;
+                if (_typeCache.TryGetValue(ctx, out var t))
+                {
+                    return t;
+                }
             }
 
             var importsCopy = imports.ToArray();
@@ -77,7 +88,11 @@ namespace Components.Aphid.TypeSystem
                 {
 #if TYPE_CACHE_NULL
                     ctx.IsResolved = false;
-                    _typeCache.Add(ctx, null);
+
+                    lock (_typeCache)
+                    {
+                        _typeCache.Add(ctx, null);
+                    }
 #endif
 
                     return null;
@@ -92,7 +107,11 @@ namespace Components.Aphid.TypeSystem
             }
 
             ctx.IsResolved = type.Type != null;
-            _typeCache.Add(ctx, type.Type);
+
+            lock (_typeCache)
+            {
+                _typeCache.Add(ctx, type.Type);
+            }
 
             return type.Type;
         }
