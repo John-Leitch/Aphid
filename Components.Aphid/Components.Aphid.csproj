@@ -151,7 +151,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    <CodeAnalysisRuleSet>Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <!--                                -->
   <!-- APHID SCRIPT DEBUG             -->

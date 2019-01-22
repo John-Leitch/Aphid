@@ -5013,9 +5013,9 @@ namespace Components.Aphid.Interpreter
 #if APHID_SET_CODE_VAR
             SetAstCode(ast);
 #endif
-            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+            var mutatedAst = new PartialOperatorMutator().Mutate(ast);
+            mutatedAst = new AphidMacroMutator().Mutate(mutatedAst);
+            mutatedAst = new AphidPreprocessorDirectiveMutator().Mutate(mutatedAst);
 
             Interpret(mutatedAst, resetIsReturning: true);
 
@@ -5285,9 +5285,9 @@ namespace Components.Aphid.Interpreter
 #if APHID_SET_CODE_VAR
             SetAstCode(ast);
 #endif
-            var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-            mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-            mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
+            var mutatedAst = new PartialOperatorMutator().Mutate(ast);
+            mutatedAst = new AphidMacroMutator().Mutate(mutatedAst);
+            mutatedAst = new AphidPreprocessorDirectiveMutator().Mutate(mutatedAst);
 
             Interpret(mutatedAst);
         }

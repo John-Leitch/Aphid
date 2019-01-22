@@ -91,14 +91,14 @@ namespace Components.Aphid.Parser
                 }
 
                 var ast2 =
-                    includeMutator.MutateRecursively(
-                        directiveMutator.MutateRecursively(
-                            macroMutator.MutateRecursively(
-                                partialOpMutator.MutateRecursively(ast))));
+                    includeMutator.Mutate(
+                        directiveMutator.Mutate(
+                            macroMutator.Mutate(
+                                partialOpMutator.Mutate(ast))));
 
                 if (!DisableConstantFolding)
                 {
-                    ast2 = constantFoldingMutator.MutateRecursively(ast2);
+                    ast2 = constantFoldingMutator.Mutate(ast2);
                 }
 
                 includeMutator.Included.Add(filename);
@@ -110,13 +110,13 @@ namespace Components.Aphid.Parser
             else
             {
                 var ast2 =
-                    directiveMutator.MutateRecursively(
-                        macroMutator.MutateRecursively(
-                            partialOpMutator.MutateRecursively(ast)));
+                    directiveMutator.Mutate(
+                        macroMutator.Mutate(
+                            partialOpMutator.Mutate(ast)));
 
                 if (!DisableConstantFolding)
                 {
-                    ast2 = constantFoldingMutator.MutateRecursively(ast2);
+                    ast2 = constantFoldingMutator.Mutate(ast2);
                 }
 
                 sources = new[] { filename };

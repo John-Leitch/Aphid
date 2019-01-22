@@ -200,14 +200,14 @@ namespace Components.Aphid.Interpreter
                     else
                     {
                         ast =
-                            new AphidPreprocessorDirectiveMutator().MutateRecursively(
-                                new AphidMacroMutator().MutateRecursively(
-                                    new PartialOperatorMutator().MutateRecursively(
+                            new AphidPreprocessorDirectiveMutator().Mutate(
+                                new AphidMacroMutator().Mutate(
+                                    new PartialOperatorMutator().Mutate(
                                         AphidParser.Parse(File.ReadAllText(f), f, isTextDocument))));
 
                         if (!DisableConstantFolding)
                         {
-                            ast = new ConstantFoldingMutator().MutateRecursively(ast);
+                            ast = new ConstantFoldingMutator().Mutate(ast);
                         }
                     }
                 }

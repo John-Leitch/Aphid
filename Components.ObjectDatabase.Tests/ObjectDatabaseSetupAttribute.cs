@@ -19,7 +19,6 @@ namespace Components.ObjectDatabase.Tests
         {
             var argTable = method.GetParameters().Select(x => x.Name).AsKeyFor(args);
 
-
             ((ObjectDatabaseTestBase)instance).DB.Set(
                 (bool)argTable.GetOrAdd("setEntityMetaData", false),
                 (bool)argTable.GetOrAdd("trackEntities", false),

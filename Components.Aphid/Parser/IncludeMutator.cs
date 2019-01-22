@@ -128,10 +128,10 @@ namespace Components.Aphid.Parser
 
             if (PerformCommonTransformations)
             {
-                var mutatedAst = new PartialOperatorMutator().MutateRecursively(ast);
-                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
-                mutatedAst = new ConstantFoldingMutator().MutateRecursively(mutatedAst);
+                var mutatedAst = new PartialOperatorMutator().Mutate(ast);
+                mutatedAst = new AphidMacroMutator().Mutate(mutatedAst);
+                mutatedAst = new AphidPreprocessorDirectiveMutator().Mutate(mutatedAst);
+                mutatedAst = new ConstantFoldingMutator().Mutate(mutatedAst);
                 hasChanged = true;
 
                 return mutatedAst;
