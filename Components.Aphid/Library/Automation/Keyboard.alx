@@ -48,7 +48,6 @@ using System.Windows.Input;
         keystrokeMaxMs: 35,
 
         __impl: {
-            kbd = KeyboardController,
             rnd: new Random(),
             nextMs: @{
                 lock rnd
