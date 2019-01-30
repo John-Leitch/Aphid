@@ -52,15 +52,11 @@ namespace LLex
                     {
                         return leftLiterals.Concat(rightLiterals).ToArray();
                     }
-                    else
-                    {
-                        return combinedStrings.ToArray();
-                    }
+
+                    return combinedStrings.ToArray();
                 }
-                else
-                {
-                    return leftLiterals;
-                }
+
+                return leftLiterals;
             }
             else if (exp is GroupExpression groupExp)
             {
@@ -82,13 +78,11 @@ namespace LLex
             {
                 if (charExp.Quantifier == RegexTokenType.None)
                 {
-                    return new string[] { seed + charExp.Char };
+                    return new string[] { seed + charExp.Char.ToString() };
                 }
-                else
-                {
-                    throw new InvalidOperationException(
-                        string.Format("Unsupported quantifier: {0}", charExp.Quantifier));
-                }
+
+                throw new InvalidOperationException(
+                    string.Format("Unsupported quantifier: {0}", charExp.Quantifier));
             }
             else
             {

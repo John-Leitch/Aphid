@@ -14,8 +14,8 @@ namespace Components
     {
         public static byte[] Read(this Stream sourceStream, int bufferSize)
         {
-            byte[] buffer = new byte[bufferSize];
-            int len = sourceStream.Read(buffer, 0, bufferSize);
+            var buffer = new byte[bufferSize];
+            var len = sourceStream.Read(buffer, 0, bufferSize);
             Array.Resize(ref buffer, len);
 
             return buffer;

@@ -34,7 +34,7 @@ namespace Components.ObjectDatabase
 
         private MemoryManager _memoryManager, _lastSafeMemoryManager;
 
-        private bool _isCommitted = false;
+        private bool _isCommitted;
 
         private readonly Dictionary<long, ObjectDatabaseRecord<TElement>> _entityOffsetTable = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
 
@@ -239,10 +239,8 @@ namespace Components.ObjectDatabase
                 _memoryManagerVersion = version;
                 return _lastSafeMemoryManager = ReadMemoryManagerUnsafe();
             }
-            else
-            {
-                return _lastSafeMemoryManager;
-            }
+
+            return _lastSafeMemoryManager;
         }
 
         private MemoryManager ReadVersionedMemoryManagerUnsafe() =>
@@ -433,14 +431,12 @@ namespace Components.ObjectDatabase
                 _stream.Flush();
                 return -1;
             }
-            else
-            {
-                memoryManager.FreeOffset(offset);
-                var allocation = memoryManager.Allocate(length);
-                allocation.Write(buffer, length);
 
-                return allocation.Handle * memoryManager.PageSize;
-            }
+            memoryManager.FreeOffset(offset);
+            var allocation = memoryManager.Allocate(length);
+            allocation.Write(buffer, length);
+
+            return allocation.Handle * memoryManager.PageSize;
         }
 
         public void UpdateMemoryManager(Action<MemoryManager> update)
@@ -463,7 +459,7 @@ namespace Components.ObjectDatabase
 
         public override int Count()
         {
-            int count = 0;
+            var count = 0;
 
             LockMemoryManager(() =>
             {

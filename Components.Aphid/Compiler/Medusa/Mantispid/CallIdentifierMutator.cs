@@ -12,7 +12,7 @@ namespace Mantispid
     {
         private string[] _parseFunctions;
 
-        private bool _skip = false;
+        private bool _skip;
 
         public CallIdentifierMutator(string[] parseFunctions) => _parseFunctions = parseFunctions;
 

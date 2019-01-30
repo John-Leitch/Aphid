@@ -93,25 +93,22 @@ namespace Components.Aphid.TypeSystem
                         "Could not resolve member expression '{0}'.",
                         pathStr);
                 }
-                else
-                {
 #if TYPE_CACHE_NULL
-                    ctx.IsResolved = false;
+                ctx.IsResolved = false;
 
-                    _typeCacheLock.EnterWriteLock();
+                _typeCacheLock.EnterWriteLock();
 
-                    try
-                    {
-                        _typeCache.Add(ctx, null);
-                    }
-                    finally
-                    {
-                        _typeCacheLock.ExitWriteLock();
-                    }
+                try
+                {
+                    _typeCache.Add(ctx, null);
+                }
+                finally
+                {
+                    _typeCacheLock.ExitWriteLock();
+                }
 #endif
 
-                    return null;
-                }
+                return null;
             }
 
             if (type.PartCount != path.Length - offset)

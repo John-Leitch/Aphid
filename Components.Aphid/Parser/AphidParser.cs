@@ -34,10 +34,8 @@ namespace Components.Aphid.Parser
                 NextToken();
                 return true;
             }
-            else
-            {
-                throw new AphidParserException(_currentToken, tokenType);
-            }
+
+            throw new AphidParserException(_currentToken, tokenType);
         }
 
         [System.Diagnostics.DebuggerStepThrough]
@@ -50,13 +48,12 @@ namespace Components.Aphid.Parser
                 _currentToken = _tokens[_tokenIndex];
                 return true;
             }
-            else
-            {
-                var i = _currentToken.Index + _currentToken.Lexeme.Length;
-                _currentToken = default;
-                _currentToken.Index = i;
-                return false;
-            }
+
+            var i = _currentToken.Index + _currentToken.Lexeme.Length;
+            _currentToken = default;
+            _currentToken.Index = i;
+
+            return false;
         }
 
         [System.Diagnostics.DebuggerStepThrough]
@@ -69,12 +66,10 @@ namespace Components.Aphid.Parser
 
                 return false;
             }
-            else
-            {
-                _currentToken = _tokens[--_tokenIndex];
 
-                return true;
-            }
+            _currentToken = _tokens[--_tokenIndex];
+
+            return true;
         }
 
         [System.Diagnostics.DebuggerStepThrough]
@@ -87,12 +82,11 @@ namespace Components.Aphid.Parser
                 _currentToken = _tokens[_tokenIndex];
                 return true;
             }
-            else
-            {
-                _currentToken = default;
-                _currentToken.Index = -1;
-                return false;
-            }
+
+            _currentToken = default;
+            _currentToken.Index = -1;
+
+            return false;
         }
 
         public static List<AphidExpression> Parse(List<AphidToken> tokens, string code) => Parse(tokens, code, useImplicitReturns: true);

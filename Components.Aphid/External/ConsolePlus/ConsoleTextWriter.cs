@@ -17,7 +17,7 @@ namespace Components.External.ConsolePlus
 
         public override void Write(string value) => InvokeEvent(value);
 
-        public override void WriteLine(char value) => InvokeEvent(value + "\r\n");
+        public override void WriteLine(char value) => InvokeEvent(value.ToString() + "\r\n");
 
         public override void WriteLine(string value) => InvokeEvent(value + "\r\n");
 

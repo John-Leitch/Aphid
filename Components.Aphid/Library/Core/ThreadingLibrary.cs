@@ -9,7 +9,7 @@ using System.Threading;
 namespace Components.Aphid.Library
 {
     [AphidLibrary("threading")]
-    public class ThreadingLibrary
+    public static class ThreadingLibrary
     {
         private static ManualResetEvent ThreadCore(AphidInterpreter interpreter, Action<Action> start, AphidFunction function, params object[] parms)
         {

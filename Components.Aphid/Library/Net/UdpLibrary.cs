@@ -11,7 +11,7 @@ using Components.Aphid.TypeSystem;
 namespace Components.Aphid.Library.Net
 {
     [AphidLibraryAttribute("udp")]
-    public class UdpLibrary
+    public static class UdpLibrary
     {
         private static List<UdpClient> _clients = new List<UdpClient>();
 
@@ -54,7 +54,7 @@ namespace Components.Aphid.Library.Net
             var client = (UdpClient)clientObj.Value;
             client.Send(buffer, buffer.Length, ep);
 
-            var datagram = new Datagram()
+            var datagram = new Datagram
             {
                 LocalPort = ep.Port,
                 RemotePort = (int)port,
@@ -71,7 +71,7 @@ namespace Components.Aphid.Library.Net
             var ep = new IPEndPoint(IPAddress.Any, (int)port);
             var buffer = client.Receive(ref ep);
 
-            var datagram = new Datagram()
+            var datagram = new Datagram
             {
                 LocalPort = (int)port,
                 RemotePort = ep.Port,

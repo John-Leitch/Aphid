@@ -16,11 +16,11 @@ namespace Components.External.ConsolePlus
             _autocompleteIndex,
             _oldLeft,
             _oldTop,
-            _cursorIndex = 0;
+            _cursorIndex;
 
         private string _consoleBuffer = "";
 
-        private bool _autocompleteActive = false;
+        private bool _autocompleteActive;
 
         private Autocomplete[] _matches = new Autocomplete[0];
 
@@ -30,7 +30,7 @@ namespace Components.External.ConsolePlus
 
         private bool _forceAutocomplete;
 
-        private int _historyIndex = 0;
+        private int _historyIndex;
 
         private List<string> _history = new List<string>();
 
@@ -301,7 +301,7 @@ namespace Components.External.ConsolePlus
             BackupCursor();
             var line = new string(' ', width);
 
-            for (int i = 0; i < height; i++)
+            for (var i = 0; i < height; i++)
             {
                 var t = top + i;
 
@@ -409,7 +409,7 @@ namespace Components.External.ConsolePlus
                 t -= linesNeeded;
             }
 
-            for (int i = 0; i < linesNeeded; i++)
+            for (var i = 0; i < linesNeeded; i++)
             {
                 Console.WriteLine();
             }

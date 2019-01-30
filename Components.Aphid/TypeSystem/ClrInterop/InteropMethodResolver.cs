@@ -251,14 +251,12 @@ namespace Components.Aphid.TypeSystem
                 {
                     return new AphidInteropMethodInfo(x.Method, new Type[0], x.Args);
                 }
-                else
-                {
-                    var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo);
 
-                    if (genericArgs.Length == x.Method.GetGenericArguments().Distinct().Count())
-                    {
-                        return new AphidInteropMethodInfo(x.Method, genericArgs, x.Args);
-                    }
+                var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo);
+
+                if (genericArgs.Length == x.Method.GetGenericArguments().Distinct().Count())
+                {
+                    return new AphidInteropMethodInfo(x.Method, genericArgs, x.Args);
                 }
             }
 
@@ -535,17 +533,15 @@ namespace Components.Aphid.TypeSystem
 
                     return new AphidInteropMethodArg(p, paramInfo);
                 }
-                else
+
+                var p2 = new List<object>();
+
+                foreach (var x in seq)
                 {
-                    var p = new List<object>();
-
-                    foreach (var x in seq)
-                    {
-                        p.Add(x);
-                    }
-
-                    return new AphidInteropMethodArg(p.ToArray(), paramInfo);
+                    p2.Add(x);
                 }
+
+                return new AphidInteropMethodArg(p2.ToArray(), paramInfo);
             }
             else
             {

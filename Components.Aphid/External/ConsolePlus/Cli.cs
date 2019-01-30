@@ -51,7 +51,7 @@ namespace Components.External.ConsolePlus
         private static bool _isPumpRunning = true;
 #endif
 
-        private static bool _useTrace = false;
+        private static bool _useTrace;
 
         public static bool UseTrace
         {
@@ -493,7 +493,7 @@ namespace Components.External.ConsolePlus
 
                 var buffer = new StringBuilder();
 
-                for (int i = 0; i < msg.Length; i++)
+                for (var i = 0; i < msg.Length; i++)
                 {
                     var c = msg[i];
 
@@ -527,41 +527,40 @@ namespace Components.External.ConsolePlus
                                 state = CliLexerState.ReadingText;
                                 continue;
                             }
-                            else
-                            {
-                                var token = buffer.ToString();
+
+                            var token = buffer.ToString();
 
 #if NET35
                                 buffer = new StringBuilder();
 #else
-                                buffer.Clear();
+                            buffer.Clear();
 #endif
 
-                                if (token == "R")
+                            if (token == "R")
+                            {
+                                Console.ResetColor();
+                            }
+                            else
+                            {
+                                var isBackgroundColor = token[0] == '|';
+
+                                var color = (ConsoleColor)Enum.Parse(
+                                    typeof(ConsoleColor),
+                                    isBackgroundColor ? token.Substring(1) : token);
+
+                                if (isBackgroundColor)
                                 {
-                                    Console.ResetColor();
+                                    Console.BackgroundColor = color;
                                 }
                                 else
                                 {
-                                    var isBackgroundColor = token[0] == '|';
-
-                                    var color = (ConsoleColor)Enum.Parse(
-                                        typeof(ConsoleColor),
-                                        isBackgroundColor ? token.Substring(1) : token);
-
-                                    if (isBackgroundColor)
-                                    {
-                                        Console.BackgroundColor = color;
-                                    }
-                                    else
-                                    {
-                                        Console.ForegroundColor = color;
-                                    }
+                                    Console.ForegroundColor = color;
                                 }
-
-                                state = CliLexerState.ReadingText;
-                                continue;
                             }
+
+                            state = CliLexerState.ReadingText;
+
+                            continue;
                         }
                     }
 
@@ -631,7 +630,7 @@ namespace Components.External.ConsolePlus
                 var buffer = new StringBuilder();
                 var state = CliLexerState.ReadingText;
 
-                for (int i = 0; i < text.Length; i++)
+                for (var i = 0; i < text.Length; i++)
                 {
                     var c = text[i];
 

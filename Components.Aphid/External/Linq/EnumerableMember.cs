@@ -15,7 +15,7 @@ namespace Components
 
     public class EnumerableMember<TSource, TMember> : IEnumerable<TSource>, IEnumerator<TSource>
     {
-        private int _state = 0;
+        private int _state;
         private IEnumerable<TSource> _source;
         private IEnumerator<TSource> _enumerator;
         private readonly Func<TSource, TMember> _selector;
@@ -110,12 +110,10 @@ namespace Components
 
                 return true;
             }
-            else
-            {
-                Dispose();
 
-                return false;
-            }
+            Dispose();
+
+            return false;
         }
 
         public void Reset() => _state = 0;

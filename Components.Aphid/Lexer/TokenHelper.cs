@@ -28,7 +28,7 @@ namespace Components.Aphid.Lexer
             var line = 0;
             var col = 0;
 
-            for (int i = 0; i < preceding.Length; i++)
+            for (var i = 0; i < preceding.Length; i++)
             {
                 var c = preceding[i];
                 switch (state)
@@ -82,8 +82,8 @@ namespace Components.Aphid.Lexer
             }
 
             var state = LineState.RegularChar;
-            int curLine = 0;
-            for (int i = 0; i < text.Length; i++)
+            var curLine = 0;
+            for (var i = 0; i < text.Length; i++)
             {
                 var c = text[i];
                 switch (state)
@@ -111,7 +111,7 @@ namespace Components.Aphid.Lexer
                         switch (c)
                         {
                             case '\r':
-                                for (int j = 0; j < 2; j++)
+                                for (var j = 0; j < 2; j++)
                                 {
                                     curLine++;
 
@@ -182,7 +182,7 @@ namespace Components.Aphid.Lexer
             if (startBrace == braces[0])
             {
                 var rightBraceIndex = -1;
-                for (int i = 1; i < tokens.Count; i++)
+                for (var i = 1; i < tokens.Count; i++)
                 {
                     if (tokens[i].TokenType == braces[0])
                     {
@@ -218,7 +218,7 @@ namespace Components.Aphid.Lexer
 
                 str = text.Remove(index);
                 tokens = new AphidLexer(str).GetTokens();
-                for (int i = tokens.Count - 1; i >= 0; i--)
+                for (var i = tokens.Count - 1; i >= 0; i--)
                 {
                     if (tokens[i].TokenType == braces[0])
                     {
@@ -281,7 +281,7 @@ namespace Components.Aphid.Lexer
             var lines = code.Split(new[] { "\r\n" }, StringSplitOptions.None);
             var sb = new StringBuilder();
 
-            for (int i = line - surroundingLines; i < line + surroundingLines + 1; i++)
+            for (var i = line - surroundingLines; i < line + surroundingLines + 1; i++)
             {
                 if (i >= 0 && i < lines.Length)
                 {

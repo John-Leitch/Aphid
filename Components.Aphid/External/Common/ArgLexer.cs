@@ -35,7 +35,7 @@ namespace Components
         }
 
         public override string ToString() =>
-            $"[{Type}] {Offset:x4}-{EndOffset:x4} {Lexeme}: {Value}";
+            $"[{Type.ToString()}] {Offset:x4}-{EndOffset:x4} {Lexeme}: {Value}";
     }
 
     public static class ArgLexer
@@ -173,7 +173,7 @@ namespace Components
             ArgLexerState state = ArgLexerState.InArg, lastState = ArgLexerState.InArg;
             var buffer = new StringBuilder();
 
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 var c = args[i];
 

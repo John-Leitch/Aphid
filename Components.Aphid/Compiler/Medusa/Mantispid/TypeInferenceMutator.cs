@@ -33,24 +33,21 @@ namespace Mantispid
                     _idTable.Add(idExp.Identifier, currentId);
                     hasChanged = true;
                 }
-                else
+                else if (!currentId.IsList && inferredId.IsList)
                 {
-                    if (!currentId.IsList && inferredId.IsList)
-                    {
-                        currentId.IsList = inferredId.IsList;
-                        currentId.Type = inferredId.Type;
-                        hasChanged = true;
+                    currentId.IsList = inferredId.IsList;
+                    currentId.Type = inferredId.Type;
+                    hasChanged = true;
 
-                        return new List<AphidExpression>
-                        {
-                            new BinaryOperatorExpression(
-                                currentId.ToIdentifierExpression(),
-                                AphidTokenType.AssignmentOperator,
-                                new IdentifierExpression(
-                                    currentId.Type ?? _config.BaseClass,
-                                    new List<IdentifierExpression> { new IdentifierExpression("list") }))
-                        };
-                    }
+                    return new List<AphidExpression>
+                    {
+                        new BinaryOperatorExpression(
+                            currentId.ToIdentifierExpression(),
+                            AphidTokenType.AssignmentOperator,
+                            new IdentifierExpression(
+                                currentId.Type ?? _config.BaseClass,
+                                new List<IdentifierExpression> { new IdentifierExpression("list") }))
+                    };
                 }
             }
 
@@ -68,7 +65,7 @@ namespace Mantispid
 
                 if (!_idTable.TryResolve(id, out var ids))
                 {
-                    _idTable.Add(id, ids = new ParserIdentifier() { Name = id });
+                    _idTable.Add(id, ids = new ParserIdentifier { Name = id });
                 }
 
                 if (!ids.IsList)
@@ -87,17 +84,14 @@ namespace Mantispid
             UnaryOperatorExpression unOpExp;
 
             if (expression.Type == AphidExpressionType.UnaryOperatorExpression &&
-                (unOpExp = expression.ToUnaryOperator()).Operator == AphidTokenType.retKeyword)
+                (unOpExp = expression.ToUnaryOperator()).Operator == AphidTokenType.retKeyword && unOpExp.Operand.Type == AphidExpressionType.IdentifierExpression)
             {
-                if (unOpExp.Operand.Type == AphidExpressionType.IdentifierExpression)
-                {
-                    var retId = unOpExp.Operand.ToIdentifier();
+                var retId = unOpExp.Operand.ToIdentifier();
 
-                    if (!_returnIds.Contains(retId.Identifier))
-                    {
-                        hasChanged = true;
-                        _returnIds.Add(retId.Identifier);
-                    }
+                if (!_returnIds.Contains(retId.Identifier))
+                {
+                    hasChanged = true;
+                    _returnIds.Add(retId.Identifier);
                 }
             }
             //else if (expression.Type == AphidNodeType.BinaryOperatorExpression &&

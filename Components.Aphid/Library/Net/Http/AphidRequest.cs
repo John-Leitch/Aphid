@@ -43,7 +43,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public HttpRequest ToHttpRequest()
         {
-            return new HttpRequest()
+            return new HttpRequest
             {
                 Path = Path,
                 Method = Method,
@@ -61,10 +61,8 @@ namespace Components.Aphid.Library.Net.Http
                     .Select(x => new FieldValuePair(x.Key, x.Value.Value.ToString()))
                     .ToArray();
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         private HttpUpload CreateUpload(KeyValuePair<string, AphidObject> obj)
@@ -82,10 +80,8 @@ namespace Components.Aphid.Library.Net.Http
                     .Select(CreateUpload)
                     .ToArray();
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public void OnBinding(AphidObject source)

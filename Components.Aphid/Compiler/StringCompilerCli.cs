@@ -24,8 +24,6 @@ namespace Components.Aphid.Compiler
 
         private readonly bool _isText;
 
-        private readonly BuildNumberRepository _buildNumberRepo = new BuildNumberRepository();
-
         public StringCompilerCli(
             string name,
             string targetName,
@@ -139,10 +137,8 @@ namespace Components.Aphid.Compiler
                 var parts = ParseWildcardPath(fullname);
                 return Directory.GetFiles(parts[0], parts[1], SearchOption.AllDirectories);
             }
-            else
-            {
-                return new[] { fullname };
-            }
+
+            return new[] { fullname };
         }
 
         private string GetOutFilename(string filename)

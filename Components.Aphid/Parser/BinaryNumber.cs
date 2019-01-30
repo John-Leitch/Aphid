@@ -11,7 +11,7 @@ namespace Components.Aphid.Parser
         {
             double d = 0;
 
-            for (int x = number.Length - 1; x >= 0; x--)
+            for (var x = number.Length - 1; x >= 0; x--)
             {
                 if (number[x] == '1')
                 {

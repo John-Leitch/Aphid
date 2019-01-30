@@ -62,7 +62,7 @@ namespace Components.Aphid.Interpreter
             AphidExpression currentStatement,
             AphidExpression currentExpression,
             Exception innerException)
-            : this(interpreter, exceptionScope, String.Empty, innerException)
+            : this(interpreter, exceptionScope, string.Empty, innerException)
         {
             CurrentStatement = currentStatement;
             CurrentExpression = currentExpression;

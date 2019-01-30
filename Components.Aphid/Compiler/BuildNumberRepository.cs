@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Components.Aphid.Compiler
 {
-    public class BuildNumberRepository
+    public static class BuildNumberRepository
     {
         public static int NextBuildNumber(string filename)
         {

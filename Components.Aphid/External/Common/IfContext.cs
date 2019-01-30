@@ -6,6 +6,7 @@ namespace Components
     {
         private readonly TInput _input;
         private readonly bool _condition;
+        private readonly Func<TInput, bool> _conditionFunc;
         private readonly Func<TInput, TResult> _ifResultFunc;
 
         internal IfContext(
@@ -18,15 +19,39 @@ namespace Components
             _ifResultFunc = resultFunc;
         }
 
+        internal IfContext(
+            TInput input,
+            Func<TInput, bool> conditionFunc,
+            Func<TInput, TResult> resultFunc)
+        {
+            _input = input;
+            _conditionFunc = conditionFunc;
+            _ifResultFunc = resultFunc;
+        }
+
         public TInput Else(Action<TInput> action)
         {
-            if (_condition)
+            if (_conditionFunc == null)
             {
-                _ifResultFunc(_input);
+                if (_condition)
+                {
+                    _ifResultFunc(_input);
+                }
+                else
+                {
+                    action(_input);
+                }
             }
             else
             {
-                action(_input);
+                if (_conditionFunc(_input))
+                {
+                    _ifResultFunc(_input);
+                }
+                else
+                {
+                    action(_input);
+                }
             }
 
             return _input;
@@ -34,14 +59,22 @@ namespace Components
 
         public TResult Else(Func<TInput, TResult> func)
         {
-            if (_condition)
+            if (_conditionFunc == null)
+            {
+                if (_condition)
+                {
+                    return _ifResultFunc(_input);
+                }
+
+                return func(_input);
+            }
+
+            if (_conditionFunc(_input))
             {
                 return _ifResultFunc(_input);
             }
-            else
-            {
-                return func(_input);
-            }
+
+            return func(_input);
         }
     }
 }

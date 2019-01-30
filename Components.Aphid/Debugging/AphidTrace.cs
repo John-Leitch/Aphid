@@ -17,13 +17,7 @@ namespace Components.Aphid.Debugging
 
         private StreamWriter _writer;
 
-        private AphidTraceSettings _settings = AphidTraceSettings.Default;
-
-        public AphidTraceSettings Settings
-        {
-            get => _settings;
-            set => _settings = value;
-        }
+        public AphidTraceSettings Settings { get; set; } = AphidTraceSettings.Default;
 
         public string Name { get; }
 
@@ -110,14 +104,14 @@ namespace Components.Aphid.Debugging
                 throw new InvalidOperationException("AphidTrace is not open.");
             }
 
-            if (_settings.TraceTimestamp)
+            if (Settings.TraceTimestamp)
             {
-                _writer.Write(DateTime.Now.ToString(_settings.TimestampFormat + " "));
+                _writer.Write(DateTime.Now.ToString(Settings.TimestampFormat + " "));
             }
 
             _writer.WriteLine(string.Format("{0} {1}: {2}\r\n", Name, level, message));
 
-            if (_settings.TraceCurrentStatement)
+            if (Settings.TraceCurrentStatement)
             {
                 _writer.Write("Current statement: ");
 
@@ -129,7 +123,7 @@ namespace Components.Aphid.Debugging
                 _writer.WriteLine();
             }
 
-            if (_settings.TraceCurrentExpression)
+            if (Settings.TraceCurrentExpression)
             {
                 _writer.Write("Current expression: ");
 
@@ -141,14 +135,14 @@ namespace Components.Aphid.Debugging
                 _writer.WriteLine();
             }
 
-            if (_settings.TraceAphidStack)
+            if (Settings.TraceAphidStack)
             {
                 var stack = ExceptionHelper.StackTrace(Interpreter.GetStackTrace());
                 _writer.WriteLine("Aphid stack trace:\r\n" + stack);
                 _writer.WriteLine();
             }
 
-            if (_settings.TraceClrStack)
+            if (Settings.TraceClrStack)
             {
                 _writer.WriteLine("CLR stack trace:\r\n" +
                     new StackTrace()

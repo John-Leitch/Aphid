@@ -16,7 +16,7 @@ namespace Components.IO
 
         public bool[] Bitmap => _bitmap;
 
-        public int StartingPosition { get; private set; } = 0;
+        public int StartingPosition { get; private set; }
 
         public Dictionary<int, int> Allocations { get; } = new Dictionary<int, int>();
 
@@ -174,11 +174,11 @@ namespace Components.IO
 
         private int FindBlock(int pageCount)
         {
-            for (int x = StartingPosition; x <= _bitmap.Length - pageCount; x++)
+            for (var x = StartingPosition; x <= _bitmap.Length - pageCount; x++)
             {
                 var isMatch = true;
 
-                for (int y = 0; y < pageCount; y++)
+                for (var y = 0; y < pageCount; y++)
                 {
                     if (_bitmap[x + y])
                     {
@@ -212,7 +212,7 @@ namespace Components.IO
                 Allocations.Remove(index);
             }
 
-            for (int i = index; i < index + pageCount; i++)
+            for (var i = index; i < index + pageCount; i++)
             {
                 _bitmap[i] = value;
             }

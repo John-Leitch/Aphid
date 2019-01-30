@@ -26,7 +26,7 @@ namespace Components.Json
         {
             var sb = new StringBuilder();
 
-            for (int i = 0; i < tokens.Count; i++)
+            for (var i = 0; i < tokens.Count; i++)
             {
                 switch (tokens[i].TokenType)
                 {
@@ -53,7 +53,7 @@ namespace Components.Json
         {
             var tokensCopy = new JsonToken[tokens.Length];
 
-            for (int i = 0; i < tokensCopy.Length; i++)
+            for (var i = 0; i < tokensCopy.Length; i++)
             {
                 if (tokens[i].TokenType == JsonTokenType.Number && !tokens[i].Lexeme.Contains('.'))
                 {

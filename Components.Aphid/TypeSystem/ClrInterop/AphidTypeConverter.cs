@@ -91,10 +91,8 @@ namespace Components.Aphid.TypeSystem
                         valType,
                         target);
                 }
-                else
-                {
-                    return new AphidConversionInfo(interopArg, true, new Type[0]);
-                }
+
+                return new AphidConversionInfo(interopArg, true, new Type[0]);
             }
             else
             {

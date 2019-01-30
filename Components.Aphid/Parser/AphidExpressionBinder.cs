@@ -13,16 +13,11 @@ namespace Components.Aphid.Parser
             if (typeName.StartsWith(_prefix))
             {
                 var name = typeName.Substring(_prefix.Length).RemoveAtIndexOf(',');
-                var t = typeof(List<>).MakeGenericType(Type.GetType(name));
 
-                return t;
+                return typeof(List<>).MakeGenericType(Type.GetType(name));
             }
-            else
-            {
-                var t = Type.GetType(typeName);
 
-                return t;
-            }
+            return Type.GetType(typeName);
         }
     }
 }

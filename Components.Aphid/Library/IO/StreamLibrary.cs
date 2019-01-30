@@ -10,7 +10,7 @@ using System.Text;
 namespace Components.Aphid.Library
 {
     [AphidLibraryAttribute("stream")]
-    public class StreamLibrary
+    public static class StreamLibrary
     {
         [AphidInteropFunction("__stream.write", PassInterpreter = true)]
         public static void StreamWrite(AphidInterpreter interpreter, Stream stream, object buffer)

@@ -103,7 +103,7 @@ namespace Components.Cypress
 
         public static Instruction Deserialize(StringTable table, BinaryReader reader)
         {
-            return new Instruction()
+            return new Instruction
             {
                 Address = reader.ReadUInt32(),
                 Mnemonic = table[reader.ReadInt32()],

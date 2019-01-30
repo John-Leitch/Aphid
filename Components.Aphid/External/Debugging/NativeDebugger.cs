@@ -22,8 +22,8 @@ namespace Components.Cypress
         private readonly Dictionary<IntPtr, IntPtr> _breakpointBases = new Dictionary<IntPtr, IntPtr>();
 #endif
         private readonly Dictionary<IntPtr, string> _moduleTable = new Dictionary<IntPtr, string>();
-        private Thread _debugThread = null;
-        private bool _killProcesses = false;
+        private Thread _debugThread;
+        private bool _killProcesses;
         private Dictionary<IntPtr, ProcessMemory> _readers;
         private Dictionary<uint, bool> _loaderBreakpointTable = new Dictionary<uint, bool>();
         private Dictionary<uint, Process> _processTable = new Dictionary<uint, Process>();
@@ -69,17 +69,16 @@ namespace Components.Cypress
             {
                 return p;
             }
-            else
+
+            foreach (var p2 in processes)
             {
-                foreach (var p2 in processes)
+                p = FindProcess(p2.Children, id);
+                if (p != null)
                 {
-                    p = FindProcess(p2.Children, id);
-                    if (p != null)
-                    {
-                        return p;
-                    }
+                    return p;
                 }
             }
+
             return null;
         }
 
@@ -238,7 +237,7 @@ namespace Components.Cypress
 
             if (functionPointers == null)
             {
-                return "ERROR_" + (ushort)(debugEvent.Exception.ExceptionRecord.ExceptionAddress & 0xFFFF);
+                return "ERROR_" + ((ushort)(debugEvent.Exception.ExceptionRecord.ExceptionAddress & 0xFFFF)).ToString();
             }
 
             if (functionPointers.Count == 0 ||
@@ -286,20 +285,16 @@ namespace Components.Cypress
                     {
                         throw new Win32Exception(error);
                     }
-                    else
-                    {
-                        if (Timeout > 0 &&
-                            (DateTime.Now - StartTime).TotalMilliseconds > Timeout)
-                        {
-                            Kill();
 
-                            return;
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                    if (Timeout > 0 &&
+                        (DateTime.Now - StartTime).TotalMilliseconds > Timeout)
+                    {
+                        Kill();
+
+                        return;
                     }
+
+                    continue;
                 }
 
                 Process p = null;
@@ -313,7 +308,7 @@ namespace Components.Cypress
                 });
 
                 byte[] buffer = null;
-                string hash = "[NO HASH]";
+                var hash = "[NO HASH]";
 
                 switch (debugEvent.dwDebugEventCode)
                 {
@@ -409,7 +404,7 @@ namespace Components.Cypress
                             if (ReadFaultingInstructions)
                             {
                                 buffer = new byte[32];
-                                IntPtr exPtr = IntPtr.Zero;
+                                var exPtr = IntPtr.Zero;
 
                                 try
                                 {
@@ -511,7 +506,7 @@ namespace Components.Cypress
             _debugThread = Thread.CurrentThread;
             var pi = new PROCESS_INFORMATION();
 
-            var si = new STARTUPINFO()
+            var si = new STARTUPINFO
             {
                 cb = Marshal.SizeOf(typeof(STARTUPINFO))
             };

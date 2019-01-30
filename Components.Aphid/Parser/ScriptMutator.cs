@@ -77,27 +77,25 @@ namespace Components.Aphid.Parser
                         throw Interpreter.CreateRuntimeException(
                             "Mutator implementation returned null, expected expression(s).");
                     }
+
+                    var t = retVal.Value.GetType();
+
+                    if (t == typeof(List<AphidExpression>))
+                    {
+                        mutated = (List<AphidExpression>)retVal.Value;
+                    }
+                    else if (t == typeof(AphidFunction))
+                    {
+                        mutated = ((AphidFunction)retVal.Value).Body;
+                    }
+                    else if (t.IsDerivedFrom<AphidExpression>())
+                    {
+                        mutated = new List<AphidExpression> { (AphidExpression)retVal.Value };
+                    }
                     else
                     {
-                        var t = retVal.Value.GetType();
-
-                        if (t == typeof(List<AphidExpression>))
-                        {
-                            mutated = (List<AphidExpression>)retVal.Value;
-                        }
-                        else if (t == typeof(AphidFunction))
-                        {
-                            mutated = ((AphidFunction)retVal.Value).Body;
-                        }
-                        else if (t.IsDerivedFrom<AphidExpression>())
-                        {
-                            mutated = new List<AphidExpression> { (AphidExpression)retVal.Value };
-                        }
-                        else
-                        {
-                            throw Interpreter.CreateRuntimeException(
-                                "Mutator returned invalid type, expected expression, block, or function.");
-                        }
+                        throw Interpreter.CreateRuntimeException(
+                            "Mutator returned invalid type, expected expression, block, or function.");
                     }
                 }
                 else

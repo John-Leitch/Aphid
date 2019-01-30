@@ -4,7 +4,7 @@ namespace Components.Aphid.Parser
 {
     public abstract class AphidVisitor
     {
-        private bool _ignoreChildren = false;
+        private bool _ignoreChildren;
 
         public Stack<AphidExpression> Ancestors { get; private set; }
 

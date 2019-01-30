@@ -9,10 +9,10 @@ namespace Components.Aphid.Parser
 {
     public class PartialOperatorMutator : AphidMutator
     {
-        private int _id = 0;
+        private int _id;
 
         private IdentifierExpression GetNextId() =>
-            new IdentifierExpression($"___p_op_{_id++}");
+            new IdentifierExpression($"___p_op_{_id++.ToString()}");
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {

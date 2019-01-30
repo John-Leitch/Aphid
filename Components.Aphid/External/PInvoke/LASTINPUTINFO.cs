@@ -13,8 +13,8 @@ namespace Components.PInvoke
         public static readonly int SizeOf = Marshal.SizeOf(typeof(LASTINPUTINFO));
 
         [MarshalAs(UnmanagedType.U4)]
-        public UInt32 cbSize;
+        public uint cbSize;
         [MarshalAs(UnmanagedType.U4)]
-        public UInt32 dwTime;
+        public uint dwTime;
     }
 }

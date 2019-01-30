@@ -217,10 +217,8 @@ namespace Components.Aphid.Library.Net
                     scope,
                     context);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         private byte[] InterpretAphid(
@@ -397,7 +395,7 @@ namespace Components.Aphid.Library.Net
             HttpListenerContext context,
             AphidObject session)
         {
-            string body = "";
+            var body = "";
 
             if (context.Request.ContentLength64 > 0)
             {
@@ -461,24 +459,22 @@ namespace Components.Aphid.Library.Net
             {
                 return _encoding.GetBytes(scriptOut);
             }
+
+            if (content.Value is byte[] buffer)
+            {
+                return buffer;
+            }
+            else if (content.Value is string text)
+            {
+                return _encoding.GetBytes(text);
+            }
             else
             {
-                if (content.Value is byte[] buffer)
-                {
-                    return buffer;
-                }
-                else if (content.Value is string text)
-                {
-                    return _encoding.GetBytes(text);
-                }
-                else
-                {
-                    return SetError(
-                        context,
-                        500,
-                        "500 internal server error: unsupported Aphid response type: {0}",
-                        content.Value.GetType().FullName);
-                }
+                return SetError(
+                    context,
+                    500,
+                    "500 internal server error: unsupported Aphid response type: {0}",
+                    content.Value.GetType().FullName);
             }
         }
     }

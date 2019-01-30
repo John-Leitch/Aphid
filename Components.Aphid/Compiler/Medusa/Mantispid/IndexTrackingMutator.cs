@@ -15,7 +15,7 @@ namespace Mantispid
 
         private List<AphidExpression> _mutated = new List<AphidExpression>();
 
-        private int _indexNumber = 0;
+        private int _indexNumber;
 
         public IndexTrackingMutator(string[] nonListRules) => _nonListRules = nonListRules;
 

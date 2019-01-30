@@ -22,7 +22,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public HttpUpload ToHttpUpload()
         {
-            var upload = new HttpUpload()
+            var upload = new HttpUpload
             {
                 Name = Name,
                 Filename = Filename,

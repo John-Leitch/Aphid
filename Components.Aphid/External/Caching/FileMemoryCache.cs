@@ -21,7 +21,7 @@ namespace Components.Caching
 
                 lock (_cache)
                 {
-                    if (!_cache.TryGetValue(cacheName, out CacheBlob<byte[]> bytes))
+                    if (!_cache.TryGetValue(cacheName, out var bytes))
                     {
                         var b = File.ReadAllBytes(cacheName);
                         _cache.Add(cacheName, new CacheBlob<byte[]>(time, b));

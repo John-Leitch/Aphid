@@ -40,10 +40,8 @@ namespace LLex
                 NextToken();
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         private bool NextToken()
@@ -55,11 +53,10 @@ namespace LLex
                 _currentToken = _tokens[_tokenIndex];
                 return true;
             }
-            else
-            {
-                _currentToken = default;
-                return false;
-            }
+
+            _currentToken = default;
+
+            return false;
         }
 
         private RegexExpression Char()
@@ -73,13 +70,13 @@ namespace LLex
                 case 2:
                     if (_currentToken.TokenType == RegexTokenType.Character)
                     {
-                        char c2 = _currentToken.Lexeme[1];
+                        var c2 = _currentToken.Lexeme[1];
                         Match(RegexTokenType.Character);
                         return new CharExpression(c2);
                     }
                     else if (_currentToken.TokenType == RegexTokenType.SpecialCharacter)
                     {
-                        char c3 = _currentToken.Lexeme[1] == 's' ?
+                        var c3 = _currentToken.Lexeme[1] == 's' ?
                             ' ' :
                             System.Text.RegularExpressions.Regex.Unescape(_currentToken.Lexeme)[0];
                         Match(RegexTokenType.SpecialCharacter);
@@ -106,10 +103,8 @@ namespace LLex
                 NextToken();
                 return t;
             }
-            else
-            {
-                return RegexTokenType.None;
-            }
+
+            return RegexTokenType.None;
         }
 
         private RegexExpression Expression()
@@ -147,7 +142,7 @@ namespace LLex
                 }
                 else if (expressionStack.Count > 0)
                 {
-                    RegexTokenType opType = RegexTokenType.None;
+                    var opType = RegexTokenType.None;
                     if (_currentToken.TokenType == RegexTokenType.OrOperator)
                     {
                         opType = RegexTokenType.OrOperator;

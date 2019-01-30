@@ -136,12 +136,10 @@ namespace Components.Aphid.Parser
 
                 return mutatedAst;
             }
-            else
-            {
-                hasChanged = true;
 
-                return ast;
-            }
+            hasChanged = true;
+
+            return ast;
         }
     }
 }

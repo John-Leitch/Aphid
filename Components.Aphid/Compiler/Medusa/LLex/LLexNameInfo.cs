@@ -22,9 +22,9 @@ namespace LLex
         public static LLexNameInfo Parse(string fullName)
         {
             var lastDot = fullName.LastIndexOf('.');
-            string name = fullName.Substring(lastDot + 1);
+            var name = fullName.Substring(lastDot + 1);
 
-            return new LLexNameInfo()
+            return new LLexNameInfo
             {
                 FullName = fullName,                
                 Name = name,

@@ -21,7 +21,7 @@ namespace Components
         {
             FileStream file;
             
-            int peHeaderOffset = 60;
+            var peHeaderOffset = 60;
 
             if ((file = asm.GetFiles().FirstOrDefault()) == null ||
                 file.Length < peHeaderOffset + 4)

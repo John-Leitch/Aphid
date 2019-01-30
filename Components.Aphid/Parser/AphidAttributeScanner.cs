@@ -26,12 +26,10 @@ namespace Components.Aphid.Parser
             {
                 return false;
             }
-            else
-            {
-                CurrentAttribute = _attributes.Dequeue();
 
-                return true;
-            }
+            CurrentAttribute = _attributes.Dequeue();
+
+            return true;
         }
 
         public bool Match(string name)
@@ -42,10 +40,8 @@ namespace Components.Aphid.Parser
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public void Require(string name)

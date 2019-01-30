@@ -16,7 +16,7 @@ namespace Components
         {
             return Environment
                 .GetCommandLineArgs()
-                .Select(x => !x.Any(Char.IsWhiteSpace) ? x : "\"" + x + "\"")
+                .Select(x => !x.Any(char.IsWhiteSpace) ? x : "\"" + x + "\"")
                 .Join(" ");
         }
 

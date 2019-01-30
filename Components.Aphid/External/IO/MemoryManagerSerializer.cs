@@ -59,7 +59,7 @@ namespace Components.IO
 
             var streamLen = stream.Length;
 
-            for (int i = 0; i < len; i++)
+            for (var i = 0; i < len; i++)
             {
                 if (reader.BaseStream.Position + 8 <= streamLen)
                 {

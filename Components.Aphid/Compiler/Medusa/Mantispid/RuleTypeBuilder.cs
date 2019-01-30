@@ -56,7 +56,7 @@ namespace Mantispid
             var methodType = CodeHelper.TypeRef(methodTypeName);
             var t = Type.GetType(methodTypeName);
 
-            var method = new CodeMemberMethod()
+            var method = new CodeMemberMethod
             {
                 Name = _getCollection,
                 ReturnType = methodType,
@@ -148,12 +148,12 @@ namespace Mantispid
             return decl;
         }
 
-        private CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
+        private static CodeMemberProperty[] CreateProperties(RuleStruct ruleType)
         {
             var isMutable = ParserGeneratorConfig.Current.IsAstMutable;
 
             var properties = ruleType.Properties
-                .Select(x => new CodeMemberProperty()
+                .Select(x => new CodeMemberProperty
                 {
                     Name = x.Name,
                     Attributes = MemberAttributes.Public | MemberAttributes.Final,
@@ -185,7 +185,7 @@ namespace Mantispid
             return properties;
         }
 
-        private CodeTypeMember[] CreateAutoProperty(
+        private static CodeTypeMember[] CreateAutoProperty(
             CodeTypeReference type,
             string name,
             bool isMutable = true,
@@ -198,7 +198,7 @@ namespace Mantispid
                 Attributes = MemberAttributes.Private
             };
 
-            var prop = new CodeMemberProperty()
+            var prop = new CodeMemberProperty
             {
                 Name = name,
                 Attributes = MemberAttributes.Public | MemberAttributes.Final,
@@ -225,7 +225,7 @@ namespace Mantispid
             return new CodeTypeMember[] { field, prop };
         }
 
-        private CodeMemberField[] CreateFields(CodeMemberProperty[] properties)
+        private static CodeMemberField[] CreateFields(CodeMemberProperty[] properties)
         {
             return properties
                 .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name))
@@ -240,7 +240,7 @@ namespace Mantispid
             CodeMemberProperty[] properties,
             bool isInternal)
         {
-            var ctor = new CodeConstructor()
+            var ctor = new CodeConstructor
             {
                 Attributes = !isInternal ?
                     MemberAttributes.Public :
@@ -280,7 +280,7 @@ namespace Mantispid
             return ctor;
         }
 
-        private CodeStatement[] CreateConstructorAssignmentStatements(
+        private static CodeStatement[] CreateConstructorAssignmentStatements(
             RuleStruct rule,
             CodeMemberProperty property)
         {
@@ -383,7 +383,7 @@ namespace Mantispid
                 childExpression = CodeHelper.Invoke(childExpression, "ToArray");
             }
 
-            var method = new CodeMemberMethod()
+            var method = new CodeMemberMethod
             {
                 Attributes = MemberAttributes.Public | MemberAttributes.Final,
                 Name = "GetChildren",
@@ -398,7 +398,7 @@ namespace Mantispid
         {
             var enumType = _baseTypeName + "Type";
 
-            var prop = new CodeMemberProperty()
+            var prop = new CodeMemberProperty
             {
                 Attributes = MemberAttributes.Public | MemberAttributes.Override,
                 Type = CodeHelper.TypeRef(enumType),

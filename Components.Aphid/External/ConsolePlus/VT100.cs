@@ -159,7 +159,7 @@ namespace Components.External.ConsolePlus
         {
             Enable();
 
-            char c = '-';
+            var c = '-';
 
             char nextChar()
             {
@@ -185,18 +185,18 @@ namespace Components.External.ConsolePlus
 
             for (var x = 0; x < 100; x++)
             {
-                for (int i = 0; i < 255; i++)
+                for (var i = 0; i < 255; i++)
                 {
                     Console.Write(
                         VT100.Background((byte)i, 0, (byte)(0xff - i)) +
-                        VT100.Foreground((byte)(0xff - i), 0, (byte)i) + nextChar());
+                        VT100.Foreground((byte)(0xff - i), 0, (byte)i) + nextChar().ToString());
                 }
 
-                for (int i = 0; i < 255; i++)
+                for (var i = 0; i < 255; i++)
                 {
                     Console.Write(
                         VT100.Background((byte)(0xff - i), 0, (byte)i) +
-                        VT100.Foreground((byte)i, 0, (byte)(0xff - i)) + nextChar());
+                        VT100.Foreground((byte)i, 0, (byte)(0xff - i)) + nextChar().ToString());
                 }
             }
 

@@ -1,7 +1,7 @@
 ﻿
 namespace Mantispid
 {
-    public class ParserGeneratorDirective
+    public static class ParserGeneratorDirective
     {
         public const string
             NodeLocal = "node",

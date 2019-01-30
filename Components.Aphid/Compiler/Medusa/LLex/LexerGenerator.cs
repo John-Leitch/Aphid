@@ -95,13 +95,11 @@ namespace LLex
             {
                 return CreateCase(charString);
             }
-            else
-            {
-                return new[] { charString, charString.ToUpper(), charString.ToLower() }
-                    .Distinct()
-                    .Select(CreateCase)
-                    .Aggregate((x, y) => x + "\r\n" + y);
-            }
+
+            return new[] { charString, charString.ToUpper(), charString.ToLower() }
+                .Distinct()
+                .Select(CreateCase)
+                .Aggregate((x, y) => x + "\r\n" + y);
         }
 
         public string EmitState(LexerState state, bool root, IEnumerable<string> defaults = null)
@@ -120,7 +118,7 @@ namespace LLex
                     {
                         var isCode = !string.IsNullOrEmpty(x.Code);
 
-                        string body = "";
+                        var body = "";
 
                         if (isCode)
                         {
@@ -211,7 +209,7 @@ namespace LLex
 
             var root = table.Lists
                 .Select(x => @"
-                    if (mode == " + x.Key + @")
+                    if (mode == " + x.Key.ToString() + @")
                     {
                         " + EmitState(GroupTokens(x.Value), true, GetDefaults(x.Value)) + @"
                     }

@@ -276,10 +276,8 @@ namespace Components.Aphid.UI
                 return ac;
                 //return scope.Keys;
             }
-            else
-            {
-                return CreateTypeMemberObject(scope.Value.GetType());
-            }
+
+            return CreateTypeMemberObject(scope.Value.GetType());
         }
 
         private IEnumerable<Autocomplete> GetGlobalWords() =>

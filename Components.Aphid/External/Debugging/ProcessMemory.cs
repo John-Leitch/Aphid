@@ -44,7 +44,7 @@ namespace Components.Cypress
 
             var uints = new uint[count];
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 uints[i] = BitConverter.ToUInt32(bytes, i * sizeof(uint));
             }
@@ -100,7 +100,7 @@ namespace Components.Cypress
                     return sb.ToString();
                 }
 
-                int i = 0;
+                var i = 0;
                 for (i = 0; i < tmp.Length; i ++)
                 {
                     if (tmp[i] == 0)
@@ -131,7 +131,7 @@ namespace Components.Cypress
                     return sb.ToString();
                 }
 
-                int i = 0;
+                var i = 0;
                 for (i = 0; i < tmp.Length; i += 2)
                 {
                     if (tmp[i] == 0 && tmp[i + 1] == 0)
@@ -194,11 +194,10 @@ namespace Components.Cypress
                 value = 0;
                 return false;
             }
-            else
-            {
-                value = valueBuffer[0];
-                return true;
-            }
+
+            value = valueBuffer[0];
+
+            return true;
         }
 
         public uint[] ReadArgs(IntPtr thread, int count)

@@ -11,7 +11,7 @@ namespace Components.Cypress
     {
         public static CONTEXT GetContext(IntPtr thread, CONTEXT_FLAGS flags)
         {
-            CONTEXT context = new CONTEXT() { ContextFlags = flags };
+            var context = new CONTEXT { ContextFlags = flags };
             var result = Kernel32.GetThreadContext(thread, ref context);
             return context;
         }

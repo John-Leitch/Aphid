@@ -21,10 +21,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return valueType.GetMethod("op_Implicit", new[] { targetType });
             }
-            else
-            {
-                return valueType.GetMethod("op_Explicit", new[] { targetType });
-            }
+
+            return valueType.GetMethod("op_Explicit", new[] { targetType });
         }
     }
 }

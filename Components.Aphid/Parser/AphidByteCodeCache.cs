@@ -72,7 +72,7 @@ namespace Components.Aphid.Parser
 
                 if ((Flags & 0x1) == 0)
                 {
-                    includeMutator = new IncludeMutator()
+                    includeMutator = new IncludeMutator
                     {
                         PerformCommonTransformations = false,
                     };
@@ -90,7 +90,7 @@ namespace Components.Aphid.Parser
                     includeMutator.Loader.SearchPaths.Add(p);
                 }
 
-                var ast2 =
+                ast =
                     includeMutator.Mutate(
                         directiveMutator.Mutate(
                             macroMutator.Mutate(
@@ -98,31 +98,29 @@ namespace Components.Aphid.Parser
 
                 if (!DisableConstantFolding)
                 {
-                    ast2 = constantFoldingMutator.Mutate(ast2);
+                    ast = constantFoldingMutator.Mutate(ast);
                 }
 
                 includeMutator.Included.Add(filename);
                 sources = new string[includeMutator.Included.Count];
                 includeMutator.Included.CopyTo(sources);
 
-                return ast2;
+                return ast;
             }
-            else
+
+            ast =
+                directiveMutator.Mutate(
+                    macroMutator.Mutate(
+                        partialOpMutator.Mutate(ast)));
+
+            if (!DisableConstantFolding)
             {
-                var ast2 =
-                    directiveMutator.Mutate(
-                        macroMutator.Mutate(
-                            partialOpMutator.Mutate(ast)));
-
-                if (!DisableConstantFolding)
-                {
-                    ast2 = constantFoldingMutator.Mutate(ast2);
-                }
-
-                sources = new[] { filename };
-
-                return ast2;
+                ast = constantFoldingMutator.Mutate(ast);
             }
+
+            sources = new[] { filename };
+
+            return ast;
         }
 
         protected override void SerializeCache(Stream stream, List<AphidExpression> cache) => AphidByteCode.Encode(stream, cache);

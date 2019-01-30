@@ -33,22 +33,22 @@ namespace LLex
             var tokenTypes = new List<string>();
             var keywords = new List<string>();
 
-            string llName = lines.First();
+            var llName = lines.First();
             lines = lines.Skip(1);
 
             var lastDot = llName.LastIndexOf('.');
 
-            string ns = llName.Remove(lastDot);
-            string name = llName.Substring(lastDot + 1);
-            string lexerName = name + "Lexer";
-            string tokenName = name + "Token";
-            string tokenTypeName = name + "TokenType";
+            var ns = llName.Remove(lastDot);
+            var name = llName.Substring(lastDot + 1);
+            var lexerName = name + "Lexer";
+            var tokenName = name + "Token";
+            var tokenTypeName = name + "TokenType";
 
             string codeLexeme = null;
             string code = null;
             string buffer = null;
-            string keywordDefault = "";
-            string keywordTail = "";
+            var keywordDefault = "";
+            var keywordTail = "";
 
             void registerMode(string x)
             {
@@ -139,10 +139,8 @@ namespace LLex
                         lexFileMode = LexFileMode.Normal;
                         continue;
                     }
-                    else
-                    {
-                        code += line + "\r\n";
-                    }
+
+                    code += line + "\r\n";
                 }
                 else if (lexFileMode == LexFileMode.Keyword)
                 {
@@ -180,10 +178,8 @@ namespace LLex
                         lexFileMode = LexFileMode.Keyword;
                         continue;
                     }
-                    else
-                    {
-                        buffer += line + "\r\n";
-                    }
+
+                    buffer += line + "\r\n";
                 }
             }
 

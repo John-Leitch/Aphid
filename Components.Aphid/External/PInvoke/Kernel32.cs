@@ -114,7 +114,7 @@ namespace Components.PInvoke
         public static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
+        public static extern uint WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
 
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetConsoleWindow();

@@ -30,10 +30,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return obj.Value;
             }
-            else
-            {
-                return obj;
-            }
+
+            return obj;
         }
 
         public static object Unwrap(object obj)
@@ -42,10 +40,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return aphidObj.Value;
             }
-            else
-            {
-                return obj;
-            }
+
+            return obj;
         }
 
         public static AphidObject Wrap(object obj)
@@ -54,10 +50,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return aphidObj;
             }
-            else
-            {
-                return AphidObject.Scalar(obj);
-            }
+
+            return AphidObject.Scalar(obj);
         }
 
         public static object DeepUnwrap(object obj)
@@ -105,28 +99,24 @@ namespace Components.Aphid.TypeSystem
             {
                 return noFighting;
             }
-            else
+
+            if (unwrapped == null)
             {
-                if (unwrapped == null)
-                {
-                    if (obj == null)
-                    {
-                        throw Interpreter.CreateRuntimeException(
-                            "Expression evaluated to null, IEnumerable expected.");
-                    }
-                    else
-                    {
-                        throw Interpreter.CreateRuntimeException(
-                            "Expression evaluated to {0}, IEnumerable expected.",
-                            obj.GetType());
-                    }
-                }
-                else
+                if (obj == null)
                 {
                     throw Interpreter.CreateRuntimeException(
-                        "Expression evaluated to {0}, IEnumerable expected.",
-                        unwrapped.GetType());
+                        "Expression evaluated to null, IEnumerable expected.");
                 }
+
+                throw Interpreter.CreateRuntimeException(
+                    "Expression evaluated to {0}, IEnumerable expected.",
+                    obj.GetType());
+            }
+            else
+            {
+                throw Interpreter.CreateRuntimeException(
+                    "Expression evaluated to {0}, IEnumerable expected.",
+                    unwrapped.GetType());
             }
         }
 

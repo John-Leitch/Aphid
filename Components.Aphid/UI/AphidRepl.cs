@@ -19,7 +19,7 @@ namespace Components.Aphid.UI
 {
     public partial class AphidRepl
     {
-        private bool _isSerializerShared = false;
+        private bool _isSerializerShared;
 
         private AphidSerializer _serializer;
 

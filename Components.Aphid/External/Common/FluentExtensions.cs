@@ -36,6 +36,16 @@ namespace Components
             return obj;
         }
 
+        public static T DoIf<T>(this T obj, Func<T, bool> condition, Action<T> trueAction)
+        {
+            if (condition(obj))
+            {
+                trueAction(obj);
+            }
+
+            return obj;
+        }
+
         public static T DoIf<T>(this T obj, bool condition, Action<T> trueAction, Action<T> falseAction)
         {
             if (condition)
@@ -53,6 +63,20 @@ namespace Components
         public static T DoIf<T>(this T obj, Func<bool> condition, Action<T> trueAction, Action<T> falseAction)
         {
             if (condition())
+            {
+                trueAction(obj);
+            }
+            else
+            {
+                falseAction(obj);
+            }
+
+            return obj;
+        }
+
+        public static T DoIf<T>(this T obj, Func<T, bool> condition, Action<T> trueAction, Action<T> falseAction)
+        {
+            if (condition(obj))
             {
                 trueAction(obj);
             }
@@ -107,6 +131,12 @@ namespace Components
         public static IfContext<TInput, TResult> If<TInput, TResult>(
             this TInput input,
             bool condition,
+            Func<TInput, TResult> ifResult) =>
+            new IfContext<TInput, TResult>(input, condition, ifResult);
+
+        public static IfContext<TInput, TResult> If<TInput, TResult>(
+            this TInput input,
+            Func<TInput, bool> condition,
             Func<TInput, TResult> ifResult) =>
             new IfContext<TInput, TResult>(input, condition, ifResult);
     }

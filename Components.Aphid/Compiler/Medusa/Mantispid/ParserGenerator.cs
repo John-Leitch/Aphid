@@ -262,12 +262,10 @@ namespace Mantispid
             {
                 return false;
             }
-            else
-            {
-                nodes.Remove(exp);
 
-                return true;
-            }
+            nodes.Remove(exp);
+
+            return true;
         }
 
         private AphidExpression[] Flatten(AphidExpression exp)
@@ -434,7 +432,7 @@ namespace Mantispid
             var methodAttrs = ParseMethodAttributes(funcId);
             var typeRef = CodeHelper.TypeRef(methodAttrs.Type);
 
-            var method = new System.CodeDom.CodeMemberMethod()
+            var method = new System.CodeDom.CodeMemberMethod
             {
                 Name = funcId.Identifier,
                 ReturnType = methodAttrs.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef,
@@ -533,16 +531,14 @@ namespace Mantispid
 
                 return new CodeStatementCollection(new[] { varDecl });
             }
-            else
+
+            return new CodeStatementCollection(new[]
             {
-                return new CodeStatementCollection(new[]
-                {
                     new CodeThrowExceptionStatement(
                         new CodeObjectCreateExpression(
                             _config.ExceptionClass,
                             CodeHelper.VarRef("_currentToken")))
                 });
-            }
         }
 
         private CodeStatementCollection GenerateImperativeStatement(UnaryOperatorExpression node)
@@ -600,10 +596,8 @@ namespace Mantispid
                                 parameters))
                         });
                     }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
+
+                    throw new NotImplementedException();
             }
         }
 
@@ -772,10 +766,8 @@ namespace Mantispid
             });
         }
 
-        private static CodeStatementCollection GenerateImperativeStatement(BreakExpression node)
-        {
-            return new CodeStatementCollection(new[] { new CodeSnippetStatement("break;") });
-        }
+        private static CodeStatementCollection GenerateImperativeStatement(BreakExpression node) =>
+            new CodeStatementCollection(new[] { new CodeSnippetStatement("break;") });
 
         private CodeStatementCollection GenerateImperativeStatements(List<AphidExpression> nodes)
         {
@@ -850,13 +842,11 @@ namespace Mantispid
                         {
                             return exp;
                         }
-                        else
-                        {
-                            return CodeHelper.BinOpExp(
-                                GetCurrentTokenType(),
-                                CodeBinaryOperatorType.ValueEquality,
-                                exp);
-                        }
+
+                        return CodeHelper.BinOpExp(
+                            GetCurrentTokenType(),
+                            CodeBinaryOperatorType.ValueEquality,
+                            exp);
                     }
                     else if (node.Attributes.Count > 0)
                     {
@@ -867,10 +857,8 @@ namespace Mantispid
                             return new CodeObjectCreateExpression(
                                 ParserCode.GetListTypeRef(CodeHelper.TypeRef(node.Identifier)));
                         }
-                        else
-                        {
-                            throw new NotImplementedException();
-                        }
+
+                        throw new NotImplementedException();
                     }
                     else
                     {

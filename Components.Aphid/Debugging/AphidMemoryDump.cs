@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Debugging
 {
-    public class AphidMemoryDump
+    public static class AphidMemoryDump
     {
         public static string Create()
         {

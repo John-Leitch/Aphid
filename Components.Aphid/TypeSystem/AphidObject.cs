@@ -324,7 +324,7 @@ namespace Components.Aphid.TypeSystem
             var list = GetList();
             var array = new TElement[list.Count];
 
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 array[i] = list[i].ConvertTo<TElement>();
             }
@@ -519,19 +519,17 @@ namespace Components.Aphid.TypeSystem
             {
                 return true;
             }
-            else
-            {
-                var t = obj.GetType();
 
-                return
-                    t == typeof(string) ||
-                    t == typeof(decimal) ||
-                    t == typeof(bool) ||
-                    t == typeof(List<AphidObject>) ||
-                    t == typeof(AphidObject) ||
-                    t == typeof(AphidFunction) ||
-                    t == typeof(AphidInteropFunction);
-            }
+            var t = obj.GetType();
+
+            return
+                t == typeof(string) ||
+                t == typeof(decimal) ||
+                t == typeof(bool) ||
+                t == typeof(List<AphidObject>) ||
+                t == typeof(AphidObject) ||
+                t == typeof(AphidFunction) ||
+                t == typeof(AphidInteropFunction);
         }
 
         public override bool Equals(object obj) => base.Equals(obj);
@@ -596,10 +594,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return new AphidObject(parentScope);
             }
-            else
-            {
-                return new AphidObject();
-            }
+
+            return new AphidObject();
         }
     }
 }

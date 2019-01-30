@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Library.Net.Http
 {
-    public class ChunkedTransferEncoding
+    public static class ChunkedTransferEncoding
     {
         public static void Decode(Stream source, Stream destination)
         {

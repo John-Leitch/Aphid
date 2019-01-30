@@ -158,7 +158,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public HttpResponse Read(Stream bodyStream)
         {
-            var resp = new HttpResponse() { BodyStream = bodyStream };
+            var resp = new HttpResponse { BodyStream = bodyStream };
             var encoder = Encoding.GetEncoding(1252);
             var bufferSize = 8192;
 
@@ -204,7 +204,7 @@ namespace Components.Aphid.Library.Net.Http
                     var offset = 7;
                     if (bodyStr.Length >= offset)
                     {
-                        for (int i = bodyStr.Length - offset; i < bodyStr.Length; i++)
+                        for (var i = bodyStr.Length - offset; i < bodyStr.Length; i++)
                         {
                             tailBuffer[i - bodyStr.Length + offset] = (byte)bodyStr[i];
                         }
@@ -212,7 +212,7 @@ namespace Components.Aphid.Library.Net.Http
                     else
                     {
                         offset -= bodyStr.Length;
-                        for (int i = 0; i < bodyStr.Length; i++)
+                        for (var i = 0; i < bodyStr.Length; i++)
                         {
                             tailBuffer[i + offset] = (byte)bodyStr[i];
                         }
@@ -222,7 +222,7 @@ namespace Components.Aphid.Library.Net.Http
 
                 if (!bodyStr.EndsWith("0\r\n\r\n"))
                 {
-                    int bytesRead = 0;
+                    var bytesRead = 0;
                     do
                     {
                         buffer = new byte[bufferSize];
@@ -262,7 +262,7 @@ namespace Components.Aphid.Library.Net.Http
 
         public static HttpClient Connect(string host, int port)
         {
-            var client = new HttpClient() { Host = host, Port = port };
+            var client = new HttpClient { Host = host, Port = port };
             client.Connect();
             return client;
         }

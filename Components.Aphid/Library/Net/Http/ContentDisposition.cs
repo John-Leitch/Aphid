@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Library.Net.Http
 {
-    public class ContentDisposition
+    public static class ContentDisposition
     {
         public const string FormData = "form-data";
     }

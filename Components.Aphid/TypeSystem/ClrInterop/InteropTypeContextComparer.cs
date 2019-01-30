@@ -36,23 +36,19 @@ namespace Components.Aphid.TypeSystem
                 {
                     return false;
                 }
-                else
-                {
-                    for (var i = 0; i < x.Path.Length; i++)
-                    {
-                        if (x.Path[i] != y.Path[i])
-                        {
-                            return false;
-                        }
-                    }
 
-                    return true;
+                for (var i = 0; i < x.Path.Length; i++)
+                {
+                    if (x.Path[i] != y.Path[i])
+                    {
+                        return false;
+                    }
                 }
-            }
-            else
-            {
+
                 return true;
             }
+
+            return true;
         }
 
         public int GetHashCode(InteropTypeContext obj)
@@ -68,10 +64,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return x & ~0x1;
             }
-            else
-            {
-                return x | 0x1;
-            }
+
+            return x | 0x1;
         }
     }
 }

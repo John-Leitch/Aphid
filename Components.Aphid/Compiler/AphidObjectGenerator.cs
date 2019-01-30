@@ -13,12 +13,12 @@ namespace Components.Aphid.Compiler
         {
             typeof(byte),
             typeof(sbyte),
-            typeof(Int16),
-            typeof(UInt16),
-            typeof(Int32),
-            typeof(UInt32),
-            typeof(Int64),
-            typeof(UInt64),
+            typeof(short),
+            typeof(ushort),
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
         };
 
         private static readonly Type[] _arrayTypes = new Type[]
@@ -71,7 +71,7 @@ namespace Components.Aphid.Compiler
 
         private static CodeConditionStatement CreateArraySetValueCondition(Type type)
         {
-            string lambda = type == typeof(decimal) ? "x => x.GetNumber()" :
+            var lambda = type == typeof(decimal) ? "x => x.GetNumber()" :
                 type == typeof(bool) ? "x => x.GetBool()" :
                 type == typeof(string) ? "x => x.GetString()" :
                 $"x => ({type.FullName})x.GetNumber()";

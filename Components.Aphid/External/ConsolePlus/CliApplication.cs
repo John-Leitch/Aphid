@@ -119,7 +119,7 @@ namespace Components.External.ConsolePlus
 
                 try
                 {
-                    var dmp = PathHelper.GetEntryPath($"{name}_{Guid.NewGuid()}.dmp");
+                    var dmp = PathHelper.GetEntryPath($"{name}_{Guid.NewGuid().ToString()}.dmp");
                     MemoryDump.Create(dmp);
                 }
                 catch (Exception e2)
@@ -127,7 +127,7 @@ namespace Components.External.ConsolePlus
                     Cli.WriteErrorMessage("Error creating dump: {0}", e2);
                 }
 
-                string msg = e != null ?
+                var msg = e != null ?
                     e.ToString() :
                     "Unknown exception";
 

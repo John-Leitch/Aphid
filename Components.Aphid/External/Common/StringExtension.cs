@@ -86,14 +86,11 @@ namespace Components
             }
 
             var currentLine = 0;
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
             {
-                if (s[i] == '\n')
+                if (s[i] == '\n' && ++currentLine == lineNumber)
                 {
-                    if (++currentLine == lineNumber)
-                    {
-                        return i + 1;
-                    }
+                    return i + 1;
                 }
             }
 
@@ -111,11 +108,11 @@ namespace Components
         public static string InsertLineNumbers(this string s, int startLine)
         {
             var sb = new StringBuilder(s);
-            int line = startLine;
+            var line = startLine;
             string getLineStr() => (line++.ToString().PadLeft(4, '0') + ": ");
             sb.Insert(0, getLineStr());
 
-            for (int i = 0; i < sb.Length; i++)
+            for (var i = 0; i < sb.Length; i++)
             {
                 if (sb[i] == '\n')
                 {

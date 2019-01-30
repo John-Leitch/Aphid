@@ -63,7 +63,7 @@ namespace Components.Aphid.Compiler
 
         public static CodeExpression BinOpExpJoin(this IEnumerable<CodeExpression> expressions, CodeBinaryOperatorType op)
         {
-            CodeExpression codeExp = expressions.First();
+            var codeExp = expressions.First();
 
             foreach (var x in expressions.Skip(1))
             {

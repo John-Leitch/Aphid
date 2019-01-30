@@ -142,12 +142,10 @@ namespace Components.Caching
             {
                 return null;
             }
-            else
+
+            using (var s = FileMemoryCache.OpenRead(cacheInfoFile))
             {
-                using (var s = FileMemoryCache.OpenRead(cacheInfoFile))
-                {
-                    return _serializer.Deserialize(s);
-                }
+                return _serializer.Deserialize(s);
             }
         }
 
@@ -178,10 +176,8 @@ namespace Components.Caching
             {
                 return filename + ".cache";
             }
-            else
-            {
-                return filename + "." + Flags + ".cache";
-            }
+
+            return filename + "." + Flags.ToString() + ".cache";
         }
 
         protected virtual string GetCacheInfoFilename(string filename)
@@ -190,10 +186,8 @@ namespace Components.Caching
             {
                 return filename + ".cache.metadata";
             }
-            else
-            {
-                return filename + "." + Flags + ".cache.metadata";
-            }
+
+            return filename + "." + Flags.ToString() + ".cache.metadata";
         }
     }
 }

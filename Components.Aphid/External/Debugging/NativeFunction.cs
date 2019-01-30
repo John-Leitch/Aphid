@@ -16,22 +16,7 @@ namespace Components.Cypress
 
         public int Size { get; set; }
 
-        private Instruction[] _disassembly;
-
-        public Instruction[] Disassembly
-        {
-            get => _disassembly;
-            set
-            {
-                //if (Size == 0 && value != null)
-                //{
-                //    Size = value
-                //        .Sum(x => x.ByteString != null ? x.ByteString.Length / 2 : 0);
-                //}
-
-                _disassembly = value;
-            }
-        }
+        public Instruction[] Disassembly { get; set; }
 
         public NativeFunction()
         {
@@ -77,7 +62,7 @@ namespace Components.Cypress
 
         public static NativeFunction Deserialize(StringTable table, BinaryReader reader)
         {
-            var func = new NativeFunction()
+            var func = new NativeFunction
             {
                 Address = reader.ReadUInt32(),
                 Name = table[reader.ReadInt32()],
@@ -97,7 +82,7 @@ namespace Components.Cypress
             {
                 func.Disassembly = new[]
                 {
-                    new Instruction()
+                    new Instruction
                     {
                         Address = func.Address,
                         Mnemonic = "nop",

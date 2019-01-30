@@ -15,7 +15,7 @@ namespace Components.Aphid.TypeSystem
             _fanInteropTypeMemoizer = new Memoizer<Type, string[]>(),
             _fanAphidTypeMemoizer = new Memoizer<Type, string[]>();
 
-        private static bool _isUnknownExtended = false;
+        private static bool _isUnknownExtended;
 
         private static HashSet<string> _typesExtended = new HashSet<string>(),
             _typesCtorExtended = new HashSet<string>(),
@@ -36,10 +36,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return "$ext." + type + "." + nameStr;
             }
-            else
-            {
-                return "$ext." + type;
-            }
+
+            return "$ext." + type;
         }
 
         private static string[] FanStaticInteropTypeName(Type type)
@@ -48,10 +46,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return _staticTypeMemoizer.Call(FanStaticInteropTypeNameCore, type);
             }
-            else
-            {
-                return Array.Empty<string>();
-            }
+
+            return Array.Empty<string>();
         }
 
         private static string[] FanStaticInteropTypeNameCore(Type type)
@@ -75,20 +71,16 @@ namespace Components.Aphid.TypeSystem
                 {
                     return _fanAphidTypeMemoizer.Call(FanAphidName, obj.Value.GetType());
                 }
-                else
-                {
-                    return Array.Empty<string>();
-                }
+
+                return Array.Empty<string>();
             }
-            else
+
+            return new string[]
             {
-                return new string[]
-                {
                     AphidType.Object,
                     typeof(AphidObject).FullName,
                     AphidType.Unknown
-                };
-            }
+            };
         }
 
         private static string[] FanInteropName(AphidObject obj)
@@ -99,15 +91,11 @@ namespace Components.Aphid.TypeSystem
                 {
                     return _fanInteropTypeMemoizer.Call(FanInteropName, obj.Value.GetType());
                 }
-                else
-                {
-                    return Array.Empty<string>();
-                }
+
+                return Array.Empty<string>();
             }
-            else
-            {
-                return new string[] { typeof(AphidObject).FullName, AphidType.Unknown };
-            }
+
+            return new string[] { typeof(AphidObject).FullName, AphidType.Unknown };
         }
 
         private static string[] FanInteropName(Type t)
@@ -153,30 +141,28 @@ namespace Components.Aphid.TypeSystem
             {
                 return t.FullName;
             }
-            else
+
+            var isFirstTypeArg = true;
+            var sb = new StringBuilder(t.FullName);
+            sb.Append('[');
+
+            foreach (var p in t.GetGenericArguments())
             {
-                var isFirstTypeArg = true;
-                var sb = new StringBuilder(t.FullName);
-                sb.Append('[');
-
-                foreach (var p in t.GetGenericArguments())
+                if (isFirstTypeArg)
                 {
-                    if (isFirstTypeArg)
-                    {
-                        isFirstTypeArg = false;
-                    }
-                    else
-                    {
-                        sb.Append(',');
-                    }
-
-                    sb.Append(p.FullName);
+                    isFirstTypeArg = false;
+                }
+                else
+                {
+                    sb.Append(',');
                 }
 
-                sb.Append(']');
-
-                return sb.ToString();
+                sb.Append(p.FullName);
             }
+
+            sb.Append(']');
+
+            return sb.ToString();
         }
 
         public void Extend(
@@ -312,19 +298,17 @@ namespace Components.Aphid.TypeSystem
                     isStatic: false,
                     returnRef: returnRef);
             }
-            else
-            {
-                return TryResolve(
-                    scope,
-                    obj,
-                    FanInteropName(obj),
-                    key,
-                    isAphidType,
-                    isCtor,
-                    isDynamic,
-                    isStatic: false,
-                    returnRef: returnRef);
-            }
+
+            return TryResolve(
+                scope,
+                obj,
+                FanInteropName(obj),
+                key,
+                isAphidType,
+                isCtor,
+                isDynamic,
+                isStatic: false,
+                returnRef: returnRef);
         }
 
         public static AphidObject TryResolve(
@@ -357,7 +341,7 @@ namespace Components.Aphid.TypeSystem
             bool isStatic,
             bool returnRef)
         {
-            int startOffset = 0;
+            var startOffset = 0;
             HashSet<string> types;
 
             if (isCtor)
@@ -561,7 +545,7 @@ namespace Components.Aphid.TypeSystem
                 }
             }
 
-            return !returnRef ? result : AphidObject.Scalar(new AphidRef() { Name = key, Object = result });
+            return !returnRef ? result : AphidObject.Scalar(new AphidRef { Name = key, Object = result });
         }
     }
 }

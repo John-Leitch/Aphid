@@ -18,7 +18,7 @@ namespace Components.Aphid.Parser
 
             byte b = 0;
 
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
             {
                 var c = s[i];
 

@@ -246,10 +246,8 @@ namespace Components.Aphid.Interpreter
 
                 return ast;
             }
-            else
-            {
-                throw Interpreter.CreateRuntimeException("Cannot find script {0}.", scriptFile);
-            }
+
+            throw Interpreter.CreateRuntimeException("Cannot find script {0}.", scriptFile);
         }
 
         public static void SetMember(AphidObject scope, string path, object value)

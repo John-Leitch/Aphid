@@ -46,9 +46,8 @@ namespace Components.ObjectDatabase
             }
 
             var resultObj = _interpreter.Interpret(_predicateExpression);
-            var result = (bool)((AphidObject)resultObj).Value;
-
-            return result;
+            
+            return (bool)resultObj.Value;
         }
     }
 }

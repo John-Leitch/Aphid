@@ -28,7 +28,7 @@ namespace Components.External
             int[] siblingDepths,
             bool lastChild)
         {
-            for (int i = 0; i < indentation; i++)
+            for (var i = 0; i < indentation; i++)
             {
                 sb.Append(
                     lastChild && i == indentation - 1 ? "└" :

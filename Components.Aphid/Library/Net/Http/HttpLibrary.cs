@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Library.Net
 {
-    public class HttpLibrary
+    public static class HttpLibrary
     {
         [AphidInteropFunction("__http.request", UnwrapParameters = false)]
         public static string HttpRequest(AphidObject request)

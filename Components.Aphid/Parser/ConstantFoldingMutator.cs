@@ -81,12 +81,9 @@ namespace Components.Aphid.Parser
                                 new NumberExpression(left / right)
                             };
                         }
-                        else
-                        {
-                            hasChanged = false;
+                        hasChanged = false;
 
-                            return null;
-                        }
+                        return null;
 
                     default:
                         hasChanged = false;

@@ -73,7 +73,7 @@ namespace Components.External.ConsolePlus
             var argDictionary = GetArgDictionary(target);
             var argsSet = new List<CliArgAttribute>();
 
-            for (int i = 0; i < Arguments.Length; i++)
+            for (var i = 0; i < Arguments.Length; i++)
             {
                 var name = Arguments[i];
 
@@ -88,10 +88,8 @@ namespace Components.External.ConsolePlus
                     {
                         continue;
                     }
-                    else
-                    {
-                        ThrowArgumentException("Invalid argument {0}.", name);
-                    }
+
+                    ThrowArgumentException("Invalid argument {0}.", name);
                 }
 
                 var arg = argDictionary[name];

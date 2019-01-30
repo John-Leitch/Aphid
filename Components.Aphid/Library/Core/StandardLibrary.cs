@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace Components.Aphid.Library
 {
     [AphidLibraryAttribute("standard")]
-    public class StandardLibrary
+    public static class StandardLibrary
     {
         public static Encoding Encoding = Encoding.GetEncoding("iso-8859-1");
 
@@ -92,12 +92,10 @@ namespace Components.Aphid.Library
             {
                 return decimal.Parse(str);
             }
-            else
-            {
-                throw interpreter.CreateRuntimeException(
-                    "Could not parse number: {0}",
-                    obj);
-            }
+
+            throw interpreter.CreateRuntimeException(
+                "Could not parse number: {0}",
+                obj);
         }
 
         [AphidInteropFunction("str")]
@@ -115,10 +113,8 @@ namespace Components.Aphid.Library
 
                 return (decimal)str[0];
             }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+
+            throw new InvalidOperationException();
         }
 
         [AphidInteropFunction("chr")]
@@ -274,7 +270,7 @@ namespace Components.Aphid.Library
         private static string StringReplace(string str, string oldValue, string newValue) =>
             str.Replace(oldValue, newValue);
 
-        private static bool _ignoreCase = false;
+        private static bool _ignoreCase;
 
         [AphidInteropFunction("__string.ignoreCase")]
         private static void StringIgnoreCase(bool ignoreCase) => _ignoreCase = ignoreCase;

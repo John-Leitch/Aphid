@@ -33,7 +33,7 @@ namespace Components.Aphid.Compiler
         public AssemblyBuilder Assembly { get; private set; }
 
         public AphidAssemblyBuilder(AphidInterpreter interpreter)
-            : this(interpreter, $"AphidModule_{Guid.NewGuid()}")
+            : this(interpreter, $"AphidModule_{Guid.NewGuid().ToString()}")
         {
         }
 
@@ -104,7 +104,7 @@ namespace Components.Aphid.Compiler
             var state = ClassAttributeScanState.Starting;
             var scanner = new AphidAttributeScanner(type.Identifier);
             scanner.Next();
-            string defaultType = "System.Object";
+            var defaultType = "System.Object";
             var defaultTypeSet = false;
             var interfaces = new List<Type>();
             Type baseType = null;

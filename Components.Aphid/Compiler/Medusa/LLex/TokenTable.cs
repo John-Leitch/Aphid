@@ -22,7 +22,7 @@ namespace LLex
 
         public Dictionary<int, List<TokenEntry>> Lists => _lists;
 
-        private int _mode = 0;
+        private int _mode;
 
         public int Mode => _mode;
 

@@ -74,7 +74,7 @@ namespace LLex
             tokenTable.Ignore = llexFile.Ignore;
             var nameInfo = LLexNameInfo.Parse(llexFile.Name);
 
-            int z = 0;
+            var z = 0;
             var modeTable = llexFile.Modes.ToDictionary(x => x.Mode, x => z++);
             var tokenTypes = new List<string>();
 

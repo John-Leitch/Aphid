@@ -10,11 +10,11 @@ using System.Web.Script.Serialization;
 
 namespace Components.Json
 {
-    public class JsonSerializer
+    public static class JsonSerializer
     {
-        private static JavaScriptSerializer _serializer = new JavaScriptSerializer() { MaxJsonLength = int.MaxValue };
+        private static JavaScriptSerializer _serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
 
-        private static JsonFormatter _formatter = new JsonFormatter() { ConvertToHex = false };
+        private static JsonFormatter _formatter = new JsonFormatter { ConvertToHex = false };
 
         public static T Deserialize<T>(string json)
         {

@@ -8,7 +8,7 @@ using Components.Aphid.TypeSystem;
 namespace Components.Aphid.Library
 {
     [AphidLibraryAttribute("io")]
-    public class IOLibrary
+    public static class IOLibrary
     {
         [AphidInteropFunction("io.file.read")]
         private static List<AphidObject> ReadBytes(string filename)
@@ -28,7 +28,7 @@ namespace Components.Aphid.Library
         {
             var buffer = new byte[bytes.Count];
 
-            for (int i = 0; i < buffer.Length; i++)
+            for (var i = 0; i < buffer.Length; i++)
             {
                 buffer[i] = Convert.ToByte(bytes[i].Value);
             }

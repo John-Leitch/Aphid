@@ -8,7 +8,7 @@ namespace Components.Aphid.Parser
 {
     public static class AphidByteCode
     {
-        private static bool _useBoundSerializer = false;
+        private static bool _useBoundSerializer;
 
         [ThreadStatic]
         private static BinaryFormatter _serializer, _boundSerializer;
@@ -17,7 +17,7 @@ namespace Components.Aphid.Parser
             _serializer ?? (_serializer = new BinaryFormatter());
 
         public static BinaryFormatter BoundSerializer =>
-            _boundSerializer ?? (_boundSerializer = new BinaryFormatter()
+            _boundSerializer ?? (_boundSerializer = new BinaryFormatter
             {
                 Binder = new AphidExpressionBinder()
             });

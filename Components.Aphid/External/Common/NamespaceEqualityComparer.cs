@@ -22,10 +22,8 @@ namespace Components
             {
                 return false;
             }
-            else
-            {
-                return x.SequenceEqual(y);
-            }
+
+            return x.SequenceEqual(y);
         }
 
         public int GetHashCode(HashSet<string> obj)

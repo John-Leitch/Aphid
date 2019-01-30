@@ -62,10 +62,8 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("modulo");
             }
-            else
-            {
-                return AphidObject.Scalar(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
-            }
+
+            return AphidObject.Scalar(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
         }
 
         public AphidObject BinaryOr(AphidObject x, AphidObject y)
@@ -189,10 +187,8 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("binary shift left");
             }
-            else
-            {
-                return AphidObject.Scalar((decimal)((int)(decimal)x.Value << (int)(decimal)y.Value));
-            }
+
+            return AphidObject.Scalar((decimal)((int)(decimal)x.Value << (int)(decimal)y.Value));
         }
 
         public AphidObject BinaryShiftRight(AphidObject x, AphidObject y)
@@ -201,10 +197,8 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("binary shift right");
             }
-            else
-            {
-                return AphidObject.Scalar((decimal)((int)(decimal)x.Value >> (int)(decimal)y.Value));
-            }
+
+            return AphidObject.Scalar((decimal)((int)(decimal)x.Value >> (int)(decimal)y.Value));
         }
 
         public AphidObject Xor(AphidObject x, AphidObject y)
@@ -213,10 +207,8 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("exclusive or");
             }
-            else
-            {
-                return AphidObject.Scalar((decimal)((int)(decimal)x.Value ^ (int)(decimal)y.Value));
-            }
+
+            return AphidObject.Scalar((decimal)((int)(decimal)x.Value ^ (int)(decimal)y.Value));
         }
 
         public AphidObject Subtract(AphidObject x, AphidObject y)
@@ -225,17 +217,15 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("subtraction");
             }
-            else
-            {
-                return AphidObject.Scalar(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
-            }
+
+            return AphidObject.Scalar(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
         }
 
         private static AphidObject Repeat(string value, decimal count)
         {
             var sb = new StringBuilder();
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 sb.Append(value);
             }
@@ -249,33 +239,31 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("multiplication");
             }
+
+            object val;
+
+            if (x.Value is decimal && y.Value is decimal)
+            {
+                val = ((decimal)x.Value) * (decimal)y.Value;
+            }
+            else if (x.Value is string && y.Value is decimal)
+            {
+                return Repeat((string)x.Value, (decimal)y.Value);
+            }
+            else if (x.Value is decimal && y.Value is string)
+            {
+                return Repeat((string)y.Value, (decimal)x.Value);
+            }
             else
             {
-                object val;
+                // Todo: check if values are numeric and convert, otherwise
+                // throw the following exception.
+                // throw new AphidRuntimeException("Could not multiply type");
 
-                if (x.Value is decimal && y.Value is decimal)
-                {
-                    val = ((decimal)x.Value) * (decimal)y.Value;
-                }
-                else if (x.Value is string && y.Value is decimal)
-                {
-                    return Repeat((string)x.Value, (decimal)y.Value);
-                }
-                else if (x.Value is decimal && y.Value is string)
-                {
-                    return Repeat((string)y.Value, (decimal)x.Value);
-                }
-                else
-                {
-                    // Todo: check if values are numeric and convert, otherwise
-                    // throw the following exception.
-                    // throw new AphidRuntimeException("Could not multiply type");
-
-                    return AphidObject.Scalar(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));
-                }
-
-                return AphidObject.Scalar(val);
+                return AphidObject.Scalar(Convert.ToDecimal(x.Value) * Convert.ToDecimal(y.Value));
             }
+
+            return AphidObject.Scalar(val);
         }
 
         public AphidObject Divide(AphidObject x, AphidObject y)
@@ -284,10 +272,8 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("division");
             }
-            else
-            {
-                return AphidObject.Scalar(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
-            }
+
+            return AphidObject.Scalar(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
         }
 
         public AphidObject Range(AphidObject x, AphidObject y)
@@ -296,14 +282,12 @@ namespace Components.Aphid.TypeSystem
             {
                 throw CreateOperationException("range");
             }
-            else
-            {
-                return AphidObject
-                    .Scalar(
-                        Enumerable
-                            .Range(Convert.ToInt32(x.Value), Convert.ToInt32(y.Value))
-                            .Select(Convert.ToDecimal));
-            }
+
+            return AphidObject
+                .Scalar(
+                    Enumerable
+                        .Range(Convert.ToInt32(x.Value), Convert.ToInt32(y.Value))
+                        .Select(Convert.ToDecimal));
         }
 
         public static bool EqualsCore(AphidObject x, AphidObject y)
@@ -312,10 +296,8 @@ namespace Components.Aphid.TypeSystem
             {
                 return x.Value.Equals(y.Value);
             }
-            else
-            {
-                return (null == y.Value && x.Count == 0 && y.Count == 0);
-            }
+
+            return (null == y.Value && x.Count == 0 && y.Count == 0);
         }
 
         public static AphidObject Equals(AphidObject x, AphidObject y) =>

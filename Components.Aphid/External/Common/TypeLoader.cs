@@ -100,14 +100,12 @@ namespace Components
                 {
                     throw GetResolveException(fullTypeName);
                 }
-                else
-                {
-                    _assemblies.Revert();
 
-                    if ((asms = TryGetAssemblies(namespaces)) == null)
-                    {
-                        throw GetResolveException(fullTypeName);
-                    }
+                _assemblies.Revert();
+
+                if ((asms = TryGetAssemblies(namespaces)) == null)
+                {
+                    throw GetResolveException(fullTypeName);
                 }
             }
 

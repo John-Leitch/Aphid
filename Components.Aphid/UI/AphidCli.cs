@@ -29,7 +29,7 @@ namespace Components.Aphid.UI
 
         private static AphidSyntaxHighlighter _highlighter = new AphidSyntaxHighlighter();
 
-        public static bool ShowClrStack { get; set; } = false;
+        public static bool ShowClrStack { get; set; }
 
         public static int ExcerptSurroundingLines { get; set; } = 4;
 
@@ -41,7 +41,7 @@ namespace Components.Aphid.UI
 
         public static int ExcerptDumpCount { get; set; } = 4;
 
-        public static bool IsAborting { get; set; } = false;
+        public static bool IsAborting { get; set; }
 
         public static AphidSerializer CreateSerializer(AphidInterpreter interpreter) =>
             new AphidSerializer(interpreter)
@@ -199,7 +199,7 @@ namespace Components.Aphid.UI
         {
             if(AphidErrorHandling.HandleErrors)
             {
-                bool backup = false;
+                var backup = false;
 
                 try
                 {

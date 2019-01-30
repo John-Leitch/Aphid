@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Components.Aphid.Library
 {
-    public class EnvironmentLibrary
+    public static class EnvironmentLibrary
     {
         [AphidInteropFunction("env.expand")]
         public static string EnvExpand(string str) => Environment.ExpandEnvironmentVariables(str);
@@ -69,7 +69,7 @@ namespace Components.Aphid.Library
                 optionsObj.ConvertTo<ExecOptions>() :
                 new ExecOptions();
 
-            var process = new Process()
+            var process = new Process
             {
                 StartInfo = new ProcessStartInfo(exe, args)
                 {
@@ -123,10 +123,8 @@ namespace Components.Aphid.Library
 
                 return retVal;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         [AphidInteropFunction("env.exit")]

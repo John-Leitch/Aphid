@@ -463,10 +463,8 @@ namespace Components.Aphid.Parser
                     {
                         throw new NotImplementedException();
                     }
-                    else
-                    {
-                        expanded.Add(expression);
-                    }
+
+                    expanded.Add(expression);
 
                     break;
             }
@@ -478,7 +476,7 @@ namespace Components.Aphid.Parser
 
         public List<AphidExpression> MutateRecursively(List<AphidExpression> expression)
         {
-            List<AphidExpression> ast = expression;
+            var ast = expression;
 
             var anyMutations = false;
 

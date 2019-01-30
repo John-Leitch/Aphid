@@ -44,7 +44,7 @@ namespace Components.External.ConsolePlus
             }
         }
 
-        private string[] NextCommand()
+        private static string[] NextCommand()
         {
             DrawPrompt();
             return ArgLexer.Tokenize(Console.ReadLine());
@@ -84,7 +84,7 @@ namespace Components.External.ConsolePlus
 
         public static void DrawPrompt() => Cli.Write("~Cyan~#~R~ ");
 
-        public void Update(Action action)
+        public static void Update(Action action)
         {
             Cli.Write("\r");
             action();

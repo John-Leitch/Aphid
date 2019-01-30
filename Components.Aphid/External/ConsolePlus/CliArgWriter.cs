@@ -40,18 +40,16 @@ namespace Components.External.ConsolePlus
                     delimiterStyle,
                     GetReset(delimiterStyle));
             }
-            else
-            {
-                return string.Format(
-                    "{5}{3}{6}{0}{1}{2}{5}{4}{6}",
-                    argStyle,
-                    name,
-                    GetReset(argStyle),
-                    arg.IsRequired || !useOptionalDelimiters ? "" : Cli.Escape(_optionalDelimterLeft),
-                    arg.IsRequired || !useOptionalDelimiters ? "" : Cli.Escape(_optionalDelimterRight),
-                    delimiterStyle,
-                    GetReset(delimiterStyle));
-            }
+
+            return string.Format(
+                "{5}{3}{6}{0}{1}{2}{5}{4}{6}",
+                argStyle,
+                name,
+                GetReset(argStyle),
+                arg.IsRequired || !useOptionalDelimiters ? "" : Cli.Escape(_optionalDelimterLeft),
+                arg.IsRequired || !useOptionalDelimiters ? "" : Cli.Escape(_optionalDelimterRight),
+                delimiterStyle,
+                GetReset(delimiterStyle));
         }
 
         private static string CreateArgDescription(

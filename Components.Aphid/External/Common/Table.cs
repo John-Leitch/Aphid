@@ -11,7 +11,7 @@ namespace Components
     [DataContract]
     public class Table<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {
-        private readonly Func<TValue> _createValue = null;
+        private readonly Func<TValue> _createValue;
 
         [DataMember]
         private Dictionary<TKey, TValue> _table = new Dictionary<TKey, TValue>();
@@ -62,6 +62,6 @@ namespace Components
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_table).GetEnumerator();
 
-        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary) => new Table<TKey, TValue>() { _table = dictionary };
+        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary) => new Table<TKey, TValue> { _table = dictionary };
     }
 }

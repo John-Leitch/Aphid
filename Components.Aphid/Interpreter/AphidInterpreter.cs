@@ -433,13 +433,11 @@ namespace Components.Aphid.Interpreter
             {
                 return (HashSet<string>)imports.Value;
             }
-            else
-            {
-                var list = new HashSet<string>(AphidConfig.Current.Imports);
-                CurrentScope.Add(AphidName.Imports, Scalar(list));
 
-                return list;
-            }
+            var list = new HashSet<string>(AphidConfig.Current.Imports);
+            CurrentScope.Add(AphidName.Imports, Scalar(list));
+
+            return list;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -459,7 +457,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject GetReturnValue(bool remove)
         {
-            if (CurrentScope.TryGetValue(AphidName.Return, out AphidObject retVal) && remove)
+            if (CurrentScope.TryGetValue(AphidName.Return, out var retVal) && remove)
             {
                 CurrentScope.Remove(AphidName.Return);
             }
@@ -495,10 +493,8 @@ namespace Components.Aphid.Interpreter
                     scriptObj?.GetString() :
                     null;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -641,10 +637,8 @@ namespace Components.Aphid.Interpreter
             {
                 return InternedFalse;
             }
-            else
-            {
-                return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
-            }
+
+            return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -654,10 +648,8 @@ namespace Components.Aphid.Interpreter
             {
                 return InternedTrue;
             }
-            else
-            {
-                return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
-            }
+
+            return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -680,15 +672,13 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (left.Value != null && right.Value != null)
                 {
-                    Type leftType = left.Value.GetType();
+                    var leftType = left.Value.GetType();
                     if (InterpretEqualityExpression(left.Value, leftType, right.Value, right.Value.GetType()))
                     {
                         return InternedTrue;
                     }
-                    else
-                    {
-                        return InternedFalse;
-                    }
+
+                    return InternedFalse;
                 }
                 else if (left.Value != null)
                 {
@@ -696,10 +686,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedTrue;
                     }
-                    else
-                    {
-                        return InternedFalse;
-                    }
+
+                    return InternedFalse;
                 }
                 else if (right.Value != null)
                 {
@@ -707,10 +695,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedTrue;
                     }
-                    else
-                    {
-                        return InternedFalse;
-                    }
+
+                    return InternedFalse;
                 }
                 else if (left.IsScalar && right.IsScalar)
                 {
@@ -722,10 +708,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedTrue;
                     }
-                    else
-                    {
-                        return InternedFalse;
-                    }
+
+                    return InternedFalse;
                 }
                 else
                 {
@@ -749,10 +733,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedFalse;
                     }
-                    else
-                    {
-                        return InternedTrue;
-                    }
+
+                    return InternedTrue;
                 }
                 else if (left.Value != null)
                 {
@@ -760,10 +742,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedFalse;
                     }
-                    else
-                    {
-                        return InternedTrue;
-                    }
+
+                    return InternedTrue;
                 }
                 else if (right.Value != null)
                 {
@@ -771,10 +751,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedFalse;
                     }
-                    else
-                    {
-                        return InternedTrue;
-                    }
+
+                    return InternedTrue;
                 }
                 else if (left.IsScalar && right.IsScalar)
                 {
@@ -786,10 +764,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return InternedFalse;
                     }
-                    else
-                    {
-                        return InternedTrue;
-                    }
+
+                    return InternedTrue;
                 }
                 else
                 {
@@ -895,15 +871,11 @@ namespace Components.Aphid.Interpreter
                             {
                                 return Scalar(propInfo.GetValue(lhs));
                             }
-                            else
-                            {
-                                return Wrap(propInfo.GetValue(lhs));
-                            }
+
+                            return Wrap(propInfo.GetValue(lhs));
                         }
-                        else
-                        {
-                            return (AphidObject)propInfo.GetValue(lhs);
-                        }
+
+                        return (AphidObject)propInfo.GetValue(lhs);
                     }
                     else
                     {
@@ -923,15 +895,11 @@ namespace Components.Aphid.Interpreter
                             {
                                 return Scalar(fieldInfo.GetValue(lhs));
                             }
-                            else
-                            {
-                                return Wrap(fieldInfo.GetValue(lhs));
-                            }
+
+                            return Wrap(fieldInfo.GetValue(lhs));
                         }
-                        else
-                        {
-                            return (AphidObject)fieldInfo.GetValue(lhs);
-                        }
+
+                        return (AphidObject)fieldInfo.GetValue(lhs);
                     }
                     else
                     {
@@ -947,10 +915,8 @@ namespace Components.Aphid.Interpreter
                         "Could not find property '{0}'",
                         expression);
                 }
-                else
-                {
-                    return dynamicHandler();
-                }
+
+                return dynamicHandler();
             }
 
             return Scalar(new AphidInteropMember(expression, lhs, members));
@@ -1155,10 +1121,8 @@ namespace Components.Aphid.Interpreter
                                         returnRef,
                                         null);
                                 }
-                                else
-                                {
-                                    return Scalar(nestedType);
-                                }
+
+                                return Scalar(nestedType);
                             }
 
                             members = GetInteropInstanceMembers(type, key);
@@ -1202,10 +1166,8 @@ namespace Components.Aphid.Interpreter
                                         returnRef,
                                         null);
                                 }
-                                else
-                                {
-                                    return Scalar(nestedType);
-                                }
+
+                                return Scalar(nestedType);
                             }
                         }
 
@@ -1237,14 +1199,12 @@ namespace Components.Aphid.Interpreter
                                 obj.Value.GetType(),
                                 expression.ToString().Trim());
                         }
-                        else
-                        {
-                            throw CreateRuntimeException(
-                                "Cannot resolve member '{0}' for null value from " +
-                                    "expression '{1}'.",
-                                key,
-                                expression.ToString().Trim());
-                        }
+
+                        throw CreateRuntimeException(
+                            "Cannot resolve member '{0}' for null value from " +
+                                "expression '{1}'.",
+                            key,
+                            expression.ToString().Trim());
                     }
                     else if (obj.Value != null)
                     {
@@ -1292,7 +1252,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (returnRef)
                 {
-                    return new AphidRef() { Name = key, Object = obj };
+                    return new AphidRef { Name = key, Object = obj };
                 }
                 else if (obj.TryResolve(key, out val))
                 {
@@ -2366,13 +2326,11 @@ namespace Components.Aphid.Interpreter
 
                 return obj;
             }
-            else
-            {
-                CurrentScope.Add(key, func);
-                CurrentScope.Add(key2, Scalar(expression));
 
-                return func;
-            }
+            CurrentScope.Add(key, func);
+            CurrentScope.Add(key2, Scalar(expression));
+
+            return func;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2447,10 +2405,10 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static string GetCustomOperatorKey(AphidTokenType op) =>
-            $"$customOperator.{op}.body";
+            $"$customOperator.{op.ToString()}.body";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static string GetCustomOperatorExpressionKey(AphidTokenType op) => $"$customOperator.{op}.expression";
+        private static string GetCustomOperatorExpressionKey(AphidTokenType op) => $"$customOperator.{op.ToString()}.expression";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -2520,19 +2478,17 @@ namespace Components.Aphid.Interpreter
 
                 return obj;
             }
-            else
-            {
-                //if (!expression.IsStatement())
-                //{
-                //    ThrowRuntimeException(
-                //        "Class declaration '{0}' must be statement.",
-                //        expression.Identifier.Identifier);
-                //}
+            //if (!expression.IsStatement())
+            //{
+            //    ThrowRuntimeException(
+            //        "Class declaration '{0}' must be statement.",
+            //        expression.Identifier.Identifier);
+            //}
 
-                var t = AsmBuilder.CreateType(expression, GetImports());
+            var t = AsmBuilder.CreateType(expression, GetImports());
 
-                return Scalar(t); ;
-            }
+            return Scalar(t);
+            ;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2601,21 +2557,19 @@ namespace Components.Aphid.Interpreter
             {
                 return CallFunctionCore(function, scope, parmsWrapped);
             }
-            else
+
+            var child = new AphidInterpreter(CurrentScope.CreateChild())
             {
-                var child = new AphidInterpreter(CurrentScope.CreateChild())
-                {
-                    Serializer = Serializer,
-                    StrictMode = StrictMode,
-                };
+                Serializer = Serializer,
+                StrictMode = StrictMode,
+            };
 
-                foreach (var p in Loader.SearchPaths)
-                {
-                    child.Loader.SearchPaths.Add(p);
-                }
-
-                return child.CallFunctionCore(function, scope, parmsWrapped);
+            foreach (var p in Loader.SearchPaths)
+            {
+                child.Loader.SearchPaths.Add(p);
             }
+
+            return child.CallFunctionCore(function, scope, parmsWrapped);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2678,7 +2632,7 @@ namespace Components.Aphid.Interpreter
                 functionScope.CopyTo(scope);
                 scope.Parent = functionScope.Parent;
                 functionScope = scope;
-                AphidObject backupScope = functionScope;
+                var backupScope = functionScope;
             }
 
             var parent = CurrentScope;
@@ -2745,10 +2699,8 @@ namespace Components.Aphid.Interpreter
                     {
                         return attrs[0].Identifier;
                     }
-                    else
-                    {
-                        return null;
-                    }
+
+                    return null;
 
                 case Exp.BinaryOperatorExpression:
                     return GetInteropAttribute(((BinaryOperatorExpression)expression).LeftOperand);
@@ -3015,41 +2967,38 @@ namespace Components.Aphid.Interpreter
                         (refObj = InterpretMemberExpression(
                             (BinaryOperatorExpression)functionExpression,
                             returnRef: true)) != null &&
-                        (memberRef = Unwrap(refObj) as AphidInteropReference) != null)
+                        (memberRef = Unwrap(refObj) as AphidInteropReference) != null && memberRef != null)
                     {
-                        if (memberRef != null)
+                        if (((extObj = TryResolve(
+                                CurrentScope,
+                                Wrap(memberRef.Object),
+                                memberRef.Name,
+                                isAphidType: false,
+                                isCtor: false,
+                                isDynamic: false,
+                                returnRef: false)) != null &&
+                            (func2 = extObj.Value as AphidFunction) != null) ||
+                            ((extObj = TryResolve(
+                                CurrentScope,
+                                Wrap(memberRef.Object),
+                                memberRef.Name,
+                                isAphidType: false,
+                                isCtor: false,
+                                isDynamic: true,
+                                returnRef: false)) != null &&
+                            (func2 = extObj.Value as AphidFunction) != null))
                         {
-                            if (((extObj = TryResolve(
-                                    CurrentScope,
-                                    Wrap(memberRef.Object),
-                                    memberRef.Name,
-                                    isAphidType: false,
-                                    isCtor: false,
-                                    isDynamic: false,
-                                    returnRef: false)) != null &&
-                                (func2 = extObj.Value as AphidFunction) != null) ||
-                                ((extObj = TryResolve(
-                                    CurrentScope,
-                                    Wrap(memberRef.Object),
-                                    memberRef.Name,
-                                    isAphidType: false,
-                                    isCtor: false,
-                                    isDynamic: true,
-                                    returnRef: false)) != null &&
-                                (func2 = extObj.Value as AphidFunction) != null))
-                            {
-                                PushFrame(callExpression, functionExpression, args);
+                            PushFrame(callExpression, functionExpression, args);
 
-                                try
-                                {
-                                    return CallFunctionCore(
-                                        func2,
-                                        WrapObjectArray(args));
-                                }
-                                finally
-                                {
-                                    PopFrame();
-                                }
+                            try
+                            {
+                                return CallFunctionCore(
+                                    func2,
+                                    WrapObjectArray(args));
+                            }
+                            finally
+                            {
+                                PopFrame();
                             }
                         }
                     }
@@ -3309,10 +3258,8 @@ namespace Components.Aphid.Interpreter
             {
                 return Wrap(value);
             }
-            else
-            {
-                throw CreateValueException(value, "Cannot wrap value");
-            }
+
+            throw CreateValueException(value, "Cannot wrap value");
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4050,15 +3997,11 @@ namespace Components.Aphid.Interpreter
                                             aphidObj.Value != null &&
                                             aphidObj.Value.GetType().GetMember(key).Length != 0);
                                     }
-                                    else
-                                    {
-                                        return Scalar(aphidObj.ContainsKey(key));
-                                    }
+
+                                    return Scalar(aphidObj.ContainsKey(key));
                                 }
-                                else
-                                {
-                                    throw new NotImplementedException();
-                                }
+
+                                throw new NotImplementedException();
 
                             default:
                                 throw CreateRuntimeException("Unknown ? operand");
@@ -4154,38 +4097,32 @@ namespace Components.Aphid.Interpreter
                         {
                             throw CreateRuntimeException("Cannot get member {0} from null.", key);
                         }
-                        else
-                        {
-                            var members = GetInteropInstanceMembers(aphidObj.Value, key);
 
-                            if (members.Length == 0)
-                            {
-                                throw CreateRuntimeException(
-                                    "Cannot get member {0} from {1}.",
-                                    key,
-                                    aphidObj.Value.GetType());
-                            }
+                        var members = GetInteropInstanceMembers(aphidObj.Value, key);
 
-                            return InterpretMemberInteropExpression(
-                                aphidObj.Value,
-                                members,
-                                expression);
-                        }
-                    }
-                    else
-                    {
-                        if (aphidObj.TryGetValue(key, out var val))
-                        {
-                            return val.IsScalar ? Scalar(val.Value) : val;
-                        }
-                        else
+                        if (members.Length == 0)
                         {
                             throw CreateRuntimeException(
-                                "Cannot get member {0} from {1}",
+                                "Cannot get member {0} from {1}.",
                                 key,
-                                aphidObj);
+                                aphidObj.Value.GetType());
                         }
+
+                        return InterpretMemberInteropExpression(
+                            aphidObj.Value,
+                            members,
+                            expression);
                     }
+
+                    if (aphidObj.TryGetValue(key, out var val))
+                    {
+                        return val.IsScalar ? Scalar(val.Value) : val;
+                    }
+
+                    throw CreateRuntimeException(
+                        "Cannot get member {0} from {1}",
+                        key,
+                        aphidObj);
                 }
                 else
                 {
@@ -4603,24 +4540,22 @@ namespace Components.Aphid.Interpreter
                         },
                         CurrentScope));
             }
-            else
+
+            if (!(obj.Value is AphidInteropMember interopObj))
             {
-                if (!(obj.Value is AphidInteropMember interopObj))
-                {
-                    throw CreatePartialFunctionException(expression, obj);
-                }
-
-                // Todo: Fix partial application bug seemingly caused
-                // by unwrapping Object[] when passed during call to partial.
-                var applied = new object[expression.Call.Args.Count];
-
-                for (var i = 0; i < applied.Length; i++)
-                {
-                    applied[i] = DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
-                }
-
-                return Scalar(new AphidInteropPartialFunction(interopObj, applied));
+                throw CreatePartialFunctionException(expression, obj);
             }
+
+            // Todo: Fix partial application bug seemingly caused
+            // by unwrapping Object[] when passed during call to partial.
+            var applied = new object[expression.Call.Args.Count];
+
+            for (var i = 0; i < applied.Length; i++)
+            {
+                applied[i] = DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
+            }
+
+            return Scalar(new AphidInteropPartialFunction(interopObj, applied));
         }
 
         private AphidRuntimeException CreatePartialFunctionException(
@@ -5062,17 +4997,13 @@ namespace Components.Aphid.Interpreter
                 {
                     throw CreateRuntimeException("Duplicated variable declaration: {0}", id);
                 }
-                else
-                {
-                    CurrentScope.Add(id, InternedNull);
 
-                    return null;
-                }
+                CurrentScope.Add(id, InternedNull);
+
+                return null;
             }
-            else
-            {
-                return InterpretExpression(expression);
-            }
+
+            return InterpretExpression(expression);
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -5506,7 +5437,7 @@ namespace Components.Aphid.Interpreter
 
             if (offset < 0 || offset > c)
             {
-                throw new IndexOutOfRangeException($"Frame index out of range: {offset}");
+                throw new IndexOutOfRangeException($"Frame index out of range: {offset.ToString()}");
             }
 
             return _getFrameArray()[c - offset];

@@ -44,53 +44,51 @@ namespace Components.External
             {
                 return new[] { sourceType, targetType };
             }
-            else
+
+            if (!sourceType.ContainsGenericParameters)
             {
-                if (!sourceType.ContainsGenericParameters)
+                if (genericArguments.Count > 0)
                 {
-                    if (genericArguments.Count > 0)
-                    {
-                        throw new NotImplementedException();
-                    }
-
-                    Type targetStripped = targetType.GetGenericTypeDefinition(),
-                        sourceStripped = sourceType.GetGenericTypeDefinition();
-
-                    var tmpSource = sourceType;
-
-                    if (targetStripped.IsInterface &&
-                        (tmpSource = Array.Find(sourceType
-                            .GetInterfaces(), x =>
-                                x.IsGenericType &&
-                                x.GetGenericTypeDefinition() == targetStripped)) != null)
-                    {
-                        sourceType = tmpSource;
-                    }
-                    else
-                    {
-                        tmpSource = sourceType;
-                        //throw new NotImplementedException();
-                        while (true)
-                        {
-                            sourceStripped = sourceType.GetGenericTypeDefinition();
-
-                            if (targetStripped == sourceStripped)
-                            {
-                                break;
-                            }
-                            else if ((sourceType = sourceType.BaseType) == null)
-                            {
-                                sourceType = tmpSource;
-                                break;
-                            }
-                        }
-                    }
-
-                    genericArguments.AddRange(sourceType.GetGenericArguments().ToArray());
+                    throw new NotImplementedException();
                 }
 
-                return new[] { StripGenericArguments(sourceType), StripGenericArguments(targetType) };
+                Type targetStripped = targetType.GetGenericTypeDefinition(),
+                    sourceStripped = sourceType.GetGenericTypeDefinition();
+
+                var tmpSource = sourceType;
+
+                if (targetStripped.IsInterface &&
+                    (tmpSource = Array.Find(sourceType
+                        .GetInterfaces(), x =>
+                            x.IsGenericType &&
+                            x.GetGenericTypeDefinition() == targetStripped)) != null)
+                {
+                    sourceType = tmpSource;
+                }
+                else
+                {
+                    tmpSource = sourceType;
+                    //throw new NotImplementedException();
+                    while (true)
+                    {
+                        sourceStripped = sourceType.GetGenericTypeDefinition();
+
+                        if (targetStripped == sourceStripped)
+                        {
+                            break;
+                        }
+                        else if ((sourceType = sourceType.BaseType) == null)
+                        {
+                            sourceType = tmpSource;
+                            break;
+                        }
+                    }
+                }
+
+                genericArguments.AddRange(sourceType.GetGenericArguments().ToArray());
             }
+
+            return new[] { StripGenericArguments(sourceType), StripGenericArguments(targetType) };
         }
 
         private static Type StripGenericArguments(Type type)
@@ -130,12 +128,10 @@ namespace Components.External
 
                     return true;
                 }
-                else
+
+                if (parentInterface.Implements(interfaceType, genericArguments))
                 {
-                    if (parentInterface.Implements(interfaceType, genericArguments))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
