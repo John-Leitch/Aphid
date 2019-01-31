@@ -64,6 +64,18 @@ namespace Components.Aphid.Parser
             }
         }
 
+        public AphidParserException() : base()
+        {
+        }
+
+        public AphidParserException(string message) : base(message)
+        {
+        }
+
+        public AphidParserException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
         private static string CreateUnexpectedMessage(AphidToken token)
         {
             return string.Format(

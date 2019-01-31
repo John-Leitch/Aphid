@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Caching
+namespace Components.Aphid
 {
     public class FileCacheInfoSerializer
     {

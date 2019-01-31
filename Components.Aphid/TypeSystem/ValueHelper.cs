@@ -112,12 +112,10 @@ namespace Components.Aphid.TypeSystem
                     "Expression evaluated to {0}, IEnumerable expected.",
                     obj.GetType());
             }
-            else
-            {
-                throw Interpreter.CreateRuntimeException(
-                    "Expression evaluated to {0}, IEnumerable expected.",
-                    unwrapped.GetType());
-            }
+
+            throw Interpreter.CreateRuntimeException(
+                "Expression evaluated to {0}, IEnumerable expected.",
+                unwrapped.GetType());
         }
 
         public void AssertString(object value, string operation) =>

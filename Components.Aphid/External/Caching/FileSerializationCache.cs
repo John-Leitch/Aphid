@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace Components.Caching
+namespace Components.Aphid
 {
     public abstract class FileSerializationCache<T>
     {

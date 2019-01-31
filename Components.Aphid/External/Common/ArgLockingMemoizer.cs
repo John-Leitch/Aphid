@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -10,6 +11,8 @@ namespace Components
 
         private readonly LockTable<TArg> _locks = new LockTable<TArg>();
 
+        private readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
+
         public ArgLockingMemoizer() => _cache = new Dictionary<TArg, TResult>();
 
         public ArgLockingMemoizer(IEqualityComparer<TArg> comparer) => _cache = new Dictionary<TArg, TResult>(comparer);
@@ -20,19 +23,30 @@ namespace Components
             {
                 TResult val;
 
-                lock (_cache)
+                try
                 {
+                    _cacheLock.EnterReadLock();
+
                     if (_cache.TryGetValue(arg, out val))
                     {
                         return val;
                     }
                 }
+                finally
+                {
+                    _cacheLock.ExitReadLock();
+                }
 
                 val = func(arg);
 
-                lock (_cache)
+                try
                 {
+                    _cacheLock.EnterWriteLock();
                     _cache.Add(arg, val);
+                }
+                finally
+                {
+                    _cacheLock.ExitWriteLock();
                 }
 
                 return val;

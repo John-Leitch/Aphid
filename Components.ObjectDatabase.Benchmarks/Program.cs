@@ -1,7 +1,9 @@
 ﻿using Components;
+using Components.External;
 using Components.ObjectDatabase;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +19,10 @@ namespace Components.ObjectDatabase.Benchmarks
 
         static void SizeTest()
         {
-            var db = ObjectDatabase.OpenStringDatabase("test2.sdb");
+            var sdb = PathHelper.GetExecutingPath("Databases", "test2.sdb");
+            var odm = Path.ChangeExtension(sdb, "odm");
+
+            var db = ObjectDatabase.OpenStringDatabase(sdb);
             var mm = db.ReadMemoryManagerUnsafe();
             mm.PageSize = 0x2;
             db.WriteMemoryManagerUnsafe(mm);

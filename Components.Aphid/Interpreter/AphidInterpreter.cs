@@ -138,10 +138,9 @@ namespace Components.Aphid.Interpreter
         private static FieldInfo _frameArray = typeof(Stack<AphidFrame>)
             .GetField("_array", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private Func<AphidFrame[]> _getFrameArray => LinqExp
-                .Lambda<Func<AphidFrame[]>>(
-                    LinqExp.Field(LinqExp.Constant(_frames, typeof(Stack<AphidFrame>)), _frameArray))
-                .Compile();
+        private Func<AphidFrame[]> _getFrameArray => _lazyGetFrameArray.Value;
+
+        private Lazy<Func<AphidFrame[]>> _lazyGetFrameArray;
 
         private Stack<AphidFrame> _frames;
 
@@ -292,7 +291,7 @@ namespace Components.Aphid.Interpreter
                 Loader = loader;
             }
 
-            CurrentScope = currentScope;
+            CurrentScope = currentScope ?? AphidObject.Scope();
 
             OwnerThread = -1;
 #if TRACE_SCOPE
@@ -379,6 +378,12 @@ namespace Components.Aphid.Interpreter
                 IgnoreFunctions = true,
                 QuoteToStringResults = true,
             };
+
+            _lazyGetFrameArray = new Lazy<Func<AphidFrame[]>>(() =>
+                LinqExp
+                    .Lambda<Func<AphidFrame[]>>(
+                        LinqExp.Field(LinqExp.Constant(_frames, typeof(Stack<AphidFrame>)), _frameArray))
+                    .Compile());
 
             _frames = new Stack<AphidFrame>(new[] { CreateEntryFrame() });
 
@@ -877,10 +882,8 @@ namespace Components.Aphid.Interpreter
 
                         return (AphidObject)propInfo.GetValue(lhs);
                     }
-                    else
-                    {
-                        return Scalar(new AphidInteropReference(lhs, propInfo));
-                    }
+
+                    return Scalar(new AphidInteropReference(lhs, propInfo));
                 }
 
                 var fieldInfo = members[0] as FieldInfo;
@@ -901,10 +904,8 @@ namespace Components.Aphid.Interpreter
 
                         return (AphidObject)fieldInfo.GetValue(lhs);
                     }
-                    else
-                    {
-                        return Scalar(new AphidInteropReference(lhs, fieldInfo));
-                    }
+
+                    return Scalar(new AphidInteropReference(lhs, fieldInfo));
                 }
             }
             else if (members.Length == 0)
@@ -2600,11 +2601,9 @@ namespace Components.Aphid.Interpreter
             functionScope.Add(AphidName.Parent, function.ParentScope);
             functionScope.Add(AphidName.Scope, functionScope);
 
-            var argList = parms.ToList();
-
-            for (var i = 0; i < argList.Count; i++)
+            for (var i = 0; i < parms.Length; i++)
             {
-                var arg = argList[i];
+                var arg = parms[i];
 
                 if ((!isExtension || isStaticExtension) && i == 0)
                 {
@@ -2618,6 +2617,8 @@ namespace Components.Aphid.Interpreter
 
                 functionScope.Add(function.Args[i], arg);
             }
+
+            var argList = parms.ToList();
 
             if (isExtension && !isStaticExtension)
             {
@@ -4124,10 +4125,8 @@ namespace Components.Aphid.Interpreter
                         key,
                         aphidObj);
                 }
-                else
-                {
-                    throw new NotImplementedException();
-                }
+
+                throw new NotImplementedException();
             }
             else
             {

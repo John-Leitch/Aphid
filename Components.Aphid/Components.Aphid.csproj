@@ -136,7 +136,7 @@
   <!-- DEBUG                          -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    <CodeAnalysisRuleSet>Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
   </PropertyGroup>
@@ -151,7 +151,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    <CodeAnalysisRuleSet>Performance.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <!--                                -->
   <!-- APHID SCRIPT DEBUG             -->
@@ -222,13 +222,22 @@
     <Compile Include="External\Caching\FileCacheSource.cs" />
     <Compile Include="External\Caching\FileCacheInfo.cs" />
     <Compile Include="External\Caching\ICacheInfo.cs" />
+    <Compile Include="External\Common\ArgLexerState.cs" />
     <Compile Include="External\Common\ArgLockingMemoizer.cs" />
+    <Compile Include="External\Common\ArgToken.cs" />
+    <Compile Include="External\Common\ArgTokenType.cs" />
     <Compile Include="External\Common\ObjectLockTable.cs" />
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />
     <Compile Include="External\Common\DefaultSingleton.cs" />
     <Compile Include="External\Common\FluentExtensions.cs" />
     <Compile Include="External\Common\IfContext.cs" />
+    <Compile Include="External\Common\SelectorComparer`2.cs" />
+    <Compile Include="External\Common\Singleton`1.cs" />
+    <Compile Include="External\ConsolePlus\CliApplication`1.cs" />
+    <Compile Include="External\ConsolePlus\CliApplication`2.cs" />
+    <Compile Include="External\Debugging\StringTable.cs" />
+    <Compile Include="External\Linq\EnumerableMember`2.cs" />
     <Compile Include="External\Linq\ParallelEnumerableExtension.cs" />
     <Compile Include="External\Linq\EnumerableMember.cs" />
     <Compile Include="External\Common\NamespaceEqualityComparer.cs" />
@@ -251,8 +260,10 @@
     <Compile Include="External\IO\MemoryManagerSerializer.cs" />
     <Compile Include="External\IO\NetworkShares.cs" />
     <Compile Include="External\ObjectDatabase\BinaryObjectDatabase.cs" />
+    <Compile Include="External\ObjectDatabase\BinaryObjectDatabase`1.cs" />
     <Compile Include="External\ObjectDatabase\CrossProcessLockContext.cs" />
     <Compile Include="External\ObjectDatabase\IDatabaseContext.cs" />
+    <Compile Include="External\ObjectDatabase\IDatabaseContext`1.cs" />
     <Compile Include="External\ObjectDatabase\IndexPredicateEvaluator.cs" />
     <Compile Include="External\ObjectDatabase\IndexSerializer.cs" />
     <Compile Include="External\ObjectDatabase\IObjectDatabaseEntity.cs" />
@@ -261,6 +272,7 @@
     <Compile Include="External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
     <Compile Include="External\ObjectDatabase\ObjectDatabaseRecord.cs" />
     <Compile Include="External\Common\ReferenceEqualityComparer.cs" />
+    <Compile Include="External\ObjectDatabase\ObjectDatabase`1.cs" />
     <Compile Include="External\PInvoke\AdvApi32.cs" />
     <Compile Include="External\PInvoke\CharAttributes.cs" />
     <Compile Include="External\PInvoke\CharInfo.cs" />
@@ -291,6 +303,7 @@
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="External\PInvoke\WindowStyle.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Interpreter\AphidExecutionContext`1.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Parser\AphidByteCode.cs" />
     <Compile Include="Parser\AphidDirective.cs" />
@@ -870,6 +883,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Analyzer Include="..\..\Damselfly\packages\Roslynator.Analyzers.2.0.0\analyzers\dotnet\cs\Roslynator.CSharp.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\Damselfly\packages\Roslynator.Analyzers.2.0.0\analyzers\dotnet\cs\Roslynator.CSharp.Analyzers.dll" />
     <Analyzer Include="..\packages\ErrorProne.NET.0.1.5898.41180\analyzers\dotnet\cs\ErrorProne.NET.dll" />
     <Analyzer Include="..\packages\ErrorProne.NET.CoreAnalyzers.0.1.2\analyzers\dotnet\cs\ErrorProne.Net.CoreAnalyzers.dll" />
     <Analyzer Include="..\packages\ErrorProne.NET.Structs.0.1.2\analyzers\dotnet\cs\ErrorProne.NET.Core.dll" />

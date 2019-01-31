@@ -108,6 +108,15 @@ namespace Components.Aphid.Interpreter
         {
         }
 
+        public AphidLoadScriptException(
+            AphidInterpreter interpreter,
+            AphidObject exceptionScope,
+            AphidExpression currentStatement,
+            AphidExpression currentExpression, Exception innerException) :
+            base(interpreter, exceptionScope, currentStatement, currentExpression, innerException)
+        {
+        }
+
         private string GetMessage()
         {
             var sb = new StringBuilder();

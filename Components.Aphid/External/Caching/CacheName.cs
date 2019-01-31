@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Components.Caching
+namespace Components.Aphid
 {
     public static class CacheName
     {

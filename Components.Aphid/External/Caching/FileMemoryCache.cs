@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Components.Caching
+namespace Components.Aphid
 {
     public static class FileMemoryCache
     {

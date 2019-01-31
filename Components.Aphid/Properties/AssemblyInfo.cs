@@ -33,3 +33,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("0.6.*")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: InternalsVisibleTo("Components.Aphid.Tests")]
+[assembly: InternalsVisibleTo("Components.Aphid64.Explorables")]
+[assembly: InternalsVisibleTo("Components.Aphid.Tests1")]
+[assembly: InternalsVisibleTo("Components.Aphid.Debug.Explorables")]
+

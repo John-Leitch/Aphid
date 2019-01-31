@@ -74,8 +74,8 @@ namespace Components.Aphid.UI
 
         private static Configuration LoadConfig()
         {
-            try
-            {
+            //try
+            //{
                 var l = typeof(AphidConfig).Assembly.Location;
                 string path;
 
@@ -94,11 +94,11 @@ namespace Components.Aphid.UI
                         ExeConfigFilename = path,
                     },
                     ConfigurationUserLevel.None);
-            }
-            catch
-            {
-                return null;
-            }
+            //}
+            //catch
+            //{
+            //    return null;
+            //}
         }
     }
 }

@@ -287,6 +287,19 @@ namespace Components
             source.WhereDictionary(x => x.Value.Any(predicate));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
+        // WhereMany
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        public static IEnumerable<TElement> WhereMany<TElement>(
+            this IEnumerable<TElement> source,
+            params Func<TElement, bool>[] predicate) =>
+            source.Where(x => predicate.All(y => y(x)));
+
+        public static IEnumerable<TElement> WhereMany<TElement>(
+            this IEnumerable<TElement> source,
+            params Func<TElement, int, bool>[] predicate) =>
+            source.Where((x, i) => predicate.All(y => y(x, i)));
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         // GroupJoin
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public static Dictionary<TInnerKey, IEnumerable<TSource>> GroupJoin<TOuterKey, TInnerKey, TSource>(

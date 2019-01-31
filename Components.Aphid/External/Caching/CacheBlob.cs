@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Components.Caching
+namespace Components.Aphid
 {
     public class CacheBlob<T>
     {

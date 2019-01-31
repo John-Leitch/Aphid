@@ -31,5 +31,25 @@ namespace Components.Aphid.TypeSystem
                 op)
         {
         }
+
+        public AphidOperationException(
+            AphidInterpreter interpreter,
+            AphidObject exceptionScope,
+            AphidExpression currentStatement,
+            AphidExpression currentExpression,
+            Exception innerException) :
+            base(interpreter, exceptionScope, currentStatement, currentExpression, innerException)
+        {
+        }
+
+        public AphidOperationException(
+            AphidInterpreter interpreter,
+            AphidObject exceptionScope,
+            AphidExpression currentStatement,
+            AphidExpression currentExpression,
+            string details, params object[] args) :
+            base(interpreter, exceptionScope, currentStatement, currentExpression, details, args)
+        {
+        }
     }
 }
