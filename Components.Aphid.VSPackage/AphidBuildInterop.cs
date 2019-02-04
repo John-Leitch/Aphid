@@ -38,7 +38,7 @@ namespace Components.Aphid.VSPackage
             {
                 new LoadScriptExpression(
                     new StringExpression(
-                        "'Compiler'"
+                        "'Meta/Code/Compiler'"
                     )
                 ),
                 new UnaryOperatorExpression(
