@@ -9,6 +9,9 @@ namespace Components.Aphid
 {
     public static class CacheName
     {
+        private static ArgLockingMemoizer<string, string> _sanitizeMemoizer =
+            new ArgLockingMemoizer<string, string>(StringComparer.OrdinalIgnoreCase);
+
         private static readonly (string, string)[] _replacements = new[]
             {
                 ':',
@@ -21,18 +24,37 @@ namespace Components.Aphid
 
         public static string Sanitize(string filename)
         {
-            var sanitized = Path.GetFullPath(filename);
-
-            for (var i = 0; i < _replacements.Length; i++)
+            string SanitizeCore(string innerFilename)
             {
-                var r = _replacements[i];
-                sanitized = sanitized.Replace(r.Item1, r.Item2);
+                for (var i = 0; i < _replacements.Length; i++)
+                {
+                    var r = _replacements[i];
+                    innerFilename = innerFilename.Replace(r.Item1, r.Item2);
+                }
+
+                return innerFilename.ToLower();
             }
 
-            return sanitized.ToLower();
+            if (Path.IsPathRooted(filename))
+            {
+                return _sanitizeMemoizer.Call(SanitizeCore, filename);
+            }
+            else
+            {
+                return _sanitizeMemoizer.Call(SanitizeCore, Path.GetFullPath(filename));
+            }
         }
 
-        public static string Normalize(string filename) =>
-            Path.GetFullPath(filename.Replace('/', '\\')).ToLower();
+        public static string Normalize(string filename)
+        {
+            if (Path.IsPathRooted(filename))
+            {
+                return filename.Replace('/', '\\').ToLower();
+            }
+            else
+            {
+                return Path.GetFullPath(filename.Replace('/', '\\')).ToLower();
+            }
+        }
     }
 }

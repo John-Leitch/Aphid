@@ -17,11 +17,20 @@ namespace Components.Aphid
 
         private Version _dependencyVersion;
 
-        public FileCacheInfoSerializer(Version dependencyVersion) =>
-            _dependencyVersion = dependencyVersion;
+        private FileInfoCache _fileInfoCache;
 
-        public FileCacheInfoSerializer(Assembly dependency)
-            : this(dependency.GetName().Version)
+        public FileCacheInfoSerializer(
+            Version dependencyVersion,
+            FileInfoCache fileInfoCache)
+        {
+            _dependencyVersion = dependencyVersion;
+            _fileInfoCache = fileInfoCache;
+        }
+
+        public FileCacheInfoSerializer(
+            Assembly dependency,
+            FileInfoCache fileInfoCache)
+            : this(dependency.GetName().Version, fileInfoCache)
         {
         }
 
@@ -63,8 +72,10 @@ namespace Components.Aphid
 
             for (var i = 0; i < sources.Length; i++)
             {
+                var name = reader.ReadString();
                 sources[i] = new FileCacheSource(
-                    reader.ReadString(),
+                    name,
+                    _fileInfoCache.GetFileInfo(name),
                     new DateTime(reader.ReadInt64()));
             }
 

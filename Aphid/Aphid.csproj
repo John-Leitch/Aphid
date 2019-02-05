@@ -128,6 +128,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>..\Components.Aphid\Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
     <OutputPath>bin\Release32\</OutputPath>
@@ -331,7 +332,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::taskkill /im aphid.exe /f
-::powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"</PreBuildEvent>
+::powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"
+</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>::copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)
@@ -342,7 +344,9 @@ IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDi
 ) ELSE (
 IF NOT EXIST "$(TargetDir)Ngen.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" 
 IF NOT EXIST "$(TargetDir)Run.exe" "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe"
-)</PostBuildEvent>
+)
+
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

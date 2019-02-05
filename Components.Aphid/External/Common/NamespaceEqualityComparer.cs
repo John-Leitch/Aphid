@@ -23,7 +23,7 @@ namespace Components
                 return false;
             }
 
-            return x.SequenceEqual(y);
+            return x.SetEquals(y);
         }
 
         public int GetHashCode(HashSet<string> obj)

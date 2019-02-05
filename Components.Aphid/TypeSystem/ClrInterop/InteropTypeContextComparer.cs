@@ -24,7 +24,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     return false;
                 }
-                else if (!x.IsResolved && !y.Imports.SequenceEqual(x.Imports))
+                else if (!x.IsResolved && !y.Imports.SetEquals(x.Imports))
                 {
                     return false;
                 }

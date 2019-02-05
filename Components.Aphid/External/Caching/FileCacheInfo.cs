@@ -21,11 +21,7 @@ namespace Components.Aphid
             _isOutdated = new Lazy<bool>(GetIsOutdated);
         }
 
-        public bool GetIsOutdated()
-        {
-            return !Sources.All(x =>
-                File.Exists(x.Name) &&
-                new FileInfo(x.Name).LastWriteTimeUtc == x.CacheTime);
-        }
+        private bool GetIsOutdated() =>
+            Sources.Any(x => x.File.LastWriteTimeUtc != x.CacheTime);
     }
 }

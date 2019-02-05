@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Components.Aphid
@@ -9,15 +10,29 @@ namespace Components.Aphid
             new Dictionary<string, CacheBlob<byte[]>>();
 
         public static Stream OpenRead(string filename) =>
-            new MemoryStream(ReadAllBytes(filename));
+            new MemoryStream(ReadAllBytes(filename, null));
 
-        public static byte[] ReadAllBytes(string filename)
+        public static Stream OpenRead(string filename, FileInfoCache fileInfoCache) =>
+            new MemoryStream(ReadAllBytes(filename, fileInfoCache));
+
+        public static byte[] ReadAllBytes(string filename) => ReadAllBytes(filename, null);
+
+        public static byte[] ReadAllBytes(string filename, FileInfoCache fileInfoCache)
         {
             var cacheName = CacheName.Normalize(filename);
 
             using (CreateLock(cacheName))
             {
-                var time = new FileInfo(cacheName).LastWriteTimeUtc;
+                DateTime time;
+
+                if (fileInfoCache != null)
+                {
+                    time = fileInfoCache.GetFileInfo(cacheName).LastWriteTimeUtc;
+                }
+                else
+                {
+                    time = new FileInfo(cacheName).LastWriteTimeUtc;
+                }
 
                 lock (_cache)
                 {

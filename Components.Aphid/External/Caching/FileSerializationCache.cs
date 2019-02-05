@@ -15,13 +15,15 @@ namespace Components.Aphid
 
         private static ReaderWriterLockSlim _inMemoryCacheLock = new ReaderWriterLockSlim();
 
+        private FileInfoCache _fileInfoCache = new FileInfoCache();
+
         public uint Flags { get; protected set; }
 
         protected FileSerializationCache(Assembly dependency) =>
-            _serializer = new FileCacheInfoSerializer(dependency);
+            _serializer = new FileCacheInfoSerializer(dependency, _fileInfoCache);
 
         protected FileSerializationCache(Version dependencyVersion) =>
-            _serializer = new FileCacheInfoSerializer(dependencyVersion);
+            _serializer = new FileCacheInfoSerializer(dependencyVersion, _fileInfoCache);
 
         protected FileSerializationCache(Assembly dependency, uint flags)
             : this(dependency) => Flags = flags;
@@ -90,8 +92,8 @@ namespace Components.Aphid
                     new FileCacheInfo(
                         cacheSources = sources
                             .Select(x => new FileCacheSource(
-                                Path.GetFullPath(x),
-                                new FileInfo(x).LastWriteTimeUtc))
+                                _fileInfoCache.GetFileInfo(
+                                    Path.GetFullPath(x))))
                             .ToArray()));
             }
             else
@@ -108,7 +110,9 @@ namespace Components.Aphid
                 {
                     if (!_inMemoryCache.TryGetValue(cacheName, out cache))
                     {
-                        using (var s = FileMemoryCache.OpenRead(GetCacheFilename(cacheName)))
+                        using (var s = FileMemoryCache.OpenRead(
+                            GetCacheFilename(cacheName),
+                            _fileInfoCache))
                         {
                             cache = DeserializeCache(s);
                         }
@@ -143,7 +147,7 @@ namespace Components.Aphid
                 return null;
             }
 
-            using (var s = FileMemoryCache.OpenRead(cacheInfoFile))
+            using (var s = FileMemoryCache.OpenRead(cacheInfoFile, _fileInfoCache))
             {
                 return _serializer.Deserialize(s);
             }
@@ -189,5 +193,7 @@ namespace Components.Aphid
 
             return filename + "." + Flags.ToString() + ".cache.metadata";
         }
+
+        
     }
 }
