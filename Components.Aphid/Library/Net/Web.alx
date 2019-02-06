@@ -3,7 +3,7 @@
 var makeUrl = @(baseUrl, queryObj) {
     var q = makeQueryString(queryObj);
 
-    ret q != '' ? format('{0}?{1}', baseUrl, q) : q;
+    ret !string.IsNullOrEmpty(q) ? format('{0}?{1}', baseUrl, q) : baseUrl;
 };
 
 var makeQueryString = @(obj) {    
@@ -19,4 +19,6 @@ var makeQueryString = @(obj) {
         +> @(x, y) x + '&' + y;
 };
 
-var httpGet = @(url, query) makeUrl(url, query) |> (new WebClient()).DownloadString;
+_httpGet = macro(@(f) { @(url, query) makeUrl(url, query) |> (new WebClient()).f });
+var httpGet = _httpGet(DownloadString);
+var httpGetData = _httpGet(DownloadData);
