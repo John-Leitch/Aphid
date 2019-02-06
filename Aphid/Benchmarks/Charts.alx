@@ -25,12 +25,21 @@ var mode = tickMode.normal;
 #'std';
 
 var l = {};
+var args = new List[string](Environment.GetCommandLineArgs());
+
 
 using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
     var flattened =
         (var r = db.ReadUnsafe)()
-        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }))
-        -?((@.name) @> testNames.contains);
+        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }));
+
+    if (!args.Contains('-all')) {
+        flattened = flattened-?((@.name) @> testNames.contains);
+    }
+
+    if (args.Contains('-average')) {
+        mode = tickMode.average;
+    }
 
     var fullRuns = flattened-&(@.version)-&(@()$_-&@.name#!)-/@.Key^!->@.Key;
 
