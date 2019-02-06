@@ -4,8 +4,10 @@ var tests;
 var benchmark;
 
 @{
-    //#'Std';
+    #'Std';
     using Components.Aphid;
+    using Components.Aphid.TypeSystem;
+    using Components.Aphid.Parser;
     using Components.ObjectDatabase;
     using System.Collections.Generic;
     using System.Diagnostics;
