@@ -677,7 +677,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (left.IsScalar)
                 {
-                    if (right.IsScalar && InterpretEqualityExpression(left.Value, right.Value))
+                    if (right.IsScalar && OperatorHelper.Equals(this, left.Value, right.Value))
                     {
                         return InternedTrue;
                     }
@@ -710,7 +710,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (left.IsScalar)
                 {
-                    if (right.IsScalar && InterpretEqualityExpression(left.Value, right.Value))
+                    if (right.IsScalar && OperatorHelper.Equals(this, left.Value, right.Value))
                     {
                         return InternedFalse;
                     }
@@ -1660,7 +1660,7 @@ namespace Components.Aphid.Interpreter
 
                 case NotEqualOperator:
                 case EqualityOperator:
-                    return InterpretEqualityExpression(expression);
+                    return OperatorHelper.Equals(this, expression);
 
                 case LessThanOperator:
                     return Scalar(
@@ -4555,7 +4555,7 @@ namespace Components.Aphid.Interpreter
                         var patternTest = pattern.Patterns[y];
                         var right = InterpretExpression(patternTest);                        
 
-                        if (InterpretEqualityExpression(left.Value, right.Value))
+                        if (OperatorHelper.Equals(this, left.Value, right.Value))
                         {
                             return InterpretExpression(pattern.Value);
                         }
@@ -4849,7 +4849,7 @@ namespace Components.Aphid.Interpreter
                     var c2 = c.Cases[y];
                     var caseValue = InterpretExpression(c2);
 
-                    if (!InterpretEqualityExpression(exp.Value, caseValue.Value))
+                    if (!OperatorHelper.Equals(this, exp.Value, caseValue.Value))
                     {
                         continue;
                     }
