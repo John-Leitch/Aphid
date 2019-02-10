@@ -227,6 +227,7 @@
     <Compile Include="External\Common\ArgLockingMemoizer.cs" />
     <Compile Include="External\Common\ArgToken.cs" />
     <Compile Include="External\Common\ArgTokenType.cs" />
+    <Compile Include="External\Common\DirectArgLockingMemoizer.cs" />
     <Compile Include="External\Common\ObjectLockTable.cs" />
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />

@@ -10,10 +10,10 @@ namespace Components.Aphid.TypeSystem
 {
     public class TypeExtender : AphidRuntimeComponent
     {
-        private static Memoizer<Type, string[]>
-            _staticTypeMemoizer = new Memoizer<Type,string[]>(),
-            _fanInteropTypeMemoizer = new Memoizer<Type, string[]>(),
-            _fanAphidTypeMemoizer = new Memoizer<Type, string[]>();
+        private static DirectArgLockingMemoizer<Type, string[]>
+            _staticTypeMemoizer = new DirectArgLockingMemoizer<Type,string[]>(),
+            _fanInteropTypeMemoizer = new DirectArgLockingMemoizer<Type, string[]>(),
+            _fanAphidTypeMemoizer = new DirectArgLockingMemoizer<Type, string[]>();
 
         private static bool _isUnknownExtended;
 

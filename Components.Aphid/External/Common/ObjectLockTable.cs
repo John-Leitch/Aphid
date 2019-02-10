@@ -20,5 +20,7 @@ namespace Components
             _locks = new ConcurrentDictionary<TKey, object>(comparer);
 
         public object this[TKey key] => _locks.GetOrAdd(key, x => new object());
+
+        public void Clear() => _locks.Clear();
     }
 }

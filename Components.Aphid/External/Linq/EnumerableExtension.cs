@@ -500,20 +500,20 @@ namespace Components
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Then/Do
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public static IEnumerable<TSource> Then<TSource>(
-            this IEnumerable<TSource> source,
-            SetAction<TSource> action)
-        {
-            action(source);
+        //public static IEnumerable<TSource> Then<TSource>(
+        //    this IEnumerable<TSource> source,
+        //    SetAction<TSource> action)
+        //{
+        //    action(source);
             
-            return source;
-        }
+        //    return source;
+        //}
 
-        public delegate void SetAction<in T>(IEnumerable<T> collection);
+        //public delegate void SetAction<in T>(IEnumerable<T> collection);
 
-        public static IEnumerable<TSource> Do<TSource>(
-            this IEnumerable<TSource> source,
-            SetAction<TSource> action) =>
-            source.Then(action);
+        //public static IEnumerable<TSource> Do<TSource>(
+        //    this IEnumerable<TSource> source,
+        //    SetAction<TSource> action) =>
+        //    source.Then(action);
     }
 }
