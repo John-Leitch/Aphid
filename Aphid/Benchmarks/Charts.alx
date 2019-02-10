@@ -11,12 +11,12 @@ AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
 var chart = winForms.chart();
 var area3d = chart.area().Area3DStyle;
 area3d.Enable3D = true;
-area3d.Inclination = 25;
-area3d.IsRightAngleAxes = false;
-area3d.Perspective = 5;
+area3d.Inclination = 10;
+area3d.IsRightAngleAxes = true;
+area3d.Perspective = 0;
 area3d.PointDepth = 50;
-area3d.Rotation = 45;
-area3d.WallWidth = 5;
+area3d.Rotation = 10;
+area3d.WallWidth = 2;
 area3d.LightStyle = LightStyle.Realistic;
 
 var tickMode = { normal: 0, sum: 1, average: 2 };

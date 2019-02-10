@@ -1,5 +1,5 @@
 var testNames = [
-    'increment',
+/*    'increment',
     'decrement',
     'add',
     'subtract',
@@ -14,7 +14,7 @@ var testNames = [
     'less than',
     'greater than',
     'less than equal to',
-    'greater than equal to',
+    'greater than equal to',*/
     'standard call',
     'standard pipeline',
     'static interop call',
@@ -29,7 +29,7 @@ var testNames = [
     'extension call',
     'extension call implicit arg',
     'extension call implicit arg array',
-    'list get',
+    /*'list get',
     'list set',
     'list select',
     'list select partial op',
@@ -54,5 +54,5 @@ var testNames = [
     'include script',
     'include library',
     'import namespace',
-    'load assembly'
+    'load assembly'*/
 ];

@@ -9,6 +9,6 @@ exec(OperatorBenchmark);
 exec(CallBenchmark);
 exec(ListBenchmark);
 exec(ClrInstanceBenchmark);
-exec(CustomOperatorBenchmark);
+//exec(CustomOperatorBenchmark);
 exec(ConditionalBenchmark);
 exec(IncludeBenchmark);

@@ -1,7 +1,7 @@
 ﻿#'Testing\\Benchmark';
 _ = macro(@(name, count, exp) { benchmark(name, count, @{  }, @{ exp }) });
 
-_('include script', 400, @{ #'Std' }());
+_('include script', 50, @{ #'Std' }());
 _('include library', 25000, @{ ##'Components.Aphid.Library.Net.TcpLibrary' }());
 _('import namespace', 40000, @{ using System.IO }());
 _('load assembly', 50, @{ load System.Xml.Linq }());

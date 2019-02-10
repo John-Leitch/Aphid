@@ -1,8 +1,13 @@
 #'Std';
 #'System/Process';
 #'Cli/Powershell';
+
 using System.IO;
 using System.Text;
+
+var args = new List[string](Environment.GetCommandLineArgs());
+var backupDB = args.Contains('-backup');
+var useSingleProcess = args.Contains('-inproc');
 
 var ignore = [
     '581bb73 Updated interop type caching to use hash sets.'
@@ -19,8 +24,8 @@ var bin = '\\bin\\' + config;
 var testBin = testRoot + '\\Aphid' + bin;
 var testBin2 = testRoot + '\\Components.Aphid' + bin;
 var exe = testBin + '\\Aphid.exe';
-var test = exe + ' run2.alx';
-var tmpDir = testSrc + '\\temp';
+var test = exe + (useSingleProcess ? ' run2.alx' : ' run.alx');
+var tmpDir = testSrc + '\\BenchmarkTemp';
 var cd = @Directory.SetCurrentDirectory(testRoot);
 
 var init = @{
@@ -38,6 +43,8 @@ var init = @{
     #> ('cmd /c del ' + testDst + '\\history.* /q');
 };
 
+printQuery('Searching for MSBUILD');
+
 var msBuild = [
         "c:\\program files (x86)",
         "d:\\program files (x86)"
@@ -52,12 +59,19 @@ var msBuild = [
     ^!
     @.FileName;
 
+if (!File.Exists(msBuild)) {
+    printError('Could not find MSBUILD');
+    exit(0xbad80);
+}
+
+printSuccess('Found MSBUILD at ~Cyan~{0}~R~', msBuild);
+
 var run = @{
     var hasExe = @File.Exists(exe);
 
-    [ testBin, testBin2, testDst ]
-        ->@(f) [' /ah ', '']
-            ->@() #> ('cmd /c del ' + f + '\\*.alx.cache* /s /q' + $_);
+    //[ testRoot ]
+        //->@(f) [' /ah ', '']
+            //->@() #> ('cmd /c del ' + f + '\\*.alx.cache* /s /q' + $_);
 
     [ 'aphid*.exe', 'components*.dll', '*.alx' ]
         ->@(p) [ testBin, testBin2 ]
@@ -80,10 +94,13 @@ var run = @{
         head('Test Fixup');
         #> ('cmd /c copy ' + testSrc + '\\*.alx ' + testDst + ' /y');        
         #> ('cmd /c del ' + testRoot + '\\*.alx.cache* /s /q');
+        #> ('cmd /c del ' + testRoot + '\\*.alx.cache* /s /q /ah');
         #> ('cmd /c mkdir ' + testBin + '\\Library\\Testing');
-        #> ('cmd /c copy ' + testBin + '\\Library\\Benchmarks.alx ' + testBin + '\\Library\\Testing\\Benchmarks.alx /y');
-        #> ('cmd /c copy ' + testBin + '\\Library\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
-
+        //#> ('cmd /c copy ' + testBin + '\\Library\\Benchmarks.alx ' + testBin + '\\Library\\Testing\\Benchmarks.alx /y');
+        //#> ('cmd /c copy ' + testBin + '\\Library\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
+        #> ('cmd /c del ' + testBin + '\\Library\\Testing\\Benchmark.alx /q');
+        #> ('cmd /c copy ' + root + '\\Components.Aphid\\Library\\Testing\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
+        
         [testBin, testDst]->@()
             Directory.GetFiles($_, '*.alx', SearchOption.AllDirectories)->@(f){
                 printInfo('Fixing {0}', f);
@@ -103,19 +120,27 @@ var run = @{
         //Console.ReadLine();
         #> test;
         head('Done running Benchmarks');
+        #> ('cmd /c copy ' + testDst + '\\history.* ' + tmpDir + ' /y');
+
+        if (backupDB) {
+            var backupDir = tmpDir + '\\' + Guid.NewGuid();
+            #> ('cmd /c mkdir ' + backupDir);
+            #> ('cmd /c copy ' + testDst + '\\history.* ' + backupDir);
+        }
         //Console.ReadLine();
     }
 
-    rollBack();
+    ret rollBack();
 };
 
 var sb = new StringBuilder();
 
 var rollBack = @{
     cd();
-    #> ('cmd /c copy ' + testDst + '\\history.* ' + tmpDir + ' /y');
     
     var tries = 0;
+    var every = 10;
+    var csMatches = 0;
 
     while (true) {
         cd();
@@ -126,27 +151,34 @@ var rollBack = @{
 
         var s = sb.ToString();
         var s2 = s |> Cli.StyleEscape;
-
         
         if (ignore =? s.StartsWith) {
             print('Ignoring:\r\n~Red~{0}~R~', s2);
-        } else if (s.ToLower() ~= '\\.cs[^a-z0-9]') {
-            print('C# changes found:\r\n~Green~{0}~R~', s2);
-            break;
+        } else if (s.ToLower() ~= 'components\\.aphid[\\/].*?\\.cs([\\r\\n]|$)') {
+            print('C# changes found for Components.Aphid:\r\n~Green~{0}~R~', s2);
+
+            if (++csMatches < every) {
+                print('~Yellow~Skipping match {0}~R~', csMatches);
+                continue;
+            }
+            
+            #> ('cmd /c copy ' + tmpDir + '\\history.* ' + testDst + ' /y');
+
+            ret true;
         } else {
-            print('No C# changes found:\r\n~Yellow~{0}~R~', s2);
+            print('No C# changes found for Components.Aphid:\r\n~Yellow~{0}~R~', s2);
         }
         
         if (++tries == 100) {
             print('No more CS changes found, exiting');
+
+            ret false;
         }
     }
-
-    #> ('cmd /c copy ' + tmpDir + '\\history.* ' + testDst + ' /y');
 };
 
 init();
 
-while (true) {
-    run();
+while (run()) {
+    
 }
