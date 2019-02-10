@@ -18,7 +18,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return false;
             }
-            else if (x.Imports != null)
+            else if (x.Imports != null && x.Imports != y.Imports)
             {
                 if (x.IsResolved && !y.Imports.IsSubsetOf(x.Imports))
                 {
