@@ -1660,7 +1660,7 @@ namespace Components.Aphid.Interpreter
 
                 case NotEqualOperator:
                 case EqualityOperator:
-                    return OperatorHelper.Equals(this, expression);
+                    return InterpretEqualityExpression(expression);
 
                 case LessThanOperator:
                     return Scalar(
