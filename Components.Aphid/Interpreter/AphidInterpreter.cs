@@ -675,39 +675,16 @@ namespace Components.Aphid.Interpreter
                 {
                     throw CreateUndefinedMemberException(expression, expression.RightOperand);
                 }
-                else if (left.Value != null && right.Value != null)
+                else if (left.IsScalar)
                 {
-                    var leftType = left.Value.GetType();
-                    if (InterpretEqualityExpression(left.Value, leftType, right.Value, right.Value.GetType()))
+                    if (right.IsScalar && InterpretEqualityExpression(left.Value, right.Value))
                     {
                         return InternedTrue;
                     }
 
                     return InternedFalse;
                 }
-                else if (left.Value != null)
-                {
-                    if (left.Value.Equals(right.Value))
-                    {
-                        return InternedTrue;
-                    }
-
-                    return InternedFalse;
-                }
-                else if (right.Value != null)
-                {
-                    if (right.Value.Equals(left.Value))
-                    {
-                        return InternedTrue;
-                    }
-
-                    return InternedFalse;
-                }
-                else if (left.IsScalar && right.IsScalar)
-                {
-                    return InternedTrue;
-                }
-                else if (left.IsComplex && right.IsComplex)
+                else if (left.IsComplex)
                 {
                     if (left == right)
                     {
@@ -731,39 +708,16 @@ namespace Components.Aphid.Interpreter
                 {
                     throw CreateUndefinedMemberException(expression, expression.RightOperand);
                 }
-                else if (left.Value != null && right.Value != null)
+                else if (left.IsScalar)
                 {
-                    Type leftType = left.Value.GetType(), rightType = right.Value.GetType();
-                    if (InterpretEqualityExpression(left.Value, leftType, right.Value, rightType))
+                    if (right.IsScalar && InterpretEqualityExpression(left.Value, right.Value))
                     {
                         return InternedFalse;
                     }
 
                     return InternedTrue;
                 }
-                else if (left.Value != null)
-                {
-                    if (left.Value.Equals(right.Value))
-                    {
-                        return InternedFalse;
-                    }
-
-                    return InternedTrue;
-                }
-                else if (right.Value != null)
-                {
-                    if (right.Value.Equals(left.Value))
-                    {
-                        return InternedFalse;
-                    }
-
-                    return InternedTrue;
-                }
-                else if (left.IsScalar && right.IsScalar)
-                {
-                    return InternedFalse;
-                }
-                else if (left.IsComplex && right.IsComplex)
+                else if (left.IsComplex)
                 {
                     if (left == right)
                     {
@@ -4589,7 +4543,6 @@ namespace Components.Aphid.Interpreter
         private AphidObject InterpretPatternMatchingExpression(PatternMatchingExpression expression)
         {
             var left = InterpretExpression(expression.TestExpression);
-            var leftType = left.Value?.GetType();
 
             for (var x = 0; x < expression.Patterns.Count; x++)
             {
@@ -4600,14 +4553,9 @@ namespace Components.Aphid.Interpreter
                     for (var y = 0; y < pattern.Patterns.Count; y++)
                     {
                         var patternTest = pattern.Patterns[y];
-                        var right = InterpretExpression(patternTest);
-                        var rightType = right.Value?.GetType();
+                        var right = InterpretExpression(patternTest);                        
 
-                        if (InterpretEqualityExpression(
-                            left.Value,
-                            leftType,
-                            right.Value,
-                            rightType))
+                        if (InterpretEqualityExpression(left.Value, right.Value))
                         {
                             return InterpretExpression(pattern.Value);
                         }
@@ -4901,11 +4849,7 @@ namespace Components.Aphid.Interpreter
                     var c2 = c.Cases[y];
                     var caseValue = InterpretExpression(c2);
 
-                    if (!InterpretEqualityExpression(
-                        exp.Value,
-                        exp.Value.GetType(),
-                        caseValue.Value,
-                        caseValue.Value.GetType()))
+                    if (!InterpretEqualityExpression(exp.Value, caseValue.Value))
                     {
                         continue;
                     }

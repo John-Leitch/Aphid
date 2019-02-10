@@ -151,10 +151,21 @@ namespace Components.Aphid.TypeSystem
         //Todo: memoize resolved types 
         public AphidInteropMethodInfo Resolve(Type targetType, string methodName, object[] args)
         {
-            var matches = targetType
-                .GetMethods()
-                .Where(x => x.Name == methodName && CheckArgumentCount(x, args))
-                .ToArray();
+            var methods = targetType.GetMethods();
+            var matches = new MethodInfo[methods.Length];
+            var j = 0;
+
+            for (var i = 0; i < methods.Length; i++)
+            {
+                var m = methods[i];
+
+                if (m.Name == methodName && CheckArgumentCount(m, args.Length))
+                {
+                    matches[j++] = methods[i];
+                }
+            }
+
+            Array.Resize(ref matches, j);
 
             if (matches.Length == 0)
             {
@@ -177,7 +188,7 @@ namespace Components.Aphid.TypeSystem
             {
                 var nm = nameMatches[i];
 
-                if (CheckArgumentCount(nm, args))
+                if (CheckArgumentCount(nm, args.Length))
                 {
                     signatureMatches[x++] = nm;
                 }
@@ -463,18 +474,18 @@ namespace Components.Aphid.TypeSystem
         private string GetParamDescription(ParameterInfo parameter) =>
             string.Format("{0} {1}", parameter.ParameterType, parameter.Name);
 
-        private static bool CheckArgumentCount(MethodBase method, object[] args)
+        private static bool CheckArgumentCount(MethodBase method, int argCount)
         {
             var p = method.GetParameters();
             ParameterInfo lp;
 
-            if (p.Length == args.Length)
+            if (p.Length == argCount)
             {
                 return true;
             }
             else if (p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute)))
             {
-                return lp.ParameterType == typeof(object[]) && args.Length >= p.Length - 1;
+                return lp.ParameterType.IsArray && argCount >= p.Length - 1;
             }
             else
             {
