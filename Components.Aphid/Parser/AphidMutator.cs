@@ -442,7 +442,7 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new UsingExpression(
                             MutateSingle(usingExp.Disposable),
-                            usingExp.Body.SelectMany(MutateExpression).ToList())
+                            MutateInternal(usingExp.Body))
                             .WithPositionFrom(usingExp));
 
                     break;
@@ -453,7 +453,7 @@ namespace Components.Aphid.Parser
                     expanded.Add(
                         new LockExpression(
                             lockExp.Expressions.SelectMany(MutateExpression).ToList(),
-                            lockExp.Body.SelectMany(MutateExpression).ToList())
+                            MutateInternal(lockExp.Body))
                             .WithPositionFrom(lockExp));
 
                     break;
