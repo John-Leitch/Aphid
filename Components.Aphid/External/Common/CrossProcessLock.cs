@@ -1,4 +1,7 @@
-﻿using Components.External.ConsolePlus;
+﻿#if CHECKED
+#define TRACE_CROSSPROCESS_LOCK
+#endif
+using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,20 +69,22 @@ namespace Components
                     '>',
                     $"{UpdateDepth(name, up: true)} Entered ~Cyan~{_name = name}~R~");
 
-                void handleDupes(string sourceName, List<string> nameList)
+                void handleDupes(string sourceName)
                 {
-                    var dupes = nameList.Count(x => x == sourceName);
+                    var dupes = _names.Count(x => x == sourceName);
 
                     if (dupes != 0)
                     {
-                        Cli.WriteErrorMessage($"                  ~Yellow~{sourceName} dupes~R~: {string.Join(", ", dupes)}");
+                        Cli.WriteErrorMessage(
+                            "                  " +
+                            $"~Yellow~{sourceName} dupes~R~: {string.Join(", ", dupes)}");
                     }
 
-                    nameList.Add(sourceName);
+                    _names.Add(sourceName);
                 }
 
-                handleDupes(_name, _names);
-                handleDupes(_name.Split('_').Skip(1).Aggregate((x, y) => x + '_' + y), _partialNames);
+                handleDupes(_name);
+                //handleDupes(_name.Split('_').Skip(1).Aggregate((x, y) => x + '_' + y), _partialNames);
             }
 #endif
 
@@ -103,6 +108,8 @@ namespace Components
 #if TRACE_CROSSPROCESS_LOCK
             lock (_nameDepths)
             {
+                _names.Remove(_name);
+
                 Cli.WriteMessage(
                     ConsoleColor.Yellow,
                     '<',

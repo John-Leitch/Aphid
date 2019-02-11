@@ -3,6 +3,11 @@
 //#define DETECTED_ERRONEOUS_NESTING
 //#define APHID_OBJECT_OWNER_THREAD
 //#define CHECK_COMPLEXITY_SET
+#if CHECKED
+#define STRICT_APHID_OBJECT_TYPE_CHECKS
+#define DETECTED_ERRONEOUS_NESTING
+#define CHECK_COMPLEXITY_SET
+#endif
 using Components.Aphid.Interpreter;
 using System;
 using System.Collections;
@@ -71,10 +76,20 @@ namespace Components.Aphid.TypeSystem
             get { return _value; }
             set
             {
+                string serialize(object o) => new AphidInterpreter().Serializer.Serialize(ValueHelper.Wrap(o));
+                
+                void throwNestingError(string message) =>
+                    throw new InvalidOperationException(
+                            string.Format(
+                                "{0}\r\n\r\nObject:\r\n{1}\r\n\r\nValue:\r\n{2}\r\n\r\n",
+                                message,
+                                serialize(this),
+                                serialize(value)));
+
 #if DETECTED_ERRONEOUS_NESTING
                 if (value != null && value.GetType() == typeof(AphidObject))
                 {
-                    throw new InvalidOperationException();
+                    throwNestingError("Attempted to set AphidObject value with another AphidObject.");
                 }
 #endif
 
@@ -82,7 +97,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     if (_isComplex)
                     {
-                        throw new InvalidOperationException();
+                        throwNestingError("Attempted to set value of complex AphidObject.");
                     }
                 }
                 else
@@ -142,22 +157,30 @@ namespace Components.Aphid.TypeSystem
             // Todo: eliminate strings
             IsScalar = info.GetBoolean("_isScalar");
             IsComplex = info.GetBoolean("_isComplex");
+
+            if (IsScalar)
+            {
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
-            _value = info.GetValue("_value", typeof(object));
+                Value = info.GetValue("_value", typeof(object));
 #else
-            Value = info.GetValue("_value", typeof(object));
+                Value = info.GetValue("_value", typeof(object));
 #endif
+            }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("_isScalar", IsScalar);
             info.AddValue("_isComplex", IsComplex);
+
+            if (IsScalar)
+            {
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
-            info.AddValue("_value", _value);
+                info.AddValue("_value", _value);
 #else
-            info.AddValue("_value", Value);
+                info.AddValue("_value", Value);
 #endif
+            }
 
             base.GetObjectData(info, context);
         }
@@ -171,7 +194,14 @@ namespace Components.Aphid.TypeSystem
             "{ ... }";
 
         private static string ToString(AphidObject x, bool printMemberValues) =>
-            $"{{ {x.Where(y => !y.Key.StartsWith("$")).Take(MaxToStringMembers).Select(y => ToString(y, printMemberValues)).Join(", ")}{(x.Count > MaxToStringMembers ? ", ..." : "")} }}";
+            string.Format(
+                "{{ {0}{1} }}",
+                x
+                    .Where(y => !y.Key.StartsWith("$"))
+                    .Take(MaxToStringMembers)
+                    .Select(y => ToString(y, printMemberValues))
+                    .Join(", "),
+                x.Count > MaxToStringMembers ? ", ..." : "");
 
         private static string ToString(KeyValuePair<string, AphidObject> x, bool printMemberValues) =>
             printMemberValues ?

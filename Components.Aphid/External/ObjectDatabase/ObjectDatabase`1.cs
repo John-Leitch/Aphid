@@ -1,4 +1,6 @@
-﻿//#define ODB_NULL_CHECKS
+﻿#if CHECKED
+#define ODB_NULL_CHECKS
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -373,7 +375,7 @@ namespace Components.ObjectDatabase
                 }
 
 #if ODB_NULL_CHECKS
-                if (ctxItem.Value == null)
+                if (record.Entity == null)
                 {
                     throw new NullReferenceException("Null value found in entity tracking table.");
                 }

@@ -1,4 +1,8 @@
 ﻿#if APHID_DEBUGGING_ENABLED
+#if CHECKED
+#define APHID_DEBUGGING_TRACE
+#define APHID_DEBUGGING_TRACE_VERBOSE
+#endif
 using Components.Aphid.Parser;
 using Components.External.ConsolePlus;
 using System;
