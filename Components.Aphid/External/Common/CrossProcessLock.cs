@@ -29,6 +29,8 @@ namespace Components
         private static List<string> _partialNames = new List<string>();
 #endif
 
+        private static ArgLockingMemoizer<string, EventWaitHandle> _handleMemoizer = new ArgLockingMemoizer<string, EventWaitHandle>();
+
         public EventWaitHandle Handle { get; }
 
         public CrossProcessLock()
@@ -87,12 +89,15 @@ namespace Components
                 //handleDupes(_name.Split('_').Skip(1).Aggregate((x, y) => x + '_' + y), _partialNames);
             }
 #endif
+            bool isHandleNew = false;
 
-            Handle = new EventWaitHandle(
+            EventWaitHandle createHandle(string innerName) => new EventWaitHandle(
                 initialState,
                 EventResetMode.AutoReset,
-                name,
-                out var isHandleNew);
+                innerName,
+                out isHandleNew);
+
+            Handle = _handleMemoizer.Call(createHandle, name);
 
             if (!isHandleNew)
             {
@@ -103,7 +108,7 @@ namespace Components
         public void Dispose()
         {
             Handle.Set();
-            Handle.Dispose();
+            //Handle.Dispose();
 
 #if TRACE_CROSSPROCESS_LOCK
             lock (_nameDepths)
