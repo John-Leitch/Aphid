@@ -1,4 +1,5 @@
-﻿#'Gui\\WinForms';
+﻿#'Std';
+#'Gui\\WinForms';
 #'Charts.Config';
 using Components.ObjectDatabase;
 using System.Reflection;
@@ -19,13 +20,26 @@ area3d.Rotation = 10;
 area3d.WallWidth = 2;
 area3d.LightStyle = LightStyle.Realistic;
 
-var tickMode = { normal: 0, sum: 1, average: 2 };
+var tickMode = { normal: 0, sum: 1, average: 2, min: 3 };
 var mode = tickMode.normal;
+var args = new List[string](Environment.GetCommandLineArgs());
 
-#'std';
+_af = macro(@(flag) {
+    if (args.Contains('-' + quote(flag))) {
+        if (mode != tickMode.normal) {
+            printError('Cannot specify more than one grouping flag.');
+            exit(0xbad0f);
+        }
+
+        mode = tickMode.flag;
+    }
+});
+
+_af(average);
+_af(min);
+_af(sum);
 
 var l = {};
-var args = new List[string](Environment.GetCommandLineArgs());
 
 
 using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
@@ -37,11 +51,9 @@ using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
         flattened = flattened-?((@.name) @> testNames.contains);
     }
 
-    if (args.Contains('-average')) {
-        mode = tickMode.average;
-    }
+    var fullRuns = flattened -& (@.version) -& (@()$_ -& @.name #!) -/ @.Key ^! -> @.Key;
 
-    var fullRuns = flattened-&(@.version)-&(@()$_-&@.name#!)-/@.Key^!->@.Key;
+    _aggr = macro(@(_aggr) { s -& (@.version) -\ (@.Key) -> (@(g) [ i++, g -> @.ticks |> @() _aggr, g.Key ]) });
 
     flattened
     -? (@(x) fullRuns=?@==x.version)
@@ -49,14 +61,9 @@ using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
     -> @(s){
         var i = 0x0;
         var data = ($(mode)
-            tickMode.average: (s
-                -& (@.version)
-                -\ (@.Key)
-                -> (@(g) [ i++, (g -> @.ticks +> (@(a, b) a + b)) / (g #!), g.Key ])),
-            tickMode.sum: (s
-                -& (@.version)
-                -\ (@.Key)
-                -> (@(g) [ i++, (g -> @.ticks +> (@(a, b) a + b)), g.Key ])),
+            tickMode.average: _aggr(($_ +> (@(a, b) a + b)) / (g #!)),
+            tickMode.sum: _aggr($_ +> (@(a, b) a + b)),
+            tickMode.min: _aggr($_ \! ^!),
             (s
                 -\ (@.version)
                 -> (@() [ i++, $_.ticks, $_.version ])));
@@ -68,7 +75,7 @@ using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
     };
 }
 
-//l |> serialize @File.WriteAllText('c:\\temp\\dat.alx');
+l |> serialize @File.WriteAllText('c:\\temp\\dat.alx');
 
 winForms.split([
     [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]

@@ -139,7 +139,7 @@ var rollBack = @{
     cd();
     
     var tries = 0;
-    var every = 10;
+    var every = 1;
     var csMatches = 0;
 
     while (true) {
