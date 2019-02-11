@@ -221,10 +221,17 @@ Components.Aphid/Tools/*.exe
 # Test files
 /Components.Aphid/Library/.vscode/*
 /Components.Aphid/Library/rt.cmd
-#/Components.Aphid/Library/*Test*.alx
+/Components.Aphid/Library/*Srima*.alx
+/Components.Aphid/Library/*Test*.alx
+/Components.Aphid/Library/Gui/*Test*.alx
 /Components.Aphid/Tools/*.cmd
 /PerfTrace*.txt
 /Components.Aphid/Library/bak
+Aphid/Test/*
+Aphid/Benchmarks/*.cmd
+Aphid/Benchmarks/BenchmarkTemp/*
+Aphid/Benchmarks/BenchmarkTempBak/*
+*.diagsession
 
 # Aphid NuGet Downloads
 !/Components.Aphid/Library/Net/
