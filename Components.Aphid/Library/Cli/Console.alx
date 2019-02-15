@@ -31,6 +31,7 @@ var subheader = subhead;
         },
 
         getWindow: Kernel32.GetConsoleWindow,
+        exists: getWindow @> @!= IntPtr.Zero,
         runWindowCmd: @User32.ShowWindow(getWindow()),
         show: @() runWindowCmd(ShowWindowCommands.SW_SHOW),
         hide: @() runWindowCmd(ShowWindowCommands.SW_HIDE),

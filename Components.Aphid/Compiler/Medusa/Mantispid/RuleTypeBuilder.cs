@@ -3,10 +3,12 @@ using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using static Components.Aphid.Compiler.CodeHelper;
 
 namespace Mantispid
 {
@@ -53,7 +55,7 @@ namespace Mantispid
 
             var argName = "collection";
             var methodTypeName = "System.Collections.Generic.IEnumerable<" + _baseTypeName + ">";
-            var methodType = CodeHelper.TypeRef(methodTypeName);
+            var methodType = TypeRef(methodTypeName);
             var t = Type.GetType(methodTypeName);
 
             var method = new CodeMemberMethod
@@ -71,19 +73,19 @@ namespace Mantispid
 
             method.Statements.Add(
                 new CodeConditionStatement(
-                    CodeHelper.BinOpExp(
-                        CodeHelper.VarRef(argName),
+                    BinOpExp(
+                        VarRef(argName),
                         CodeBinaryOperatorType.ValueEquality,
-                        CodeHelper.Null()),
+                        Null()),
                     new CodeStatement[]
                     {
-                        CodeHelper.Return(new CodeArrayCreateExpression(
-                            CodeHelper.TypeRef(_baseTypeName),
+                        Return(new CodeArrayCreateExpression(
+                            TypeRef(_baseTypeName),
                             0))
                     },
                     new CodeStatement[]
                     {
-                        CodeHelper.Return(CodeHelper.VarRef(argName))
+                        Return(VarRef(argName))
                     }));
             
             type.Members.Add(method);
@@ -94,7 +96,7 @@ namespace Mantispid
         private CodeTypeDeclaration CreateCodeType(RuleStruct rule)
         {
             var decl = CreateType(rule.Name);
-            decl.BaseTypes.Add(CodeHelper.TypeRef(rule.BaseName));
+            decl.BaseTypes.Add(TypeRef(rule.BaseName));
             var properties = CreateProperties(rule);
             decl.Members.AddRange(properties);
             decl.Members.AddRange(CreateFields(properties));
@@ -122,7 +124,7 @@ namespace Mantispid
 
             foreach (var n in new[] { "Filename", "Code" })
             {
-                decl.Members.AddRange(CreateAutoProperty(CodeHelper.TypeRef<string>(), n));
+                decl.Members.AddRange(CreateAutoProperty(TypeRef<string>(), n));
             }
 
             return decl;
@@ -134,16 +136,17 @@ namespace Mantispid
             var decl = new CodeTypeDeclaration(name)
             {
                 IsPartial = true,
+                TypeAttributes = TypeAttributes.Sealed | TypeAttributes.Public
             };
 
             decl.CustomAttributes.Add(
                 new CodeAttributeDeclaration(
-                    CodeHelper.TypeRef<SerializableAttribute>()));
+                    TypeRef<SerializableAttribute>()));
 
             decl.CustomAttributes.Add(
                 new CodeAttributeDeclaration(
-                    CodeHelper.TypeRef<DataContractAttribute>(),
-                    new CodeAttributeArgument("IsReference", CodeHelper.True())));
+                    TypeRef<DataContractAttribute>(),
+                    new CodeAttributeArgument("IsReference", True())));
 
             return decl;
         }
@@ -164,21 +167,21 @@ namespace Mantispid
                         new[]
                         {
                             new CodeAttributeDeclaration(
-                                CodeHelper.TypeRef<DataMemberAttribute>())
+                                TypeRef<DataMemberAttribute>())
                         }),
                 })
                 .ToArray();
 
             foreach (var p in properties)
             {
-                p.GetStatements.Add(CodeHelper.Return(GetFieldName(p.Name)));
+                p.GetStatements.Add(Return(GetFieldName(p.Name)));
 
                 if (isMutable)
                 {
                     p.SetStatements.Add(
-                        CodeHelper.Assign(
+                        Assign(
                             GetFieldName(p.Name),
-                            CodeHelper.VarRef("value")));
+                            VarRef("value")));
                 }
             }
 
@@ -210,16 +213,16 @@ namespace Mantispid
                         new[]
                         {
                             new CodeAttributeDeclaration(
-                                CodeHelper.TypeRef<DataMemberAttribute>())
+                                TypeRef<DataMemberAttribute>())
                         } :
                         new CodeAttributeDeclaration[0]),
             };
 
-            prop.GetStatements.Add(CodeHelper.Return(fieldName));
+            prop.GetStatements.Add(Return(fieldName));
 
             if (isMutable)
             {
-                prop.SetStatements.Add(CodeHelper.Assign(fieldName, CodeHelper.VarRef("value")));
+                prop.SetStatements.Add(Assign(fieldName, VarRef("value")));
             }
 
             return new CodeTypeMember[] { field, prop };
@@ -251,20 +254,20 @@ namespace Mantispid
             {
                 ctor.Parameters.Add(
                     new CodeParameterDeclarationExpression(
-                        CodeHelper.TypeRef(_config.ExpressionContextClass),
+                        TypeRef(_config.ExpressionContextClass),
                         ParserName.ContextParam));
 
                 ctor.Statements.Add(
-                    CodeHelper.Assign(
+                    Assign(
                         ParserName.ContextProperty,
                         ParserName.ContextParam));
             }
             else
             {
                 ctor.Statements.Add(
-                    CodeHelper.Assign(
+                    Assign(
                             ParserName.ContextProperty,
-                            CodeHelper.New(CodeHelper.TypeRef(_config.ExpressionContextClass))));
+                            New(TypeRef(_config.ExpressionContextClass))));
             }
 
             ctor.Parameters.AddRange(
@@ -286,7 +289,7 @@ namespace Mantispid
         {
             var paramName = GetLocalName(property.Name);
             var fieldName = GetFieldName(property.Name);
-            var assignStmt = CodeHelper.Assign(fieldName, paramName);
+            var assignStmt = Assign(fieldName, paramName);
             var stmts = new List<CodeStatement>();
 
             if (property.Type.BaseType != typeof(List<>).FullName || !IsOptional(rule, property))
@@ -297,14 +300,14 @@ namespace Mantispid
             {
                 stmts.Add(
                     new CodeConditionStatement(
-                        CodeHelper.BinOpExp(
-                            CodeHelper.VarRef(paramName),
+                        BinOpExp(
+                            VarRef(paramName),
                             CodeBinaryOperatorType.IdentityInequality,
-                            CodeHelper.Null()),
+                            Null()),
                         new[] { assignStmt },
                         new[]
                         { 
-                            CodeHelper.Assign(
+                            Assign(
                                 fieldName,
                                 new CodeObjectCreateExpression(property.Type))
                         }));
@@ -324,7 +327,7 @@ namespace Mantispid
             if (IsOptional(rule, property))
             {
                 exp.CustomAttributes.Add(
-                    new CodeAttributeDeclaration(CodeHelper.TypeRef<OptionalAttribute>()));
+                    new CodeAttributeDeclaration(TypeRef<OptionalAttribute>()));
             }
 
             return exp;
@@ -345,7 +348,7 @@ namespace Mantispid
 
             var scalarChildren = children
                 .Where(x => !x.IsList)
-                .Select(x => CodeHelper.VarRef(x.Name))
+                .Select(x => VarRef(x.Name))
                 .ToArray(); ;
 
             CodeExpression childExpression = scalarChildren.Length > 0 ?
@@ -357,20 +360,20 @@ namespace Mantispid
             foreach (var child in children.Where(x => x.IsList))
             {
                 hasLists = true;
-                CodeExpression childRef = CodeHelper.VarRef(child.Name);
+                CodeExpression childRef = VarRef(child.Name);
 
                 if (childExpression != null)
                 {
                     var target = childExpression is CodeArrayCreateExpression ? 
                         childExpression : 
-                        CodeHelper.Invoke(childExpression, "OfType", new[] { _baseTypeName });
+                        Invoke(childExpression, "OfType", new[] { _baseTypeName });
 
-                    childRef = CodeHelper.Invoke(
-                        CodeHelper.TypeRefExp(_helperName),
+                    childRef = Invoke(
+                        TypeRefExp(_helperName),
                         _getCollection,
                         childRef);
 
-                    childExpression = CodeHelper.Invoke(target, "Concat", childRef);
+                    childExpression = Invoke(target, "Concat", childRef);
                 }
                 else
                 {
@@ -380,17 +383,17 @@ namespace Mantispid
 
             if (hasLists)
             {
-                childExpression = CodeHelper.Invoke(childExpression, "ToArray");
+                childExpression = Invoke(childExpression, "ToArray");
             }
 
             var method = new CodeMemberMethod
             {
                 Attributes = MemberAttributes.Public | MemberAttributes.Final,
                 Name = "GetChildren",
-                ReturnType = new CodeTypeReference("IEnumerable", CodeHelper.TypeRef(_baseTypeName)),
+                ReturnType = new CodeTypeReference("IEnumerable", TypeRef(_baseTypeName)),
             };
 
-            method.Statements.Add(CodeHelper.Return(childExpression));
+            method.Statements.Add(Return(childExpression));
             decl.Members.Add(method);
         }
 
@@ -400,12 +403,13 @@ namespace Mantispid
 
             var prop = new CodeMemberProperty
             {
-                Attributes = MemberAttributes.Public | MemberAttributes.Override,
-                Type = CodeHelper.TypeRef(enumType),
-                Name = "Type",
+                Attributes = MemberAttributes.Public |
+                    MemberAttributes.Override,
+                Type = TypeRef(enumType),
+                Name = "Type",                
             };
 
-            prop.GetStatements.Add(CodeHelper.Return(CodeHelper.PropRef(enumType, rule.Name)));
+            prop.GetStatements.Add(Return(PropRef(enumType, rule.Name)));
             decl.Members.Add(prop);
         }
 

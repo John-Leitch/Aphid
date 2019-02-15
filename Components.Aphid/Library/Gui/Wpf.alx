@@ -101,7 +101,10 @@ var bind;
 
             if (Environment.GetCommandLineArgs()=?@=='-console') {
                 consoleHidden = false;
-                console.show();
+
+                if (!console.exists()) {
+                    console.show();
+                }
             } else { 
                 consoleHidden = true;
                 console.hide();                
