@@ -48,11 +48,11 @@ if ((srcFiles #!) == 0) {
 printSuccess('Found ~Green~{0}~R~ script(s)', srcFiles #!);
 
 srcFiles->@(srcFile) {
-	var cs = exports.compileFile(ns, srcFile);
+    var cs = exports.compileFile(ns, srcFile);
 
-	if (cs == null) {
-		ret null;
-	}
+    if (cs == null) {
+        ret null;
+    }
 
     var dstFile =
         Path.ChangeExtension(srcFile, 'cs')
