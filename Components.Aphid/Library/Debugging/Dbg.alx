@@ -7,7 +7,7 @@ dbg.enable = @() dbg.enabled = true;
 dbg.disable = @() dbg.enabled = false;
 
 dbg.code = @(f) {
-	if (dbg.enabled) f();
+    if (dbg.enabled) f();
 };
 
 var sigOpt = {

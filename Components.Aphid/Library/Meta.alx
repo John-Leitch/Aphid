@@ -54,6 +54,24 @@ var mutateFunc;
 var transformBlock;
 var transformStream;
 
+/*{
+    summary: 'Retrieves the frames currently on the call stack, including the current call.',
+    returns: 'A collection of AphidFrames containing information about the current call stack.',
+    params: {},
+    example: @{ frames() |> dump; }
+}*/
+var frames;
+
+
+
+/*{
+    summary: 'Retrieves the frame currently on the call stack at the specified index, with the current call. at zero',
+    returns: 'An AphidFrame containing information about a single call on the stack.',
+    params: { index: 'The index of the frame to be retrieved.' },
+    example: @{ frame(1) |> dump; }
+}*/
+var frame;
+
 @{
     using Components.Aphid.Parser;
     mutate = @(mutateNode, rootNode) (new ScriptMutator(mutateNode)).MutateRecursively(rootNode);
@@ -93,29 +111,21 @@ var transformStream;
                 $_ |> replace @block.Insert(i);
             };
     };
+
+    //_frameLocal = macro(@(f) { new ThreadLocal[AphidInteropMember](@{
+        //Console.WriteLine('Thread Local Aphid: {0}, {1}', aphidLocal.Value.OwnerThread, Thread.CurrentThread.ManagedThreadId);
+        //ret aphidLocal.Value.f;
+    //}) });
+//
+    //var _frames = _frameLocal(GetStackTrace);
+    //var _frame = _frameLocal(GetStackFrame);
+//
+    //frames = @() _frames.Value(1);
+    //frame = @(i) _frame.Value(i + 1);
+
+    frames = @(i) this.{'$aphid'}.GetStackTrace(i defined ? i + 1 : 1);
+    frame = @(i) this.{'$aphid'}.GetStackFrame(i defined ? i + 1 : 1);
 }();
-
-/*{
-    summary: 'Retrieves the frames currently on the call stack, including the current call.',
-    returns: 'A collection of AphidFrames representative of the current call stack.',
-    params: {},
-    example: @{
-        #'std';
-        frames() |> dump;
-    }
-}*/
-var frames = this.{'$aphid'}.GetStackTrace;
-
-/*{
-    summary: 'Retrieves the frame currently on the call stack at the specified index, with the current call. at zero',
-    returns: 'An AphidFrames representative of a call on the stack.',
-    params: { index: 'The index of the frame to be retrieved.' },
-    example: @{
-        #'std';
-        frame(1) |> dump;
-    }
-}*/
-var frame = this.{'$aphid'}.GetStackFrame;
 
 _op = macro(@(op){ @{ op; } });
 _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
@@ -124,10 +134,7 @@ _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
     summary: 'Tokenizes text using the Aphid lexical analyzer.',
     returns: 'An array of AphidTokens.',
     params: { text: 'The text to be passed to the Aphid lexer.' },
-    example: @{
-        #'std';
-        'var x = 10; x *= 2;' |> tokenize |> print;
-    }
+    example: @{ 'var x = 10; x *= 2;' |> tokenize |> print; }
 }*/
 var tokenize = @(text) (new AphidLexer(text)).GetTokens();
 var getToken = @(text) tokenize(text)[0].TokenType;

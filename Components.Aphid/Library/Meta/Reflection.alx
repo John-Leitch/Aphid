@@ -68,21 +68,21 @@ var isCollection = @(x)
     x.GetType().GetInterface('IEnumerable') != null;
 
 var mix = @(src, dst) {
-	for (m in keys(src)) {
-		dst.{m} = src.{m};
-		mix(src.{m}, dst.{m});
-	}
+    for (m in keys(src)) {
+        dst.{m} = src.{m};
+        mix(src.{m}, dst.{m});
+    }
 };
 
-var getMember = @(obj, path) {	
-	var val = obj;
-	var parts = path.split('.');
+var getMember = @(obj, path) {    
+    var val = obj;
+    var parts = path.split('.');
 
-	for (p in parts) {		
-		val = val.{p};
-	}
+    for (p in parts) {        
+        val = val.{p};
+    }
 
-	ret val;
+    ret val;
 };
 
 var loadFile = @(asmFile) asmFile

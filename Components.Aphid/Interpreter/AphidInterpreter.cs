@@ -129,7 +129,7 @@ namespace Components.Aphid.Interpreter
     // * Replace foreach, Select, etc. with for.
     public partial class AphidInterpreter
     {
-        private bool _isReturning, _isContinuing, _isBreaking, _isInTryCatchFinally;
+        private const bool _createLoaderDefault = true;
 
         private static Dictionary<Type, Dictionary<string, MemberInfo[]>>
             _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
@@ -137,6 +137,8 @@ namespace Components.Aphid.Interpreter
 
         private static FieldInfo _frameArray = typeof(Stack<AphidFrame>)
             .GetField("_array", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        private bool _isReturning, _isContinuing, _isBreaking, _isInTryCatchFinally;
 
         private Func<AphidFrame[]> _getFrameArray => _lazyGetFrameArray.Value;
 
@@ -171,11 +173,7 @@ namespace Components.Aphid.Interpreter
         private FrameProfileBinaryWriter _framePerformanceBinaryWriter;
 #endif
 
-        private AphidObject _localScope;
-
-        private AphidObject _initialScope;
-
-        private AphidObject _currentScope;
+        private AphidObject _localScope, _initialScope, _currentScope;
 
         public AphidObject CurrentScope
         {
@@ -210,21 +208,21 @@ namespace Components.Aphid.Interpreter
 
         public int OwnerThread { get; private set; }
 
-        public AphidAssemblyBuilder AsmBuilder { get; }
+        public AphidAssemblyBuilder AsmBuilder { get; private set; }
 
-        public InteropMethodResolver InteropMethodResolver { get; }
+        public InteropMethodResolver InteropMethodResolver { get; private set; }
 
-        public OperatorHelper OperatorHelper { get; }
+        public OperatorHelper OperatorHelper { get; private set; }
 
-        public ValueHelper ValueHelper { get; }
+        public ValueHelper ValueHelper { get; private set; }
 
-        public InteropTypeResolver InteropTypeResolver { get; }
+        public InteropTypeResolver InteropTypeResolver { get; private set; }
 
-        public TypeExtender TypeExtender { get; }
+        public TypeExtender TypeExtender { get; private set; }
 
-        public AphidTypeConverter TypeConverter { get; }
+        public AphidTypeConverter TypeConverter { get; private set; }
 
-        public AphidFunctionConverter FunctionConverter { get; }
+        public AphidFunctionConverter FunctionConverter { get; private set; }
 
         public AphidIpcContext IpcContext { get; private set; }
 
@@ -236,7 +234,7 @@ namespace Components.Aphid.Interpreter
 
         public Func<string, string> GatorEmitFilter { get; set; }
 
-        public AphidLoader Loader { get; }
+        public AphidLoader Loader { get; private set; }
 
         public AphidExpression CurrentStatement { get; private set; }
 
@@ -245,12 +243,12 @@ namespace Components.Aphid.Interpreter
         public bool StrictMode { get; set; }
 
         public AphidInterpreter()
-            : this(createLoader: true)
+            : this(Scope(), createLoader: _createLoaderDefault, loader: null, frames: null)
         {
         }
 
         public AphidInterpreter(bool createLoader)
-            : this(Scope(), createLoader)
+            : this(Scope(), createLoader, loader: null, frames: null)
         {
             // Optimize by generating all built-in
             // variables here without having to perform
@@ -258,26 +256,40 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidInterpreter(AphidObject currentScope)
-            : this(currentScope, createLoader: true)
+            : this(currentScope, createLoader: _createLoaderDefault, loader: null, frames: null)
         {
         }
 
         public AphidInterpreter(AphidObject currentScope, bool createLoader)
-            : this(currentScope, createLoader, null)
+            : this(currentScope, createLoader, loader: null, frames: null)
         {
         }
 
-        private AphidInterpreter(AphidLoader loader)
-            : this(Scope(), loader)
+        public AphidInterpreter(AphidLoader loader)
+            : this(Scope(), createLoader: false, loader: loader, null)
         {
         }
 
-        private AphidInterpreter(AphidObject currentScope, AphidLoader loader)
-            : this(currentScope, createLoader: false, loader: loader)
+        public AphidInterpreter(AphidObject currentScope, AphidLoader loader)
+            : this(currentScope, createLoader: false, loader: loader, frames: null)
         {
         }
 
-        private AphidInterpreter(AphidObject currentScope, bool createLoader, AphidLoader loader)
+        public AphidInterpreter(AphidObject currentScope, Stack<AphidFrame> frames)
+            : this(currentScope, createLoader: _createLoaderDefault, loader: null, frames: frames)
+        {
+        }
+
+        public AphidInterpreter(AphidObject currentScope, bool createLoader, Stack<AphidFrame> frames)
+            : this(currentScope, createLoader: createLoader, loader: null, frames: frames)
+        {
+        }
+
+        private AphidInterpreter(
+            AphidObject currentScope,
+            bool createLoader,
+            AphidLoader loader,
+            Stack<AphidFrame> frames)
         {
             AphidErrorReporter.Init();
             StrictMode = AphidConfig.Current.StrictMode;
@@ -379,13 +391,13 @@ namespace Components.Aphid.Interpreter
                 QuoteToStringResults = true,
             };
 
+            _frames = frames ?? new Stack<AphidFrame>(new[] { CreateEntryFrame() });
+
             _lazyGetFrameArray = new Lazy<Func<AphidFrame[]>>(() =>
                 LinqExp
                     .Lambda<Func<AphidFrame[]>>(
                         LinqExp.Field(LinqExp.Constant(_frames, typeof(Stack<AphidFrame>)), _frameArray))
                     .Compile());
-
-            _frames = new Stack<AphidFrame>(new[] { CreateEntryFrame() });
 
             if (!CurrentScope.ContainsKey(AphidName.Scope))
             {
@@ -2258,7 +2270,7 @@ namespace Components.Aphid.Interpreter
                 case CustomOperator317:
                 case CustomOperator318:
                 case CustomOperator319:
-                #endregion
+                    #endregion
                     return InterpretCustomBinaryOperator(expression);
 
                 default:
@@ -2508,23 +2520,38 @@ namespace Components.Aphid.Interpreter
         {
             var parmsWrapped = parms.Select(Wrap).ToArray();
 
+            //PushFrame(CurrentExpression, CurrentExpression, parms);
+
+            //try
+            //{
             if (Thread.CurrentThread.ManagedThreadId == OwnerThread)
             {
                 return CallFunctionCore(function, scope, parmsWrapped);
             }
 
-            var child = new AphidInterpreter(CurrentScope.CreateChild())
+            if (AphidErrorReporter.IsEnabled)
             {
-                Serializer = Serializer,
-                StrictMode = StrictMode,
-            };
+                try
+                {
+                    return AphidThread.CreateChild(this).CallFunctionCore(function, scope, parmsWrapped);
+                }
+                catch (Exception e)
+                {
+                    AphidErrorReporter.Report(e);
 
-            foreach (var p in Loader.SearchPaths)
+                    return null;
+                }
+            }
+            else
             {
-                child.Loader.SearchPaths.Add(p);
+                return AphidThread.CreateChild(this).CallFunctionCore(function, scope, parmsWrapped);
             }
 
-            return child.CallFunctionCore(function, scope, parmsWrapped);
+            //}
+            //finally
+            //{
+            //    PopFrame();
+            //}
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2536,24 +2563,32 @@ namespace Components.Aphid.Interpreter
         {
             bool isExtension, isStaticExtension;
             AphidObject extensionArg;
+            var functionScope = Scope(function.ParentScope);
+            functionScope.Add(AphidName.Interpreter, Scalar(this));
 
-            if (function.ParentScope != null &&
-                function.ParentScope.TryGetValue(AphidName.Extension, out var isExtensionObject) &&
-                (bool)isExtensionObject.Value)
+            if (function.ParentScope != null)
             {
-                isExtension = true;
-                isStaticExtension = function.ParentScope.ResolveBool(AphidName.StaticExtension);
-                function.ParentScope.TryGetValue(AphidName.ImplicitArg, out extensionArg);
+                functionScope.Add(AphidName.Parent, function.ParentScope);
+                functionScope.Add(AphidName.Scope, functionScope);
+
+                if (function.ParentScope.TryGetValue(AphidName.Extension, out var isExtensionObject) &&
+                    (bool)isExtensionObject.Value)
+                {
+                    isExtension = true;
+                    isStaticExtension = function.ParentScope.ResolveBool(AphidName.StaticExtension);
+                    function.ParentScope.TryGetValue(AphidName.ImplicitArg, out extensionArg);
+                }
+                else
+                {
+                    isExtension = isStaticExtension = false;
+                    extensionArg = null;
+                }
             }
             else
             {
                 isExtension = isStaticExtension = false;
                 extensionArg = null;
             }
-
-            var functionScope = Scope(function.ParentScope);
-            functionScope.Add(AphidName.Parent, function.ParentScope);
-            functionScope.Add(AphidName.Scope, functionScope);
 
             for (var i = 0; i < parms.Length; i++)
             {
@@ -3047,6 +3082,7 @@ namespace Components.Aphid.Interpreter
             }
 
             _frames.Push(frame);
+            //frame.Name.ToString();
 
 #if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
             var id = Thread.CurrentThread.ManagedThreadId;
@@ -3106,7 +3142,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidFrame CreateEntryFrame() => CreateNameFrame("[Entrypoint]");
+        internal AphidFrame CreateEntryFrame() => CreateNameFrame("[Entrypoint]");
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidFrame CreateNameFrame(string name) => new AphidFrame(
@@ -3872,7 +3908,7 @@ namespace Components.Aphid.Interpreter
                     case CustomOperator317:
                     case CustomOperator318:
                     case CustomOperator319:
-                    #endregion
+                        #endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:
@@ -4553,7 +4589,7 @@ namespace Components.Aphid.Interpreter
                     for (var y = 0; y < pattern.Patterns.Count; y++)
                     {
                         var patternTest = pattern.Patterns[y];
-                        var right = InterpretExpression(patternTest);                        
+                        var right = InterpretExpression(patternTest);
 
                         if (OperatorHelper.Equals(this, left.Value, right.Value))
                         {
@@ -5186,20 +5222,28 @@ namespace Components.Aphid.Interpreter
             }
             else
             {
-                var child = new AphidInterpreter(CurrentScope.CreateChild())
-                {
-                    Serializer = Serializer,
-                    StrictMode = StrictMode,
-                };
+                // Todo: come up with more foolproof solution to this issue.
+                var child = AphidThread.CreateChild(this);
 
-                foreach (var p in Loader.SearchPaths)
+                if (AphidErrorReporter.IsEnabled)
                 {
-                    child.Loader.SearchPaths.Add(p);
+                    try
+                    {
+                        child.Interpret(expressions);
+                    }
+                    catch (Exception e)
+                    {
+                        AphidErrorReporter.Report(e);
+
+                        return;
+                    }
+                }
+                else
+                {
+                    child.Interpret(expressions);
                 }
 
                 child.Interpret(expressions);
-
-                // Todo: come up with more foolproof solution to this issue.
 
                 var r = child.GetReturnValue();
 
@@ -5211,7 +5255,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Interpret(List<AphidExpression> expressions, bool resetIsReturning = true)
+        private void Interpret(List<AphidExpression> expressions, bool resetIsReturning)
         {
             if (OnInterpretBlock != null && !OnInterpretBlockExecuting)
             {
@@ -5350,6 +5394,17 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidFrame[] GetRawStackTraceReversed()
+        {
+            var c = _frames.Count;
+            var src = _getFrameArray();
+            var arr = new AphidFrame[c];
+            Array.Copy(src, 0, arr, 0, c);
+
+            return arr;
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidFrame[] GetStackTrace(int skip)
         {
             while (_queuedFramePops > 0)
@@ -5376,6 +5431,7 @@ namespace Components.Aphid.Interpreter
                 _queuedFramePops--;
             }
 
+            //var f = _frames.ToArray().Select(x => x.ToString()).JoinLines();
             var c = _frames.Count - 2;
 
             if (offset < 0 || offset > c)

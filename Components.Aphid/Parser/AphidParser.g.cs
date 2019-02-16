@@ -135,7 +135,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ArrayAccessExpression : AphidExpression, IParentNode
+    public sealed partial class ArrayAccessExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _arrayExpression;
@@ -203,7 +203,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ArrayExpression : AphidExpression, IParentNode
+    public sealed partial class ArrayExpression : AphidExpression, IParentNode
     {
 
         private System.Collections.Generic.List<AphidExpression> _elements;
@@ -253,7 +253,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class BinaryOperatorExpression : AphidExpression, IParentNode
+    public sealed partial class BinaryOperatorExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _leftOperand;
@@ -339,7 +339,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class BinaryOperatorBodyExpression : AphidExpression, IParentNode
+    public sealed partial class BinaryOperatorBodyExpression : AphidExpression, IParentNode
     {
 
         private AphidTokenType _operator;
@@ -407,7 +407,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class BooleanExpression : AphidExpression
+    public sealed partial class BooleanExpression : AphidExpression
     {
 
         private bool _value;
@@ -452,7 +452,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class BreakExpression : AphidExpression
+    public sealed partial class BreakExpression : AphidExpression
     {
 
         public BreakExpression()
@@ -476,7 +476,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class CallExpression : AphidExpression, IParentNode
+    public sealed partial class CallExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _functionExpression;
@@ -558,7 +558,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ContinueExpression : AphidExpression
+    public sealed partial class ContinueExpression : AphidExpression
     {
 
         public ContinueExpression()
@@ -582,7 +582,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class DoWhileExpression : AphidExpression, IParentNode
+    public sealed partial class DoWhileExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _condition;
@@ -650,7 +650,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class DynamicMemberExpression : AphidExpression, IParentNode
+    public sealed partial class DynamicMemberExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _memberExpression;
@@ -701,7 +701,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ExtendExpression : AphidExpression, IParentNode
+    public sealed partial class ExtendExpression : AphidExpression, IParentNode
     {
 
         private IdentifierExpression _extendType;
@@ -770,7 +770,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ForEachExpression : AphidExpression, IParentNode
+    public sealed partial class ForEachExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _collection;
@@ -856,7 +856,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ForExpression : AphidExpression, IParentNode
+    public sealed partial class ForExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _initialization;
@@ -960,7 +960,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class FunctionExpression : AphidExpression, IParentNode
+    public sealed partial class FunctionExpression : AphidExpression, IParentNode
     {
 
         private System.Collections.Generic.List<AphidExpression> _args;
@@ -1027,7 +1027,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class GatorOpenExpression : AphidExpression
+    public sealed partial class GatorOpenExpression : AphidExpression
     {
 
         public GatorOpenExpression()
@@ -1051,7 +1051,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class GatorCloseExpression : AphidExpression
+    public sealed partial class GatorCloseExpression : AphidExpression
     {
 
         public GatorCloseExpression()
@@ -1075,7 +1075,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class GatorEmitExpression : AphidExpression, IParentNode
+    public sealed partial class GatorEmitExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _expression;
@@ -1126,7 +1126,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class IdentifierExpression : AphidExpression, IParentNode
+    public sealed partial class IdentifierExpression : AphidExpression, IParentNode
     {
 
         private string _identifier;
@@ -1207,7 +1207,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class IfExpression : AphidExpression, IParentNode
+    public sealed partial class IfExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _condition;
@@ -1292,7 +1292,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ImplicitArgumentExpression : AphidExpression
+    public sealed partial class ImplicitArgumentExpression : AphidExpression
     {
 
         private AphidTokenType _operator;
@@ -1337,7 +1337,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ImplicitArgumentsExpression : AphidExpression
+    public sealed partial class ImplicitArgumentsExpression : AphidExpression
     {
 
         private AphidTokenType _operator;
@@ -1382,7 +1382,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class LoadLibraryExpression : AphidExpression, IParentNode
+    public sealed partial class LoadLibraryExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _libraryExpression;
@@ -1433,7 +1433,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class LoadScriptExpression : AphidExpression, IParentNode
+    public sealed partial class LoadScriptExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _fileExpression;
@@ -1484,7 +1484,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class LockExpression : AphidExpression, IParentNode
+    public sealed partial class LockExpression : AphidExpression, IParentNode
     {
 
         private System.Collections.Generic.List<AphidExpression> _expressions;
@@ -1551,7 +1551,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class NullExpression : AphidExpression
+    public sealed partial class NullExpression : AphidExpression
     {
 
         public NullExpression()
@@ -1575,7 +1575,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class NumberExpression : AphidExpression
+    public sealed partial class NumberExpression : AphidExpression
     {
 
         private decimal _value;
@@ -1620,7 +1620,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ObjectExpression : AphidExpression, IParentNode
+    public sealed partial class ObjectExpression : AphidExpression, IParentNode
     {
 
         private System.Collections.Generic.List<BinaryOperatorExpression> _pairs;
@@ -1688,7 +1688,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class PartialFunctionExpression : AphidExpression, IParentNode
+    public sealed partial class PartialFunctionExpression : AphidExpression, IParentNode
     {
 
         private CallExpression _call;
@@ -1739,7 +1739,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class PartialOperatorExpression : AphidExpression, IParentNode
+    public sealed partial class PartialOperatorExpression : AphidExpression, IParentNode
     {
 
         private AphidTokenType _operator;
@@ -1807,7 +1807,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class PatternExpression : AphidExpression, IParentNode
+    public sealed partial class PatternExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _value;
@@ -1889,7 +1889,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class PatternMatchingExpression : AphidExpression, IParentNode
+    public sealed partial class PatternMatchingExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _testExpression;
@@ -1957,7 +1957,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class UnaryOperatorExpression : AphidExpression, IParentNode
+    public sealed partial class UnaryOperatorExpression : AphidExpression, IParentNode
     {
 
         private AphidTokenType _operator;
@@ -2042,7 +2042,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class UsingExpression : AphidExpression, IParentNode
+    public sealed partial class UsingExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _disposable;
@@ -2110,7 +2110,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class StringExpression : AphidExpression
+    public sealed partial class StringExpression : AphidExpression
     {
 
         private string _value;
@@ -2155,7 +2155,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class SwitchCase : AphidExpression, IParentNode
+    public sealed partial class SwitchCase : AphidExpression, IParentNode
     {
 
         private System.Collections.Generic.List<AphidExpression> _cases;
@@ -2222,7 +2222,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class SwitchExpression : AphidExpression, IParentNode
+    public sealed partial class SwitchExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _expression;
@@ -2307,7 +2307,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class TernaryOperatorExpression : AphidExpression, IParentNode
+    public sealed partial class TernaryOperatorExpression : AphidExpression, IParentNode
     {
 
         private AphidTokenType _operator;
@@ -2411,7 +2411,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class TextExpression : AphidExpression
+    public sealed partial class TextExpression : AphidExpression
     {
 
         private string _text;
@@ -2456,7 +2456,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class ThisExpression : AphidExpression
+    public sealed partial class ThisExpression : AphidExpression
     {
 
         public ThisExpression()
@@ -2480,7 +2480,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class TryExpression : AphidExpression, IParentNode
+    public sealed partial class TryExpression : AphidExpression, IParentNode
     {
 
         private System.Collections.Generic.List<AphidExpression> _tryBody;
@@ -2582,7 +2582,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class WhileExpression : AphidExpression, IParentNode
+    public sealed partial class WhileExpression : AphidExpression, IParentNode
     {
 
         private AphidExpression _condition;
@@ -2666,7 +2666,7 @@ namespace Components.Aphid.Parser
 
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.DataContractAttribute(IsReference = true)]
-    public partial class AphidExpressionContext
+    public sealed partial class AphidExpressionContext
     {
 
         private string _filename;
@@ -13420,135 +13420,135 @@ namespace Components.Aphid.Lexer
                 }
             }
             else
-                if (mode == 1)
+            if (mode == 1)
+            {
+                if (charIndex < lastIndex)
                 {
-                    if (charIndex < lastIndex)
+                    currentChar = text[++charIndex];
+
+                    switch (currentChar)
                     {
-                        currentChar = text[++charIndex];
-
-                        switch (currentChar)
-                        {
-                            case '<':
-                                if (charIndex < lastIndex)
-                                {
-                                    currentChar = text[++charIndex];
-
-                                    switch (currentChar)
-                                    {
-                                        case '%':
-                                            if (charIndex < lastIndex)
-                                            {
-                                                currentChar = text[++charIndex];
-
-                                                switch (currentChar)
-                                                {
-                                                    case '=':
-
-                                                        mode = 0;
-                                                        return AphidTokenType.GatorEmitOperator;
-
-                                                }
-
-                                                charIndex--;
-                                            }
-                                            mode = 0;
-                                            return AphidTokenType.GatorOpenOperator;
-
-                                    }
-
-                                    charIndex--;
-                                }
-
-                                while (NextChar())
-                                {
-                                    if (currentChar == '<')
-                                    {
-                                        charIndex--;
-
-                                        return AphidTokenType.Text;
-                                    }
-                                }
-
-                                return AphidTokenType.Text;
-
-                                break;
-
-                            default:
-
-                                while (NextChar())
-                                {
-                                    if (currentChar == '<')
-                                    {
-                                        charIndex--;
-
-                                        return AphidTokenType.Text;
-                                    }
-                                }
-
-                                return AphidTokenType.Text;
-
-                                break;
-
-                        }
-
-                        return AphidTokenType.Unknown;
-                    }
-                }
-                else
-                    if (mode == 2)
-                    {
-                        if (charIndex < lastIndex)
-                        {
-                            currentChar = text[++charIndex];
-
-                            switch (currentChar)
+                        case '<':
+                            if (charIndex < lastIndex)
                             {
-                                case '$':
+                                currentChar = text[++charIndex];
 
-                                    mode = 0;
-                                    return AphidTokenType.AphidExpressionOperator;
-
-                                default:
-
-                                    state = 0;
-
-                                    while (NextChar())
-                                    {
-                                        if (currentChar == '^')
+                                switch (currentChar)
+                                {
+                                    case '%':
+                                        if (charIndex < lastIndex)
                                         {
-                                            if (state == 0)
+                                            currentChar = text[++charIndex];
+
+                                            switch (currentChar)
                                             {
-                                                state = 1;
+                                                case '=':
+
+                                                    mode = 0;
+                                                    return AphidTokenType.GatorEmitOperator;
+
                                             }
-                                            else if (state == 1)
-                                            {
-                                                state = 0;
-                                            }
+
+                                            charIndex--;
                                         }
-                                        else if (currentChar == '$')
-                                        {
-                                            if (state == 1)
-                                            {
-                                                state = 0;
-                                            }
-                                            else
-                                            {
-                                                charIndex--;
+                                        mode = 0;
+                                        return AphidTokenType.GatorOpenOperator;
 
-                                                return AphidTokenType.ShellText;
-                                            }
-                                        }
-                                    }
+                                }
 
-                                    return AphidTokenType.ShellText;
-
-                                    break;
-
+                                charIndex--;
                             }
 
-                            return AphidTokenType.Unknown;
-                        }
+                            while (NextChar())
+                            {
+                                if (currentChar == '<')
+                                {
+                                    charIndex--;
+
+                                    return AphidTokenType.Text;
+                                }
+                            }
+
+                            return AphidTokenType.Text;
+
+                            break;
+
+                        default:
+
+                            while (NextChar())
+                            {
+                                if (currentChar == '<')
+                                {
+                                    charIndex--;
+
+                                    return AphidTokenType.Text;
+                                }
+                            }
+
+                            return AphidTokenType.Text;
+
+                            break;
+
                     }
+
+                    return AphidTokenType.Unknown;
+                }
+            }
+            else
+            if (mode == 2)
+            {
+                if (charIndex < lastIndex)
+                {
+                    currentChar = text[++charIndex];
+
+                    switch (currentChar)
+                    {
+                        case '$':
+
+                            mode = 0;
+                            return AphidTokenType.AphidExpressionOperator;
+
+                        default:
+
+                            state = 0;
+
+                            while (NextChar())
+                            {
+                                if (currentChar == '^')
+                                {
+                                    if (state == 0)
+                                    {
+                                        state = 1;
+                                    }
+                                    else if (state == 1)
+                                    {
+                                        state = 0;
+                                    }
+                                }
+                                else if (currentChar == '$')
+                                {
+                                    if (state == 1)
+                                    {
+                                        state = 0;
+                                    }
+                                    else
+                                    {
+                                        charIndex--;
+
+                                        return AphidTokenType.ShellText;
+                                    }
+                                }
+                            }
+
+                            return AphidTokenType.ShellText;
+
+                            break;
+
+                    }
+
+                    return AphidTokenType.Unknown;
+                }
+            }
 
 
             return AphidTokenType.EndOfFile;

@@ -29,17 +29,17 @@
     }
     while (NextChar());
 
-	if (state == 1 || state == 2) // EOF Id
+    if (state == 1 || state == 2) // EOF Id
     {
         return AphidTokenType.Identifier;
     }
 ";
 
 var zeroXCode = "
-	if (!NextChar())
-	{
-		return AphidTokenType.Unknown;
-	}
+    if (!NextChar())
+    {
+        return AphidTokenType.Unknown;
+    }
 
     state = 0;
 
@@ -65,14 +65,14 @@ var zeroXCode = "
     }
     while (NextChar());
 
-	return AphidTokenType.HexNumber;
+    return AphidTokenType.HexNumber;
 ";
 
 var zeroBCode = "
-	if (!NextChar())
-	{
-		return AphidTokenType.Unknown;
-	}
+    if (!NextChar())
+    {
+        return AphidTokenType.Unknown;
+    }
 
     state = 0;
 
@@ -95,7 +95,7 @@ var zeroBCode = "
     }
     while (NextChar());
 
-	return AphidTokenType.BinaryNumber;
+    return AphidTokenType.BinaryNumber;
 ";
 
 var singleLineCommentCode = "

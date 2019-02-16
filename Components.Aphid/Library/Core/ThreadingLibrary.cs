@@ -15,14 +15,9 @@ namespace Components.Aphid.Library
         {
             var reset = new ManualResetEvent(false);
 
-            var interpreter2 = new AphidInterpreter(interpreter.CurrentScope)
-            {
-                Serializer = interpreter.Serializer
-            };
-
             void call()
             {
-                interpreter2.CallFunction(function, parms);
+                interpreter.CallFunction(function, parms);
                 reset.Set();
             }
 
@@ -32,10 +27,12 @@ namespace Components.Aphid.Library
         }
 
         [AphidInteropFunction("threadPool", PassInterpreter = true)]
-        public static WaitHandle ThreadPoolQueue(AphidInterpreter interpreter, AphidFunction function, params object[] parms) => ThreadCore(interpreter, x => ThreadPool.QueueUserWorkItem(y => x()), function, parms);
+        public static WaitHandle ThreadPoolQueue(AphidInterpreter interpreter, AphidFunction function, params object[] parms) =>
+            ThreadCore(interpreter, x => ThreadPool.QueueUserWorkItem(y => x()), function, parms);
 
         [AphidInteropFunction("thread", PassInterpreter = true)]
-        public static WaitHandle StartThread(AphidInterpreter interpreter, AphidFunction function, params object[] parms) => ThreadCore(interpreter, x => new Thread(y => x()).Start(), function, parms);
+        public static WaitHandle StartThread(AphidInterpreter interpreter, AphidFunction function, params object[] parms) =>
+            ThreadCore(interpreter, x => new Thread(y => x()).Start(), function, parms);
 
         [AphidInteropFunction("join")]
         public static void Join(WaitHandle reset) => reset.WaitOne();

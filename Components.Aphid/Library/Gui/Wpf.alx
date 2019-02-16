@@ -135,6 +135,7 @@ var bind;
                         ret result;
                     };
 
+                    wpfApp.invokeAsync = wpfApp.window.Dispatcher.InvokeAsync;
                     wpfApp.shutdown = @() wpfApp.invoke(wpfApp.app.Shutdown);
                     wpfApp.createDataGrid = @() wpf.createDataGrid(wpfApp);
 

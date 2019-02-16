@@ -2,15 +2,15 @@
 using System.IO;
 
 var getFsos = @(f, dir, opt) {
-	var filter = '*';
-	var recurse = false;
+    var filter = '*';
+    var recurse = false;
 
-	if (opt defined) {
-		if (opt.filter defined) filter = opt.filter;
-		if (opt.recurse defined) recurse = opt.recurse;
-	}
+    if (opt defined) {
+        if (opt.filter defined) filter = opt.filter;
+        if (opt.recurse defined) recurse = opt.recurse;
+    }
 
-	ret f(dir, filter, recurse);
+    ret f(dir, filter, recurse);
 };
 
 io.dir.getFiles = @getFsos(io.dir.getFilesInternal);

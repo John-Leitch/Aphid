@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Components.Aphid.UI
+﻿namespace Components.Aphid.UI
 {
     public static class AphidSettings
     {
@@ -14,6 +8,12 @@ namespace Components.Aphid.UI
             AutoImport = "autoImport",
             AutoInclude = "autoInclude",
             StackTraceParams = "stackTraceParams",
+            ShowErrorStatement = "showErrorStatement",
+            ShowErrorExpression = "showErrorExpression",
+            ShowErrorFrameExcerpts = "showErrorFrameExcerpts",
+            ShowErrorFileList = "showErrorFileList",
+            FrameExcerptsMax = "frameExcerptsMax",
+            FrameExcerptLines = "frameExcerptLines",
             ScriptCaching = "scriptCaching",
             IgnoreDebugger = "ignoreDbg";
     }

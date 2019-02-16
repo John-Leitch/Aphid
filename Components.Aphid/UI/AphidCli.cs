@@ -16,6 +16,7 @@ using Components.External;
 using Components.Json;
 using System.Reflection;
 using System.Threading;
+using static Components.External.ConsolePlus.Cli;
 
 namespace Components.Aphid.UI
 {
@@ -31,15 +32,11 @@ namespace Components.Aphid.UI
 
         public static bool ShowClrStack { get; set; }
 
-        public static int ExcerptSurroundingLines { get; set; } = 4;
+        public static Action<string> WriteOut { get; set; } = Write;
 
-        public static Action<string> WriteOut { get; set; } = Cli.Write;
-
-        public static Action<string> WriteLineOut { get; set; } = Cli.WriteLine;
+        public static Action<string> WriteLineOut { get; set; } = WriteLine;
 
         public static Exception LastException { get; set; }
-
-        public static int ExcerptDumpCount { get; set; } = 4;
 
         public static bool IsAborting { get; set; }
 
@@ -128,9 +125,9 @@ namespace Components.Aphid.UI
                 DumpException(exception, interpreter);
             }
 
-            if(allowErrorReporting)
+            if (allowErrorReporting)
             {
-                AphidErrorReporter.SaveErrorInformation(LastException, interpreter);
+                AphidErrorReporter.Report(LastException, interpreter);
             }
 
             interpreter.SetIsInTryCatchFinally(backup);
@@ -197,7 +194,7 @@ namespace Components.Aphid.UI
             string code,
             bool isTextDocument)
         {
-            if(AphidErrorHandling.HandleErrors)
+            if (AphidErrorHandling.HandleErrors)
             {
                 var backup = false;
 
@@ -247,13 +244,13 @@ namespace Components.Aphid.UI
         }
 
         public static void DumpException(AphidParserException exception, string code) =>
-            WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception, code)));
+            WriteErrorMessage(StyleEscape(GetErrorMessage(exception, code)));
 
         public static void DumpException(
             AphidRuntimeException exception,
             AphidInterpreter interpreter)
         {
-            WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
+            WriteErrorMessage(StyleEscape(GetErrorMessage(exception)));
             DumpStackTrace(interpreter);
         }
 
@@ -262,7 +259,7 @@ namespace Components.Aphid.UI
             AphidInterpreter interpreter)
         {
             WriteErrorMessage(
-                Cli.StyleEscape(
+                StyleEscape(
                     GetErrorMessage(
                         exception,
                         AphidScript.Read(exception.ScriptFile))));
@@ -274,9 +271,9 @@ namespace Components.Aphid.UI
             Exception exception,
             AphidInterpreter interpreter)
         {
-            WriteErrorMessage(Cli.StyleEscape(GetErrorMessage(exception)));
+            WriteErrorMessage(StyleEscape(GetErrorMessage(exception)));
 
-            if(interpreter != null)
+            if (interpreter != null)
             {
                 DumpStackTrace(interpreter);
             }
@@ -284,10 +281,11 @@ namespace Components.Aphid.UI
 
         public static void DumpStackTrace(AphidInterpreter interpreter)
         {
+            var cfg = AphidConfig.Current;
             var trace = interpreter.GetRawStackTrace();
             var i = 0;
 
-            if(!Console.IsOutputRedirected)
+            if (!Console.IsOutputRedirected)
             {
                 WriteSubheader("Stack Trace", "~|Blue~~White~");
             }
@@ -296,7 +294,7 @@ namespace Components.Aphid.UI
                 WriteErrorMessage("Stack Trace");
             }
 
-            foreach(var frame in trace)
+            foreach (var frame in trace)
             {
                 string rawFrameStr = null;
                 AphidExpression frameExp = null;
@@ -306,7 +304,7 @@ namespace Components.Aphid.UI
                     var complete = AphidParent.FirstComplete(frame.Expression) ??
                         AphidParent.FirstNearComplete(frame.Expression);
 
-                    if(complete != null)
+                    if (complete != null)
                     {
                         frameExp = complete;
                         //rawFrameStr = complete.ToString();
@@ -317,12 +315,12 @@ namespace Components.Aphid.UI
                     frameExp = frame.Expression;
                 }
 
-                if(rawFrameStr == null)
+                if (rawFrameStr == null)
                 {
                     rawFrameStr = frame.ToString(true, useFullNames: false);
                 }
 
-                var frameStr = Cli.StyleEscape(
+                var frameStr = StyleEscape(
                     !"\r\n".Any(rawFrameStr.Contains) ?
                         rawFrameStr :
                         rawFrameStr
@@ -344,7 +342,7 @@ namespace Components.Aphid.UI
                     maxWidth = 80;
                 }
 
-                if(frameStr.Length > maxWidth)
+                if (frameStr.Length > maxWidth)
                 {
                     frameStr = frameStr.Remove(maxWidth);
                     truncated = true;
@@ -352,7 +350,7 @@ namespace Components.Aphid.UI
 
                 frameStr = Highlight(frameStr.TrimEnd());
 
-                if(truncated)
+                if (truncated)
                 {
                     frameStr += " ~White~...~R~";
                 }
@@ -366,11 +364,11 @@ namespace Components.Aphid.UI
 
                 var frameExpFile = frameExp?.Filename;
 
-                if(frameExpFile != null)
+                if (frameExpFile != null)
                 {
                     var basePath = PathHelper.GetEntryDirectory();
 
-                    if(frameExpFile.StartsWith(
+                    if (frameExpFile.StartsWith(
                         basePath,
                         StringComparison.OrdinalIgnoreCase))
                     {
@@ -411,7 +409,7 @@ namespace Components.Aphid.UI
                     //    else if (x[0] == x[1])
                     //};
 
-                    for(var x = 0; x < colors.Length; x++)
+                    for (var x = 0; x < colors.Length; x++)
                     {
                         var old = colors[x].ForegroundRgb;
 
@@ -423,11 +421,11 @@ namespace Components.Aphid.UI
                         byte increase(byte a) => Math.Max(a, (byte)(a * 1.4));
                         byte[] color;
 
-                        if(top.Value.Length == 3)
+                        if (top.Value.Length == 3)
                         {
                             color = old.Select(increase).ToArray();
                         }
-                        else if(top.Value.Length == 2)
+                        else if (top.Value.Length == 2)
                         {
                             var off1 = Array.IndexOf(old, top.Value[0]);
                             var off2 = Array.IndexOf(old, top.Value[1], off1 + 1);
@@ -463,7 +461,7 @@ namespace Components.Aphid.UI
                     WriteLineOut("");
                 }
 
-                if(AphidConfig.Current.StackTraceParams)
+                if (cfg.StackTraceParams)
                 {
                     var serializer = CreateSerializer(interpreter);
 
@@ -477,7 +475,7 @@ namespace Components.Aphid.UI
 
                     if (args.Length > 0)
                     {
-                        WriteLineOut(Highlight(Cli.StyleEscape(args.Indent("  "))));
+                        WriteLineOut(Highlight(StyleEscape(args.Indent("  "))));
                     }
 
                     //var locals = frame.Scope
@@ -490,110 +488,33 @@ namespace Components.Aphid.UI
 
                     //if (locals.Length > 0)
                     //{
-                    //    WriteLineOut(Highlight(Cli.StyleEscape(locals.Indent("  "))));
+                    //    WriteLineOut(Highlight(StyleEscape(locals.Indent("  "))));
                     //}
                 }
             }
 
             WriteLineOut("");
 
-            SafeWriteSubheader("Execution Context");
-            var ctxPairs = new Tuple<string, AphidExpression>[]
+            if (cfg.ShowErrorExpression || cfg.ShowErrorStatement)
             {
-                Tuple.Create("Expression", interpreter.CurrentExpression),
-                Tuple.Create("Statement", interpreter.CurrentStatement),
-            };
+                ShowErrorNodes(interpreter, cfg, trace);
+            }
 
-            foreach(var kvp in ctxPairs)
+            if (cfg.ShowErrorFrameExcerpts)
             {
-                WriteLineOut(string.Format("[~White~Last {0}~R~]", kvp.Item1));
+                var dumpCount = 0;
 
-                if(kvp.Item2 == null)
+                foreach (var t in trace)
                 {
-                    WriteLineOut(Highlight("null"));
-                    WriteLineOut("");
-                    continue;
-                }
-
-                try
-                {
-                    WriteLineOut(
-                        Highlight(
-                            Cli.StyleEscape(
-                                kvp.Item2.Code != null ?
-                                    kvp.Item2.Code.Substring(
-                                        kvp.Item2.Index,
-                                        kvp.Item2.Length) :
-                                    kvp.Item2.ToString())));
-                }
-                catch(Exception e)
-                {
-                    WriteErrorMessage(
+                    if (DumpFirstExcerpt(
+                        t.Expression,
                         string.Format(
-                            "Error writing context for ~Yellow~{0}~R~\r\n{1}",
-                            kvp.Item2,
-                            e.Message));
-                }
-
-                WriteLineOut("");
-            }
-
-            var statement = interpreter.CurrentStatement;
-            var exp = interpreter.CurrentExpression;
-            var file = interpreter.GetScriptFilename();
-            var stmtFile = statement?.Filename;
-            var expFile = exp?.Filename;
-            var headerPrinted = false;
-
-            var tuples = new[]
-            {
-                Tuple.Create<string, string, Func<List<AphidExpression>>>(
-                    "Expression",
-                    expFile,
-                    () => new List<AphidExpression>(new[] { interpreter.CurrentExpression })),
-
-                Tuple.Create<string, string, Func<List<AphidExpression>>>(
-                    "Statement",
-                    stmtFile,
-                    () => new List<AphidExpression>(new[] { interpreter.CurrentStatement })),
-
-                Tuple.Create<string, string, Func<List<AphidExpression>>>(
-                    "Interpreter",
-                    file,
-                    () => interpreter.CurrentScope.TryResolve(AphidName.Block, out var val) ?
-                        (List<AphidExpression>)val.Value :
-                        new List<AphidExpression>())
-            };
-
-
-            foreach (var pair in ctxPairs)
-            {
-                if (trace.Any(a =>
-                    a.Expression != null &&
-                    a.Expression.Filename == pair.Item2.Filename &&
-                    pair.Item2.Index <= a.Expression.Index &&
-                    pair.Item2.Index + pair.Item2.Length >=
-                        a.Expression.Index + a.Expression.Length) ||
-                    DumpFirstExcerpt(
-                        pair.Item2,
-                        string.Format("Current {0} Excerpt", pair.Item1)))
-                {
-                    break;
-                }
-            }
-
-            var dumpCount = 0;
-
-            foreach(var t in trace)
-            {
-                if(DumpFirstExcerpt(
-                    t.Expression,
-                    string.Format(
-                        "Frame {0:x4} Excerpt",
-                        Array.IndexOf(trace, t))) &&
-                    ++dumpCount == ExcerptDumpCount)
-                {
-                    break;
+                            "Frame {0:x4} Excerpt",
+                            Array.IndexOf(trace, t))) &&
+                        ++dumpCount == cfg.FrameExcerptsMax)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -608,33 +529,128 @@ namespace Components.Aphid.UI
 
             //}
 
-            foreach(var s in tuples)
+            var headerPrinted = false;
+            var statement = interpreter.CurrentStatement;
+            var exp = interpreter.CurrentExpression;
+            var file = interpreter.GetScriptFilename();
+            var stmtFile = statement?.Filename;
+            var expFile = exp?.Filename;
+
+            if (cfg.ShowErrorFileList)
             {
-                var files = new[] { s.Item2 }
-                    .Concat(AphidParent.Flatten(s.Item3().ToArray()).Select(x => x?.Filename))
-                    .Where(x => x != null)
-                    .Distinct()
-                    .ToArray();
-
-                if(files.Length == 0)
+                foreach (var s in new (string, string, Func<List<AphidExpression>>)[]
                 {
-                    break;
+                    (
+                        "Expression",
+                        expFile,
+                        () => new List<AphidExpression>(new[] { interpreter.CurrentExpression })),
+
+                    (
+                        "Statement",
+                        stmtFile,
+                        () => new List<AphidExpression>(new[] { interpreter.CurrentStatement })),
+
+                    (
+                        "Interpreter",
+                        file,
+                        () => interpreter.CurrentScope.TryResolve(AphidName.Block, out var val) ?
+                            (List<AphidExpression>)val.Value :
+                            new List<AphidExpression>())
+                })
+                {
+                    var files = new[] { s.Item2 }
+                        .Concat(AphidParent.Flatten(s.Item3().ToArray()).Select(x => x?.Filename))
+                        .Where(x => x != null)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
+
+                    if (files.Length == 0)
+                    {
+                        break;
+                    }
+
+                    if (!headerPrinted)
+                    {
+                        SafeWriteSubheader("Scripts");
+                        headerPrinted = true;
+                    }
+
+                    WriteLineOut(string.Format("[~White~{0} Level Scripts~R~]", s.Item1));
+
+                    foreach (var resp in files)
+                    {
+                        WriteLineOut(resp);
+                    }
+
+                    WriteLineOut("");
+                }
+            }
+        }
+
+        private static void ShowErrorNodes(AphidInterpreter interpreter, AphidConfig cfg, AphidFrame[] trace)
+        {
+            SafeWriteSubheader("Execution Context");
+
+            var ctxPairs = new List<(string, AphidExpression)>();
+
+            if (cfg.ShowErrorExpression)
+            {
+                ctxPairs.Add(("Expression", interpreter.CurrentExpression));
+            }
+
+            if (cfg.ShowErrorStatement)
+            {
+                ctxPairs.Add(("Statement", interpreter.CurrentStatement));
+            }
+
+            foreach (var kvp in ctxPairs)
+            {
+                WriteLineOut(string.Format("[~White~Last {0}~R~]", kvp.Item1));
+
+                if (kvp.Item2 == null)
+                {
+                    WriteLineOut(Highlight("null"));
+                    WriteLineOut("");
+                    continue;
                 }
 
-                if(!headerPrinted)
+                try
                 {
-                    SafeWriteSubheader("Scripts");
-                    headerPrinted = true;
+                    WriteLineOut(
+                        Highlight(
+                            StyleEscape(
+                                kvp.Item2.Code != null ?
+                                    kvp.Item2.Code.Substring(
+                                        kvp.Item2.Index,
+                                        kvp.Item2.Length) :
+                                    kvp.Item2.ToString())));
                 }
-
-                WriteLineOut(string.Format("[~White~{0} Level Scripts~R~]", s.Item1));
-
-                foreach(var resp in files)
+                catch (Exception e)
                 {
-                    WriteLineOut(resp);
+                    WriteErrorMessage(
+                        string.Format(
+                            "Error writing context for ~Yellow~{0}~R~\r\n{1}",
+                            kvp.Item2,
+                            e.Message));
                 }
 
                 WriteLineOut("");
+            }
+
+            foreach (var pair in ctxPairs.Where(x => x.Item2 != null))
+            {
+                if (trace.Any(a =>
+                    a.Expression != null &&
+                    a.Expression.Filename == pair.Item2.Filename &&
+                    pair.Item2.Index <= a.Expression.Index &&
+                    pair.Item2.Index + pair.Item2.Length >=
+                        a.Expression.Index + a.Expression.Length) ||
+                    DumpFirstExcerpt(
+                        pair.Item2,
+                        string.Format("Current {0} Excerpt", pair.Item1)))
+                {
+                    break;
+                }
             }
         }
 
@@ -683,7 +699,7 @@ namespace Components.Aphid.UI
 
         private static bool DumpExcerpt(AphidExpression statement, string name = null)
         {
-            if(statement == null ||
+            if (statement == null ||
                 string.IsNullOrEmpty(statement.Code) ||
                 statement.Index < 0)
             {
@@ -697,11 +713,11 @@ namespace Components.Aphid.UI
             var excerpt = TokenHelper.GetCodeExcerpt(
                 codeCopy,
                 statement.Index + startMarker.Length,
-                ExcerptSurroundingLines);
+                AphidConfig.Current.FrameExcerptLines / 2);
 
-            excerpt = Highlight(Cli.StyleEscape(excerpt));
+            excerpt = Highlight(StyleEscape(excerpt));
 
-            if(!string.IsNullOrEmpty(excerpt.Trim()))
+            if (!string.IsNullOrEmpty(excerpt.Trim()))
             {
                 SafeWriteSubheader(name ?? "Program Excerpt");
                 WriteLineOut(excerpt);
@@ -755,7 +771,7 @@ namespace Components.Aphid.UI
 
         public static void SafeWriteSubheader(string text)
         {
-            if(!Console.IsOutputRedirected)
+            if (!Console.IsOutputRedirected)
             {
                 WriteSubheader(text, "~|Blue~~White~");
             }
@@ -770,13 +786,13 @@ namespace Components.Aphid.UI
                 string.Format(
                     "{0}  {1}{2}{3}",
                     style,
-                    Cli.Escape(text),
-                    new string(' ', Cli.BufferWidth - text.Length - 3),
+                    Escape(text),
+                    new string(' ', BufferWidth - text.Length - 3),
                     "~R~"));
 
         public static void WriteErrorMessage(string format, params object[] arg)
         {
-            if(!Console.IsOutputRedirected && Console.CursorLeft != 0)
+            if (!Console.IsOutputRedirected && Console.CursorLeft != 0)
             {
                 WriteLineOut("\r\n");
             }
@@ -796,12 +812,12 @@ namespace Components.Aphid.UI
 
         public static ColoredText Invert(ColoredText x)
         {
-            if(x.BackgroundRgb == null)
+            if (x.BackgroundRgb == null)
             {
                 x.BackgroundRgb = x.ForegroundRgb;
                 x.ForegroundRgb = SystemColor.Black;
             }
-            else if(x.ForegroundRgb == null)
+            else if (x.ForegroundRgb == null)
             {
                 x.ForegroundRgb = x.BackgroundRgb;
                 x.BackgroundRgb = SystemColor.White;
@@ -818,7 +834,7 @@ namespace Components.Aphid.UI
 
         public static string Highlight(string code)
         {
-            if(code.Trim().Length == 0)
+            if (code.Trim().Length == 0)
             {
                 return code;
             }
@@ -835,53 +851,53 @@ namespace Components.Aphid.UI
             int start = Array.FindIndex(ct, x => x.Text == startMarker.Trim()),
                 end = -1;
 
-            if(start != -1)
+            if (start != -1)
             {
                 end = Array.FindIndex(ct, start, x => x.Text == endMarker.Trim());
             }
 
-            foreach(var i in new[] { start, end })
+            foreach (var i in new[] { start, end })
             {
-                if(i == -1)
+                if (i == -1)
                 {
                     continue;
                 }
 
-                if(i - 1 >= 0)
+                if (i - 1 >= 0)
                 {
                     ct[i - 1].Text = "";
                 }
 
-                if(i >= 0 && i < ct.Length)
+                if (i >= 0 && i < ct.Length)
                 {
                     ct[i].Text = "";
                 }
 
-                if(i + 1 < ct.Length)
+                if (i + 1 < ct.Length)
                 {
                     ct[i + 1].Text = "";
                 }
             }
 
-            if(start != -1 && end != -1)
+            if (start != -1 && end != -1)
             {
-                for(var i = start + 1; i < end; i++)
+                for (var i = start + 1; i < end; i++)
                 {
                     ct[i] = Invert(ct[i]);
                 }
             }
-            else if(start != -1)
+            else if (start != -1)
             {
                 start += 2;
 
-                if(ct.Length != start)
+                if (ct.Length != start)
                 {
                     ct[start] = Invert(ct[start]);
                 }
             }
-            else if(end != -1)
+            else if (end != -1)
             {
-                if(--end >= 0)
+                if (--end >= 0)
                 {
                     ct[end] = Invert(ct[end]);
                 }

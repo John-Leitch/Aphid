@@ -12,14 +12,15 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoader : AphidRuntimeComponent
     {
-        private static readonly string _location = Assembly.GetExecutingAssembly().Location;
-
-        private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
-            new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
+        private static readonly string _location =
+            Assembly.GetExecutingAssembly().Location;
 
         private static readonly string _libraryPath = Path.Combine(
             !string.IsNullOrEmpty(_location) ? Path.GetDirectoryName(_location) : ".\\",
             "Library");
+
+        private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
+            new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
 
         private List<Assembly> _modules;
 
@@ -34,6 +35,22 @@ namespace Components.Aphid.Interpreter
 
         public AphidLoader(AphidInterpreter interpreter)
             : base(interpreter) => _modules = new List<Assembly> { Assembly.GetExecutingAssembly() };
+
+        private AphidLoader(
+            AphidInterpreter interpreter,
+            List<Assembly> modules,
+            HashSet<string> systemSearchPaths,
+            HashSet<string> searchPaths,
+            bool inlineCachedScripts,
+            bool disableConstantFolding)
+            : base(interpreter)
+        {
+            _modules = modules;
+            SystemSearchPaths = systemSearchPaths;
+            SearchPaths = searchPaths;
+            InlineCachedScripts = inlineCachedScripts;
+            DisableConstantFolding = disableConstantFolding;
+        }
 
         public void LoadModule(string moduleFile)
         {
@@ -307,6 +324,15 @@ namespace Components.Aphid.Interpreter
 
             //currentObj.Value = value;
         }
+
+        public AphidLoader CreateChild(AphidInterpreter interpreter) =>
+            new AphidLoader(
+                interpreter,
+                _modules,
+                SystemSearchPaths,
+                SearchPaths,
+                InlineCachedScripts,
+                DisableConstantFolding);
     }
 }
 

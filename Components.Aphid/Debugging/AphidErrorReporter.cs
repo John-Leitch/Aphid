@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Components.Aphid.Debugging
 {
@@ -47,7 +48,11 @@ namespace Components.Aphid.Debugging
                 {
                     if (IsEnabled)
                     {
-                        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+                        AppDomain.CurrentDomain.UnhandledException += (o, e) =>
+                            Report((Exception)e.ExceptionObject);
+
+                        TaskScheduler.UnobservedTaskException += (o, e) =>
+                            Report(e.Exception);
                     }
 
                     IsInitialized = true;
@@ -55,26 +60,46 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) =>
-            SaveErrorInformation((Exception)e.ExceptionObject);
+        public static void Report(Exception o) => Report(o, null);
 
-        public static void SaveErrorInformation(Exception o) =>
-            SaveErrorInformation(o, null);
-
-        public static void SaveErrorInformation(Exception o, AphidInterpreter interpreter)
+        public static void Report(Exception o, AphidInterpreter interpreter)
         {
             lock (_sync)
             {
                 if (IsEnabled)
                 {
-                    SaveErrorInformationCore(o, interpreter);
+                    SaveException(o, interpreter);
                 }
             }
         }
 
-        private static void SaveErrorInformationCore(Exception o, AphidInterpreter interpreter)
+        public static void SaveException(Exception o) => SaveException(o, null);
+
+        public static void SaveException(Exception exception, AphidInterpreter interpreter) =>
+            SaveException(exception, interpreter, exit: true);
+
+        public static void SaveException(Exception exception, AphidInterpreter interpreter, bool exit)
         {
             var dumpFile = AphidMemoryDump.Create();
+
+            if (exception is AggregateException ae)
+            {
+                new[] { ae }.Concat(ae.InnerExceptions).For((e, i) => SaveExceptionLogs(e, interpreter, i, dumpFile));
+            }
+            else
+            {
+                SaveExceptionLogs(exception, interpreter, -1, dumpFile);
+            }
+
+            if (exit)
+            {
+                Environment.Exit(0xbad02);
+            }
+        }
+
+        private static void SaveExceptionLogs(Exception exception, AphidInterpreter interpreter, int number, string dumpFile)
+        {
+            var tag = number >= 0 ? $"{number}." : "";
             AphidRuntimeException are;
             AphidInterpreter exInterpreter = null;
 
@@ -94,19 +119,19 @@ namespace Components.Aphid.Debugging
                 writeLineOut(x);
             };
 
-            if (o is AphidLoadScriptException ale)
+            if (exception is AphidLoadScriptException ale)
             {
                 exInterpreter = ale.Interpreter;
                 AphidCli.DumpException(ale, ale.Interpreter);
             }
-            else if ((are = o as AphidRuntimeException) != null)
+            else if ((are = exception as AphidRuntimeException) != null)
             {
                 exInterpreter = are.Interpreter;
                 AphidCli.DumpException(are, are.Interpreter);
             }
             else
             {
-                AphidCli.DumpException(o, null);
+                AphidCli.DumpException(exception, null);
             }
 
             var i = exInterpreter ?? interpreter;
@@ -114,13 +139,13 @@ namespace Components.Aphid.Debugging
             if (dumpFile != null && i != null)
             {
                 File.WriteAllText(
-                    Path.ChangeExtension(dumpFile, "alxd"),
+                    Path.ChangeExtension(dumpFile, $"{tag}alxd"),
                     new AphidSerializer(i).Serialize(i.CurrentScope));
             }
 
             if (dumpFile != null)
             {
-                var logFile = Path.ChangeExtension(dumpFile, "log");
+                var logFile = Path.ChangeExtension(dumpFile, $"{tag}log");
 
                 using (var writer = new StreamWriter(File.Create(logFile)))
                 {
@@ -166,11 +191,9 @@ namespace Components.Aphid.Debugging
                                 !x.IsDynamic ? x.Location : "Dynamic Assembly"))
                             .JoinLines());
 
-                    WalkExceptions(o, writer);
+                    WalkExceptions(exception, writer);
                 }
             }
-
-            Environment.Exit(0xbad02);
         }
 
         private static void TryWriteValue(

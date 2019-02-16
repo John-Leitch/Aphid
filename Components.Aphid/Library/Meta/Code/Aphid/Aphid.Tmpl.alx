@@ -1,8 +1,8 @@
 ﻿var keywordHelperTmpl = "
     if (!NextChar())
-	{{
-		return AphidTokenType.{0};
-	}}
+    {{
+        return AphidTokenType.{0};
+    }}
 
     state = 0;
 
@@ -31,7 +31,7 @@
     }}
     while (NextChar());
 
-	if (state == 1)
+    if (state == 1)
     {{
         return AphidTokenType.Identifier;
     }}
@@ -79,7 +79,7 @@ var getString = @(delim) {
 
 
 var numberTmpl = "
-	{0}
+    {0}
 
     do
     {{    
@@ -140,5 +140,5 @@ var numberTmpl = "
 ";
 
 var getNumber = @(prologue, epilogue) prologue defined ?
-	sprintf(numberTmpl, prologue, epilogue) :
-	sprintf(numberTmpl, 'state = 0;', epilogue);
+    sprintf(numberTmpl, prologue, epilogue) :
+    sprintf(numberTmpl, 'state = 0;', epilogue);

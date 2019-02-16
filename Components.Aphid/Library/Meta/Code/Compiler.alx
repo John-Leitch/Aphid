@@ -208,7 +208,7 @@ var csharp;
     };
 
     resources = {
-		typeName: 'AphidCompilerResources',
+        typeName: 'AphidCompilerResources',
         embed: @(namespace, resource, buffer) {
             var type = byte.MakeArrayType();
             var fieldName = '_' + resource;

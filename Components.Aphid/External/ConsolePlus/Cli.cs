@@ -336,7 +336,7 @@ namespace Components.External.ConsolePlus
             Write(hrTop + hrMiddle + hrBottom);
         }
 
-        public static void WriteSubheader(string text, string style = "")
+        public static void WriteSubheader(string text, string style = DefaultHeaderStyle)
         {
             Cli.WriteLine(
                 "{0}  {1}{2}{3}",

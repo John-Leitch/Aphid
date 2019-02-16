@@ -1,4 +1,9 @@
-﻿var aphid = this.{'$aphid'} defined ? this.{'$aphid'} : null;
+﻿using Components.Aphid.Interpreter;
+using System.Threading;
+
+_aphid = macro(@{ this.{'$aphid'} defined ? this.{'$aphid'} : null });
+var aphid = _aphid();
+var aphidLocal = new ThreadLocal[AphidInterpreter](@() _aphid());
 var getBlock = @() this.{'$parent'}.{'$block'};
 
 var parseArgsFor = @{

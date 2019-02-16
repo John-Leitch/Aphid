@@ -6,6 +6,7 @@ namespace Components.Aphid.Parser
     [Serializable, DataContract(IsReference = true)]
     public abstract class AphidNode
     {
+        [field:NonSerialized]
         public abstract AphidExpressionType Type { get; }
 
         public bool IsStatement()

@@ -13,19 +13,19 @@ namespace Components.Aphid.Debugging
     {
         public static string Create()
         {
+            var f = PathHelper.GetEntryPath($"AphidMemory-{Guid.NewGuid()}.dmp");
+
             try
             {
-                var f = PathHelper.GetExecutingPath(
-                    string.Format("AphidMemory-{0}.dmp", Guid.NewGuid()));
-
+                
                 MemoryDump.Create(f);
-                Cli.WriteCriticalErrorMessage("Created memory dump '{0}'.", f);
+                Cli.WriteCriticalErrorMessage($"Created memory dump '{f}'.");
 
                 return f;
             }
             catch
             {
-                Cli.WriteCriticalErrorMessage("Failed creating memory dump.");
+                Cli.WriteCriticalErrorMessage($"Failed creating memory dump '{f}'.");
 
                 return null;
             }

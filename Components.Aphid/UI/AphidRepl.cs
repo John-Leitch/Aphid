@@ -112,7 +112,7 @@ namespace Components.Aphid.UI
                                 "Internal error encountered in autocomplete console:\r\n{0}",
                                 e.Message);
 
-                            AphidErrorReporter.SaveErrorInformation(e, Interpreter);
+                            AphidErrorReporter.Report(e, Interpreter);
 
                             if (e is ReflectionTypeLoadException le)
                             {

@@ -1,18 +1,18 @@
 ﻿var tcp;
 
 @(){
-	##'Components.Aphid.Library.Net.TcpLibrary';
-	##'Components.Aphid.Library.StreamLibrary';	
-	tcp = {
-		connect: @(host, port) {
-			var stream = __tcp.connect(host, port);
-		
-			ret {
-				stream,
-				write: @(data) __stream.write(stream, data),
-				read: @(len) __stream.read(stream, len),
-				close: @() __tcp.close(stream),
-			};
-		}
-	};
+    ##'Components.Aphid.Library.Net.TcpLibrary';
+    ##'Components.Aphid.Library.StreamLibrary';    
+    tcp = {
+        connect: @(host, port) {
+            var stream = __tcp.connect(host, port);
+        
+            ret {
+                stream,
+                write: @(data) __stream.write(stream, data),
+                read: @(len) __stream.read(stream, len),
+                close: @() __tcp.close(stream),
+            };
+        }
+    };
 }();

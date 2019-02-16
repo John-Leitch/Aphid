@@ -15,13 +15,26 @@ _anySource = macro(@{ source != null && Enumerable.Any(source) });
 
 @ +? (source, func) $($args.Count)
     1: (_anySource()),
-    (_anySource() ? (source |> func) : null);
+    (_anySource() ? func(source) : null);
 
 @ ^| (source, defaultValue) { try ret source ^!; catch ret defaultValue };
 @ <! (source, func) $args.Count == 2 ? (source -? (<! func)) : source ?> false;
+
+@ |< (source, func) {
+    func(source);
+    
+    ret source;
+};
+
 @ -+ (source, delim) source +> @(x, y) x + delim + y;
 @ -| (source, predicate) { _queryBody(Enumerable.Single) };
 @ -! (source, predicate) { _queryBody(Enumerable.Any @> @== false) };
+
+@ -% (source, action) {
+    for(source) action($_);
+
+    ret source;
+};
 
 _queryBody = macro(@(filter){
     using System.Linq;
@@ -31,12 +44,11 @@ _queryBody = macro(@(filter){
 @ ~= (input, pattern) _re(IsMatch);
 @ ~~ (input, pattern) _re(Matches) @(m) 0..(m #!)->@()m[$_];
 @ ~: (input, replace) $(replace.GetType()) String: _sub(replace, ''), _sub(replace[0], replace[1]);
-
 @ ~? (input, pattern) _rec();
-@ ~| (input, pattern) _rec() |> Enumerable.Single;
+@ ~| (input, pattern) Enumerable.Single(_rec());
 @ <- (selector, source) source -> selector;
 @ ?- (selector, source) source -? selector;
-@ <| (target, arg) arg |> target;
+@ <| (target, arg) target(arg);
 @ <@ (f1, f2) f2 @> f1;
 @ &\ (file) _in(ReadAllBytes);
 @ |\ (file) _in(ReadAllText);
@@ -54,18 +66,40 @@ _queryBody = macro(@(filter){
 
 _rhs = macro(@{ frame(0).Expression.RightOperand });
 @ ?. (lhs, rhs) lhs != null ? lhs.{_rhs().Identifier} : null;
+
+//_poe = macro(@{
+    //var a = this.{'$aphid'};
+//
+    //if (a != null) Console.WriteLine('{0}, {1}', a.OwnerThread, Thread.CurrentThread.ManagedThreadId);
+    //if (a.OwnerThread != Thread.CurrentThread.ManagedThreadId) throw new InvalidOperationException('Thread mismatch');
+    //var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> this.{'$aphid'}.Interpret;
+//});
+
+//_poe = macro(@{
+    //var a = aphidLocal.Value;
+    //a |> print;
+    //var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> a.Interpret;
+//});
+
+_poe = macro(@{ var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> this.{'$aphid'}.Interpret });
+
 @ -. (lhs, rhs) {
-    var f =
-        new PartialOperatorExpression(getToken('.'), _rhs())
-        |> this.{'$aphid'}.Interpret;
+    _poe();
     
     ret lhs->f
 };
 
+@ %. (lhs, rhs) {
+    _poe();
+    lhs->@{ f($_)() };
+
+    ret lhs;
+};
+
 @ !! (condition, fatalMessage) {
-	if (condition) {
-		printCriticalError(fatalMessage); Environment.Exit(0xbad02)
-	}
+    if (condition) {
+        printCriticalError(fatalMessage); Environment.Exit(0xbad02)
+    }
 };
 
 @`(depth, num) frame(depth).Expression.Args[num].Identifier;
@@ -73,4 +107,4 @@ _sub = macro(@(pattern, replacement) { Regex.Replace(input.ToString(), pattern, 
 
 _re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString()) });
 _rec = macro(@{ input -? @() $_ ~= pattern });
-_in = macro(@(f) { file.ToString() |> File.f });
+_in = macro(@(f) { File.f(file.ToString()) });
