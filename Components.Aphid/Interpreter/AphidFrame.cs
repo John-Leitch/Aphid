@@ -61,9 +61,11 @@ namespace Components.Aphid.Interpreter
 
         public string CreateParamTupleString(bool useFullNames) =>
             // Todo: get param names
-            string.Join(
-                ", ",
-                Arguments.Select((x, i) => GetArgumentType(x, useFullNames)));
+            Arguments != null ?
+                string.Join(
+                    ", ",
+                    Arguments.Select((x, i) => GetArgumentType(x, useFullNames))) :
+            "";
 
         private static string GetArgumentType(object argument, bool useFullNames)
         {
