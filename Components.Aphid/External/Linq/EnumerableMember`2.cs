@@ -62,6 +62,9 @@ namespace Components
             where TMemberValue : IEquatable<TMemberValue>, TMember =>
                 EnumerableMember.Create(_source.Where(x => !Equals(value, _selector(x))), _selector);
 
+        public EnumerableMember<TSource, TMember> Not(Func<TMember, bool> predicate) =>
+            EnumerableMember.Create(_source.Where(x => !predicate(_selector(x))), _selector);
+
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // And
         ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -294,6 +294,18 @@ namespace Components.Aphid.Serialization
 
         private void SerializeToString(StringBuilder sb, object value)
         {
+            try
+            {
+                SerializeToStringCore(sb, value);
+            }
+            catch (Exception e)
+            {
+                sb.Append(Quote($"Error: {e}"));
+            }
+        }
+
+        private void SerializeToStringCore(StringBuilder sb, object value)
+        {
             if (value == null)
             {
                 sb.Append("null");
