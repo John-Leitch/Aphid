@@ -62,6 +62,14 @@ namespace Components.Aphid.Serialization
 
         public string Serialize(AphidObject o)
         {
+            lock (this)
+            {
+                return SerializeCore(o);
+            }
+        }
+
+        private string SerializeCore(AphidObject o)
+        {
             _traversedPaths.Clear();
             _currentPath.Clear();
             _currentPath.Push("this");
@@ -360,6 +368,14 @@ namespace Components.Aphid.Serialization
                 "'");
 
         public AphidObject Deserialize(string obj)
+        {
+            lock (this)
+            {
+                return DeserializeCore(obj);
+            }
+        }
+
+        private AphidObject DeserializeCore(string obj)
         {
             var lexer = new AphidObjectLexer(obj);
             var tokens = lexer.GetTokens();
