@@ -10,7 +10,8 @@ AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
 });
 
 var chart = winForms.chart();
-var area3d = chart.area().Area3DStyle;
+var area = chart.area();
+var area3d = area.Area3DStyle;
 area3d.Enable3D = true;
 area3d.Inclination = 10;
 area3d.IsRightAngleAxes = true;
@@ -40,12 +41,15 @@ _af(min);
 _af(sum);
 
 var l = {};
-
-
 using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
     var flattened =
         (var r = db.ReadUnsafe)()
-        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }));
+        -<(@(x) x.results
+        -> @(y) ({
+            version: new Version(x.version),
+            name: y.name,
+            ms: y.ticks / TimeSpan.TicksPerMillisecond
+    }));
 
     if (!args.Contains('-all')) {
         flattened = flattened-?((@.name) @> testNames.contains);
@@ -53,29 +57,38 @@ using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
 
     var fullRuns = flattened -& (@.version) -& (@()$_ -& @.name #!) -/ @.Key ^! -> @.Key;
 
-    _aggr = macro(@(_aggr) { s -& (@.version) -\ (@.Key) -> (@(g) [ i++, g -> @.ticks |> @() _aggr, g.Key ]) });
+    _aggr = macro(@(_aggr) { s -& (@.version) -\ (@.Key) -> (@(g) [ i++, g -> @.ms |> @() _aggr, g.Key ]) });
 
-    flattened
-    -? (@(x) fullRuns=?@==x.version)
-    -& @.name
-    -> @(s){
-        var i = 0x0;
-        var data = ($(mode)
-            tickMode.average: _aggr(($_ +> (@(a, b) a + b)) / (g #!)),
-            tickMode.sum: _aggr($_ +> (@(a, b) a + b)),
-            tickMode.min: _aggr($_ \! ^!),
-            (s
-                -\ (@.version)
-                -> (@() [ i++, $_.ticks, $_.version ])));
+    var out =
+        flattened
+        -? (@(x) fullRuns=?@==x.version)
+        -& @.name
+        -> @(s){
+            var i = 0x0;
+            var data = ($(mode)
+                tickMode.average: _aggr(($_ +> (@(a, b) a + b)) / (g #!)),
+                tickMode.sum: _aggr($_ +> (@(a, b) a + b)),
+                tickMode.min: _aggr($_ \! ^!),
+                (s
+                    -\ (@.version)
+                    -> (@() [ i++, $_.ms, $_.version ])));
     
-        l[s.Key] = data;
-        Console.WriteLine('{0}: {1}', s.Key, data #!);
+            l[s.Key] = data;
+            Console.WriteLine('{0}: {1}', s.Key, data #!);
 
-        data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
-    };
+            data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
+
+            ret data;
+        };
+
+    area.AxisY.LabelStyle.Format = '{0:n0}ms';
+    area.RecalculateAxesScale();
+    var vi = 0;
+    var pts = out[0];
+    0..(pts#!)->@(i) area.AxisX.CustomLabels.Add(i - 0.5, i + 0.5, pts[i][2].ToString());
 }
 
-l |> serialize @File.WriteAllText('c:\\temp\\dat.alx');
+
 
 winForms.split([
     [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]
