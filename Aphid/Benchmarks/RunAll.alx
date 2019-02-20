@@ -8,6 +8,7 @@ using System.Text;
 var args = new List[string](Environment.GetCommandLineArgs());
 var backupDB = args.Contains('-backup');
 var useSingleProcess = args.Contains('-inproc');
+var saveCharts = args.Contains('-charts');
 
 var ignore = [
     '581bb73 Updated interop type caching to use hash sets.'
@@ -185,9 +186,12 @@ var run = @{
 
     var msbc = '"' + msBuild.exe +'" ' + 
         csProj + ' ' +
-        '/p:Platform=' + (isLegacyProj  ? 'x64' : 'Default') + ' ' +
+        '/p:Platform=' + (isLegacyProj  ? 'AnyCpu' : 'Default') + ' ' +
         '/p:Configuration=' + (isLegacyProj ? 'Release' : 'Release64') + ' ' +
-        '/verbosity:quiet /t:Rebuild';
+        '/p:Prefer32bit=false ' +
+        '/verbosity:' + msBuild.verbosityValues[2] + ' ' +
+        '/t:Rebuild';
+        
     
     ~# msbc;
 
@@ -230,6 +234,10 @@ var run = @{
             var backupDir = tmpDir + '\\' + Guid.NewGuid();
             ~# ('mkdir ' + backupDir);
             ~# ('copy ' + testDst + '\\history.* ' + backupDir);
+        }
+
+        if (saveCharts) {
+            ~# 'c:\\tools\\aphid\\aphid64.exe charts.alx -pngs';
         }
         //Console.ReadLine();
     } else {
