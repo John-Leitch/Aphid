@@ -3,10 +3,12 @@
 //#define DETECTED_ERRONEOUS_NESTING
 //#define APHID_OBJECT_OWNER_THREAD
 //#define CHECK_COMPLEXITY_SET
+//#define CHECKED
 #if CHECKED
 #define STRICT_APHID_OBJECT_TYPE_CHECKS
 #define DETECTED_ERRONEOUS_NESTING
 #define CHECK_COMPLEXITY_SET
+//#define CHECK_WRAPPED_NULL
 #endif
 using Components.Aphid.Interpreter;
 using System;
@@ -543,26 +545,39 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public static bool IsAphidType(object obj)
+#if CHECK_WRAPPED_NULL
+        public new void Add(string key, AphidObject value)
         {
-            if (obj == null)
+            if (value == null)
             {
-                return true;
+                throw new InvalidOperationException("AphidObject cannot add unwrapped null.");
             }
 
-            var t = obj.GetType();
-
-            return
-                t == typeof(string) ||
-                t == typeof(decimal) ||
-                t == typeof(bool) ||
-                t == typeof(List<AphidObject>) ||
-                t == typeof(AphidObject) ||
-                t == typeof(AphidFunction) ||
-                t == typeof(AphidInteropFunction);
+            base.Add(key, value);
         }
 
-        public override bool Equals(object obj) => base.Equals(obj);
+        public new AphidObject this[string key]
+        {
+            get =>base[key] ??
+                throw new InvalidOperationException("AphidObject contained unwrapped null as member.");
+            set => base[key] = value ??
+                throw new InvalidOperationException("AphidObject cannot set member with unwrapped null.");
+        }
+
+        public new bool TryGetValue(string key, out AphidObject value)
+        {
+            var result = base.TryGetValue(key, out value);
+
+            if (result && value == null)
+            {
+                throw new InvalidOperationException("AphidObject contained unwrapped null as member.");
+            }
+
+            return result;
+        }
+#endif
+
+        //public override bool Equals(object obj) => base.Equals(obj);
 
         public override int GetHashCode()
         {
@@ -599,6 +614,25 @@ namespace Components.Aphid.TypeSystem
         }
 
         public AphidObject CreateChild() => new AphidObject(this);
+
+        public static bool IsAphidType(object obj)
+        {
+            if (obj == null)
+            {
+                return true;
+            }
+
+            var t = obj.GetType();
+
+            return
+                t == typeof(string) ||
+                t == typeof(decimal) ||
+                t == typeof(bool) ||
+                t == typeof(List<AphidObject>) ||
+                t == typeof(AphidObject) ||
+                t == typeof(AphidFunction) ||
+                t == typeof(AphidInteropFunction);
+        }
 
         public static AphidObject Scalar(object value) => new AphidObject(value: value);
 

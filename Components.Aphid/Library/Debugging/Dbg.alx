@@ -403,6 +403,46 @@ _p = macro(@() {
     (this |> keys) ~? 'System'
 });
 
+using Components.Aphid.Serialization;
+
+var kvpSerializer = new AphidSerializer(aphid);
+kvpSerializer.QuoteToStringResults = false;
+kvpSerializer.ToStringClrTypes = true;
+kvpSerializer.IgnoreLazyLists = false;
+
 extend unknown {
-    keys: @(o, pattern) $(pattern defined) keys
+    keys: @(o, pattern) ($(pattern defined) keys),
+
+    kvps: @(o, pattern) {
+        var sb = new StringBuilder();
+        var t = o.GetType();
+
+        [
+            { get: t.GetProperties, type: @.PropertyType },
+            { get: t.GetFields, type: @.FieldType }
+        ]
+            -<(@(m) m.get()->(@()({
+                getValue: $_.GetValue,
+                name: $_.Name,
+                type: $_ |> m.type |> AphidCli.GetTypeName
+            })))
+            ->@{
+                var value;
+
+                try {
+                    value = o |> $_.getValue |> kvpSerializer.Serialize;
+                } catch(e) {
+                    value = 'throw new {0}(/*...*/)'
+                        :: e.exception.GetType().Name;
+                }
+
+                ret '{0} {1} = {2};\r\n' :: [ $_.type, $_.name, value ];                
+            }
+            -?(@() pattern defined ?
+                Regex.IsMatch($_, pattern, RegexOptions.IgnoreCase) :
+                true)
+            @String.Join('')
+            |> AphidCli.Highlight
+            |> Console.WriteLine;
+    },
 }

@@ -8,6 +8,7 @@
             AutoImport = "autoImport",
             AutoInclude = "autoInclude",
             StackTraceParams = "stackTraceParams",
+            StackTraceParamsMax = "stackTraceParamsMax",
             ShowErrorStatement = "showErrorStatement",
             ShowErrorExpression = "showErrorExpression",
             ShowErrorFrameExcerpts = "showErrorFrameExcerpts",

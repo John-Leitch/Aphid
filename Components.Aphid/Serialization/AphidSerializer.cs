@@ -57,6 +57,8 @@ namespace Components.Aphid.Serialization
 
         public bool ToStringClrTypes { get; set; }
 
+        public int MaxElements { get; set; } = -1;
+
         public AphidSerializer(AphidInterpreter interpreter)
             : base(interpreter) => IgnoreFunctions = true;
 
@@ -249,6 +251,41 @@ namespace Components.Aphid.Serialization
                     s.Append("[]");
                 }
             }
+            else if (!IgnoreFunctions && value is AphidFunction function)
+            {
+                s.AppendFormat("@({0}) ", function.Args.Join(", "));
+
+                if (function.Body.Count == 0)
+                {
+                    s.Append("{ },\r\n");
+                }
+                else if (function.Body.Count == 1 &&
+                    function.Body[0].Type == AphidExpressionType.UnaryOperatorExpression &&
+                    function.Body[0].ToUnaryOperator().Operator == AphidTokenType.retKeyword)
+                {
+                    s.AppendFormat("{0},\r\n", function.Body[0].ToUnaryOperator().Operand);
+                }
+                else
+                {
+                    s.Append("{\r\n");
+                    var tmp = new StringBuilder();
+
+                    var body = function.Body
+                        .Select(x => x.IsStatement() ? x.ToString() : x.ToString() + ";")
+                        .SelectMany(x => x.SplitLines())
+                        .Select(x => x.Split(x.TakeWhile(Char.IsWhiteSpace).Count()))
+                        .Select(x => new[] { x[0].Replace("\t", "    "), x[1] })
+                        .ToArray();
+
+                    var trim = body.Min(x => x[0].Length);
+
+                    var block = body
+                        .Select(x => new string(' ', (indent + 1) * 4 + x[0].Length - trim) + x[1])
+                        .JoinLines();
+
+                    s.AppendFormat("{0}\r\n{1}}}\r\n", block, new string(' ', indent * 4));
+                }
+            }
             else if (value is IEnumerable enumerable)
             {
                 SerializeEnumerable(s, enumerable, indent);
@@ -277,18 +314,85 @@ namespace Components.Aphid.Serialization
 
             var hasAny = false;
 
-            foreach (var x in enumerable)
+            if (MaxElements < 0)
             {
-                if (!hasAny)
+                foreach (var x in enumerable)
                 {
-                    s.Append("[\r\n");
-                    hasAny = true;
+                    if (!hasAny)
+                    {
+                        s.Append("[\r\n");
+                        hasAny = true;
+                    }
+
+                    s.Append(new string(' ', (indent + 1) * 4));
+                    SerializeValue(s, x, indent + 1);
+                    s.Append(",\r\n");
+                }
+            }
+            else
+            {
+                var skipped = 0;
+                var i = 0;
+                var h = MaxElements / 2f;
+                int first = (int)Math.Ceiling(h), last = (int)Math.Floor(h);
+                List<object> head = new List<object>(), tail = new List<object>();
+
+                foreach (var x in enumerable)
+                {
+                    if (++i > first)
+                    {
+                        skipped++;
+
+                        if (head.Count < last)
+                        {
+                            head.Add(x);
+                        }
+
+                        if (tail.Count == last)
+                        {
+                            tail.RemoveAt(0);
+                        }
+
+                        tail.Add(x);
+
+                        continue;
+                    }
+
+                    if (!hasAny)
+                    {
+                        s.Append("[\r\n");
+                        hasAny = true;
+                    }
+
+                    s.Append(new string(' ', (indent + 1) * 4));
+                    SerializeValue(s, x, indent + 1);
+                    s.Append(",\r\n");
                 }
 
-                s.Append(new string(' ', (indent + 1) * 4));
-                SerializeValue(s, x, indent + 1);
-                s.Append(",\r\n");
+                if (skipped > 0)
+                {
+                    foreach (var x in head.Take(head.Count - tail.Count))
+                    {
+                        s.Append(new string(' ', (indent + 1) * 4));
+                        SerializeValue(s, x, indent + 1);
+                        s.Append(",\r\n");
+                    }
+
+                    s.AppendFormat(
+                        "{0}/* Skipped {1:n0} elements */\r\n",
+                        new string(' ', (indent + 1) * 4),
+                        skipped);
+
+                    foreach (var x in tail)
+                    {
+                        s.Append(new string(' ', (indent + 1) * 4));
+                        SerializeValue(s, x, indent + 1);
+                        s.Append(",\r\n");
+                    }
+                }
             }
+
+
 
             if (hasAny)
             {

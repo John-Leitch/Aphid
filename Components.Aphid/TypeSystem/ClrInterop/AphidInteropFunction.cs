@@ -14,7 +14,8 @@ namespace Components.Aphid.TypeSystem
 
         public bool UnwrapParameters { get; }
 
-        public object Invoke(AphidInterpreter interpreter, params object[] parms) => InvokeDelegate(interpreter, parms);
+        public object Invoke(AphidInterpreter interpreter, params object[] parms) =>
+            InvokeDelegate(interpreter, parms);
 
         private static object[] PrefixScope(AphidInterpreter interpreter, object[] parms)
         {
@@ -27,11 +28,20 @@ namespace Components.Aphid.TypeSystem
         private void CreateInvokeDelegate(AphidInteropFunctionAttribute attribute, MethodInfo method)
         {
             var parameters = method.GetParameters();
-            var paramsParam = Array.Find(parameters, x => x
-                    .GetCustomAttributes(true)
-                    .Any(y => y is ParamArrayAttribute));
+            var l = parameters.Length;
 
-            if (paramsParam == null)
+            if (l == 0)
+            {
+                if (!attribute.PassInterpreter)
+                {
+                    InvokeDelegate = (callerScope, x) => method.Invoke(null, Array.Empty<object>());
+                }
+                else
+                {
+                    InvokeDelegate = (callerScope, x) => method.Invoke(null, new object[] { callerScope });
+                }
+            }
+            else if (!parameters[l - 1].IsDefined(typeof(ParamArrayAttribute)))
             {
                 if (!attribute.PassInterpreter)
                 {
@@ -44,36 +54,55 @@ namespace Components.Aphid.TypeSystem
             }
             else
             {
-                var paramCount = parameters.Length;
-
                 if (attribute.PassInterpreter)
                 {
-                    paramCount--;
+                    l--;
                 }
 
                 InvokeDelegate = (callerScope, x) =>
                 {
                     object[] parameters2;
-                    if (x.Length < paramCount)
+                    var argLen = x.Length;
+
+                    if (argLen < l)
                     {
-                        parameters2 = new object[x.Length + 1];
-                        Array.Copy(x, parameters2, x.Length);
-                        parameters2[x.Length] = new object[0];
+                        if (attribute.PassInterpreter)
+                        {
+                            parameters2 = new object[argLen + 2];
+                            parameters2[0] = callerScope;
+                            Array.Copy(x, 0, parameters2, 1, argLen);
+                            parameters2[argLen + 1] = Array.Empty<object>();
+                        }
+                        else
+                        {
+                            parameters2 = new object[argLen + 1];
+                            Array.Copy(x, parameters2, argLen);
+                            parameters2[argLen] = Array.Empty<object>();
+                        }                        
                     }
                     else
                     {
-                        parameters2 = new object[paramCount];
-                        var stdParamCount = paramCount - 1;
-                        Array.Copy(x, parameters2, stdParamCount);
-                        var paramArrayLen = x.Length - stdParamCount;
-                        var paramArray = new object[paramArrayLen];
-                        Array.Copy(x, stdParamCount, paramArray, 0, paramArrayLen);
-                        parameters2[stdParamCount] = paramArray;
-                    }
-
-                    if (attribute.PassInterpreter)
-                    {
-                        parameters2 = PrefixScope(callerScope, parameters2);
+                        if (attribute.PassInterpreter)
+                        {
+                            parameters2 = new object[l + 1];
+                            parameters2[0] = callerScope;
+                            var stdParamCount = l - 1;
+                            Array.Copy(x, 0, parameters2, 1, stdParamCount);
+                            var paramArrayLen = argLen - stdParamCount;
+                            var paramArray = new object[paramArrayLen];
+                            Array.Copy(x, stdParamCount, paramArray, 0, paramArrayLen);
+                            parameters2[stdParamCount + 1] = paramArray;
+                        }
+                        else
+                        {
+                            parameters2 = new object[l];
+                            var stdParamCount = l - 1;
+                            Array.Copy(x, parameters2, stdParamCount);
+                            var paramArrayLen = argLen - stdParamCount;
+                            var paramArray = new object[paramArrayLen];
+                            Array.Copy(x, stdParamCount, paramArray, 0, paramArrayLen);
+                            parameters2[stdParamCount] = paramArray;
+                        }
                     }
 
                     return method.Invoke(null, parameters2);

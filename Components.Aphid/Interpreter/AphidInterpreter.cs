@@ -36,7 +36,7 @@ using static Components.Aphid.TypeSystem.TypeExtender;
 
 namespace Components.Aphid.Interpreter
 {
-    // Todo:
+// Todo:
     // * Fix all methods that return object instead of AphidObject,
     //   then remove excessive Wrap/Unwrap and casting.
     // * Add support for token macros--transform during lexical analysis
@@ -131,6 +131,7 @@ namespace Components.Aphid.Interpreter
     {
         private const bool _createLoaderDefault = true;
 
+        [ThreadStatic]
         private static Dictionary<Type, Dictionary<string, MemberInfo[]>>
             _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
             _staticMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>();
@@ -1289,11 +1290,11 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretAssignmentExpression(
             AphidExpression destinationExpression,
-            object value,
+            AphidObject value,
             AphidExpression completeExpression = null)
         {
             //var value = InterpretExpression(expression.RightOperand);
-            var value2 = Wrap(value);
+            var value2 = value ?? InternedNull;
 
             if (destinationExpression.Type == Exp.IdentifierExpression)
             {
@@ -1729,7 +1730,7 @@ namespace Components.Aphid.Interpreter
                             expression,
                             expression.RightOperand,
                             pipeRhs.Value,
-                            new object[] { pipeLhs.Value }) :
+                            new object[] { pipeLhs }) :
                         OperatorHelper.BinaryOr(pipeLhs, pipeRhs);
 
                 case XorOperator:
@@ -2499,7 +2500,7 @@ namespace Components.Aphid.Interpreter
         public AphidObject CallFunction(string name, params object[] parms)
         {
             var idExp = new IdentifierExpression(name);
-            PushFrame(idExp, idExp, parms);
+            PushFrame(idExp, name, parms);
 
             try
             {
@@ -2957,7 +2958,7 @@ namespace Components.Aphid.Interpreter
                         (refObj = InterpretMemberExpression(
                             (BinaryOperatorExpression)functionExpression,
                             returnRef: true)) != null &&
-                        (memberRef = Unwrap(refObj) as AphidInteropReference) != null && memberRef != null)
+                        (memberRef = Unwrap(refObj) as AphidInteropReference) != null)
                     {
                         if (((extObj = TryResolve(
                                 CurrentScope,
@@ -3041,6 +3042,34 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushFrame(
             AphidExpression callExpression,
+            AphidExpression functionExpression,
+            object arg)
+        {
+            var name = new Lazy<string>(() =>
+            {
+                switch (functionExpression.Type)
+                {
+                    case Exp.IdentifierExpression:
+                        return ((IdentifierExpression)functionExpression).Identifier;
+
+                    case Exp.BinaryOperatorExpression:
+                        var operands = Flatten(functionExpression);
+
+                        return operands.All(x => x.Type == Exp.IdentifierExpression) ?
+                            FlattenAndJoinPath(functionExpression) :
+                            functionExpression.ToString();
+
+                    default:
+                        return functionExpression.ToString();
+                }
+            });
+
+            PushFrame(callExpression, name, arg);
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushFrame(
+            AphidExpression callExpression,
             Lazy<string> name,
             IEnumerable<object> args)
         {
@@ -3068,6 +3097,71 @@ namespace Components.Aphid.Interpreter
 #if TEXT_FRAME_PERFORMANCE_TRACE
             var sw = new Stopwatch();
             _frameStopwatchStack.Push(Tuple.Create(name.Value, sw));
+            sw.Start();
+#endif
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushFrame(AphidExpression callExpression, Lazy<string> name, object arg)
+        {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
+            _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, arg));
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, name.Value);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+            // Todo: Pack enter/leave in as high order bit of thread id
+            _framePerformanceBinaryWriter.WriteEnter(id, name.Value);
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            var sw = new Stopwatch();
+            _frameStopwatchStack.Push(Tuple.Create(name.Value, sw));
+            sw.Start();
+#endif
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushFrame(
+            AphidExpression callExpression,
+            string name,
+            IEnumerable<object> args)
+        {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
+            _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, args));
+
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, name);
+#endif
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+            // Todo: Pack enter/leave in as high order bit of thread id
+            _framePerformanceBinaryWriter.WriteEnter(id, name);
+#endif
+
+#if TEXT_FRAME_PERFORMANCE_TRACE
+            var sw = new Stopwatch();
+            _frameStopwatchStack.Push(Tuple.Create(name, sw));
             sw.Start();
 #endif
         }
@@ -3149,7 +3243,7 @@ namespace Components.Aphid.Interpreter
             this,
             CurrentScope,
             CurrentExpression,
-            new Lazy<string>(() => name));
+            name);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretInteropCallExpression(
@@ -3177,14 +3271,27 @@ namespace Components.Aphid.Interpreter
                 methodInfo.Arguments,
                 methodInfo.GenericArguments);
 
+#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
+            
+
             PushFrame(
                 callExpression,
                 new Lazy<string>(() =>
                     string.Format(
                         "{0}.{1}",
-                        AphidCli.GetTypeName(method.DeclaringType),
+                        AphidType.TypeToString(method.DeclaringType, true, new StringBuilder()),
                         method.Name)),
                 convertedArgs);
+#else
+            PushFrame(
+                callExpression,
+                new Lazy<string>(() =>
+                    string.Format(
+                        "{0}.{1}",
+                        AphidType.TypeToString(method.DeclaringType),
+                        method.Name)),
+                convertedArgs);
+#endif
 
             try
             {
@@ -3225,7 +3332,7 @@ namespace Components.Aphid.Interpreter
                 new Lazy<string>(() =>
                     string.Format(
                         "{0}.{1}",
-                        AphidCli.GetTypeName(method.DeclaringType),
+                        AphidType.TypeToString(method.DeclaringType),
                         method.Name)),
                 convertedArgs);
 
@@ -3587,7 +3694,7 @@ namespace Components.Aphid.Interpreter
                                 throw new NotImplementedException();
                         }
 
-                    #region Custom Operator Cases
+#region Custom Operator Cases
                     case CustomOperator000:
                     case CustomOperator001:
                     case CustomOperator002:
@@ -3908,7 +4015,7 @@ namespace Components.Aphid.Interpreter
                     case CustomOperator317:
                     case CustomOperator318:
                     case CustomOperator319:
-                        #endregion
+#endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:
@@ -5018,7 +5125,7 @@ namespace Components.Aphid.Interpreter
                         expression = ctx.Expression;
                     }
                 }
-                finally
+                finally 
                 {
                     OnInterpretExpressionExecuting = false;
                 }
@@ -5334,14 +5441,15 @@ namespace Components.Aphid.Interpreter
 
                     var idExp = (IdentifierExpression)expression;
                     var id = idExp.Identifier;
+                    List<IdentifierExpression> attrs;
 
                     if (CurrentScope.ContainsKey(id))
                     {
                         throw CreateRuntimeException("Duplicated variable declaration: {0}", id);
                     }
                     else if (StrictMode &&
-                        (idExp.Attributes.Count == 0 ||
-                        idExp.Attributes[0].Identifier != AphidName.Var))
+                        ((attrs = idExp.Attributes).Count == 0 ||
+                        attrs[0].Identifier != AphidName.Var))
                     {
                         throw CreateStrictModeException(id);
                     }

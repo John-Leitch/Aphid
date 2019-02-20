@@ -1,4 +1,5 @@
 #'Std';
+#'System/Nuget';
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
@@ -12,13 +13,15 @@ _facade = macro(@(f) {
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\Facades\\' + f
 });
 
-
+var args = new List[string](getCommandLineArgs());
+var isUnattended = args.Contains('-unattended');
 var asms = [] !?;
 
 var flags = '/ndebug /zeroPeKind';
+var path = Assembly.GetEntryAssembly().Location | Path.GetDirectoryName;
 
 var getILMerge = @() Directory
-    .GetFiles('.\\', 'ilmerge.exe', SearchOption.AllDirectories)
+    .GetFiles(path, 'ilmerge.exe', SearchOption.AllDirectories)
     |> Enumerable.FirstOrDefault;
     
 var ilmergeExe = getILMerge();
@@ -59,7 +62,7 @@ var aphidDll = AppDomain.CurrentDomain
 var logFile = getExecutingPath('log.txt');
 File.WriteAllText(logFile, '');
 
-var args =
+var procArgs =
     '/target:{0} ' +
     '/log:{1} ' +
     '/targetplatform:v4.5,' +
@@ -72,9 +75,10 @@ var args =
         aphidDll,
     ];
     
-args @print('Starting ilmerge.exe with args ~Magenta~{0}~R~');
+procArgs @print('Starting ilmerge.exe with args ~Magenta~{0}~R~');
 
-var si = new ProcessStartInfo(ilmergeExe, args);   
+
+var si = new ProcessStartInfo(ilmergeExe, procArgs);   
 si.UseShellExecute = false;
 var p = Process.Start(si);
 p.WaitForExit();
@@ -94,6 +98,12 @@ if (failure) {
 }
 
 //Process.Start('ildasm', 'AphidPortable.exe');
-Process.Start(logFile);
+if (!isUnattended) {
+    Process.Start(logFile);
+}
+
 new FileInfo(outExe) @.Length @print('Asm size: ~Cyan~{0:n0}~R~');
-Process.Start(outExe);
+
+if (!isUnattended) {
+    Process.Start(outExe);
+}

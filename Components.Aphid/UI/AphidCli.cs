@@ -48,6 +48,7 @@ namespace Components.Aphid.UI
                 IgnoreSpecialVariables = true,
                 QuoteToStringResults = false,
                 ToStringClrTypes = false,
+                MaxElements = AphidConfig.Current.StackTraceParamsMax,
             };
 
         public static bool TryAction(
@@ -470,12 +471,29 @@ namespace Components.Aphid.UI
                             "$args[{0}] = {1} {2}",
                             y,
                             GetAphidObjectTypeName(x),
-                            DumpValue(interpreter, serializer, x)))
-                        .JoinLines();
+                            DumpValue(interpreter, serializer, x)));
 
-                    if (args.Length > 0)
+                    if (cfg.StackTraceParamsMax >= 0)
                     {
-                        WriteLineOut(Highlight(StyleEscape(args.Indent("  "))));
+                        var h = cfg.StackTraceParamsMax / 2f;
+                        int first = (int)Math.Ceiling(h), last = (int)Math.Floor(h);
+                        var count = frame.Arguments.Count();
+                        var skip = Math.Max(0, count - first - last);
+
+                        if (skip != 0)
+                        {
+                            args = args
+                                .Take(first)
+                                .Append(string.Format("/* Skipped {0:n0} args /*", skip))
+                                .Skip(skip);
+                        }
+                    }
+
+                    var argStr = args.JoinLines();
+
+                    if (argStr.Length > 0)
+                    {
+                        WriteLineOut(Highlight(StyleEscape(argStr.Indent("  "))));
                     }
 
                     //var locals = frame.Scope
