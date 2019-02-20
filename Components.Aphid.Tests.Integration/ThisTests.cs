@@ -11,13 +11,10 @@ namespace Components.Aphid.Tests.Integration
     [TestFixture(Category = "AphidThis"), Parallelizable(ParallelScope.All)]
     public class ThisTests : AphidTests
     {
-        protected override bool LoadStd { get { return true; } }
+        public override bool LoadStd => true;
 
         [Test]
-        public void ThisTest1()
-        {
-            Assert9("var x=9; var f=@(a)a.x; ret f(this);");
-        }
+        public void ThisTest1() => Assert9("var x=9; var f=@(a)a.x; ret f(this);");
 
         [Test]
         public void ThisTest2()

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Rules for Components.Aphid.Tests.Integration" Description="Code analysis rules for Components.Aphid.Tests.Integration.csproj." ToolsVersion="15.0">
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1001" Action="Warning" />
+    <Rule Id="CA1821" Action="Warning" />
+    <Rule Id="CA2213" Action="Warning" />
+    <Rule Id="CA2231" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Analyzers" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Analyzers">
+    <Rule Id="RS1007" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
+    <Rule Id="IDE0021" Action="None" />
+    <Rule Id="IDE0022" Action="None" />
+    <Rule Id="IDE0023" Action="None" />
+    <Rule Id="IDE0024" Action="None" />
+    <Rule Id="IDE0025" Action="None" />
+    <Rule Id="IDE0026" Action="None" />
+    <Rule Id="IDE0027" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Roslynator.CSharp.Analyzers" RuleNamespace="Roslynator.CSharp.Analyzers">
+    <Rule Id="RCS1004" Action="Warning" />
+    <Rule Id="RCS1004FadeOut" Action="Warning" />
+    <Rule Id="RCS1005" Action="Info" />
+    <Rule Id="RCS1005FadeOut" Action="Info" />
+    <Rule Id="RCS1006" Action="Info" />
+    <Rule Id="RCS1006FadeOut" Action="Info" />
+    <Rule Id="RCS1007" Action="Warning" />
+    <Rule Id="RCS1008" Action="Warning" />
+    <Rule Id="RCS1009" Action="Warning" />
+    <Rule Id="RCS1010" Action="Warning" />
+    <Rule Id="RCS1012" Action="Warning" />
+    <Rule Id="RCS1013" Action="Warning" />
+    <Rule Id="RCS1014" Action="Warning" />
+    <Rule Id="RCS1015FadeOut" Action="Info" />
+    <Rule Id="RCS1016" Action="Warning" />
+    <Rule Id="RCS1016FadeOut" Action="Warning" />
+    <Rule Id="RCS1019" Action="Warning" />
+    <Rule Id="RCS1021" Action="Warning" />
+    <Rule Id="RCS1021FadeOut" Action="Warning" />
+    <Rule Id="RCS1023" Action="Warning" />
+    <Rule Id="RCS1024" Action="Warning" />
+    <Rule Id="RCS1025" Action="Warning" />
+    <Rule Id="RCS1026" Action="Warning" />
+    <Rule Id="RCS1027" Action="Warning" />
+    <Rule Id="RCS1028" Action="Warning" />
+    <Rule Id="RCS1030" Action="Warning" />
+    <Rule Id="RCS1032FadeOut" Action="Info" />
+    <Rule Id="RCS1035" Action="Warning" />
+    <Rule Id="RCS1045" Action="Warning" />
+    <Rule Id="RCS1046" Action="Warning" />
+    <Rule Id="RCS1048" Action="Warning" />
+    <Rule Id="RCS1048FadeOut" Action="Warning" />
+    <Rule Id="RCS1049FadeOut" Action="Warning" />
+    <Rule Id="RCS1050" Action="Warning" />
+    <Rule Id="RCS1051" Action="Warning" />
+    <Rule Id="RCS1056" Action="Warning" />
+    <Rule Id="RCS1058FadeOut" Action="Warning" />
+    <Rule Id="RCS1060" Action="Warning" />
+    <Rule Id="RCS1062" Action="Error" />
+    <Rule Id="RCS1064" Action="Warning" />
+    <Rule Id="RCS1065" Action="Warning" />
+    <Rule Id="RCS1067" Action="Warning" />
+    <Rule Id="RCS1078" Action="Warning" />
+    <Rule Id="RCS1081" Action="Warning" />
+    <Rule Id="RCS1084" Action="Warning" />
+    <Rule Id="RCS1085FadeOut" Action="Warning" />
+    <Rule Id="RCS1087" Action="Warning" />
+    <Rule Id="RCS1088" Action="Warning" />
+    <Rule Id="RCS1089FadeOut" Action="Error" />
+    <Rule Id="RCS1092" Action="Warning" />
+    <Rule Id="RCS1094" Action="Warning" />
+    <Rule Id="RCS1100" Action="Warning" />
+    <Rule Id="RCS1101" Action="Warning" />
+    <Rule Id="RCS1104" Action="Warning" />
+    <Rule Id="RCS1111" Action="Warning" />
+    <Rule Id="RCS1112FadeOut" Action="Error" />
+    <Rule Id="RCS1114FadeOut" Action="Error" />
+    <Rule Id="RCS1124" Action="Warning" />
+    <Rule Id="RCS1124FadeOut" Action="Warning" />
+    <Rule Id="RCS1126" Action="Warning" />
+    <Rule Id="RCS1127FadeOut" Action="Info" />
+    <Rule Id="RCS1128" Action="Warning" />
+    <Rule Id="RCS1129" Action="Warning" />
+    <Rule Id="RCS1133" Action="Error" />
+    <Rule Id="RCS1134" Action="Error" />
+    <Rule Id="RCS1143" Action="Warning" />
+    <Rule Id="RCS1145" Action="Error" />
+    <Rule Id="RCS1151" Action="Error" />
+    <Rule Id="RCS1153" Action="Warning" />
+    <Rule Id="RCS1162" Action="Warning" />
+    <Rule Id="RCS1173" Action="Warning" />
+    <Rule Id="RCS1174" Action="Warning" />
+    <Rule Id="RCS1174FadeOut" Action="Warning" />
+    <Rule Id="RCS1176" Action="Warning" />
+    <Rule Id="RCS1177" Action="Warning" />
+    <Rule Id="RCS1183" Action="Info" />
+    <Rule Id="RCS1184" Action="Warning" />
+    <Rule Id="RCS1185" Action="Warning" />
+    <Rule Id="RCS1188" Action="Warning" />
+    <Rule Id="RCS1198" Action="Warning" />
+    <Rule Id="RCS1201" Action="Error" />
+    <Rule Id="RCS1207" Action="Error" />
+    <Rule Id="RCS1207FadeOut" Action="Info" />
+    <Rule Id="RCS1208" Action="Warning" />
+    <Rule Id="RCS1214FadeOut" Action="Info" />
+    <Rule Id="RCS1217" Action="Info" />
+    <Rule Id="RCS1217FadeOut" Action="Error" />
+    <Rule Id="RCS1219" Action="Warning" />
+  </Rules>
+</RuleSet>

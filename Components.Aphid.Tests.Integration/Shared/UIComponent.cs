@@ -30,9 +30,6 @@ namespace Components.Aphid.Tests.Integration.Shared
         }
 
         public UIComponent(string name)
-            : this()
-        {
-            Name = name;
-        }
+            : this() => Name = name;
     }
 }

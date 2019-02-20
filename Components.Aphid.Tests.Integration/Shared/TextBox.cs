@@ -27,16 +27,16 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         public string Value
         {
-            get { return _value; }
-            set { SetValue(value); }
+            get => _value;
+            set => SetValue(value);
         }
 
         private int _maxLength;
 
         public int MaxLength
         {
-            get { return _maxLength; }
-            set { _maxLength = value; }
+            get => _maxLength;
+            set => _maxLength = value;
         }
 
         private void SetValue(string value)

@@ -11,13 +11,7 @@ namespace Components.Aphid.Tests.Integration
     [TestFixture(Category = "AphidCustomOperator"), Parallelizable(ParallelScope.All)]
     public class CustomOperatorTests : AphidTests
     {
-        protected override bool LoadStd
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool LoadStd => true;
 
         [Test]
         public void CustomUnaryOperatorTest()
@@ -58,10 +52,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void CustomUnaryOperatorTest5()
-        {
-            Assert9("@^^(x)x*x;ret^^3;");
-        }
+        public void CustomUnaryOperatorTest5() => Assert9("@^^(x)x*x;ret^^3;");
 
         [Test]
         public void CustomUnaryOperatorScopeTest()

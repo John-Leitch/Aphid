@@ -32,9 +32,9 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         private static readonly string[] _ignoreScripts = new[] { "test.alx", "testbase.alx", "aoptest.alx" };
 
-        private static IEnumerable Tests => _tests.Value;
+        private static IEnumerable<TestCaseData> Tests => _tests.Value.Memoize();
             
-        private static Lazy<IEnumerable> _tests = new Lazy<IEnumerable>(() =>
+        private static Lazy<IEnumerable<TestCaseData>> _tests = new Lazy<IEnumerable<TestCaseData>>(() =>
             _aphidDirectory
                 .GetDirectories("ScriptedTests")
                 .Single()
@@ -44,9 +44,7 @@ namespace Components.Aphid.Tests.Integration.Shared
                 .WithDegreeOfParallelism(Environment.ProcessorCount)
                 .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                .SelectMany(GetTestsCasesFromFiles)
-                .AsSequential()
-                .ToArray());
+                .SelectMany(GetTestsCasesFromFiles));
 
         private static IEnumerable<TestCaseData> GetTestsCasesFromFiles(FileInfo file) =>
             new Variations<bool>(new[] { true, false }, 3, GenerateOption.WithRepetition)
@@ -56,13 +54,13 @@ namespace Components.Aphid.Tests.Integration.Shared
                     (flags[0], flags[1], flags[2]);
 
                 WriteQueryMessage($"Caching {file.FullName}");
-                var interpreter = new AphidInterpreter();
+                var interpreter = new AphidInterpreter() { StrictMode = strictMode };
                 interpreter.Loader.SearchPaths.Add(_aphidDirectory.FullName);
                 interpreter.Loader.SearchPaths.Add(file.Directory.FullName);
                 interpreter.Interpret(_prologueAst);                
                 var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
                 interpreter.Loader.DisableConstantFolding = cache.DisableConstantFolding = disableConstantFolding;
-                interpreter.Loader.InlineCachedScripts = cache.InlineScripts = cacheInlining;
+                interpreter.Loader.InlineCachedScripts = cache.InlineScripts = cacheInlining;                
                 
                 var ast = cache.Read(file.FullName);
 
@@ -77,16 +75,16 @@ namespace Components.Aphid.Tests.Integration.Shared
                     .Skip(1)
                     .Member(y => y.Value.Value)
                     .Is<AphidFunction>()
-                    .Select(y => (Name: y.Key, interpreter, Filename: file.Name))
+                    .Select(y => (Name: y.Key, interpreter, Func: (AphidFunction)y.Value.Value, Filename: file.Name))
                     .Select(x =>
-                        new TestCaseData(x.interpreter, x.Name, strictMode, cacheInlining)                        
+                        new TestCaseData(x.interpreter, x.Name, x.Func)
                             .SetCategory(x.Filename)
                             .SetArgDisplayNames(
                                 x.Name,
                                 strictMode ? "StrictMode" : "NoStrictMode",
                                 cacheInlining ? "CacheInlining" : "NoCacheInlining",
                                 disableConstantFolding ? "NoConstantFolding" : "ConstantFolding")
-                            .SetDescription($"{FormatTestName(x.Name, strictMode, cacheInlining)}"))
+                            .SetDescription(FormatTestName(x.Name, strictMode, cacheInlining)))
                             //.SetCategory(Path.GetFileNameWithoutExtension(x.Filename))
                             //.SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}({{2}}, {{3}})"));
                             //.SetName($"{FormatTestName(x.Name, strictMode, cacheInlining)}"));
@@ -118,16 +116,12 @@ namespace Components.Aphid.Tests.Integration.Shared
         }
 
         [Test, TestCaseSource("Tests"), Parallelizable(ParallelScope.Self)]
-        public void RunTestScript(
-            AphidInterpreter interpreter,
-            string funcName,
-            bool strictMode,
-            bool cacheInlining)
+        public void RunTestScript(AphidInterpreter interpreter, string funcName, AphidFunction function)
         {
             WriteQueryMessage($"Calling {funcName} method");
             interpreter.TakeOwnership();
-            interpreter.StrictMode = strictMode;
-            var result = interpreter.CallFunction(funcName);
+            //var result = interpreter.CallFunction(funcName);
+            var result = interpreter.CallFunction(function);
 
             if (result != null && result.Value != null && result.Value.GetType() == typeof(bool))
             {

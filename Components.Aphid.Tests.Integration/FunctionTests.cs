@@ -10,54 +10,30 @@ namespace Components.Aphid.Tests.Integration
 {
     [TestFixture(Category = "AphidFunction"), Parallelizable(ParallelScope.All)]
     public class FunctionTests : AphidTests
-    {       
+    {
         [Test]
-        public void FunctionTest()
-        {
-            Assert9("var sqr=@(x){ret x*x;}; ret sqr(3);");
-        }
+        public void FunctionTest() => Assert9("var sqr=@(x){ret x*x;}; ret sqr(3);");
 
         [Test]
-        public void SingleLineFunctionTest()
-        {
-            AssertFoo("var x = @()'foo'; ret x();");
-        }
+        public void SingleLineFunctionTest() => AssertFoo("var x = @()'foo'; ret x();");
 
         [Test]
-        public void SingleLineFunctionTest2()
-        {
-            Assert9("var sqr=@(x)x*x; ret sqr(3);");
-        }
+        public void SingleLineFunctionTest2() => Assert9("var sqr=@(x)x*x; ret sqr(3);");
 
         [Test]
-        public void HigherOrderFunctionTest()
-        {
-            AssertFoo("var call=@(x)x(); var test=@()'foo'; ret call(test);");
-        }
+        public void HigherOrderFunctionTest() => AssertFoo("var call=@(x)x(); var test=@()'foo'; ret call(test);");
 
         [Test]
-        public void HigherOrderFunctionTest2()
-        {
-            Assert9("var add=@(x)@(y)x+y; var addFour=add(4); ret addFour(5);");
-        }
+        public void HigherOrderFunctionTest2() => Assert9("var add=@(x)@(y)x+y; var addFour=add(4); ret addFour(5);");
 
         [Test]
-        public void PartialFunctionTest()
-        {
-            Assert9("var add=@(x, y)x+y; var addFour=@add(4); ret addFour(5);");
-        }
+        public void PartialFunctionTest() => Assert9("var add=@(x, y)x+y; var addFour=@add(4); ret addFour(5);");
 
         [Test]
-        public void PartialFunctionTest2()
-        {
-            Assert9("var add=@(x, y)x+y; ret 5 |> @add(4);");
-        }
+        public void PartialFunctionTest2() => Assert9("var add=@(x, y)x+y; ret 5 |> @add(4);");
 
         [Test]
-        public void PartialFunctionTest3()
-        {
-            Assert9("var add=@(x, y)x+y; ret 4 |> @add(2) |> @add(3);");
-        }
+        public void PartialFunctionTest3() => Assert9("var add=@(x, y)x+y; ret 4 |> @add(2) |> @add(3);");
 
         [Test]
         public void FunctionCompositionTest()
@@ -117,16 +93,10 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void FunctionCompositionTest6()
-        {
-            Assert9(@"ret ((@(x) x * x) @> @- 7)(4); ");
-        }
+        public void FunctionCompositionTest6() => Assert9(@"ret ((@(x) x * x) @> @- 7)(4); ");
 
         [Test]
-        public void FunctionCompositionTest7()
-        {
-            Assert9(@"ret ((@(x) x * x) @> (@-8) @> (@+1))(4);");
-        }
+        public void FunctionCompositionTest7() => Assert9(@"ret ((@(x) x * x) @> (@-8) @> (@+1))(4);");
 
         [Test]
         public void ImplicitArgumentTest()
@@ -149,10 +119,7 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void ImplicitArgumentTest3()
-        {
-            Assert9(@"ret 3 |> @() $_ * $_;");
-        }
+        public void ImplicitArgumentTest3() => Assert9(@"ret 3 |> @() $_ * $_;");
 
         [Test]
         public void ImplicitArgumentsTest()

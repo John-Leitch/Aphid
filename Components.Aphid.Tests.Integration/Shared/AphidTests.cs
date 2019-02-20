@@ -21,6 +21,8 @@ namespace Components.Aphid.Tests.Integration.Shared
     [Parallelizable(ParallelScope.All)]
     public class AphidTests : IDisposable
     {
+        public event EventHandler<InterpreterEventArgs> InterpreterCreated;
+
         private ThreadLocal<AphidInterpreter> _nextInterpreter = new ThreadLocal<AphidInterpreter>();
 
         private static readonly object _cachedStdNodesSync = new object();
@@ -44,7 +46,7 @@ namespace Components.Aphid.Tests.Integration.Shared
 
         private static TextWriterTraceListener _listener = new TextWriterTraceListener(@"Tests.log");
 
-        protected virtual bool LoadStd => false;
+        public virtual bool LoadStd => false;
 
         static AphidTests() => Initialize();
 
@@ -63,15 +65,15 @@ namespace Components.Aphid.Tests.Integration.Shared
         }
 
         [Conditional("TRACE_SCRIPTED_TESTS")]
-        protected static void WriteInfoMessage(string message) => Cli.WriteInfoMessage(message);
+        public static void WriteInfoMessage(string message) => Cli.WriteInfoMessage(message);
 
         [Conditional("TRACE_SCRIPTED_TESTS")]
-        protected static void WriteQueryMessage(string message) => Cli.WriteQueryMessage(message);
+        public static void WriteQueryMessage(string message) => Cli.WriteQueryMessage(message);
 
         [Conditional("TRACE_SCRIPTED_TESTS")]
-        protected static void WriteSuccessMessage(string message) => Cli.WriteSuccessMessage(message);
+        public static void WriteSuccessMessage(string message) => Cli.WriteSuccessMessage(message);
 
-        protected virtual List<AphidExpression> ParseScript(AphidInterpreter interpreter, string script)
+        public virtual List<AphidExpression> ParseScript(AphidInterpreter interpreter, string script)
         {
             List<AphidExpression> initNodes = null;
             
@@ -106,7 +108,7 @@ namespace Components.Aphid.Tests.Integration.Shared
             return stage3;
         }
 
-        protected AphidInterpreter GetNextInterpreter()
+        public AphidInterpreter GetNextInterpreter()
         {
             lock (_nextInterpreter)
             {
@@ -115,13 +117,22 @@ namespace Components.Aphid.Tests.Integration.Shared
             }
         }
 
-        protected AphidObject Execute(string script)
+        public AphidObject Execute(string script)
         {
             AphidInterpreter interpreter;
 
             lock (_nextInterpreter)
             {
-                interpreter = _nextInterpreter.Value ?? new AphidInterpreter();
+                var created = _nextInterpreter.IsValueCreated;
+
+                interpreter = _nextInterpreter.Value ??
+                    new AphidInterpreter().Do(_ => created = true);
+
+                if (created)
+                {
+                    InterpreterCreated?.Invoke(this, new InterpreterEventArgs(interpreter));
+                }
+
                 _nextInterpreter.Value = null;
             }
 
@@ -130,19 +141,19 @@ namespace Components.Aphid.Tests.Integration.Shared
             return interpreter.GetReturnValue();
         }
 
-        protected void Execute(string script, Action<AphidObject> action) =>
+        public void Execute(string script, Action<AphidObject> action) =>
             action(Execute(script));
 
-        protected void Is(string script, Func<AphidObject, bool> predicate) =>
+        public void Is(string script, Func<AphidObject, bool> predicate) =>
             IsTrue(predicate(Execute(script)));
 
-        protected void Is<TValue>(string script, Func<TValue, bool> predicate) =>
+        public void Is<TValue>(string script, Func<TValue, bool> predicate) =>
             IsTrue(predicate((TValue)Execute(script).Value));
 
-        protected static List<AphidToken> GetTokens(string script) =>
+        public static List<AphidToken> GetTokens(string script) =>
             new AphidLexer(script).GetAllTokens();
 
-        protected static void AssertTokens(string script, AphidToken[] tokens)
+        public static void AssertTokens(string script, AphidToken[] tokens)
         {
             var tokens2 = GetTokens(script);
             AreEqual(tokens.Length, tokens2.Count);
@@ -158,9 +169,9 @@ namespace Components.Aphid.Tests.Integration.Shared
             }
         }
 
-        protected static AphidToken Token(AphidTokenType type, string lexeme) => new AphidToken(type, lexeme, 0);
+        public static AphidToken Token(AphidTokenType type, string lexeme) => new AphidToken(type, lexeme, 0);
 
-        protected static AphidToken Token(AphidTokenType type) => Token(type, null);
+        public static AphidToken Token(AphidTokenType type) => Token(type, null);
 
         public static void IsFalse(bool value) => Assert.IsFalse(value);
         public static void IsTrue(bool value) => Assert.IsTrue(value);
@@ -187,33 +198,33 @@ namespace Components.Aphid.Tests.Integration.Shared
             where TException : Exception =>
             actions.Do(CollectionAssert.IsNotEmpty).Select(IsThrow<TException>).ToArray();
 
-        protected void AssertEquals(object expected, string script) =>
+        public void AssertEquals(object expected, string script) =>
             AreEqual(expected, Execute(script).Value);
 
-        protected void AssertFoo(string script) => AssertEquals("foo", script);
-        protected void Assert9(string script) => AssertEquals(9m, script);
-        protected void AssertTrue(string script) => AssertEquals(true, script);
-        protected void AssertFalse(string script) => AssertEquals(false, script);
+        public void AssertFoo(string script) => AssertEquals("foo", script);
+        public void Assert9(string script) => AssertEquals(9m, script);
+        public void AssertTrue(string script) => AssertEquals(true, script);
+        public void AssertFalse(string script) => AssertEquals(false, script);
 
         private static string CreateStatement(string expression) =>
             string.Format("ret {0};", expression);
 
-        protected void AssertExpEquals(object expected, string expression) =>
+        public void AssertExpEquals(object expected, string expression) =>
             AssertEquals(expected, CreateStatement(expression));
 
-        protected void AssertExpFoo(string expression) =>
+        public void AssertExpFoo(string expression) =>
             AssertFoo(CreateStatement(expression));
 
-        protected void AssertExp9(string expression) =>
+        public void AssertExp9(string expression) =>
             Assert9(CreateStatement(expression));
 
-        protected void AssertExpTrue(string expression) =>
+        public void AssertExpTrue(string expression) =>
             AssertTrue(CreateStatement(expression));
 
-        protected void AssertExpFalse(string expression) =>
+        public void AssertExpFalse(string expression) =>
             AssertFalse(CreateStatement(expression));
 
-        protected void AssertCollectionIs<TElement>(string script, params TElement[] expected) =>
+        public void AssertCollectionIs<TElement>(string script, params TElement[] expected) =>
             CollectionAssert.AreEqual(expected, (IEnumerable)Execute(script).Value);
 
         public virtual void Dispose()

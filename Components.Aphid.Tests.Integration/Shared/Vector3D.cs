@@ -16,9 +16,6 @@ namespace Components.Aphid.Tests.Integration.Shared
         }
 
         public Vector3D(decimal x, decimal y, decimal z)
-            : base(x, y)
-        {
-            Z = z;
-        }
+            : base(x, y) => Z = z;
     }
 }

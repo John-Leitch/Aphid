@@ -10,13 +10,7 @@ namespace Components.Aphid.Tests.Integration
     [TestFixture(Category = "AphidOperator"), Parallelizable(ParallelScope.All)]
     public class OperatorTests : AphidTests
     {
-        protected override bool LoadStd
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool LoadStd => true;
 
         [Test] public void StringConcatTest() => AssertFoo("ret 'fo'+'o';");
         [Test] public void AdditionTest() => Assert9("ret 2+7;");

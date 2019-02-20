@@ -209,16 +209,10 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void EnumerableAphidListFirstPredicateTest()
-        {
-            Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @(x)(x&1)==1);");
-        }
+        public void EnumerableAphidListFirstPredicateTest() => Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @(x)(x&1)==1);");
 
         [Test]
-        public void EnumerableAphidListFirstPredicateImplicitArgTest()
-        {
-            Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @()($_&1)==1);");
-        }
+        public void EnumerableAphidListFirstPredicateImplicitArgTest() => Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @()($_&1)==1);");
 
         [Test]
         public void EnumerableAphidListFirstPredicateImplicitArgFailTest()

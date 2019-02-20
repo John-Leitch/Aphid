@@ -38,15 +38,9 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void ConstantFoldingTest1()
-        {
-            MutatorTest<ConstantFoldingMutator>("foo", "'fo' + 'o';");
-        }
+        public void ConstantFoldingTest1() => MutatorTest<ConstantFoldingMutator>("foo", "'fo' + 'o';");
 
         [Test]
-        public void ConstantFoldingTest2()
-        {
-            MutatorTest<ConstantFoldingMutator>(10, "4 + 6;");
-        }
+        public void ConstantFoldingTest2() => MutatorTest<ConstantFoldingMutator>(10, "4 + 6;");
     }
 }

@@ -12,10 +12,7 @@ namespace Components.Aphid.Tests.Integration
     public partial class InteropTests
     {
         [Test]
-        public void MathSqrtExplicitFullNameCallTest()
-        {
-            AssertExp9("%%System.Math.Sqrt(81)");
-        }
+        public void MathSqrtExplicitFullNameCallTest() => AssertExp9("%%System.Math.Sqrt(81)");
 
         [Test]
         public void MathSqrtExpliciteCallTest()

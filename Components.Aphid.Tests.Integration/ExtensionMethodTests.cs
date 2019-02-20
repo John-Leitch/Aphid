@@ -38,52 +38,28 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void ExtensionMethodNumberTest()
-        {
-            Assert9("extend number{g:@(x)x}ret(9).g()");
-        }
+        public void ExtensionMethodNumberTest() => Assert9("extend number{g:@(x)x}ret(9).g()");
 
         [Test]
-        public void ExtensionMethodNumberTest2()
-        {
-            Assert9("extend number{g:@(x)$_}ret(9).g()");
-        }
+        public void ExtensionMethodNumberTest2() => Assert9("extend number{g:@(x)$_}ret(9).g()");
 
         [Test]
-        public void ExtensionMethodNumberTest3()
-        {
-            Assert9("extend number{g:@(x)$args[0]}ret(9).g()");
-        }
+        public void ExtensionMethodNumberTest3() => Assert9("extend number{g:@(x)$args[0]}ret(9).g()");
 
         [Test]
-        public void ExtensionMethodNumberTest4()
-        {
-            Assert9("extend number{g:@(x,y)x+y}ret(8).g(1)");
-        }
+        public void ExtensionMethodNumberTest4() => Assert9("extend number{g:@(x,y)x+y}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest5()
-        {
-            Assert9("extend number{g:@(x,y)$_+y}ret(8).g(1)");
-        }
+        public void ExtensionMethodNumberTest5() => Assert9("extend number{g:@(x,y)$_+y}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest6()
-        {
-            Assert9("extend number{g:@(x,y)$args[0]+y}ret(8).g(1)");
-        }
+        public void ExtensionMethodNumberTest6() => Assert9("extend number{g:@(x,y)$args[0]+y}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest7()
-        {
-            Assert9("extend number{g:@(x,y)$_+$args[1]}ret(8).g(1)");
-        }
+        public void ExtensionMethodNumberTest7() => Assert9("extend number{g:@(x,y)$_+$args[1]}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest8()
-        {
-            Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
-        }
+        public void ExtensionMethodNumberTest8() => Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
 
         [Test]
         public void ExtensionMethodGenericTest()
@@ -255,10 +231,7 @@ namespace Components.Aphid.Tests.Integration
 
         //Todo: Add alias tests using SuiteAttribute.
         [Test]
-        public void ExtensionMethodCSStyleDecimalAliasTest8()
-        {
-            Assert9("using System; extend decimal{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
-        }        
+        public void ExtensionMethodCSStyleDecimalAliasTest8() => Assert9("using System; extend decimal{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
 
         //public void ExtensionMethodNumberCore([CallerMemberName] string name = null)
         //{
@@ -277,7 +250,7 @@ namespace Components.Aphid.Tests.Integration
         //    {
         //        throw new ArgumentException("Invalid caller name: {0}", name);
         //    }
-                
+
 
         //    Assert9("extend {0}{{g:@(x,y)$args[0]+$args[1]}}ret(8).g(1)", t);
         //}
@@ -289,28 +262,16 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void ExtensionMethodTestUnknown2()
-        {
-            Assert9("extend unknown{g:@(x)9}ret 1.Equals.g()");
-        }
+        public void ExtensionMethodTestUnknown2() => Assert9("extend unknown{g:@(x)9}ret 1.Equals.g()");
 
         [Test]
-        public void ExtensionMethodTestUnknown3()
-        {
-            Assert9("extend unknown{g:@()9}ret 1.GetType().g()");
-        }
+        public void ExtensionMethodTestUnknown3() => Assert9("extend unknown{g:@()9}ret 1.GetType().g()");
 
         [Test]
-        public void ExtensionMethodTestUnknown4()
-        {
-            Assert9("extend unknown{g:@()9}ret 1.Equals.g()");
-        }
+        public void ExtensionMethodTestUnknown4() => Assert9("extend unknown{g:@()9}ret 1.Equals.g()");
 
         [Test]
-        public void ExtensionMethodTestUnknownSecondArg()
-        {
-            Assert9("extend unknown{g:@(x, y)y}ret 1.Equals.g(9)");
-        }
+        public void ExtensionMethodTestUnknownSecondArg() => Assert9("extend unknown{g:@(x, y)y}ret 1.Equals.g(9)");
 
         [Test]
         public void ExtensionMethodTestUnknownImplicitArg()
@@ -371,76 +332,40 @@ namespace Components.Aphid.Tests.Integration
         }
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest()
-        {
-            ExtensionMethodInteropTest("FunctionExpression");
-        }
+        public void ExtensionMethodInteropInheritanceTest() => ExtensionMethodInteropTest("FunctionExpression");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest2()
-        {
-            ExtensionMethodInteropTest("AphidExpression");
-        }
+        public void ExtensionMethodInteropInheritanceTest2() => ExtensionMethodInteropTest("AphidExpression");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest3()
-        {
-            ExtensionMethodInteropTest("AphidNode");
-        }
+        public void ExtensionMethodInteropInheritanceTest3() => ExtensionMethodInteropTest("AphidNode");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest4()
-        {
-            ExtensionMethodInteropTest("Object");
-        }
+        public void ExtensionMethodInteropInheritanceTest4() => ExtensionMethodInteropTest("Object");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest5()
-        {
-            ExtensionMethodInteropTest("FunctionExpression", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest5() => ExtensionMethodInteropTest("FunctionExpression", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest6()
-        {
-            ExtensionMethodInteropTest("AphidExpression", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest6() => ExtensionMethodInteropTest("AphidExpression", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest7()
-        {
-            ExtensionMethodInteropTest("AphidNode", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest7() => ExtensionMethodInteropTest("AphidNode", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest8()
-        {
-            ExtensionMethodInteropTest("Object", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest8() => ExtensionMethodInteropTest("Object", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest9()
-        {
-            ExtensionMethodInteropTest("FunctionExpression", "", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest9() => ExtensionMethodInteropTest("FunctionExpression", "", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest10()
-        {
-            ExtensionMethodInteropTest("AphidExpression", "", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest10() => ExtensionMethodInteropTest("AphidExpression", "", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest11()
-        {
-            ExtensionMethodInteropTest("AphidNode", "", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest11() => ExtensionMethodInteropTest("AphidNode", "", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest12()
-        {
-            ExtensionMethodInteropTest("Object", "", paramRef: "$_");
-        }
+        public void ExtensionMethodInteropInheritanceTest12() => ExtensionMethodInteropTest("Object", "", paramRef: "$_");
 
         [Test]
         public void DynamicExtensionMethodTest()

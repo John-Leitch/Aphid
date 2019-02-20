@@ -12,22 +12,13 @@ namespace Components.Aphid.Tests.Integration
     public partial class InteropTests
     {
         [Test]
-        public void StringFormatImplicitParamsTest()
-        {
-            AssertExpFoo("%%System.String.Format('foo')");
-        }
+        public void StringFormatImplicitParamsTest() => AssertExpFoo("%%System.String.Format('foo')");
 
         [Test]
-        public void StringFormatImplicitParamsTest2()
-        {
-            AssertExpFoo("%%System.String.Format('f{0}o', 'o')");
-        }
+        public void StringFormatImplicitParamsTest2() => AssertExpFoo("%%System.String.Format('f{0}o', 'o')");
 
         [Test]
-        public void StringFormatImplicitParamsTest3()
-        {
-            AssertExpFoo("%%System.String.Format('{0}o{1}', 'f', 'o')");
-        }
+        public void StringFormatImplicitParamsTest3() => AssertExpFoo("%%System.String.Format('{0}o{1}', 'f', 'o')");
 
         [Test]
         public void StringFormatImplicitParamsTest4()

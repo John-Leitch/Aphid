@@ -11,15 +11,9 @@ namespace Components.Aphid.Tests.Integration.Shared
     {
         public ObservableCollection<UIComponent> Children { get; set; }
 
-        public Window()
-        {
-            Children = new ObservableCollection<UIComponent>();
-        }
+        public Window() => Children = new ObservableCollection<UIComponent>();
 
         public Window(string name)
-            : base(name)
-        {
-            Children = new ObservableCollection<UIComponent>();
-        }
+            : base(name) => Children = new ObservableCollection<UIComponent>();
     }
 }
