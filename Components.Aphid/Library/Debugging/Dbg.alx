@@ -117,7 +117,7 @@ _dump = macro(@(m) {
                     RegexOptions.IgnoreCase))
             ->(@(o) o)
             !?
-            @join('\r\n')
+            @String.Join('\r\n')
             print;
             
         print();
@@ -244,7 +244,7 @@ var prepareAphidMember = @(useFullNames, object, key)
             key);
 
 _formatAphidParams = macro(@{
-    val.Args->(@(x) format('{0}{1}~R~', expressionColor.paramName, x)) @join(', ')
+    val.Args->(@(x) format('{0}{1}~R~', expressionColor.paramName, x)) @String.Join(', ')
 });
 
 _formatAphidInteropParams = macro(@{
@@ -257,7 +257,7 @@ _formatAphidInteropParams = macro(@{
                 AphidCli.GetAphidTypeName(x.ParameterType),
                 expressionColor.paramName,
                 x.Name))
-            @join(' ') :
+            @String.Join(' ') :
         ''
 });
 
@@ -349,14 +349,14 @@ _formatParams = macro(@{
         prm->(@(x) format(
                 '{0}{1}~R~{2}{3}~R~{4}{5}~R~ {6}{7}~R~',
                 expressionColor.keyword,
-                (x.Attributes.flags()) +? (@join(', ') @> @format('[{0}]')),
+                (x.Attributes.flags()) +? (@String.Join(', ') @> @format('[{0}]')),
                 expressionColor.keyword,
                 x.IsOut ? 'out ' : '',
                 expressionColor.type,
                 _pn(x.ParameterType),
                 expressionColor.paramName,
                 x.Name))
-            @join(', ') :
+            @String.Join(', ') :
             ''
 });
 
