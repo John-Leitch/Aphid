@@ -27,7 +27,7 @@ var bin = '\\bin\\' + config;
 var testBin = testRoot + '\\Aphid' + bin;
 var testBin2 = testRoot + '\\Components.Aphid' + bin;
 var exe = testBin + '\\Aphid.exe';
-var test = exe + (useSingleProcess ? ' run2.alx' : ' run.alx');
+var nextAphidCmd = @() exe + (useSingleProcess ? ' run2.alx' : ' run.alx');
 var tmpDir = testSrc + '\\BenchmarkTemp';
 var cd = @Directory.SetCurrentDirectory(testRoot);
 var buildNum = 9000;
@@ -36,9 +36,13 @@ var exists = File.Exists;
 var read = File.ReadAllText;
 var write = File.WriteAllText;
 
+var files = @(patternOrPath, path) path defined ? 
+    Directory.EnumerateFiles(path, patternOrPath, SearchOption.AllDirectories) :
+    Directory.EnumerateFiles(patternOrPath, '*', SearchOption.AllDirectories);
+    
 @ ~# (cmd) {
     if (verbosity > 2) {
-        printInfo('Command: ~Cyan~{0}~R~', cmd);
+        cmd | Cli.StyleEscape @printInfo('Command: ~Cyan~{0}~R~');
     }
 
     #> ('cmd /c ' + cmd); 
@@ -47,11 +51,11 @@ var write = File.WriteAllText;
 var init = @{
     if (Directory.Exists(testRoot)) {
         cd();
-        #> 'git fetch --all';        
-        #> 'git reset --hard origin/master';
-        #> 'git pull';
+        ~# 'git fetch --all';        
+        ~# 'git reset --hard origin/master';
+        ~# 'git pull';
     } else {
-        #> ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot);
+        ~# ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot);
         cd();
     }
     
@@ -103,7 +107,7 @@ var buildMantispid = @{
         '/t:Rebuild ' +
         '/p:Platform=AnyCpu ' :: [ msBuild.exe, mantispidCsProj ];
 
-    #> msbc;
+    ~# msbc;
 
     if (!exists(mantispidExe)) {
         printError('Failed building Mantispid.exe');
@@ -113,14 +117,38 @@ var buildMantispid = @{
     printSuccess('Mantispid successfully built');
 };
 
+var exeSearchPaths = ['Release64', 'x64\\Release', 'Release']
+    ->@format('{0}\\Aphid\\Bin\\{1}', testRoot);
+
 var run = @{
-    var hasExe = @exists(exe);
+    exe = null;
+    
+    var findAphid = @() exeSearchPaths -? Directory.Exists -< @files('Aphid*.exe') |> Enumerable.DefaultIfEmpty ^!;
+
+    var hasExe = @{        
+        printInfo(exeSearchPaths);
+//        var matches = findAphid();
+//        var c = matches #!;
+//        printInfo('Found ~Cyan~{0}~R~ Aphid exe matches', c);
+
+        if ((exe = findAphid()) != null) {
+            printSuccess('Found Aphid exe: {0}', exe);
+
+            ret true;
+        } else {
+            printSuccess('Could not find Aphid exe');
+
+            ret false;
+        }
+    };
 
     //[ testRoot ]
         //->@(f) [' /ah ', '']
             //->@() ~# ('del ' + f + '\\*.alx.cache* /s /q' + $_);
 
-    [ 'aphid*.exe', 'components*.dll', '*.alx' ]
+    ~# ('del ' + testRoot + '\\aphid*.exe /s /q');
+
+    [ 'components*.dll', '*.alx' ]
         ->@(p) [ testBin, testBin2 ]
             ->@(f) [' /ah ', '']
                 ->@() ~# ('del ' + f + '\\' + p + ' /s /q' + $_);
@@ -128,8 +156,8 @@ var run = @{
     head('Patching Version Numbers');
     var ver = prevVersion();
 
-    Directory
-        .GetFiles(testRoot, 'AssemblyInfo.cs', SearchOption.AllDirectories)
+    testRoot
+        @files('AssemblyInfo.cs')
         ->@(f){
             printInfo('Patching {0} to version {1}', f, ver);
             var txt = f | read;
@@ -149,18 +177,24 @@ var run = @{
         };
 
     head('Running MSBuild');
+    var isLegacyProj = csProj  | read ~= 'Release64\\|Default' @== false;
+
+    if (isLegacyProj) {
+        csProj @printError('~Yellow~Legacy CSProj file: {0}~R~')
+    }
 
     var msbc = '"' + msBuild.exe +'" ' + 
         csProj + ' ' +
-        (((csProj  |> read) ~= 'Release\\|Default') ? '/p:Platform= ' : '') +
-        '/p:Configuration=' + config + ' ' +
+        '/p:Platform=' + (isLegacyProj  ? 'x64' : 'Default') + ' ' +
+        '/p:Configuration=' + (isLegacyProj ? 'Release' : 'Release64') + ' ' +
         '/verbosity:quiet /t:Rebuild';
     
-    #> msbc;
+    ~# msbc;
 
-    head('MSBuild Complete');
+    
     
     if (hasExe()) {
+        printSuccess('MSBuild Complete');
         head('Test Fixup');
         ~# ('copy ' + testSrc + '\\*.alx ' + testDst + ' /y');        
         ~# ('del ' + testRoot + '\\*.alx.cache* /s /q');
@@ -171,8 +205,9 @@ var run = @{
         ~# ('del ' + testBin + '\\Library\\Testing\\Benchmark.alx /q');
         ~# ('copy ' + root + '\\Components.Aphid\\Library\\Testing\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
         
-        [testBin, testDst]->@()
-            Directory.GetFiles($_, '*.alx', SearchOption.AllDirectories)->@(f){
+        [testBin, testDst]
+            -<@files('*.alx')
+            ->@(f){
                 printInfo('Fixing {0}', f);
                 var txt = f |> read;
                 var bad = "#'c:\\\\source\\\\Aphid\\\\Components.Aphid\\\\Aphid.Tokens.alx';";
@@ -186,9 +221,8 @@ var run = @{
         
         head('Running Benchmarks');
         Directory.SetCurrentDirectory(testDst);
-        printInfo(test);
         //Console.ReadLine();
-        #> test;
+        ~# nextAphidCmd();
         head('Done running Benchmarks');
         ~# ('copy ' + testDst + '\\history.* ' + tmpDir + ' /y');
 
@@ -198,6 +232,10 @@ var run = @{
             ~# ('copy ' + testDst + '\\history.* ' + backupDir);
         }
         //Console.ReadLine();
+    } else {
+        var msg = 'MSBuild failed';
+        var fill = new string(' ', Console.WindowWidth - msg.Length - 8);
+        printError('~Red~~|Blue~{0}{1}~R~', msg, fill);
     }
 
     ret rollBack();
@@ -214,7 +252,7 @@ var rollBack = @{
 
     while (true) {
         cd();
-        #> 'git reset --hard HEAD~1';
+        ~# 'git reset --hard HEAD~1';
 
         sb.Clear();
         'git show --name-only --oneline' ~> sb.AppendLine;
