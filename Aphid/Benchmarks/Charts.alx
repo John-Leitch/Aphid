@@ -1,6 +1,7 @@
 ﻿#'Std';
-#'Gui\\WinForms';
+#'Gui/WinForms';
 #'Charts.Config';
+#'Core/Threading';
 using Components.ObjectDatabase;
 using System.Reflection;
 using Components.Aphid.Parser;
@@ -9,21 +10,12 @@ AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
     ret e.Name.StartsWith('Components.Aphid') ? AphidExpression.Assembly : null;
 });
 
-var chart = winForms.chart();
-var area3d = chart.area().Area3DStyle;
-area3d.Enable3D = true;
-area3d.Inclination = 10;
-area3d.IsRightAngleAxes = true;
-area3d.Perspective = 0;
-area3d.PointDepth = 50;
-area3d.Rotation = 10;
-area3d.WallWidth = 2;
-area3d.LightStyle = LightStyle.Realistic;
-
+var pixelsPerStack = 25;
+var widthMultipier = 2;
 var tickMode = { normal: 0, sum: 1, average: 2, min: 3 };
 var mode = tickMode.normal;
-var args = new List[string](Environment.GetCommandLineArgs());
 
+var args = new List[string](Environment.GetCommandLineArgs());
 _af = macro(@(flag) {
     if (args.Contains('-' + quote(flag))) {
         if (mode != tickMode.normal) {
@@ -39,46 +31,104 @@ _af(average);
 _af(min);
 _af(sum);
 
-var l = {};
+_ab = macro(@(flag) { var id(flag) = args.Contains('-' + quote(flag)) });
+_ab(png);
+_ab(pngs);
+_ab(all);
+var records = 'history.db' | BinaryObjectDatabase.OpenFile @() $_.ReadUnsafe() | Enumerable.ToArray;
 
+var createChart = @(mode){
+    var xCount;
+    var flattened;
+    var r;
 
-using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
-    var flattened =
-        (var r = db.ReadUnsafe)()
-        -<(@(x) x.results -> @(y) ({ version: new Version(x.version), name: y.name, ticks: y.ticks }));
+    //using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
+        flattened =
+            //(r = db.ReadUnsafe)()
+            records
+            -<(@(x) x.results
+            -> @(y) ({
+                version: new Version(x.version),
+                name: y.name,
+                ms: y.ticks / TimeSpan.TicksPerMillisecond
+            }));
+    //}
 
-    if (!args.Contains('-all')) {
+    var chart = winForms.chart();
+    var area = chart.area();
+    var area3d = area.Area3DStyle;
+    area3d.Enable3D = true;
+    area3d.Inclination = 10;
+    area3d.IsRightAngleAxes = true;
+    area3d.Perspective = 0;
+    area3d.PointDepth = 50;
+    area3d.Rotation = 10;
+    area3d.WallWidth = 2;
+    area3d.LightStyle = LightStyle.Realistic;
+
+    var l = {};
+
+    if (!all) {
         flattened = flattened-?((@.name) @> testNames.contains);
     }
 
     var fullRuns = flattened -& (@.version) -& (@()$_ -& @.name #!) -/ @.Key ^! -> @.Key;
 
-    _aggr = macro(@(_aggr) { s -& (@.version) -\ (@.Key) -> (@(g) [ i++, g -> @.ticks |> @() _aggr, g.Key ]) });
+    _aggr = macro(@(_aggr) { s -& (@.version) -\ (@.Key) -> (@(g) [ i++, g -> @.ms |> @() _aggr, g.Key ]) });
 
-    flattened
-    -? (@(x) fullRuns=?@==x.version)
-    -& @.name
-    -> @(s){
-        var i = 0x0;
-        var data = ($(mode)
-            tickMode.average: _aggr(($_ +> (@(a, b) a + b)) / (g #!)),
-            tickMode.sum: _aggr($_ +> (@(a, b) a + b)),
-            tickMode.min: _aggr($_ \! ^!),
-            (s
-                -\ (@.version)
-                -> (@() [ i++, $_.ticks, $_.version ])));
+    var dataOut =
+        flattened
+        -? (@(x) fullRuns=?@==x.version)
+        -& @.name
+        -> @(s){
+            var i = 0x0;
+            var data = ($(mode)
+                tickMode.average: _aggr(($_ +> (@(a, b) a + b)) / (g #!)),
+                tickMode.sum: _aggr($_ +> (@(a, b) a + b)),
+                tickMode.min: _aggr($_ \! ^!),
+                (s
+                    -\ (@.version)
+                    -> (@() [ i++, $_.ms, $_.version ])));
     
-        l[s.Key] = data;
-        Console.WriteLine('{0}: {1}', s.Key, data #!);
+            l[s.Key] = data;
+            Console.WriteLine('{0}: {1}', s.Key, data #!);
 
-        data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
-    };
+            data @() chart.series(s.Key, $_, SeriesChartType.StackedBar);
+
+            ret data;
+        };
+
+    area.AxisY.LabelStyle.Format = '{0:n0}ms';
+    area.RecalculateAxesScale();
+    var vi = 0;
+    var pts = dataOut[0];
+    xCount = pts #!;
+    0..xCount->@(i) area.AxisX.CustomLabels.Add(i - 0.5, i + 0.5, pts[i][2].ToString());
+
+    if (png) {
+        var height = xCount * pixelsPerStack;
+        chart.Size = new Size(height * widthMultipier, height);
+        var m = tickMode.Keys[mode];
+        var m2 = m[0].ToUpper() + m.Substring(1);
+        var pngFile = 'BenchmarkChartTickMode{0}.{1}.png' :: [ m2, DateTime.Now.Ticks ];
+        
+        [
+            @printInfo('Writing chart to ~Cyan~{0}~R~'),
+            chart.toPng,
+            @printSuccess('Done writing chart to ~Green~{0}~R~')
+        ]->@() pngFile | $_;
+
+    } else {
+        winForms.split([
+            [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]
+        ])
+        @winForms.dialog({ width: 900, height: 400 });
+    }
+};
+
+if (pngs) {
+    png = true;
+    tickMode.Keys >~ @() tickMode[$_] | createChart;
+} else {
+    mode | createChart;
 }
-
-l |> serialize @File.WriteAllText('c:\\temp\\dat.alx');
-
-winForms.split([
-    [ { control: winForms.propertyGrid(chart), absolute: 250 }, { control: chart } ]
-])
-@winForms.dialog({ width: 900, height: 400 });
-

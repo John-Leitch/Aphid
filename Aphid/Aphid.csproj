@@ -145,7 +145,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>..\Components.Aphid\Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\Components.Aphid\Analyzers.ruleset</CodeAnalysisRuleSet>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
     <DebugSymbols>true</DebugSymbols>

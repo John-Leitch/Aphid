@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
-AphidCli.ShowClrStack = true;
+//AphidCli.ShowClrStack = true;
 //openRepl = true;
 aq.empty = @(l) l.Count == 0;
 var args = Environment.GetCommandLineArgs() @aq.skip(2);
