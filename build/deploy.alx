@@ -1,0 +1,5 @@
+#'std';
+@ ~# (cmd) #> ('cmd /c {0}' :: cmd);
+[ 'Release', 'Release32', 'Release64', 'Debug' ]
+    ->@(c) [ 'exe', 'dll', 'pdb' ]
+        ->@(e) ~# 'copy ..\\Aphid\\bin\\{0}\\*.{1} c:\\tools\\Aphid /y' :: [c,e]
