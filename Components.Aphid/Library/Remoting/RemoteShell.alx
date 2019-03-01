@@ -5,6 +5,7 @@
 #'Std';
 #'Cli\\Shell';
 #'Remoting\\Remote';
+#'System/Machine';
 using Components;
 using System.Diagnostics;
 using System.Threading;
@@ -33,19 +34,66 @@ head('AphidShell remoting{0}' :: [
 
 var hostRemote = @{
     log('Starting recovery listeners');
-    0..4->@+0x5232->@(p) {
+    0..4->@+0x5232->Convert.ToUInt32->@(p) {
         var t = new Thread(@{
             while (true) {
-                var si = new ProcessStartInfo(
-                    'cmd.exe',
-                    "/c aphid64 * " + 
-                        "#'std'; " + 
-                        "#'remoting/remote'; " + 
-                        "remote.listen({0}).listenThread.Join();"::p);
+                var exe;
+                
+                try exe = getExe();
+                catch (e) exe = 'aphid64';
+
+                var cmd = 'cmd.exe';
+
+                var args =
+                    '/c "' + exe + '" * ' + 
+                    "#'std'; " + 
+                    "#'remoting/remote'; " + 
+                    "try remote.listen(0x{0:x8}).listenThread.Join();" +
+                    "catch(e) " +
+                    "exit(ExceptionHelper.Unwrap(e.exception).GetType() == " +
+                    "SocketException ? 0xbad30 : 0xbad00)"
+                    :: [ p ];
+
+                log('Running command ~Cyan~{0} {1}~R~', cmd, args);
+
+                var si = new ProcessStartInfo(cmd, args);
                 si.UseShellExecute = false;
                 si.CreateNoWindow = true;
 
-                Process.Start(si).WaitForExit();
+                var proc = Process.Start(si);
+                proc.WaitForExit();
+                
+                log(
+                    'Command ~Cyan~{0} {1}~R~ exited with code ~Yellow~{2:x8}~R~',
+                    cmd,
+                    args,
+                    proc.ExitCode);
+
+                if (proc.ExitCode == 0xbad30) {
+                    [ '0x{0:x8}', '{0}' ]->@format('%({0})%')->@{
+                        var like = format($_, p);
+                        log('Searching for procs like {0}', like);
+                        
+                        like
+                        |> machine.getProcCommandsLike
+                        |> Enumerable.ToArray
+                        -< (@() [ $_.ParentProcessId, $_.ProcessId ])
+                        -> @{
+                            try {
+                                var proc = $_ |> Convert.ToInt32 |> Process.GetProcessById;
+                                proc.Kill();
+                                proc.WaitForExit();
+                            } catch (e) {
+                                log('Error killing process: {0}', e.message);
+                            }
+                            
+
+                        };
+                    };
+                }
+
+                
+                Thread.Sleep(250);
             }
         });
 
@@ -67,8 +115,13 @@ var waitForEnter = @{
 };
 
 var startChild = @{
-    var childArgs = "{0} -listen -pid {1}" :: [
-        cmd |> ArgLexer.GetTokenInfo |> Enumerable.First @.EndOffset |> cmd.Substring @() $_.Trim(),
+    var childArgs = "{0} -pid {1}" :: [
+        cmd
+        |> ArgLexer.GetTokenInfo
+        |> Enumerable.First
+        |> @.EndOffset
+        |> cmd.Substring
+        |> @() $_.Trim(),
         Process.GetCurrentProcess().Id
     ];
 

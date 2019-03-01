@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
@@ -16,12 +17,19 @@ namespace Components.Aphid.TypeSystem
     {
         private Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject>
             InterpretMemberInteropExpression
-        { get; }
+            { get; }
+
+        private ReaderWriterLockSlim _importsLock;
 
         public InteropMethodResolver(
             AphidInterpreter interpreter,
-            Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject> interpretMemberInteropExpression)
-            : base(interpreter) => InterpretMemberInteropExpression = interpretMemberInteropExpression;
+            Func<object, BinaryOperatorExpression, bool, Func<AphidObject>, AphidObject> interpretMemberInteropExpression,
+            ReaderWriterLockSlim importsLock)
+            : base(interpreter)
+        {
+            InterpretMemberInteropExpression = interpretMemberInteropExpression;
+            _importsLock = importsLock;
+        }
 
         public object TryResolveMember(BinaryOperatorExpression expression, AphidObject obj, bool returnRef)
         {
@@ -57,11 +65,23 @@ namespace Components.Aphid.TypeSystem
             if (expression.RightOperand.Type == AphidExpressionType.IdentifierExpression)
             {
                 key = ((IdentifierExpression)expression.RightOperand).Identifier;
+                var path = Interpreter.FlattenPath(expression.LeftOperand);
+                //_importsLock.EnterReadLock();
 
-                staticType = Interpreter.InteropTypeResolver.TryResolveType(
-                    Interpreter.GetImports(),
-                    Interpreter.FlattenPath(expression.LeftOperand),
-                    isType: true);
+                //try
+                //{
+                    staticType = Interpreter.InteropTypeResolver.TryResolveType(
+                        Interpreter.GetImports(),
+                        _importsLock,
+                        path,
+                        isType: true);
+                //}
+                //finally
+                //{
+                //    _importsLock.ExitReadLock();
+                //}
+
+                
 
                 var extension = TypeExtender.TryResolve(
                     Interpreter.CurrentScope,

@@ -1,7 +1,8 @@
 load System.Windows.Forms;
 load System.Windows.Forms.DataVisualization;
-using System.IO;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.TypeSystem
@@ -10,45 +11,112 @@ namespace Components.Aphid.TypeSystem
     {
         public bool Equals(InteropTypeContext x, InteropTypeContext y)
         {
-            if ((x.Imports == null && y.Imports != null) ||
-                (x.Imports != null && y.Imports == null) ||
-                (x.Path == null && y.Path != null) ||
-                (x.Path != null && y.Path == null) ||
-                (x.IsType != y.IsType))
-            {
-                return false;
-            }
-            else if (x.Imports != null && x.Imports != y.Imports)
-            {
-                if (x.IsResolved && !y.Imports.IsSubsetOf(x.Imports))
-                {
-                    return false;
-                }
-                else if (!x.IsResolved && !y.Imports.SetEquals(x.Imports))
-                {
-                    return false;
-                }
-            }
+            ReaderWriterLockSlim lock1 = x.ImportsLock, lock2 = y.ImportsLock;
 
-            if (x.Path != null)
+            if (lock1 == lock2)
             {
-                if (x.Path.Length != y.Path.Length)
-                {
-                    return false;
-                }
+                lock1.EnterReadLock();
 
-                for (var i = 0; i < x.Path.Length; i++)
+                try
                 {
-                    if (x.Path[i] != y.Path[i])
+                    if ((x.Imports == null && y.Imports != null) ||
+                        (x.Imports != null && y.Imports == null) ||
+                        (x.Path == null && y.Path != null) ||
+                        (x.Path != null && y.Path == null) ||
+                        (x.IsType != y.IsType))
                     {
                         return false;
                     }
+                    else if (x.Imports != null && x.Imports != y.Imports)
+                    {
+                        if (x.IsResolved && !y.Imports.IsSubsetOf(x.Imports))
+                        {
+                            return false;
+                        }
+                        else if (!x.IsResolved && !y.Imports.SetEquals(x.Imports))
+                        {
+                            return false;
+                        }
+                    }
+
+                    if (x.Path != null)
+                    {
+                        if (x.Path.Length != y.Path.Length)
+                        {
+                            return false;
+                        }
+
+                        for (var i = 0; i < x.Path.Length; i++)
+                        {
+                            if (x.Path[i] != y.Path[i])
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+
+                    return true;
                 }
-
-                return true;
+                finally
+                {
+                    lock1.ExitReadLock();
+                }
             }
+            else
+            {
+                lock1.EnterReadLock();
+                lock2.EnterReadLock();
 
-            return true;
+                try
+                {
+                    if ((x.Imports == null && y.Imports != null) ||
+                        (x.Imports != null && y.Imports == null) ||
+                        (x.Path == null && y.Path != null) ||
+                        (x.Path != null && y.Path == null) ||
+                        (x.IsType != y.IsType))
+                    {
+                        return false;
+                    }
+                    else if (x.Imports != null && x.Imports != y.Imports)
+                    {
+                        if (x.IsResolved && !y.Imports.IsSubsetOf(x.Imports))
+                        {
+                            return false;
+                        }
+                        else if (!x.IsResolved && !y.Imports.SetEquals(x.Imports))
+                        {
+                            return false;
+                        }
+                    }
+
+                    if (x.Path != null)
+                    {
+                        if (x.Path.Length != y.Path.Length)
+                        {
+                            return false;
+                        }
+
+                        for (var i = 0; i < x.Path.Length; i++)
+                        {
+                            if (x.Path[i] != y.Path[i])
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+
+                    return true;
+                }
+                finally
+                {
+                    lock2.ExitReadLock();
+                    lock1.ExitReadLock();
+                }
+            }
         }
 
         public int GetHashCode(InteropTypeContext obj)

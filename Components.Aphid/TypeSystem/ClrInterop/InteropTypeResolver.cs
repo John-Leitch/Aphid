@@ -18,18 +18,28 @@ namespace Components.Aphid.TypeSystem
         private static ReaderWriterLockSlim _typeCacheLock = new ReaderWriterLockSlim();
 
         private static LockTable<InteropTypeContext> _contextLocks =
-            new LockTable<InteropTypeContext>(new InteropTypeContextComparer());
+            new LockTable<InteropTypeContext>(new InteropTypeContextExactComparer());
 
         public InteropTypeResolver(AphidInterpreter interpreter)
             : base(interpreter)
         {
         }
 
-        public Type TryResolveType(HashSet<string> imports, string[] path, bool isType = false) => ResolveType(imports, path, isFatal: false, isType: isType);
+        public Type TryResolveType(
+            HashSet<string> imports,
+            ReaderWriterLockSlim importsLock,
+            string[] path,
+            bool isType = false) =>
+            ResolveType(imports, importsLock, path, isFatal: false, isType: isType);
 
-        public Type ResolveType(HashSet<string> imports, string[] path, bool isFatal = true, bool isType = false)
+        public Type ResolveType(
+            HashSet<string> imports,
+            ReaderWriterLockSlim importsLock,
+            string[] path,
+            bool isFatal = true,
+            bool isType = false)
         {
-            var ctx = new InteropTypeContext(imports, path, isType);
+            var ctx = new InteropTypeContext(imports, path, isType, importsLock);
 
             lock (_contextLocks[ctx])
             {
@@ -81,7 +91,7 @@ namespace Components.Aphid.TypeSystem
                 .Select(x => new
                 {
                     PartCount = x.Count,
-                    Type = InteropTypeResolver.ResolveType(x.Path),
+                    Type = ResolveType(x.Path),
                 })
                 .FirstOrDefault(x => x.Type != null);
 
@@ -136,7 +146,7 @@ namespace Components.Aphid.TypeSystem
 
         public static Type ResolveType(string name)
         {
-            var n = InteropTypeResolver.Unalias(name);
+            var n = Unalias(name);
 
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {

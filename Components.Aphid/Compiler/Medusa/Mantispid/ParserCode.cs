@@ -35,7 +35,7 @@ namespace Mantispid
 
             if (property.IsList)
             {
-                return ParserCode.GetListTypeRef(typeRef);
+                return GetListTypeRef(typeRef);
             }
 
             return typeRef;

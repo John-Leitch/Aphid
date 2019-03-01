@@ -97,7 +97,12 @@ var generateHtml = @(codeDoc) {
                 h2 { margin-bottom: 0px; }
                 table { border: solid 1px black; width: 100%; margin-bottom: 6px; }
                 table th { text-align: left; background-color: #C0C0C0; padding:2px; }
-                table td { background-color: #E0E0E0; padding:1px; }
+                table td { background-color: #E0E0E0; padding:1px; }                
+
+                .memberTable { margin-bottom: 10px; }
+                .memberTable:last-child { margin-bottom: 0px; }
+                .signature { font-size:130%; margin-left: 8px; }
+                .exampleTable{ margin-bottom: 0px; }
                 
                 .param {
                     text-align: left;
@@ -177,54 +182,64 @@ _kvp = macro(@(key, value) { %>
 <% });
 
 _kvp2 = macro(@(key, value) { %>
-    <table>
-        <tr><th style=" background-color:rgb(5,5,5)"><%= key %></th></tr>
+    <table class="memberTable">
+        <tr><th style="background-color:rgb(5,5,5); height: 38px;"><%= key %></th></tr>
         <tr><td><%= value %></td></tr>
     </table>
-    <br />
+<% });
+
+_kvp3 = macro(@(key, value) { %>
+    <table class="exampleTable">
+        <tr><th><b><%= key %></b></th></tr>
+        <tr><td><%= value %></td></tr>
+    </table>
 <% });
 
 var generateBody = @(codeDoc) {
     codeDoc->@(f){
         f.members->@(m) {
-            table tr th h2 %| ('{0} {1}' :: [ f.file, m.type ]);
-            br;
-            m.typeMembers->@(t) {
-                _kvp2(
-                    @{ %>
-                        <code style="font-size:130%;" id="<%= t.id %>">
-                            <%= t.signature |> highlight %>
-                        </code>
-                    <% }(),
-                    @{ 
-                        _prop(summary);
+            table %| @{
+                tr th h2 %| ('{0} {1}' :: [ f.file, m.type ]);
+            
+                tr td %| @{
+                    m.typeMembers->@(t) {
+                        _kvp2(
+                            @{ %>
+                                <code class="signature" id="<%= t.id %>">
+                                    <%= t.signature |> highlight %>
+                                </code>
+                            <% }(),
+                            @{ 
+                                _prop(summary);
                 
-                        if (t.params != null) { %>
-                            <table style="margin-bottom:2px;">
-                                <tr><th colspan="2"><b>Parameters</b></th></tr>
-                                <% t.params->@(p) { %>
-                                    <tr>
-                                        <th class="param"><%= _val(Name) %></th>
-                                        <td><%= _val(Description) %></td>
-                                    </tr>                        
-                                <% }; %>
-                            </table>
-                        <% }
+                                if (t.params != null) { %>
+                                    <table>
+                                        <tr><th colspan="2"><b>Parameters</b></th></tr>
+                                        <% t.params->@(p) { %>
+                                            <tr>
+                                                <th class="param"><%= _val(Name) %></th>
+                                                <td><%= _val(Description) %></td>
+                                            </tr>                        
+                                        <% }; %>
+                                    </table>
+                                <% }
 
-                        _prop(returns);
+                                _prop(returns);
                         
-                        if (t.example != null) {
-                            _kvp(
-                                'Example',
-                                @{ %><pre style="background: rgb(10,10,10); padding: 10px;"><%
-                                    code %| (t.example |> highlight);
-                                %></pre> <% }());
-                        }
-                    }());
-            };
+                                if (t.example != null) {
+                                    _kvp3(
+                                        'Example',
+                                        @{ %><pre style="background: rgb(10,10,10); padding: 8px;"><%
+                                            code %| (t.example |> highlight);
+                                        %></pre> <% }());
+                                }
+                            }());
+                    };
+                };
 
-            hr;
-        };
+                //hr;
+            };
+        };        
     };
 };
 

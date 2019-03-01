@@ -10,8 +10,10 @@ using System.Linq;
 
 namespace Aphid
 {
-    internal class Program
+    internal static class Program
     {
+        private static AphidEvaluator _evaluator = new AphidEvaluator();
+
         private static void DisplayDirections()
         {
             Console.WriteLine("aphid [Script]");
@@ -117,9 +119,9 @@ namespace Aphid
 
         }
 
-        private static void RunExpression(string[] args) => AphidCli.DumpExpression(GetInlineCode('?'));
+        private static void RunExpression(string[] args) => _evaluator.EvalExpression(GetInlineCode('?'));
 
-        private static void RunStatements(string[] args) => AphidCli.ExecuteCode(GetInlineCode('*'));
+        private static void RunStatements(string[] args) => _evaluator.Eval(GetInlineCode('*'));
 
         private static string GetInlineCode(char startToken)
         {

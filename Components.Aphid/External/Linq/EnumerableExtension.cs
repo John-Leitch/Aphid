@@ -361,6 +361,19 @@ namespace Components
             source.Where(x => selector(x) != null);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
+        // ExceptKey
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        public static IEnumerable<KeyValuePair<TKey, TSource>> ExceptKey<TKey, TSource>(
+            this IEnumerable<KeyValuePair<TKey, TSource>> source,
+            Func<TKey, bool> predicate) =>
+            source.Except(x => predicate(x.Key));
+
+        public static IEnumerable<KeyValuePair<TKey, TSource>> ExceptKey<TKey, TSource>(
+            this IEnumerable<KeyValuePair<TKey, TSource>> source,
+            params TKey[] keys) =>
+            source.Except(x => keys.Contains(x.Key));
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         // Distinct
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public static IEnumerable<TSource> Distinct<TSource, TKey>(
@@ -372,8 +385,8 @@ namespace Components
         // GroupEvery
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public static IEnumerable<IEnumerable<T>> GroupEvery<T>(this IEnumerable<T> source, int groupSize) =>
-            Enumerable
-                .Range(0, (int)Math.Ceiling((double)source.Count() / groupSize))
+
+                Range(0, (int)Math.Ceiling((double)source.Count() / groupSize))
                 .Select(x => source.Skip(x * groupSize).Take(groupSize));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////

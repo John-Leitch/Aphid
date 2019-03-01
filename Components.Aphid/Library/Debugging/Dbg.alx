@@ -1,6 +1,7 @@
 ﻿##'Components.Aphid.Library.DebugLibrary';
 using Components.Aphid.TypeSystem;
 using Components.Aphid.UI;
+using Components.Aphid.UI.Formatters;
 
 dbg.enabled = false;
 dbg.enable = @() dbg.enabled = true;
@@ -117,7 +118,7 @@ _dump = macro(@(m) {
                     RegexOptions.IgnoreCase))
             ->(@(o) o)
             !?
-            @join('\r\n')
+            @String.Join('\r\n')
             print;
             
         print();
@@ -244,7 +245,7 @@ var prepareAphidMember = @(useFullNames, object, key)
             key);
 
 _formatAphidParams = macro(@{
-    val.Args->(@(x) format('{0}{1}~R~', expressionColor.paramName, x)) @join(', ')
+    val.Args->(@(x) format('{0}{1}~R~', expressionColor.paramName, x)) @String.Join(', ')
 });
 
 _formatAphidInteropParams = macro(@{
@@ -257,7 +258,7 @@ _formatAphidInteropParams = macro(@{
                 AphidCli.GetAphidTypeName(x.ParameterType),
                 expressionColor.paramName,
                 x.Name))
-            @join(' ') :
+            @String.Join(' ') :
         ''
 });
 
@@ -349,14 +350,14 @@ _formatParams = macro(@{
         prm->(@(x) format(
                 '{0}{1}~R~{2}{3}~R~{4}{5}~R~ {6}{7}~R~',
                 expressionColor.keyword,
-                (x.Attributes.flags()) +? (@join(', ') @> @format('[{0}]')),
+                (x.Attributes.flags()) +? (@String.Join(', ') @> @format('[{0}]')),
                 expressionColor.keyword,
                 x.IsOut ? 'out ' : '',
                 expressionColor.type,
                 _pn(x.ParameterType),
                 expressionColor.paramName,
                 x.Name))
-            @join(', ') :
+            @String.Join(', ') :
             ''
 });
 
@@ -403,6 +404,46 @@ _p = macro(@() {
     (this |> keys) ~? 'System'
 });
 
+using Components.Aphid.Serialization;
+
+var kvpSerializer = new AphidSerializer(aphid);
+kvpSerializer.QuoteToStringResults = false;
+kvpSerializer.ToStringClrTypes = true;
+kvpSerializer.IgnoreLazyLists = false;
+
 extend unknown {
-    keys: @(o, pattern) $(pattern defined) keys
+    keys: @(o, pattern) ($(pattern defined) keys),
+
+    kvps: @(o, pattern) {
+        var sb = new StringBuilder();
+        var t = o.GetType();
+
+        [
+            { get: t.GetProperties, type: @.PropertyType },
+            { get: t.GetFields, type: @.FieldType }
+        ]
+            -<(@(m) m.get()->(@()({
+                getValue: $_.GetValue,
+                name: $_.Name,
+                type: $_ |> m.type |> AphidCli.GetTypeName
+            })))
+            ->@{
+                var value;
+
+                try {
+                    value = o |> $_.getValue |> kvpSerializer.Serialize;
+                } catch(e) {
+                    value = 'throw new {0}(/*...*/)'
+                        :: e.exception.GetType().Name;
+                }
+
+                ret '{0} {1} = {2};\r\n' :: [ $_.type, $_.name, value ];                
+            }
+            -?(@() pattern defined ?
+                Regex.IsMatch($_, pattern, RegexOptions.IgnoreCase) :
+                true)
+            @String.Join('')
+            |> SyntaxHighlightingFormatter.Format
+            |> Console.WriteLine;
+    },
 }

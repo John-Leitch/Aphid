@@ -49,9 +49,7 @@ namespace Components.Aphid.Parser
                 return true;
             }
 
-            var i = _currentToken.Index + _currentToken.Lexeme.Length;
-            _currentToken = default;
-            _currentToken.Index = i;
+            _currentToken = AphidToken.GetNone(_currentToken.Index + _currentToken.Lexeme.Length);
 
             return false;
         }
@@ -61,8 +59,7 @@ namespace Components.Aphid.Parser
         {
             if (_tokens.Count == 0 || _tokenIndex == 0)
             {
-                _currentToken = default;
-                _currentToken.Index = -1;
+                _currentToken = AphidToken.None;                
 
                 return false;
             }
@@ -83,18 +80,19 @@ namespace Components.Aphid.Parser
                 return true;
             }
 
-            _currentToken = default;
-            _currentToken.Index = -1;
+            _currentToken = AphidToken.None;            
 
             return false;
         }
 
-        public static List<AphidExpression> Parse(List<AphidToken> tokens, string code) => Parse(tokens, code, useImplicitReturns: true);
+        public static List<AphidExpression> Parse(List<AphidToken> tokens, string code) =>
+            Parse(tokens, code, useImplicitReturns: true);
 
         public static List<AphidExpression> Parse(
             List<AphidToken> tokens,
             string code,
-            bool useImplicitReturns = true) => Parse(tokens, code, null, useImplicitReturns);
+            bool useImplicitReturns = true) =>
+            Parse(tokens, code, null, useImplicitReturns);
 
         public static List<AphidExpression> Parse(
             List<AphidToken> tokens,
@@ -138,11 +136,12 @@ namespace Components.Aphid.Parser
             return ast;
         }
 
-        public static AphidExpression ParseExpression(string code) => ParseExpression(new AphidLexer(code).GetTokens(), code);
+        public static AphidExpression ParseExpression(string code) =>
+            ParseExpression(AphidLexer.GetTokens(code), code);
 
         public static AphidExpression ParseExpression(List<AphidToken> tokens, string code)
         {
-            var ast = AphidParser.Parse(tokens, code);
+            var ast = Parse(tokens, code);
 
             if (ast.Count != 1)
             {
@@ -154,12 +153,14 @@ namespace Components.Aphid.Parser
             return ast[0];
         }
 
-        public static List<AphidExpression> Parse(string code) => Parse(code, useImplicitReturns: true);
+        public static List<AphidExpression> Parse(string code) =>
+            Parse(code, useImplicitReturns: true);
 
         public static List<AphidExpression> Parse(
             string code,
             bool isTextDocument = false,
-            bool useImplicitReturns = true) => Parse(code, null, isTextDocument, useImplicitReturns);
+            bool useImplicitReturns = true) =>
+            Parse(code, null, isTextDocument, useImplicitReturns);
 
         public static List<AphidExpression> Parse(
             string code,
@@ -181,24 +182,20 @@ namespace Components.Aphid.Parser
                 useImplicitReturns: useImplicitReturns);
         }
 
-        public static List<AphidExpression> ParseFile(string filename)
-        {
-            return ParseFile(
+        public static List<AphidExpression> ParseFile(string filename) =>
+            ParseFile(
                 filename,
                 isTextDocument: false,
                 useImplicitReturns: true);
-        }
 
         public static List<AphidExpression> ParseFile(
             string filename,
             bool isTextDocument = false,
-            bool useImplicitReturns = true)
-        {
-            return Parse(
+            bool useImplicitReturns = true) =>
+            Parse(
                 AphidScript.Read(filename),
                 filename,
                 isTextDocument,
                 useImplicitReturns);
-        }
     }
 }

@@ -1,0 +1,39 @@
+﻿//(findTypes('ServiceProvider')
+//~?'\\.[a-zA-Z0-9]+Crypto[\\w]+Provider')
+//-?(@()$_.BaseType.BaseType.Name == 'HashAlgorithm')
+//->@.Name
+//->(@() 'Crypto'
+//  |> $_.IndexOf
+//  |> $_.Remove
+//  @() string.Format('_hash({0}, {1});', $_.ToLower(), $_))
+//@string.Join('\r\n')
+//print
+
+var md5;
+var sha1;
+var sha256;
+var sha384;
+var sha512;
+
+@{
+    using System.Security.Cryptography;
+    using System.Threading;
+
+    _hash = macro(@(nameLower, name) {
+        var id(nameLower, Provider) = new ThreadLocal[id(name, CryptoServiceProvider)](
+            @() new id(name, CryptoServiceProvider)());
+
+        nameLower = {
+            hash: id(nameLower, Provider).Value.ComputeHash,
+            file: @(file) file |> File.ReadAllBytes|> hash,
+            hex: @(buffer) buffer |> hash -> @string.Format('{0:x2}') @string.Join(''),
+            hexFile: @(file) file |> File.ReadAllBytes |> hex,
+        };
+    });
+
+    _hash(md5, MD5);
+    _hash(sha1, SHA1);
+    _hash(sha256, SHA256);
+    _hash(sha384, SHA384);
+    _hash(sha512, SHA512);
+}()

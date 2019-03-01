@@ -55,12 +55,40 @@ namespace Components
             where TMemberType : TMember =>
                 EnumerableMember.Create(_source.Where(x => !(_selector(x) is TMemberType)), _selector);
 
+        public EnumerableMember<TSource, TMember> Not<TMemberType, TMemberType2>()
+            where TMemberType : TMember
+            where TMemberType2 : TMember =>
+            Not<TMemberType>().Not<TMemberType2>();
+
+        public EnumerableMember<TSource, TMember> Not<
+            TMemberType,
+            TMemberType2,
+            TMemberType3>()
+            where TMemberType : TMember
+            where TMemberType2 : TMember
+            where TMemberType3 : TMember=>
+            Not<TMemberType>().Not<TMemberType2>().Not<TMemberType3>();
+
+        public EnumerableMember<TSource, TMember> Not<
+            TMemberType,
+            TMemberType2,
+            TMemberType3,
+            TMemberType4>()
+            where TMemberType : TMember
+            where TMemberType2 : TMember
+            where TMemberType3 : TMember
+            where TMemberType4 : TMember =>
+            Not<TMemberType>().Not<TMemberType2>().Not<TMemberType3>().Not<TMemberType4>();
+
         public EnumerableMember<TSource, TMember> Not(TMember value) =>
             EnumerableMember.Create(_source.Where(x => !Equals(value, _selector(x))), _selector);
 
         public EnumerableMember<TSource, TMember> Not<TMemberValue>(TMemberValue value)
             where TMemberValue : IEquatable<TMemberValue>, TMember =>
                 EnumerableMember.Create(_source.Where(x => !Equals(value, _selector(x))), _selector);
+
+        public EnumerableMember<TSource, TMember> Not(Func<TMember, bool> predicate) =>
+            EnumerableMember.Create(_source.Where(x => !predicate(_selector(x))), _selector);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // And

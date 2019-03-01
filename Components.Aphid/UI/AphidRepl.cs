@@ -5,6 +5,7 @@ using Components.Aphid.Library;
 using Components.Aphid.Parser;
 using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.UI.Formatters;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ namespace Components.Aphid.UI
         }
 
         public AphidRepl(AphidInterpreter interpreter)
-            : this(interpreter, AphidCli.CreateSerializer(interpreter))
+            : this(interpreter, SerializingFormatter.CreateSerializer(interpreter))
         {
         }
 
@@ -230,14 +231,12 @@ namespace Components.Aphid.UI
             if (value != null &&
                 (value.IsComplex || (value.IsScalar && value.Value != null)))
             {
-                Console.WriteLine(
-                    AphidCli.Highlight(
-                        AphidCli.DumpValue(
-                            Interpreter,
-                            Serializer ?? new AphidSerializer(Interpreter),
-                            value,
-                            ignoreNull: false,
-                            ignoreClrObj: false)));
+                AphidCli.DumpValue(
+                    Interpreter,
+                    Serializer ?? new AphidSerializer(Interpreter),
+                    value,
+                    ignoreNull: false,
+                    ignoreClrObj: false);
             }
 
             //if (value != null && (value.Value != null || value.Any()))

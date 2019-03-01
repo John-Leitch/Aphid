@@ -107,7 +107,7 @@ namespace Components.Cypress
 
             var funcs = Enumerable
                 .Range(0, funcCount)
-                .Select(x => NativeFunction.Deserialize(table, reader))
+                .Select(x => Deserialize(table, reader))
                 .ToArray();
 
             return funcs;

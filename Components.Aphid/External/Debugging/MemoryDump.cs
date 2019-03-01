@@ -22,7 +22,7 @@ namespace Components.Cypress
         {
             using (var s = File.Create(filename))
             {
-                var ptrs = System.Runtime.InteropServices.Marshal.GetExceptionPointers();
+                var ptrs = Marshal.GetExceptionPointers();
 
                 bool result;
 

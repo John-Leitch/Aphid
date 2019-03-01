@@ -11,17 +11,23 @@ namespace Components.Aphid.Interpreter
 {
     public readonly struct AphidFrame
     {
-        private readonly AphidSerializer _serializer;
+        private readonly object _argument;
 
-        private readonly Lazy<string> _name;
+        private readonly IEnumerable<object> _arguments;
+
+        //private readonly AphidSerializer _serializer;
+
+        private readonly string _name;
+
+        private readonly Lazy<string> _lazyName;
 
         public readonly AphidObject Scope;
 
         public readonly AphidExpression Expression;
 
-        public string Name => _name?.Value;
+        public string Name => _name ?? _lazyName?.Value;
 
-        public readonly IEnumerable<object> Arguments;
+        public IEnumerable<object> Arguments => _arguments ?? new[] { _argument };
 
         public readonly AphidInterpreter Interpreter;
 
@@ -30,8 +36,48 @@ namespace Components.Aphid.Interpreter
             AphidObject scope,
             AphidExpression expression,
             Lazy<string> name)
-            : this(interpreter, scope, expression, name, new object[0])
         {
+            Scope = scope;
+            Expression = expression;
+            _name = null;
+            _lazyName = name;
+            _argument = null;
+            _arguments = Array.Empty<object>();
+            //_serializer = new AphidSerializer(interpreter);
+            Interpreter = interpreter;
+        }
+
+        public AphidFrame(
+            AphidInterpreter interpreter,
+            AphidObject scope,
+            AphidExpression expression,
+            string name,
+            IEnumerable<object> arguments)
+        {
+            Scope = scope;
+            Expression = expression;
+            _name = name;
+            _lazyName = null;
+            _argument = null;
+            _arguments = arguments;
+            //_serializer = new AphidSerializer(interpreter);
+            Interpreter = interpreter;
+        }
+
+        public AphidFrame(
+            AphidInterpreter interpreter,
+            AphidObject scope,
+            AphidExpression expression,
+            string name)
+        {
+            Scope = scope;
+            Expression = expression;
+            _name = name;
+            _lazyName = null;
+            _argument = null;
+            _arguments = Array.Empty<object>();
+            //_serializer = new AphidSerializer(interpreter);
+            Interpreter = interpreter;
         }
 
         public AphidFrame(
@@ -43,9 +89,28 @@ namespace Components.Aphid.Interpreter
         {
             Scope = scope;
             Expression = expression;
-            _name = name;
-            Arguments = arguments;
-            _serializer = new AphidSerializer(interpreter);
+            _name = null;
+            _lazyName = name;
+            _argument = null;
+            _arguments = arguments;
+            //_serializer = new AphidSerializer(interpreter);
+            Interpreter = interpreter;
+        }
+
+        public AphidFrame(
+            AphidInterpreter interpreter,
+            AphidObject scope,
+            AphidExpression expression,
+            Lazy<string> name,
+            object argument)
+        {
+            Scope = scope;
+            Expression = expression;
+            _name = null;
+            _lazyName = name;
+            _argument = argument;
+            _arguments = null;
+            //_serializer = new AphidSerializer(interpreter);
             Interpreter = interpreter;
         }
 
@@ -61,9 +126,11 @@ namespace Components.Aphid.Interpreter
 
         public string CreateParamTupleString(bool useFullNames) =>
             // Todo: get param names
-            string.Join(
-                ", ",
-                Arguments.Select((x, i) => GetArgumentType(x, useFullNames)));
+            Arguments != null ?
+                string.Join(
+                    ", ",
+                    Arguments.Select((x, i) => GetArgumentType(x, useFullNames))) :
+            "";
 
         private static string GetArgumentType(object argument, bool useFullNames)
         {
@@ -89,7 +156,7 @@ namespace Components.Aphid.Interpreter
                 case null:
                     return "null";
                 case AphidObject aphidObj:
-                    return _serializer.Serialize(aphidObj);
+                    return Interpreter.Serializer.Serialize(aphidObj);
                 default:
                     return value.ToString();
             }
@@ -103,8 +170,8 @@ namespace Components.Aphid.Interpreter
             }
 
             var frame = (AphidFrame)obj;
-            return EqualityComparer<AphidSerializer>.Default.Equals(_serializer, frame._serializer) &&
-                   EqualityComparer<Lazy<string>>.Default.Equals(_name, frame._name) &&
+            return //EqualityComparer<AphidSerializer>.Default.Equals(_serializer, frame._serializer) &&
+                   EqualityComparer<Lazy<string>>.Default.Equals(_lazyName, frame._lazyName) &&
                    EqualityComparer<AphidObject>.Default.Equals(Scope, frame.Scope) &&
                    EqualityComparer<AphidExpression>.Default.Equals(Expression, frame.Expression) &&
                    EqualityComparer<IEnumerable<object>>.Default.Equals(Arguments, frame.Arguments) &&
@@ -114,8 +181,8 @@ namespace Components.Aphid.Interpreter
         public override int GetHashCode()
         {
             var hashCode = 1404356713;
-            hashCode = (hashCode * -1521134295) + EqualityComparer<AphidSerializer>.Default.GetHashCode(_serializer);
-            hashCode = (hashCode * -1521134295) + EqualityComparer<Lazy<string>>.Default.GetHashCode(_name);
+            //hashCode = (hashCode * -1521134295) + EqualityComparer<AphidSerializer>.Default.GetHashCode(_serializer);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<Lazy<string>>.Default.GetHashCode(_lazyName);
             hashCode = (hashCode * -1521134295) + EqualityComparer<AphidObject>.Default.GetHashCode(Scope);
             hashCode = (hashCode * -1521134295) + EqualityComparer<AphidExpression>.Default.GetHashCode(Expression);
             hashCode = (hashCode * -1521134295) + EqualityComparer<IEnumerable<object>>.Default.GetHashCode(Arguments);

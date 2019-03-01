@@ -107,14 +107,12 @@ namespace Components.Aphid.Parser
 
                 //var a = Ancestors.FirstOrDefault(x => x.Index != -1);
 
-                IParentNode parent;
-
                 if (a != null)
                 {
                     expression.Index = a.Index;
                     expression.Length = a.Length;
                 }
-                else if ((parent = expression as IParentNode) != null)
+                else if (expression is IParentNode parent)
                 {
                     var children = parent.GetChildren();
 

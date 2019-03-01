@@ -338,10 +338,10 @@ namespace Components.External.ConsolePlus
 
         public static void WriteSubheader(string text, string style = DefaultHeaderStyle)
         {
-            Cli.WriteLine(
+            WriteLine(
                 "{0}  {1}{2}{3}",
                 style,
-                Cli.Escape(text),
+                Escape(text),
                 new string(' ', BufferWidth - text.Length - 3),
                 "~R~");
         }
@@ -694,7 +694,7 @@ namespace Components.External.ConsolePlus
 
         public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)
         {
-            Cli.WriteLine(
+            WriteLine(
                 string.Format(_messageFormat, tokenColor, token, format),
                 arg);
         }

@@ -27,7 +27,8 @@ namespace Components.External.ConsolePlus
             return sb.ToString();
         }
 
-        public static string GetString(ColoredText coloredText) => Append(new StringBuilder(), coloredText).ToString();
+        public static string GetString(ColoredText coloredText) =>
+            Append(new StringBuilder(), coloredText).ToString();
 
         public static StringBuilder Append(StringBuilder sb, ColoredText coloredText)
         {
@@ -35,16 +36,16 @@ namespace Components.External.ConsolePlus
             {
                 if (coloredText.ForegroundRgb != null)
                 {
-                    sb.Append(VT100.Foreground(coloredText.ForegroundRgb));
+                    sb.Append(Foreground(coloredText.ForegroundRgb));
                 }
 
                 if (coloredText.BackgroundRgb != null)
                 {
-                    sb.Append(VT100.Background(coloredText.BackgroundRgb));
+                    sb.Append(Background(coloredText.BackgroundRgb));
                 }
 
                 sb.Append(coloredText.Text);
-                sb.Append(VT100.Reset);
+                sb.Append(Reset);
             }
             else
             {
@@ -54,23 +55,20 @@ namespace Components.External.ConsolePlus
             return sb;
         }
 
-        public static string Rgb(bool bg, byte r, byte g, byte b)
-        {
-            return string.Format(
-                "\x1b[{0}8;2;{1};{2};{3}m",
-                bg ? 4 : 3,
-                r,
-                g,
-                b);
-        }
+        public static string Rgb(bool bg, byte r, byte g, byte b) =>
+            $"\x1b[{(bg ? 4 : 3)}8;2;{r};{g};{b}m";
 
-        public static string Foreground(byte[] rgb) => Rgb(false, rgb[0], rgb[1], rgb[2]);
+        public static string Foreground(byte[] rgb) =>
+            Rgb(false, rgb[0], rgb[1], rgb[2]);
 
-        public static string Foreground(byte r, byte g, byte b) => Rgb(false, r, g, b);
+        public static string Foreground(byte r, byte g, byte b) =>
+            Rgb(false, r, g, b);
 
-        public static string Background(byte[] rgb) => Rgb(true, rgb[0], rgb[1], rgb[2]);
+        public static string Background(byte[] rgb) =>
+            Rgb(true, rgb[0], rgb[1], rgb[2]);
 
-        public static string Background(byte r, byte g, byte b) => Rgb(true, r, g, b);
+        public static string Background(byte r, byte g, byte b) =>
+            Rgb(true, r, g, b);
 
         public static bool TryEnable()
         {
@@ -134,10 +132,10 @@ namespace Components.External.ConsolePlus
                     x.Key[2])
                 .Select(x => string.Format(
                     "{0}{1}{2}{3}",
-                    VT100.Foreground(x.Key),
+                    Foreground(x.Key),
                     background ? LogBackground(x.Key) : "",
                     x.Value,
-                    VT100.Reset))
+                    Reset))
                 .Join(" ");
 
             Console.WriteLine(str);
@@ -145,7 +143,7 @@ namespace Components.External.ConsolePlus
 
         private static string LogBackground(byte[] background)
         {
-            var bg = VT100.Background(
+            var bg = Background(
                 (byte)~background[0],
                 (byte)~background[1],
                 (byte)~background[2]);
@@ -188,15 +186,15 @@ namespace Components.External.ConsolePlus
                 for (var i = 0; i < 255; i++)
                 {
                     Console.Write(
-                        VT100.Background((byte)i, 0, (byte)(0xff - i)) +
-                        VT100.Foreground((byte)(0xff - i), 0, (byte)i) + nextChar().ToString());
+                        Background((byte)i, 0, (byte)(0xff - i)) +
+                        Foreground((byte)(0xff - i), 0, (byte)i) + nextChar().ToString());
                 }
 
                 for (var i = 0; i < 255; i++)
                 {
                     Console.Write(
-                        VT100.Background((byte)(0xff - i), 0, (byte)i) +
-                        VT100.Foreground((byte)i, 0, (byte)(0xff - i)) + nextChar().ToString());
+                        Background((byte)(0xff - i), 0, (byte)i) +
+                        Foreground((byte)i, 0, (byte)(0xff - i)) + nextChar().ToString());
                 }
             }
 

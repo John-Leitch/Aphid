@@ -36,5 +36,21 @@
 
             ret c.NextValue();
         },
+
+        getProcs: @()
+            "SELECT ProcessId, ParentProcessId, Name, CommandLine FROM Win32_Process"
+            |> wmi.query,
+
+        getProcsLike: @(nameLike)
+            nameLike.Replace("'", "\\'")
+            @format("SELECT ProcessId, ParentProcessId, Name, CommandLine FROM Win32_Process WHERE Name LIKE '{0}'")
+            |> wmi.query,
+
+        getProcCommandsLike: @(nameLike)
+            nameLike.Replace("'", "\\'")
+            @format("SELECT ProcessId, ParentProcessId, Name, CommandLine FROM Win32_Process WHERE CommandLine LIKE '{0}'")
+            |> wmi.query,
+
+        getProcCommands: @() getProcs()->@.CommandLine,
     };
 }();

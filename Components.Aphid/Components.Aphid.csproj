@@ -129,14 +129,13 @@
     <TargetFrameworkProfile />
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <!--                                -->
   <!-- DEBUG                          -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
   </PropertyGroup>
@@ -146,12 +145,10 @@
   <!-- RELEASE                        -->
   <!--                                -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    <CodeAnalysisRuleSet>Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <!--                                -->
   <!-- APHID SCRIPT DEBUG             -->
@@ -308,6 +305,7 @@
     <Compile Include="Interpreter\AphidExecutionContext`1.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Interpreter\AphidThread.cs" />
+    <Compile Include="Lexer\AphidToken.cs" />
     <Compile Include="Parser\AphidByteCode.cs" />
     <Compile Include="Parser\AphidDirective.cs" />
     <Compile Include="Parser\AphidExpressionBinder.cs" />
@@ -320,6 +318,7 @@
       <DependentUpon>ParserErrorMessageInterop.alx</DependentUpon>
     </Compile>
     <Compile Include="TypeSystem\ClrInterop\AphidInteropCallContext.cs" />
+    <Compile Include="TypeSystem\ClrInterop\InteropTypeContextExactComparer.cs" />
     <Compile Include="TypeSystem\ClrInterop\ParameterInfoCache.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeContext.cs" />
@@ -333,6 +332,7 @@
       <DependentUpon>AphidCliInterop.alx</DependentUpon>
     </Compile>
     <Compile Include="UI\AphidConfig.cs" />
+    <Compile Include="UI\AphidEvaluator.cs" />
     <Compile Include="UI\AphidReplInterop.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -342,6 +342,19 @@
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
     <Compile Include="UI\AphidSettings.cs" />
+    <Compile Include="UI\Colors\ColoredTextExtension.cs" />
+    <Compile Include="UI\Colors\ColoredTextInverter.cs" />
+    <Compile Include="UI\Colors\ColoredTextSaturator.cs" />
+    <Compile Include="UI\Formatters\CodeMarker.cs" />
+    <Compile Include="UI\Formatters\ErrorFormatter.cs" />
+    <Compile Include="UI\Formatters\ExcerptFormatter.cs" />
+    <Compile Include="UI\Formatters\FrameFormatter.cs" />
+    <Compile Include="UI\Formatters\LineNumberFormatter.cs" />
+    <Compile Include="UI\Formatters\LocalFormatter.cs" />
+    <Compile Include="UI\Formatters\MemberFilter.cs" />
+    <Compile Include="UI\Formatters\SerializingFormatter.cs" />
+    <Compile Include="UI\Formatters\SourcePositionFormatter.cs" />
+    <Compile Include="UI\Formatters\SyntaxHighlightingFormatter.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\AddTokenTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\CaseTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\LexicalAnalyzerTemplate.cs" />
@@ -644,6 +657,9 @@
     <None Include="Library\Core\Enums.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\System\Cryptography.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Testing\ClrTest.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -884,7 +900,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>  
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)Library\Meta\Code\Aphid\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs

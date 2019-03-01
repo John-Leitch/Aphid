@@ -10,11 +10,11 @@ var prepareCommand;
 
     var _tp = traceProcess defined && traceProcess ? print : @{ };
 
-    startProcess = @(exe, args, onLine) {
+    startProcess = @(exe, args, onLine, noWindow) {
         _tp('Starting process');
         var si = new ProcessStartInfo(exe, args);
         si.UseShellExecute = false;
-        si.CreateNoWindow = false;
+        si.CreateNoWindow = noWindow defined ? noWindow : false;
         si.RedirectStandardOutput = true;
         si.RedirectStandardError = true;
         var proc = Process.Start(si);
@@ -58,6 +58,18 @@ var prepareCommand;
 }();
 
 @ ~> (cmd, onLine) cmd |> prepareCommand @() startProcess($_[0], $_[1], onLine);
+
+@ <# (cmd, onLine) {
+    var sb = new StringBuilder();
+    
+    var proc = cmd
+        |> prepareCommand
+        @() startProcess($_[0], $_[1], sb.AppendLine, true);
+
+    proc.WaitForExit();
+
+    ret { proc, out: sb, exitCode: proc.ExitCode }
+};
 
 @ #> (cmd) {
     using System.Diagnostics;

@@ -33,7 +33,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>    
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -71,7 +71,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>    
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|x64'">
     <OutputPath>bin\x64\Release64\</OutputPath>
@@ -175,6 +175,7 @@
     </Compile>
     <Compile Include="Components\DynamicDataClassExtractor.cs" />
     <Compile Include="DebugHelper.cs" />
+    <Compile Include="DispatcherObjectExtension.cs" />
     <Compile Include="Internal\CodeCanvas.xaml.cs">
       <DependentUpon>CodeCanvas.xaml</DependentUpon>
     </Compile>
@@ -186,6 +187,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TaskExtension.cs" />
     <Compile Include="TextCell.cs" />
     <Compile Include="TextCellType.cs" />
     <Compile Include="ViewModels\ViewModels.cs">

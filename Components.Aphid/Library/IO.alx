@@ -18,3 +18,7 @@ io.dir.getDirs = @getFsos(io.dir.getDirsInternal);
 
 @ \ (lhs, rhs) Path.Combine(lhs, rhs);
 @ .\ (path) path |> Path.GetFullPath;
+
+_ob = macro(@(o) { Directory.GetFiles(path, pattern defined ? pattern : '*', SearchOption.o) });
+@ .* (path, pattern) _ob(TopDirectoryOnly);
+@ :* (path, pattern) _ob(AllDirectories);

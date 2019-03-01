@@ -325,7 +325,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AphidFramePushPopBenchmarks.cs" />
     <Compile Include="Legacy\ArgLockingMemoizer.cs" />
+    <Compile Include="MemoizerBenchmarks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

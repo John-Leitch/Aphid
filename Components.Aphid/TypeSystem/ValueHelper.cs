@@ -44,6 +44,8 @@ namespace Components.Aphid.TypeSystem
             return obj;
         }
 
+        //public static AphidObject Wrap(AphidObject obj) => obj ?? AphidObject.InternedNull;
+
         public static AphidObject Wrap(object obj)
         {
             if (obj is AphidObject aphidObj)

@@ -16,18 +16,18 @@ namespace Components.PInvoke
         TOKEN_ADJUST_GROUPS = 0x0040,
         TOKEN_ADJUST_DEFAULT = 0x0080,
         TOKEN_ADJUST_SESSIONID = 0x0100,
-        TOKEN_READ = TokenAccess.STANDARD_RIGHTS_READ | TokenAccess.TOKEN_QUERY,
+        TOKEN_READ = STANDARD_RIGHTS_READ | TOKEN_QUERY,
 
         TOKEN_ALL_ACCESS =
-            TokenAccess.STANDARD_RIGHTS_REQUIRED |
-            TokenAccess.TOKEN_ASSIGN_PRIMARY |
-            TokenAccess.TOKEN_DUPLICATE |
-            TokenAccess.TOKEN_IMPERSONATE |
-            TokenAccess.TOKEN_QUERY |
-            TokenAccess.TOKEN_QUERY_SOURCE |
-            TokenAccess.TOKEN_ADJUST_PRIVILEGES |
-            TokenAccess.TOKEN_ADJUST_GROUPS |
-            TokenAccess.TOKEN_ADJUST_DEFAULT |
-            TokenAccess.TOKEN_ADJUST_SESSIONID
+            STANDARD_RIGHTS_REQUIRED |
+            TOKEN_ASSIGN_PRIMARY |
+            TOKEN_DUPLICATE |
+            TOKEN_IMPERSONATE |
+            TOKEN_QUERY |
+            TOKEN_QUERY_SOURCE |
+            TOKEN_ADJUST_PRIVILEGES |
+            TOKEN_ADJUST_GROUPS |
+            TOKEN_ADJUST_DEFAULT |
+            TOKEN_ADJUST_SESSIONID
     }
 }

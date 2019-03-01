@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Components.Aphid.Library
 {
-    [AphidLibraryAttribute("standard")]
+    [AphidLibrary("standard")]
     public static class StandardLibrary
     {
         public static Encoding Encoding = Encoding.GetEncoding("iso-8859-1");

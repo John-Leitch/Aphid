@@ -9,7 +9,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using static Components.External.ConsolePlus.Cli;
 
 namespace Components.Aphid.Debugging
 {
@@ -94,7 +96,86 @@ namespace Components.Aphid.Debugging
             if (exit)
             {
                 Environment.Exit(0xbad02);
+                
+                var tid = Thread.CurrentThread.ManagedThreadId;
+                var ignoreTids = new[] { tid, 0 };
+
+                WriteInfoMessage(
+                    "[Threads~Cyan~{0:x4}~R~] Delaying termination to search for other error reports.",
+                    tid);
+
+                //ThreadPool.QueueUserWorkItem(x =>
+                //{
+                    ignoreTids[1] = Thread.CurrentThread.ManagedThreadId;
+
+                    var p = Process.GetCurrentProcess();
+
+                    while (true)
+                    {
+                        Thread.Sleep(1000);
+
+                        WriteQueryMessage(
+                            "[Threads~Cyan~{0:x4}~R~] Checking for other exception reporting threads",
+                            tid);
+
+                        if (HasSaveThreads(p, ignoreTids))
+                        {
+                            WriteMessage(
+                                ConsoleColor.Yellow,
+                                '!', 
+                                "[Thread ~Cyan~{0:x4}~R~] Found other threads",
+                                tid);
+
+                            Thread.Sleep(1000);
+                            p.Refresh();
+                        }
+                        else
+                        {
+                            WriteQueryMessage(
+                                "[Threads~Cyan~{0:x4}~R~] No error reports found, exiting",
+                                tid);
+
+                            break;
+                        }
+                    }
+                    //..GetFrames()->@()$_.GetMethod().ToString()
+                    
+                    Environment.Exit(0xbad02);
+                //});
+
             }
+        }
+
+        private static bool HasSaveThreads(Process p, int[] ignoreTids)
+        {
+            return p.Threads
+                .OfType<Thread>()
+                .Member(y => y.ManagedThreadId)                
+                .Not(ignoreTids.Contains)
+                .Select(y =>
+                {
+                    try
+                    {
+                        y.Suspend();
+
+                        return new StackTrace(y, true)
+                            .GetFrames()
+                            .Select(z => z.GetMethod().ToString())
+                            .Reverse()
+                            .ToArray();
+                    }
+                    finally
+                    {
+                        y.Resume();
+                    }
+
+                    return null;
+                })
+                .ExceptNull()
+                .WhereAny(y => y.Contains("AphidErrorReporter.SaveException"))
+                .Any(y => y
+                    .SkipWhile(z => !z.Contains("AphidErrorReporter.SaveException"))
+                    .None(z => z.Contains("QueueUserWorkItem")));
         }
 
         private static void SaveExceptionLogs(Exception exception, AphidInterpreter interpreter, int number, string dumpFile)
@@ -109,13 +190,13 @@ namespace Components.Aphid.Debugging
 
             AphidCli.WriteOut = x =>
             {
-                sb.Append(Cli.EraseStyles(x));
+                sb.Append(EraseStyles(x));
                 writeOut(x);
             };
 
             AphidCli.WriteLineOut = x =>
             {
-                sb.AppendLine(Cli.EraseStyles(x));
+                sb.AppendLine(EraseStyles(x));
                 writeLineOut(x);
             };
 

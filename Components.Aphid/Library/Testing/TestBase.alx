@@ -1,5 +1,5 @@
-﻿using Components.Aphid.Tests.Integration;
-using Components.Aphid.Tests.Integration.Shared;
+﻿using Components.Aphid.UnitTests;
+using Components.Aphid.UnitTests.Shared;
 
 var global = this;
 var lastException = null;

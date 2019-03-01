@@ -24,13 +24,13 @@ namespace Components.Aphid.Parser
 
         public string Filename { get; set; }
 
-        public AphidParserException(AphidToken unexpectedToken)
+        public AphidParserException(in AphidToken unexpectedToken)
         {
             UnexpectedToken = unexpectedToken;
             _message = CreateUnexpectedMessage(unexpectedToken) + ".";
         }
 
-        public AphidParserException(AphidToken unexpectedToken, AphidTokenType expectedToken)
+        public AphidParserException(in AphidToken unexpectedToken, AphidTokenType expectedToken)
         {
             UnexpectedToken = unexpectedToken;
             ExpectedToken = expectedToken;
@@ -76,7 +76,7 @@ namespace Components.Aphid.Parser
         {
         }
 
-        private static string CreateUnexpectedMessage(AphidToken token)
+        private static string CreateUnexpectedMessage(in AphidToken token)
         {
             return string.Format(
                 "Unexpected {0} ({1}) at offset {2}",

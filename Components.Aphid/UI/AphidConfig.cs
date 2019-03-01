@@ -33,6 +33,7 @@ namespace Components.Aphid.UI
             _ignoreDebugger = GetBool(AS.IgnoreDebugger, false);
 
         private readonly LI
+            _stackTraceParamsMax = GetInt32(AS.StackTraceParamsMax, 100),
             _frameExcerptsMax = GetInt32(AS.FrameExcerptsMax, 4),
             _frameExcerptLines = GetInt32(AS.FrameExcerptLines, 12);
 
@@ -43,6 +44,7 @@ namespace Components.Aphid.UI
         public bool StrictMode => _strictMode.Value;
         public bool SaveErrors => _saveErrors.Value;
         public bool StackTraceParams => _stackTraceParams.Value;
+        public int StackTraceParamsMax => _stackTraceParamsMax.Value;
         public bool ShowErrorExpression => _showErrorExpression.Value;
         public bool ShowErrorStatement => _showErrorStatement.Value;
         public bool ShowErrorFrameExcerpts => _showErrorFrameExcerpts.Value;

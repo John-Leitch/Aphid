@@ -5,7 +5,7 @@
     using System.IO;
 
     categories = ['Info', 'Query', 'Success', 'Error', 'CriticalError' ];
-    (1..8 -> @(c) (['object ', ''] -> @(n) (0..c -> @format('{0}arg{1}', n)) @join(', ')))
+    (1..8 -> @(c) (['object ', ''] -> @(n) (0..c -> @format('{0}arg{1}', n)) @String.Join(', ')))
     @(args) { %>
     
     namespace Components.External.ConsolePlus

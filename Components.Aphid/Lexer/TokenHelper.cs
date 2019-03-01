@@ -147,7 +147,7 @@ namespace Components.Aphid.Lexer
 
         public static int[][] GetBraces(string text, int line, int col)
         {
-            var index = TokenHelper.GetIndex(text, line, col);
+            var index = GetIndex(text, line, col);
             var str = text.Substring(index);
             var tokens = new AphidLexer(str).GetTokens();
             var startBrace = tokens[0].TokenType;
@@ -202,7 +202,7 @@ namespace Components.Aphid.Lexer
 
                 if (rightBraceIndex != -1)
                 {
-                    var rightLineCol = TokenHelper.GetIndexPosition(text, rightBraceIndex);
+                    var rightLineCol = GetIndexPosition(text, rightBraceIndex);
 
                     return new[]
                     {
@@ -238,7 +238,7 @@ namespace Components.Aphid.Lexer
 
                 if (leftBraceIndex != -1)
                 {
-                    var leftLineCol = TokenHelper.GetIndexPosition(text, leftBraceIndex);
+                    var leftLineCol = GetIndexPosition(text, leftBraceIndex);
 
                     return new[]
                     {
@@ -255,7 +255,7 @@ namespace Components.Aphid.Lexer
             return null;
         }
 
-        public static string GetCodeExcerpt(string code, AphidToken token, int surroundingLines = 4) => GetCodeExcerpt(code, token.Index, surroundingLines);
+        public static string GetCodeExcerpt(string code, in AphidToken token, int surroundingLines = 4) => GetCodeExcerpt(code, token.Index, surroundingLines);
 
         public static string GetCodeExcerpt(string code, int index, int surroundingLines = 4)
         {

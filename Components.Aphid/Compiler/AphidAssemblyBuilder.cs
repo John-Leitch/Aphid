@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Components.Aphid.Compiler
@@ -26,28 +27,38 @@ namespace Components.Aphid.Compiler
 
         private HashSet<string> _types = new HashSet<string>();
 
+        private ReaderWriterLockSlim _importsLock;
+
         public string AssemblyName { get; private set; }
 
         public string AssemblyFilename { get; private set; }
 
         public AssemblyBuilder Assembly { get; private set; }
 
-        public AphidAssemblyBuilder(AphidInterpreter interpreter)
-            : this(interpreter, $"AphidModule_{Guid.NewGuid().ToString()}")
+        public AphidAssemblyBuilder(AphidInterpreter interpreter, ReaderWriterLockSlim importsLock)
+            : this(interpreter, $"AphidModule_{Guid.NewGuid().ToString()}", importsLock)
         {
         }
 
-        public AphidAssemblyBuilder(AphidInterpreter interpreter, string assemblyName)
-            : this(interpreter, assemblyName, $"{assemblyName}.dll")
+        public AphidAssemblyBuilder(
+            AphidInterpreter interpreter,
+            string assemblyName,
+            ReaderWriterLockSlim importsLock)
+            : this(interpreter, assemblyName, $"{assemblyName}.dll", importsLock)
         {
         }
 
-        public AphidAssemblyBuilder(AphidInterpreter interpreter, string assemblyName, string assemblyFilename)
+        public AphidAssemblyBuilder(
+            AphidInterpreter interpreter,
+            string assemblyName,
+            string assemblyFilename,
+            ReaderWriterLockSlim importsLock)
             : base(interpreter)
         {
             AssemblyName = assemblyName;
             AssemblyFilename = assemblyFilename;
             SetModuleBuilder(AssemblyBuilderAccess.Run);
+            _importsLock = importsLock;
         }
 
         public void SetAssemblyFile(
@@ -232,11 +243,23 @@ namespace Components.Aphid.Compiler
         private Type ResolveBaseType(string name)
         {
             var resolver = Interpreter.InteropTypeResolver;
+            var path = new[] { name };
+            Type type;
 
-            var type = resolver.TryResolveType(
-                Interpreter.GetImports(),
-                new[] { name },
-                isType: true);
+            //_importsLock.EnterReadLock();
+
+            //try
+            //{
+                type = resolver.TryResolveType(
+                    Interpreter.GetImports(),
+                    _importsLock,
+                    path,
+                    isType: true);
+            //}
+            //finally
+            //{
+            //    _importsLock.ExitReadLock();
+            //}
 
             return type;
         }
@@ -307,6 +330,7 @@ namespace Components.Aphid.Compiler
             {
                 return Interpreter.InteropTypeResolver.ResolveType(
                     imports,
+                    _importsLock,
                     new[] { InteropTypeResolver.Unalias(defaultType) },
                     isType: true);
             }
@@ -316,6 +340,7 @@ namespace Components.Aphid.Compiler
 
             var t = Interpreter.InteropTypeResolver.ResolveType(
                 imports,
+                _importsLock,
                 new[] { InteropTypeResolver.Unalias(scanner.CurrentAttribute) },
                 isType: true);
 

@@ -213,6 +213,43 @@ namespace Components.Aphid.Parser
                 ),
                 new UnaryOperatorExpression(
                     AphidTokenType.usingKeyword,
+                    new BinaryOperatorExpression(
+                        new BinaryOperatorExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "Components",
+                                    new List<IdentifierExpression>
+                                    {
+                                    }
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "Aphid",
+                                    new List<IdentifierExpression>
+                                    {
+                                    }
+                                )
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "UI",
+                                new List<IdentifierExpression>
+                                {
+                                }
+                            )
+                        ),
+                        AphidTokenType.MemberOperator,
+                        new IdentifierExpression(
+                            "Formatters",
+                            new List<IdentifierExpression>
+                            {
+                            }
+                        )
+                    ),
+                    false
+                ),
+                new UnaryOperatorExpression(
+                    AphidTokenType.usingKeyword,
                     new IdentifierExpression(
                         "System",
                         new List<IdentifierExpression>
@@ -1389,7 +1426,7 @@ namespace Components.Aphid.Parser
                                         new List<AphidExpression>
                                         {
                                             new StringExpression(
-                                                "\" on line {0}, column {1}, \""
+                                                "\" on line {0:n0}, column {1:n0}, \""
                                             ),
                                             new BinaryOperatorExpression(
                                                 new BinaryOperatorExpression(
@@ -1476,7 +1513,7 @@ namespace Components.Aphid.Parser
                                 new List<AphidExpression>
                                 {
                                     new StringExpression(
-                                        "'offset {0} '"
+                                        "'offset {0:n0} '"
                                     ),
                                     new IdentifierExpression(
                                         "index",
@@ -1680,14 +1717,14 @@ namespace Components.Aphid.Parser
                                             new CallExpression(
                                                 new BinaryOperatorExpression(
                                                     new IdentifierExpression(
-                                                        "AphidCli",
+                                                        "SyntaxHighlightingFormatter",
                                                         new List<IdentifierExpression>
                                                         {
                                                         }
                                                     ),
                                                     AphidTokenType.MemberOperator,
                                                     new IdentifierExpression(
-                                                        "Highlight",
+                                                        "Format",
                                                         new List<IdentifierExpression>
                                                         {
                                                         }

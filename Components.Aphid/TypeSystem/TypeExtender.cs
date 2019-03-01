@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Components.Aphid.TypeSystem
 {
@@ -21,10 +22,11 @@ namespace Components.Aphid.TypeSystem
             _typesCtorExtended = new HashSet<string>(),
             _typesDynamicallyExtended = new HashSet<string>();
 
-        public TypeExtender(AphidInterpreter interpreter)
-            : base(interpreter)
-        {
-        }
+        private ReaderWriterLockSlim _importsLock;
+
+        public TypeExtender(AphidInterpreter interpreter, ReaderWriterLockSlim importsLock)
+            : base(interpreter) =>
+            _importsLock = importsLock;
 
         public static string GetCtorName(string type) => "$ext." + type + ".$ctor";
 
@@ -193,10 +195,22 @@ namespace Components.Aphid.TypeSystem
         {
             if (AphidAlias.Resolve(type) == null)
             {
-                var interopType = Interpreter.InteropTypeResolver.ResolveType(
-                    Interpreter.GetImports(),
-                    new[] { type },
-                    isType: true);
+                var path = new[] { type };
+                Type interopType;
+                //_importsLock.EnterReadLock();
+
+                //try
+                //{
+                    interopType = Interpreter.InteropTypeResolver.ResolveType(
+                        Interpreter.GetImports(),
+                        _importsLock,
+                        path,
+                        isType: true);
+                //}
+                //finally
+                //{
+                //    _importsLock.ExitReadLock();
+                //}
 
                 if (attributes != null)
                 {

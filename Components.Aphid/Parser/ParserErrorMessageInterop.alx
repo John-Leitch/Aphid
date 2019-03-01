@@ -1,6 +1,7 @@
 ﻿using Components.Aphid.Parser;
 using Components.Aphid.Lexer;
 using Components.Aphid.UI;
+using Components.Aphid.UI.Formatters;
 using System;
 using System.Text;
 
@@ -59,14 +60,14 @@ _a(PositionAndExcerpt) = @(StringBuilder sb, string code, int index, bool highli
 _a(Position) = @(StringBuilder sb, string code, int index, bool highlight) {
     if ((var line = TokenHelper.GetIndexPosition(code, index)) != null) {
         sb.AppendFormat(
-            " on line {0}, column {1}, ",
+            " on line {0:n0}, column {1:n0}, ",
             line.Item1 + 1,
             line.Item2);
     } else {
         sb.Append('at ');
     }
     
-    sb.AppendFormat('offset {0} ', index);
+    sb.AppendFormat('offset {0:n0} ', index);
 
     ret sb;
 };
@@ -76,5 +77,5 @@ _a(Excerpt) = @(StringBuilder sb, string code, int index, bool highlight) {
 
     ret String.IsNullOrEmpty(e) ?
         sb :        
-        ((highlight ? AphidCli.Highlight(e) : e) @sb.AppendFormat('\r\n\r\n{0}\r\n'));
+        ((highlight ? SyntaxHighlightingFormatter.Format(e) : e) @sb.AppendFormat('\r\n\r\n{0}\r\n'));
 }

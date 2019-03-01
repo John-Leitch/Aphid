@@ -37,31 +37,81 @@ namespace Components.Aphid.TypeSystem
 
         private TResult GetResult<TResult>(AphidObject result)
         {
-            Type t;
-
-            if ((result == null || (result.IsScalar && result.Value == null)) &&
-                typeof(TResult).IsClass)
+            if (result == null)
             {
-                return (TResult)(object)null;
+                return default;
             }
-            else if (typeof(TResult).IsAssignableFrom(t = result.Value.GetType()))
+            else if (result.IsScalar)
             {
-                return (TResult)result.Value;
-            }
-            else if (result.IsComplex && (t.GetConstructor(new Type[0])).IsPublic)
-            {
-                var obj = Activator.CreateInstance(t);
-                result.Bind(obj, true);
+                object value;
 
-                return (TResult)obj;
+                if ((value = result.Value) == null)
+                {
+                    return default;
+                }
+                else if (typeof(TResult).IsAssignableFrom(value.GetType()))
+                {
+                    return (TResult)value;
+                }
+                else if (typeof(TResult) == typeof(AphidObject))
+                {
+                    return (TResult)(object)result;
+                }
+                else
+                {
+                    throw Interpreter.CreateRuntimeException(
+                        "Could not convert return value from {0} to {1}",
+                        Interpreter.GetStackTrace()[0].Name,
+                        typeof(TResult));
+                }
             }
             else
             {
-                throw Interpreter.CreateRuntimeException(
-                    "Could not convert return value from {0} to {1}",
-                    Interpreter.GetStackTrace()[0].Name,
-                    typeof(TResult));
+                if (typeof(TResult) == typeof(AphidObject))
+                {
+                    return (TResult)(object)result;
+                }
+                else if (typeof(TResult).GetConstructor(new Type[0]).IsPublic)
+                {
+                    var obj = Activator.CreateInstance<TResult>();
+                    result.Bind(obj, true);
+
+                    return obj;
+                }
+                else
+                {
+                    throw Interpreter.CreateRuntimeException(
+                        "Could not convert return value from {0} to {1}",
+                        Interpreter.GetStackTrace()[0].Name,
+                        typeof(TResult));
+                }
             }
+
+            
+
+            //if ((result == null || (result.IsScalar && result.Value == null)) &&
+            //    typeof(TResult).IsClass)
+            //{
+            //    return (TResult)(object)null;
+            //}
+            //else if (typeof(TResult).IsAssignableFrom(t = result.Value.GetType()))
+            //{
+            //    return (TResult)result.Value;
+            //}
+            //else if (result.IsComplex && (t.GetConstructor(new Type[0])).IsPublic)
+            //{
+            //    var obj = Activator.CreateInstance(t);
+            //    result.Bind(obj, true);
+
+            //    return (TResult)obj;
+            //}
+            //else
+            //{
+            //    throw Interpreter.CreateRuntimeException(
+            //        "Could not convert return value from {0} to {1}",
+            //        Interpreter.GetStackTrace()[0].Name,
+            //        typeof(TResult));
+            //}
         }
     }
 }

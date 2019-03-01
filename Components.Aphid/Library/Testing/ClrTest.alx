@@ -7,11 +7,11 @@ var arch = Assembly
     .GetName()
     .ProcessorArchitecture;
 
-var testDll = 'Components.Aphid.Tests.Integration.dll';
+var testDll = 'Components.Aphid.UnitTests.dll';
 
 var asm = 
     0..10
-    ->(@()'dir {0}Components.Aphid.Tests.Integration/bin/*/{1} -r' :: [ $_ * '../', testDll ])
+    ->(@()'dir {0}Components.Aphid.UnitTests/bin/*/{1} -r' :: [ $_ * '../', testDll ])
     -<psContext.exec
     -/@.LastWriteTime
     ->@.FullName

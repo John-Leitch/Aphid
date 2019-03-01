@@ -2714,7 +2714,7 @@ namespace Components.Aphid.Parser
             var expressionSequence = new System.Collections.Generic.List<AphidExpression>();
             NextToken();
             for (
-            ; ((_currentToken.TokenType == AphidTokenType.None)
+            ; ((CurrentToken.TokenType == AphidTokenType.None)
                         == false);
             )
             {
@@ -2726,199 +2726,199 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseStatement()
         {
             AphidExpression exp = default(AphidExpression);
-            if ((_currentToken.TokenType == AphidTokenType.ifKeyword))
+            if ((CurrentToken.TokenType == AphidTokenType.ifKeyword))
             {
-                var index0000 = _currentToken.Index;
+                var index0000 = CurrentToken.Index;
                 exp = ParseIfExpression();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index0000;
-                    exp.Length = (_currentToken.Index - index0000);
+                    exp.Length = (CurrentToken.Index - index0000);
                 }
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.forKeyword))
+                if ((CurrentToken.TokenType == AphidTokenType.forKeyword))
                 {
-                    var index0001 = _currentToken.Index;
+                    var index0001 = CurrentToken.Index;
                     exp = ParseForExpression();
                     if ((exp.Index < 0))
                     {
                         exp.Index = index0001;
-                        exp.Length = (_currentToken.Index - index0001);
+                        exp.Length = (CurrentToken.Index - index0001);
                     }
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.whileKeyword))
+                    if ((CurrentToken.TokenType == AphidTokenType.whileKeyword))
                     {
-                        var index0002 = _currentToken.Index;
+                        var index0002 = CurrentToken.Index;
                         exp = ParseWhileExpression();
                         if ((exp.Index < 0))
                         {
                             exp.Index = index0002;
-                            exp.Length = (_currentToken.Index - index0002);
+                            exp.Length = (CurrentToken.Index - index0002);
                         }
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.doKeyword))
+                        if ((CurrentToken.TokenType == AphidTokenType.doKeyword))
                         {
-                            var index0003 = _currentToken.Index;
+                            var index0003 = CurrentToken.Index;
                             exp = ParseDoWhileExpression();
                             if ((exp.Index < 0))
                             {
                                 exp.Index = index0003;
-                                exp.Length = (_currentToken.Index - index0003);
+                                exp.Length = (CurrentToken.Index - index0003);
                             }
                             if (true)
                             {
-                                if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                if ((CurrentToken.TokenType == AphidTokenType.EndOfStatement))
                                 {
                                     NextToken();
                                 }
                                 else
                                 {
-                                    if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                    if ((((CurrentToken.TokenType == AphidTokenType.RightBrace)
                                                 == false)
-                                                && ((_currentToken.TokenType == AphidTokenType.None)
+                                                && ((CurrentToken.TokenType == AphidTokenType.None)
                                                 == false)))
                                     {
-                                        throw new AphidParserException(_currentToken);
+                                        throw new AphidParserException(CurrentToken);
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            if ((_currentToken.TokenType == AphidTokenType.extendKeyword))
+                            if ((CurrentToken.TokenType == AphidTokenType.extendKeyword))
                             {
-                                var index0004 = _currentToken.Index;
+                                var index0004 = CurrentToken.Index;
                                 exp = ParseExtendExpression();
                                 if ((exp.Index < 0))
                                 {
                                     exp.Index = index0004;
-                                    exp.Length = (_currentToken.Index - index0004);
+                                    exp.Length = (CurrentToken.Index - index0004);
                                 }
                             }
                             else
                             {
-                                if ((_currentToken.TokenType == AphidTokenType.tryKeyword))
+                                if ((CurrentToken.TokenType == AphidTokenType.tryKeyword))
                                 {
-                                    var index0005 = _currentToken.Index;
+                                    var index0005 = CurrentToken.Index;
                                     exp = ParseTryExpression();
                                     if ((exp.Index < 0))
                                     {
                                         exp.Index = index0005;
-                                        exp.Length = (_currentToken.Index - index0005);
+                                        exp.Length = (CurrentToken.Index - index0005);
                                     }
                                 }
                                 else
                                 {
-                                    if ((_currentToken.TokenType == AphidTokenType.switchKeyword))
+                                    if ((CurrentToken.TokenType == AphidTokenType.switchKeyword))
                                     {
-                                        var index0006 = _currentToken.Index;
+                                        var index0006 = CurrentToken.Index;
                                         exp = ParseSwitchExpression();
                                         if ((exp.Index < 0))
                                         {
                                             exp.Index = index0006;
-                                            exp.Length = (_currentToken.Index - index0006);
+                                            exp.Length = (CurrentToken.Index - index0006);
                                         }
                                     }
                                     else
                                     {
-                                        if ((_currentToken.TokenType == AphidTokenType.usingKeyword))
+                                        if ((CurrentToken.TokenType == AphidTokenType.usingKeyword))
                                         {
-                                            var index0007 = _currentToken.Index;
+                                            var index0007 = CurrentToken.Index;
                                             exp = ParseUsingExpression();
                                             if ((exp.Index < 0))
                                             {
                                                 exp.Index = index0007;
-                                                exp.Length = (_currentToken.Index - index0007);
+                                                exp.Length = (CurrentToken.Index - index0007);
                                             }
                                         }
                                         else
                                         {
-                                            if ((_currentToken.TokenType == AphidTokenType.lockKeyword))
+                                            if ((CurrentToken.TokenType == AphidTokenType.lockKeyword))
                                             {
-                                                var index0008 = _currentToken.Index;
+                                                var index0008 = CurrentToken.Index;
                                                 exp = ParseLockExpression();
                                                 if ((exp.Index < 0))
                                                 {
                                                     exp.Index = index0008;
-                                                    exp.Length = (_currentToken.Index - index0008);
+                                                    exp.Length = (CurrentToken.Index - index0008);
                                                 }
                                             }
                                             else
                                             {
-                                                if ((_currentToken.TokenType == AphidTokenType.Text))
+                                                if ((CurrentToken.TokenType == AphidTokenType.Text))
                                                 {
-                                                    var index0009 = _currentToken.Index;
+                                                    var index0009 = CurrentToken.Index;
                                                     exp = ParseTextExpression();
                                                     if ((exp.Index < 0))
                                                     {
                                                         exp.Index = index0009;
-                                                        exp.Length = (_currentToken.Index - index0009);
+                                                        exp.Length = (CurrentToken.Index - index0009);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    if ((_currentToken.TokenType == AphidTokenType.GatorOpenOperator))
+                                                    if ((CurrentToken.TokenType == AphidTokenType.GatorOpenOperator))
                                                     {
                                                         exp = new GatorOpenExpression(this._context);
                                                         NextToken();
                                                     }
                                                     else
                                                     {
-                                                        if ((_currentToken.TokenType == AphidTokenType.GatorCloseOperator))
+                                                        if ((CurrentToken.TokenType == AphidTokenType.GatorCloseOperator))
                                                         {
                                                             exp = new GatorCloseExpression(this._context);
                                                             NextToken();
                                                         }
                                                         else
                                                         {
-                                                            if ((_currentToken.TokenType == AphidTokenType.GatorEmitOperator))
+                                                            if ((CurrentToken.TokenType == AphidTokenType.GatorEmitOperator))
                                                             {
-                                                                var index000A = _currentToken.Index;
+                                                                var index000A = CurrentToken.Index;
                                                                 exp = ParseGatorEmitExpression();
                                                                 if ((exp.Index < 0))
                                                                 {
                                                                     exp.Index = index000A;
-                                                                    exp.Length = (_currentToken.Index - index000A);
+                                                                    exp.Length = (CurrentToken.Index - index000A);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                var index000B = _currentToken.Index;
+                                                                var index000B = CurrentToken.Index;
                                                                 exp = ParseExpression();
                                                                 if ((exp.Index < 0))
                                                                 {
                                                                     exp.Index = index000B;
-                                                                    exp.Length = (_currentToken.Index - index000B);
+                                                                    exp.Length = (CurrentToken.Index - index000B);
                                                                 }
                                                                 if (true)
                                                                 {
                                                                     for (
-                                                                    ; (_currentToken.TokenType == AphidTokenType.Comma);
+                                                                    ; (CurrentToken.TokenType == AphidTokenType.Comma);
                                                                     )
                                                                     {
                                                                         NextToken();
                                                                         exp = new BinaryOperatorExpression(this._context, exp, AphidTokenType.Comma, ParseExpression());
                                                                     }
                                                                 }
-                                                                if ((_currentToken.TokenType == AphidTokenType.forKeyword))
+                                                                if ((CurrentToken.TokenType == AphidTokenType.forKeyword))
                                                                 {
                                                                     NextToken();
                                                                     IdentifierExpression id = default(IdentifierExpression);
-                                                                    if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+                                                                    if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
                                                                     {
                                                                         NextToken();
-                                                                        var index000C = _currentToken.Index;
+                                                                        var index000C = CurrentToken.Index;
                                                                         id = ParseIdentifierExpression();
                                                                         if ((id.Index < 0))
                                                                         {
                                                                             id.Index = index000C;
-                                                                            id.Length = (_currentToken.Index - index000C);
+                                                                            id.Length = (CurrentToken.Index - index000C);
                                                                         }
                                                                         Match(AphidTokenType.RightParenthesis);
                                                                     }
@@ -2926,18 +2926,18 @@ namespace Components.Aphid.Parser
                                                                 }
                                                                 if (true)
                                                                 {
-                                                                    if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                                                    if ((CurrentToken.TokenType == AphidTokenType.EndOfStatement))
                                                                     {
                                                                         NextToken();
                                                                     }
                                                                     else
                                                                     {
-                                                                        if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                                                        if ((((CurrentToken.TokenType == AphidTokenType.RightBrace)
                                                                                     == false)
-                                                                                    && ((_currentToken.TokenType == AphidTokenType.None)
+                                                                                    && ((CurrentToken.TokenType == AphidTokenType.None)
                                                                                     == false)))
                                                                         {
-                                                                            throw new AphidParserException(_currentToken);
+                                                                            throw new AphidParserException(CurrentToken);
                                                                         }
                                                                     }
                                                                 }
@@ -2960,199 +2960,199 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseSingleStatement()
         {
             AphidExpression exp = default(AphidExpression);
-            if ((_currentToken.TokenType == AphidTokenType.ifKeyword))
+            if ((CurrentToken.TokenType == AphidTokenType.ifKeyword))
             {
-                var index000D = _currentToken.Index;
+                var index000D = CurrentToken.Index;
                 exp = ParseIfExpression();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index000D;
-                    exp.Length = (_currentToken.Index - index000D);
+                    exp.Length = (CurrentToken.Index - index000D);
                 }
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.forKeyword))
+                if ((CurrentToken.TokenType == AphidTokenType.forKeyword))
                 {
-                    var index000E = _currentToken.Index;
+                    var index000E = CurrentToken.Index;
                     exp = ParseForExpression();
                     if ((exp.Index < 0))
                     {
                         exp.Index = index000E;
-                        exp.Length = (_currentToken.Index - index000E);
+                        exp.Length = (CurrentToken.Index - index000E);
                     }
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.whileKeyword))
+                    if ((CurrentToken.TokenType == AphidTokenType.whileKeyword))
                     {
-                        var index000F = _currentToken.Index;
+                        var index000F = CurrentToken.Index;
                         exp = ParseWhileExpression();
                         if ((exp.Index < 0))
                         {
                             exp.Index = index000F;
-                            exp.Length = (_currentToken.Index - index000F);
+                            exp.Length = (CurrentToken.Index - index000F);
                         }
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.doKeyword))
+                        if ((CurrentToken.TokenType == AphidTokenType.doKeyword))
                         {
-                            var index0010 = _currentToken.Index;
+                            var index0010 = CurrentToken.Index;
                             exp = ParseDoWhileExpression();
                             if ((exp.Index < 0))
                             {
                                 exp.Index = index0010;
-                                exp.Length = (_currentToken.Index - index0010);
+                                exp.Length = (CurrentToken.Index - index0010);
                             }
                             if (false)
                             {
-                                if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                if ((CurrentToken.TokenType == AphidTokenType.EndOfStatement))
                                 {
                                     NextToken();
                                 }
                                 else
                                 {
-                                    if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                    if ((((CurrentToken.TokenType == AphidTokenType.RightBrace)
                                                 == false)
-                                                && ((_currentToken.TokenType == AphidTokenType.None)
+                                                && ((CurrentToken.TokenType == AphidTokenType.None)
                                                 == false)))
                                     {
-                                        throw new AphidParserException(_currentToken);
+                                        throw new AphidParserException(CurrentToken);
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            if ((_currentToken.TokenType == AphidTokenType.extendKeyword))
+                            if ((CurrentToken.TokenType == AphidTokenType.extendKeyword))
                             {
-                                var index0011 = _currentToken.Index;
+                                var index0011 = CurrentToken.Index;
                                 exp = ParseExtendExpression();
                                 if ((exp.Index < 0))
                                 {
                                     exp.Index = index0011;
-                                    exp.Length = (_currentToken.Index - index0011);
+                                    exp.Length = (CurrentToken.Index - index0011);
                                 }
                             }
                             else
                             {
-                                if ((_currentToken.TokenType == AphidTokenType.tryKeyword))
+                                if ((CurrentToken.TokenType == AphidTokenType.tryKeyword))
                                 {
-                                    var index0012 = _currentToken.Index;
+                                    var index0012 = CurrentToken.Index;
                                     exp = ParseTryExpression();
                                     if ((exp.Index < 0))
                                     {
                                         exp.Index = index0012;
-                                        exp.Length = (_currentToken.Index - index0012);
+                                        exp.Length = (CurrentToken.Index - index0012);
                                     }
                                 }
                                 else
                                 {
-                                    if ((_currentToken.TokenType == AphidTokenType.switchKeyword))
+                                    if ((CurrentToken.TokenType == AphidTokenType.switchKeyword))
                                     {
-                                        var index0013 = _currentToken.Index;
+                                        var index0013 = CurrentToken.Index;
                                         exp = ParseSwitchExpression();
                                         if ((exp.Index < 0))
                                         {
                                             exp.Index = index0013;
-                                            exp.Length = (_currentToken.Index - index0013);
+                                            exp.Length = (CurrentToken.Index - index0013);
                                         }
                                     }
                                     else
                                     {
-                                        if ((_currentToken.TokenType == AphidTokenType.usingKeyword))
+                                        if ((CurrentToken.TokenType == AphidTokenType.usingKeyword))
                                         {
-                                            var index0014 = _currentToken.Index;
+                                            var index0014 = CurrentToken.Index;
                                             exp = ParseUsingExpression();
                                             if ((exp.Index < 0))
                                             {
                                                 exp.Index = index0014;
-                                                exp.Length = (_currentToken.Index - index0014);
+                                                exp.Length = (CurrentToken.Index - index0014);
                                             }
                                         }
                                         else
                                         {
-                                            if ((_currentToken.TokenType == AphidTokenType.lockKeyword))
+                                            if ((CurrentToken.TokenType == AphidTokenType.lockKeyword))
                                             {
-                                                var index0015 = _currentToken.Index;
+                                                var index0015 = CurrentToken.Index;
                                                 exp = ParseLockExpression();
                                                 if ((exp.Index < 0))
                                                 {
                                                     exp.Index = index0015;
-                                                    exp.Length = (_currentToken.Index - index0015);
+                                                    exp.Length = (CurrentToken.Index - index0015);
                                                 }
                                             }
                                             else
                                             {
-                                                if ((_currentToken.TokenType == AphidTokenType.Text))
+                                                if ((CurrentToken.TokenType == AphidTokenType.Text))
                                                 {
-                                                    var index0016 = _currentToken.Index;
+                                                    var index0016 = CurrentToken.Index;
                                                     exp = ParseTextExpression();
                                                     if ((exp.Index < 0))
                                                     {
                                                         exp.Index = index0016;
-                                                        exp.Length = (_currentToken.Index - index0016);
+                                                        exp.Length = (CurrentToken.Index - index0016);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    if ((_currentToken.TokenType == AphidTokenType.GatorOpenOperator))
+                                                    if ((CurrentToken.TokenType == AphidTokenType.GatorOpenOperator))
                                                     {
                                                         exp = new GatorOpenExpression(this._context);
                                                         NextToken();
                                                     }
                                                     else
                                                     {
-                                                        if ((_currentToken.TokenType == AphidTokenType.GatorCloseOperator))
+                                                        if ((CurrentToken.TokenType == AphidTokenType.GatorCloseOperator))
                                                         {
                                                             exp = new GatorCloseExpression(this._context);
                                                             NextToken();
                                                         }
                                                         else
                                                         {
-                                                            if ((_currentToken.TokenType == AphidTokenType.GatorEmitOperator))
+                                                            if ((CurrentToken.TokenType == AphidTokenType.GatorEmitOperator))
                                                             {
-                                                                var index0017 = _currentToken.Index;
+                                                                var index0017 = CurrentToken.Index;
                                                                 exp = ParseGatorEmitExpression();
                                                                 if ((exp.Index < 0))
                                                                 {
                                                                     exp.Index = index0017;
-                                                                    exp.Length = (_currentToken.Index - index0017);
+                                                                    exp.Length = (CurrentToken.Index - index0017);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                var index0018 = _currentToken.Index;
+                                                                var index0018 = CurrentToken.Index;
                                                                 exp = ParseExpression();
                                                                 if ((exp.Index < 0))
                                                                 {
                                                                     exp.Index = index0018;
-                                                                    exp.Length = (_currentToken.Index - index0018);
+                                                                    exp.Length = (CurrentToken.Index - index0018);
                                                                 }
                                                                 if (false)
                                                                 {
                                                                     for (
-                                                                    ; (_currentToken.TokenType == AphidTokenType.Comma);
+                                                                    ; (CurrentToken.TokenType == AphidTokenType.Comma);
                                                                     )
                                                                     {
                                                                         NextToken();
                                                                         exp = new BinaryOperatorExpression(this._context, exp, AphidTokenType.Comma, ParseExpression());
                                                                     }
                                                                 }
-                                                                if ((_currentToken.TokenType == AphidTokenType.forKeyword))
+                                                                if ((CurrentToken.TokenType == AphidTokenType.forKeyword))
                                                                 {
                                                                     NextToken();
                                                                     IdentifierExpression id = default(IdentifierExpression);
-                                                                    if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+                                                                    if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
                                                                     {
                                                                         NextToken();
-                                                                        var index0019 = _currentToken.Index;
+                                                                        var index0019 = CurrentToken.Index;
                                                                         id = ParseIdentifierExpression();
                                                                         if ((id.Index < 0))
                                                                         {
                                                                             id.Index = index0019;
-                                                                            id.Length = (_currentToken.Index - index0019);
+                                                                            id.Length = (CurrentToken.Index - index0019);
                                                                         }
                                                                         Match(AphidTokenType.RightParenthesis);
                                                                     }
@@ -3160,18 +3160,18 @@ namespace Components.Aphid.Parser
                                                                 }
                                                                 if (false)
                                                                 {
-                                                                    if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                                                                    if ((CurrentToken.TokenType == AphidTokenType.EndOfStatement))
                                                                     {
                                                                         NextToken();
                                                                     }
                                                                     else
                                                                     {
-                                                                        if ((((_currentToken.TokenType == AphidTokenType.RightBrace)
+                                                                        if ((((CurrentToken.TokenType == AphidTokenType.RightBrace)
                                                                                     == false)
-                                                                                    && ((_currentToken.TokenType == AphidTokenType.None)
+                                                                                    && ((CurrentToken.TokenType == AphidTokenType.None)
                                                                                     == false)))
                                                                         {
-                                                                            throw new AphidParserException(_currentToken);
+                                                                            throw new AphidParserException(CurrentToken);
                                                                         }
                                                                     }
                                                                 }
@@ -3202,28 +3202,28 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseAssignmentExpression()
         {
-            var index001A = _currentToken.Index;
+            var index001A = CurrentToken.Index;
             var operand = ParsePipelineExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index001A;
-                operand.Length = (_currentToken.Index - index001A);
+                operand.Length = (CurrentToken.Index - index001A);
             }
             for (
-            ; (((((((((((_currentToken.TokenType == AphidTokenType.AssignmentOperator)
-                        || (_currentToken.TokenType == AphidTokenType.PlusEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.MinusEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.MultiplicationEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.DivisionEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.ModulusEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.BinaryAndEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.OrEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.XorEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.ShiftLeftEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.ShiftRightEqualOperator));
+            ; (((((((((((CurrentToken.TokenType == AphidTokenType.AssignmentOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.PlusEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.MinusEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.MultiplicationEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.DivisionEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.ModulusEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.BinaryAndEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.OrEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.XorEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.ShiftLeftEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.ShiftRightEqualOperator));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParsePipelineExpression());
             }
@@ -3232,77 +3232,77 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParsePipelineExpression()
         {
-            var index001B = _currentToken.Index;
+            var index001B = CurrentToken.Index;
             var operand = ParseRangeExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index001B;
-                operand.Length = (_currentToken.Index - index001B);
+                operand.Length = (CurrentToken.Index - index001B);
             }
             var inPipeline = false;
             for (
             ; true;
             )
             {
-                if ((_currentToken.TokenType == AphidTokenType.PipelineOperator))
+                if ((CurrentToken.TokenType == AphidTokenType.PipelineOperator))
                 {
                     inPipeline = true;
-                    var op = _currentToken.TokenType;
+                    var op = CurrentToken.TokenType;
                     NextToken();
                     operand = new BinaryOperatorExpression(this._context, operand, AphidTokenType.PipelineOperator, ParseRangeExpression());
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.InteropOperator))
+                    if ((CurrentToken.TokenType == AphidTokenType.InteropOperator))
                     {
                         inPipeline = true;
                         operand = new BinaryOperatorExpression(this._context, operand, AphidTokenType.PipelineOperator, ParsePrefixUnaryOperatorExpression());
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.FunctionOperator))
+                        if ((CurrentToken.TokenType == AphidTokenType.FunctionOperator))
                         {
                             inPipeline = true;
                             operand = new BinaryOperatorExpression(this._context, operand, AphidTokenType.PipelineOperator, ParseFunctionExpression());
                         }
                         else
                         {
-                            if ((((((((((((((_currentToken.TokenType == AphidTokenType.AggregateOperator)
-                                        || (_currentToken.TokenType == AphidTokenType.AnyOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.CountOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.EndsWithOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.FirstOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.GroupByOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.LastOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.OrderByOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.OrderByDescendingOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.SelectManyOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.SelectOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.StartsWithOperator))
-                                        || (_currentToken.TokenType == AphidTokenType.WhereOperator)))
+                            if ((((((((((((((CurrentToken.TokenType == AphidTokenType.AggregateOperator)
+                                        || (CurrentToken.TokenType == AphidTokenType.AnyOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.CountOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.EndsWithOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.FirstOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.GroupByOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.LastOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.OrderByOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.OrderByDescendingOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.SelectManyOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.SelectOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.StartsWithOperator))
+                                        || (CurrentToken.TokenType == AphidTokenType.WhereOperator)))
                             {
                                 inPipeline = true;
-                                var t = _currentToken.TokenType;
+                                var t = CurrentToken.TokenType;
                                 NextToken();
                                 operand = new BinaryOperatorExpression(this._context, operand, t, ParseRangeExpression());
                             }
                             else
                             {
-                                if (((((((_currentToken.TokenType == AphidTokenType.DistinctOperator)
-                                            || (_currentToken.TokenType == AphidTokenType.PostfixCountOperator))
-                                            || (_currentToken.TokenType == AphidTokenType.PostfixFirstOperator))
-                                            || (_currentToken.TokenType == AphidTokenType.PostfixLastOperator))
-                                            || (_currentToken.TokenType == AphidTokenType.PostfixOrderOperator))
-                                            || (_currentToken.TokenType == AphidTokenType.PostfixOrderDescendingOperator)))
+                                if (((((((CurrentToken.TokenType == AphidTokenType.DistinctOperator)
+                                            || (CurrentToken.TokenType == AphidTokenType.PostfixCountOperator))
+                                            || (CurrentToken.TokenType == AphidTokenType.PostfixFirstOperator))
+                                            || (CurrentToken.TokenType == AphidTokenType.PostfixLastOperator))
+                                            || (CurrentToken.TokenType == AphidTokenType.PostfixOrderOperator))
+                                            || (CurrentToken.TokenType == AphidTokenType.PostfixOrderDescendingOperator)))
                                 {
                                     inPipeline = true;
-                                    operand = new UnaryOperatorExpression(this._context, _currentToken.TokenType, operand);
+                                    operand = new UnaryOperatorExpression(this._context, CurrentToken.TokenType, operand);
                                     NextToken();
                                 }
                                 else
                                 {
                                     if ((inPipeline
-                                                && (_currentToken.TokenType == AphidTokenType.Identifier)))
+                                                && (CurrentToken.TokenType == AphidTokenType.Identifier)))
                                     {
                                         operand = new BinaryOperatorExpression(this._context, operand, AphidTokenType.PipelineOperator, ParseExpression());
                                     }
@@ -3321,339 +3321,339 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseRangeExpression()
         {
-            var index001C = _currentToken.Index;
+            var index001C = CurrentToken.Index;
             var operand = ParseConditionalExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index001C;
-                operand.Length = (_currentToken.Index - index001C);
+                operand.Length = (CurrentToken.Index - index001C);
             }
             for (
-            ; (((_currentToken.TokenType == AphidTokenType.RangeOperator)
-                        || (_currentToken.TokenType == AphidTokenType.CompositionOperator))
-                        || ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.CustomOperator000)
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator001))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator002))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator003))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator004))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator005))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator006))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator007))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator008))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator009))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator010))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator011))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator012))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator013))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator014))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator015))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator016))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator017))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator018))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator019))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator020))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator021))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator022))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator023))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator024))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator025))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator026))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator027))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator028))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator029))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator030))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator031))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator032))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator033))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator034))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator035))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator036))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator037))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator038))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator039))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator040))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator041))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator042))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator043))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator044))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator045))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator046))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator047))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator048))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator049))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator050))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator051))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator052))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator053))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator054))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator055))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator056))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator057))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator058))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator059))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator060))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator061))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator062))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator063))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator064))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator065))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator066))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator067))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator068))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator069))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator070))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator071))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator072))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator073))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator074))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator075))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator076))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator077))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator078))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator079))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator080))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator081))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator082))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator083))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator084))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator085))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator086))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator087))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator088))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator089))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator090))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator091))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator092))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator093))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator094))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator095))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator096))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator097))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator098))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator099))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator100))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator101))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator102))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator103))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator104))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator105))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator106))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator107))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator108))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator109))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator110))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator111))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator112))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator113))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator114))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator115))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator116))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator117))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator118))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator119))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator120))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator121))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator122))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator123))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator124))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator125))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator126))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator127))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator128))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator129))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator130))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator131))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator132))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator133))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator134))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator135))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator136))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator137))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator138))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator139))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator140))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator141))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator142))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator143))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator144))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator145))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator146))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator147))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator148))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator149))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator150))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator151))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator152))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator153))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator154))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator155))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator156))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator157))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator158))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator159))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator160))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator161))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator162))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator163))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator164))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator165))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator166))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator167))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator168))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator169))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator170))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator171))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator172))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator173))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator174))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator175))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator176))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator177))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator178))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator179))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator180))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator181))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator182))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator183))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator184))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator185))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator186))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator187))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator188))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator189))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator190))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator191))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator192))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator193))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator194))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator195))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator196))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator197))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator198))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator199))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator200))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator201))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator202))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator203))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator204))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator205))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator206))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator207))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator208))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator209))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator210))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator211))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator212))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator213))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator214))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator215))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator216))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator217))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator218))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator219))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator220))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator221))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator222))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator223))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator224))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator225))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator226))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator227))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator228))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator229))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator230))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator231))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator232))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator233))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator234))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator235))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator236))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator237))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator238))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator239))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator240))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator241))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator242))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator243))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator244))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator245))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator246))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator247))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator248))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator249))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator250))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator251))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator252))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator253))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator254))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator255))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator256))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator257))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator258))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator259))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator260))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator261))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator262))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator263))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator264))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator265))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator266))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator267))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator268))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator269))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator270))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator271))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator272))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator273))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator274))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator275))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator276))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator277))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator278))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator279))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator280))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator281))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator282))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator283))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator284))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator285))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator286))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator287))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator288))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator289))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator290))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator291))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator292))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator293))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator294))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator295))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator296))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator297))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator298))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator299))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator300))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator301))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator302))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator303))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator304))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator305))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator306))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator307))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator308))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator309))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator310))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator311))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator312))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator313))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator314))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator315))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator316))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator317))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator318))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator319)));
+            ; (((CurrentToken.TokenType == AphidTokenType.RangeOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.CompositionOperator))
+                        || ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((CurrentToken.TokenType == AphidTokenType.CustomOperator000)
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator001))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator002))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator003))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator004))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator005))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator006))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator007))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator008))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator009))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator010))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator011))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator012))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator013))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator014))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator015))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator016))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator017))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator018))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator019))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator020))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator021))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator022))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator023))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator024))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator025))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator026))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator027))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator028))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator029))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator030))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator031))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator032))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator033))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator034))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator035))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator036))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator037))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator038))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator039))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator040))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator041))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator042))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator043))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator044))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator045))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator046))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator047))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator048))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator049))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator050))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator051))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator052))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator053))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator054))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator055))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator056))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator057))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator058))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator059))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator060))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator061))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator062))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator063))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator064))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator065))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator066))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator067))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator068))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator069))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator070))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator071))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator072))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator073))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator074))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator075))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator076))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator077))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator078))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator079))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator080))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator081))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator082))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator083))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator084))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator085))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator086))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator087))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator088))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator089))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator090))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator091))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator092))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator093))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator094))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator095))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator096))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator097))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator098))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator099))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator100))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator101))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator102))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator103))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator104))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator105))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator106))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator107))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator108))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator109))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator110))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator111))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator112))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator113))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator114))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator115))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator116))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator117))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator118))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator119))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator120))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator121))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator122))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator123))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator124))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator125))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator126))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator127))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator128))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator129))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator130))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator131))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator132))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator133))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator134))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator135))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator136))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator137))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator138))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator139))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator140))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator141))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator142))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator143))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator144))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator145))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator146))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator147))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator148))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator149))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator150))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator151))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator152))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator153))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator154))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator155))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator156))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator157))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator158))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator159))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator160))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator161))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator162))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator163))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator164))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator165))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator166))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator167))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator168))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator169))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator170))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator171))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator172))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator173))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator174))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator175))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator176))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator177))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator178))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator179))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator180))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator181))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator182))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator183))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator184))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator185))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator186))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator187))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator188))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator189))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator190))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator191))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator192))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator193))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator194))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator195))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator196))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator197))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator198))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator199))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator200))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator201))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator202))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator203))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator204))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator205))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator206))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator207))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator208))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator209))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator210))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator211))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator212))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator213))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator214))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator215))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator216))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator217))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator218))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator219))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator220))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator221))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator222))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator223))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator224))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator225))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator226))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator227))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator228))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator229))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator230))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator231))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator232))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator233))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator234))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator235))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator236))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator237))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator238))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator239))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator240))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator241))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator242))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator243))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator244))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator245))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator246))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator247))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator248))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator249))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator250))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator251))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator252))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator253))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator254))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator255))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator256))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator257))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator258))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator259))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator260))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator261))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator262))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator263))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator264))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator265))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator266))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator267))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator268))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator269))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator270))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator271))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator272))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator273))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator274))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator275))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator276))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator277))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator278))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator279))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator280))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator281))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator282))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator283))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator284))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator285))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator286))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator287))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator288))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator289))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator290))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator291))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator292))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator293))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator294))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator295))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator296))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator297))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator298))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator299))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator300))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator301))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator302))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator303))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator304))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator305))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator306))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator307))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator308))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator309))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator310))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator311))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator312))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator313))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator314))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator315))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator316))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator317))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator318))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator319)));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseConditionalExpression());
             }
@@ -3662,30 +3662,30 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseConditionalExpression()
         {
-            var index001D = _currentToken.Index;
+            var index001D = CurrentToken.Index;
             var exp = ParseLogicalExpression();
             if ((exp.Index < 0))
             {
                 exp.Index = index001D;
-                exp.Length = (_currentToken.Index - index001D);
+                exp.Length = (CurrentToken.Index - index001D);
             }
-            if ((_currentToken.TokenType == AphidTokenType.ConditionalOperator))
+            if ((CurrentToken.TokenType == AphidTokenType.ConditionalOperator))
             {
                 NextToken();
-                var index001E = _currentToken.Index;
+                var index001E = CurrentToken.Index;
                 var trueExpression = ParseExpression();
                 if ((trueExpression.Index < 0))
                 {
                     trueExpression.Index = index001E;
-                    trueExpression.Length = (_currentToken.Index - index001E);
+                    trueExpression.Length = (CurrentToken.Index - index001E);
                 }
                 Match(AphidTokenType.ColonOperator);
-                var index001F = _currentToken.Index;
+                var index001F = CurrentToken.Index;
                 var falseExpression = ParseExpression();
                 if ((falseExpression.Index < 0))
                 {
                     falseExpression.Index = index001F;
-                    falseExpression.Length = (_currentToken.Index - index001F);
+                    falseExpression.Length = (CurrentToken.Index - index001F);
                 }
                 return new TernaryOperatorExpression(this._context, AphidTokenType.ConditionalOperator, exp, trueExpression, falseExpression);
             }
@@ -3697,19 +3697,19 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseLogicalExpression()
         {
-            var index0020 = _currentToken.Index;
+            var index0020 = CurrentToken.Index;
             var operand = ParseComparisonExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0020;
-                operand.Length = (_currentToken.Index - index0020);
+                operand.Length = (CurrentToken.Index - index0020);
             }
             for (
-            ; ((_currentToken.TokenType == AphidTokenType.AndOperator)
-                        || (_currentToken.TokenType == AphidTokenType.OrOperator));
+            ; ((CurrentToken.TokenType == AphidTokenType.AndOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.OrOperator));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseComparisonExpression());
             }
@@ -3718,23 +3718,23 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseComparisonExpression()
         {
-            var index0021 = _currentToken.Index;
+            var index0021 = CurrentToken.Index;
             var operand = ParsePostfixUnaryOperationExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0021;
-                operand.Length = (_currentToken.Index - index0021);
+                operand.Length = (CurrentToken.Index - index0021);
             }
             for (
-            ; ((((((_currentToken.TokenType == AphidTokenType.EqualityOperator)
-                        || (_currentToken.TokenType == AphidTokenType.NotEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.LessThanOperator))
-                        || (_currentToken.TokenType == AphidTokenType.LessThanOrEqualOperator))
-                        || (_currentToken.TokenType == AphidTokenType.GreaterThanOperator))
-                        || (_currentToken.TokenType == AphidTokenType.GreaterThanOrEqualOperator));
+            ; ((((((CurrentToken.TokenType == AphidTokenType.EqualityOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.NotEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.LessThanOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.LessThanOrEqualOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.GreaterThanOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.GreaterThanOrEqualOperator));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParsePostfixUnaryOperationExpression());
             }
@@ -3743,17 +3743,17 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParsePostfixUnaryOperationExpression()
         {
-            var index0022 = _currentToken.Index;
+            var index0022 = CurrentToken.Index;
             var term = ParseBinaryOrExpression();
             if ((term.Index < 0))
             {
                 term.Index = index0022;
-                term.Length = (_currentToken.Index - index0022);
+                term.Length = (CurrentToken.Index - index0022);
             }
-            if (((_currentToken.TokenType == AphidTokenType.IncrementOperator)
-                        || (_currentToken.TokenType == AphidTokenType.DecrementOperator)))
+            if (((CurrentToken.TokenType == AphidTokenType.IncrementOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.DecrementOperator)))
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 return new UnaryOperatorExpression(this._context, op, term, true);
             }
@@ -3765,18 +3765,18 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseBinaryOrExpression()
         {
-            var index0023 = _currentToken.Index;
+            var index0023 = CurrentToken.Index;
             var operand = ParseXorExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0023;
-                operand.Length = (_currentToken.Index - index0023);
+                operand.Length = (CurrentToken.Index - index0023);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.BinaryOrOperator);
+            ; (CurrentToken.TokenType == AphidTokenType.BinaryOrOperator);
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseXorExpression());
             }
@@ -3785,18 +3785,18 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseXorExpression()
         {
-            var index0024 = _currentToken.Index;
+            var index0024 = CurrentToken.Index;
             var operand = ParseBinaryAndExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0024;
-                operand.Length = (_currentToken.Index - index0024);
+                operand.Length = (CurrentToken.Index - index0024);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.XorOperator);
+            ; (CurrentToken.TokenType == AphidTokenType.XorOperator);
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseBinaryAndExpression());
             }
@@ -3805,18 +3805,18 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseBinaryAndExpression()
         {
-            var index0025 = _currentToken.Index;
+            var index0025 = CurrentToken.Index;
             var operand = ParseShiftExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0025;
-                operand.Length = (_currentToken.Index - index0025);
+                operand.Length = (CurrentToken.Index - index0025);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.BinaryAndOperator);
+            ; (CurrentToken.TokenType == AphidTokenType.BinaryAndOperator);
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseShiftExpression());
             }
@@ -3825,19 +3825,19 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseShiftExpression()
         {
-            var index0026 = _currentToken.Index;
+            var index0026 = CurrentToken.Index;
             var operand = ParseAdditionExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0026;
-                operand.Length = (_currentToken.Index - index0026);
+                operand.Length = (CurrentToken.Index - index0026);
             }
             for (
-            ; ((_currentToken.TokenType == AphidTokenType.ShiftLeft)
-                        || (_currentToken.TokenType == AphidTokenType.ShiftRight));
+            ; ((CurrentToken.TokenType == AphidTokenType.ShiftLeft)
+                        || (CurrentToken.TokenType == AphidTokenType.ShiftRight));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseAdditionExpression());
             }
@@ -3846,19 +3846,19 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseAdditionExpression()
         {
-            var index0027 = _currentToken.Index;
+            var index0027 = CurrentToken.Index;
             var operand = ParseTermExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0027;
-                operand.Length = (_currentToken.Index - index0027);
+                operand.Length = (CurrentToken.Index - index0027);
             }
             for (
-            ; ((_currentToken.TokenType == AphidTokenType.AdditionOperator)
-                        || (_currentToken.TokenType == AphidTokenType.MinusOperator));
+            ; ((CurrentToken.TokenType == AphidTokenType.AdditionOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.MinusOperator));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParseTermExpression());
             }
@@ -3867,20 +3867,20 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseTermExpression()
         {
-            var index0028 = _currentToken.Index;
+            var index0028 = CurrentToken.Index;
             var operand = ParsePrefixUnaryOperatorExpression();
             if ((operand.Index < 0))
             {
                 operand.Index = index0028;
-                operand.Length = (_currentToken.Index - index0028);
+                operand.Length = (CurrentToken.Index - index0028);
             }
             for (
-            ; (((_currentToken.TokenType == AphidTokenType.MultiplicationOperator)
-                        || (_currentToken.TokenType == AphidTokenType.DivisionOperator))
-                        || (_currentToken.TokenType == AphidTokenType.ModulusOperator));
+            ; (((CurrentToken.TokenType == AphidTokenType.MultiplicationOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.DivisionOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.ModulusOperator));
             )
             {
-                var op = _currentToken.TokenType;
+                var op = CurrentToken.TokenType;
                 NextToken();
                 operand = new BinaryOperatorExpression(this._context, operand, op, ParsePrefixUnaryOperatorExpression());
             }
@@ -3889,338 +3889,338 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParsePrefixUnaryOperatorExpression()
         {
-            if (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.AdditionOperator)
-                        || (_currentToken.TokenType == AphidTokenType.MinusOperator))
-                        || (_currentToken.TokenType == AphidTokenType.NotOperator))
-                        || (_currentToken.TokenType == AphidTokenType.IncrementOperator))
-                        || (_currentToken.TokenType == AphidTokenType.DecrementOperator))
-                        || (_currentToken.TokenType == AphidTokenType.MultiplicationOperator))
-                        || (_currentToken.TokenType == AphidTokenType.ComplementOperator))
-                        || (_currentToken.TokenType == AphidTokenType.InteropOperator))
-                        || (_currentToken.TokenType == AphidTokenType.newKeyword))
-                        || (_currentToken.TokenType == AphidTokenType.loadKeyword))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator000))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator001))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator002))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator003))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator004))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator005))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator006))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator007))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator008))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator009))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator010))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator011))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator012))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator013))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator014))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator015))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator016))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator017))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator018))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator019))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator020))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator021))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator022))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator023))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator024))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator025))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator026))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator027))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator028))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator029))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator030))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator031))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator032))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator033))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator034))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator035))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator036))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator037))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator038))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator039))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator040))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator041))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator042))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator043))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator044))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator045))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator046))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator047))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator048))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator049))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator050))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator051))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator052))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator053))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator054))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator055))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator056))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator057))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator058))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator059))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator060))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator061))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator062))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator063))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator064))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator065))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator066))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator067))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator068))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator069))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator070))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator071))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator072))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator073))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator074))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator075))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator076))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator077))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator078))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator079))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator080))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator081))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator082))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator083))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator084))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator085))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator086))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator087))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator088))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator089))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator090))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator091))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator092))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator093))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator094))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator095))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator096))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator097))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator098))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator099))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator100))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator101))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator102))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator103))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator104))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator105))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator106))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator107))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator108))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator109))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator110))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator111))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator112))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator113))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator114))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator115))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator116))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator117))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator118))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator119))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator120))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator121))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator122))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator123))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator124))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator125))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator126))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator127))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator128))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator129))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator130))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator131))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator132))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator133))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator134))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator135))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator136))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator137))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator138))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator139))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator140))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator141))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator142))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator143))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator144))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator145))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator146))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator147))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator148))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator149))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator150))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator151))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator152))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator153))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator154))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator155))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator156))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator157))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator158))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator159))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator160))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator161))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator162))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator163))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator164))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator165))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator166))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator167))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator168))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator169))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator170))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator171))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator172))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator173))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator174))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator175))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator176))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator177))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator178))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator179))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator180))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator181))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator182))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator183))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator184))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator185))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator186))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator187))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator188))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator189))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator190))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator191))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator192))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator193))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator194))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator195))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator196))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator197))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator198))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator199))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator200))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator201))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator202))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator203))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator204))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator205))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator206))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator207))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator208))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator209))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator210))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator211))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator212))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator213))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator214))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator215))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator216))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator217))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator218))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator219))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator220))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator221))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator222))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator223))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator224))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator225))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator226))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator227))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator228))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator229))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator230))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator231))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator232))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator233))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator234))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator235))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator236))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator237))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator238))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator239))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator240))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator241))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator242))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator243))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator244))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator245))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator246))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator247))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator248))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator249))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator250))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator251))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator252))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator253))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator254))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator255))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator256))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator257))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator258))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator259))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator260))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator261))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator262))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator263))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator264))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator265))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator266))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator267))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator268))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator269))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator270))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator271))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator272))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator273))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator274))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator275))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator276))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator277))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator278))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator279))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator280))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator281))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator282))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator283))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator284))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator285))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator286))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator287))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator288))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator289))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator290))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator291))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator292))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator293))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator294))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator295))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator296))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator297))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator298))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator299))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator300))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator301))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator302))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator303))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator304))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator305))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator306))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator307))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator308))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator309))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator310))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator311))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator312))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator313))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator314))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator315))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator316))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator317))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator318))
-                        || (_currentToken.TokenType == AphidTokenType.CustomOperator319)))
+            if (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((CurrentToken.TokenType == AphidTokenType.AdditionOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.MinusOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.NotOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.IncrementOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.DecrementOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.MultiplicationOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.ComplementOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.InteropOperator))
+                        || (CurrentToken.TokenType == AphidTokenType.newKeyword))
+                        || (CurrentToken.TokenType == AphidTokenType.loadKeyword))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator000))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator001))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator002))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator003))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator004))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator005))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator006))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator007))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator008))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator009))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator010))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator011))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator012))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator013))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator014))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator015))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator016))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator017))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator018))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator019))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator020))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator021))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator022))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator023))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator024))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator025))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator026))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator027))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator028))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator029))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator030))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator031))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator032))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator033))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator034))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator035))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator036))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator037))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator038))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator039))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator040))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator041))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator042))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator043))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator044))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator045))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator046))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator047))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator048))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator049))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator050))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator051))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator052))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator053))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator054))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator055))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator056))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator057))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator058))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator059))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator060))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator061))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator062))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator063))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator064))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator065))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator066))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator067))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator068))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator069))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator070))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator071))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator072))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator073))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator074))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator075))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator076))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator077))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator078))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator079))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator080))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator081))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator082))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator083))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator084))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator085))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator086))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator087))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator088))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator089))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator090))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator091))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator092))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator093))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator094))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator095))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator096))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator097))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator098))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator099))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator100))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator101))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator102))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator103))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator104))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator105))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator106))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator107))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator108))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator109))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator110))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator111))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator112))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator113))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator114))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator115))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator116))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator117))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator118))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator119))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator120))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator121))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator122))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator123))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator124))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator125))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator126))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator127))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator128))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator129))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator130))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator131))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator132))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator133))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator134))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator135))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator136))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator137))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator138))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator139))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator140))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator141))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator142))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator143))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator144))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator145))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator146))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator147))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator148))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator149))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator150))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator151))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator152))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator153))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator154))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator155))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator156))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator157))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator158))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator159))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator160))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator161))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator162))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator163))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator164))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator165))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator166))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator167))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator168))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator169))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator170))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator171))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator172))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator173))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator174))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator175))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator176))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator177))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator178))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator179))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator180))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator181))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator182))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator183))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator184))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator185))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator186))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator187))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator188))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator189))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator190))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator191))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator192))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator193))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator194))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator195))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator196))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator197))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator198))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator199))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator200))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator201))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator202))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator203))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator204))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator205))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator206))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator207))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator208))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator209))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator210))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator211))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator212))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator213))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator214))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator215))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator216))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator217))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator218))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator219))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator220))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator221))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator222))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator223))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator224))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator225))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator226))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator227))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator228))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator229))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator230))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator231))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator232))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator233))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator234))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator235))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator236))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator237))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator238))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator239))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator240))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator241))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator242))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator243))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator244))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator245))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator246))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator247))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator248))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator249))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator250))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator251))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator252))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator253))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator254))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator255))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator256))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator257))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator258))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator259))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator260))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator261))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator262))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator263))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator264))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator265))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator266))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator267))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator268))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator269))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator270))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator271))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator272))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator273))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator274))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator275))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator276))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator277))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator278))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator279))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator280))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator281))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator282))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator283))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator284))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator285))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator286))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator287))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator288))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator289))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator290))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator291))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator292))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator293))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator294))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator295))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator296))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator297))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator298))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator299))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator300))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator301))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator302))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator303))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator304))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator305))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator306))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator307))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator308))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator309))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator310))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator311))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator312))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator313))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator314))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator315))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator316))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator317))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator318))
+                        || (CurrentToken.TokenType == AphidTokenType.CustomOperator319)))
             {
-                var t = _currentToken.TokenType;
+                var t = CurrentToken.TokenType;
                 NextToken();
                 return new UnaryOperatorExpression(this._context, t, ParseArrayAccessExpression());
             }
@@ -4232,15 +4232,15 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseArrayAccessExpression()
         {
-            var index0029 = _currentToken.Index;
+            var index0029 = CurrentToken.Index;
             var exp = ParseCallExpression();
             if ((exp.Index < 0))
             {
                 exp.Index = index0029;
-                exp.Length = (_currentToken.Index - index0029);
+                exp.Length = (CurrentToken.Index - index0029);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.LeftBracket);
+            ; (CurrentToken.TokenType == AphidTokenType.LeftBracket);
             )
             {
                 NextToken();
@@ -4248,31 +4248,31 @@ namespace Components.Aphid.Parser
                 Match(AphidTokenType.RightBracket);
                 exp = new ArrayAccessExpression(this._context, exp, keys);
                 for (
-                ; (_currentToken.TokenType == AphidTokenType.MemberOperator);
+                ; (CurrentToken.TokenType == AphidTokenType.MemberOperator);
                 )
                 {
                     NextToken();
                     AphidExpression memberExp = default(AphidExpression);
-                    if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                    if ((CurrentToken.TokenType == AphidTokenType.Identifier))
                     {
-                        memberExp = new IdentifierExpression(this._context, _currentToken.Lexeme);
+                        memberExp = new IdentifierExpression(this._context, CurrentToken.Lexeme);
                         NextToken();
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.String))
+                        if ((CurrentToken.TokenType == AphidTokenType.String))
                         {
-                            var index002A = _currentToken.Index;
+                            var index002A = CurrentToken.Index;
                             memberExp = ParseStringExpression();
                             if ((memberExp.Index < 0))
                             {
                                 memberExp.Index = index002A;
-                                memberExp.Length = (_currentToken.Index - index002A);
+                                memberExp.Length = (CurrentToken.Index - index002A);
                             }
                         }
                         else
                         {
-                            if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                            if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
                             {
                                 NextToken();
                                 memberExp = new DynamicMemberExpression(this._context, ParseExpression());
@@ -4280,17 +4280,17 @@ namespace Components.Aphid.Parser
                             }
                             else
                             {
-                                throw new AphidParserException(_currentToken);
+                                throw new AphidParserException(CurrentToken);
                             }
                         }
                     }
                     exp = new BinaryOperatorExpression(this._context, exp, AphidTokenType.MemberOperator, memberExp);
                     for (
-                    ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+                    ; (CurrentToken.TokenType == AphidTokenType.LeftParenthesis);
                     )
                     {
                         NextToken();
-                        if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                        if ((CurrentToken.TokenType == AphidTokenType.RightParenthesis))
                         {
                             NextToken();
                             exp = new CallExpression(this._context, exp);
@@ -4302,18 +4302,18 @@ namespace Components.Aphid.Parser
                             exp = new CallExpression(this._context, exp, args);
                         }
                     }
-                    if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
+                    if ((CurrentToken.TokenType == AphidTokenType.definedKeyword))
                     {
                         NextToken();
                         return new UnaryOperatorExpression(this._context, AphidTokenType.definedKeyword, exp, true);
                     }
                 }
                 for (
-                ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+                ; (CurrentToken.TokenType == AphidTokenType.LeftParenthesis);
                 )
                 {
                     NextToken();
-                    if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                    if ((CurrentToken.TokenType == AphidTokenType.RightParenthesis))
                     {
                         NextToken();
                         exp = new CallExpression(this._context, exp);
@@ -4326,7 +4326,7 @@ namespace Components.Aphid.Parser
                     }
                 }
             }
-            if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
+            if ((CurrentToken.TokenType == AphidTokenType.definedKeyword))
             {
                 NextToken();
                 return new UnaryOperatorExpression(this._context, AphidTokenType.definedKeyword, exp, true);
@@ -4339,19 +4339,19 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseCallExpression()
         {
-            var index002B = _currentToken.Index;
+            var index002B = CurrentToken.Index;
             var function = ParseMemberExpression();
             if ((function.Index < 0))
             {
                 function.Index = index002B;
-                function.Length = (_currentToken.Index - index002B);
+                function.Length = (CurrentToken.Index - index002B);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+            ; (CurrentToken.TokenType == AphidTokenType.LeftParenthesis);
             )
             {
                 NextToken();
-                if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                if ((CurrentToken.TokenType == AphidTokenType.RightParenthesis))
                 {
                     NextToken();
                     function = new CallExpression(this._context, function);
@@ -4368,39 +4368,39 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseMemberExpression()
         {
-            var index002C = _currentToken.Index;
+            var index002C = CurrentToken.Index;
             var factor = ParseFactorCallExpression();
             if ((factor.Index < 0))
             {
                 factor.Index = index002C;
-                factor.Length = (_currentToken.Index - index002C);
+                factor.Length = (CurrentToken.Index - index002C);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.MemberOperator);
+            ; (CurrentToken.TokenType == AphidTokenType.MemberOperator);
             )
             {
                 NextToken();
                 AphidExpression memberExp = default(AphidExpression);
-                if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                if ((CurrentToken.TokenType == AphidTokenType.Identifier))
                 {
-                    memberExp = new IdentifierExpression(this._context, _currentToken.Lexeme);
+                    memberExp = new IdentifierExpression(this._context, CurrentToken.Lexeme);
                     NextToken();
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.String))
+                    if ((CurrentToken.TokenType == AphidTokenType.String))
                     {
-                        var index002D = _currentToken.Index;
+                        var index002D = CurrentToken.Index;
                         memberExp = ParseStringExpression();
                         if ((memberExp.Index < 0))
                         {
                             memberExp.Index = index002D;
-                            memberExp.Length = (_currentToken.Index - index002D);
+                            memberExp.Length = (CurrentToken.Index - index002D);
                         }
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                        if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
                         {
                             NextToken();
                             memberExp = new DynamicMemberExpression(this._context, ParseExpression());
@@ -4408,17 +4408,17 @@ namespace Components.Aphid.Parser
                         }
                         else
                         {
-                            throw new AphidParserException(_currentToken);
+                            throw new AphidParserException(CurrentToken);
                         }
                     }
                 }
                 factor = new BinaryOperatorExpression(this._context, factor, AphidTokenType.MemberOperator, memberExp);
                 for (
-                ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+                ; (CurrentToken.TokenType == AphidTokenType.LeftParenthesis);
                 )
                 {
                     NextToken();
-                    if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                    if ((CurrentToken.TokenType == AphidTokenType.RightParenthesis))
                     {
                         NextToken();
                         factor = new CallExpression(this._context, factor);
@@ -4430,7 +4430,7 @@ namespace Components.Aphid.Parser
                         factor = new CallExpression(this._context, factor, args);
                     }
                 }
-                if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
+                if ((CurrentToken.TokenType == AphidTokenType.definedKeyword))
                 {
                     NextToken();
                     return new UnaryOperatorExpression(this._context, AphidTokenType.definedKeyword, factor, true);
@@ -4441,19 +4441,19 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseFactorCallExpression()
         {
-            var index002E = _currentToken.Index;
+            var index002E = CurrentToken.Index;
             var function = ParseFactorExpression();
             if ((function.Index < 0))
             {
                 function.Index = index002E;
-                function.Length = (_currentToken.Index - index002E);
+                function.Length = (CurrentToken.Index - index002E);
             }
             for (
-            ; (_currentToken.TokenType == AphidTokenType.LeftParenthesis);
+            ; (CurrentToken.TokenType == AphidTokenType.LeftParenthesis);
             )
             {
                 NextToken();
-                if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                if ((CurrentToken.TokenType == AphidTokenType.RightParenthesis))
                 {
                     NextToken();
                     function = new CallExpression(this._context, function);
@@ -4470,16 +4470,16 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseStringExpression()
         {
-            var exp = new StringExpression(this._context, _currentToken.Lexeme);
+            var exp = new StringExpression(this._context, CurrentToken.Lexeme);
             NextToken();
             return exp;
         }
 
         private IdentifierExpression ParseIdentifierExpression()
         {
-            var exp = new IdentifierExpression(this._context, _currentToken.Lexeme);
+            var exp = new IdentifierExpression(this._context, CurrentToken.Lexeme);
             NextToken();
-            if ((_currentToken.TokenType == AphidTokenType.Identifier))
+            if ((CurrentToken.TokenType == AphidTokenType.Identifier))
             {
                 var id = exp;
                 var attrs = new System.Collections.Generic.List<IdentifierExpression>();
@@ -4488,9 +4488,9 @@ namespace Components.Aphid.Parser
                 )
                 {
                     attrs.Add(id);
-                    id = new IdentifierExpression(this._context, _currentToken.Lexeme);
+                    id = new IdentifierExpression(this._context, CurrentToken.Lexeme);
                     NextToken();
-                    if (((_currentToken.TokenType == AphidTokenType.Identifier)
+                    if (((CurrentToken.TokenType == AphidTokenType.Identifier)
                                 == false))
                     {
                         break;
@@ -4503,7 +4503,7 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseUnaryExpression()
         {
-            var t = _currentToken.TokenType;
+            var t = CurrentToken.TokenType;
             NextToken();
             return new UnaryOperatorExpression(this._context, t, ParseExpression());
         }
@@ -4511,12 +4511,12 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseCondition()
         {
             Match(AphidTokenType.LeftParenthesis);
-            var index002F = _currentToken.Index;
+            var index002F = CurrentToken.Index;
             var condition = ParseExpression();
             if ((condition.Index < 0))
             {
                 condition.Index = index002F;
-                condition.Length = (_currentToken.Index - index002F);
+                condition.Length = (CurrentToken.Index - index002F);
             }
             Match(AphidTokenType.RightParenthesis);
             return condition;
@@ -4525,16 +4525,16 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseIfExpression()
         {
             NextToken();
-            var index0030 = _currentToken.Index;
+            var index0030 = CurrentToken.Index;
             var condition = ParseCondition();
             if ((condition.Index < 0))
             {
                 condition.Index = index0030;
-                condition.Length = (_currentToken.Index - index0030);
+                condition.Length = (CurrentToken.Index - index0030);
             }
             var body = ParseBlock();
             System.Collections.Generic.List<AphidExpression> elseBody = default(System.Collections.Generic.List<AphidExpression>);
-            if ((_currentToken.TokenType == AphidTokenType.elseKeyword))
+            if ((CurrentToken.TokenType == AphidTokenType.elseKeyword))
             {
                 NextToken();
                 elseBody = ParseBlock();
@@ -4545,11 +4545,11 @@ namespace Components.Aphid.Parser
         private System.Collections.Generic.List<AphidExpression> ParseBlock()
         {
             var statements = new System.Collections.Generic.List<AphidExpression>();
-            if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+            if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
             {
                 NextToken();
                 for (
-                ; ((_currentToken.TokenType == AphidTokenType.RightBrace)
+                ; ((CurrentToken.TokenType == AphidTokenType.RightBrace)
                             == false);
                 )
                 {
@@ -4567,11 +4567,11 @@ namespace Components.Aphid.Parser
         private System.Collections.Generic.List<AphidExpression> ParseSingleBlock()
         {
             var statements = new System.Collections.Generic.List<AphidExpression>();
-            if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+            if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
             {
                 NextToken();
                 for (
-                ; ((_currentToken.TokenType == AphidTokenType.RightBrace)
+                ; ((CurrentToken.TokenType == AphidTokenType.RightBrace)
                             == false);
                 )
                 {
@@ -4596,22 +4596,22 @@ namespace Components.Aphid.Parser
         {
             NextToken();
             Match(AphidTokenType.LeftParenthesis);
-            var index0031 = _currentToken.Index;
+            var index0031 = CurrentToken.Index;
             var initOrElement = ParseExpression();
             if ((initOrElement.Index < 0))
             {
                 initOrElement.Index = index0031;
-                initOrElement.Length = (_currentToken.Index - index0031);
+                initOrElement.Length = (CurrentToken.Index - index0031);
             }
-            if ((_currentToken.TokenType == AphidTokenType.inKeyword))
+            if ((CurrentToken.TokenType == AphidTokenType.inKeyword))
             {
                 NextToken();
-                var index0032 = _currentToken.Index;
+                var index0032 = CurrentToken.Index;
                 var collection = ParseExpression();
                 if ((collection.Index < 0))
                 {
                     collection.Index = index0032;
-                    collection.Length = (_currentToken.Index - index0032);
+                    collection.Length = (CurrentToken.Index - index0032);
                 }
                 Match(AphidTokenType.RightParenthesis);
                 var body = ParseBlock();
@@ -4619,7 +4619,7 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.RightParenthesis))
+                if ((CurrentToken.TokenType == AphidTokenType.RightParenthesis))
                 {
                     Match(AphidTokenType.RightParenthesis);
                     var body = ParseBlock();
@@ -4628,20 +4628,20 @@ namespace Components.Aphid.Parser
                 else
                 {
                     Match(AphidTokenType.EndOfStatement);
-                    var index0033 = _currentToken.Index;
+                    var index0033 = CurrentToken.Index;
                     var condition = ParseExpression();
                     if ((condition.Index < 0))
                     {
                         condition.Index = index0033;
-                        condition.Length = (_currentToken.Index - index0033);
+                        condition.Length = (CurrentToken.Index - index0033);
                     }
                     Match(AphidTokenType.EndOfStatement);
-                    var index0034 = _currentToken.Index;
+                    var index0034 = CurrentToken.Index;
                     var afterthought = ParseExpression();
                     if ((afterthought.Index < 0))
                     {
                         afterthought.Index = index0034;
-                        afterthought.Length = (_currentToken.Index - index0034);
+                        afterthought.Length = (CurrentToken.Index - index0034);
                     }
                     Match(AphidTokenType.RightParenthesis);
                     var body = ParseBlock();
@@ -4662,12 +4662,12 @@ namespace Components.Aphid.Parser
             var body = ParseBlock();
             Match(AphidTokenType.whileKeyword);
             Match(AphidTokenType.LeftParenthesis);
-            var index0035 = _currentToken.Index;
+            var index0035 = CurrentToken.Index;
             var condition = ParseExpression();
             if ((condition.Index < 0))
             {
                 condition.Index = index0035;
-                condition.Length = (_currentToken.Index - index0035);
+                condition.Length = (CurrentToken.Index - index0035);
             }
             Match(AphidTokenType.RightParenthesis);
             return new DoWhileExpression(this._context, condition, body);
@@ -4681,7 +4681,7 @@ namespace Components.Aphid.Parser
             )
             {
                 tuple.Add(ParseExpression());
-                if ((_currentToken.TokenType == AphidTokenType.Comma))
+                if ((CurrentToken.TokenType == AphidTokenType.Comma))
                 {
                     NextToken();
                 }
@@ -4695,29 +4695,29 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseUsingExpression()
         {
             NextToken();
-            if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+            if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
             {
                 NextToken();
-                var index0036 = _currentToken.Index;
+                var index0036 = CurrentToken.Index;
                 var exp = ParseExpression();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index0036;
-                    exp.Length = (_currentToken.Index - index0036);
+                    exp.Length = (CurrentToken.Index - index0036);
                 }
                 Match(AphidTokenType.RightParenthesis);
                 return new UsingExpression(this._context, exp, ParseBlock());
             }
             else
             {
-                var index0037 = _currentToken.Index;
+                var index0037 = CurrentToken.Index;
                 var exp = ParseMemberExpression();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index0037;
-                    exp.Length = (_currentToken.Index - index0037);
+                    exp.Length = (CurrentToken.Index - index0037);
                 }
-                if ((_currentToken.TokenType == AphidTokenType.EndOfStatement))
+                if ((CurrentToken.TokenType == AphidTokenType.EndOfStatement))
                 {
                     NextToken();
                 }
@@ -4733,7 +4733,7 @@ namespace Components.Aphid.Parser
             ; true;
             )
             {
-                if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+                if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
                 {
                     NextToken();
                     exps.Add(ParseExpression());
@@ -4741,25 +4741,25 @@ namespace Components.Aphid.Parser
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                    if ((CurrentToken.TokenType == AphidTokenType.Identifier))
                     {
                         AphidExpression exp = default(AphidExpression);
-                        exp = new IdentifierExpression(this._context, _currentToken.Lexeme);
+                        exp = new IdentifierExpression(this._context, CurrentToken.Lexeme);
                         NextToken();
                         for (
-                        ; (_currentToken.TokenType == AphidTokenType.MemberOperator);
+                        ; (CurrentToken.TokenType == AphidTokenType.MemberOperator);
                         )
                         {
                             NextToken();
                             AphidExpression memberExp = default(AphidExpression);
-                            if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                            if ((CurrentToken.TokenType == AphidTokenType.Identifier))
                             {
-                                memberExp = new IdentifierExpression(this._context, _currentToken.Lexeme);
+                                memberExp = new IdentifierExpression(this._context, CurrentToken.Lexeme);
                                 NextToken();
                             }
                             else
                             {
-                                if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                                if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
                                 {
                                     NextToken();
                                     memberExp = new DynamicMemberExpression(this._context, ParseExpression());
@@ -4767,7 +4767,7 @@ namespace Components.Aphid.Parser
                                 }
                                 else
                                 {
-                                    throw new AphidParserException(_currentToken);
+                                    throw new AphidParserException(CurrentToken);
                                 }
                             }
                             exp = new BinaryOperatorExpression(this._context, exp, AphidTokenType.MemberOperator, memberExp);
@@ -4775,7 +4775,7 @@ namespace Components.Aphid.Parser
                         exps.Add(exp);
                     }
                 }
-                if ((_currentToken.TokenType == AphidTokenType.Comma))
+                if ((CurrentToken.TokenType == AphidTokenType.Comma))
                 {
                     NextToken();
                 }
@@ -4806,23 +4806,23 @@ namespace Components.Aphid.Parser
             IdentifierExpression catchArg = default(IdentifierExpression);
             System.Collections.Generic.List<AphidExpression> catchBody = default(System.Collections.Generic.List<AphidExpression>);
             System.Collections.Generic.List<AphidExpression> finallyBody = default(System.Collections.Generic.List<AphidExpression>);
-            if ((_currentToken.TokenType == AphidTokenType.catchKeyword))
+            if ((CurrentToken.TokenType == AphidTokenType.catchKeyword))
             {
                 NextToken();
-                if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+                if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
                 {
                     Match(AphidTokenType.LeftParenthesis);
-                    var index0038 = _currentToken.Index;
+                    var index0038 = CurrentToken.Index;
                     catchArg = ParseIdentifierExpression();
                     if ((catchArg.Index < 0))
                     {
                         catchArg.Index = index0038;
-                        catchArg.Length = (_currentToken.Index - index0038);
+                        catchArg.Length = (CurrentToken.Index - index0038);
                     }
                     Match(AphidTokenType.RightParenthesis);
                 }
                 catchBody = ParseBlock();
-                if ((_currentToken.TokenType == AphidTokenType.finallyKeyword))
+                if ((CurrentToken.TokenType == AphidTokenType.finallyKeyword))
                 {
                     NextToken();
                     finallyBody = ParseBlock();
@@ -4830,14 +4830,14 @@ namespace Components.Aphid.Parser
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.finallyKeyword))
+                if ((CurrentToken.TokenType == AphidTokenType.finallyKeyword))
                 {
                     NextToken();
                     finallyBody = ParseBlock();
                 }
                 else
                 {
-                    throw new AphidParserException(_currentToken);
+                    throw new AphidParserException(CurrentToken);
                 }
             }
             return new TryExpression(this._context, tryBody, catchArg, catchBody, finallyBody);
@@ -4847,23 +4847,23 @@ namespace Components.Aphid.Parser
         {
             NextToken();
             Match(AphidTokenType.LeftParenthesis);
-            var index0039 = _currentToken.Index;
+            var index0039 = CurrentToken.Index;
             var exp = ParseExpression();
             if ((exp.Index < 0))
             {
                 exp.Index = index0039;
-                exp.Length = (_currentToken.Index - index0039);
+                exp.Length = (CurrentToken.Index - index0039);
             }
             Match(AphidTokenType.RightParenthesis);
             Match(AphidTokenType.LeftBrace);
             var cases = new System.Collections.Generic.List<SwitchCase>();
             System.Collections.Generic.List<AphidExpression> defaultCase = default(System.Collections.Generic.List<AphidExpression>);
             for (
-            ; ((_currentToken.TokenType == AphidTokenType.RightBrace)
+            ; ((CurrentToken.TokenType == AphidTokenType.RightBrace)
                         == false);
             )
             {
-                if (((_currentToken.TokenType == AphidTokenType.defaultKeyword)
+                if (((CurrentToken.TokenType == AphidTokenType.defaultKeyword)
                             == false))
                 {
                     var caseTuple = ParseTuple();
@@ -4891,37 +4891,37 @@ namespace Components.Aphid.Parser
             ; inNode;
             )
             {
-                if (((_currentToken.TokenType == AphidTokenType.Identifier)
-                            || (_currentToken.TokenType == AphidTokenType.String)))
+                if (((CurrentToken.TokenType == AphidTokenType.Identifier)
+                            || (CurrentToken.TokenType == AphidTokenType.String)))
                 {
                     childNodes.Add(ParseKeyValuePairExpression());
-                    if ((_currentToken.TokenType == AphidTokenType.Comma))
+                    if ((CurrentToken.TokenType == AphidTokenType.Comma))
                     {
                         NextToken();
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.RightBrace))
+                        if ((CurrentToken.TokenType == AphidTokenType.RightBrace))
                         {
                             NextToken();
                             inNode = false;
                         }
                         else
                         {
-                            throw new AphidParserException(_currentToken);
+                            throw new AphidParserException(CurrentToken);
                         }
                     }
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.RightBrace))
+                    if ((CurrentToken.TokenType == AphidTokenType.RightBrace))
                     {
                         NextToken();
                         inNode = false;
                     }
                     else
                     {
-                        throw new AphidParserException(_currentToken);
+                        throw new AphidParserException(CurrentToken);
                     }
                 }
             }
@@ -4932,36 +4932,36 @@ namespace Components.Aphid.Parser
         {
             AphidExpression exp = default(AphidExpression);
             AphidExpression id = default(AphidExpression);
-            if ((_currentToken.TokenType == AphidTokenType.Identifier))
+            if ((CurrentToken.TokenType == AphidTokenType.Identifier))
             {
-                var index003A = _currentToken.Index;
+                var index003A = CurrentToken.Index;
                 id = ParseIdentifierExpression();
                 if ((id.Index < 0))
                 {
                     id.Index = index003A;
-                    id.Length = (_currentToken.Index - index003A);
+                    id.Length = (CurrentToken.Index - index003A);
                 }
             }
             else
             {
-                var index003B = _currentToken.Index;
+                var index003B = CurrentToken.Index;
                 id = ParseStringExpression();
                 if ((id.Index < 0))
                 {
                     id.Index = index003B;
-                    id.Length = (_currentToken.Index - index003B);
+                    id.Length = (CurrentToken.Index - index003B);
                 }
             }
-            if (((_currentToken.TokenType == AphidTokenType.ColonOperator)
-                        || (_currentToken.TokenType == AphidTokenType.AssignmentOperator)))
+            if (((CurrentToken.TokenType == AphidTokenType.ColonOperator)
+                        || (CurrentToken.TokenType == AphidTokenType.AssignmentOperator)))
             {
                 NextToken();
-                var index003C = _currentToken.Index;
+                var index003C = CurrentToken.Index;
                 exp = ParseExpression();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index003C;
-                    exp.Length = (_currentToken.Index - index003C);
+                    exp.Length = (CurrentToken.Index - index003C);
                 }
             }
             else
@@ -4976,7 +4976,7 @@ namespace Components.Aphid.Parser
             NextToken();
             var inNode = true;
             var childNodes = new System.Collections.Generic.List<AphidExpression>();
-            if (((_currentToken.TokenType == AphidTokenType.RightBracket)
+            if (((CurrentToken.TokenType == AphidTokenType.RightBracket)
                         == false))
             {
                 for (
@@ -4984,10 +4984,10 @@ namespace Components.Aphid.Parser
                 )
                 {
                     childNodes.Add(ParseExpression());
-                    if ((_currentToken.TokenType == AphidTokenType.Comma))
+                    if ((CurrentToken.TokenType == AphidTokenType.Comma))
                     {
                         NextToken();
-                        if ((_currentToken.TokenType == AphidTokenType.RightBracket))
+                        if ((CurrentToken.TokenType == AphidTokenType.RightBracket))
                         {
                             NextToken();
                             inNode = false;
@@ -4995,14 +4995,14 @@ namespace Components.Aphid.Parser
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.RightBracket))
+                        if ((CurrentToken.TokenType == AphidTokenType.RightBracket))
                         {
                             NextToken();
                             inNode = false;
                         }
                         else
                         {
-                            throw new AphidParserException(_currentToken);
+                            throw new AphidParserException(CurrentToken);
                         }
                     }
                 }
@@ -5016,7 +5016,7 @@ namespace Components.Aphid.Parser
 
         private AphidExpression ParseNumberExpression()
         {
-            var exp = new NumberExpression(this._context, decimal.Parse(_currentToken.Lexeme));
+            var exp = new NumberExpression(this._context, decimal.Parse(CurrentToken.Lexeme));
             NextToken();
             return exp;
         }
@@ -5027,31 +5027,31 @@ namespace Components.Aphid.Parser
             var args = new System.Collections.Generic.List<AphidExpression>();
             var body = new System.Collections.Generic.List<AphidExpression>();
             NextToken();
-            if (((_currentToken.TokenType == AphidTokenType.RightParenthesis)
+            if (((CurrentToken.TokenType == AphidTokenType.RightParenthesis)
                         == false))
             {
                 for (
                 ; true;
                 )
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                    if ((CurrentToken.TokenType == AphidTokenType.Identifier))
                     {
-                        var index003D = _currentToken.Index;
+                        var index003D = CurrentToken.Index;
                         var id = ParseIdentifierExpression();
                         if ((id.Index < 0))
                         {
                             id.Index = index003D;
-                            id.Length = (_currentToken.Index - index003D);
+                            id.Length = (CurrentToken.Index - index003D);
                         }
                         argExp = id;
-                        if ((_currentToken.TokenType == AphidTokenType.AssignmentOperator))
+                        if ((CurrentToken.TokenType == AphidTokenType.AssignmentOperator))
                         {
-                            var op = _currentToken.TokenType;
+                            var op = CurrentToken.TokenType;
                             NextToken();
                             argExp = new BinaryOperatorExpression(this._context, id, op, ParseExpression());
                         }
                         args.Add(argExp);
-                        if ((_currentToken.TokenType == AphidTokenType.Comma))
+                        if ((CurrentToken.TokenType == AphidTokenType.Comma))
                         {
                             NextToken();
                         }
@@ -5062,12 +5062,12 @@ namespace Components.Aphid.Parser
                     }
                     else
                     {
-                        throw new AphidParserException(_currentToken);
+                        throw new AphidParserException(CurrentToken);
                     }
                 }
             }
             Match(AphidTokenType.RightParenthesis);
-            var isSingleLine = (_currentToken.TokenType != AphidTokenType.LeftBrace);
+            var isSingleLine = (CurrentToken.TokenType != AphidTokenType.LeftBrace);
             var block = ParseSingleBlock();
             if ((isSingleLine && UseImplicitReturns))
             {
@@ -5087,374 +5087,374 @@ namespace Components.Aphid.Parser
             var args = new System.Collections.Generic.List<AphidExpression>();
             AphidExpression argExp = default(AphidExpression);
             NextToken();
-            if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+            if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
             {
-                var index003E = _currentToken.Index;
+                var index003E = CurrentToken.Index;
                 exp = ParseFunctionDeclaration();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index003E;
-                    exp.Length = (_currentToken.Index - index003E);
+                    exp.Length = (CurrentToken.Index - index003E);
                 }
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
                 {
                     exp = new FunctionExpression(this._context, args, ParseBlock());
                 }
                 else
                 {
-                    if ((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.MinusOperator)
-                                || (_currentToken.TokenType == AphidTokenType.AdditionOperator))
-                                || (_currentToken.TokenType == AphidTokenType.MultiplicationOperator))
-                                || (_currentToken.TokenType == AphidTokenType.DivisionOperator))
-                                || (_currentToken.TokenType == AphidTokenType.ModulusOperator))
-                                || (_currentToken.TokenType == AphidTokenType.BinaryAndOperator))
-                                || (_currentToken.TokenType == AphidTokenType.BinaryOrOperator))
-                                || (_currentToken.TokenType == AphidTokenType.XorOperator))
-                                || (_currentToken.TokenType == AphidTokenType.ShiftLeft))
-                                || (_currentToken.TokenType == AphidTokenType.ShiftRight))
-                                || (_currentToken.TokenType == AphidTokenType.AndOperator))
-                                || (_currentToken.TokenType == AphidTokenType.OrOperator))
-                                || (_currentToken.TokenType == AphidTokenType.EqualityOperator))
-                                || (_currentToken.TokenType == AphidTokenType.NotEqualOperator))
-                                || (_currentToken.TokenType == AphidTokenType.NotEqualOperator))
-                                || (_currentToken.TokenType == AphidTokenType.LessThanOperator))
-                                || (_currentToken.TokenType == AphidTokenType.GreaterThanOperator))
-                                || (_currentToken.TokenType == AphidTokenType.LessThanOrEqualOperator))
-                                || (_currentToken.TokenType == AphidTokenType.GreaterThanOrEqualOperator))
-                                || (_currentToken.TokenType == AphidTokenType.PipelineOperator))
-                                || (_currentToken.TokenType == AphidTokenType.MemberOperator)))
+                    if ((((((((((((((((((((((CurrentToken.TokenType == AphidTokenType.MinusOperator)
+                                || (CurrentToken.TokenType == AphidTokenType.AdditionOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.MultiplicationOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.DivisionOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.ModulusOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.BinaryAndOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.BinaryOrOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.XorOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.ShiftLeft))
+                                || (CurrentToken.TokenType == AphidTokenType.ShiftRight))
+                                || (CurrentToken.TokenType == AphidTokenType.AndOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.OrOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.EqualityOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.NotEqualOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.NotEqualOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.LessThanOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.GreaterThanOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.LessThanOrEqualOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.GreaterThanOrEqualOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.PipelineOperator))
+                                || (CurrentToken.TokenType == AphidTokenType.MemberOperator)))
                     {
-                        var op = _currentToken.TokenType;
+                        var op = CurrentToken.TokenType;
                         NextToken();
                         exp = new PartialOperatorExpression(this._context, op, ParseRangeExpression());
                     }
                     else
                     {
-                        if (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((_currentToken.TokenType == AphidTokenType.CustomOperator000)
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator001))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator002))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator003))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator004))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator005))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator006))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator007))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator008))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator009))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator010))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator011))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator012))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator013))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator014))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator015))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator016))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator017))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator018))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator019))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator020))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator021))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator022))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator023))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator024))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator025))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator026))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator027))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator028))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator029))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator030))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator031))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator032))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator033))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator034))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator035))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator036))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator037))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator038))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator039))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator040))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator041))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator042))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator043))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator044))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator045))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator046))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator047))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator048))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator049))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator050))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator051))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator052))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator053))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator054))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator055))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator056))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator057))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator058))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator059))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator060))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator061))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator062))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator063))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator064))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator065))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator066))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator067))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator068))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator069))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator070))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator071))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator072))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator073))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator074))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator075))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator076))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator077))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator078))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator079))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator080))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator081))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator082))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator083))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator084))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator085))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator086))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator087))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator088))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator089))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator090))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator091))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator092))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator093))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator094))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator095))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator096))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator097))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator098))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator099))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator100))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator101))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator102))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator103))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator104))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator105))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator106))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator107))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator108))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator109))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator110))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator111))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator112))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator113))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator114))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator115))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator116))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator117))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator118))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator119))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator120))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator121))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator122))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator123))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator124))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator125))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator126))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator127))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator128))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator129))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator130))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator131))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator132))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator133))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator134))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator135))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator136))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator137))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator138))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator139))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator140))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator141))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator142))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator143))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator144))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator145))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator146))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator147))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator148))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator149))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator150))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator151))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator152))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator153))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator154))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator155))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator156))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator157))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator158))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator159))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator160))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator161))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator162))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator163))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator164))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator165))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator166))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator167))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator168))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator169))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator170))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator171))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator172))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator173))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator174))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator175))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator176))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator177))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator178))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator179))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator180))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator181))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator182))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator183))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator184))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator185))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator186))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator187))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator188))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator189))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator190))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator191))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator192))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator193))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator194))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator195))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator196))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator197))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator198))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator199))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator200))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator201))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator202))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator203))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator204))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator205))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator206))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator207))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator208))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator209))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator210))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator211))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator212))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator213))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator214))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator215))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator216))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator217))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator218))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator219))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator220))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator221))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator222))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator223))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator224))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator225))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator226))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator227))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator228))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator229))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator230))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator231))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator232))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator233))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator234))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator235))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator236))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator237))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator238))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator239))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator240))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator241))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator242))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator243))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator244))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator245))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator246))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator247))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator248))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator249))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator250))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator251))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator252))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator253))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator254))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator255))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator256))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator257))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator258))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator259))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator260))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator261))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator262))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator263))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator264))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator265))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator266))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator267))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator268))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator269))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator270))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator271))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator272))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator273))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator274))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator275))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator276))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator277))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator278))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator279))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator280))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator281))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator282))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator283))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator284))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator285))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator286))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator287))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator288))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator289))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator290))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator291))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator292))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator293))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator294))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator295))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator296))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator297))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator298))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator299))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator300))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator301))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator302))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator303))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator304))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator305))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator306))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator307))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator308))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator309))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator310))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator311))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator312))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator313))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator314))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator315))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator316))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator317))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator318))
-                                    || (_currentToken.TokenType == AphidTokenType.CustomOperator319)))
+                        if (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((CurrentToken.TokenType == AphidTokenType.CustomOperator000)
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator001))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator002))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator003))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator004))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator005))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator006))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator007))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator008))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator009))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator010))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator011))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator012))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator013))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator014))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator015))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator016))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator017))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator018))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator019))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator020))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator021))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator022))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator023))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator024))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator025))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator026))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator027))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator028))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator029))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator030))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator031))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator032))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator033))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator034))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator035))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator036))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator037))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator038))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator039))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator040))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator041))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator042))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator043))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator044))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator045))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator046))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator047))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator048))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator049))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator050))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator051))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator052))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator053))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator054))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator055))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator056))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator057))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator058))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator059))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator060))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator061))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator062))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator063))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator064))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator065))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator066))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator067))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator068))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator069))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator070))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator071))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator072))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator073))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator074))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator075))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator076))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator077))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator078))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator079))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator080))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator081))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator082))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator083))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator084))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator085))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator086))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator087))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator088))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator089))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator090))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator091))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator092))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator093))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator094))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator095))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator096))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator097))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator098))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator099))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator100))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator101))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator102))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator103))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator104))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator105))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator106))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator107))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator108))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator109))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator110))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator111))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator112))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator113))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator114))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator115))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator116))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator117))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator118))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator119))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator120))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator121))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator122))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator123))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator124))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator125))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator126))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator127))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator128))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator129))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator130))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator131))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator132))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator133))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator134))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator135))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator136))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator137))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator138))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator139))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator140))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator141))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator142))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator143))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator144))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator145))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator146))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator147))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator148))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator149))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator150))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator151))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator152))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator153))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator154))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator155))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator156))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator157))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator158))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator159))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator160))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator161))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator162))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator163))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator164))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator165))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator166))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator167))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator168))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator169))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator170))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator171))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator172))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator173))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator174))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator175))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator176))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator177))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator178))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator179))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator180))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator181))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator182))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator183))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator184))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator185))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator186))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator187))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator188))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator189))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator190))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator191))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator192))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator193))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator194))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator195))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator196))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator197))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator198))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator199))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator200))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator201))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator202))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator203))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator204))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator205))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator206))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator207))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator208))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator209))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator210))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator211))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator212))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator213))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator214))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator215))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator216))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator217))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator218))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator219))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator220))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator221))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator222))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator223))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator224))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator225))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator226))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator227))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator228))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator229))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator230))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator231))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator232))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator233))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator234))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator235))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator236))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator237))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator238))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator239))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator240))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator241))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator242))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator243))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator244))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator245))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator246))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator247))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator248))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator249))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator250))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator251))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator252))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator253))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator254))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator255))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator256))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator257))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator258))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator259))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator260))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator261))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator262))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator263))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator264))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator265))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator266))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator267))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator268))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator269))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator270))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator271))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator272))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator273))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator274))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator275))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator276))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator277))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator278))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator279))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator280))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator281))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator282))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator283))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator284))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator285))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator286))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator287))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator288))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator289))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator290))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator291))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator292))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator293))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator294))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator295))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator296))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator297))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator298))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator299))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator300))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator301))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator302))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator303))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator304))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator305))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator306))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator307))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator308))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator309))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator310))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator311))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator312))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator313))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator314))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator315))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator316))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator317))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator318))
+                                    || (CurrentToken.TokenType == AphidTokenType.CustomOperator319)))
                         {
-                            var op = _currentToken.TokenType;
+                            var op = CurrentToken.TokenType;
                             NextToken();
                             exp = new BinaryOperatorBodyExpression(this._context, op, ParseFunctionDeclaration());
                         }
@@ -5473,12 +5473,12 @@ namespace Components.Aphid.Parser
             NextToken();
             var patterns = new System.Collections.Generic.List<PatternExpression>();
             Match(AphidTokenType.LeftParenthesis);
-            var index003F = _currentToken.Index;
+            var index003F = CurrentToken.Index;
             var testExp = ParseExpression();
             if ((testExp.Index < 0))
             {
                 testExp.Index = index003F;
-                testExp.Length = (_currentToken.Index - index003F);
+                testExp.Length = (CurrentToken.Index - index003F);
             }
             Match(AphidTokenType.RightParenthesis);
             for (
@@ -5491,7 +5491,7 @@ namespace Components.Aphid.Parser
                 )
                 {
                     tuple.Add(ParseExpression());
-                    if ((_currentToken.TokenType == AphidTokenType.Comma))
+                    if ((CurrentToken.TokenType == AphidTokenType.Comma))
                     {
                         NextToken();
                     }
@@ -5501,15 +5501,15 @@ namespace Components.Aphid.Parser
                     }
                 }
                 AphidExpression valueExp = default(AphidExpression);
-                if ((_currentToken.TokenType == AphidTokenType.ColonOperator))
+                if ((CurrentToken.TokenType == AphidTokenType.ColonOperator))
                 {
                     NextToken();
-                    var index0040 = _currentToken.Index;
+                    var index0040 = CurrentToken.Index;
                     valueExp = ParseExpression();
                     if ((valueExp.Index < 0))
                     {
                         valueExp.Index = index0040;
-                        valueExp.Length = (_currentToken.Index - index0040);
+                        valueExp.Length = (CurrentToken.Index - index0040);
                     }
                     patterns.Add(new PatternExpression(this._context, valueExp, tuple));
                 }
@@ -5517,11 +5517,11 @@ namespace Components.Aphid.Parser
                 {
                     if ((tuple.Count != 1))
                     {
-                        throw new AphidParserException(_currentToken);
+                        throw new AphidParserException(CurrentToken);
                     }
                     patterns.Add(new PatternExpression(this._context, tuple[0]));
                 }
-                if ((_currentToken.TokenType == AphidTokenType.Comma))
+                if ((CurrentToken.TokenType == AphidTokenType.Comma))
                 {
                     NextToken();
                 }
@@ -5536,92 +5536,92 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseFactorExpression()
         {
             AphidExpression exp = default(AphidExpression);
-            if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+            if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
             {
-                var index0041 = _currentToken.Index;
+                var index0041 = CurrentToken.Index;
                 exp = ParseObjectExpression();
                 if ((exp.Index < 0))
                 {
                     exp.Index = index0041;
-                    exp.Length = (_currentToken.Index - index0041);
+                    exp.Length = (CurrentToken.Index - index0041);
                 }
             }
             else
             {
-                if ((_currentToken.TokenType == AphidTokenType.LeftBracket))
+                if ((CurrentToken.TokenType == AphidTokenType.LeftBracket))
                 {
-                    var index0042 = _currentToken.Index;
+                    var index0042 = CurrentToken.Index;
                     exp = ParseArrayExpression();
                     if ((exp.Index < 0))
                     {
                         exp.Index = index0042;
-                        exp.Length = (_currentToken.Index - index0042);
+                        exp.Length = (CurrentToken.Index - index0042);
                     }
                 }
                 else
                 {
-                    if ((_currentToken.TokenType == AphidTokenType.LeftParenthesis))
+                    if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
                     {
                         NextToken();
-                        var index0043 = _currentToken.Index;
+                        var index0043 = CurrentToken.Index;
                         exp = ParseExpression();
                         if ((exp.Index < 0))
                         {
                             exp.Index = index0043;
-                            exp.Length = (_currentToken.Index - index0043);
+                            exp.Length = (CurrentToken.Index - index0043);
                         }
                         Match(AphidTokenType.RightParenthesis);
                     }
                     else
                     {
-                        if ((_currentToken.TokenType == AphidTokenType.String))
+                        if ((CurrentToken.TokenType == AphidTokenType.String))
                         {
-                            var index0044 = _currentToken.Index;
+                            var index0044 = CurrentToken.Index;
                             exp = ParseStringExpression();
                             if ((exp.Index < 0))
                             {
                                 exp.Index = index0044;
-                                exp.Length = (_currentToken.Index - index0044);
+                                exp.Length = (CurrentToken.Index - index0044);
                             }
                         }
                         else
                         {
-                            if ((_currentToken.TokenType == AphidTokenType.Number))
+                            if ((CurrentToken.TokenType == AphidTokenType.Number))
                             {
-                                var index0045 = _currentToken.Index;
+                                var index0045 = CurrentToken.Index;
                                 exp = ParseNumberExpression();
                                 if ((exp.Index < 0))
                                 {
                                     exp.Index = index0045;
-                                    exp.Length = (_currentToken.Index - index0045);
+                                    exp.Length = (CurrentToken.Index - index0045);
                                 }
                             }
                             else
                             {
-                                if ((_currentToken.TokenType == AphidTokenType.Identifier))
+                                if ((CurrentToken.TokenType == AphidTokenType.Identifier))
                                 {
-                                    var index0046 = _currentToken.Index;
+                                    var index0046 = CurrentToken.Index;
                                     var id = ParseIdentifierExpression();
                                     if ((id.Index < 0))
                                     {
                                         id.Index = index0046;
-                                        id.Length = (_currentToken.Index - index0046);
+                                        id.Length = (CurrentToken.Index - index0046);
                                     }
-                                    if ((_currentToken.TokenType == AphidTokenType.definedKeyword))
+                                    if ((CurrentToken.TokenType == AphidTokenType.definedKeyword))
                                     {
                                         NextToken();
                                         exp = new UnaryOperatorExpression(this._context, AphidTokenType.definedKeyword, id, true);
                                     }
                                     else
                                     {
-                                        if ((_currentToken.TokenType == AphidTokenType.LeftBrace))
+                                        if ((CurrentToken.TokenType == AphidTokenType.LeftBrace))
                                         {
-                                            var index0047 = _currentToken.Index;
+                                            var index0047 = CurrentToken.Index;
                                             var obj = ParseObjectExpression();
                                             if ((obj.Index < 0))
                                             {
                                                 obj.Index = index0047;
-                                                obj.Length = (_currentToken.Index - index0047);
+                                                obj.Length = (CurrentToken.Index - index0047);
                                             }
                                             exp = new ObjectExpression(this._context, obj.Pairs, id);
                                         }
@@ -5633,141 +5633,141 @@ namespace Components.Aphid.Parser
                                 }
                                 else
                                 {
-                                    if ((_currentToken.TokenType == AphidTokenType.FunctionOperator))
+                                    if ((CurrentToken.TokenType == AphidTokenType.FunctionOperator))
                                     {
-                                        var index0048 = _currentToken.Index;
+                                        var index0048 = CurrentToken.Index;
                                         exp = ParseFunctionExpression();
                                         if ((exp.Index < 0))
                                         {
                                             exp.Index = index0048;
-                                            exp.Length = (_currentToken.Index - index0048);
+                                            exp.Length = (CurrentToken.Index - index0048);
                                         }
                                     }
                                     else
                                     {
-                                        if ((_currentToken.TokenType == AphidTokenType.ImplicitArgumentOperator))
+                                        if ((CurrentToken.TokenType == AphidTokenType.ImplicitArgumentOperator))
                                         {
-                                            var op = _currentToken.TokenType;
+                                            var op = CurrentToken.TokenType;
                                             NextToken();
                                             exp = new ImplicitArgumentExpression(this._context, op);
                                         }
                                         else
                                         {
-                                            if ((_currentToken.TokenType == AphidTokenType.ImplicitArgumentsOperator))
+                                            if ((CurrentToken.TokenType == AphidTokenType.ImplicitArgumentsOperator))
                                             {
-                                                var op = _currentToken.TokenType;
+                                                var op = CurrentToken.TokenType;
                                                 NextToken();
                                                 exp = new ImplicitArgumentsExpression(this._context, op);
                                             }
                                             else
                                             {
-                                                if ((((_currentToken.TokenType == AphidTokenType.throwKeyword)
-                                                            || (_currentToken.TokenType == AphidTokenType.retKeyword))
-                                                            || (_currentToken.TokenType == AphidTokenType.deleteKeyword)))
+                                                if ((((CurrentToken.TokenType == AphidTokenType.throwKeyword)
+                                                            || (CurrentToken.TokenType == AphidTokenType.retKeyword))
+                                                            || (CurrentToken.TokenType == AphidTokenType.deleteKeyword)))
                                                 {
-                                                    var index0049 = _currentToken.Index;
+                                                    var index0049 = CurrentToken.Index;
                                                     exp = ParseUnaryExpression();
                                                     if ((exp.Index < 0))
                                                     {
                                                         exp.Index = index0049;
-                                                        exp.Length = (_currentToken.Index - index0049);
+                                                        exp.Length = (CurrentToken.Index - index0049);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    if ((_currentToken.TokenType == AphidTokenType.trueKeyword))
+                                                    if ((CurrentToken.TokenType == AphidTokenType.trueKeyword))
                                                     {
                                                         exp = new BooleanExpression(this._context, true);
                                                         NextToken();
                                                     }
                                                     else
                                                     {
-                                                        if ((_currentToken.TokenType == AphidTokenType.falseKeyword))
+                                                        if ((CurrentToken.TokenType == AphidTokenType.falseKeyword))
                                                         {
                                                             exp = new BooleanExpression(this._context, false);
                                                             NextToken();
                                                         }
                                                         else
                                                         {
-                                                            if ((_currentToken.TokenType == AphidTokenType.thisKeyword))
+                                                            if ((CurrentToken.TokenType == AphidTokenType.thisKeyword))
                                                             {
                                                                 exp = new ThisExpression(this._context);
                                                                 NextToken();
                                                             }
                                                             else
                                                             {
-                                                                if ((_currentToken.TokenType == AphidTokenType.LoadScriptOperator))
+                                                                if ((CurrentToken.TokenType == AphidTokenType.LoadScriptOperator))
                                                                 {
-                                                                    var index004A = _currentToken.Index;
+                                                                    var index004A = CurrentToken.Index;
                                                                     exp = ParseLoadScriptExpression();
                                                                     if ((exp.Index < 0))
                                                                     {
                                                                         exp.Index = index004A;
-                                                                        exp.Length = (_currentToken.Index - index004A);
+                                                                        exp.Length = (CurrentToken.Index - index004A);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    if ((_currentToken.TokenType == AphidTokenType.LoadLibraryOperator))
+                                                                    if ((CurrentToken.TokenType == AphidTokenType.LoadLibraryOperator))
                                                                     {
-                                                                        var index004B = _currentToken.Index;
+                                                                        var index004B = CurrentToken.Index;
                                                                         exp = ParseLoadLibraryExpression();
                                                                         if ((exp.Index < 0))
                                                                         {
                                                                             exp.Index = index004B;
-                                                                            exp.Length = (_currentToken.Index - index004B);
+                                                                            exp.Length = (CurrentToken.Index - index004B);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
-                                                                        if ((_currentToken.TokenType == AphidTokenType.nullKeyword))
+                                                                        if ((CurrentToken.TokenType == AphidTokenType.nullKeyword))
                                                                         {
                                                                             exp = new NullExpression(this._context);
                                                                             NextToken();
                                                                         }
                                                                         else
                                                                         {
-                                                                            if ((_currentToken.TokenType == AphidTokenType.continueKeyword))
+                                                                            if ((CurrentToken.TokenType == AphidTokenType.continueKeyword))
                                                                             {
                                                                                 exp = new ContinueExpression(this._context);
                                                                                 NextToken();
                                                                             }
                                                                             else
                                                                             {
-                                                                                if ((_currentToken.TokenType == AphidTokenType.breakKeyword))
+                                                                                if ((CurrentToken.TokenType == AphidTokenType.breakKeyword))
                                                                                 {
                                                                                     exp = new BreakExpression(this._context);
                                                                                     NextToken();
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    if ((_currentToken.TokenType == AphidTokenType.HexNumber))
+                                                                                    if ((CurrentToken.TokenType == AphidTokenType.HexNumber))
                                                                                     {
-                                                                                        exp = new NumberExpression(this._context, System.Convert.ToUInt64(_currentToken.Lexeme.Substring(2), 16));
+                                                                                        exp = new NumberExpression(this._context, System.Convert.ToUInt64(CurrentToken.Lexeme.Substring(2), 16));
                                                                                         NextToken();
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        if ((_currentToken.TokenType == AphidTokenType.BinaryNumber))
+                                                                                        if ((CurrentToken.TokenType == AphidTokenType.BinaryNumber))
                                                                                         {
-                                                                                            exp = new NumberExpression(this._context, BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+                                                                                            exp = new NumberExpression(this._context, BinaryNumber.Parse(CurrentToken.Lexeme.Substring(2)));
                                                                                             NextToken();
                                                                                         }
                                                                                         else
                                                                                         {
-                                                                                            if ((_currentToken.TokenType == AphidTokenType.PatternMatchingOperator))
+                                                                                            if ((CurrentToken.TokenType == AphidTokenType.PatternMatchingOperator))
                                                                                             {
-                                                                                                var index004C = _currentToken.Index;
+                                                                                                var index004C = CurrentToken.Index;
                                                                                                 exp = ParsePatternMatchingExpression();
                                                                                                 if ((exp.Index < 0))
                                                                                                 {
                                                                                                     exp.Index = index004C;
-                                                                                                    exp.Length = (_currentToken.Index - index004C);
+                                                                                                    exp.Length = (CurrentToken.Index - index004C);
                                                                                                 }
                                                                                             }
                                                                                             else
                                                                                             {
-                                                                                                throw new AphidParserException(_currentToken);
+                                                                                                throw new AphidParserException(CurrentToken);
                                                                                             }
                                                                                         }
                                                                                     }
@@ -5795,9 +5795,9 @@ namespace Components.Aphid.Parser
         private AphidExpression ParseTextExpression()
         {
             AphidExpression t = default(AphidExpression);
-            if ((_currentToken.TokenType == AphidTokenType.Text))
+            if ((CurrentToken.TokenType == AphidTokenType.Text))
             {
-                t = new TextExpression(this._context, _currentToken.Lexeme);
+                t = new TextExpression(this._context, CurrentToken.Lexeme);
                 NextToken();
             }
             else
@@ -6272,11 +6272,11 @@ namespace Components.Aphid.Lexer
     }
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("llex", "1")]
-    public struct AphidToken
+    public readonly partial struct AphidToken
     {
-        public AphidTokenType TokenType;
-        public string Lexeme;
-        public int Index;
+        public readonly AphidTokenType TokenType;
+        public readonly string Lexeme;
+        public readonly int Index;
 
         public AphidToken(AphidTokenType tokenType, string lexeme, int index)
         {

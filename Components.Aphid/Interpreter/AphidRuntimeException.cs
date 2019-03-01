@@ -101,6 +101,7 @@ namespace Components.Aphid.Interpreter
         private string GetMessage()
         {
             var sb = new StringBuilder("Runtime exception occurred");
+
             bool expValid = IsValid(CurrentExpression),
                 stmtValid = IsValid(CurrentStatement),
                 hasExpType = HasType(CurrentExpression),

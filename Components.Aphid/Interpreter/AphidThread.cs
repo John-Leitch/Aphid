@@ -58,7 +58,8 @@ namespace Components.Aphid.Interpreter
                     OnInterpretObjectExecuting = parent.OnInterpretObjectExecuting,
                 };
 
-                child.PushFrame(string.Format("[Entrypoint (Thread 0x{0:X})]", Thread.CurrentThread.ManagedThreadId));
+                child.PushFrame(child.CreateEntryFrame());
+                //child.PushFrame(string.Format("[Entrypoint (Thread 0x{0:X})]", Thread.CurrentThread.ManagedThreadId));
                 child.Loader = parent.Loader.CreateChild(child);
 
                 //ThreadPool.QueueUserWorkItem(x =>

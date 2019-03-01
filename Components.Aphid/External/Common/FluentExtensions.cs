@@ -10,6 +10,12 @@ namespace Components
     [DebuggerStepThrough]
     public static partial class FluentExtensions
     {
+        public static T Do<T>(this T obj, Action action)
+        {
+            action();
+            return obj;
+        }
+
         public static T Do<T>(this T obj, Action<T> action)
         {
             action(obj);
@@ -95,6 +101,8 @@ namespace Components
 
             return x;
         }
+
+        public static K As<T, K>(this T obj, Func<T, K> func) => func(obj);
 
         public static TResult Then<T, TResult>(this T obj, Func<T, TResult> func) => func(obj);        
 
