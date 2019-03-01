@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 // Todo: move ops and other common funcs to core header,
 // autoload using INI setting.
 @ :: (fmt, args) string.Format(fmt, args);
-@ :> (fmt, args) $args.Count == 2 ? print(fmt, args) : print(fmt);
+@ :> (fmt, args) args defined ? fmt :: args : fmt |> print;
 @ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
 @ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
 @ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };

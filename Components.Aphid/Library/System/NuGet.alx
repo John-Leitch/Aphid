@@ -3,23 +3,31 @@ var nuget;
 
 @{
     using Components.Aphid.TypeSystem;
+    using System.Collections.Generic;   
+    using System.Net;
     using System.Reflection;
-    using System.Collections.Generic;
-    var nugetExe = Path.Combine(Path.GetDirectoryName(AphidObject.Assembly.Location), 'nuget.exe');
-    var nugetUrl = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe';
-
-    if (!File.Exists(nugetExe)) {
-        using System.Net;
-        (new WebClient()).DownloadFile(nugetUrl, nugetExe);
-    }
-
-    if (load nugetExe == null) {
-        fatal('Failed loading Nuget.Core');
-    }
 
     using NuGet;
 
     nuget = {
+        exe: Path.Combine(AphidObject.Assembly.Location | Path.GetDirectoryName, 'nuget.exe'),
+        exeUrl: 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe',
+
+        init: @{
+            if (!File.Exists(exe)) {
+                'Could not find2 ~Cyan~{0}~R~, downloading ~Yellow~{1}~R~' :> [ exe, exeUrl ];
+                (new WebClient()).DownloadFile(exeUrl, exe);
+            } else {
+                'Nuget assembly found at ~Green~{0}~R~' :> [ exe ];
+            }
+
+            if (load exe == null) {                
+                throw 'Failed loading Nuget.Core';
+            } else {
+                :> 'Nuget assembly loaded';
+            }
+        },
+
         repoUrl: "https://packages.nuget.org/api/v2",
         customResolver: false,
         isResolveSet: false,
@@ -120,6 +128,8 @@ var nuget;
                 null,
                 nuget.ignoreDependencies,
                 nuget.allowPrereleaseVersions);
+
+    nuget.init();
 }();
 
 // Todo: replace with preprocessor looping support
