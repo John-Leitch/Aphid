@@ -9,7 +9,7 @@ namespace Components.Cypress
 {
     public class TrampolineHeap
     {
-        private ProcessMemory _memory;
+        private readonly ProcessMemory _memory;
 
         private readonly List<IntPtr> _blocks = new List<IntPtr>();
 

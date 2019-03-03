@@ -12,7 +12,7 @@ namespace Aphid
 {
     internal static class Program
     {
-        private static AphidEvaluator _evaluator = new AphidEvaluator();
+        private static readonly AphidEvaluator _evaluator = new AphidEvaluator();
 
         private static void DisplayDirections()
         {

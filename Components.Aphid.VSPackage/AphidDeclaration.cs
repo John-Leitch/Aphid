@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.VSPackage
 {
-    
     public class AphidDeclaration
     {
         public string Name { get; set; }
@@ -29,7 +28,6 @@ namespace Components.Aphid.VSPackage
         public AphidDeclaration(string name, StandardGlyphGroup glyph)
             : this(name, null, name, glyph)
         {
-            
         }
     }
 }

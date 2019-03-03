@@ -12,9 +12,9 @@ namespace Components.Json
 {
     public static class JsonSerializer
     {
-        private static JavaScriptSerializer _serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+        private static readonly JavaScriptSerializer _serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
 
-        private static JsonFormatter _formatter = new JsonFormatter { ConvertToHex = false };
+        private static readonly JsonFormatter _formatter = new JsonFormatter { ConvertToHex = false };
 
         public static T Deserialize<T>(string json)
         {

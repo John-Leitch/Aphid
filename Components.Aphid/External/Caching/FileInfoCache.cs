@@ -9,7 +9,7 @@ namespace Components.Aphid
 {
     public class FileInfoCache
     {
-        private ArgLockingMemoizer<string, FileInfo> _fileInfoCache =
+        private readonly ArgLockingMemoizer<string, FileInfo> _fileInfoCache =
             new ArgLockingMemoizer<string, FileInfo>(StringComparer.OrdinalIgnoreCase);
 
         public FileInfo GetFileInfo(string path) => _fileInfoCache.Call(GetFileInfoCore, path);

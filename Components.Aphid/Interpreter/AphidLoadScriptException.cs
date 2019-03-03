@@ -20,17 +20,11 @@ namespace Components.Aphid.Interpreter
 
         public override string Details => GetMessage();
 
-        public AphidExceptionType LoadScriptExceptionType
-        {
-            get
-            {
-                return
-                    ParserException != null ? AphidExceptionType.ParserException :
+        public AphidExceptionType LoadScriptExceptionType =>
+            ParserException != null ? AphidExceptionType.ParserException :
                     AphidRuntimeException != null ? AphidExceptionType.AphidRuntimeException :
                     RuntimeException != null ? AphidExceptionType.RuntimeException :
                     AphidExceptionType.Unknown;
-            }
-        }
 
         public AphidLoadScriptException(
             AphidInterpreter interpreter,

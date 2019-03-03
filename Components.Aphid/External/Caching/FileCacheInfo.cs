@@ -9,7 +9,7 @@ namespace Components.Aphid
 {
     public class FileCacheInfo : ICacheInfo
     {
-        private Lazy<bool> _isOutdated;
+        private readonly Lazy<bool> _isOutdated;
 
         public bool IsOutdated => _isOutdated.Value;
 

@@ -113,7 +113,7 @@ namespace Components.Aphid.UI
                                 "Internal error encountered in autocomplete console:\r\n{0}",
                                 e.Message);
 
-                            AphidErrorReporter.Report(e, Interpreter);
+                            AphidErrorReporter.Report(e, Interpreter, passThrough: true);
 
                             if (e is ReflectionTypeLoadException le)
                             {
@@ -217,10 +217,11 @@ namespace Components.Aphid.UI
                 return;
             }
 
-            var lexer = new AphidLexer(code);
-            var tokens = lexer.GetTokens();
-            var exp = AphidParser.ParseExpression(tokens, code);
-            var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp)
+            var exp = AphidParser.ParseExpression(code);
+            
+            var retExp = new UnaryOperatorExpression(
+                AphidTokenType.retKeyword,
+                MutatorGroups.GetStandard().MutateSingle(exp))
                 .WithPositionFrom(exp);
 
             //new AphidCodeVisitor(code).VisitExpression(retExp);
@@ -233,7 +234,6 @@ namespace Components.Aphid.UI
             {
                 AphidCli.DumpValue(
                     Interpreter,
-                    Serializer ?? new AphidSerializer(Interpreter),
                     value,
                     ignoreNull: false,
                     ignoreClrObj: false);

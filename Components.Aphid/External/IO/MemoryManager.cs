@@ -10,7 +10,7 @@ namespace Components.IO
 
         private int _growSize;
 
-        private Stream _stream;
+        private readonly Stream _stream;
 
         private bool[] _bitmap;
 
@@ -114,7 +114,7 @@ namespace Components.IO
                 {
                     StartingPosition = handle;
                 }
-            }            
+            }
         }
 
         public byte[] Read(in Allocation allocation) => Read(allocation, GetSize(allocation));

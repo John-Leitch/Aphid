@@ -123,6 +123,5 @@ namespace Components.Aphid.UI
             return result;
         }
 
-        
     }
 }

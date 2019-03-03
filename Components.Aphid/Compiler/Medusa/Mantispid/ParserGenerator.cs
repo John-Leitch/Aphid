@@ -36,7 +36,7 @@ namespace Mantispid
     {
         private string[] _ruleNames;
 
-        private RuleTypeTable _ruleTypes = new RuleTypeTable();
+        private readonly RuleTypeTable _ruleTypes = new RuleTypeTable();
 
         private ParserGeneratorConfig _config;
 
@@ -864,7 +864,6 @@ namespace Mantispid
                     {
                         return CodeHelper.VarRef(node.Identifier);
                     }
-
             }
         }
 

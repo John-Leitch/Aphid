@@ -465,7 +465,7 @@ namespace Components
             }
         }
 
-        private static Random _random = new Random();
+        private static readonly Random _random = new Random();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Shuffle
@@ -518,7 +518,7 @@ namespace Components
         //    SetAction<TSource> action)
         //{
         //    action(source);
-            
+
         //    return source;
         //}
 

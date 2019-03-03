@@ -53,7 +53,6 @@ namespace Components.Aphid.VSPackage
 
             try
             {
-
                 if (AphidBuildInterop.Compile == null)
                 {
                     var interpreter = new AphidInterpreter();
@@ -120,9 +119,9 @@ namespace Components.Aphid.VSPackage
                     e);
             }
 
-            var bytes = csOut != null ? csOut.GetBytes() : null;
+            var bytes = csOut?.GetBytes();
 
-            if (bytes == null || !bytes.Any())
+            if (bytes == null || bytes.Length == 0)
             {
                 rgbOutputFileContents[0] = IntPtr.Zero;
                 pcbOutput = 0;
@@ -136,7 +135,6 @@ namespace Components.Aphid.VSPackage
 
             //pGenerateProgress.GeneratorError(
 
-
             return result;
         }
 
@@ -148,7 +146,7 @@ namespace Components.Aphid.VSPackage
         {
             Tuple<int, int> pos = null;
 
-            if (expression != null && expression.Index > -1)
+            if (expression?.Index > -1)
             {
                 pos = TokenHelper.GetIndexPosition(
                     code,

@@ -43,9 +43,9 @@ namespace Components.Aphid.Serialization
 
         private List<object> _traversed;
 
-        private Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
+        private readonly Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
 
-        private Stack<string> _currentPath = new Stack<string>();
+        private readonly Stack<string> _currentPath = new Stack<string>();
 
         public bool IgnoreLazyLists { get; set; }
 

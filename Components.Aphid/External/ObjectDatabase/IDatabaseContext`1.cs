@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Components.ObjectDatabase
 {
-
     public interface IDatabaseContext<TElement> : IDatabaseContext
     {
         void Create(TElement element);

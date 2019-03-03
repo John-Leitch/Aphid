@@ -11,9 +11,9 @@ namespace Mantispid
 {
     public class IndexTrackingMutator : AphidMutator
     {
-        private string[] _nonListRules;
+        private readonly string[] _nonListRules;
 
-        private List<AphidExpression> _mutated = new List<AphidExpression>();
+        private readonly List<AphidExpression> _mutated = new List<AphidExpression>();
 
         private int _indexNumber;
 

@@ -271,9 +271,13 @@ namespace VSCodeDebug
         public SetBreakpointsResponseBody(List<Breakpoint> bpts = null)
         {
             if (bpts == null)
+            {
                 breakpoints = new Breakpoint[0];
+            }
             else
+            {
                 breakpoints = bpts.ToArray<Breakpoint>();
+            }
         }
     }
 
@@ -511,7 +515,7 @@ namespace VSCodeDebug
             {
                 if (Uri.IsWellFormedUriString(clientPath, UriKind.Absolute))
                 {
-                    Uri uri = new Uri(clientPath);
+                    var uri = new Uri(clientPath);
                     return uri.LocalPath;
                 }
                 Program.Log("path not well formed: '{0}'", clientPath);

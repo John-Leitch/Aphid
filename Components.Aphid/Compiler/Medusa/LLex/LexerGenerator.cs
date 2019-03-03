@@ -8,7 +8,7 @@ namespace LLex
 {
     public class LexerGenerator
     {
-        private TokenTable table;
+        private readonly TokenTable table;
 
         public bool IgnoreCase { get; set; }
 
@@ -159,8 +159,8 @@ namespace LLex
                     defaults.Aggregate((x, y) => x + "\r\n" + y) + "\r\nbreak;\r\n";
             }
 
-            var template = !root ? 
-                Components.Aphid.Properties.Resources.StateTemplate : 
+            var template = !root ?
+                Components.Aphid.Properties.Resources.StateTemplate :
                 Components.Aphid.Properties.Resources.RootStateTemplate;
 
             return template.Replace("{{States}}", childTemplates);
@@ -191,7 +191,7 @@ namespace LLex
         public string Generate()
         {
             var enums = new [] { "None" }
-                .Concat(table.Lists                
+                .Concat(table.Lists
                     .SelectMany(x => x.Value)
                     .Select(x => x.TokenType)
                     .Concat(new[] { "Unknown", "EndOfFile" })

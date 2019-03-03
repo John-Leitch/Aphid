@@ -23,6 +23,7 @@ namespace Components.Aphid.Interpreter
             AsmBuilder = "$asm",
             Code = "$code",
             Interpreter = "$aphid",
+            DebugInterpreter = "$aphidDebug",
             OpenRepl = "openRepl",
             DumpSerializer = "dumpSerializer",
             Var = "var",

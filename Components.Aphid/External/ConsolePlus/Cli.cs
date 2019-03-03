@@ -31,11 +31,11 @@ namespace Components.External.ConsolePlus
 
         public const string DefaultHeaderStyle = "~|Blue~~White~";
 
-        private static int
+        private static readonly int
             _maxNameLength = Environment.UserInteractive ? (int)Math.Floor(((double)BufferWidth - 3) / 2) : 100,
             _maxValueLength = Environment.UserInteractive ? (int)Math.Ceiling(((double)BufferWidth - 4) / 2) : 100;
 
-        private static object _syncObject = new object();
+        private static readonly object _syncObject = new object();
 
 #if UNSAFE_CONSOLE
         private static object _messageSyncObject = new object();

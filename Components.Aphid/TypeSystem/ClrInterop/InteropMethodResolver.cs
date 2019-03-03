@@ -19,7 +19,7 @@ namespace Components.Aphid.TypeSystem
             InterpretMemberInteropExpression
             { get; }
 
-        private ReaderWriterLockSlim _importsLock;
+        private readonly ReaderWriterLockSlim _importsLock;
 
         public InteropMethodResolver(
             AphidInterpreter interpreter,
@@ -80,8 +80,6 @@ namespace Components.Aphid.TypeSystem
                 //{
                 //    _importsLock.ExitReadLock();
                 //}
-
-                
 
                 var extension = TypeExtender.TryResolve(
                     Interpreter.CurrentScope,

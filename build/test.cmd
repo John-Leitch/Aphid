@@ -1,5 +1,5 @@
 pushd .
-call buildTest
+::call buildTest
 cd c:\tools\nunit
 call testaphidfast
 popd

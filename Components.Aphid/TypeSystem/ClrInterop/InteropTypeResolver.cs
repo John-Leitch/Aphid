@@ -12,12 +12,12 @@ namespace Components.Aphid.TypeSystem
 {
     public class InteropTypeResolver : AphidRuntimeComponent
     {
-        private static Dictionary<InteropTypeContext, Type> _typeCache =
+        private static readonly Dictionary<InteropTypeContext, Type> _typeCache =
             new Dictionary<InteropTypeContext, Type>(new InteropTypeContextComparer());
 
-        private static ReaderWriterLockSlim _typeCacheLock = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim _typeCacheLock = new ReaderWriterLockSlim();
 
-        private static LockTable<InteropTypeContext> _contextLocks =
+        private static readonly LockTable<InteropTypeContext> _contextLocks =
             new LockTable<InteropTypeContext>(new InteropTypeContextExactComparer());
 
         public InteropTypeResolver(AphidInterpreter interpreter)

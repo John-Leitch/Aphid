@@ -11,11 +11,11 @@ namespace Mantispid
 {
     public class TypeInferenceMutator : AphidMutator
     {
-        private SymbolTable<ParserIdentifier> _idTable = new SymbolTable<ParserIdentifier>();
+        private readonly SymbolTable<ParserIdentifier> _idTable = new SymbolTable<ParserIdentifier>();
 
-        private List<string> _returnIds = new List<string>();
+        private readonly List<string> _returnIds = new List<string>();
 
-        private ParserGeneratorConfig _config;
+        private readonly ParserGeneratorConfig _config;
 
         public TypeInferenceMutator(ParserGeneratorConfig config) => _config = config;
 

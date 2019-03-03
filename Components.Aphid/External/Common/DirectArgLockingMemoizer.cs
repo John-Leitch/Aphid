@@ -7,7 +7,7 @@ namespace Components
 {
     public class DirectArgLockingMemoizer<TArg, TResult>
     {
-        private Dictionary<TArg, TResult> _cache;
+        private readonly Dictionary<TArg, TResult> _cache;
 
         private readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
 

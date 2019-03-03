@@ -37,4 +37,6 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Components.Aphid64.Explorables")]
 [assembly: InternalsVisibleTo("Components.Aphid.Tests1")]
 [assembly: InternalsVisibleTo("Components.Aphid.Debug.Explorables")]
+[assembly: InternalsVisibleTo("Components.Aphid.Explorables")]
+[assembly: InternalsVisibleTo("Components.Aphid.IntelliTests")]
 

@@ -9,13 +9,13 @@ namespace Components.Aphid
 {
     public abstract class FileSerializationCache<T>
     {
-        private FileCacheInfoSerializer _serializer;
+        private readonly FileCacheInfoSerializer _serializer;
 
-        private static Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
+        private static readonly Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
 
-        private static ReaderWriterLockSlim _inMemoryCacheLock = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim _inMemoryCacheLock = new ReaderWriterLockSlim();
 
-        private FileInfoCache _fileInfoCache = new FileInfoCache();
+        private readonly FileInfoCache _fileInfoCache = new FileInfoCache();
 
         public uint Flags { get; protected set; }
 
@@ -194,6 +194,5 @@ namespace Components.Aphid
             return filename + "." + Flags.ToString() + ".cache.metadata";
         }
 
-        
     }
 }

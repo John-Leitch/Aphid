@@ -1,0 +1,12 @@
+﻿var permutations;
+
+@{
+    var toName = (@+ 97) @> @|$_.char;
+
+    permutations = @(sets)
+        sets #! @(count) [
+            (0..count - 1) ->(@()[ $_, $_ | toName ])->@format('sets[{0}]-<@({1})'),
+            [ count - 1 @() format('sets[{0}]->@({1}) [{2}]', $_, $_ | toName, 0..count->toName @join(', ')) ]
+        ]
+        -<(@()$_ ) @join(' ') @format('@(sets) {0}') |> evalExp @(x) sets | x;
+}()

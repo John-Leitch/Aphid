@@ -66,7 +66,6 @@ namespace Components.Aphid.TypeSystem
                             tickIndex = -1;
                         }
                     }
-
                 }
 
                 if (tickIndex > -1)
@@ -98,7 +97,6 @@ namespace Components.Aphid.TypeSystem
             }
             else if (type.IsArray)
             {
-
                 var elemType = type.GetElementType();
                 TypeToString(elemType, fullName, sb);
 

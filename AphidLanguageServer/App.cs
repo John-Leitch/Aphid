@@ -225,7 +225,7 @@ namespace SampleServer
                 (int)@params.position.character);
 
             string buf;
-            Logger.Instance.Log(_text.Remove(index));
+            //Logger.Instance.Log(_text.Remove(index));
             _words = _scope.GetWords(_text, index, false, out buf).ToArray();
             _items = _words.Select((x, i) => new CompletionItem
             {

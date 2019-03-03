@@ -16,17 +16,17 @@ namespace Components.Cypress
         public event EventHandler Killing;
 
 #if FULL_DBG
-        private Dictionary<IntPtr, HookManager> _hookManagers = new Dictionary<IntPtr, HookManager>();
-        private Dictionary<IntPtr, BreakpointManager> _breakpointManagers = new Dictionary<IntPtr, BreakpointManager>();
+        private readonly Dictionary<IntPtr, HookManager> _hookManagers = new Dictionary<IntPtr, HookManager>();
+        private readonly Dictionary<IntPtr, BreakpointManager> _breakpointManagers = new Dictionary<IntPtr, BreakpointManager>();
         private readonly Dictionary<IntPtr, string> _breakpointModules = new Dictionary<IntPtr, string>();
         private readonly Dictionary<IntPtr, IntPtr> _breakpointBases = new Dictionary<IntPtr, IntPtr>();
 #endif
         private readonly Dictionary<IntPtr, string> _moduleTable = new Dictionary<IntPtr, string>();
         private Thread _debugThread;
         private bool _killProcesses;
-        private Dictionary<IntPtr, ProcessMemory> _readers;
-        private Dictionary<uint, bool> _loaderBreakpointTable = new Dictionary<uint, bool>();
-        private Dictionary<uint, Process> _processTable = new Dictionary<uint, Process>();
+        private readonly Dictionary<IntPtr, ProcessMemory> _readers;
+        private readonly Dictionary<uint, bool> _loaderBreakpointTable = new Dictionary<uint, bool>();
+        private readonly Dictionary<uint, Process> _processTable = new Dictionary<uint, Process>();
 
         public bool IsStarted { get; set; }
         public bool HideWindows { get; set; }

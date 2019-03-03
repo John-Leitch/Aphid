@@ -145,7 +145,7 @@ namespace Components.Aphid.Library
         private static string ConvertToHexByteString(decimal value) =>
             Convert.ToString((byte)value, 16).PadLeft(2, '0');
 
-        private static Random _random = new Random();
+        private static readonly Random _random = new Random();
 
         [AphidInteropFunction("randInt")]
         public static decimal RandomInt(decimal minValue, decimal maxValue)
@@ -178,8 +178,8 @@ namespace Components.Aphid.Library
         private static decimal ListCount(List<AphidObject> list) => (decimal)list.Count;
 
         private static List<AphidObject> ListOrder(
-            AphidInterpreter interpreter, 
-            AphidObject items, 
+            AphidInterpreter interpreter,
+            AphidObject items,
             AphidObject keySelector,
             Func<IEnumerable<AphidObject>, Func<AphidObject, object>, IOrderedEnumerable<AphidObject>> action)
         {
@@ -215,7 +215,7 @@ namespace Components.Aphid.Library
         private static string StringSubstring(AphidObject str, AphidObject index, AphidObject length)
         {
             var str2 = (string)str.Value;
-            return length == null || length.Value == null ? 
+            return length == null || length.Value == null ?
                 str2.Substring((int)(decimal)index.Value) :
                 str2.Substring((int)(decimal)index.Value, (int)(decimal)length.Value);
         }
@@ -256,7 +256,7 @@ namespace Components.Aphid.Library
         }
 
         [AphidInteropFunction("__string.contains")]
-        private static bool StringContains(string str, string str2) => 
+        private static bool StringContains(string str, string str2) =>
             _ignoreCase ? str.Contains(str2) : str.ToUpper().Contains(str2.ToUpper());
 
         [AphidInteropFunction("__string.isMatch")]
@@ -280,7 +280,7 @@ namespace Components.Aphid.Library
             obj.Select(x => AphidObject.Scalar(x.Key)).ToList();
 
         [AphidInteropFunction("setValue", PassInterpreter = true, UnwrapParameters = false)]
-        public static void SetValue(AphidInterpreter interpreter, AphidObject dst, object src) => 
+        public static void SetValue(AphidInterpreter interpreter, AphidObject dst, object src) =>
             dst.Value = ValueHelper.Unwrap(src);
     }
 }

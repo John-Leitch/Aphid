@@ -26,13 +26,13 @@ namespace Components.External.ConsolePlus
 
         private string _searchBuffer;
 
-        private string _prompt;
+        private readonly string _prompt;
 
         private bool _forceAutocomplete;
 
         private int _historyIndex;
 
-        private List<string> _history = new List<string>();
+        private readonly List<string> _history = new List<string>();
 
         public int MaxListSize { get; set; }
 

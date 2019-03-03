@@ -6,6 +6,5 @@ namespace Components.Aphid.Compiler
     {
         public static CodeMethodInvokeExpression Invoke(this CodeMethodReferenceExpression expression, params CodeExpression[] parameters) =>
             new CodeMethodInvokeExpression(expression, parameters);
-
     }
 }

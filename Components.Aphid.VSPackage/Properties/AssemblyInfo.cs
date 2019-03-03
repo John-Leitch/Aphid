@@ -14,8 +14,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("AphidPackage")]
 [assembly: AssemblyCopyright("Copyright © AutoSec Tools LLC 2018")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]   
-[assembly: ComVisible(false)]     
+[assembly: AssemblyCulture("")]
+[assembly: ComVisible(false)]
 [assembly: CLSCompliant(false)]
 [assembly: NeutralResourcesLanguage("en-US")]
 

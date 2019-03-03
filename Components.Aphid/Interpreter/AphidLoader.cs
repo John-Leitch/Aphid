@@ -19,10 +19,10 @@ namespace Components.Aphid.Interpreter
             !string.IsNullOrEmpty(_location) ? Path.GetDirectoryName(_location) : ".\\",
             "Library");
 
-        private static Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
+        private static readonly Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
 
-        private List<Assembly> _modules;
+        private readonly List<Assembly> _modules;
 
         public HashSet<string> SystemSearchPaths { get; } =
             new HashSet<string>(new[] { _libraryPath });
@@ -216,16 +216,9 @@ namespace Components.Aphid.Interpreter
                     }
                     else
                     {
-                        ast =
-                            new AphidPreprocessorDirectiveMutator().Mutate(
-                                new AphidMacroMutator().Mutate(
-                                    new PartialOperatorMutator().Mutate(
-                                        AphidParser.Parse(File.ReadAllText(f), f, isTextDocument))));
-
-                        if (!DisableConstantFolding)
-                        {
-                            ast = new ConstantFoldingMutator().Mutate(ast);
-                        }
+                        ast = (DisableConstantFolding ?
+                            MutatorGroups.GetMinimal() : MutatorGroups.GetStandard())
+                                .Mutate(AphidParser.Parse(File.ReadAllText(f), f, isTextDocument));
                     }
                 }
                 catch (AphidParserException e)

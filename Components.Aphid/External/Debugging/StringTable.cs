@@ -10,7 +10,7 @@ namespace Components.Cypress
 {
     public class StringTable : IEnumerable<string>
     {
-        private List<string> _values = new List<string>();
+        private readonly List<string> _values = new List<string>();
 
         public int this[string value]
         {

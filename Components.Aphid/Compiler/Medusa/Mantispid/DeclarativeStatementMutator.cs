@@ -11,7 +11,7 @@ namespace Mantispid
 {
     public class DeclarativeStatementMutator : AphidMutator
     {
-        private string[] _tokenTypes, _parseFunctions;
+        private readonly string[] _tokenTypes, _parseFunctions;
 
         public DeclarativeStatementMutator(string[] tokenTypes, string[] parseFunctions)
         {
@@ -45,7 +45,7 @@ namespace Mantispid
                     new List<AphidExpression>
                     {
                         new BinaryOperatorExpression(
-                            nameId, 
+                            nameId,
                             AphidTokenType.AssignmentOperator,
                             new IdentifierExpression("TokenType")),
                         match,

@@ -178,7 +178,7 @@ namespace VSCodeDebug
             stdOutPipeServer.WaitForConnection();
             //Cli.WriteSuccessMessage("Connected");
 
-            int port = -1;
+            var port = -1;
 
             // parse command line arguments
             foreach (var a in argv)
@@ -317,7 +317,7 @@ namespace VSCodeDebug
 
 		private static void RunServer(int port)
 		{
-			TcpListener serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
+			var serverSocket = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
 			serverSocket.Start();
 
 			new System.Threading.Thread(() => {

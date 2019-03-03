@@ -13,13 +13,13 @@ namespace Components
     {
         private readonly object _cacheSync = new object();
 
-        private RevertibleLazy<Dictionary<string, Assembly[]>> _assemblies =
+        private readonly RevertibleLazy<Dictionary<string, Assembly[]>> _assemblies =
             new RevertibleLazy<Dictionary<string, Assembly[]>>(() =>
                 AppDomain.CurrentDomain
                     .GetAssemblies()
                     .GroupToArrayDictionary(x => x.FullName.RemoveAtIndexOf(',')));
 
-        private Memoizer<HashSet<string>, IEnumerable<Type>>
+        private readonly Memoizer<HashSet<string>, IEnumerable<Type>>
             _getAllTypesMemoizer = new Memoizer<HashSet<string>, IEnumerable<Type>>(
                 new NamespaceEqualityComparer()),
 

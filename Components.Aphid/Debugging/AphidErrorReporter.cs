@@ -31,7 +31,8 @@ namespace Components.Aphid.Debugging
                 {
                     if (!_isEnabledSet)
                     {
-                        _isEnabled = AphidConfig.Current.SaveErrors;
+                        
+                        _isEnabled = AphidErrorHandling.HandleErrors && AphidConfig.Current.SaveErrors;
                         _isEnabledSet = true;
                     }
                 }
@@ -51,10 +52,10 @@ namespace Components.Aphid.Debugging
                     if (IsEnabled)
                     {
                         AppDomain.CurrentDomain.UnhandledException += (o, e) =>
-                            Report((Exception)e.ExceptionObject);
+                            Report((Exception)e.ExceptionObject, passThrough: true);
 
                         TaskScheduler.UnobservedTaskException += (o, e) =>
-                            Report(e.Exception);
+                            Report(e.Exception, passThrough: true);
                     }
 
                     IsInitialized = true;
@@ -62,35 +63,44 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        public static void Report(Exception o) => Report(o, null);
+        public static void Report(Exception o, bool passThrough) => Report(o, null, passThrough);
 
-        public static void Report(Exception o, AphidInterpreter interpreter)
+        public static void Report(Exception o, AphidInterpreter interpreter, bool passThrough)
         {
             lock (_sync)
             {
                 if (IsEnabled)
                 {
-                    SaveException(o, interpreter);
+                    SaveException(o, interpreter, passThrough);
                 }
             }
         }
 
-        public static void SaveException(Exception o) => SaveException(o, null);
+        private static void SaveException(Exception o, bool passThrough) =>
+            SaveException(o, null, passThrough);
 
-        public static void SaveException(Exception exception, AphidInterpreter interpreter) =>
-            SaveException(exception, interpreter, exit: true);
+        private static void SaveException(
+            Exception exception,
+            AphidInterpreter interpreter,
+            bool passThrough) =>
+            SaveException(exception, interpreter, exit: true, passThrough: passThrough);
 
-        public static void SaveException(Exception exception, AphidInterpreter interpreter, bool exit)
+        private static void SaveException(
+            Exception exception,
+            AphidInterpreter interpreter,
+            bool exit,
+            bool passThrough)
         {
             var dumpFile = AphidMemoryDump.Create();
 
             if (exception is AggregateException ae)
             {
-                new[] { ae }.Concat(ae.InnerExceptions).For((e, i) => SaveExceptionLogs(e, interpreter, i, dumpFile));
+                new[] { ae }.Concat(ae.InnerExceptions).For((e, i) =>
+                SaveExceptionLogs(e, interpreter, i, dumpFile, passThrough));
             }
             else
             {
-                SaveExceptionLogs(exception, interpreter, -1, dumpFile);
+                SaveExceptionLogs(exception, interpreter, -1, dumpFile, passThrough);
             }
 
             if (exit)
@@ -146,11 +156,10 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        private static bool HasSaveThreads(Process p, int[] ignoreTids)
-        {
-            return p.Threads
+        private static bool HasSaveThreads(Process p, int[] ignoreTids) =>
+            p.Threads
                 .OfType<Thread>()
-                .Member(y => y.ManagedThreadId)                
+                .Member(y => y.ManagedThreadId)
                 .Not(ignoreTids.Contains)
                 .Select(y =>
                 {
@@ -176,29 +185,59 @@ namespace Components.Aphid.Debugging
                 .Any(y => y
                     .SkipWhile(z => !z.Contains("AphidErrorReporter.SaveException"))
                     .None(z => z.Contains("QueueUserWorkItem")));
-        }
 
-        private static void SaveExceptionLogs(Exception exception, AphidInterpreter interpreter, int number, string dumpFile)
+        private static void SaveExceptionLogs(
+            Exception exception,
+            AphidInterpreter interpreter,
+            int number,
+            string dumpFile,
+            bool passThrough)
         {
-            var tag = number >= 0 ? $"{number}." : "";
-            AphidRuntimeException are;
-            AphidInterpreter exInterpreter = null;
-
             var sb = new StringBuilder();
             var writeOut = AphidCli.WriteOut;
             var writeLineOut = AphidCli.WriteLineOut;
 
-            AphidCli.WriteOut = x =>
+            if (passThrough)
             {
-                sb.Append(EraseStyles(x));
-                writeOut(x);
-            };
+                AphidCli.WriteOut = x =>
+                {
+                    sb.Append(EraseStyles(x));
+                    writeOut(x);
+                };
 
-            AphidCli.WriteLineOut = x =>
+                AphidCli.WriteLineOut = x =>
+                {
+                    sb.AppendLine(EraseStyles(x));
+                    writeLineOut(x);
+                };
+            }
+            else
             {
-                sb.AppendLine(EraseStyles(x));
-                writeLineOut(x);
-            };
+                AphidCli.WriteOut = x => sb.Append(EraseStyles(x));
+                AphidCli.WriteLineOut = x => sb.AppendLine(EraseStyles(x));
+            }
+
+            try
+            {
+                WriteLog(exception, interpreter, number, dumpFile, sb);
+            }
+            finally
+            {
+                AphidCli.WriteOut = writeOut;
+                AphidCli.WriteLineOut = writeLineOut;
+            }
+        }
+
+        private static void WriteLog(
+            Exception exception,
+            AphidInterpreter interpreter,
+            int number,
+            string dumpFile,
+            StringBuilder sb)
+        {
+            var tag = number >= 0 ? $"{number}." : "";
+            AphidRuntimeException are;
+            AphidInterpreter exInterpreter = null;
 
             if (exception is AphidLoadScriptException ale)
             {
@@ -280,12 +319,10 @@ namespace Components.Aphid.Debugging
         private static void TryWriteValue(
             StreamWriter writer,
             string name,
-            Func<object> getValue)
-        {
+            Func<object> getValue) =>
             DebugTry(
                 writer,
                 () => writer.WriteLine("{0}:\r\n{1}\r\n", name, getValue() ?? "null"));
-        }
 
         private static void WalkExceptions(Exception rootException, StreamWriter writer)
         {
@@ -309,9 +346,7 @@ namespace Components.Aphid.Debugging
         private static void FindExceptionProperties(
             Exception node,
             List<Exception> exceptionHistory,
-            Queue<Exception> exceptionQueue)
-        {
-            var nestedExceptions = node
+            Queue<Exception> exceptionQueue) => node
                 .GetType()
                 .GetProperties()
                 .SelectMany(x =>
@@ -340,13 +375,7 @@ namespace Components.Aphid.Debugging
 
                     return nested;
                 })
-                .ToArray();
-
-            foreach (var n in nestedExceptions)
-            {
-                exceptionQueue.Enqueue(n);
-            }
-        }
+                .For(exceptionQueue.Enqueue);
 
         private static void DebugTry(Action action)
         {

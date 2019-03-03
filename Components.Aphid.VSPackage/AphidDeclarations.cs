@@ -11,11 +11,11 @@ namespace Components.Aphid.VSPackage
 {
     public class AphidDeclarations : Declarations
     {
-        private string _text;
+        private readonly string _text;
 
         private AphidDeclaration[] _declarations;
 
-        private AphidAuthoringScope _scope;
+        private readonly AphidAuthoringScope _scope;
 
         public AphidDeclarations(AphidAuthoringScope scope, string text)
         {

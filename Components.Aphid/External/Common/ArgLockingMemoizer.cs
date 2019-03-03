@@ -7,7 +7,7 @@ namespace Components
 {
     public class ArgLockingMemoizer<TArg, TResult>
     {
-        private Dictionary<TArg, TResult> _cache;
+        private readonly Dictionary<TArg, TResult> _cache;
 
         private readonly LockTable<TArg> _locks = new LockTable<TArg>();
 

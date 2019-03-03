@@ -12,7 +12,7 @@ namespace Components.Aphid.Library.Net
     [AphidLibraryAttribute("tcp")]
     public static class TcpLibrary
     {
-        private static Dictionary<NetworkStream, TcpClient> _clients = new Dictionary<NetworkStream, TcpClient>();
+        private static readonly Dictionary<NetworkStream, TcpClient> _clients = new Dictionary<NetworkStream, TcpClient>();
 
         [AphidInteropFunction("__tcp.connect")]
         public static NetworkStream TcpConnect(string host, decimal port)
@@ -36,7 +36,7 @@ namespace Components.Aphid.Library.Net
             {
                 stream.Close();
                 var c = _clients[stream];
-                c.Close();                
+                c.Close();
                 _clients.Remove(stream);
             }
         }

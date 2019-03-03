@@ -6,7 +6,7 @@ namespace Components.Aphid
 {
     public static class FileMemoryCache
     {
-        private static Dictionary<string, CacheBlob<byte[]>> _cache =
+        private static readonly Dictionary<string, CacheBlob<byte[]>> _cache =
             new Dictionary<string, CacheBlob<byte[]>>();
 
         public static Stream OpenRead(string filename) =>

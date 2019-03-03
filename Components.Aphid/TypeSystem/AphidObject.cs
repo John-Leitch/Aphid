@@ -10,10 +10,12 @@
 #define CHECK_COMPLEXITY_SET
 //#define CHECK_WRAPPED_NULL
 #endif
+using Components.Aphid.Debugging;
 using Components.Aphid.Interpreter;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
@@ -22,10 +24,13 @@ using System.Threading;
 namespace Components.Aphid.TypeSystem
 {
     [Serializable]
+    [DebuggerTypeProxy(typeof(AphidObjectDebugView))]
     public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public const int MaxToStringMembers = 0x8;
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public static readonly AphidObject
             InternedNull = Scalar(null),
             InternedTrue = Scalar(true),
@@ -441,17 +446,15 @@ namespace Components.Aphid.TypeSystem
         public static AphidObject ConvertFrom<T>(T o, bool allProperties) =>
             ConvertFrom(typeof(T), o, allProperties);
 
-        public AphidObject Resolve(AphidInterpreter interpreter, string key, string errorMessage = null)
-        {
-            if (!TryResolve(key, out var obj))
-            {
-                throw errorMessage == null ?
-                    interpreter.CreateValueException(this, "Could not resolve property {0}", key) :
-                    interpreter.CreateValueException(this, errorMessage);
-            }
-
-            return obj;
-        }
+        public AphidObject Resolve(
+            AphidInterpreter interpreter,
+            string key, string
+            errorMessage = null) =>
+            TryResolve(key, out var obj) ?
+                obj :
+                throw interpreter.CreateValueException(
+                    this,
+                    errorMessage ?? $"Could not resolve property {key}");
 
         public bool TryResolve(string key, out AphidObject value)
         {
