@@ -7,7 +7,7 @@ namespace Components.ObjectDatabase
 {
     public abstract class ObjectDatabaseBase<TElement> : CriticalFinalizerObject, IDatabaseContext<TElement>
     {
-        private CrossProcessLockContext _locks = new CrossProcessLockContext();
+        private readonly CrossProcessLockContext _locks = new CrossProcessLockContext();
 
         public bool IsOpened { get; private set; }
 

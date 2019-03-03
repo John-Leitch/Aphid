@@ -12,10 +12,10 @@ namespace Components.Aphid.Library.Net.Http
 {
     public class AphidSessionManager
     {
-        private Dictionary<string, AphidObject> _sessions =
+        private readonly Dictionary<string, AphidObject> _sessions =
             new Dictionary<string, AphidObject>();
 
-        private RNGCryptoServiceProvider _rng = new RNGCryptoServiceProvider();
+        private readonly RNGCryptoServiceProvider _rng = new RNGCryptoServiceProvider();
 
         public const string CookieName = "AphidSession";
 

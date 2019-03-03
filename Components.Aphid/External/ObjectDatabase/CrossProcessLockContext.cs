@@ -8,7 +8,7 @@ namespace Components
     {
         public const string DefaultLockName = "Global";
 
-        private Dictionary<string, CrossProcessLock> _locks = new Dictionary<string, CrossProcessLock>();
+        private readonly Dictionary<string, CrossProcessLock> _locks = new Dictionary<string, CrossProcessLock>();
 
         public void AcquireLock() => AcquireLock(DefaultLockName);
 

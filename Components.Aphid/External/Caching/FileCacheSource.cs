@@ -9,11 +9,11 @@ namespace Components.Aphid
 {
     public class FileCacheSource
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public DateTime CacheTime { get; private set; }
+        public DateTime CacheTime { get; }
 
-        public FileInfo File { get; private set; }
+        public FileInfo File { get; }
 
         public FileCacheSource(string name, DateTime cacheTime)
         {

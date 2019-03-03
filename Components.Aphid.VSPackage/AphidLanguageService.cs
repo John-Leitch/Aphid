@@ -14,7 +14,7 @@ namespace Components.Aphid.VSPackage
 {
     public class AphidLanguageService : LanguageService
     {
-        private bool _isTest = true;
+        private readonly bool _isTest = true;
 
         public override string GetFormatFilterList()
         {
@@ -93,7 +93,6 @@ namespace Components.Aphid.VSPackage
                 iEndIndex = col + 1,
             };
         }
-
 
         private List<AphidToken> GetTokens(string text)
         {

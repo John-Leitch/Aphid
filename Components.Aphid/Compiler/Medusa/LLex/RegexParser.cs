@@ -23,9 +23,11 @@ namespace LLex
      *          | "\u", hexChar, hexChar, hexChar, hexChar,
      *          | "\x", hexChar, hexChar
      */
-    public class RegexParser
+    public partial class RegexParser
     {
-        private RegexToken[] _tokens;
+        private readonly RegexToken[] _tokens;
+
+        private readonly List<RegexToken> _expressionTokens = new List<RegexToken>();
 
         private int _tokenIndex = -1;
 

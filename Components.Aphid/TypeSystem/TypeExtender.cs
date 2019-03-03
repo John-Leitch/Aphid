@@ -11,18 +11,18 @@ namespace Components.Aphid.TypeSystem
 {
     public class TypeExtender : AphidRuntimeComponent
     {
-        private static DirectArgLockingMemoizer<Type, string[]>
+        private static readonly DirectArgLockingMemoizer<Type, string[]>
             _staticTypeMemoizer = new DirectArgLockingMemoizer<Type,string[]>(),
             _fanInteropTypeMemoizer = new DirectArgLockingMemoizer<Type, string[]>(),
             _fanAphidTypeMemoizer = new DirectArgLockingMemoizer<Type, string[]>();
 
         private static bool _isUnknownExtended;
 
-        private static HashSet<string> _typesExtended = new HashSet<string>(),
+        private static readonly HashSet<string> _typesExtended = new HashSet<string>(),
             _typesCtorExtended = new HashSet<string>(),
             _typesDynamicallyExtended = new HashSet<string>();
 
-        private ReaderWriterLockSlim _importsLock;
+        private readonly ReaderWriterLockSlim _importsLock;
 
         public TypeExtender(AphidInterpreter interpreter, ReaderWriterLockSlim importsLock)
             : base(interpreter) =>
@@ -114,7 +114,7 @@ namespace Components.Aphid.TypeSystem
 
             return names.ToArray();
         }
-        
+
         private static string[] FanAphidName(Type t)
         {
             var names = new List<string>();
@@ -384,7 +384,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     len = classHierarchy.Length - 1;
                 }
-                
+
                 for (; startOffset < len; startOffset++)
                 {
                     if (types.Contains(classHierarchy[startOffset]))

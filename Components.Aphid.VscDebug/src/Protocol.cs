@@ -146,7 +146,7 @@ namespace VSCodeDebug
         {
             _outputStream = outputStream;
 
-            byte[] buffer = new byte[BUFFER_SIZE];
+            var buffer = new byte[BUFFER_SIZE];
 
             _stopRequested = false;
             while (!_stopRequested)
@@ -217,11 +217,11 @@ namespace VSCodeDebug
                 }
                 else
                 {
-                    string s = _rawData.GetString(Encoding);
+                    var s = _rawData.GetString(Encoding);
                     var idx = s.IndexOf(TWO_CRLF);
                     if (idx != -1)
                     {
-                        Match m = CONTENT_LENGTH_MATCHER.Match(s);
+                        var m = CONTENT_LENGTH_MATCHER.Match(s);
                         if (m.Success && m.Groups.Count == 2)
                         {
                             _bodyLength = Convert.ToInt32(m.Groups[1].ToString());
@@ -261,7 +261,7 @@ namespace VSCodeDebug
                         {
                             var response = JsonConvert.DeserializeObject<Response>(req);
                             //Program.Log("[i] resp: {0}", response);
-                            int seq = response.request_seq;
+                            var seq = response.request_seq;
                             lock (_pendingRequests)
                             {
                                 if (_pendingRequests.ContainsKey(seq))
@@ -323,12 +323,12 @@ namespace VSCodeDebug
         private static byte[] ConvertToBytes(ProtocolMessage request)
         {
             var asJson = JsonConvert.SerializeObject(request);
-            byte[] jsonBytes = Encoding.GetBytes(asJson);
+            var jsonBytes = Encoding.GetBytes(asJson);
 
-            string header = string.Format("Content-Length: {0}{1}", jsonBytes.Length, TWO_CRLF);
-            byte[] headerBytes = Encoding.GetBytes(header);
+            var header = string.Format("Content-Length: {0}{1}", jsonBytes.Length, TWO_CRLF);
+            var headerBytes = Encoding.GetBytes(header);
 
-            byte[] data = new byte[headerBytes.Length + jsonBytes.Length];
+            var data = new byte[headerBytes.Length + jsonBytes.Length];
             System.Buffer.BlockCopy(headerBytes, 0, data, 0, headerBytes.Length);
             System.Buffer.BlockCopy(jsonBytes, 0, data, headerBytes.Length, jsonBytes.Length);
 
@@ -347,10 +347,7 @@ namespace VSCodeDebug
             _buffer = new byte[0];
         }
 
-        public int Length
-        {
-            get { return _buffer.Length; }
-        }
+        public int Length => _buffer.Length;
 
         public string GetString(Encoding enc)
         {
@@ -359,7 +356,7 @@ namespace VSCodeDebug
 
         public void Append(byte[] b, int length)
         {
-            byte[] newBuffer = new byte[_buffer.Length + length];
+            var newBuffer = new byte[_buffer.Length + length];
             System.Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);
             System.Buffer.BlockCopy(b, 0, newBuffer, _buffer.Length, length);
             _buffer = newBuffer;
@@ -367,9 +364,9 @@ namespace VSCodeDebug
 
         public byte[] RemoveFirst(int n)
         {
-            byte[] b = new byte[n];
+            var b = new byte[n];
             System.Buffer.BlockCopy(_buffer, 0, b, 0, n);
-            byte[] newBuffer = new byte[_buffer.Length - n];
+            var newBuffer = new byte[_buffer.Length - n];
             System.Buffer.BlockCopy(_buffer, n, newBuffer, 0, _buffer.Length - n);
             _buffer = newBuffer;
             return b;

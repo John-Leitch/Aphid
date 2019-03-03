@@ -14,7 +14,7 @@ namespace Components.Aphid.Interpreter
 
         private AphidInterpreter _interpreter;
 
-        private static object _sync = new object();
+        private static readonly object _sync = new object();
 
         public static AphidIpcContext Instance { get; private set; }
 

@@ -8,7 +8,7 @@ namespace Components.Aphid.Library.Net.Http
 {
     public class HttpMessagePart
     {
-        private Dictionary<string, List<string>> _fieldDictionary = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<string>> _fieldDictionary = new Dictionary<string, List<string>>();
 
         protected Dictionary<string, List<string>> FieldDictionary => _fieldDictionary;
 

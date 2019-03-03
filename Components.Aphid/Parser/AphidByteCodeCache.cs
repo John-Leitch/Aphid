@@ -60,12 +60,7 @@ namespace Components.Aphid.Parser
             {
                 ast = AphidParser.ParseFile(filename, useImplicitReturns: false);
             }
-
-            var partialOpMutator = new PartialOperatorMutator();
-            var macroMutator = new AphidMacroMutator();
-            var directiveMutator = new AphidPreprocessorDirectiveMutator();
-            var constantFoldingMutator = new ConstantFoldingMutator();
-
+            
             if (InlineScripts)
             {
                 IncludeMutator includeMutator;
@@ -89,16 +84,12 @@ namespace Components.Aphid.Parser
                 {
                     includeMutator.Loader.SearchPaths.Add(p);
                 }
-
-                ast =
-                    includeMutator.Mutate(
-                        directiveMutator.Mutate(
-                            macroMutator.Mutate(
-                                partialOpMutator.Mutate(ast))));
+                
+                ast = includeMutator.Mutate(MutatorGroups.GetMinimal().Mutate(ast));
 
                 if (!DisableConstantFolding)
                 {
-                    ast = constantFoldingMutator.Mutate(ast);
+                    ast = new ConstantFoldingMutator().Mutate(ast);
                 }
 
                 includeMutator.Included.Add(filename);
@@ -108,15 +99,10 @@ namespace Components.Aphid.Parser
                 return ast;
             }
 
-            ast =
-                directiveMutator.Mutate(
-                    macroMutator.Mutate(
-                        partialOpMutator.Mutate(ast)));
-
-            if (!DisableConstantFolding)
-            {
-                ast = constantFoldingMutator.Mutate(ast);
-            }
+            ast = (DisableConstantFolding ?
+                MutatorGroups.GetMinimal() :
+                MutatorGroups.GetStandard())
+                .Mutate(ast);
 
             sources = new[] { filename };
 

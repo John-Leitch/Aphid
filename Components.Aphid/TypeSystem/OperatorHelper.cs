@@ -297,7 +297,7 @@ namespace Components.Aphid.TypeSystem
                 return x.Value.Equals(y.Value);
             }
 
-            return (null == y.Value && x.Count == 0 && y.Count == 0);
+            return null == y.Value && x.Count == 0 && y.Count == 0;
         }
 
         public static AphidObject Equals(AphidObject x, AphidObject y) =>
@@ -314,7 +314,7 @@ namespace Components.Aphid.TypeSystem
                 Interpreter.CurrentExpression,
                 op);
 
-        public bool Equals(object left, object right) => Equals(Interpreter, left, right);
+        //public bool Equals(object left, object right) => Equals(Interpreter, left, right);
 
         public static bool Equals(AphidInterpreter instance, object left, object right)
         {

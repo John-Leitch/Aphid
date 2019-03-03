@@ -217,7 +217,6 @@ namespace Components.Aphid.Library.Net.Http
                             tailBuffer[i + offset] = (byte)bodyStr[i];
                         }
                     }
-
                 }
 
                 if (!bodyStr.EndsWith("0\r\n\r\n"))

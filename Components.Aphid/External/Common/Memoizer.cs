@@ -6,7 +6,7 @@ namespace Components.External
 {
     public class Memoizer<TArg, TResult>
     {
-        private Dictionary<TArg, TResult> _cache;
+        private readonly Dictionary<TArg, TResult> _cache;
 
         public Memoizer() => _cache = new Dictionary<TArg, TResult>();
 

@@ -17,7 +17,6 @@ namespace Components.Aphid.Debugging
 
             try
             {
-                
                 MemoryDump.Create(f);
                 Cli.WriteCriticalErrorMessage($"Created memory dump '{f}'.");
 

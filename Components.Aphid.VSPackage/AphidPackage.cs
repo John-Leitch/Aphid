@@ -19,19 +19,18 @@ namespace Components.Aphid.VSPackage
         [ProvideService(typeof(AphidLanguageService))]
         [ProvideLanguageExtension(typeof(AphidLanguageService), ".alx")]
         [ProvideLanguageService(
-            typeof(AphidLanguageService), 
-            "Aphid Language", 
+            typeof(AphidLanguageService),
+            "Aphid Language",
             0)]
         [Guid("2e5ec861-04b2-4a6c-ad40-8e1e0ee0ceb6")]
         public class AphidPackage : Package, IOleComponent
         {
             private uint _componentID;
 
-
             protected override void Initialize()
             {
                 base.Initialize();
-                
+
                 IServiceContainer serviceContainer = this as IServiceContainer;
                 AphidLanguageService langService = new AphidLanguageService();
                 langService.SetSite(this);
@@ -51,13 +50,11 @@ namespace Components.Aphid.VSPackage
                 }
             }
 
-
             protected override void Dispose(bool disposing)
             {
                 if (_componentID != 0)
                 {
-                    IOleComponentManager manager = GetService(typeof(SOleComponentManager)) as IOleComponentManager;
-                    if (manager != null)
+                    if (GetService(typeof(SOleComponentManager)) is IOleComponentManager manager)
                     {
                         int hr = manager.FRevokeComponent(_componentID);
                     }
@@ -67,15 +64,13 @@ namespace Components.Aphid.VSPackage
                 base.Dispose(disposing);
             }
 
-
             #region IOleComponent Members
 
             public int FDoIdle(uint grfidlef)
             {
                 var periodic = (grfidlef & (uint)_OLEIDLEF.oleidlefPeriodic) != 0;
-                var service = GetService(typeof(AphidLanguageService)) as LanguageService;
-                
-                if (service != null)
+
+                if (GetService(typeof(AphidLanguageService)) is LanguageService service)
                 {
                     service.OnIdle(periodic);
                 }
@@ -108,8 +103,8 @@ namespace Components.Aphid.VSPackage
                 return IntPtr.Zero;
             }
 
-            public void OnActivationChange(IOleComponent pic, int fSameComponent, 
-                OLECRINFO[] pcrinfo, int fHostIsActivating, OLECHOSTINFO[] pchostinfo, 
+            public void OnActivationChange(IOleComponent pic, int fSameComponent,
+                OLECRINFO[] pcrinfo, int fHostIsActivating, OLECHOSTINFO[] pchostinfo,
                 uint dwReserved)
             {
             }

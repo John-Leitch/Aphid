@@ -11,7 +11,7 @@ namespace Components.Cypress
     {
         private readonly Func<TKey, TValue> _createValue;
 
-        private Dictionary<TKey, TValue> _values = new Dictionary<TKey, TValue>();
+        private readonly Dictionary<TKey, TValue> _values = new Dictionary<TKey, TValue>();
 
         public Cache(Func<TKey, TValue> createValue) => _createValue = createValue;
 

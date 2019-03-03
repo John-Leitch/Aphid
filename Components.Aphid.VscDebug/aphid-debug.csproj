@@ -5,7 +5,7 @@
       <PropertyGroup>
         <PlatformTarget>x86</PlatformTarget>
         <Bitness>32</Bitness>
-        <BitnessDirective>X86</BitnessDirective>        
+        <BitnessDirective>X86</BitnessDirective>
       </PropertyGroup>
     </When>
     <When Condition="$(Configuration.EndsWith('64'))">
@@ -18,9 +18,10 @@
     <Otherwise>
       <PropertyGroup>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <Bitness></Bitness>
+        <Bitness>
+        </Bitness>
         <BitnessDirective>ANY_CPU</BitnessDirective>
-      </PropertyGroup>        
+      </PropertyGroup>
     </Otherwise>
   </Choose>
   <PropertyGroup>
@@ -50,12 +51,12 @@
     <TargetFrameworkProfile />
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>    
+    <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>
-    <OutputPath>bin\Debug$(Bitness)\</OutputPath>    
-  </PropertyGroup>  
+    <OutputPath>bin\Debug$(Bitness)\</OutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
-    <Prefer32Bit>true</Prefer32Bit>    
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default6'">
     <!-- <OutputPath>bin\Debug\</OutputPath> -->
@@ -99,8 +100,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

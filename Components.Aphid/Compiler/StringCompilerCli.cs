@@ -12,7 +12,7 @@ namespace Components.Aphid.Compiler
 {
     public class StringCompilerCli
     {
-        private AphidStringEmitter _emitter;
+        private readonly AphidStringEmitter _emitter;
 
         private readonly string _name;
 
@@ -20,7 +20,7 @@ namespace Components.Aphid.Compiler
 
         private readonly string _extension;
 
-        private string[] _args;
+        private readonly string[] _args;
 
         private readonly bool _isText;
 
@@ -39,7 +39,7 @@ namespace Components.Aphid.Compiler
             _args = Environment.GetCommandLineArgs().Skip(1).ToArray();
         }
 
-        private Memoizer<string, string[]> _inputFileMemoizer = new Memoizer<string, string[]>();
+        private readonly Memoizer<string, string[]> _inputFileMemoizer = new Memoizer<string, string[]>();
 
         private void WriteHeader()
         {

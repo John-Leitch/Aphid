@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {
-
     public class AphidExecutionContext<TExpression> : AphidExecutionContext
     {
         public TExpression Expression { get; set; }

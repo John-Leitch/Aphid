@@ -7,7 +7,7 @@ namespace Components.Aphid.Parser
 {
     public class AphidMacroMutator : AphidMutator
     {
-        private Dictionary<string, AphidMacro> _macros = new Dictionary<string, AphidMacro>();
+        private readonly Dictionary<string, AphidMacro> _macros = new Dictionary<string, AphidMacro>();
 
         protected override List<AphidExpression> OnMutate(List<AphidExpression> ast)
         {

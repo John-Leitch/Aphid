@@ -97,7 +97,7 @@ namespace VSCodeDebug
 #if DNXCORE50
 				IPHostEntry entry = Dns.GetHostEntryAsync(addressString).Result;
 #else
-                IPHostEntry entry = Dns.GetHostEntry(addressString);
+                var entry = Dns.GetHostEntry(addressString);
 #endif
                 if (entry != null && entry.AddressList != null && entry.AddressList.Length > 0)
                 {
@@ -105,7 +105,7 @@ namespace VSCodeDebug
                     {
                         return entry.AddressList[0];
                     }
-                    foreach (IPAddress address in entry.AddressList)
+                    foreach (var address in entry.AddressList)
                     {
                         if (address.AddressFamily == AddressFamily.InterNetwork)
                         {
@@ -154,11 +154,11 @@ namespace VSCodeDebug
             Type type = variables.GetType();
             return VARIABLE.Replace(format, match =>
             {
-                string name = match.Groups[1].Value;
+                var name = match.Groups[1].Value;
                 if (!underscoredOnly || name.StartsWith("_"))
                 {
 
-                    PropertyInfo property = type.GetProperty(name);
+                    var property = type.GetProperty(name);
                     if (property != null)
                     {
                         object value = property.GetValue(variables, null);

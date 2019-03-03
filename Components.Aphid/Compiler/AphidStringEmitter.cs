@@ -9,7 +9,7 @@ namespace Components.Aphid.Compiler
 {
     public abstract partial class AphidStringEmitter
     {
-        private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
+        private readonly Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.retKeyword, "ret " },
             { AphidTokenType.NotOperator, "!" },
@@ -17,13 +17,13 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.ComplementOperator, "~" },
         };
 
-        private Dictionary<AphidTokenType, string> _unaryPostfixOperators = new Dictionary<AphidTokenType, string>
+        private readonly Dictionary<AphidTokenType, string> _unaryPostfixOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.IncrementOperator, "++" },
             { AphidTokenType.DecrementOperator, "--" },
         };
 
-        private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
+        private readonly Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.AdditionOperator, " + " },
             { AphidTokenType.MinusOperator, " - " },
@@ -64,11 +64,11 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.XorEqualOperator, " ^= " },
         };
 
-        private Stack<string> _tabs = new Stack<string>();
+        private readonly Stack<string> _tabs = new Stack<string>();
 
         protected StringBuilder _out = new StringBuilder();
 
-        private Stack<List<AphidExpression>> _scope = new Stack<List<AphidExpression>>();
+        private readonly Stack<List<AphidExpression>> _scope = new Stack<List<AphidExpression>>();
 
         protected Stack<List<AphidExpression>> Scope => _scope;
 

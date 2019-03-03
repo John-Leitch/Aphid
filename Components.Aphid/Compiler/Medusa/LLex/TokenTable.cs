@@ -9,15 +9,15 @@ namespace LLex
     {
         public string[] Ignore { get; set; }
 
-        private List<string> _keywordTokens = new List<string>();
+        private readonly List<string> _keywordTokens = new List<string>();
 
         public List<string> KeywordTokens => _keywordTokens;
 
-        private List<string> _keywords = new List<string>();
+        private readonly List<string> _keywords = new List<string>();
 
         public List<string> Keywords => _keywords;
 
-        private Dictionary<int, List<TokenEntry>> _lists =
+        private readonly Dictionary<int, List<TokenEntry>> _lists =
             new Dictionary<int, List<TokenEntry>>();
 
         public Dictionary<int, List<TokenEntry>> Lists => _lists;

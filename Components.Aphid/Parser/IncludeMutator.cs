@@ -14,8 +14,6 @@ namespace Components.Aphid.Parser
 {
     public class IncludeMutator : AphidMutator
     {
-        private AphidLoader _loader = new AphidLoader(null);
-
         private readonly string _applicationDirectory;
 
         public bool UseImplicitReturns { get; }
@@ -26,7 +24,7 @@ namespace Components.Aphid.Parser
 
         public bool DisableCaching { get; set; }
 
-        public AphidLoader Loader => _loader;
+        public AphidLoader Loader { get; } = new AphidLoader(null);
 
         protected override bool UpdatePosition => false;
 
@@ -85,7 +83,7 @@ namespace Components.Aphid.Parser
 
             var scriptStr = StringParser.Parse(((StringExpression)scriptExp).Value);
 
-            var script = _loader.FindScriptFile(_applicationDirectory, scriptStr);
+            var script = Loader.FindScriptFile(_applicationDirectory, scriptStr);
 
             if (!File.Exists(script))
             {
@@ -106,11 +104,11 @@ namespace Components.Aphid.Parser
 
                 if (UseImplicitReturns)
                 {
-                    cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray());
+                    cache = new AphidByteCodeCache(Loader.SearchPaths.ToArray());
                 }
                 else
                 {
-                    cache = new AphidByteCodeCache(_loader.SearchPaths.ToArray(), 0x1);
+                    cache = new AphidByteCodeCache(Loader.SearchPaths.ToArray(), 0x1);
                 }
 
                 ast = cache.Read(script, out var cacheSources);

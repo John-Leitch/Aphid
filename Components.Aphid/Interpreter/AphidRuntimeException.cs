@@ -27,7 +27,7 @@ namespace Components.Aphid.Interpreter
 
         public virtual string Details { get; set; }
 
-        private AphidSerializer _serializer = new AphidSerializer(new AphidInterpreter())
+        private readonly AphidSerializer _serializer = new AphidSerializer(new AphidInterpreter())
         {
             IgnoreLazyLists = false,
             IgnoreFunctions = false,
@@ -169,14 +169,16 @@ namespace Components.Aphid.Interpreter
             return sb.ToString();
         }
 
-        private static string GetType(AphidExpression expression) => expression?.Type.ToString();
+        private static string GetType(AphidExpression expression) =>
+            expression?.Type.ToString();
 
         private static bool IsValid(AphidExpression expression) =>
             expression?.Context != null &&
                 expression.Index != -1 &&
                 expression.Length > 0;
 
-        private static bool HasType(AphidExpression expression) => expression != null;
+        private static bool HasType(AphidExpression expression) =>
+            expression != null;
 
         private static void AppendType(
             StringBuilder sb,
@@ -199,9 +201,11 @@ namespace Components.Aphid.Interpreter
             return words;
         }
 
-        private static void AppendCode(StringBuilder sb, AphidExpression expression) => sb.AppendFormat(" '{0}'", expression.ToString().Trim());
+        private static void AppendCode(StringBuilder sb, AphidExpression expression) =>
+            sb.AppendFormat(" '{0}'", expression.ToString().Trim());
 
-        private static void AppendFrom(StringBuilder sb, AphidExpression expression) => sb.AppendFormat(" from {0}", FormatType(expression, isStmt: true));
+        private static void AppendFrom(StringBuilder sb, AphidExpression expression) =>
+            sb.AppendFormat(" from {0}", FormatType(expression, isStmt: true));
 
         private static void TryAppendFile(StringBuilder sb, AphidExpression expression, AphidExpression statement)
         {

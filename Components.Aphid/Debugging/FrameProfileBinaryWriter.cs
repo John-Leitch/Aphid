@@ -11,11 +11,11 @@ namespace Components.Aphid.Debugging
 {
     public sealed class FrameProfileBinaryWriter : IDisposable
     {
-        private List<string> _names = new List<string>(0x1000);
+        private readonly List<string> _names = new List<string>(0x1000);
 
-        private BinaryWriter _frameWriter, _nameWriter;
+        private readonly BinaryWriter _frameWriter, _nameWriter;
 
-        private Stack<FrameProfileInfo> _frames = new Stack<FrameProfileInfo>(0x100);
+        private readonly Stack<FrameProfileInfo> _frames = new Stack<FrameProfileInfo>(0x100);
 
         public string NameFile { get; }
 

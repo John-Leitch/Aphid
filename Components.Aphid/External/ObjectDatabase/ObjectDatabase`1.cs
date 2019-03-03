@@ -214,7 +214,6 @@ namespace Components.ObjectDatabase
                     offset = _memoryManager.GetPosition(alloc);
                 }
 
-
             });
 
             alloc.Write(buffer, bufferLength);

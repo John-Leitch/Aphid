@@ -16,11 +16,11 @@ namespace Mantispid
     {
         private const string _getCollection = "GetCollection";
 
-        private ParserGeneratorConfig _config;
+        private readonly ParserGeneratorConfig _config;
 
-        private IEnumerable<RuleStruct> _ruleTypes;
+        private readonly IEnumerable<RuleStruct> _ruleTypes;
 
-        private RuleStructResolver _resolver;
+        private readonly RuleStructResolver _resolver;
 
         private readonly string _helperName;
 
@@ -87,7 +87,7 @@ namespace Mantispid
                     {
                         Return(VarRef(argName))
                     }));
-            
+
             type.Members.Add(method);
 
             return type;
@@ -111,7 +111,7 @@ namespace Mantispid
                     Attributes = MemberAttributes.Private
                 });
             }
-            
+
             AddGetChildrenMethod(rule, decl);
             AddTypeProperty(rule, decl);
 
@@ -209,7 +209,7 @@ namespace Mantispid
                 HasGet = true,
                 HasSet = isMutable,
                 CustomAttributes = new CodeAttributeDeclarationCollection(
-                    isDataMember ? 
+                    isDataMember ?
                         new[]
                         {
                             new CodeAttributeDeclaration(
@@ -306,7 +306,7 @@ namespace Mantispid
                             Null()),
                         new[] { assignStmt },
                         new[]
-                        { 
+                        {
                             Assign(
                                 fieldName,
                                 new CodeObjectCreateExpression(property.Type))
@@ -364,8 +364,8 @@ namespace Mantispid
 
                 if (childExpression != null)
                 {
-                    var target = childExpression is CodeArrayCreateExpression ? 
-                        childExpression : 
+                    var target = childExpression is CodeArrayCreateExpression ?
+                        childExpression :
                         Invoke(childExpression, "OfType", new[] { _baseTypeName });
 
                     childRef = Invoke(
@@ -406,7 +406,7 @@ namespace Mantispid
                 Attributes = MemberAttributes.Public |
                     MemberAttributes.Override,
                 Type = TypeRef(enumType),
-                Name = "Type",                
+                Name = "Type",
             };
 
             prop.GetStatements.Add(Return(PropRef(enumType, rule.Name)));

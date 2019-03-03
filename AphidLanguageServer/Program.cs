@@ -24,7 +24,8 @@ namespace SampleServer
 
             Console.OutputEncoding = Encoding.UTF8;
             var app = new App(Console.OpenStandardInput(), Console.OpenStandardOutput());
-            Logger.Instance.Attach(app);
+            //Logger.Instance.Attach(app);
+
             try
             {
                 app.Listen().Wait();

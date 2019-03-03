@@ -28,9 +28,9 @@ namespace Components.Aphid.Library.Net
 
         private readonly string _webRoot;
 
-        private Encoding _encoding = Encoding.GetEncoding(1252);
+        private readonly Encoding _encoding = Encoding.GetEncoding(1252);
 
-        private AphidSessionManager _sessionManager = new AphidSessionManager();
+        private readonly AphidSessionManager _sessionManager = new AphidSessionManager();
 
         private readonly AphidObject _globals = AphidObject.Scope();
 
@@ -197,7 +197,6 @@ namespace Components.Aphid.Library.Net
 
             if (handler != null)
             {
-
                 var callback = handler.Callback;
                 //AphidFunction callback = handler.Callback.Clone();
                 //callback.Body = callback.Body.ToList();

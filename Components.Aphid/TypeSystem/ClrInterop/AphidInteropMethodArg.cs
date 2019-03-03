@@ -14,11 +14,11 @@ namespace Components.Aphid.TypeSystem
         public static Dictionary<ParameterInfo, ParameterInfoCache> ParamCache =
             new Dictionary<ParameterInfo, ParameterInfoCache>();
 
-        private static LockTable<ParameterInfoCache> _paramInfoLocks = new LockTable<ParameterInfoCache>();
+        private static readonly LockTable<ParameterInfoCache> _paramInfoLocks = new LockTable<ParameterInfoCache>();
 
-        private ParameterInfoCache _paramInfo;
+        private readonly ParameterInfoCache _paramInfo;
 
-        private ArgumentTypeCache _argInfo;
+        private readonly ArgumentTypeCache _argInfo;
 
         public object Argument { get; }
 

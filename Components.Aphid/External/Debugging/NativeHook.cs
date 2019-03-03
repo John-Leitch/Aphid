@@ -28,7 +28,7 @@ namespace Components.Cypress
 
         private static byte[] CreateJmpRel32(uint source, uint destination) => CreateJmpRel32(destination - source - 0x5);
 
-        private static byte[] _nops = Enumerable
+        private static readonly byte[] _nops = Enumerable
             .Range(0x0, 0x100)
             .Select(x => (byte)0x90)
             .ToArray();

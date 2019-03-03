@@ -1,2 +1,8 @@
-﻿var strToHex = @(x) x.chars().map(hexb).addAll();
+﻿extend unknown {
+    byte: @(x) Convert.ToByte(x),
+    int: @(x) Convert.ToInt32(x),
+    char: @(x) Convert.ToChar(Convert.ToByte(x)),
+}
+
+var strToHex = @(x) x.chars().map(hexb).addAll();
 var urlEnc = @(x) x.chars().map(@(y) '%' + hexb(y)).addAll();

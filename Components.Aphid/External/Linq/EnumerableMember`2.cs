@@ -5,14 +5,13 @@ using System.Linq;
 
 namespace Components
 {
-
     public class EnumerableMember<TSource, TMember> : IEnumerable<TSource>, IEnumerator<TSource>
     {
         private int _state;
-        private IEnumerable<TSource> _source;
+        private readonly IEnumerable<TSource> _source;
         private IEnumerator<TSource> _enumerator;
         private readonly Func<TSource, TMember> _selector;
-        private EqualityComparer<TMember> _comparer = EqualityComparer<TMember>.Default;
+        private readonly EqualityComparer<TMember> _comparer = EqualityComparer<TMember>.Default;
 
         public TSource Current { get; private set; }
         object IEnumerator.Current => Current;

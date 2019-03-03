@@ -8,7 +8,7 @@ namespace Components.Aphid.Parser
 {
     public class AphidAttributeScanner
     {
-        private Queue<string> _attributes;
+        private readonly Queue<string> _attributes;
 
         public string CurrentAttribute { get; private set; }
 

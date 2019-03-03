@@ -8,7 +8,7 @@ namespace Mantispid
 {
     public class SymbolTable<TValue>
     {
-        private Dictionary<string, TValue> _table = new Dictionary<string, TValue>();
+        private readonly Dictionary<string, TValue> _table = new Dictionary<string, TValue>();
 
         private readonly Func<TValue> _init;
 

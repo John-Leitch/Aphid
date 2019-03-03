@@ -1,0 +1,1 @@
+.\NUnit.ConsoleRunner.3.9.0\tools\nunit3-console.exe %1 %2 %3 %4 %5 %6 %7 %8 %9

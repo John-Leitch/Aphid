@@ -31,21 +31,6 @@ namespace Components.Aphid.Parser
 
         protected virtual void EndRecursiveMutationPass(List<AphidExpression> ast) { }
 
-        public List<AphidExpression> Mutate(List<AphidExpression> ast)
-        {
-#if CHECK_ANCESTORS
-            CheckAncestorStack();
-#endif
-
-            var mutatedAst = MutateInternal(ast);
-
-#if CHECK_ANCESTORS
-            CheckAncestorStack();
-#endif
-
-            return mutatedAst;
-        }
-
         private List<AphidExpression> MutateInternal(List<AphidExpression> ast)
         {
             if (ast == null)
@@ -64,30 +49,6 @@ namespace Components.Aphid.Parser
             }
 
             return ast2;
-        }
-
-        private AphidExpression MutateSingle(AphidExpression expression)
-        {
-            var result = MutateExpression(expression);
-
-            if (result.Count != 1)
-            {
-                var msg = result.Count > 0 ?
-                    string.Format(
-                        "Expression {0} expanded into multiple expressions {1} by " +
-                        "{2}, one expected.",
-                        expression,
-                        result.Select(x => x.Type.ToString()).Join(", "),
-                        GetType()) :
-                    string.Format(
-                        "Expression {0} expanded into null by {1}.",
-                        expression,
-                        GetType());
-
-                throw new AphidParserException(msg, expression);
-            }
-
-            return result[0];
         }
 
         private List<AphidExpression> MutateExpression(AphidExpression expression)
@@ -476,6 +437,21 @@ namespace Components.Aphid.Parser
             return expanded;
         }
 
+        public List<AphidExpression> Mutate(List<AphidExpression> ast)
+        {
+#if CHECK_ANCESTORS
+            CheckAncestorStack();
+#endif
+
+            var mutatedAst = MutateInternal(ast);
+
+#if CHECK_ANCESTORS
+            CheckAncestorStack();
+#endif
+
+            return mutatedAst;
+        }
+
         public List<AphidExpression> MutateRecursively(List<AphidExpression> expression)
         {
             var ast = expression;
@@ -497,6 +473,30 @@ namespace Components.Aphid.Parser
             HasMutated = anyMutations;
 
             return ast;
+        }
+
+        public AphidExpression MutateSingle(AphidExpression expression)
+        {
+            var result = MutateExpression(expression);
+
+            if (result.Count != 1)
+            {
+                var msg = result.Count > 0 ?
+                    string.Format(
+                        "Expression {0} expanded into multiple expressions {1} by " +
+                        "{2}, one expected.",
+                        expression,
+                        result.Select(x => x.Type.ToString()).Join(", "),
+                        GetType()) :
+                    string.Format(
+                        "Expression {0} expanded into null by {1}.",
+                        expression,
+                        GetType());
+
+                throw new AphidParserException(msg, expression);
+            }
+
+            return result[0];
         }
 
         public virtual void Reset() => HasMutated = false;

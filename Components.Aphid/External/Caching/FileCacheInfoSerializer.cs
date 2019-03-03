@@ -15,9 +15,9 @@ namespace Components.Aphid
             _headerMask = 0x68952300,
             _header = _headerMask | _formatVersion;
 
-        private Version _dependencyVersion;
+        private readonly Version _dependencyVersion;
 
-        private FileInfoCache _fileInfoCache;
+        private readonly FileInfoCache _fileInfoCache;
 
         public FileCacheInfoSerializer(
             Version dependencyVersion,

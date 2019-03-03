@@ -44,9 +44,9 @@ namespace Components.Aphid.UI
                     y.ToString().EndsWith("Operator"))
             .ToList();
 
-        private AphidObject _currentScope;
+        private readonly AphidObject _currentScope;
 
-        private TypeLoader _loader = new TypeLoader();
+        private readonly TypeLoader _loader = new TypeLoader();
 
         public AphidScopeObjectAutocompletionSource(AphidObject currentScope) => _currentScope = currentScope;
 

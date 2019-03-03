@@ -12,7 +12,7 @@ namespace Components.Cypress
 {
     public class BreakpointManager
     {
-        private ProcessMemory mem;
+        private readonly ProcessMemory mem;
 
         public Dictionary<IntPtr, byte> BreakpointTable { get; }
 
@@ -47,7 +47,7 @@ namespace Components.Cypress
             BreakpointTable.Add(address, buffer[0]);
             HitTable.Add(address, 0);
             mem.Write(address, new byte[] { 0xCC });
-            
+
             return true;
         }
 

@@ -10,7 +10,7 @@ namespace Mantispid
 {
     public class CallIdentifierMutator : AphidMutator
     {
-        private string[] _parseFunctions;
+        private readonly string[] _parseFunctions;
 
         private bool _skip;
 

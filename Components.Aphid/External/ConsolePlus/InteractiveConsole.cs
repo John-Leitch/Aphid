@@ -8,9 +8,9 @@ namespace Components.External.ConsolePlus
 {
     public class InteractiveConsole
     {
-        private Dictionary<string, Action> _actionMap = new Dictionary<string, Action>();
+        private readonly Dictionary<string, Action> _actionMap = new Dictionary<string, Action>();
 
-        private Dictionary<string, Action<string[]>> _paramActionMap = new Dictionary<string, Action<string[]>>();
+        private readonly Dictionary<string, Action<string[]>> _paramActionMap = new Dictionary<string, Action<string[]>>();
 
         private Action<string[]> _defaultAction;
 

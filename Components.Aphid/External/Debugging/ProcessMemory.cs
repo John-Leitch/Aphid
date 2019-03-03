@@ -85,7 +85,7 @@ namespace Components.Cypress
             return context;
         }
 
-        private static Encoding _encoding = Encoding.GetEncoding("iso-8859-1");
+        private static readonly Encoding _encoding = Encoding.GetEncoding("iso-8859-1");
 
         public string ReadAscii(IntPtr address, int bufferSize = 0x100)
         {

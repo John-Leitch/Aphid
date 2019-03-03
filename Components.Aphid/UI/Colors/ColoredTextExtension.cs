@@ -11,6 +11,5 @@ namespace Components.Aphid.UI.Colors
     {
         public static string ToVT100String(this IEnumerable<ColoredText> source) =>
             VT100.GetString(source);
-
     }
 }

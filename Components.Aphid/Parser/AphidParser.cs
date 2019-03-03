@@ -10,7 +10,7 @@ namespace Components.Aphid.Parser
 {
     public partial class AphidParser
     {
-        private List<AphidToken> _tokens;
+        private readonly List<AphidToken> _tokens;
 
         private int _tokenIndex = -1;
 
@@ -59,7 +59,7 @@ namespace Components.Aphid.Parser
         {
             if (_tokens.Count == 0 || _tokenIndex == 0)
             {
-                _currentToken = AphidToken.None;                
+                _currentToken = AphidToken.None;
 
                 return false;
             }
@@ -80,7 +80,7 @@ namespace Components.Aphid.Parser
                 return true;
             }
 
-            _currentToken = AphidToken.None;            
+            _currentToken = AphidToken.None;
 
             return false;
         }

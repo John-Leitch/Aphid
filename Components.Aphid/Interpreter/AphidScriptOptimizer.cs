@@ -10,7 +10,7 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidScriptOptimizer
     {
-        private AphidLoader _loader;
+        private readonly AphidLoader _loader;
 
         public AphidScriptOptimizer(AphidLoader loader) => _loader = loader;
 

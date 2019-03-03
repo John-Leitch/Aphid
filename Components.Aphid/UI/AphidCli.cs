@@ -39,7 +39,7 @@ namespace Components.Aphid.UI
 
         public static Exception LastException { get; set; }
 
-        public static bool IsAborting { get; set; }        
+        public static bool IsAborting { get; set; }
 
         public static bool TryAction(
             AphidInterpreter interpreter,
@@ -120,7 +120,7 @@ namespace Components.Aphid.UI
 
             if (allowErrorReporting)
             {
-                AphidErrorReporter.Report(LastException, interpreter);
+                AphidErrorReporter.Report(LastException, interpreter, passThrough: false);
             }
 
             interpreter.SetIsInTryCatchFinally(backup);
@@ -130,7 +130,6 @@ namespace Components.Aphid.UI
 
         public static void DumpValue(
             AphidInterpreter interpreter,
-            AphidSerializer serializer,
             object value,
             bool ignoreNull = true,
             bool ignoreClrObj = true) =>
@@ -193,7 +192,7 @@ namespace Components.Aphid.UI
         public static void DumpException(AphidRuntimeException exception, AphidInterpreter interpreter)
         {
             WriteErrorMessage(StyleEscape(ErrorFormatter.Format(exception)));
-            
+
             DumpStackTrace(interpreter);
 
             DumpScope(
@@ -278,7 +277,7 @@ namespace Components.Aphid.UI
                 if (skip != 0)
                 {
                     localsFormatted = localsFormatted
-                        .Where((x, i) => i < first)
+                        .Where((_, i) => i < first)
                         .Append(new Lazy<string>(() =>
                             string.Format("/* Skipped {0:n0} locals */", skip)))
                         .Concat(localsFormatted.Where((_, i) => i >= skip + first));
@@ -346,7 +345,7 @@ namespace Components.Aphid.UI
                         if (skip != 0)
                         {
                             args = args
-                                .Where((x, i) => i < first || i >= skip + first)
+                                .Where((_, i) => i < first || i >= skip + first)
                                 .Append(string.Format("/* Skipped {0:n0} args /*", skip))
                                 .Skip(skip);
                         }
@@ -565,7 +564,7 @@ namespace Components.Aphid.UI
                 try
                 {
                     WriteLineOut(
-                        Format(                            
+                        Format(
                             kvp.Item2.Code != null ?
                                 kvp.Item2.Code.Substring(
                                     kvp.Item2.Index,
@@ -601,6 +600,5 @@ namespace Components.Aphid.UI
             }
         }
 
-        
     }
 }

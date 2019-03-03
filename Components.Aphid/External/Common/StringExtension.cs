@@ -52,7 +52,7 @@ namespace Components
 
         public static int LeastIndexOf(this string s, params char[] Chars) => Chars.Select(x => s.IndexOf(x)).OrderBy(x => x).First();
 
-        private static Encoding _encoding = Encoding.GetEncoding("iso-8859-1");
+        private static readonly Encoding _encoding = Encoding.GetEncoding("iso-8859-1");
 
         public static byte[] GetBytes(this string s) => _encoding.GetBytes(s);
 
@@ -109,7 +109,7 @@ namespace Components
         {
             var sb = new StringBuilder(s);
             var line = startLine;
-            string getLineStr() => (line++.ToString().PadLeft(4, '0') + ": ");
+            string getLineStr() => line++.ToString().PadLeft(4, '0') + ": ";
             sb.Insert(0, getLineStr());
 
             for (var i = 0; i < sb.Length; i++)

@@ -25,9 +25,9 @@ namespace Components.Aphid.Compiler
 
         private Lazy<ModuleBuilder> _moduleBuilder;
 
-        private HashSet<string> _types = new HashSet<string>();
+        private readonly HashSet<string> _types = new HashSet<string>();
 
-        private ReaderWriterLockSlim _importsLock;
+        private readonly ReaderWriterLockSlim _importsLock;
 
         public string AssemblyName { get; private set; }
 

@@ -29,7 +29,7 @@ namespace Components
         private static List<string> _partialNames = new List<string>();
 #endif
 
-        private static ArgLockingMemoizer<string, EventWaitHandle> _handleMemoizer = new ArgLockingMemoizer<string, EventWaitHandle>();
+        private static readonly ArgLockingMemoizer<string, EventWaitHandle> _handleMemoizer = new ArgLockingMemoizer<string, EventWaitHandle>();
 
         public EventWaitHandle Handle { get; }
 

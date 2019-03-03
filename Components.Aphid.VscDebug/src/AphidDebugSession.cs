@@ -16,25 +16,20 @@ namespace VSCodeDebug
 {
     public class AphidDebugSession : DebugSession
     {
-        private const string MONO = "aphid";
-        private readonly string[] MONO_EXTENSIONS = new String[] {
-			".alx"
-		};
-        private const int MAX_CHILDREN = 10000;
-        private const int MAX_CONNECTION_ATTEMPTS = 10;
-        private const int CONNECTION_ATTEMPT_INTERVAL = 500;
+        private readonly string[] _fileExtensions = new String[] { ".alx" };
+        private const int _maxChildren = 10000,
+            _maxConnectionAttempts = 10,
+            _connectionAttemptInterval = 500;
 
         private AutoResetEvent _resumeEvent = new AutoResetEvent(false);
         private bool _debuggeeExecuting = false;
         private readonly object _lock = new object();
-        //private Mono.Debugging.Soft.SoftDebuggerSession _session;
+        
         private volatile bool _debuggeeKilled = true;
-        //private ProcessInfo _activeProcess;
-        //private Mono.Debugging.Client.StackFrame _activeFrame;
+        
         private long _nextBreakpointId = 0;
         private SortedDictionary<long, AphidExpression> _breakpoints;
-        //private List<Catchpoint> _catchpoints;
-        //private DebuggerSessionOptions _debuggerSessionOptions;
+        
 
         private System.Diagnostics.Process _process;
         private Handles<KeyValuePair<string, AphidObject>[]> _variableHandles;
@@ -55,11 +50,7 @@ namespace VSCodeDebug
         private AphidInterpreter _interpreter = new AphidInterpreter();
         private bool _isRunning = false;
 
-        public AphidInterpreter Interpreter
-        {
-            get { return _interpreter; }
-        }
-
+        public AphidInterpreter Interpreter => _interpreter;
 
         public AphidDebugSession()
             : base()
@@ -69,103 +60,6 @@ namespace VSCodeDebug
             _seenThreads = new Dictionary<int, Thread>();
             _interpreter.CurrentScope.Add("$debugger", AphidObject.Scalar(this));
             _interpreter.HandleExecutionBreak = HandleBreak;
-
-            //_debuggerSessionOptions = new DebuggerSessionOptions {
-            //	EvaluationOptions = EvaluationOptions.DefaultOptions
-            //};
-
-            //_session = new Mono.Debugging.Soft.SoftDebuggerSession();
-            //_session.Breakpoints = new BreakpointStore();
-
-            //_breakpoints = new SortedDictionary<long, BreakEvent>();
-            //_catchpoints = new List<Catchpoint>();
-
-            //DebuggerLoggingService.CustomLogger = new CustomLogger();
-
-            //_session.ExceptionHandler = ex => {
-            //	return true;
-            //};
-
-            //_session.LogWriter = (isStdErr, text) => {
-            //};
-
-            //_session.TargetStopped += (sender, e) => {
-            //	Stopped();
-            //	SendEvent(CreateStoppedEvent("step", e.Thread));
-            //	_resumeEvent.Set();
-            //};
-
-            //_session.TargetHitBreakpoint += (sender, e) => {
-            //	Stopped();
-            //	SendEvent(CreateStoppedEvent("breakpoint", e.Thread));
-            //	_resumeEvent.Set();
-            //};
-
-            //_session.TargetExceptionThrown += (sender, e) => {
-            //	Stopped();
-            //	var ex = DebuggerActiveException();
-            //	if (ex != null) {
-            //		_exception = ex.Instance;
-            //		SendEvent(CreateStoppedEvent("exception", e.Thread, ex.Message));
-            //	}
-            //	_resumeEvent.Set();
-            //};
-
-            //_session.TargetUnhandledException += (sender, e) => {
-            //	Stopped ();
-            //	var ex = DebuggerActiveException();
-            //	if (ex != null) {
-            //		_exception = ex.Instance;
-            //		SendEvent(CreateStoppedEvent("exception", e.Thread, ex.Message));
-            //	}
-            //	_resumeEvent.Set();
-            //};
-
-            //_session.TargetStarted += (sender, e) => {
-            //	_activeFrame = null;
-            //};
-
-            //_session.TargetReady += (sender, e) => {
-            //	_activeProcess = _session.GetProcesses().SingleOrDefault();
-            //};
-
-            //_session.TargetExited += (sender, e) => {
-
-            //	DebuggerKill();
-
-            //	_debuggeeKilled = true;
-
-            //	Terminate("target exited");
-
-            //	_resumeEvent.Set();
-            //};
-
-            //_session.TargetInterrupted += (sender, e) => {
-            //	_resumeEvent.Set();
-            //};
-
-            //_session.TargetEvent += (sender, e) => {
-            //};
-
-            //_session.TargetThreadStarted += (sender, e) => {
-            //	int tid = (int)e.Thread.Id;
-            //	lock (_seenThreads) {
-            //		_seenThreads[tid] = new Thread(tid, e.Thread.Name);
-            //	}
-            //	SendEvent(new ThreadEvent("started", tid));
-            //};
-
-            //_session.TargetThreadStopped += (sender, e) => {
-            //	int tid = (int)e.Thread.Id;
-            //	lock (_seenThreads) {
-            //		_seenThreads.Remove(tid);
-            //	}
-            //	SendEvent(new ThreadEvent("exited", tid));
-            //};
-
-            //_session.OutputWriter = (isStdErr, text) => {
-            //	SendOutput(isStdErr ? "stderr" : "stdout", text);
-            //};
         }
 
         private void HandleBreak(AphidExpression expression)
@@ -185,10 +79,13 @@ namespace VSCodeDebug
 
         public override void Initialize(Response response, dynamic args)
         {
-            OperatingSystem os = Environment.OSVersion;
-            if (os.Platform != PlatformID.MacOSX && os.Platform != PlatformID.Unix && os.Platform != PlatformID.Win32NT)
+            var os = Environment.OSVersion;
+
+            if (os.Platform != PlatformID.MacOSX &&
+                os.Platform != PlatformID.Unix &&
+                os.Platform != PlatformID.Win32NT)
             {
-                SendErrorResponse(response, 3000, "Mono Debug is not supported on this platform ({_platform}).", new { _platform = os.Platform.ToString() }, true, true);
+                SendErrorResponse(response, 3000, "Aphid is not supported on this platform ({_platform}).", new { _platform = os.Platform.ToString() }, true, true);
                 return;
             }
 
@@ -198,13 +95,13 @@ namespace VSCodeDebug
                 supportsConfigurationDoneRequest = false,
 
                 // This debug adapter does not support function breakpoints.
-                supportsFunctionBreakpoints = false,
+                supportsFunctionBreakpoints = true,
 
                 // This debug adapter doesn't support conditional breakpoints.
-                supportsConditionalBreakpoints = false,
+                supportsConditionalBreakpoints = true,
 
                 // This debug adapter does not support a side effect free evaluate request for data hovers.
-                supportsEvaluateForHovers = false,
+                supportsEvaluateForHovers = true,
 
                 // This debug adapter does not support exception breakpoint filters
                 exceptionBreakpointFilters = new dynamic[0],
@@ -289,7 +186,7 @@ namespace VSCodeDebug
             }
 
             const string host = "127.0.0.1";
-            int port = Utilities.FindFreePort(55555);
+            var port = Utilities.FindFreePort(55555);
             bool debug = !getBool(args, "noDebug", false);
 
             if (debug)
@@ -397,10 +294,10 @@ namespace VSCodeDebug
 
             _debuggeeExecuting = true;
             //lock (_lock) {
-            //	if (_session != null && !_session.IsRunning && !_session.HasExited) {
-            //		_session.Continue();
-            //		_debuggeeExecuting = true;
-            //	}
+            //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
+            //        _session.Continue();
+            //        _debuggeeExecuting = true;
+            //    }
             //}
         }
 
@@ -411,10 +308,10 @@ namespace VSCodeDebug
             _interpreter.SingleStep();
             _debuggeeExecuting = true;
             //lock (_lock) {
-            //	if (_session != null && !_session.IsRunning && !_session.HasExited) {
-            //		_session.NextLine();
-            //		_debuggeeExecuting = true;
-            //	}
+            //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
+            //        _session.NextLine();
+            //        _debuggeeExecuting = true;
+            //    }
             //}
         }
 
@@ -425,10 +322,10 @@ namespace VSCodeDebug
             _interpreter.SingleStep();
             _debuggeeExecuting = true;
             //         lock (_lock) {
-            //	if (_session != null && !_session.IsRunning && !_session.HasExited) {
-            //		_session.StepLine();
-            //		_debuggeeExecuting = true;
-            //	}
+            //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
+            //        _session.StepLine();
+            //        _debuggeeExecuting = true;
+            //    }
             //}
         }
 
@@ -439,10 +336,10 @@ namespace VSCodeDebug
             _interpreter.SingleStep();
             _debuggeeExecuting = true;
             //         lock (_lock) {
-            //	if (_session != null && !_session.IsRunning && !_session.HasExited) {
-            //		_session.Finish();
-            //		_debuggeeExecuting = true;
-            //	}
+            //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
+            //        _session.Finish();
+            //        _debuggeeExecuting = true;
+            //    }
             //}
         }
 
@@ -465,7 +362,7 @@ namespace VSCodeDebug
             string path = null;
             if (args.source != null)
             {
-                string p = (string)args.source.path;
+                var p = (string)args.source.path;
                 if (p != null && p.Trim().Length > 0)
                 {
                     path = p;
@@ -506,46 +403,46 @@ namespace VSCodeDebug
 
             //         HashSet<int> lin = new HashSet<int>();
             //for (int i = 0; i < clientLines.Length; i++) {
-            //	lin.Add(ConvertClientLineToDebugger(clientLines[i]));
+            //    lin.Add(ConvertClientLineToDebugger(clientLines[i]));
             //}
 
             // find all breakpoints for the given path and remember their id and line number
             //var bpts = new List<Tuple<int, int>>();
             //foreach (var be in _breakpoints) {
-            //	var bp = be.Value as Mono.Debugging.Client.Breakpoint;
-            //	if (bp != null && bp.FileName == path) {
-            //		bpts.Add(new Tuple<int,int>((int)be.Key, (int)bp.Line));
-            //	}
+            //    var bp = be.Value as Mono.Debugging.Client.Breakpoint;
+            //    if (bp != null && bp.FileName == path) {
+            //        bpts.Add(new Tuple<int,int>((int)be.Key, (int)bp.Line));
+            //    }
             //}
 
             //HashSet<int> lin2 = new HashSet<int>();
             //foreach (var bpt in bpts) {
-            //	if (lin.Contains(bpt.Item2)) {
-            //		lin2.Add(bpt.Item2);
-            //	}
-            //	else {
-            //		// Program.Log("cleared bpt #{0} for line {1}", bpt.Item1, bpt.Item2);
+            //    if (lin.Contains(bpt.Item2)) {
+            //        lin2.Add(bpt.Item2);
+            //    }
+            //    else {
+            //        // Program.Log("cleared bpt #{0} for line {1}", bpt.Item1, bpt.Item2);
 
-            //		BreakEvent b;
-            //		if (_breakpoints.TryGetValue(bpt.Item1, out b)) {
-            //			_breakpoints.Remove(bpt.Item1);
-            //			_session.Breakpoints.Remove(b);
-            //		}
-            //	}
+            //        BreakEvent b;
+            //        if (_breakpoints.TryGetValue(bpt.Item1, out b)) {
+            //            _breakpoints.Remove(bpt.Item1);
+            //            _session.Breakpoints.Remove(b);
+            //        }
+            //    }
             //}
 
             //for (int i = 0; i < clientLines.Length; i++) {
-            //	var l = ConvertClientLineToDebugger(clientLines[i]);
-            //	if (!lin2.Contains(l)) {
-            //		var id = _nextBreakpointId++;
-            //		_breakpoints.Add(id, _session.Breakpoints.Add(path, l));
-            //		// Program.Log("added bpt #{0} for line {1}", id, l);
-            //	}
+            //    var l = ConvertClientLineToDebugger(clientLines[i]);
+            //    if (!lin2.Contains(l)) {
+            //        var id = _nextBreakpointId++;
+            //        _breakpoints.Add(id, _session.Breakpoints.Add(path, l));
+            //        // Program.Log("added bpt #{0} for line {1}", id, l);
+            //    }
             //}
 
             //var breakpoints = new List<Breakpoint>();
             //foreach (var l in clientLines) {
-            //	breakpoints.Add(new Breakpoint(true, l));
+            //    breakpoints.Add(new Breakpoint(true, l));
             //}
 
             //SendResponse(response, new SetBreakpointsResponseBody(breakpoints));
@@ -560,11 +457,11 @@ namespace VSCodeDebug
 
             //ThreadInfo thread = DebuggerActiveThread();
             //if (thread.Id != threadReference) {
-            //	// Program.Log("stackTrace: unexpected: active thread should be the one requested");
-            //	thread = FindThread(threadReference);
-            //	if (thread != null) {
-            //		thread.SetActive();
-            //	}
+            //    // Program.Log("stackTrace: unexpected: active thread should be the one requested");
+            //    thread = FindThread(threadReference);
+            //    if (thread != null) {
+            //        thread.SetActive();
+            //    }
             //}
 
             //var stackFrames = new List<StackFrame>();
@@ -573,33 +470,33 @@ namespace VSCodeDebug
             //var bt = thread.Backtrace;
             //if (bt != null && bt.FrameCount >= 0) {
 
-            //	totalFrames = bt.FrameCount;
+            //    totalFrames = bt.FrameCount;
 
-            //	for (var i = 0; i < Math.Min(totalFrames, maxLevels); i++) {
+            //    for (var i = 0; i < Math.Min(totalFrames, maxLevels); i++) {
 
-            //		var frame = bt.GetFrame(i);
+            //        var frame = bt.GetFrame(i);
 
-            //		string path = frame.SourceLocation.FileName;
+            //        string path = frame.SourceLocation.FileName;
 
-            //		var hint = "subtle";
-            //		Source source = null;
-            //		if (!string.IsNullOrEmpty(path)) {
-            //			string sourceName = Path.GetFileName(path);
-            //			if (!string.IsNullOrEmpty(sourceName)) {
-            //				if (File.Exists(path)) {
-            //					source = new Source(sourceName, ConvertDebuggerPathToClient(path), 0, "normal");
-            //					hint = "normal";
-            //				} else {
-            //					source = new Source(sourceName, null, 1000, "deemphasize");
-            //				}
-            //			}
-            //		}
+            //        var hint = "subtle";
+            //        Source source = null;
+            //        if (!string.IsNullOrEmpty(path)) {
+            //            string sourceName = Path.GetFileName(path);
+            //            if (!string.IsNullOrEmpty(sourceName)) {
+            //                if (File.Exists(path)) {
+            //                    source = new Source(sourceName, ConvertDebuggerPathToClient(path), 0, "normal");
+            //                    hint = "normal";
+            //                } else {
+            //                    source = new Source(sourceName, null, 1000, "deemphasize");
+            //                }
+            //            }
+            //        }
 
-            //		var frameHandle = _frameHandles.Create(frame);
-            //		string name = frame.SourceLocation.MethodName;
-            //		int line = frame.SourceLocation.Line;
-            //		stackFrames.Add(new StackFrame(frameHandle, name, source, ConvertDebuggerLineToClient(line), 0, hint));
-            //	}
+            //        var frameHandle = _frameHandles.Create(frame);
+            //        string name = frame.SourceLocation.MethodName;
+            //        int line = frame.SourceLocation.Line;
+            //        stackFrames.Add(new StackFrame(frameHandle, name, source, ConvertDebuggerLineToClient(line), 0, hint));
+            //    }
             //}
 
             var id = 0;
@@ -866,10 +763,10 @@ namespace VSCodeDebug
                 if (children != null && children.Length > 0)
                 {
 
-                    bool more = false;
-                    if (children.Length > MAX_CHILDREN)
+                    var more = false;
+                    if (children.Length > _maxChildren)
                     {
-                        children = children.Take(MAX_CHILDREN).ToArray();
+                        children = children.Take(_maxChildren).ToArray();
                         more = true;
                     }
 
@@ -1022,38 +919,38 @@ namespace VSCodeDebug
 
         //private void SetExceptionBreakpoints(dynamic exceptionOptions)
         //{
-        //	if (exceptionOptions != null) {
+        //    if (exceptionOptions != null) {
 
-        //		// clear all existig catchpoints
-        //		foreach (var cp in _catchpoints) {
-        //			_session.Breakpoints.Remove(cp);
-        //		}
-        //		_catchpoints.Clear();
+        //        // clear all existig catchpoints
+        //        foreach (var cp in _catchpoints) {
+        //            _session.Breakpoints.Remove(cp);
+        //        }
+        //        _catchpoints.Clear();
 
-        //		var exceptions = exceptionOptions.ToObject<dynamic[]>();
-        //		for (int i = 0; i < exceptions.Length; i++) {
+        //        var exceptions = exceptionOptions.ToObject<dynamic[]>();
+        //        for (int i = 0; i < exceptions.Length; i++) {
 
-        //			var exception = exceptions[i];
+        //            var exception = exceptions[i];
 
-        //			string exName = null;
-        //			string exBreakMode = exception.breakMode;
+        //            string exName = null;
+        //            string exBreakMode = exception.breakMode;
 
-        //			if (exception.path != null) {
-        //				var paths = exception.path.ToObject<dynamic[]>();
-        //				var path = paths[0];
-        //				if (path.names != null) {
-        //					var names = path.names.ToObject<dynamic[]>();
-        //					if (names.Length > 0) {
-        //						exName = names[0];
-        //					}
-        //				}
-        //			}
+        //            if (exception.path != null) {
+        //                var paths = exception.path.ToObject<dynamic[]>();
+        //                var path = paths[0];
+        //                if (path.names != null) {
+        //                    var names = path.names.ToObject<dynamic[]>();
+        //                    if (names.Length > 0) {
+        //                        exName = names[0];
+        //                    }
+        //                }
+        //            }
 
-        //			if (exName != null && exBreakMode == "always") {
-        //				_catchpoints.Add(_session.Breakpoints.AddCatchpoint(exName));
-        //			}
-        //		}
-        //	}
+        //            if (exName != null && exBreakMode == "always") {
+        //                _catchpoints.Add(_session.Breakpoints.AddCatchpoint(exName));
+        //            }
+        //        }
+        //    }
         //}
 
         private void SendOutput(string category, string data)
@@ -1074,7 +971,7 @@ namespace VSCodeDebug
             {
 
                 // wait until we've seen the end of stdout and stderr
-                for (int i = 0; i < 100 && (_stdoutEOF == false || _stderrEOF == false); i++)
+                for (var i = 0; i < 100 && (_stdoutEOF == false || _stderrEOF == false); i++)
                 {
                     System.Threading.Thread.Sleep(100);
                 }
@@ -1088,19 +985,19 @@ namespace VSCodeDebug
 
         //private StoppedEvent CreateStoppedEvent(string reason, ThreadInfo ti, string text = null)
         //{
-        //	return new StoppedEvent((int)ti.Id, reason, text);
+        //    return new StoppedEvent((int)ti.Id, reason, text);
         //}
 
         //private ThreadInfo FindThread(int threadReference)
         //{
-        //	if (_activeProcess != null) {
-        //		foreach (var t in _activeProcess.GetThreads()) {
-        //			if (t.Id == threadReference) {
-        //				return t;
-        //			}
-        //		}
-        //	}
-        //	return null;
+        //    if (_activeProcess != null) {
+        //        foreach (var t in _activeProcess.GetThreads()) {
+        //            if (t.Id == threadReference) {
+        //                return t;
+        //            }
+        //        }
+        //    }
+        //    return null;
         //}
 
         private void Stopped()
@@ -1154,7 +1051,7 @@ namespace VSCodeDebug
                                 {
                                     new KeyValuePair<string, AphidObject>(
                                         i.ToString(),
-                                        _interpreter.ValueHelper.Wrap(x.Value))
+                                        ValueHelper.Wrap(x.Value))
                                 })
                             .ToArray()));
                 }
@@ -1180,7 +1077,7 @@ namespace VSCodeDebug
 
                     foreach (var o in (IEnumerable)v.Value.Value)
                     {
-                        l.Add(_interpreter.ValueHelper.Wrap(o));
+                        l.Add(ValueHelper.Wrap(o));
                     }
 
                     return new Variable(
@@ -1213,7 +1110,7 @@ namespace VSCodeDebug
                                 .GetProperties()
                                 .Select((x, i) => new KeyValuePair<string, AphidObject>(
                                     x.Name,
-                                    _interpreter.ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
+                                    ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
                                 .ToArray()));
                     }
                 }
@@ -1305,7 +1202,7 @@ namespace VSCodeDebug
             //Program.Log("Creating variable {0}", v
             //var dv = new AphidSerializer().Serialize(v);
             //if (dv.Length > 1 && dv [0] == '{' && dv [dv.Length - 1] == '}') {
-            //	dv = dv.Substring (1, dv.Length - 2);
+            //    dv = dv.Substring (1, dv.Length - 2);
             //}
 
             //         var scopeValue = _interpreter.CurrentScope.FirstOrDefault(x => x.Value == v);
@@ -1339,7 +1236,7 @@ namespace VSCodeDebug
 
         private bool HasMonoExtension(string path)
         {
-            foreach (var e in MONO_EXTENSIONS)
+            foreach (var e in _fileExtensions)
             {
                 if (path.EndsWith(e))
                 {
@@ -1410,30 +1307,30 @@ namespace VSCodeDebug
         //private ThreadInfo DebuggerActiveThread()
         //{
         //          return new ThreadInfo
-        //	lock (_lock) {
-        //		return _session == null ? null : _session.ActiveThread;
-        //	}
+        //    lock (_lock) {
+        //        return _session == null ? null : _session.ActiveThread;
+        //    }
         //}
 
         //private Backtrace DebuggerActiveBacktrace() {
-        //	var thr = DebuggerActiveThread();
-        //	return thr == null ? null : thr.Backtrace;
+        //    var thr = DebuggerActiveThread();
+        //    return thr == null ? null : thr.Backtrace;
         //}
 
         //private Mono.Debugging.Client.StackFrame DebuggerActiveFrame() {
-        //	if (_activeFrame != null)
-        //		return _activeFrame;
+        //    if (_activeFrame != null)
+        //        return _activeFrame;
 
-        //	var bt = DebuggerActiveBacktrace();
-        //	if (bt != null)
-        //		return _activeFrame = bt.GetFrame(0);
+        //    var bt = DebuggerActiveBacktrace();
+        //    if (bt != null)
+        //        return _activeFrame = bt.GetFrame(0);
 
-        //	return null;
+        //    return null;
         //}
 
         //private ExceptionInfo DebuggerActiveException() {
-        //	var bt = DebuggerActiveBacktrace();
-        //	return bt == null ? null : bt.GetFrame(0).GetException();
+        //    var bt = DebuggerActiveBacktrace();
+        //    return bt == null ? null : bt.GetFrame(0).GetException();
         //}
 
         private void Connect(IPAddress address, int port)
@@ -1446,8 +1343,8 @@ namespace VSCodeDebug
                 //            _debuggeeKilled = false;
 
                 //var args0 = new Mono.Debugging.Soft.SoftDebuggerConnectArgs(string.Empty, address, port) {
-                //	MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
-                //	TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
+                //    MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
+                //    TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
                 //};
 
                 //            _interpreter.InterpretFile(args0, isTextDocument: false);
@@ -1461,8 +1358,8 @@ namespace VSCodeDebug
         {
             _interpreter.Pause();
             //lock (_lock) {
-            //	if (_session != null && _session.IsRunning)
-            //		_session.Stop();
+            //    if (_session != null && _session.IsRunning)
+            //        _session.Stop();
             //}
         }
 
@@ -1471,16 +1368,16 @@ namespace VSCodeDebug
             Environment.Exit(0);
             //_interpreter.
             //lock (_lock) {
-            //	if (_session != null) {
+            //    if (_session != null) {
 
-            //		_debuggeeExecuting = true;
+            //        _debuggeeExecuting = true;
 
-            //		if (!_session.HasExited)
-            //			_session.Exit();
+            //        if (!_session.HasExited)
+            //            _session.Exit();
 
-            //		_session.Dispose();
-            //		_session = null;
-            //	}
+            //        _session.Dispose();
+            //        _session = null;
+            //    }
             //}
         }
     }
