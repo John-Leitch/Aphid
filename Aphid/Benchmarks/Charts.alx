@@ -106,7 +106,7 @@ var createChart = @(mode){
     0..xCount->@(i) area.AxisX.CustomLabels.Add(i - 0.5, i + 0.5, pts[i][2].ToString());
 
     if (png) {
-        var height = xCount * pixelsPerStack;
+        var height = Math.Max(xCount * pixelsPerStack, 400);
         chart.Size = new Size(height * widthMultipier, height);
         var m = tickMode.Keys[mode];
         var m2 = m[0].ToUpper() + m.Substring(1);

@@ -1,5 +1,7 @@
 #'Std';
+#'IO';
 #'System/Process';
+#'System/Nuget';
 #'Cli/Powershell';
 
 using System.IO;
@@ -15,22 +17,34 @@ var ignore = [
 ];
 
 var verbosity = 3;
-var config = 'Release';
-var root = Path.Combine(Path.GetDirectoryName(this['$script']), '..', '..') |> Path.GetFullPath;
-var testRoot = Path.Combine(root, '..', 'AphidBenchMark') |> Path.GetFullPath;
-var csProj = testRoot + '\\Aphid\\Aphid.csproj';
-var mantispidCsProj = testRoot + '\\Mantispid\\Mantispid.csproj';
-var mantispidExe = testRoot + '\\Mantispid\\bin\\Release\\Mantispid.exe';
+var config;
+var root = Path.Combine(Path.GetDirectoryName(this['$script']), '..', '..') | Path.GetFullPath;
+var testRoot = @Path.Combine(Path.Combine(root, '..', 'AphidBenchMark') | Path.GetFullPath);
+var sln = testRoot <| 'Aphid.sln';
+var csProj = testRoot <| 'Aphid\\Aphid.csproj';
+var mantispidCsProj = testRoot <| 'Mantispid\\Mantispid.csproj';
+var mantispidExe = testRoot <| 'Mantispid\\bin\\Release\\Mantispid.exe';
 var benchRel = '\\Aphid\\Benchmarks';
 var testSrc = root + benchRel;
-var testDst = testRoot + benchRel;
-var bin = '\\bin\\' + config;
-var testBin = testRoot + '\\Aphid' + bin;
-var testBin2 = testRoot + '\\Components.Aphid' + bin;
-var exe = testBin + '\\Aphid.exe';
+var testDst = testRoot <| benchRel;
+
+var testBin;
+var testObj = testRoot <| 'Aphid\\obj';
+
+var testLibBin = testRoot <| 'Components.Aphid\\bin';
+var testLibObj = testRoot <| 'Components.Aphid\\obj';
+
+var exe;
+
+var setBinDir = @{
+    testBin = testRoot <| 'Aphid\\bin';
+    
+};
+
 var nextAphidCmd = @() exe + (useSingleProcess ? ' run2.alx' : ' run.alx');
+
 var tmpDir = testSrc + '\\BenchmarkTemp';
-var cd = @Directory.SetCurrentDirectory(testRoot);
+var cd = @Directory.SetCurrentDirectory(testRoot());
 var buildNum = 9000;
 var prevVersion = @() '0.5.2.{0}' :: [ buildNum-- ];
 var exists = File.Exists;
@@ -50,22 +64,25 @@ var files = @(patternOrPath, path) path defined ?
 };
 
 var init = @{
-    if (Directory.Exists(testRoot)) {
+    if (Directory.Exists(testRoot())) {
         cd();
         ~# 'git fetch --all';        
         ~# 'git reset --hard origin/master';
         ~# 'git pull';
     } else {
-        ~# ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot);
+        ~# ('git clone https://github.com/John-Leitch/Aphid.git ' + testRoot());
         cd();
     }
     
     ~# ('mkdir ' + tmpDir);
     ~# ('del ' + testDst + '\\history.* /q');
 
+    restorePackages();
     msBuild.init();
     buildMantispid();
 };
+
+var restorePackages = @() ~# ('"{0}" restore "{1}"' :: [ nuget.exe, sln ]);
 
 var pl = @(text) text  ~~ '(\\w)\\[([^\\s]+?)\\](,|$)' -. Groups ->@()$_[1] + $_[2];
 
@@ -119,7 +136,8 @@ var buildMantispid = @{
 };
 
 var exeSearchPaths = ['Release64', 'x64\\Release', 'Release']
-    ->@format('{0}\\Aphid\\Bin\\{1}', testRoot);
+    ->@format('Aphid\\Bin\\{0}')
+    ->testRoot;
 
 var run = @{
     exe = null;
@@ -147,12 +165,11 @@ var run = @{
         //->@(f) [' /ah ', '']
             //->@() ~# ('del ' + f + '\\*.alx.cache* /s /q' + $_);
 
-    ~# ('del ' + testRoot + '\\aphid*.exe /s /q');
+    ~# ('del {0} /s /q' :: 'aphid*.exe' | testRoot);
 
-    [ 'components*.dll', '*.alx' ]
-        ->@(p) [ testBin, testBin2 ]
-            ->@(f) [' /ah ', '']
-                ->@() ~# ('del ' + f + '\\' + p + ' /s /q' + $_);
+    [ 'aphid*.exe', 'components*.dll', '*.alx*' ]->testRoot
+        ->@(f) [' /ah ', '']
+            ->@() ~# ('del ' + f + '\\' + p + ' /s /q' + $_);
 
     head('Patching Version Numbers');
     var ver = prevVersion();
@@ -193,16 +210,13 @@ var run = @{
         '/t:Rebuild';
         
     
-    ~# msbc;
-
-    
+    ~# msbc;    
     
     if (hasExe()) {
         printSuccess('MSBuild Complete');
         head('Test Fixup');
         ~# ('copy ' + testSrc + '\\*.alx ' + testDst + ' /y');        
-        ~# ('del ' + testRoot + '\\*.alx.cache* /s /q');
-        ~# ('del ' + testRoot + '\\*.alx.cache* /s /q /ah');
+        [ '', ' /ah' ]->@() ~# ('del {0}\\*.alx.cache* /s /q{1}' :: [ testRoot, $_ ]);        
         ~# ('mkdir ' + testBin + '\\Library\\Testing');
         //~# ('copy ' + testBin + '\\Library\\Benchmarks.alx ' + testBin + '\\Library\\Testing\\Benchmarks.alx /y');
         //~# ('copy ' + testBin + '\\Library\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
@@ -213,7 +227,7 @@ var run = @{
             -<@files('*.alx')
             ->@(f){
                 printInfo('Fixing {0}', f);
-                var txt = f |> read;
+                var txt = f | read;
                 var bad = "#'c:\\\\source\\\\Aphid\\\\Components.Aphid\\\\Aphid.Tokens.alx';";
 
                 if (txt.Contains(bad)) {
@@ -266,7 +280,7 @@ var rollBack = @{
         'git show --name-only --oneline' ~> sb.AppendLine;
 
         var s = sb.ToString();
-        var s2 = s |> Cli.StyleEscape;
+        var s2 = s | Cli.StyleEscape;
         
         if (ignore =? s.StartsWith) {
             print('Ignoring:\r\n~Red~{0}~R~', s2);
@@ -278,6 +292,8 @@ var rollBack = @{
                 continue;
             }
             
+            
+            restorePackages();
             ~# ('copy ' + tmpDir + '\\history.* ' + testDst + ' /y');
 
             ret true;
