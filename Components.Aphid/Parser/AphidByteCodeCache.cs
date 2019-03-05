@@ -92,9 +92,10 @@ namespace Components.Aphid.Parser
                     ast = new ConstantFoldingMutator().Mutate(ast);
                 }
 
-                includeMutator.Included.Add(filename);
-                sources = new string[includeMutator.Included.Count];
-                includeMutator.Included.CopyTo(sources);
+                includeMutator.AddIncluded(filename);
+                var included = includeMutator.GetIncluded();
+                sources = new string[included.Count];
+                included.CopyTo(sources);
 
                 return ast;
             }

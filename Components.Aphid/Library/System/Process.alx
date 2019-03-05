@@ -81,3 +81,5 @@ var prepareCommand;
 
     ret p.ExitCode;
 };
+
+@ ~# (cmd) #> ('cmd /c {0}' :: cmd);

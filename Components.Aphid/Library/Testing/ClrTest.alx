@@ -34,7 +34,8 @@ var testScript = strOut(@{
 
     tests->@(x){%>
         var <%= x.Key.Name %>Type = asm.GetType("<%= x.Key %>");
-        var <%= x.Key.Name %>Obj = new <%= x.Key.Name %>Type();
+        var <%= x.Key.Name %>Obj;
+        try { <%= x.Key.Name %>Obj = new <%= x.Key.Name %>Type(); } catch { }
     <%};
 
     %>
@@ -48,5 +49,5 @@ var testScript = strOut(@{
         };
     <%}
 });
-
+testScript | print;
 testScript |> str |> eval;

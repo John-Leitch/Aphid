@@ -63,6 +63,10 @@ namespace Components.Aphid.Parser
                 {
                     return (List<AphidExpression>)serializer.Deserialize(stream);
                 }
+                catch (SerializationException)
+                {
+                    return RetryDecode(stream);
+                }
                 catch (InvalidCastException)
                 {
                     return RetryDecode(stream);

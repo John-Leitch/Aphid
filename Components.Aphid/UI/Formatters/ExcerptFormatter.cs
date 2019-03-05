@@ -20,13 +20,14 @@ namespace Components.Aphid.UI.Formatters
                 return null;
             }
 
-            var highlighted = SyntaxHighlightingFormatter.Format(
-                TokenHelper.GetCodeExcerpt(
+            var code = TokenHelper.GetCodeExcerpt(
                     statement.Code
                         .Insert(statement.Index + statement.Length, End)
                         .Insert(statement.Index, Start),
                     statement.Index + Start.Length,
-                    AphidConfig.Current.FrameExcerptLines / 2));
+                    AphidConfig.Current.FrameExcerptLines / 2);
+
+            var highlighted = SyntaxHighlightingFormatter.Format(code);
 
             return !string.IsNullOrWhiteSpace(highlighted) ? highlighted : null;
         }

@@ -436,7 +436,7 @@ var csharp;
                 params = createDefaultParams();
             }
 
-            cs |> Console.WriteLine;
+            //cs |> Console.WriteLine;
 
             var results = provider.CompileAssemblyFromSource(params, cs);
 

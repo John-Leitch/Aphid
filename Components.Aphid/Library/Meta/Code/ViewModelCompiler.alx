@@ -81,9 +81,11 @@ var viewModel;
         boolConverterNames.add(n);
         boolConverter.{n} = [ exp.SecondOperand, exp.ThirdOperand ];
 
-        { boolConverterNames, boolConverter }
-        |> serialize
-        @print('[+] Bool converters updated: {0}');
+        if (traceVMCompiler defined) {
+            { boolConverterNames, boolConverter }
+            |> serialize
+            @print('[+] Bool converters updated: {0}');
+        }
 
         //boolConverter.{exp.FirstOperand.Identifier}->emitExpression;
         //text |> print;
@@ -206,10 +208,14 @@ var viewModel;
         var a = lhs.Attributes;
 
         if (a.Count == 1) {
-            a[0] @print('[?] Checking for bool converter "{0}"');
+            if (traceVMCompiler defined) {
+                a[0] @print('[?] Checking for bool converter "{0}"');
+            }
 
             if (boolConverterNames.contains(a[0].Identifier)) {
-                a[0] @print('[+] Bool converter found with name "{0}"');
+                if (traceVMCompiler defined) {
+                    a[0] @print('[+] Bool converter found with name "{0}"');
+                }
                 
                 onChangeStatements.add({
                     func: lastOnChangeName,
@@ -393,8 +399,10 @@ var viewModel;
                     ->@{ typeMap[$_.Name] = $_.PropertyType; };
                     
                 // repl.run();
-                printInfo('Created map: ');
-                typeMap |> dump;
+                if (traceVMCompiler defined) {
+                    printInfo('Created map: ');                    
+                    typeMap |> dump;
+                }
                 
                 ret fromMap(namespace, type.Name, typeMap);
             },
@@ -406,8 +414,10 @@ var viewModel;
                     map[$_] = Object;
                 };
 
-                printInfo('Created map: ');
-                typeMap |> dump;
+                if (traceVMCompiler defined) {
+                    printInfo('Created map: ');
+                    typeMap |> dump;
+                }
 
                 ret fromMap(namespace, name, map);
             },
@@ -500,7 +510,7 @@ var viewModel;
 
                 var s = endOut().ToString();
 
-                s |> Console.WriteLine;
+                //s |> Console.WriteLine;
 
                 ret compileCode(s, aliasTypes);
             },

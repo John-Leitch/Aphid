@@ -49,7 +49,7 @@ namespace Components.Aphid.UI.Formatters
             }
             catch (Exception e)
             {
-                var ex = ExceptionHelper.Unwrap(e);
+                var ex = ExceptionHelper.Flatten(e).Select(x => x.Message).JoinLines();
 
                 return $"Error dumping {value.GetType()}: {ex}";
             }

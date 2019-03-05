@@ -12,6 +12,7 @@
             ShowErrorStatement = "showErrorStatement",
             ShowErrorExpression = "showErrorExpression",
             ShowErrorFrameExcerpts = "showErrorFrameExcerpts",
+            ShowErrorScope = "showErrorScope",
             ShowErrorFileList = "showErrorFileList",
             FrameExcerptsMax = "frameExcerptsMax",
             FrameExcerptLines = "frameExcerptLines",

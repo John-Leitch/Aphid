@@ -478,7 +478,7 @@ var getLexer = @(stream) {
 
         oneOrNone: @(set, def) {
             for (x in set) {
-                print('[?] Checking for {0}', x);
+                //print('[?] Checking for {0}', x);
                 if (x |> match) {
                     ret $_;
                 }

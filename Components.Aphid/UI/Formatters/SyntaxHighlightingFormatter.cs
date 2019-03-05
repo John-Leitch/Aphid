@@ -55,7 +55,12 @@ namespace Components.Aphid.UI.Formatters
 
                 if (i - 1 >= 0)
                 {
-                    ct[i - 1].Text = "";
+                    var t = ct[i - 1].Text;
+
+                    if (t.Length > 0 && t[t.Length - 1] == ' ')
+                    {
+                        ct[i - 1].Text = t.Remove(t.Length - 1);
+                    }
                 }
 
                 if (i >= 0 && i < ct.Length)
@@ -65,7 +70,12 @@ namespace Components.Aphid.UI.Formatters
 
                 if (i + 1 < ct.Length)
                 {
-                    ct[i + 1].Text = "";
+                    var t = ct[i + 1].Text;
+
+                    if (t.Length > 0 && t[0] == ' ')
+                    {
+                        ct[i + 1].Text = t.Substring(1);
+                    }
                 }
             }
 

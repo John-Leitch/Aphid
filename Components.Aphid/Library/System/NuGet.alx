@@ -17,15 +17,15 @@ var nuget;
             if (!File.Exists(exe)) {
                 'Could not find2 ~Cyan~{0}~R~, downloading ~Yellow~{1}~R~' :> [ exe, exeUrl ];
                 (new WebClient()).DownloadFile(exeUrl, exe);
-            } else {
+            } /*else {
                 'Nuget assembly found at ~Green~{0}~R~' :> [ exe ];
-            }
+            }*/
 
             if (load exe == null) {                
                 throw 'Failed loading Nuget.Core';
-            } else {
+            } /*else {
                 :> 'Nuget assembly loaded';
-            }
+            }*/
         },
 
         repoUrl: "https://packages.nuget.org/api/v2",

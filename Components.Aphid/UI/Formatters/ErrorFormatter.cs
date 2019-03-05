@@ -34,13 +34,19 @@ namespace Components.Aphid.UI.Formatters
         public static string Format(Exception exception)
         {
             var ex = ExceptionHelper.Unwrap(exception);
+
+            var flat = ExceptionHelper
+                .Flatten(ex)
+                .Select((x, i) => string.Format(
+                    AphidConfig.Current.ExceptionHandlingClrStack ?
+                        "[{0:x4}] Unhandled exception: {1}\r\n\r\n{2}\r\n" :
+                        "[{0:x4}] Unhandled exception: {1}\r\n",
+                    i,
+                    x.Message,
+                    x.StackTrace))
+                .JoinLines();
             
-            return string.Format(
-                AphidConfig.Current.ExceptionHandlingClrStack ?
-                    "Unhandled exception: {0}\r\n\r\n{1}\r\n" :
-                    "Unhandled exception: {0}\r\n",
-                ex.Message,
-                ex.StackTrace);
+            return flat;
             // Todo: implement properly
             // +
             //(ex.InnerException != null ? 

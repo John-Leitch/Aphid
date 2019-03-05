@@ -31,7 +31,7 @@ namespace Components.Aphid.UI.Formatters
                                     ignoreNull: false,
                                     ignoreClrObj: false,
                                     scopes: scopes)
-                                    .Indent(new string(' ', 7))
+                                    .Indent(new string(' ', 5))
                                     .TrimStart())))));
     }
 }

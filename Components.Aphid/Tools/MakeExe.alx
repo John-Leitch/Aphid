@@ -18,15 +18,17 @@ var usage = 'MakeExe [script name] {exe name}';
 if (args.Count == 0) {
     print(usage);
     exit(0);
-} else if (args.Count != 1 && args.Count != 2) {
-    fatal('Invalid arguments, expected {0}', usage);
+//} else if (args.Count != 1 && args.Count != 2) {
 }
 
-var script = args[0].Value;
+var script = args[0].Value | Path.GetFullPath;
+var scriptDir = script | Path.GetDirectoryName;
 
-var asmName = args.Count == 2 ?
+var asmName = args.Count >= 2 ?
     args[1].Value :
     Path.ChangeExtension(args[0].Value, 'exe');
+
+var extraRefs = args.Count >= 3 ? args @aq.skip(2) -> @.Value : [];
 
 var pdbFile = Path.ChangeExtension(asmName, 'pdb');
 [ pdbFile, asmName ]-?File.Exists->File.Delete;
@@ -51,13 +53,16 @@ printInfo('Starting preprocessing');
 var partialOpMutator = new PartialOperatorMutator();
 var macroMutator = new AphidMacroMutator();
 var directiveMutator = new AphidPreprocessorDirectiveMutator();
-var includeMutator = new IncludeMutator();
+var includeMutator = new IncludeMutator(scriptDir);
+//includeMutator.PerformCommonTransformations = false;
+var constantFoldingMutator = new ConstantFoldingMutator();
 
 var srcAst = scriptAst
-    |> partialOpMutator.MutateRecursively
-    |> macroMutator.MutateRecursively
-    |> directiveMutator.MutateRecursively
-    |> includeMutator.MutateRecursively;
+    |> partialOpMutator.Mutate
+    |> macroMutator.Mutate
+    |> directiveMutator.Mutate
+    |> includeMutator.Mutate
+    |> constantFoldingMutator.Mutate;
 
 printSuccess('Preprocessing complete');
 
@@ -74,10 +79,18 @@ printInfo('Creating module {0} for {1}', asmName, script);
 importOpcodes();
 @{
     var e = $_.Emit;
-    e(Ldc_I4_1);
-    e(Newobj, AphidInterpreter.GetConstructor([ bool ]));
+    $_.DeclareLocal(AphidInterpreter);
+    e(Newobj, AphidInterpreter.GetConstructor([]));
+    e(Stloc_0);
+
+    e(Ldloc_0);
+    e(Ldstr, script);
+    e(Call, AphidInterpreter.GetMethod('SetScriptFilename', [ string ]));    
+
+    e(Ldloc_0);
     e(Ldstr, 'ByteCode');
     e(Call, AphidByteCode.GetMethod('DecodeResource'));
+    
     e(Call, AphidInterpreter.GetMethod('Interpret', [ List[AphidExpression] ]));
     e(Ret);
 }
@@ -85,35 +98,82 @@ importOpcodes();
 
 installPackage('ilmerge');
 
-var ilMergeBins = Directory.GetFiles(
-    '.\\',
-    'ilmerge.exe',
-    SearchOption.AllDirectories);
+var ilMergeBin =
+    'packages'
+    |> getEntryPath
+    @() Directory.EnumerateFiles($_, 'ilmerge.exe' ,SearchOption.AllDirectories)
+    |> Enumerable.FirstOrDefault;
 
-if (ilMergeBins.Length == 0) {
+// var ilMergeBins = Directory.GetFiles(
+//     '.\\',
+//     'ilmerge.exe',
+//     SearchOption.AllDirectories);
+
+if (ilMergeBin == null) {
     printError('Could not find ilmerge.exe');
     exit(0xbad81);
 }
 
-var ilMergeBin = ilMergeBins[0] |> Path.GetFullPath;
-load ilMergeBin;
+var asm = load ilMergeBin;
+
+if (asm != null) {
+    printSuccess('Loaded ~Cyan~{0}~R~:\r\n    {1}', asm, asm.Location);
+}
+
 using ILMerging;
 
 var il = new ILMerge();
 il.Log = true;
 il.LogFile = properties.path + '.ilmerge.txt';
 
-il.SetSearchDirectories([
-    'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
-    'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
+if (il.LogFile | File.Exists) {
+    il.LogFile | File.Delete;
+}
+
+var searchDirs = new List[string]();
+
+[
+    // 'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
+    // 'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
-]);
+]->searchDirs.Add;
+
+extraRefs-?Directory.Exists->searchDirs.Add;
+
+if (searchDirs | Enumerable.Any) {
+    il.SetSearchDirectories(searchDirs | Enumerable.ToArray);
+}
+
+// il.SetSearchDirectories([
+//     'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
+//     'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
+//     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
+// ]);
+
+//il.dir();
 
 il.SetTargetPlatform(
     'v4',
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2');
 
-il.SetInputAssemblies([ properties.path, AphidObject.Assembly.Location ]);
+var extraAsms = new List[string]();
+extraRefs-?(@()!searchDirs.Contains($_))->extraAsms.Add;
+
+var inputAsms = 
+    Enumerable.Concat([
+        properties.path, AphidObject.Assembly.Location ],
+        extraAsms | Enumerable.ToArray)
+    | Enumerable.ToArray;
+
+[
+    [ 'Merging assemblies', inputAsms ],
+    [ 'Setting seasrch directories' , searchDirs ]
+]
+->@(p) p[1] @join('\r\n    ') @printInfo('{0}:\r\n    {1}', p[0]);
+inputAsms | il.SetInputAssemblies;
+
+
+
 il.OutputFile = properties.path |> Path.GetFullPath;
 printInfo('Merging into final binary ~Cyan~{0}~R~', il.OutputFile);
 il.Merge();

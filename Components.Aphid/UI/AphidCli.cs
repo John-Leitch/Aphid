@@ -246,6 +246,11 @@ namespace Components.Aphid.UI
 
         public static void DumpScope(AphidObject scope, AphidInterpreter interpreter, int depth)
         {
+            if (!AphidConfig.Current.ShowErrorScope)
+            {
+                return;
+            }
+
             if (depth == 0)
             {
                 if (!Console.IsOutputRedirected)
@@ -289,6 +294,10 @@ namespace Components.Aphid.UI
             if (localsStr.Length > 0)
             {
                 WriteLineOut(localsStr);
+            }
+            else
+            {
+                WriteLineHighlighted("[--] None");
             }
 
             WriteLineOut("");
@@ -441,6 +450,7 @@ namespace Components.Aphid.UI
                     var files = new[] { s.Item2 }
                         .Concat(AphidParent.Flatten(s.Item3().ToArray()).Select(x => x?.Filename))
                         .Where(x => x != null)
+                        .Select(x => x.Replace('/', '\\'))
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToArray();
 

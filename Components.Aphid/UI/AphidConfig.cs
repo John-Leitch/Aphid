@@ -28,6 +28,7 @@ namespace Components.Aphid.UI
             _showErrorExpression = GetBool(AS.ShowErrorExpression, false),
             _showErrorStatement = GetBool(AS.ShowErrorStatement, false),
             _showErrorFrameExcerpts = GetBool(AS.ShowErrorFrameExcerpts, true),
+            _showErrorScope = GetBool(AS.ShowErrorScope, false),
             _showErrorFileList = GetBool(AS.ShowErrorFileList, false),
             _scriptCaching = GetBool(AS.ScriptCaching, false),
             _ignoreDebugger = GetBool(AS.IgnoreDebugger, false);
@@ -50,6 +51,7 @@ namespace Components.Aphid.UI
         public bool ShowErrorFrameExcerpts => _showErrorFrameExcerpts.Value;
         public int FrameExcerptsMax => _frameExcerptsMax.Value;
         public int FrameExcerptLines => _frameExcerptLines.Value;
+        public bool ShowErrorScope => _showErrorScope.Value;
         public bool ShowErrorFileList => _showErrorFileList.Value;
         public bool ScriptCaching => _scriptCaching.Value;
         public bool IgnoreDebugger => _ignoreDebugger.Value;
