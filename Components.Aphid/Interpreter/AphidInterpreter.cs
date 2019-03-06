@@ -6064,7 +6064,6 @@ namespace Components.Aphid.Interpreter
             {
                 using (_breakpointReset = new ManualResetEvent(false))
                 {
-
                     if (HandleExecutionBreak != null)
                     {
                         BreakExecution(expression);
@@ -6143,11 +6142,9 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetBreakpoints(string filename)
         {
-            int[] indexes;
-
             lock (FileBreakpointIndexMap)
             {
-                if (FileBreakpointIndexMap.TryGetValue(filename, out indexes))
+                if (FileBreakpointIndexMap.TryGetValue(filename, out var indexes))
                 {
 #if APHID_DEBUGGING_TRACE
                     Cli.WriteSuccessMessage("Found breakpoints for ~Cyan~{0}~R~", filename);

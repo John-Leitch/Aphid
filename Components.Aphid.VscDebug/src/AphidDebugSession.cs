@@ -17,19 +17,17 @@ namespace VSCodeDebug
     public class AphidDebugSession : DebugSession
     {
         private readonly string[] _fileExtensions = new String[] { ".alx" };
+
         private const int _maxChildren = 10000,
             _maxConnectionAttempts = 10,
             _connectionAttemptInterval = 500;
 
         private AutoResetEvent _resumeEvent = new AutoResetEvent(false);
-        private bool _debuggeeExecuting = false;
+        private bool _debuggeeExecuting;
         private readonly object _lock = new object();
-        
+
         private volatile bool _debuggeeKilled = true;
-        
-        private long _nextBreakpointId = 0;
         private SortedDictionary<long, AphidExpression> _breakpoints;
-        
 
         private System.Diagnostics.Process _process;
         private Handles<KeyValuePair<string, AphidObject>[]> _variableHandles;
@@ -38,17 +36,14 @@ namespace VSCodeDebug
         private Dictionary<int, AphidFrame[]> _aphidFrameMap = new Dictionary<int, AphidFrame[]>();
         private Dictionary<int, AphidObject> _frameScopes = new Dictionary<int, AphidObject>();
         private AphidObject _exception;
-        private Dictionary<int, Thread> _seenThreads = new Dictionary<int, Thread>();
-        private bool _attachMode = false;
-        private bool _terminated = false;
-        private bool _stderrEOF = true;
-        private bool _stdoutEOF = true;
+        private readonly Dictionary<int, Thread> _seenThreads = new Dictionary<int, Thread>();
+        private bool _attachMode;
         private string _script;
         private int _threadId;
         private string _code;
         private List<AphidExpression> _ast;
         private AphidInterpreter _interpreter = new AphidInterpreter();
-        private bool _isRunning = false;
+        private bool _isRunning;
 
         public AphidInterpreter Interpreter => _interpreter;
 
@@ -104,7 +99,7 @@ namespace VSCodeDebug
                 supportsEvaluateForHovers = true,
 
                 // This debug adapter does not support exception breakpoint filters
-                exceptionBreakpointFilters = new dynamic[0],
+                exceptionBreakpointFilters = new dynamic[0]
             });
 
             // Mono Debug is ready to accept breakpoints immediately
@@ -117,12 +112,7 @@ namespace VSCodeDebug
 
             try
             {
-                var a = AphidParser.Parse(code, file);
-                var mutatedAst = new PartialOperatorMutator().MutateRecursively(a);
-                mutatedAst = new AphidMacroMutator().MutateRecursively(mutatedAst);
-                mutatedAst = new AphidPreprocessorDirectiveMutator().MutateRecursively(mutatedAst);
-                
-                return mutatedAst;
+                return MutatorGroups.GetStandard().Mutate(AphidParser.Parse(code, file));
             }
             catch (AphidParserException e)
             {
@@ -179,7 +169,7 @@ namespace VSCodeDebug
             // Todo: handle case insensitive file systems and forward slashes
             _script = Path.GetFullPath(programPath).Replace('/', '\\');
             _code = File.ReadAllText(programPath);
-            
+
             if ((_ast = Parse(response, _script)) == null)
             {
                 return;
@@ -206,16 +196,12 @@ namespace VSCodeDebug
             var resp = await SendRequest("runInTerminal", termArgs);
 
             SendResponse(response);
-            return;
         }
 
         public override void Attach(Response response, dynamic args)
         {
             _attachMode = true;
 
-            //SetExceptionBreakpoints(args.__exceptionOptions);
-
-            // validate argument 'address'
             var host = getString(args, "address");
             if (host == null)
             {
@@ -247,7 +233,6 @@ namespace VSCodeDebug
         {
             if (_attachMode)
             {
-
                 lock (_lock)
                 {
                     //if (_session != null) {
@@ -258,7 +243,6 @@ namespace VSCodeDebug
                     //_session = null;
                     //}
                 }
-
             }
             else
             {
@@ -289,8 +273,6 @@ namespace VSCodeDebug
             SendResponse(response);
             _interpreter.Continue();
             //Program.Log("Continuing execution");
-
-
 
             _debuggeeExecuting = true;
             //lock (_lock) {
@@ -349,13 +331,7 @@ namespace VSCodeDebug
             PauseDebugger();
         }
 
-        public override void SetExceptionBreakpoints(Response response, dynamic args)
-        {
-            //SetExceptionBreakpoints(args.exceptionOptions);
-            SendResponse(response);
-        }
-
-
+        public override void SetExceptionBreakpoints(Response response, dynamic args) => SendResponse(response);
 
         public override void SetBreakpoints(Response response, dynamic args)
         {
@@ -363,7 +339,7 @@ namespace VSCodeDebug
             if (args.source != null)
             {
                 var p = (string)args.source.path;
-                if (p != null && p.Trim().Length > 0)
+                if (p?.Trim().Length > 0)
                 {
                     path = p;
                 }
@@ -375,8 +351,6 @@ namespace VSCodeDebug
             }
             path = ConvertClientPathToDebugger(path);
 
-
-
             if (!HasMonoExtension(path))
             {
                 // we only support breakpoints in files mono can handle
@@ -385,7 +359,7 @@ namespace VSCodeDebug
             }
 
             var clientLines = (int[])args.lines.ToObject<int[]>();
-            
+
             var bps = new AphidBreakpointController().UpdateBreakpoints(
                 this,
                 response,
@@ -398,8 +372,6 @@ namespace VSCodeDebug
             }
 
             SendResponse(response, new SetBreakpointsResponseBody(bps));
-
-
 
             //         HashSet<int> lin = new HashSet<int>();
             //for (int i = 0; i < clientLines.Length; i++) {
@@ -503,39 +475,70 @@ namespace VSCodeDebug
 
             var lineResolver = new AphidLineResolver();
 
-            var currentFrame = new StackFrame(
+            StackFrame nextFrame(AphidExpression expression) =>
+                new StackFrame(
                 id++,
-                _interpreter.CurrentStatement.ToString(),
-                GetSource(_interpreter.CurrentStatement),
+                expression.ToString(),
+                GetSource(expression),
                 lineResolver.ResolveExpressionLine(
-                    GetAst(response, _interpreter.CurrentStatement),
-                    _interpreter.CurrentStatement),
+                    GetAst(response, expression),
+                    expression),
                 0,
                 "test2");
 
+            StackFrame[] expFrames;
+
+            if (_interpreter.CurrentExpression != null &&
+                _interpreter.CurrentStatement != _interpreter.CurrentStatement)
+            {
+                if (_interpreter.CurrentStatement != null)
+                {
+                    expFrames = new[]
+                    {
+                        nextFrame(_interpreter.CurrentExpression),
+                        nextFrame(_interpreter.CurrentStatement)
+                    };
+                }
+                else
+                {
+                    expFrames = new[] { nextFrame(_interpreter.CurrentExpression) };
+                }
+            }
+            else if (_interpreter.CurrentStatement != null)
+            {
+                if (_interpreter.CurrentExpression != null)
+                {
+                    expFrames = new[] { nextFrame(_interpreter.CurrentExpression) };
+                }
+                else
+                {
+                    expFrames = Array.Empty<StackFrame>();
+                }
+            }
+            else
+            {
+                expFrames = Array.Empty<StackFrame>();
+            }
+
             var aphidFrames = _interpreter.GetStackTrace();
 
-            var stackFrames = aphidFrames
-                .Select(x => new StackFrame(
-                    id++,
-                    x.Name,
-                    GetSource(x.Expression),
-                    lineResolver.ResolveExpressionLine(
-                        GetAst(response, x.Expression),
-                        x.Expression),
-                    0,
-                    "test2"))
+            var stackFrames = expFrames
+                .Concat(aphidFrames
+                    .Select(x => new StackFrame(
+                        id++,
+                        x.Name,
+                        GetSource(x.Expression),
+                        lineResolver.ResolveExpressionLine(
+                            GetAst(response, x.Expression),
+                            x.Expression),
+                        0,
+                        "test2")))
                 .ToList();
-
-
-
-            stackFrames.Insert(0, currentFrame);
 
             var frames2 = new List<StackFrame>();
             //frames2.Add(new StackFrame(
             //    _frameHandles.Create(currentFrame),
             //    currentFrame.name,
-            //    currentFrame.source,
             //    currentFrame.line,
             //    currentFrame.column,
             //    currentFrame.presentationHint
@@ -581,14 +584,14 @@ namespace VSCodeDebug
             Program.Log("Getting filename from {0}", expression);
             Program.Log("Filename: {0}", expression);
 
-            return expression != null && expression.Filename != null ?
+            return expression?.Filename != null ?
                 Parse(response, expression.Filename) :
                 _ast;
         }
 
         private Source GetSource(AphidExpression expression)
         {
-            return expression != null && expression.Filename != null ?
+            return expression?.Filename != null ?
                 new VSCodeDebug.Source(
                     Path.GetFileName(expression.Filename),
                     Path.GetFullPath(expression.Filename),
@@ -601,14 +604,10 @@ namespace VSCodeDebug
                     "normal");
         }
 
-        public override void Source(Response response, dynamic arguments)
-        {
-            SendErrorResponse(response, 1020, "No source available");
-        }
+        public override void Source(Response response, dynamic arguments) => SendErrorResponse(response, 1020, "No source available");
 
         public override void Scopes(Response response, dynamic args)
         {
-
             int frameId = getInt(args, "frameId", 0);
             var frame = _frameHandles.Get(frameId, null);
 
@@ -648,10 +647,7 @@ namespace VSCodeDebug
 
             //Program.Log("Merged scope keys: {0}", string.Join(", ", mergedScope.Keys));
 
-
             //scopes.Add(new Scope("locals", _variableHandles.Create(aphidScopes)));
-
-
 
             //foreach (var aphidScope in mergedScope.Where(x => x.Value != null))
             //{
@@ -665,8 +661,6 @@ namespace VSCodeDebug
 
             SendResponse(response, new ScopesResponseBody(scopes));
         }
-
-        private string[] _ignoreKeys = new[] { "asfd"/*AphidName.Scope, AphidName.Parent, AphidName.Block, AphidName.Code*/ };
 
         //private int CreateVariableHandles(AphidObject scope)
         //{
@@ -690,9 +684,7 @@ namespace VSCodeDebug
             //Program.Log("[variables] Done waiting for {0}", reference);
             var variables = new List<Variable>();
 
-            KeyValuePair<string, AphidObject>[] children;
-
-            if (_variableHandles.TryGet(reference, out children))
+            if (_variableHandles.TryGet(reference, out var children))
             {
                 Program.Log("[variables] Got {0} children for {1}", children.Length, reference);
                 foreach (var c in children)
@@ -726,7 +718,6 @@ namespace VSCodeDebug
                         //variables.Add(CreateVariable(c));
                         foreach (var o in c.Value.GetList().Select(x => x.ToArray()))
                         {
-
                         }
                         //variables.Add(CreateVariable(c));
 
@@ -760,9 +751,8 @@ namespace VSCodeDebug
             }
             else if (false)
             {
-                if (children != null && children.Length > 0)
+                if (children?.Length > 0)
                 {
-
                     var more = false;
                     if (children.Length > _maxChildren)
                     {
@@ -837,24 +827,9 @@ namespace VSCodeDebug
                         catch (Exception e)
                         {
                             HandleException(_interpreter, e);
-                            //HandleBreak(e.CurrentExpression);
-                            //StackTrace(response, args);
                         }
-                        //catch (Exception e)
-                        //{
-                        //    SendEvent
-                        //        new StoppedEvent(
-                        //            _threadId,
-                        //            "breakpoint",
-                        //            expression.ToString()));
-                        //    HandleBreak(_interpreter.CurrentExpression);
-                        //    StackTrace(response, args);
-                        //    Cli.WriteErrorMessage("Exception: {0}", e.Message);
-                        //    AphidCli.DumpStackTrace(_interpreter);
-                        //}
 
                         _interpreter.SetIsInTryCatchFinally(false);
-
                         SendEvent(new ThreadEvent("exited", _threadId));
                         //Terminate("target exited");
                     }).Start();
@@ -868,15 +843,10 @@ namespace VSCodeDebug
 
                 return;
             }
-            else
-            {
-
-            }
 
             var threads = new List<Thread>();
             threads.Add(new Thread(_threadId, "Main Thread"));
             SendResponse(response, new ThreadsResponseBody(threads));
-            return;
         }
 
         public override void Evaluate(Response response, dynamic args)
@@ -898,7 +868,6 @@ namespace VSCodeDebug
             var value = (AphidObject)new AphidInterpreter(_interpreter.CurrentScope).Interpret(exp);
             //var value = (AphidObject)_interpreter.Interpret(exp);
 
-
             //if (!_interpreter.CurrentScope.TryResolve(, out value))
             if (false)
             {
@@ -915,91 +884,6 @@ namespace VSCodeDebug
             }
         }
 
-        //---- private ------------------------------------------
-
-        //private void SetExceptionBreakpoints(dynamic exceptionOptions)
-        //{
-        //    if (exceptionOptions != null) {
-
-        //        // clear all existig catchpoints
-        //        foreach (var cp in _catchpoints) {
-        //            _session.Breakpoints.Remove(cp);
-        //        }
-        //        _catchpoints.Clear();
-
-        //        var exceptions = exceptionOptions.ToObject<dynamic[]>();
-        //        for (int i = 0; i < exceptions.Length; i++) {
-
-        //            var exception = exceptions[i];
-
-        //            string exName = null;
-        //            string exBreakMode = exception.breakMode;
-
-        //            if (exception.path != null) {
-        //                var paths = exception.path.ToObject<dynamic[]>();
-        //                var path = paths[0];
-        //                if (path.names != null) {
-        //                    var names = path.names.ToObject<dynamic[]>();
-        //                    if (names.Length > 0) {
-        //                        exName = names[0];
-        //                    }
-        //                }
-        //            }
-
-        //            if (exName != null && exBreakMode == "always") {
-        //                _catchpoints.Add(_session.Breakpoints.AddCatchpoint(exName));
-        //            }
-        //        }
-        //    }
-        //}
-
-        private void SendOutput(string category, string data)
-        {
-            if (!String.IsNullOrEmpty(data))
-            {
-                if (data[data.Length - 1] != '\n')
-                {
-                    data += '\n';
-                }
-                SendEvent(new OutputEvent(category, data));
-            }
-        }
-
-        private void Terminate(string reason)
-        {
-            if (!_terminated)
-            {
-
-                // wait until we've seen the end of stdout and stderr
-                for (var i = 0; i < 100 && (_stdoutEOF == false || _stderrEOF == false); i++)
-                {
-                    System.Threading.Thread.Sleep(100);
-                }
-
-                SendEvent(new TerminatedEvent());
-
-                _terminated = true;
-                _process = null;
-            }
-        }
-
-        //private StoppedEvent CreateStoppedEvent(string reason, ThreadInfo ti, string text = null)
-        //{
-        //    return new StoppedEvent((int)ti.Id, reason, text);
-        //}
-
-        //private ThreadInfo FindThread(int threadReference)
-        //{
-        //    if (_activeProcess != null) {
-        //        foreach (var t in _activeProcess.GetThreads()) {
-        //            if (t.Id == threadReference) {
-        //                return t;
-        //            }
-        //        }
-        //    }
-        //    return null;
-        //}
-
         private void Stopped()
         {
             _exception = null;
@@ -1007,16 +891,10 @@ namespace VSCodeDebug
             _frameHandles.Reset();
         }
 
-        private List<object> _traversed = new List<object>();
+        private static string GetObjectPreview(AphidObject obj) =>
+            obj.Keys.Count > 0 ? string.Format("{{ {0} }}", string.Join(", ", obj.Keys)) : "{ [Empty] }";
 
-        private string GetObjectPreview(AphidObject obj)
-        {
-            return obj.Keys.Any() ?
-                string.Format("{{ {0} }}", string.Join(", ", obj.Keys)) :
-                "{ [Empty] }";
-        }
-
-        private string GetCollectionPreview(IEnumerable collection)
+        private static string GetCollectionPreview(IEnumerable collection)
         {
             var c = collection.Cast<object>().Count();
             return string.Format("[ {0:n0} element{1} ]", c, c != 1 ? "s" : "");
@@ -1098,127 +976,21 @@ namespace VSCodeDebug
 
                     if (t.IsPrimitive || t.IsEnum)
                     {
-                        return new Variable(v.Key, v.Value.Value.ToString(), t.FullName.ToString());
+                        return new Variable(v.Key, v.Value.Value.ToString(), t.FullName);
                     }
-                    else
-                    {
-                        return new Variable(
-                            v.Key,
-                            t.Name,
-                            t.FullName,
-                            _variableHandles.Create(t
-                                .GetProperties()
-                                .Select((x, i) => new KeyValuePair<string, AphidObject>(
-                                    x.Name,
-                                    ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
-                                .ToArray()));
-                    }
+
+                    return new Variable(
+                        v.Key,
+                        t.Name,
+                        t.FullName,
+                        _variableHandles.Create(t
+                            .GetProperties()
+                            .Select((x, i) => new KeyValuePair<string, AphidObject>(
+                                x.Name,
+                                ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
+                            .ToArray()));
                 }
             }
-
-
-            //else if (v.Value.Value.GetType() == typeof(List<AphidObject>))
-            //{
-            //    return new Variable(
-            //        v.Key,
-            //        "[]",
-            //        AphidType.List,
-            //        _variableHandles.Create(v.Value.ToArray()));
-
-            //    foreach (var l in v.Value.GetList().ToArray())
-            //    {
-            //        _variableHandles.Create(l.ToArray());
-            //    }
-
-            //    var list = v.Value.GetList().SelectMany(x => x).ToArray();
-            //    var valueList = list.Select(x => x.Value).ToList();
-            //    Program.Log("List: {0}", new AphidSerializer().Serialize(
-            //        new AphidObject(valueList)));
-            //    return new Variable(
-            //            v.Key,
-            //            "[]",
-            //            "list",
-            //            _variableHandles.Create(v.Value.ToArray()));
-            //}
-            //else if (v.Value.Value != null)
-            //{
-            //    if (v.Value.Value.GetType() == typeof(List<AphidObject>))
-            //    {
-            //        return new Variable(
-            //            v.Key,
-            //            "[]",
-            //            "list",
-            //            _variableHandles.Create(v.Value.GetList().SelectMany(x => x).ToArray()));
-            //    }
-            //    else if (v.Value.IsAphidType())
-            //    {
-            //        return new Variable(
-            //            v.Key,
-            //            new AphidSerializer().Serialize(v.Value),
-            //            v.Value.GetValueType(),
-            //            0);
-            //    }
-            //    else if (v.Value.Value.GetType().GetInterface("IEnumerable") != null)
-            //    {
-            //        var l = new List<AphidObject>();
-
-            //        foreach (var o in (IEnumerable)v.Value.Value)
-            //        {
-            //            l.Add(ValueHelper.Wrap(o));
-            //        }
-
-            //        return new Variable(
-            //            v.Key,
-            //            "[c]",
-            //            "list",
-            //            _variableHandles.Create(l.SelectMany(x => x).ToArray()));
-            //    }
-            //    else
-            //    {
-            //        return new Variable(v.Key, v.Value.GetType().FullName, v.Value.GetType().FullName);
-            //        //var t = v.Value.GetType();
-
-            //        //Program.Log("Reflecting type {0}", t.FullName);
-
-            //        //return new Variable(
-            //        //    v.Key,
-            //        //    t.FullName,
-            //        //    t.FullName,
-            //        //    _variableHandles.Create(t
-            //        //        .GetProperties()
-            //        //        .Select(x => ValueHelper.Wrap(x.GetValue(v.Value)))
-            //        //        .ToArray()));
-            //    }
-            //}
-            //else
-            //{
-            //    return new Variable(
-            //        v.Key,
-            //        "{}",
-            //        AphidType.Object,
-            //        _variableHandles.Create(v.Value.SelectMany(x => x.Value).ToArray()));
-            //}
-
-            //Program.Log("Creating variable {0}", v
-            //var dv = new AphidSerializer().Serialize(v);
-            //if (dv.Length > 1 && dv [0] == '{' && dv [dv.Length - 1] == '}') {
-            //    dv = dv.Substring (1, dv.Length - 2);
-            //}
-
-            //         var scopeValue = _interpreter.CurrentScope.FirstOrDefault(x => x.Value == v);
-
-            //return new Variable(
-            //             name,
-            //             //scopeValue.Key != null ? scopeValue.Key : "[value]",
-            //             dv,
-            //             v.Value == null ?
-            //                 "null" :
-            //             v.Value != null ?
-            //                 v.GetValueType() :
-            //                 AphidType.Object,
-            //             v.Value == null || v.Value != null ?
-            //                 0 :
-            //                 CreateVariableHandles(v));
         }
 
         private object TryGetValue(PropertyInfo property, object target)
@@ -1230,7 +1002,7 @@ namespace VSCodeDebug
             catch (Exception e)
             {
                 Program.Log(e.ToString());
-                return e.Message.ToString();
+                return e.Message;
             }
         }
 
@@ -1304,81 +1076,18 @@ namespace VSCodeDebug
             }
         }
 
-        //private ThreadInfo DebuggerActiveThread()
-        //{
-        //          return new ThreadInfo
-        //    lock (_lock) {
-        //        return _session == null ? null : _session.ActiveThread;
-        //    }
-        //}
-
-        //private Backtrace DebuggerActiveBacktrace() {
-        //    var thr = DebuggerActiveThread();
-        //    return thr == null ? null : thr.Backtrace;
-        //}
-
-        //private Mono.Debugging.Client.StackFrame DebuggerActiveFrame() {
-        //    if (_activeFrame != null)
-        //        return _activeFrame;
-
-        //    var bt = DebuggerActiveBacktrace();
-        //    if (bt != null)
-        //        return _activeFrame = bt.GetFrame(0);
-
-        //    return null;
-        //}
-
-        //private ExceptionInfo DebuggerActiveException() {
-        //    var bt = DebuggerActiveBacktrace();
-        //    return bt == null ? null : bt.GetFrame(0).GetException();
-        //}
-
         private void Connect(IPAddress address, int port)
         {
             lock (_lock)
             {
-                //_interpreter.InterpretFile(args0.command);
                 _debuggeeKilled = false;
-                //            DebuggerStartInfo
-                //            _debuggeeKilled = false;
-
-                //var args0 = new Mono.Debugging.Soft.SoftDebuggerConnectArgs(string.Empty, address, port) {
-                //    MaxConnectionAttempts = MAX_CONNECTION_ATTEMPTS,
-                //    TimeBetweenConnectionAttempts = CONNECTION_ATTEMPT_INTERVAL
-                //};
-
-                //            _interpreter.InterpretFile(args0, isTextDocument: false);
-                //_session.Run(new Mono.Debugging.Soft.SoftDebuggerStartInfo(args0), _debuggerSessionOptions);
 
                 _debuggeeExecuting = true;
             }
         }
 
-        private void PauseDebugger()
-        {
-            _interpreter.Pause();
-            //lock (_lock) {
-            //    if (_session != null && _session.IsRunning)
-            //        _session.Stop();
-            //}
-        }
+        private void PauseDebugger() => _interpreter.Pause();
 
-        private void DebuggerKill()
-        {
-            Environment.Exit(0);
-            //_interpreter.
-            //lock (_lock) {
-            //    if (_session != null) {
-
-            //        _debuggeeExecuting = true;
-
-            //        if (!_session.HasExited)
-            //            _session.Exit();
-
-            //        _session.Dispose();
-            //        _session = null;
-            //    }
-            //}
-        }
+        private void DebuggerKill() => Environment.Exit(0);
     }
 }

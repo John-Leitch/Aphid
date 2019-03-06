@@ -193,6 +193,5 @@ namespace Components.Aphid
 
             return filename + "." + Flags.ToString() + ".cache.metadata";
         }
-
     }
 }

@@ -26,6 +26,5 @@ namespace Components.Aphid.Debugging
             _aphidObject.Value != null ?
                 $"Scalar {_aphidObject.Value.GetType().Name} = {_aphidObject.Value}" :
                 "Scalar null";
-
     }
 }

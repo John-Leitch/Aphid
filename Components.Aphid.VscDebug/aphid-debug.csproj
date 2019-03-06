@@ -68,18 +68,42 @@
     <!-- <DebugType>pdbonly</DebugType>     -->
     <!-- <Optimize>true</Optimize>     -->
     <!-- <ErrorReport>prompt</ErrorReport> -->
+    <LangVersion>latest</LangVersion>
+    <CodeAnalysisRuleSet>Performance.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\AphidBreakpointController.cs" />
     <Compile Include="src\AphidIndexVisitor.cs" />
     <Compile Include="src\AphidLineResolver.cs" />
     <Compile Include="src\AphidDebugSession.cs" />
+    <Compile Include="VSCodeDebug\Breakpoint.cs" />
+    <Compile Include="VSCodeDebug\Capabilities.cs" />
+    <Compile Include="VSCodeDebug\ErrorResponseBody.cs" />
+    <Compile Include="VSCodeDebug\EvaluateResponseBody.cs" />
+    <Compile Include="VSCodeDebug\ExitedEvent.cs" />
     <Compile Include="src\Handles.cs" />
+    <Compile Include="VSCodeDebug\InitializedEvent.cs" />
+    <Compile Include="VSCodeDebug\Message.cs" />
+    <Compile Include="VSCodeDebug\OutputEvent.cs" />
+    <Compile Include="VSCodeDebug\Scope.cs" />
+    <Compile Include="VSCodeDebug\ScopesResponseBody.cs" />
+    <Compile Include="VSCodeDebug\SetBreakpointsResponseBody.cs" />
+    <Compile Include="VSCodeDebug\Source.cs" />
+    <Compile Include="VSCodeDebug\StackFrame.cs" />
+    <Compile Include="VSCodeDebug\StackTraceResponseBody.cs" />
+    <Compile Include="VSCodeDebug\StoppedEvent.cs" />
+    <Compile Include="VSCodeDebug\TerminatedEvent.cs" />
+    <Compile Include="VSCodeDebug\Thread.cs" />
+    <Compile Include="VSCodeDebug\ThreadEvent.cs" />
+    <Compile Include="VSCodeDebug\ThreadsResponseBody.cs" />
     <Compile Include="src\Utilities.cs" />
-    <Compile Include="src\DebugSession.cs" />
+    <Compile Include="VSCodeDebug\DebugSession.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="src\Protocol.cs" />
+    <Compile Include="VSCodeDebug\Variable.cs" />
+    <Compile Include="VSCodeDebug\VariablesResponseBody.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

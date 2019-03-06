@@ -304,7 +304,6 @@ namespace Components.Aphid.TypeSystem
 
                 if (TrySetProperty(property, obj, p.Value))
                 {
-                    continue;
                 }
                 else if (property.PropertyType.IsArray)
                 {

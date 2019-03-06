@@ -60,11 +60,9 @@ namespace Components.Aphid.TypeSystem
                         {
                             break;
                         }
-                        else
-                        {
-                            scanningForTick = true;
-                            tickIndex = -1;
-                        }
+                        scanningForTick = true;
+
+                        tickIndex = -1;
                     }
                 }
 

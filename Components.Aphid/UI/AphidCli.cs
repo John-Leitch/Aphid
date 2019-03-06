@@ -609,6 +609,5 @@ namespace Components.Aphid.UI
                 }
             }
         }
-
     }
 }

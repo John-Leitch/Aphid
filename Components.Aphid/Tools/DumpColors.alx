@@ -1,0 +1,11 @@
+﻿#'Std';
+#'Math';
+
+ConsoleColor.values()\!
+@(colors) '{{1,-{0}}} {{0,-{0}}} ~{{1}}~~|{{0}}~' :: [ colors->str->@.Length \!$! ]
+    @(fmt) 0..2 
+        ->(@()colors) |> permutations ->(@(c) fmt :: c)
+        ->@+ (0..Cli.BufferWidth - ($_ |> Cli.EraseStyles #!)
+        ->@&0b11 ->@+0x41 -> chr |> concat @+ '~R~')
+    @join('\r\n')
+    print

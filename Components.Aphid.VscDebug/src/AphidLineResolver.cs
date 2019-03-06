@@ -10,36 +10,24 @@ namespace VSCodeDebug
 {
     public class AphidLineResolver
     {
-        //private string _code;
-
-        //private List<AphidExpression> _ast;
-
         public Dictionary<int, AphidExpression> IndexTable { get; private set; }
 
-        //public AphidLineResolver(string code, List<AphidExpression> ast)
-        //{
-        //    _code = code;
-        //    _ast = ast;
-        //}
-
-        public int[] GetLineIndexes(string code)
-        {
-            return new[] { 0 }
+        public static int[] GetLineIndexes(string code) =>
+            new[] { 0 }
                 .Concat(code
                     .Select((x, i) => new { Char = x, Index = i })
                     .Where(x => x.Char == '\n')
                     .Select(x => x.Index))
                 .ToArray();
-        }
 
         public int[] ResolveLines(string code, int[] clientLines)
         {
             var lineIndexes = GetLineIndexes(code);
             //Program.Log("Lines found: {0}", JsonSerializer.Serialize(lineIndexes));
-            var indexes = clientLines.Select(x => lineIndexes[x - 1]).ToArray();
+
             //Program.Log("Indexes found: {0}", JsonSerializer.Serialize(indexes));
 
-            return indexes;
+            return clientLines.Select(x => lineIndexes[x - 1]).ToArray();
         }
 
         public AphidExpression[] ResolveLineExpressions(
@@ -53,7 +41,6 @@ namespace VSCodeDebug
             return indexes
                 .Select(x => IndexTable.First(y => y.Key >= x).Value)
                 .ToArray();
-
         }
 
         public int ResolveExpressionLine(List<AphidExpression> ast, AphidExpression expression)

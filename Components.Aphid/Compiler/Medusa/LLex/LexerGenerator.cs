@@ -132,7 +132,7 @@ namespace LLex
 
                         if (x.Token != "None")
                         {
-                            body += "return {TokenType}." + x.Token.ToString() + ";\r\n";
+                            body += "return {TokenType}." + x.Token + ";\r\n";
                         }
                         else
                         {
@@ -215,7 +215,6 @@ namespace LLex
                     }
                     ")
                 .Aggregate((x, y) => x + "else " + y);
-
 
             var s = Components.Aphid.Properties.Resources.LexicalAnalyzerTemplate
                 .Replace("{Root}", root)

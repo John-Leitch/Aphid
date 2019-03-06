@@ -39,10 +39,8 @@ namespace Components.Aphid
             {
                 return _sanitizeMemoizer.Call(SanitizeCore, filename);
             }
-            else
-            {
-                return _sanitizeMemoizer.Call(SanitizeCore, Path.GetFullPath(filename));
-            }
+
+            return _sanitizeMemoizer.Call(SanitizeCore, Path.GetFullPath(filename));
         }
 
         public static string Normalize(string filename)
@@ -51,10 +49,8 @@ namespace Components.Aphid
             {
                 return filename.Replace('/', '\\').ToLower();
             }
-            else
-            {
-                return Path.GetFullPath(filename.Replace('/', '\\')).ToLower();
-            }
+
+            return Path.GetFullPath(filename.Replace('/', '\\')).ToLower();
         }
     }
 }

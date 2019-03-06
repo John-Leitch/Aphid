@@ -103,7 +103,6 @@ namespace Components.Aphid.Serialization
                     (ao2 = x as AphidObject) == null ||
                     !ao2.IsComplex)
                 {
-                    return;
                 }
                 else if (_traversed.Contains(x))
                 {
@@ -391,8 +390,6 @@ namespace Components.Aphid.Serialization
                     }
                 }
             }
-
-
 
             if (hasAny)
             {

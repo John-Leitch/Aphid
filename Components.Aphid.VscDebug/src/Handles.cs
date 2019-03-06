@@ -43,8 +43,7 @@ namespace VSCodeDebug
 
         public T Get(int handle, T dflt)
         {
-            T value;
-            if (_handleMap.TryGetValue(handle, out value))
+            if (_handleMap.TryGetValue(handle, out var value))
             {
                 return value;
             }

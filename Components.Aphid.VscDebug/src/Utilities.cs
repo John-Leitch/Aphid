@@ -22,7 +22,7 @@ namespace VSCodeDebug
 
         private static readonly Regex VARIABLE = new Regex(@"\{(\w+)\}");
 
-        private static char[] ARGUMENT_SEPARATORS = new char[] { ' ', '\t' };
+        private static readonly char[] ARGUMENT_SEPARATORS = new char[] { ' ', '\t' };
 
         /*
          * Enclose the given string in quotes if it contains space or tab characters.
@@ -31,7 +31,7 @@ namespace VSCodeDebug
         {
             if (arg.IndexOfAny(ARGUMENT_SEPARATORS) >= 0)
             {
-                return '"' + arg + '"';
+                return "\"" + arg + "\"";
             }
             return arg;
         }
@@ -88,18 +88,17 @@ namespace VSCodeDebug
         {
             try
             {
-                IPAddress ipaddress = null;
-                if (IPAddress.TryParse(addressString, out ipaddress))
+                if (IPAddress.TryParse(addressString, out var ipaddress))
                 {
                     return ipaddress;
                 }
 
 #if DNXCORE50
-				IPHostEntry entry = Dns.GetHostEntryAsync(addressString).Result;
+                IPHostEntry entry = Dns.GetHostEntryAsync(addressString).Result;
 #else
                 var entry = Dns.GetHostEntry(addressString);
 #endif
-                if (entry != null && entry.AddressList != null && entry.AddressList.Length > 0)
+                if (entry != null && entry.AddressList?.Length > 0)
                 {
                     if (entry.AddressList.Length == 1)
                     {
@@ -157,14 +156,13 @@ namespace VSCodeDebug
                 var name = match.Groups[1].Value;
                 if (!underscoredOnly || name.StartsWith("_"))
                 {
-
                     var property = type.GetProperty(name);
                     if (property != null)
                     {
                         object value = property.GetValue(variables, null);
                         return value.ToString();
                     }
-                    return '{' + name + ": not found}";
+                    return "{" + name + ": not found}";
                 }
                 return match.Groups[0].Value;
             });
@@ -194,21 +192,21 @@ namespace VSCodeDebug
 
     //class CustomLogger : ICustomLogger
     //{
-    //	public void LogError(string message, Exception ex)
-    //	{
-    //	}
+    //    public void LogError(string message, Exception ex)
+    //    {
+    //    }
 
-    //	public void LogAndShowException(string message, Exception ex)
-    //	{
-    //	}
+    //    public void LogAndShowException(string message, Exception ex)
+    //    {
+    //    }
 
-    //	public void LogMessage(string format, params object[] args)
-    //	{
-    //	}
+    //    public void LogMessage(string format, params object[] args)
+    //    {
+    //    }
 
-    //	public string GetNewDebuggerLogFilename()
-    //	{
-    //		return null;
-    //	}
+    //    public string GetNewDebuggerLogFilename()
+    //    {
+    //        return null;
+    //    }
     //}
 }

@@ -88,6 +88,5 @@ namespace Components.Aphid.UI.Formatters
 
             return frameStr.ToString();
         }
-
     }
 }

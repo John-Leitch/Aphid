@@ -7,287 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-
 namespace VSCodeDebug
 {
-    // ---- Types -------------------------------------------------------------------------
-
-    public class Message
-    {
-        public int id { get; private set; }
-        public string format { get; private set; }
-        public dynamic variables { get; private set; }
-        public dynamic showUser { get; private set; }
-        public dynamic sendTelemetry { get; private set; }
-
-        public Message(int id, string format, dynamic variables = null, bool user = true, bool telemetry = false)
-        {
-            this.id = id;
-            this.format = format;
-            this.variables = variables;
-            this.showUser = user;
-            this.sendTelemetry = telemetry;
-        }
-    }
-
-    public class StackFrame
-    {
-        public int id { get; private set; }
-        public Source source { get; private set; }
-        public int line { get; private set; }
-        public int column { get; private set; }
-        public string name { get; private set; }
-        public string presentationHint { get; private set; }
-
-        public StackFrame(int id, string name, Source source, int line, int column, string hint)
-        {
-            this.id = id;
-            this.name = name;
-            this.source = source;
-
-            // These should NEVER be negative
-            this.line = Math.Max(0, line);
-            this.column = Math.Max(0, column);
-
-            this.presentationHint = hint;
-        }
-    }
-
-    public class Scope
-    {
-        public string name { get; private set; }
-        public int variablesReference { get; private set; }
-        public bool expensive { get; private set; }
-
-        public Scope(string name, int variablesReference, bool expensive = false)
-        {
-            this.name = name;
-            this.variablesReference = variablesReference;
-            this.expensive = expensive;
-        }
-    }
-
-    public class Variable
-    {
-        public string name { get; private set; }
-        public string value { get; private set; }
-        public string type { get; private set; }
-        public int variablesReference { get; private set; }
-
-        public Variable(string name, string value, string type, int variablesReference = 0)
-        {
-            this.name = name;
-            this.value = value;
-            this.type = type;
-            this.variablesReference = variablesReference;
-        }
-    }
-
-    public class Thread
-    {
-        public int id { get; private set; }
-        public string name { get; private set; }
-
-        public Thread(int id, string name)
-        {
-            this.id = id;
-            if (name == null || name.Length == 0)
-            {
-                this.name = string.Format("Thread #{0}", id);
-            }
-            else
-            {
-                this.name = name;
-            }
-        }
-    }
-
-    public class Source
-    {
-        public string name { get; private set; }
-        public string path { get; private set; }
-        public int sourceReference { get; private set; }
-        public string presentationHint { get; private set; }
-
-        public Source(string name, string path, int sourceReference, string hint)
-        {
-            this.name = name;
-            this.path = path;
-            this.sourceReference = sourceReference;
-            this.presentationHint = hint;
-        }
-    }
-
-    public class Breakpoint
-    {
-        public bool verified { get; private set; }
-        public int line { get; private set; }
-
-        public Breakpoint(bool verified, int line)
-        {
-            this.verified = verified;
-            this.line = line;
-        }
-    }
-
-    // ---- Events -------------------------------------------------------------------------
-
-    public class InitializedEvent : Event
-    {
-        public InitializedEvent()
-            : base("initialized")
-        { }
-    }
-
-    public class StoppedEvent : Event
-    {
-        public StoppedEvent(int tid, string reasn, string txt = null)
-            : base("stopped", new
-            {
-                threadId = tid,
-                reason = reasn,
-                text = txt
-            })
-        { }
-    }
-
-    public class ExitedEvent : Event
-    {
-        public ExitedEvent(int exCode)
-            : base("exited", new { exitCode = exCode })
-        { }
-    }
-
-    public class TerminatedEvent : Event
-    {
-        public TerminatedEvent()
-            : base("terminated")
-        { }
-    }
-
-    public class ThreadEvent : Event
-    {
-        public ThreadEvent(string reasn, int tid)
-            : base("thread", new
-            {
-                reason = reasn,
-                threadId = tid
-            })
-        { }
-    }
-
-    public class OutputEvent : Event
-    {
-        public OutputEvent(string cat, string outpt)
-            : base("output", new
-            {
-                category = cat,
-                output = outpt
-            })
-        { }
-    }
-
-    // ---- Response -------------------------------------------------------------------------
-
-    public class Capabilities : ResponseBody
-    {
-
-        public bool supportsConfigurationDoneRequest;
-        public bool supportsFunctionBreakpoints;
-        public bool supportsConditionalBreakpoints;
-        public bool supportsEvaluateForHovers;
-        public dynamic[] exceptionBreakpointFilters;
-    }
-
-    public class ErrorResponseBody : ResponseBody
-    {
-
-        public Message error { get; private set; }
-
-        public ErrorResponseBody(Message error)
-        {
-            this.error = error;
-        }
-    }
-
-    public class StackTraceResponseBody : ResponseBody
-    {
-        public StackFrame[] stackFrames { get; private set; }
-        public int totalFrames { get; private set; }
-
-        public StackTraceResponseBody(List<StackFrame> frames, int total)
-        {
-            stackFrames = frames.ToArray<StackFrame>();
-            totalFrames = total;
-        }
-    }
-
-    public class ScopesResponseBody : ResponseBody
-    {
-        public Scope[] scopes { get; private set; }
-
-        public ScopesResponseBody(List<Scope> scps)
-        {
-            scopes = scps.ToArray<Scope>();
-        }
-    }
-
-    public class VariablesResponseBody : ResponseBody
-    {
-        public Variable[] variables { get; private set; }
-
-        public VariablesResponseBody(List<Variable> vars)
-        {
-            variables = vars.ToArray<Variable>();
-        }
-    }
-
-    public class ThreadsResponseBody : ResponseBody
-    {
-        public Thread[] threads { get; private set; }
-
-        public ThreadsResponseBody(List<Thread> ths)
-        {
-            threads = ths.ToArray<Thread>();
-        }
-    }
-
-    public class EvaluateResponseBody : ResponseBody
-    {
-        public string result { get; private set; }
-        public int variablesReference { get; private set; }
-
-        public EvaluateResponseBody(string value, int reff = 0)
-        {
-            result = value;
-            variablesReference = reff;
-        }
-    }
-
-    public class SetBreakpointsResponseBody : ResponseBody
-    {
-        public Breakpoint[] breakpoints { get; private set; }
-
-        public SetBreakpointsResponseBody(List<Breakpoint> bpts = null)
-        {
-            if (bpts == null)
-            {
-                breakpoints = new Breakpoint[0];
-            }
-            else
-            {
-                breakpoints = bpts.ToArray<Breakpoint>();
-            }
-        }
-    }
-
     // ---- The Session --------------------------------------------------------
 
     public abstract class DebugSession : ProtocolServer
     {
         private bool _clientLinesStartAt1 = true;
         private bool _clientPathsAreURI = true;
-
 
         public DebugSession()
         {
@@ -322,7 +49,6 @@ namespace VSCodeDebug
             {
                 switch (command)
                 {
-
                     case "initialize":
                         if (args.linesStartAt1 != null)
                         {
@@ -474,15 +200,9 @@ namespace VSCodeDebug
 
         // protected
 
-        protected int ConvertDebuggerLineToClient(int line)
-        {
-            return _clientLinesStartAt1 ? line : line - 1;
-        }
+        protected int ConvertDebuggerLineToClient(int line) => _clientLinesStartAt1 ? line : line - 1;
 
-        protected int ConvertClientLineToDebugger(int line)
-        {
-            return _clientLinesStartAt1 ? line : line + 1;
-        }
+        protected int ConvertClientLineToDebugger(int line) => _clientLinesStartAt1 ? line : line + 1;
 
         protected string ConvertDebuggerPathToClient(string path)
         {
@@ -521,10 +241,8 @@ namespace VSCodeDebug
                 Program.Log("path not well formed: '{0}'", clientPath);
                 return null;
             }
-            else
-            {
-                return clientPath;
-            }
+
+            return clientPath;
         }
     }
 }

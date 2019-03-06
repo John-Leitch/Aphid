@@ -31,7 +31,6 @@ namespace Components.Aphid.Debugging
                 {
                     if (!_isEnabledSet)
                     {
-                        
                         _isEnabled = AphidErrorHandling.HandleErrors && AphidConfig.Current.SaveErrors;
                         _isEnabledSet = true;
                     }
@@ -106,7 +105,7 @@ namespace Components.Aphid.Debugging
             if (exit)
             {
                 Environment.Exit(0xbad02);
-                
+
                 var tid = Thread.CurrentThread.ManagedThreadId;
                 var ignoreTids = new[] { tid, 0 };
 
@@ -132,7 +131,7 @@ namespace Components.Aphid.Debugging
                         {
                             WriteMessage(
                                 ConsoleColor.Yellow,
-                                '!', 
+                                '!',
                                 "[Thread ~Cyan~{0:x4}~R~] Found other threads",
                                 tid);
 
@@ -149,7 +148,7 @@ namespace Components.Aphid.Debugging
                         }
                     }
                     //..GetFrames()->@()$_.GetMethod().ToString()
-                    
+
                     Environment.Exit(0xbad02);
                 //});
 

@@ -20,10 +20,9 @@ namespace VSCodeDebug
         public ProtocolMessage()
         {
         }
-        public ProtocolMessage(string typ)
-        {
-            type = typ;
-        }
+
+        public ProtocolMessage(string typ) => type = typ;
+
         public ProtocolMessage(string typ, int sq)
         {
             type = typ;
@@ -39,12 +38,14 @@ namespace VSCodeDebug
         public Request()
         {
         }
+
         public Request(string cmd, dynamic arg)
             : base("request")
         {
             command = cmd;
             arguments = arg;
         }
+
         public Request(int id, string cmd, dynamic arg)
             : base("request", id)
         {
@@ -73,6 +74,7 @@ namespace VSCodeDebug
         public Response()
         {
         }
+
         public Response(Request req)
             : base("response")
         {
@@ -99,6 +101,7 @@ namespace VSCodeDebug
     {
         [JsonProperty(PropertyName = "event")]
         public string eventType { get; private set; }
+
         public dynamic body { get; private set; }
 
         public Event(string type, dynamic bdy = null)
@@ -133,7 +136,6 @@ namespace VSCodeDebug
 
         private bool _stopRequested;
 
-
         public ProtocolServer()
         {
             _sequenceNumber = 1;
@@ -167,15 +169,9 @@ namespace VSCodeDebug
             }
         }
 
-        public void Stop()
-        {
-            _stopRequested = true;
-        }
+        public void Stop() => _stopRequested = true;
 
-        public void SendEvent(Event e)
-        {
-            SendMessage(e);
-        }
+        public void SendEvent(Event e) => SendMessage(e);
 
         public Task<Response> SendRequest(string command, dynamic args)
         {
@@ -246,7 +242,6 @@ namespace VSCodeDebug
             {
                 switch (message.type)
                 {
-
                     case "request":
                         {
                             var request = JsonConvert.DeserializeObject<Request>(req);
@@ -284,7 +279,6 @@ namespace VSCodeDebug
             {
                 message.seq = _sequenceNumber++;
             }
-
 
             //Program.Log(TRACE_RESPONSE && message.type == "response", " R: {0}", JsonConvert.SerializeObject(message, Formatting.Indented));
 
@@ -338,21 +332,15 @@ namespace VSCodeDebug
 
     //--------------------------------------------------------------------------------------
 
-    class ByteBuffer
+    internal class ByteBuffer
     {
         private byte[] _buffer;
 
-        public ByteBuffer()
-        {
-            _buffer = new byte[0];
-        }
+        public ByteBuffer() => _buffer = new byte[0];
 
         public int Length => _buffer.Length;
 
-        public string GetString(Encoding enc)
-        {
-            return enc.GetString(_buffer);
-        }
+        public string GetString(Encoding enc) => enc.GetString(_buffer);
 
         public void Append(byte[] b, int length)
         {
