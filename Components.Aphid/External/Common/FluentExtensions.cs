@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Components
 {
+#if DBG_STEPTHROUGH
     [DebuggerStepThrough]
-    public static partial class FluentExtensions
+#endif
+   public static partial class FluentExtensions
     {
         public static T Do<T>(this T obj, Action action)
         {

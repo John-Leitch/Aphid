@@ -9,8 +9,10 @@ using static System.Linq.Enumerable;
 
 namespace Components
 {
+#if DBG_STEPTHROUGH
     [DebuggerStepThrough]
-    public static class EnumerableExtension
+#endif
+   public static class EnumerableExtension
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // None

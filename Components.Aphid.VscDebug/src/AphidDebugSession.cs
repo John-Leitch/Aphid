@@ -16,7 +16,7 @@ namespace VSCodeDebug
 {
     public class AphidDebugSession : DebugSession
     {
-        private readonly string[] _fileExtensions = new String[] { ".alx" };
+        private readonly string[] _fileExtensions = new [] { ".alx" };
 
         private const int _maxChildren = 10000,
             _maxConnectionAttempts = 10,
@@ -42,10 +42,9 @@ namespace VSCodeDebug
         private int _threadId;
         private string _code;
         private List<AphidExpression> _ast;
-        private AphidInterpreter _interpreter = new AphidInterpreter();
         private bool _isRunning;
 
-        public AphidInterpreter Interpreter => _interpreter;
+        public AphidInterpreter Interpreter { get; } = new AphidInterpreter();
 
         public AphidDebugSession()
             : base()
@@ -53,8 +52,8 @@ namespace VSCodeDebug
             _variableHandles = new Handles<KeyValuePair<string, AphidObject>[]>();
             _frameHandles = new Handles<StackFrame>();
             _seenThreads = new Dictionary<int, Thread>();
-            _interpreter.CurrentScope.Add("$debugger", AphidObject.Scalar(this));
-            _interpreter.HandleExecutionBreak = HandleBreak;
+            Interpreter.CurrentScope.Add("$debugger", AphidObject.Scalar(this));
+            Interpreter.HandleExecutionBreak = HandleBreak;
         }
 
         private void HandleBreak(AphidExpression expression)
@@ -72,7 +71,7 @@ namespace VSCodeDebug
             _resumeEvent.Set();
         }
 
-        public override void Initialize(Response response, dynamic args)
+        public override void Initialize(Response response, dynamic arguments)
         {
             var os = Environment.OSVersion;
 
@@ -125,14 +124,14 @@ namespace VSCodeDebug
             }
         }
 
-        public override async void Launch(Response response, dynamic args)
+        public override async void Launch(Response response, dynamic arguments)
         {
             _attachMode = false;
 
             //SetExceptionBreakpoints(args.__exceptionOptions);
 
             // validate argument 'program'
-            string programPath = getString(args, "program");
+            string programPath = getString(arguments, "program");
             if (programPath == null)
             {
                 SendErrorResponse(response, 3001, "Property 'program' is missing or empty.", null);
@@ -149,7 +148,7 @@ namespace VSCodeDebug
             }
 
             // validate argument 'cwd'
-            var workingDirectory = (string)args.cwd;
+            var workingDirectory = (string)arguments.cwd;
             if (workingDirectory != null)
             {
                 workingDirectory = workingDirectory.Trim();
@@ -177,7 +176,7 @@ namespace VSCodeDebug
 
             const string host = "127.0.0.1";
             var port = Utilities.FindFreePort(55555);
-            bool debug = !getBool(args, "noDebug", false);
+            bool debug = !getBool(arguments, "noDebug", false);
 
             if (debug)
             {
@@ -198,11 +197,11 @@ namespace VSCodeDebug
             SendResponse(response);
         }
 
-        public override void Attach(Response response, dynamic args)
+        public override void Attach(Response response, dynamic arguments)
         {
             _attachMode = true;
 
-            var host = getString(args, "address");
+            var host = getString(arguments, "address");
             if (host == null)
             {
                 SendErrorResponse(response, 3007, "Property 'address' is missing or empty.");
@@ -210,7 +209,7 @@ namespace VSCodeDebug
             }
 
             // validate argument 'port'
-            var port = getInt(args, "port", -1);
+            var port = getInt(arguments, "port", -1);
             if (port == -1)
             {
                 SendErrorResponse(response, 3008, "Property 'port' is missing.");
@@ -229,7 +228,7 @@ namespace VSCodeDebug
             SendResponse(response);
         }
 
-        public override void Disconnect(Response response, dynamic args)
+        public override void Disconnect(Response response, dynamic arguments)
         {
             if (_attachMode)
             {
@@ -267,11 +266,11 @@ namespace VSCodeDebug
             SendResponse(response);
         }
 
-        public override void Continue(Response response, dynamic args)
+        public override void Continue(Response response, dynamic arguments)
         {
             WaitForSuspend();
             SendResponse(response);
-            _interpreter.Continue();
+            Interpreter.Continue();
             //Program.Log("Continuing execution");
 
             _debuggeeExecuting = true;
@@ -283,11 +282,11 @@ namespace VSCodeDebug
             //}
         }
 
-        public override void Next(Response response, dynamic args)
+        public override void Next(Response response, dynamic arguments)
         {
             WaitForSuspend();
             SendResponse(response);
-            _interpreter.SingleStep();
+            Interpreter.SingleStep();
             _debuggeeExecuting = true;
             //lock (_lock) {
             //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
@@ -297,11 +296,11 @@ namespace VSCodeDebug
             //}
         }
 
-        public override void StepIn(Response response, dynamic args)
+        public override void StepIn(Response response, dynamic arguments)
         {
             WaitForSuspend();
             SendResponse(response);
-            _interpreter.SingleStep();
+            Interpreter.SingleStep();
             _debuggeeExecuting = true;
             //         lock (_lock) {
             //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
@@ -311,11 +310,11 @@ namespace VSCodeDebug
             //}
         }
 
-        public override void StepOut(Response response, dynamic args)
+        public override void StepOut(Response response, dynamic arguments)
         {
             WaitForSuspend();
             SendResponse(response);
-            _interpreter.SingleStep();
+            Interpreter.SingleStep();
             _debuggeeExecuting = true;
             //         lock (_lock) {
             //    if (_session != null && !_session.IsRunning && !_session.HasExited) {
@@ -325,20 +324,20 @@ namespace VSCodeDebug
             //}
         }
 
-        public override void Pause(Response response, dynamic args)
+        public override void Pause(Response response, dynamic arguments)
         {
             SendResponse(response);
             PauseDebugger();
         }
 
-        public override void SetExceptionBreakpoints(Response response, dynamic args) => SendResponse(response);
+        public override void SetExceptionBreakpoints(Response response, dynamic arguments) => SendResponse(response);
 
-        public override void SetBreakpoints(Response response, dynamic args)
+        public override void SetBreakpoints(Response response, dynamic arguments)
         {
             string path = null;
-            if (args.source != null)
+            if (arguments.source != null)
             {
-                var p = (string)args.source.path;
+                var p = (string)arguments.source.path;
                 if (p?.Trim().Length > 0)
                 {
                     path = p;
@@ -358,7 +357,7 @@ namespace VSCodeDebug
                 return;
             }
 
-            var clientLines = (int[])args.lines.ToObject<int[]>();
+            var clientLines = (int[])arguments.lines.ToObject<int[]>();
 
             var bps = new AphidBreakpointController().UpdateBreakpoints(
                 this,
@@ -420,7 +419,7 @@ namespace VSCodeDebug
             //SendResponse(response, new SetBreakpointsResponseBody(breakpoints));
         }
 
-        public override void StackTrace(Response response, dynamic args)
+        public override void StackTrace(Response response, dynamic arguments)
         {
             //int maxLevels = getInt(args, "levels", 10);
             //int threadReference = getInt(args, "threadId", 0);
@@ -488,27 +487,27 @@ namespace VSCodeDebug
 
             StackFrame[] expFrames;
 
-            if (_interpreter.CurrentExpression != null &&
-                _interpreter.CurrentStatement != _interpreter.CurrentStatement)
+            if (Interpreter.CurrentExpression != null &&
+                Interpreter.CurrentStatement != Interpreter.CurrentStatement)
             {
-                if (_interpreter.CurrentStatement != null)
+                if (Interpreter.CurrentStatement != null)
                 {
                     expFrames = new[]
                     {
-                        nextFrame(_interpreter.CurrentExpression),
-                        nextFrame(_interpreter.CurrentStatement)
+                        nextFrame(Interpreter.CurrentExpression),
+                        nextFrame(Interpreter.CurrentStatement)
                     };
                 }
                 else
                 {
-                    expFrames = new[] { nextFrame(_interpreter.CurrentExpression) };
+                    expFrames = new[] { nextFrame(Interpreter.CurrentExpression) };
                 }
             }
-            else if (_interpreter.CurrentStatement != null)
+            else if (Interpreter.CurrentStatement != null)
             {
-                if (_interpreter.CurrentExpression != null)
+                if (Interpreter.CurrentExpression != null)
                 {
-                    expFrames = new[] { nextFrame(_interpreter.CurrentExpression) };
+                    expFrames = new[] { nextFrame(Interpreter.CurrentExpression) };
                 }
                 else
                 {
@@ -520,7 +519,7 @@ namespace VSCodeDebug
                 expFrames = Array.Empty<StackFrame>();
             }
 
-            var aphidFrames = _interpreter.GetStackTrace();
+            var aphidFrames = Interpreter.GetStackTrace();
 
             var stackFrames = expFrames
                 .Concat(aphidFrames
@@ -550,7 +549,7 @@ namespace VSCodeDebug
             {
                 var handle = _frameHandles.Create(f);
                 var scope = ++i == 0 ?
-                        _interpreter.CurrentScope :
+                        Interpreter.CurrentScope :
                         aphidFrames[i - 1].Scope;
 
                 if (!_aphidFrameMap.ContainsKey(handle))
@@ -606,9 +605,9 @@ namespace VSCodeDebug
 
         public override void Source(Response response, dynamic arguments) => SendErrorResponse(response, 1020, "No source available");
 
-        public override void Scopes(Response response, dynamic args)
+        public override void Scopes(Response response, dynamic arguments)
         {
-            int frameId = getInt(args, "frameId", 0);
+            int frameId = getInt(arguments, "frameId", 0);
             var frame = _frameHandles.Get(frameId, null);
 
             foreach (var kvp in _frameScopes)
@@ -616,7 +615,7 @@ namespace VSCodeDebug
                 Program.Log(
                     "Frame scope {0}: {1}",
                     kvp.Key,
-                    new AphidSerializer(_interpreter).Serialize(kvp.Value));
+                    new AphidSerializer(Interpreter).Serialize(kvp.Value));
             }
 
             var scopes = new List<Scope>();
@@ -662,17 +661,9 @@ namespace VSCodeDebug
             SendResponse(response, new ScopesResponseBody(scopes));
         }
 
-        //private int CreateVariableHandles(AphidObject scope)
-        //{
-        //    return _variableHandles.Create(scope
-        //        .Where(x => !_ignoreKeys.Contains(x.Key))
-        //        .Select(x => x.Value)
-        //        .ToArray());
-        //}
-
-        public override void Variables(Response response, dynamic args)
+        public override void Variables(Response response, dynamic arguments)
         {
-            int reference = getInt(args, "variablesReference", -1);
+            int reference = getInt(arguments, "variablesReference", -1);
             if (reference == -1)
             {
                 SendErrorResponse(response, 3009, "variables: property 'variablesReference' is missing", null, false, true);
@@ -806,7 +797,7 @@ namespace VSCodeDebug
             _resumeEvent.Set();
         }
 
-        public override void Threads(Response response, dynamic args)
+        public override void Threads(Response response, dynamic arguments)
         {
             if (!_isRunning)
             {
@@ -818,18 +809,18 @@ namespace VSCodeDebug
                         reset.Set();
                         SendEvent(new ThreadEvent("started", _threadId));
 
-                        var backup = _interpreter.SetIsInTryCatchFinally(true);
+                        var backup = Interpreter.SetIsInTryCatchFinally(true);
 
                         try
                         {
-                            _interpreter.Interpret(_ast);
+                            Interpreter.Interpret(_ast);
                         }
                         catch (Exception e)
                         {
-                            HandleException(_interpreter, e);
+                            HandleException(Interpreter, e);
                         }
 
-                        _interpreter.SetIsInTryCatchFinally(false);
+                        Interpreter.SetIsInTryCatchFinally(false);
                         SendEvent(new ThreadEvent("exited", _threadId));
                         //Terminate("target exited");
                     }).Start();
@@ -849,9 +840,9 @@ namespace VSCodeDebug
             SendResponse(response, new ThreadsResponseBody(threads));
         }
 
-        public override void Evaluate(Response response, dynamic args)
+        public override void Evaluate(Response response, dynamic arguments)
         {
-            var expression = getString(args, "expression");
+            var expression = getString(arguments, "expression");
 
             var exp = AphidParser.ParseExpression(expression.ToString());
 
@@ -865,10 +856,8 @@ namespace VSCodeDebug
                         .WithPositionFrom(exp) :
                     exp;
 
-            var value = (AphidObject)new AphidInterpreter(_interpreter.CurrentScope).Interpret(exp);
-            //var value = (AphidObject)_interpreter.Interpret(exp);
-
-            //if (!_interpreter.CurrentScope.TryResolve(, out value))
+            var value = (AphidObject)new AphidInterpreter(Interpreter.CurrentScope).Interpret(exp);
+            
             if (false)
             {
                 SendErrorResponse(response, 3014, "Evaluate request failed, invalid expression");
@@ -879,7 +868,7 @@ namespace VSCodeDebug
                 SendResponse(
                     response,
                     new EvaluateResponseBody(
-                        new AphidSerializer(_interpreter).Serialize(value),
+                        new AphidSerializer(Interpreter).Serialize(value),
                         handle));
             }
         }
@@ -937,7 +926,7 @@ namespace VSCodeDebug
                 {
                     return new Variable(
                         v.Key,
-                        new AphidSerializer(_interpreter).Serialize(v.Value),
+                        new AphidSerializer(Interpreter).Serialize(v.Value),
                         v.Value.GetValueType(),
                         0);
                 }
@@ -1086,7 +1075,7 @@ namespace VSCodeDebug
             }
         }
 
-        private void PauseDebugger() => _interpreter.Pause();
+        private void PauseDebugger() => Interpreter.Pause();
 
         private void DebuggerKill() => Environment.Exit(0);
     }

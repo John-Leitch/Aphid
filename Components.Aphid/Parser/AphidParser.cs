@@ -26,7 +26,10 @@ namespace Components.Aphid.Parser
             _tokens = tokens;
         }
 
+
+#if DBG_STEPTHROUGH
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         public bool Match(AphidTokenType tokenType)
         {
             if (_currentToken.TokenType == tokenType)
@@ -38,7 +41,9 @@ namespace Components.Aphid.Parser
             throw new AphidParserException(_currentToken, tokenType);
         }
 
+#if DBG_STEPTHROUGH
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         public bool NextToken()
         {
             _tokenIndex++;
@@ -54,7 +59,9 @@ namespace Components.Aphid.Parser
             return false;
         }
 
+#if DBG_STEPTHROUGH
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         public bool PreviousToken()
         {
             if (_tokens.Count == 0 || _tokenIndex == 0)
@@ -69,7 +76,9 @@ namespace Components.Aphid.Parser
             return true;
         }
 
+#if DBG_STEPTHROUGH
         [System.Diagnostics.DebuggerStepThrough]
+#endif
         public bool SetToken(int index)
         {
             _tokenIndex = index;
@@ -100,6 +109,11 @@ namespace Components.Aphid.Parser
             string filename,
             bool useImplicitReturns = true)
         {
+            if (tokens.Count == 0)
+            {
+                return new List<AphidExpression>();
+            }
+
             var parser = new AphidParser(tokens)
             {
                 UseImplicitReturns = useImplicitReturns

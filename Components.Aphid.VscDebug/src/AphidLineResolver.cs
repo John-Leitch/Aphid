@@ -27,7 +27,10 @@ namespace VSCodeDebug
 
             //Program.Log("Indexes found: {0}", JsonSerializer.Serialize(indexes));
 
-            return clientLines.Select(x => lineIndexes[x - 1]).ToArray();
+            return clientLines
+                .Select(x => x - 1)
+                .Select(x => 0 <= x && x < lineIndexes.Length ? lineIndexes[x] : 0)
+                .ToArray();
         }
 
         public AphidExpression[] ResolveLineExpressions(
@@ -39,7 +42,8 @@ namespace VSCodeDebug
             var indexes = ResolveLines(code, clientLines);
 
             return indexes
-                .Select(x => IndexTable.First(y => y.Key >= x).Value)
+                .Select(x => IndexTable.FirstOrDefault(y => y.Key >= x).Value)
+                .Where(x => x != null)
                 .ToArray();
         }
 

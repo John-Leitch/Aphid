@@ -9,8 +9,10 @@ using Components;
 
 namespace Components
 {
+#if DBG_STEPTHROUGH
     [DebuggerStepThrough]
-    public static class StreamExtension
+#endif
+   public static class StreamExtension
     {
         public static byte[] Read(this Stream sourceStream, int bufferSize)
         {

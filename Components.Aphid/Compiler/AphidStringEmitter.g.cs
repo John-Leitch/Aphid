@@ -6,8 +6,10 @@ namespace Components.Aphid.Compiler
 {
     public abstract partial class AphidStringEmitter
     {
+#if DBG_STEPTHROUGH
         [DebuggerStepThrough]
-        protected virtual void Emit(AphidExpression expression, bool isStatement = false)
+#endif
+       protected virtual void Emit(AphidExpression expression, bool isStatement = false)
         {
             BeginExpression(expression);
             switch (expression.Type)

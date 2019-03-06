@@ -242,7 +242,7 @@ namespace VSCodeDebug
 
         private static int LogId;
 
-        public static bool EnableLogging = true;
+        public static bool EnableLogging = false;
 
         public static void Log(string format, params object[] data)
         {
@@ -296,6 +296,7 @@ namespace VSCodeDebug
         private static void RunSession(Stream inputStream, Stream outputStream)
         {
             Log("[s] Begin debug session");
+            //System.Diagnostics.Debugger.Launch();
             DebugSession debugSession = new AphidDebugSession();
             debugSession.TRACE = trace_requests;
             debugSession.TRACE_RESPONSE = trace_responses;

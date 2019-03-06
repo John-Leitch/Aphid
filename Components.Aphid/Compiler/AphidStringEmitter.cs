@@ -124,8 +124,10 @@ namespace Components.Aphid.Compiler
 
         protected virtual void EndExpression(AphidExpression expression) { }
 
+#if DBG_STEPTHROUGH
         [DebuggerStepThrough]
-        public virtual string Compile(string filename, List<AphidExpression> ast)
+#endif
+       public virtual string Compile(string filename, List<AphidExpression> ast)
         {
             var buildNumber = BuildNumberRepository.NextBuildNumber(filename);
             ast = new BuildConstMutator(buildNumber).Mutate(ast);
@@ -155,8 +157,10 @@ namespace Components.Aphid.Compiler
         protected virtual string GetBinaryOperator(AphidTokenType op) =>
             GetOperator(_binaryOperators, op);
 
+#if DBG_STEPTHROUGH
         [DebuggerStepThrough]
-        protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
+#endif
+       protected virtual void EmitUnaryOperatorExpression(UnaryOperatorExpression expression, bool isStatement = false)
         {
             if (expression.IsPostfix)
             {
@@ -170,8 +174,10 @@ namespace Components.Aphid.Compiler
             }
         }
 
+#if DBG_STEPTHROUGH
         [DebuggerStepThrough]
-        protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression, bool isStatement = false)
+#endif
+       protected virtual void EmitBinaryOperatorExpression(BinaryOperatorExpression expression, bool isStatement = false)
         {
             if (!isStatement)
             {
@@ -188,8 +194,10 @@ namespace Components.Aphid.Compiler
             }
         }
 
+#if DBG_STEPTHROUGH
         [DebuggerStepThrough]
-        protected virtual void EmitStringExpression(StringExpression expression, bool isStatement = false)
+#endif
+       protected virtual void EmitStringExpression(StringExpression expression, bool isStatement = false)
         {
             var escaped = StringParser
                 .Parse(expression.Value)
@@ -204,8 +212,10 @@ namespace Components.Aphid.Compiler
         protected virtual void EmitNumberExpression(NumberExpression expression, bool isStatement = false) =>
             Append(expression.Value);
 
+#if DBG_STEPTHROUGH
         [DebuggerStepThrough]
-        protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false) =>
+#endif
+       protected virtual void EmitNullExpression(NullExpression expression, bool isStatement = false) =>
             Append("null");
 
         protected virtual void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false) =>
