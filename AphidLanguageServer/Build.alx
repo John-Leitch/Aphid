@@ -1,0 +1,88 @@
+﻿#'std';
+#'system/machine';
+var args = new List[string](Environment.GetCommandLineArgs());
+var flags = { };
+var dir = this.{'$script'} defined ? (this.{'$script'} | Path.GetDirectoryName) : '.\\';
+
+_f = macro(@(n) {
+    var id(n, flag) = '-' + quote(n);
+    flags.n = id(n, flag) |> args.Contains;
+    id(n, flag) | args.Remove;    
+});
+
+_f(prebuild);
+_f(postbuild);
+var ext = 'buildBak';
+
+var successExit = @{
+    printSuccess('No language server found, exiting');
+    exit(0);
+};
+using
+if (flags.Values @aq.all(@(x) !x)) {
+    print('Build [-prebuild|-postbuild]');
+    exit(0x1);
+} else if (flags.Values @aq.all(@(x) x)) {
+    print('Choose either -prebuild or -postbuild');
+    exit(0x2);
+}
+
+var langServerProcs = '%AphidLanguageServer%' | machine.getProcsLike;
+
+if ((langServerProcs #!) == 0) {
+    successExit();
+}
+
+if (flags.prebuild) {
+    printQuery('Running Prebuild');
+
+    
+    dir @printInfo('Dir: {0}');
+
+    var files = Directory
+        .GetFiles(dir | Path.GetFullPath, '*', SearchOption.AllDirectories)
+        -?(@()$_.IndexOf('\\bin\\debug\\', StringComparison.OrdinalIgnoreCase) != -1)
+        -?(@()$_.IndexOf('\\packages\\', StringComparison.OrdinalIgnoreCase) == -1)        
+        -?(@(f) [ 'exe', 'dll', 'pdb']=?@() f.EndsWith($_, StringComparison.OrdinalIgnoreCase))
+        -?File.Exists;
+
+    var fc = files #!;
+
+    if (fc == 0) {
+        printSuccess('Found no files');
+        exit(0);
+    }
+
+    printInfo('Found {0} files:', fc);
+    files->/*Path.GetFileName->*/@format('  {0}') @join('\r\n') |> print;
+
+    files->@(file) {        
+        if (file | File.Exists) {
+            var n = file + '.' + Guid.NewGuid().ToString().Replace('-', '') + '.' + ext;
+            try {
+                printInfo('Renaming {0} to {1}', file | Path.GetFileName, n  | Path.GetFileName);
+                File.Move(file, n);
+            } catch (e) {
+                printError('Error renaming file: {0}', e.message);
+            }
+        }
+    };
+} else if (flags.postbuild) {
+    printQuery('Running Post build');
+    printQuery('Seaching for procs');
+    var po = langServerProcs->@()$_.ProcessId.int() |> Process.GetProcessById;
+
+    if ((po #!) == 0) {
+        successExit();
+    }        
+
+    po->@{
+        
+        try {
+            $_ .Id @printInfo('Killing 0x{0:x4}');
+            $_.Kill();
+        } catch (w) {
+            $_ .Id @printInfo('Failed Killing 0x{0:x4}');
+        }
+    };
+}

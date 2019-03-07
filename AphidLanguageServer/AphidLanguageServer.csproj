@@ -55,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Deploy.alx">
+    <None Include="Build.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -78,8 +78,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>ren $(TargetFileName) $(TargetFileName).baktaskl
-::taskkill /im AphidLanguageServer.exe /f</PreBuildEvent>
+    <PreBuildEvent>aphid64 $(ProjectDir)Build.alx -prebuild</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>aphid64 $(ProjectDir)Build.alx -postbuild
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

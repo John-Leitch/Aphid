@@ -119,9 +119,11 @@ namespace Aphid
 
         }
 
-        private static void RunExpression(string[] args) => _evaluator.EvalExpression(GetInlineCode('?'));
+        private static void RunExpression(string[] args) =>
+            _evaluator.EvalExpression(GetInlineCode('?'));
 
-        private static void RunStatements(string[] args) => _evaluator.Eval(GetInlineCode('*'));
+        private static void RunStatements(string[] args) =>
+            _evaluator.Eval(GetInlineCode('*'));
 
         private static string GetInlineCode(char startToken)
         {
