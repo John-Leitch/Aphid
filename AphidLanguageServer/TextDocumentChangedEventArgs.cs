@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SampleServer
+namespace AphidLanguageServer
 {
     public class TextDocumentChangedEventArgs : EventArgs
     {

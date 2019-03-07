@@ -6,39 +6,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SampleServer
+namespace AphidLanguageServer
 {
     public class TextDocumentManager
     {
-        private readonly List<TextDocumentItem> _all = new List<TextDocumentItem>();
-        public IReadOnlyList<TextDocumentItem> All => _all;
+        public event EventHandler<TextDocumentChangedEventArgs> Changed;
+
+        private Dictionary<Uri, TextDocumentItem> _documents = new Dictionary<Uri, TextDocumentItem>();
+
+        public IEnumerable<TextDocumentItem> All => _documents.Values;
 
         public void Add(TextDocumentItem document)
         {
-            if (_all.Any(x => x.uri == document.uri))
+            if (_documents.ContainsKey(document.uri))
             {
                 return;
             }
-            _all.Add(document);
+
+            _documents.Add(document.uri, document);            
             OnChanged(document);
         }
 
         public void Change(Uri uri, long version, TextDocumentContentChangeEvent[] changeEvents)
         {
-            var index = _all.FindIndex(x => x.uri == uri);
-            if (index < 0)
+            if (!_documents.TryGetValue(uri, out var document) ||
+                document.version >= version)
             {
                 return;
             }
-            var document = _all[index];
-            if (document.version >= version)
-            {
-                return;
-            }
-            foreach(var ev in changeEvents)
+
+            foreach (var ev in changeEvents)
             {
                 Apply(document, ev);
             }
+
             document.version = version;
             OnChanged(document);
         }
@@ -47,10 +48,9 @@ namespace SampleServer
         {
             if (ev.range != null)
             {
-                var startPos = GetPosition(document.text, (int)ev.range.start.line, (int)ev.range.start.character);
-                var endPos = GetPosition(document.text, (int)ev.range.end.line, (int)ev.range.end.character);
-                var newText = document.text.Substring(0, startPos) + ev.text + document.text.Substring(endPos);
-                document.text = newText;
+                var startPos = GetPosition(document, ev.range.start);
+                var endPos = GetPosition(document, ev.range.end);
+                document.text = document.text.Substring(0, startPos) + ev.text + document.text.Substring(endPos);
             }
             else
             {
@@ -58,9 +58,13 @@ namespace SampleServer
             }
         }
 
+        private static int GetPosition(TextDocumentItem document, Position position) =>
+            GetPosition(document.text, (int)position.line, (int)position.character);
+
         private static int GetPosition(string text, int line, int character)
         {
             var pos = 0;
+
             for (; 0 <= line; line--)
             {
                 var lf = text.IndexOf('\n', pos);
@@ -70,8 +74,10 @@ namespace SampleServer
                 }
                 pos = lf + 1;
             }
+
             var linefeed = text.IndexOf('\n', pos);
             var max = 0;
+
             if (linefeed < 0)
             {
                 max = text.Length;
@@ -84,25 +90,15 @@ namespace SampleServer
             {
                 max = linefeed;
             }
+
             pos += character;
+
             return (pos < max) ? pos : max;
         }
 
-        public void Remove(Uri uri)
-        {
-            var index = _all.FindIndex(x => x.uri == uri);
-            if (index < 0)
-            {
-                return;
-            }
-            _all.RemoveAt(index);
-        }
+        public void Remove(Uri uri) => _documents.Remove(uri);
 
-        public event EventHandler<TextDocumentChangedEventArgs> Changed;
-
-        protected virtual void OnChanged(TextDocumentItem document)
-        {
+        protected virtual void OnChanged(TextDocumentItem document) =>
             Changed?.Invoke(this, new TextDocumentChangedEventArgs(document));
-        }
     }
 }

@@ -9,17 +9,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SampleServer
+namespace AphidLanguageServer
 {
     class Program
     {
         static void Main(string[] args)
         {
-            //var interpreter = new AphidInterpreter();
-            //interpreter.Interpret("#'std';");
-            //var autocomplete = new AphidScopeObjectAutocompletionSource(interpreter.CurrentScope);
-            //string buf;
+            var interpreter = new AphidInterpreter();
+            interpreter.Interpret("#'std';");
+            var autocomplete = new AphidScopeObjectAutocompletionSource(interpreter.CurrentScope);
+            string buf;
             //var words = autocomplete.GetWords("new ", 4, true, out buf);
+            var words = autocomplete.GetWords("File.", 5, true, out buf);
+
 
 
             Console.OutputEncoding = Encoding.UTF8;

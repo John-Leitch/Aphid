@@ -2,7 +2,7 @@
 using LanguageServer.Client;
 using LanguageServer.Parameters.Window;
 
-namespace SampleServer
+namespace AphidLanguageServer
 {
     public class Logger
     {
@@ -27,13 +27,11 @@ namespace SampleServer
         public void Info(string message) => Send(MessageType.Info, message);
         public void Log(string message) => Send(MessageType.Log, message);
 
-        private void Send(MessageType type, string message)
-        {
+        private void Send(MessageType type, string message) =>
             this._proxy?.Window.LogMessage(new LogMessageParams
             {
                 type = type,
                 message = message
             });
-        }
     }
 }

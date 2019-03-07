@@ -15,7 +15,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SampleServer
+namespace AphidLanguageServer
 {
     public class App : ServiceConnection
     {
@@ -152,8 +152,23 @@ namespace SampleServer
                         severity = DiagnosticSeverity.Error,
                         range = new Range
                         {
-                            start = pos != null ? new Position { line = pos.Item1, character = pos.Item2 } : new Position(),
-                            end = pos != null ? new Position { line = pos.Item1, character = pos.Item2 + e.UnexpectedToken.Lexeme != null && e.UnexpectedToken.Lexeme.Length > 0 ? e.UnexpectedToken.Lexeme.Length : 0 } : new Position(),
+                            start = pos != null ?
+                                new Position
+                                {
+                                    line = pos.Item1,
+                                    character = pos.Item2
+                                } :
+                                new Position(),
+                            end = pos != null ?
+                                new Position
+                                {
+                                    line = pos.Item1,
+                                    character =
+                                        pos.Item2 + e.UnexpectedToken.Lexeme != null &&
+                                        e.UnexpectedToken.Lexeme.Length > 0 ?
+                                            e.UnexpectedToken.Lexeme.Length : 0
+                                } :
+                            new Position(),
                         },
                         message = ParserErrorMessage.Create(document.text, e, false),
                         source = "aphid"
@@ -169,52 +184,11 @@ namespace SampleServer
             });
         }
 
-        public class AphidScopeVisitor : AphidVisitor
-        {
-            private AphidInterpreter _interpreter;
+        private void UpdateScope(List<AphidExpression> ast) =>
+            new AphidScopeVisitor(_interpreter).Visit(ast);
 
-            private List<AphidExpression> _interpret;
-
-            public AphidScopeVisitor(AphidInterpreter interpreter)
-            {
-                _interpreter = interpreter;
-            }
-
-            protected override void Visit(AphidExpression expression)
-            {
-                if (expression.Type == AphidExpressionType.UsingExpression)
-                {
-                    _interpret.Add(expression);
-                }
-                else if (expression.Type == AphidExpressionType.IdentifierExpression)
-                {
-                    _interpret.Add(new IdentifierExpression(
-                        ((IdentifierExpression)expression).Identifier,
-                        new List<IdentifierExpression> { new IdentifierExpression("var") }));
-                }
-            }
-
-            protected override void BeginVisit(List<AphidExpression> ast)
-            {
-                _interpret = new List<AphidExpression>();
-            }
-
-            protected override void EndVisit(List<AphidExpression> ast)
-            {
-                _interpreter.CurrentScope.Clear();
-                _interpreter.Interpret(_interpret);
-            }
-        }
-
-        private void UpdateScope(List<AphidExpression> ast)
-        {
-            new App.AphidScopeVisitor(_interpreter).Visit(ast);
-        }
-
-        protected override void DidChangeWatchedFiles(DidChangeWatchedFilesParams @params)
-        {
+        protected override void DidChangeWatchedFiles(DidChangeWatchedFilesParams @params) =>
             Logger.Instance.Log("We received an file change event");
-        }
 
         protected override Result<CompletionResult, ResponseError> Completion(CompletionParams @params)
         {
@@ -226,7 +200,12 @@ namespace SampleServer
 
             string buf;
             //Logger.Instance.Log(_text.Remove(index));
-            _words = _scope.GetWords(_text, index, false, out buf).ToArray();
+            var tmp = _scope.GetWords(_text, index, false, out buf);
+            
+            _words = tmp != null ?
+                tmp.ToArray() :
+                Array.Empty<Autocomplete>();
+
             _items = _words.Select((x, i) => new CompletionItem
             {
                 insertText = x.Text,
