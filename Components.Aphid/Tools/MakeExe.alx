@@ -17,8 +17,7 @@ var usage = 'MakeExe [script name] {exe name}';
 
 if (args.Count == 0) {
     print(usage);
-    exit(0);
-//} else if (args.Count != 1 && args.Count != 2) {
+    exit(1);
 }
 
 var script = args[0].Value | Path.GetFullPath;
@@ -76,8 +75,46 @@ print();
 
 printInfo('Creating module {0} for {1}', asmName, script);
 
+var addAttrs = @(asm) {
+    if (!(properties.mergeAttrs defined)) {
+        ret null;
+    }
+
+    subhead('Attribute Merging');
+
+    properties.mergeAttrs->@(attrMerge) {
+        var srcAsm = load attrMerge.asm;
+
+        if (srcAsm == null) {
+            printError(
+                'Failed copying attributes, could not load source assembly ~Yellow~{0}~R~',
+                attrMerge.asm);
+            ret null;
+        }
+
+        printQuery('Loaded ~Cyan~{0}~R~', srcAsm);
+        
+        if (attrMerge.patterns defined && (attrMerge.patterns #!) > 0) {
+            print(
+                '    {0} using namespace patterns:\r\n{1}',
+                srcAsm,
+                attrMerge.patterns->@format('    {0}')@join('\r\\n'));
+        }
+        
+        var clonedAttrs = attrMerge.patterns-<@(p) srcAsm @asmAttrs.clone(p);
+
+        if (clonedAttrs | Enumerable.Any) {
+            clonedAttrs #! @printSuccess('Cloned ~Cyan~{0}~R~ assembly attributes');
+            clonedAttrs->asm.SetCustomAttribute;
+        } else {
+            printError('Failed to match any assembly attributes');
+        }
+    }
+};
+
 importOpcodes();
-@{
+@(il, asmObj){
+    asmObj.asm | addAttrs;
     var e = $_.Emit;
     $_.DeclareLocal(AphidInterpreter);
     e(Newobj, AphidInterpreter.GetConstructor([]));
@@ -103,11 +140,6 @@ var ilMergeBin =
     |> getEntryPath
     @() Directory.EnumerateFiles($_, 'ilmerge.exe' ,SearchOption.AllDirectories)
     |> Enumerable.FirstOrDefault;
-
-// var ilMergeBins = Directory.GetFiles(
-//     '.\\',
-//     'ilmerge.exe',
-//     SearchOption.AllDirectories);
 
 if (ilMergeBin == null) {
     printError('Could not find ilmerge.exe');
@@ -144,14 +176,6 @@ if (searchDirs | Enumerable.Any) {
     il.SetSearchDirectories(searchDirs | Enumerable.ToArray);
 }
 
-// il.SetSearchDirectories([
-//     'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
-//     'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
-//     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
-// ]);
-
-//il.dir();
-
 il.SetTargetPlatform(
     'v4',
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2');
@@ -171,8 +195,6 @@ var inputAsms =
 ]
 ->@(p) p[1] @join('\r\n    ') @printInfo('{0}:\r\n    {1}', p[0]);
 inputAsms | il.SetInputAssemblies;
-
-
 
 il.OutputFile = properties.path |> Path.GetFullPath;
 printInfo('Merging into final binary ~Cyan~{0}~R~', il.OutputFile);

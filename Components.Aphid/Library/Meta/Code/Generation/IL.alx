@@ -8,10 +8,30 @@ var asmIL;
 var execIL;
 var execILBlock;
 var ilImportScope = this;
+var asmAttrs;
 
 @{
     using System;
     using System.Threading;
+
+    asmAttrs = {
+        clone: @(asmOrNamespace, asm)
+            ($($args.Count)
+                1: asmOrNamespace.CustomAttributes,
+                2: asm.CustomAttributes-?@()$_.AttributeType.Namespace == asmOrNamespace)
+                ->(@(x)
+                    ([ MemberTypes.Property, MemberTypes.Field ]
+                    ->@(t)x.NamedArguments
+                        -?(@()$_.MemberInfo.MemberType == t)
+                        ->(@()({ member: $_.MemberInfo, value: $_.TypedValue.Value })))
+                    |> @(n) new CustomAttributeBuilder(
+                        x.Constructor,
+                        x.ConstructorArguments-.Value,
+                        n[0]-.member,
+                        n[0]-.value,
+                        n[1]-.member,
+                        n[1]-.value)),
+    };
 
     createAsm = @(name) {
         var props = isObject(name) ? name : { name, path: name };
@@ -64,7 +84,7 @@ var ilImportScope = this;
 
         asm.DefineVersionInfoResource();
 
-        ret {
+        var asmObj = {
             asm,
             module,
             setEntryPoint: asm.SetEntryPoint,
@@ -85,13 +105,15 @@ var ilImportScope = this;
                     void,
                     [ string.MakeArrayType() ]);
 
-                method.GetILGenerator() |> ilCallback;
+                ilCallback(method.GetILGenerator(), asmObj);
                 type.CreateType();
                 asm.SetEntryPoint(method, kind);
             },
             save: asm.Save,
-        
+            copyAsmAttrs: asmAttrs.clone @> @(cloned) cloned->asm.SetCustomAttribute,
         };
+
+        ret asmObj;
     };
 
     createProgram = @(asmName, ilCallback) {
