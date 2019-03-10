@@ -160,7 +160,7 @@ namespace Components.Aphid.Library.Net.Http
         {
             var resp = new HttpResponse { BodyStream = bodyStream };
             var encoder = Encoding.GetEncoding(1252);
-            var bufferSize = 8192;
+            const int bufferSize = 8192;
 
             var headerBuffer = "";
             var buffer = new byte[bufferSize];

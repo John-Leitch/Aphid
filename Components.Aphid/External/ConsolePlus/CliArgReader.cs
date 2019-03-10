@@ -18,7 +18,7 @@ namespace Components.External.ConsolePlus
 
         public CliArgReader(string[] arguments)
         {
-            this.Arguments = arguments;
+            Arguments = arguments;
             CaseSensitive = false;
         }
 

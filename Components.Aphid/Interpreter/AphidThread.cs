@@ -17,9 +17,9 @@ namespace Components.Aphid.Interpreter
             public static AphidInterpreter CreateChild(AphidInterpreter parent)
             {
                 var childScope = parent.CurrentScope.CreateChild();
-                
+
                 var child = new AphidInterpreter(
-                    childScope,   
+                    childScope,
                     createLoader: false,
                     frames: new Stack<AphidFrame>(parent.GetRawStackTraceReversed()))
                 {
@@ -55,7 +55,7 @@ namespace Components.Aphid.Interpreter
                     OnInterpretExpressionExecuting = parent.OnInterpretExpressionExecuting,
 
                     OnInterpretObject = parent.OnInterpretObject,
-                    OnInterpretObjectExecuting = parent.OnInterpretObjectExecuting,
+                    OnInterpretObjectExecuting = parent.OnInterpretObjectExecuting
                 };
 
                 child.PushFrame(child.CreateEntryFrame());

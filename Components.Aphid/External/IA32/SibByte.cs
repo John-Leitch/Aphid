@@ -20,7 +20,7 @@ namespace Components.Cypress.IA32
             {
                 Scale = (byte)(sib >> 6),
                 Index = (byte)((sib >> 3) & 7),
-                Base = (byte)(sib & 7),
+                Base = (byte)(sib & 7)
             };
         }
     }

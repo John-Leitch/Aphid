@@ -56,7 +56,7 @@ namespace Components.External.ConsolePlus
         }
 
         public static string Rgb(bool bg, byte r, byte g, byte b) =>
-            $"\x1b[{(bg ? 4 : 3)}8;2;{r};{g};{b}m";
+            $"\x1b[{((bg ? 4 : 3).ToString())}8;2;{r.ToString()};{g.ToString()};{b.ToString()}m";
 
         public static string Foreground(byte[] rgb) =>
             Rgb(false, rgb[0], rgb[1], rgb[2]);

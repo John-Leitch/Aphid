@@ -18,7 +18,7 @@ namespace Components.Aphid.UI
         private static readonly string[] _wordContainsIgnore = new[]
         {
             "`",
-            "<",
+            "<"
         };
 
         private static readonly string[] _wordStartsWithIgnore = new[]
@@ -27,7 +27,7 @@ namespace Components.Aphid.UI
             "$",
             "get_",
             "set_",
-            "op_",
+            "op_"
         };
 
         private const string _skipTokens =
@@ -159,9 +159,6 @@ namespace Components.Aphid.UI
         private IEnumerable<Autocomplete> ResolveAphidObject(AphidToken[] tokens, bool inLastToken)
         {
             var scope = _currentScope;
-#pragma warning disable CS0168 // The variable 'autocomplete' is declared but never used
-            IEnumerable<Autocomplete> autocomplete;
-#pragma warning restore CS0168 // The variable 'autocomplete' is declared but never used
             bool inClrType = false, inStaticClrType = false;
 
             var staticTypes = _loader.GetStaticTypes(GetImports());
@@ -169,8 +166,6 @@ namespace Components.Aphid.UI
 
             foreach (var t in tokenSet)
             {
-                var isLast = t.Index == tokenSet.Last().Index;
-
                 switch (t.TokenType)
                 {
                     case AphidTokenType.MemberOperator:

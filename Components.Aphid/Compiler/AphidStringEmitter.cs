@@ -14,13 +14,13 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.retKeyword, "ret " },
             { AphidTokenType.NotOperator, "!" },
             { AphidTokenType.MinusOperator, "-" },
-            { AphidTokenType.ComplementOperator, "~" },
+            { AphidTokenType.ComplementOperator, "~" }
         };
 
         private readonly Dictionary<AphidTokenType, string> _unaryPostfixOperators = new Dictionary<AphidTokenType, string>
         {
             { AphidTokenType.IncrementOperator, "++" },
-            { AphidTokenType.DecrementOperator, "--" },
+            { AphidTokenType.DecrementOperator, "--" }
         };
 
         private readonly Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
@@ -61,7 +61,7 @@ namespace Components.Aphid.Compiler
             { AphidTokenType.ShiftRightEqualOperator, " >>= " },
             { AphidTokenType.BinaryAndEqualOperator, " &= " },
             { AphidTokenType.OrEqualOperator, " |= " },
-            { AphidTokenType.XorEqualOperator, " ^= " },
+            { AphidTokenType.XorEqualOperator, " ^= " }
         };
 
         private readonly Stack<string> _tabs = new Stack<string>();

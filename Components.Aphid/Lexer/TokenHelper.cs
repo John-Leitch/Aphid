@@ -207,7 +207,7 @@ namespace Components.Aphid.Lexer
                     return new[]
                     {
                         new[] { line, col },
-                        new[] { rightLineCol.Item1, rightLineCol.Item2 },
+                        new[] { rightLineCol.Item1, rightLineCol.Item2 }
                     };
                 }
             }
@@ -243,7 +243,7 @@ namespace Components.Aphid.Lexer
                     return new[]
                     {
                         new[] { leftLineCol.Item1, leftLineCol.Item2 },
-                        new[] { line, col },
+                        new[] { line, col }
                     };
                 }
             }

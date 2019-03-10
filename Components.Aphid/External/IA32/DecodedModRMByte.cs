@@ -25,7 +25,7 @@ namespace Components.Cypress.IA32
                 Mod = (Mod)(modRMByte >> 6),
                 Reg = (Register32)((modRMByte >> 3) & 7),
                 Rm = (byte)rm,
-                RmReg = (Register32)rm,
+                RmReg = (Register32)rm
             };
         }
     }

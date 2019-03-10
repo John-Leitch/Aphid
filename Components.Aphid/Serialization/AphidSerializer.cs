@@ -36,7 +36,7 @@ namespace Components.Aphid.Serialization
             typeof(IList),
             typeof(IReadOnlyCollection<>),
             typeof(IReadOnlyDictionary<,>),
-            typeof(IReadOnlyList<>),
+            typeof(IReadOnlyList<>)
         };
 
         public const string Root = "obj";
@@ -267,12 +267,11 @@ namespace Components.Aphid.Serialization
                 else
                 {
                     s.Append("{\r\n");
-                    var tmp = new StringBuilder();
 
                     var body = function.Body
                         .Select(x => x.IsStatement() ? x.ToString() : x.ToString() + ";")
                         .SelectMany(x => x.SplitLines())
-                        .Select(x => x.Split(x.TakeWhile(Char.IsWhiteSpace).Count()))
+                        .Select(x => x.Split(x.TakeWhile(char.IsWhiteSpace).Count()))
                         .Select(x => new[] { x[0].Replace("\t", "    "), x[1] })
                         .ToArray();
 

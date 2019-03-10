@@ -16,7 +16,7 @@ namespace Components.Aphid
             {
                 ':',
                 '\\',
-                '/',
+                '/'
             }
             .Select(x => (x.ToString(), string.Format("${0:x2}", (byte)x)))
             .Prepend(("$", "$$"))

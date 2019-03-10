@@ -56,48 +56,34 @@ namespace Components.External.ConsolePlus
             CliArgAttribute arg,
             string argStyle,
             string valueStyle,
-            string delimiterStyle)
-        {
-            //var name = arg.Names.First();
-
-            var argStr = CreateArg(
-                arg, argStyle,
-                valueStyle,
-                delimiterStyle,
-                useOptionalDelimiters: false);
-
-            var requiredStr = arg.IsRequired ? " ~DarkYellow~(Required)~R~" : "";
-
-            return string.Format("~Cyan~{0}~R~{2}\r\n{1}\r\n", argStr, arg.Description, requiredStr);
-        }
+            string delimiterStyle) =>
+            string.Format(
+                "~Cyan~{0}~R~{2}\r\n{1}\r\n",
+                CreateArg(
+                    arg,
+                    argStyle,
+                    valueStyle,
+                    delimiterStyle,
+                    useOptionalDelimiters: false),
+                arg.Description,
+                arg.IsRequired ? " ~DarkYellow~(Required)~R~" : "");
 
         private static string[] CreateArgStrings(
             CliArgAttribute[] args,
             string argStyle,
             string argValueStyle,
-            string delimiterStyle)
-        {
-            return args
-                .Select(x => CreateArg(x, argStyle, argValueStyle, delimiterStyle))
-                .ToArray();
-        }
+            string delimiterStyle) =>
+            args.Select(x => CreateArg(x, argStyle, argValueStyle, delimiterStyle)).ToArray();
 
         private static string CreateArgString(
             CliArgAttribute[] args,
             string argStyle,
             string argValueStyle,
-            string delimiterStyle)
-        {
-            var requiredArgs = args.Where(x => x.IsRequired).ToArray();
-            var optionalArgs = args.Where(x => !x.IsRequired).ToArray();
-
-            var argStrings = CreateArgStrings(requiredArgs, argStyle, argValueStyle, delimiterStyle)
-                .Concat(CreateArgStrings(optionalArgs, argStyle, argValueStyle, delimiterStyle));
-
-            var argStr = string.Join(" ", argStrings);
-
-            return argStr;
-        }
+            string delimiterStyle) =>
+            new[] { true, false }
+                .Select(x => args.Where(y => y.IsRequired == x).ToArray())
+                .SelectMany(x => CreateArgStrings(x, argStyle, argValueStyle, delimiterStyle))
+                .Join(" ");
 
         public static void WriteArguments<TArgs>(
             string argStyle = "~Cyan~",

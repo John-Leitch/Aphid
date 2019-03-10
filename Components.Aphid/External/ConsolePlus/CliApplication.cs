@@ -28,7 +28,11 @@ namespace Components.External.ConsolePlus
             string headerStyle = null)
         {
             var title = GetTitle(name);
-            Console.Title = title;
+
+            if (Cli.HasConsole)
+            {
+                Console.Title = title;
+            }
 
             if (showHeader)
             {
@@ -50,8 +54,12 @@ namespace Components.External.ConsolePlus
 #if TRACE
             flags.Append(" TRACE");
 #endif
+            var actualName = name ??
+                asm.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ??
+                asm.GetCustomAttribute<AssemblyProductAttribute>()?.Product ??
+                asmName.Name;
 
-            var baseTitle = $"{name ?? asmName.Name} {asmName.Version} {bitness}-bit{flags}";
+            var baseTitle = $"{actualName} {asmName.Version} {bitness}-bit{flags}";
 
             DateTime linkTime;
 

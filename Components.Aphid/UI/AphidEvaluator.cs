@@ -18,16 +18,16 @@ namespace Components.Aphid.UI
 {
     public class AphidEvaluator
     {
-        public void Eval(string code) =>
+        public static void Eval(string code) =>
             Eval(code, isTextDocument: false);
 
-        public void Eval(string code, bool isTextDocument) =>
+        public static void Eval(string code, bool isTextDocument) =>
             Eval(new AphidInterpreter(), code, isTextDocument);
 
-        public void Eval(AphidInterpreter interpreter, string code) =>
+        public static void Eval(AphidInterpreter interpreter, string code) =>
             Eval(interpreter, code, isTextDocument: false);
 
-        public void Eval(AphidInterpreter interpreter, string code, bool isTextDocument)
+        public static void Eval(AphidInterpreter interpreter, string code, bool isTextDocument)
         {
             if (AphidErrorHandling.HandleErrors)
             {
@@ -78,10 +78,10 @@ namespace Components.Aphid.UI
             }
         }
 
-        public AphidObject EvalExpression(string code) =>
+        public static AphidObject EvalExpression(string code) =>
             EvalExpression(new AphidInterpreter(), code);
 
-        public AphidObject EvalExpression(AphidInterpreter interpreter, string code)
+        public static AphidObject EvalExpression(AphidInterpreter interpreter, string code)
         {
             AphidObject result = null;
 

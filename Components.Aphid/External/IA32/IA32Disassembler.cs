@@ -18,7 +18,7 @@ namespace Components.Cypress.IA32
                 var size = 1;
                 var decodedInstruction = new DecodedInstruction
                 {
-                    Opcode = DecodedOpcode.Decode(bytes[i]),
+                    Opcode = DecodedOpcode.Decode(bytes[i])
                 };
 
                 if (decodedInstruction.Opcode.Opcode == Opcode.Mov)

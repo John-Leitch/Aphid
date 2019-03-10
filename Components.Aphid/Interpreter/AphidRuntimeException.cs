@@ -33,7 +33,7 @@ namespace Components.Aphid.Interpreter
             IgnoreFunctions = false,
             IgnoreSpecialVariables = false,
             QuoteToStringResults = true,
-            ToStringClrTypes = true,
+            ToStringClrTypes = true
         };
 
         protected AphidRuntimeException(SerializationInfo info, StreamingContext context)

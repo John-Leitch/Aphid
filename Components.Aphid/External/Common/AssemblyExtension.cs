@@ -20,8 +20,8 @@ namespace Components
         public static DateTime GetLinkTimeUtc(this Assembly asm)
         {
             FileStream file;
-            
-            var peHeaderOffset = 60;
+
+            const int peHeaderOffset = 60;
 
             if ((file = asm.GetFiles().FirstOrDefault()) == null ||
                 file.Length < peHeaderOffset + 4)

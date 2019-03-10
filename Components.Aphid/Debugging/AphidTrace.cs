@@ -17,6 +17,8 @@ namespace Components.Aphid.Debugging
 
         private StreamWriter _writer;
 
+        private readonly object _sync = new object();
+
         public AphidTraceSettings Settings { get; set; } = AphidTraceSettings.Default;
 
         public string Name { get; }
@@ -48,7 +50,7 @@ namespace Components.Aphid.Debugging
 
         public void Open()
         {
-            lock (this)
+            lock (_sync)
             {
                 if (IsOpened)
                 {
@@ -86,7 +88,7 @@ namespace Components.Aphid.Debugging
             }
             else if (ThreadSafe)
             {
-                lock(this)
+                lock(_sync)
                 {
                     TraceUnsafe(level, message);
                 }
@@ -170,7 +172,7 @@ namespace Components.Aphid.Debugging
             }
             else if (ThreadSafe)
             {
-                lock(this)
+                lock(_sync)
                 {
                     TraceTextUnsafe(message);
                 }
@@ -192,7 +194,7 @@ namespace Components.Aphid.Debugging
 
         public void Dispose()
         {
-            lock (this)
+            lock (_sync)
             {
                 if (_isDisposed)
                 {

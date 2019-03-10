@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using Components.PInvoke;
 
 namespace Components.External.ConsolePlus
 {
@@ -128,10 +129,33 @@ namespace Components.External.ConsolePlus
         public static int UserBufferHeight { get; set; } = BufferHeight;
 
         public static Action<string> WriteHandler { get; set; } =
-            !Environment.UserInteractive ? x => { } : (Action<string>)Console.Write;
+            !Environment.UserInteractive ? x => { }
+        : (Action<string>)Console.Write;
 
         public static Action<string> WriteLineHandler { get; set; } =
-            !Environment.UserInteractive ? x => { } : (Action<string>)Console.WriteLine;
+            !Environment.UserInteractive ? x => { }
+        : (Action<string>)Console.WriteLine;
+
+#if !LOW_SECURITY
+        public static bool HasConsole =>
+            Kernel32.GetConsoleWindow() != IntPtr.Zero;
+#else
+        public static bool HasConsole
+        {
+            get
+            {
+                try
+                {
+                    var x = Console.WindowWidth;
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+#endif
 
         /// <summary>
         /// Writes a format string to the console.
@@ -205,12 +229,12 @@ namespace Components.External.ConsolePlus
 
             var padding = new string(' ', paddingSize);
 
-            var headerColor = "~White~~|DarkGray~";
+            const string headerColor = "~White~~|DarkGray~";
 
             var totalLength = (paddingSize * 4) + 3 + longestNameLength + longestValueLength;
 
             //var newLine = totalLength == BufferWidth ? "" : "\r\n";
-            var newLine = "\r\n";
+            const string newLine = "\r\n";
 
             string createRow(string name, string value, bool header)
             {
@@ -585,12 +609,12 @@ namespace Components.External.ConsolePlus
 
         public static string Escape(string value) =>
             !string.IsNullOrEmpty(value) ?
-                //(VT100.IsEnabled ?
-                //    VT100.Escape(
-                //        value
-                //            .Replace("{", "{{")
-                //            .Replace("}", "}}")
-                //            .Replace("~", "~~")) :
+                        //(VT100.IsEnabled ?
+                        //    VT100.Escape(
+                        //        value
+                        //            .Replace("{", "{{")
+                        //            .Replace("}", "}}")
+                        //            .Replace("~", "~~")) :
                         value
                             .Replace("{", "{{")
                             .Replace("}", "}}")

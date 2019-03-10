@@ -1,2 +1,4 @@
 call core\init.cmd
-msbuild /p:Configuration=Release64 /t:Rebuild /p:Platform="Any CPU" /m /r /maxcpucount ..\Aphid.Test.sln
+set sln=..\Aphid.Test.sln
+nuget restore %sln%
+msbuild /p:Configuration=Release64 /p:Platform="Any CPU" /m /r /maxcpucount %sln%

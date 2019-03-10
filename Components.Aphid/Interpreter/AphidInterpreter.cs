@@ -408,7 +408,7 @@ namespace Components.Aphid.Interpreter
             {
                 IgnoreSpecialVariables = false,
                 IgnoreFunctions = true,
-                QuoteToStringResults = true,
+                QuoteToStringResults = true
             };
 
             _frames = frames ?? new Stack<AphidFrame>(new[] { CreateEntryFrame() });
@@ -811,21 +811,11 @@ namespace Components.Aphid.Interpreter
             else
             {
                 var path = FlattenPath(expression);
-                Type type;
 
-                //_importsLock.EnterReadLock();
-
-                //try
-                //{
-                type = InteropTypeResolver.ResolveType(
+                var type = InteropTypeResolver.ResolveType(
                     GetImports(),
                     _importsLock,
                     path);
-                //}
-                //finally
-                //{
-                //    _importsLock.ExitReadLock();
-                //}
 
                 members = GetInteropStaticMembers(type, path);
                 TypeInfo nestedTypeInfo;
@@ -1410,9 +1400,6 @@ namespace Components.Aphid.Interpreter
 
                 var keyObj = keyObjects[0];
 
-                List<AphidObject> targetAphidList;
-                AphidObject aphidObj;
-
                 if (targetObjUnwrapped is Array targetArray)
                 {
                     targetArray.SetValue(
@@ -1421,7 +1408,7 @@ namespace Components.Aphid.Interpreter
                             targetArray.GetType().GetElementType()),
                         ToInt32(keyObj));
                 }
-                else if ((targetAphidList = targetObjUnwrapped as List<AphidObject>) != null)
+                else if (targetObjUnwrapped is List<AphidObject> targetAphidList)
                 {
                     if (value2.Count == 0 && value2.Value != null)
                     {
@@ -1430,18 +1417,15 @@ namespace Components.Aphid.Interpreter
 
                     targetAphidList[ToInt32(keyObj)] = value2;
                 }
-                else if ((aphidObj = targetObjUnwrapped as AphidObject) != null)
+                else if (targetObjUnwrapped is AphidObject aphidObj)
                 {
-                    if (keyObj == null || keyObj.GetType() != typeof(string))
+                    if (keyObj == null || !(keyObj is string key))
                     {
                         throw CreateRuntimeException(
                             "Expected string for object key, encountered {0}.",
                             keyObj != null ? keyObj.GetType().FullName : "null");
                     }
-
-                    var key = (string)keyObj;
-
-                    if (aphidObj.IsScalar)
+                    else if (aphidObj.IsScalar)
                     {
                         if (aphidObj.Value == null)
                         {
@@ -1450,6 +1434,13 @@ namespace Components.Aphid.Interpreter
                         }
 
                         var members = GetInteropInstanceMembers(aphidObj.Value, key);
+
+//#if CHECKED
+                        if (members.Length > 1)
+                        {
+                            throw CreateInternalException($"More than one interop instance member {key}");
+                        }
+//#endif
 
                         for (var i = 0; i < members.Length; i++)
                         {
@@ -1465,39 +1456,26 @@ namespace Components.Aphid.Interpreter
                             }
                         }
                     }
+                    else if (aphidObj.ContainsKey(key))
+                    {
+                        aphidObj[key] = value2;
+                    }
                     else
                     {
-                        if (aphidObj.ContainsKey(key))
-                        {
-                            aphidObj[key] = value2;
-                        }
-                        else
-                        {
-                            aphidObj.Add(key, value2);
-                        }
+                        aphidObj.Add(key, value2);
                     }
                 }
                 else
                 {
                     var targetType = targetObjUnwrapped.GetType();
+                    var listType = targetType.GetInterface("System.Collections.Generic.IList`1", false);
 
-                    if (targetType
-                        .GetInterfaces()
-                        .Any(x => x.GetGenericTypeDefinition() == typeof(IList<>)))
+                    if (listType != null)
                     {
-                        var index = targetType
-                            .GetProperties()
-                            .Select(x => new { Property = x, Params = x.GetIndexParameters() })
-                            .Single(x =>
-                                x.Params.Length == 1 &&
-                                x.Params[0].ParameterType == typeof(int));
+                        var valueType = listType.GenericTypeArguments[0];
+                        var list = (dynamic)targetObjUnwrapped;
 
-                        index.Property.SetValue(
-                            targetObjUnwrapped,
-                            ChangeType(
-                                value2.Value,
-                                index.Property.PropertyType),
-                            new object[] { ToInt32(keyObj) });
+                        list[ToInt32(keyObj)] = (dynamic)ChangeType(value2.Value, valueType);
                     }
                     else
                     {
@@ -1998,7 +1976,7 @@ namespace Components.Aphid.Interpreter
                 case CompositionOperator:
                     return InterpretFunctionComposition(expression);
 
-                #region Custom Operator Cases
+#region Custom Operator Cases
                 case CustomOperator000:
                 case CustomOperator001:
                 case CustomOperator002:
@@ -2319,7 +2297,7 @@ namespace Components.Aphid.Interpreter
                 case CustomOperator317:
                 case CustomOperator318:
                 case CustomOperator319:
-                    #endregion
+#endregion
                     return InterpretCustomBinaryOperator(expression);
 
                 default:
@@ -2453,7 +2431,8 @@ namespace Components.Aphid.Interpreter
             $"$customOperator.{op.ToString()}.body";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static string GetCustomOperatorExpressionKey(AphidTokenType op) => $"$customOperator.{op.ToString()}.expression";
+        private static string GetCustomOperatorExpressionKey(AphidTokenType op) =>
+            $"$customOperator.{op.ToString()}.expression";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretObjectExpression(ObjectExpression expression)
@@ -2523,26 +2502,8 @@ namespace Components.Aphid.Interpreter
 
                 return obj;
             }
-            //if (!expression.IsStatement())
-            //{
-            //    ThrowRuntimeException(
-            //        "Class declaration '{0}' must be statement.",
-            //        expression.Identifier.Identifier);
-            //}
 
-            Type t;
-            //_importsLock.EnterReadLock();
-
-            //try
-            //{
-            t = AsmBuilder.CreateType(expression, GetImports());
-            //}
-            //finally
-            //{
-            //    _importsLock.ExitReadLock();
-            //}
-
-            return Scalar(t);
+            return Scalar(AsmBuilder.CreateType(expression, GetImports()));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2763,7 +2724,6 @@ namespace Components.Aphid.Interpreter
                 functionScope.CopyTo(scope);
                 scope.Parent = functionScope.Parent;
                 functionScope = scope;
-                var backupScope = functionScope;
             }
 
             var parent = CurrentScope;
@@ -2848,18 +2808,7 @@ namespace Components.Aphid.Interpreter
         public AphidObject CallStaticInteropFunction(CallExpression callExpression)
         {
             var path = FlattenPath(callExpression.FunctionExpression);
-            Type type;
-            //_importsLock.EnterReadLock();
-
-            //try
-            //{
-            type = InteropTypeResolver.ResolveType(GetImports(), _importsLock, path);
-            //}
-            //finally
-            //{
-            //    _importsLock.ExitReadLock();
-            //}
-
+            var type = InteropTypeResolver.ResolveType(GetImports(), _importsLock, path);
             var methodName = path.Last();
 
             var args = new object[callExpression.Args.Count];
@@ -2975,7 +2924,6 @@ namespace Components.Aphid.Interpreter
                             break;
 
                         case BinaryOperatorExpression exp:
-                            var flat = Flatten(exp, MemberOperator);
                             args[i] = InterpretMemberExpression(exp, false);
                             break;
 
@@ -4078,7 +4026,7 @@ namespace Components.Aphid.Interpreter
                                 throw new NotImplementedException();
                         }
 
-                    #region Custom Operator Cases
+#region Custom Operator Cases
                     case CustomOperator000:
                     case CustomOperator001:
                     case CustomOperator002:
@@ -4399,7 +4347,7 @@ namespace Components.Aphid.Interpreter
                     case CustomOperator317:
                     case CustomOperator318:
                     case CustomOperator319:
-                        #endregion
+#endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:
@@ -4745,7 +4693,7 @@ namespace Components.Aphid.Interpreter
 
             try
             {
-                var init = InterpretExpression(expression.Initialization);
+                InterpretExpression(expression.Initialization);
 
                 while ((bool)InterpretExpression(expression.Condition).Value)
                 {
@@ -5060,7 +5008,7 @@ namespace Components.Aphid.Interpreter
                                     expression.Call.FunctionExpression,
                                     callArgs)
                                     .WithPositionFrom(expression.Call))
-                                .WithPositionFrom(expression.Call),
+                                .WithPositionFrom(expression.Call)
                         },
                         CurrentScope));
             }
@@ -5452,7 +5400,7 @@ namespace Components.Aphid.Interpreter
             SetAstCode(ast);
 #endif
 
-            var mutatedAst = MutatorGroups.GetStandard().Mutate(ast); ;
+            var mutatedAst = MutatorGroups.GetStandard().Mutate(ast);
             Interpret(mutatedAst, resetIsReturning: true);
 
             return GetReturnValue(true);

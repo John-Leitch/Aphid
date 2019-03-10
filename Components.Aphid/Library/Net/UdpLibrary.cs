@@ -59,7 +59,7 @@ namespace Components.Aphid.Library.Net
                 LocalPort = ep.Port,
                 RemotePort = (int)port,
                 RemoteHost = host,
-                Data = buffer,
+                Data = buffer
             };
 
             return AphidObject.ConvertFrom(datagram);
@@ -76,7 +76,7 @@ namespace Components.Aphid.Library.Net
                 LocalPort = (int)port,
                 RemotePort = ep.Port,
                 RemoteHost = ep.Address.ToString(),
-                Data = buffer,
+                Data = buffer
             };
 
             return AphidObject.ConvertFrom(datagram);

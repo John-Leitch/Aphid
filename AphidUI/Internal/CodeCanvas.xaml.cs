@@ -261,7 +261,7 @@ namespace AphidUI.Internal
 
         #endregion
 
-        private TextCellType GetTokenColor(AphidToken t)
+        private TextCellType GetTokenColor(in AphidToken t)
         {
             switch (t.TokenType)
             {

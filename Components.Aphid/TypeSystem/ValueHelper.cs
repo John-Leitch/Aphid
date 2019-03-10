@@ -16,7 +16,7 @@ namespace Components.Aphid.TypeSystem
             { typeof(bool), "boolean" },
             { typeof(List<AphidObject>), "list" },
             { typeof(AphidObject), "object" },
-            { typeof(AphidFunction), "function" },
+            { typeof(AphidFunction), "function" }
         };
 
         public ValueHelper(AphidInterpreter interpreter)

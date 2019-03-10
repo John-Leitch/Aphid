@@ -70,7 +70,7 @@ namespace Components.Cypress
                 Disassembly = Enumerable
                     .Range(0, reader.ReadInt32())
                     .Select(x => Instruction.Deserialize(table, reader))
-                    .ToArray(),
+                    .ToArray()
             };
 
             foreach (var inst in func.Disassembly)
@@ -85,8 +85,8 @@ namespace Components.Cypress
                     new Instruction
                     {
                         Address = func.Address,
-                        Mnemonic = "nop",
-                    },
+                        Mnemonic = "nop"
+                    }
                 };
             }
             else if (func.Size == 0)

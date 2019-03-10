@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Components.Aphid.Lexer.AphidTokenType;
 
 namespace Components.Aphid.UI
 {
@@ -59,7 +60,7 @@ namespace Components.Aphid.UI
             }
         }
 
-        private IEnumerable<ColoredText> HighlightCore(string text)
+        private static IEnumerable<ColoredText> HighlightCore(string text)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -78,17 +79,17 @@ namespace Components.Aphid.UI
                 .Range(0, tokens.Count - 1)
                 .ToDictionary(x => tokens[x].Index, x => tokens[x + 1].TokenType);
 
-            void addNone(AphidToken t) => peekTable.Add(t.Index, AphidTokenType.None);
+            void addNone(in AphidToken t) => peekTable.Add(t.Index, None);
             addNone(tokens[tokens.Count - 1]);            
-            allTokens.Except(tokens).For(addNone);
+            allTokens.Except(tokens).For(x => addNone(in x));
 
             return allTokens.Select(x => GetColoredText(x, peekTable[x.Index]));
         }
 
-        private static ColoredText GetColoredText(AphidToken token) =>
-            GetColoredText(token, AphidTokenType.None);
+        private static ColoredText GetColoredText(in AphidToken token) =>
+            GetColoredText(token, None);
 
-        private static ColoredText GetColoredText(AphidToken token, AphidTokenType nextType) =>
+        private static ColoredText GetColoredText(in AphidToken token, AphidTokenType nextType) =>
             new ColoredText(GetColor(token.TokenType, nextType), token.Lexeme);
 
         // Todo:
@@ -102,7 +103,7 @@ namespace Components.Aphid.UI
         //   - Live preview of colors.
         // * Unify with VS and VSC syntax highlighters
         private static byte[] GetColor(AphidTokenType type) =>
-            GetColor(type, AphidTokenType.None);
+            GetColor(type, None);
 
         private static byte[] GetColor(AphidTokenType type, AphidTokenType nextType)
         {
@@ -111,122 +112,122 @@ namespace Components.Aphid.UI
                 case AphidTokenType.String:
                     return SystemColor.Coral;
 
-                case AphidTokenType.Number:
-                case AphidTokenType.HexNumber:
-                case AphidTokenType.BinaryNumber:
+                case Number:
+                case HexNumber:
+                case BinaryNumber:
                     return SystemColor.PaleGoldenrod;
 
-                case AphidTokenType.Identifier:
+                case Identifier:
                     switch (nextType)
                     {
                         default:
                             return SystemColor.CadetBlue;
 
-                        case AphidTokenType.Identifier:
-                        case AphidTokenType.ImplicitArgumentOperator:
-                        case AphidTokenType.ImplicitArgumentsOperator:
-                        case AphidTokenType.PatternMatchingOperator:
-                        case AphidTokenType.BinaryNumber:
-                        case AphidTokenType.Number:
-                        case AphidTokenType.HexNumber:
+                        case Identifier:
+                        case ImplicitArgumentOperator:
+                        case ImplicitArgumentsOperator:
+                        case PatternMatchingOperator:
+                        case BinaryNumber:
+                        case Number:
+                        case HexNumber:
                             return SystemColor.DodgerBlue;                        
                     }
 
-                case AphidTokenType.breakKeyword:
-                case AphidTokenType.catchKeyword:
-                case AphidTokenType.continueKeyword:
-                case AphidTokenType.defaultKeyword:
-                case AphidTokenType.definedKeyword:
-                case AphidTokenType.deleteKeyword:
-                case AphidTokenType.doKeyword:
-                case AphidTokenType.elseKeyword:
-                case AphidTokenType.extendKeyword:
-                case AphidTokenType.falseKeyword:
-                case AphidTokenType.finallyKeyword:
-                case AphidTokenType.forKeyword:
-                case AphidTokenType.ifKeyword:
-                case AphidTokenType.inKeyword:
-                case AphidTokenType.loadKeyword:
-                case AphidTokenType.lockKeyword:
-                case AphidTokenType.newKeyword:
-                case AphidTokenType.nullKeyword:
-                case AphidTokenType.retKeyword:
-                case AphidTokenType.switchKeyword:
-                case AphidTokenType.thisKeyword:
-                case AphidTokenType.throwKeyword:
-                case AphidTokenType.trueKeyword:
-                case AphidTokenType.tryKeyword:
-                case AphidTokenType.usingKeyword:
-                case AphidTokenType.whileKeyword:
+                case breakKeyword:
+                case catchKeyword:
+                case continueKeyword:
+                case defaultKeyword:
+                case definedKeyword:
+                case deleteKeyword:
+                case doKeyword:
+                case elseKeyword:
+                case extendKeyword:
+                case falseKeyword:
+                case finallyKeyword:
+                case forKeyword:
+                case ifKeyword:
+                case inKeyword:
+                case loadKeyword:
+                case lockKeyword:
+                case newKeyword:
+                case nullKeyword:
+                case retKeyword:
+                case switchKeyword:
+                case thisKeyword:
+                case throwKeyword:
+                case trueKeyword:
+                case tryKeyword:
+                case usingKeyword:
+                case whileKeyword:
 
-                case AphidTokenType.ImplicitArgumentOperator:
-                case AphidTokenType.ImplicitArgumentsOperator:
+                case ImplicitArgumentOperator:
+                case ImplicitArgumentsOperator:
 
-                case AphidTokenType.FunctionOperator:
-                case AphidTokenType.InteropOperator:
-                case AphidTokenType.LoadLibraryOperator:
-                case AphidTokenType.LoadScriptOperator:
-                case AphidTokenType.PatternMatchingOperator:
+                case FunctionOperator:
+                case InteropOperator:
+                case LoadLibraryOperator:
+                case LoadScriptOperator:
+                case PatternMatchingOperator:
 
                     return SystemColor.DodgerBlue;
 
-                case AphidTokenType.AdditionOperator:
-                case AphidTokenType.AggregateOperator:
-                case AphidTokenType.AndOperator:
-                case AphidTokenType.AnyOperator:
-                case AphidTokenType.AssignmentOperator:
-                case AphidTokenType.BinaryAndEqualOperator:
-                case AphidTokenType.BinaryAndOperator:
-                case AphidTokenType.BinaryOrOperator:
-                case AphidTokenType.ColonOperator:
-                case AphidTokenType.ComplementOperator:
-                case AphidTokenType.ConditionalOperator:
-                case AphidTokenType.DecrementOperator:
-                case AphidTokenType.DistinctOperator:
-                case AphidTokenType.DivisionEqualOperator:
-                case AphidTokenType.DivisionOperator:
-                case AphidTokenType.EqualityOperator:
-                case AphidTokenType.GreaterThanOperator:
-                case AphidTokenType.GreaterThanOrEqualOperator:
-                case AphidTokenType.IncrementOperator:
-                case AphidTokenType.LessThanOperator:
-                case AphidTokenType.LessThanOrEqualOperator:
-                case AphidTokenType.MinusEqualOperator:
-                case AphidTokenType.MinusOperator:
-                case AphidTokenType.ModulusEqualOperator:
-                case AphidTokenType.ModulusOperator:
-                case AphidTokenType.MultiplicationEqualOperator:
-                case AphidTokenType.MultiplicationOperator:
-                case AphidTokenType.NotEqualOperator:
-                case AphidTokenType.NotOperator:
-                case AphidTokenType.OrEqualOperator:
-                case AphidTokenType.OrOperator:
-                case AphidTokenType.PipelineOperator:
-                case AphidTokenType.PlusEqualOperator:
-                case AphidTokenType.RangeOperator:
-                case AphidTokenType.SelectManyOperator:
-                case AphidTokenType.SelectOperator:
-                case AphidTokenType.ShiftLeftEqualOperator:
-                case AphidTokenType.ShiftRightEqualOperator:
-                case AphidTokenType.WhereOperator:
-                case AphidTokenType.XorEqualOperator:
-                case AphidTokenType.XorOperator:
+                case AdditionOperator:
+                case AggregateOperator:
+                case AndOperator:
+                case AnyOperator:
+                case AssignmentOperator:
+                case BinaryAndEqualOperator:
+                case BinaryAndOperator:
+                case BinaryOrOperator:
+                case ColonOperator:
+                case ComplementOperator:
+                case ConditionalOperator:
+                case DecrementOperator:
+                case DistinctOperator:
+                case DivisionEqualOperator:
+                case DivisionOperator:
+                case EqualityOperator:
+                case GreaterThanOperator:
+                case GreaterThanOrEqualOperator:
+                case IncrementOperator:
+                case LessThanOperator:
+                case LessThanOrEqualOperator:
+                case MinusEqualOperator:
+                case MinusOperator:
+                case ModulusEqualOperator:
+                case ModulusOperator:
+                case MultiplicationEqualOperator:
+                case MultiplicationOperator:
+                case NotEqualOperator:
+                case NotOperator:
+                case OrEqualOperator:
+                case OrOperator:
+                case PipelineOperator:
+                case PlusEqualOperator:
+                case RangeOperator:
+                case SelectManyOperator:
+                case SelectOperator:
+                case ShiftLeftEqualOperator:
+                case ShiftRightEqualOperator:
+                case WhereOperator:
+                case XorEqualOperator:
+                case XorOperator:
                     return SystemColor.Silver;
 
-                case AphidTokenType.LeftBrace:
-                case AphidTokenType.RightBrace:
-                case AphidTokenType.LeftBracket:
-                case AphidTokenType.RightBracket:
+                case LeftBrace:
+                case RightBrace:
+                case LeftBracket:
+                case RightBracket:
                     return SystemColor.LightGray;
 
-                case AphidTokenType.MemberOperator:
+                case MemberOperator:
                     return SystemColor.White;
 
-                case AphidTokenType.RightParenthesis:
-                case AphidTokenType.LeftParenthesis:
+                case RightParenthesis:
+                case LeftParenthesis:
                     return SystemColor.LightGray;
 
-                case AphidTokenType.Comment:
+                case Comment:
                     return SystemColor.DarkGreen;
 
                 default:

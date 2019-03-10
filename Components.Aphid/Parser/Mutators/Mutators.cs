@@ -12,7 +12,7 @@ namespace Components.Aphid.Parser
         {
             new PartialOperatorMutator(),
             new AphidMacroMutator(),
-            new AphidPreprocessorDirectiveMutator(),
+            new AphidPreprocessorDirectiveMutator()
         };
 
         public static AphidMutator[] GetStandard() => new AphidMutator[]
@@ -20,7 +20,7 @@ namespace Components.Aphid.Parser
                 new PartialOperatorMutator(),
                 new AphidMacroMutator(),
                 new AphidPreprocessorDirectiveMutator(),
-                new ConstantFoldingMutator(),
+                new ConstantFoldingMutator()
         };
 
         public static AphidMutator[] GetOptimizing() => new AphidMutator[]
@@ -29,7 +29,7 @@ namespace Components.Aphid.Parser
                 new AphidMacroMutator(),
                 new AphidPreprocessorDirectiveMutator(),
                 new IncludeMutator(),
-                new ConstantFoldingMutator(),
+                new ConstantFoldingMutator()
         };
     }
 }

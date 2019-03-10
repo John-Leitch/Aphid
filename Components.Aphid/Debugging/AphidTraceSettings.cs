@@ -19,7 +19,7 @@ namespace Components.Aphid.Debugging
             TraceAphidStack = true,
             TraceCurrentExpression = true,
             TraceCurrentStatement = true,
-            TraceClrStack = true,
+            TraceClrStack = true
         };
 
         public static AphidTraceSettings Default

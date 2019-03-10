@@ -180,7 +180,6 @@ namespace Components.Aphid.Library.Net
             AphidObject session)
         {
             var scope = AphidObject.Scope();
-            var oldLoaderPaths = handlerInterpreter.Loader.SearchPaths.ToArray();
             SetupInterpreterScope(handlerInterpreter, scope, null, context, session);
 
             var handler = handlerInterpreter

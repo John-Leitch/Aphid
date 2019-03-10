@@ -34,12 +34,12 @@ namespace Components.Aphid.Lexer
             return hashCode;
         }
 
-        public static bool operator ==(in AphidToken token1, AphidToken token2)
+        public static bool operator ==(in AphidToken token1, in AphidToken token2)
         {
             return token1.Equals(token2);
         }
 
-        public static bool operator !=(AphidToken token1, AphidToken token2)
+        public static bool operator !=(in AphidToken token1, in AphidToken token2)
         {
             return !(token1 == token2);
         }

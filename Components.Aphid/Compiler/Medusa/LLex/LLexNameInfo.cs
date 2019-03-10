@@ -26,12 +26,12 @@ namespace LLex
 
             return new LLexNameInfo
             {
-                FullName = fullName,                
+                FullName = fullName,
                 Name = name,
                 Namespace = fullName.Remove(lastDot),
                 LexerName = name + "Lexer",
                 TokenName = name + "Token",
-                TokenTypeName = name + "TokenType",
+                TokenTypeName = name + "TokenType"
             };
         }
     }

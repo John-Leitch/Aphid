@@ -64,11 +64,6 @@ namespace Components.Aphid.UI
         public bool ReplLoggingCombined { get; set; }
         public bool ConsoleAsync { get; set; }
 
-        public AphidConfig()
-            : base()
-        {
-        }
-
         private static LB GetBool(string name, bool defaultValue = false) =>
             _config.Value != null ?
                 new LB(() => GetSetting(name)
@@ -114,7 +109,7 @@ namespace Components.Aphid.UI
                 return ConfigurationManager.OpenMappedExeConfiguration(
                     new ExeConfigurationFileMap
                     {
-                        ExeConfigFilename = path,
+                        ExeConfigFilename = path
                     },
                     ConfigurationUserLevel.None);
             //}

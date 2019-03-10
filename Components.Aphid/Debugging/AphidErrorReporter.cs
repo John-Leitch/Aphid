@@ -234,7 +234,7 @@ namespace Components.Aphid.Debugging
             string dumpFile,
             StringBuilder sb)
         {
-            var tag = number >= 0 ? $"{number}." : "";
+            var tag = number >= 0 ? $"{number.ToString()}." : "";
             AphidRuntimeException are;
             AphidInterpreter exInterpreter = null;
 

@@ -86,7 +86,7 @@ namespace Components.Aphid.TypeSystem
                             targetGenericArgs);
                     }
 
-                    throw this.Interpreter.CreateRuntimeException(
+                    throw Interpreter.CreateRuntimeException(
                         "Converting from generic delegate {0} to {1} not yet supported.",
                         valType,
                         target);

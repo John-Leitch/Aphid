@@ -49,7 +49,7 @@ namespace Components.Aphid.Library.Net.Http
                 Method = Method,
                 QueryString = QueryString,
                 PostValues = PostValues,
-                Uploads = Files,
+                Uploads = Files
             };
         }
 

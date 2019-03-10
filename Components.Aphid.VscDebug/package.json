@@ -74,18 +74,18 @@
                     },
                     "description": "%configuration.exceptionOptions.description%",
                     "default": {
-                        "System.Exception": "never",
-                        "System.SystemException": "never",
-                        "System.ArithmeticException": "never",
-                        "System.ArrayTypeMismatchException": "never",
-                        "System.DivideByZeroException": "never",
-                        "System.IndexOutOfRangeException": "never",
-                        "System.InvalidCastException": "never",
-                        "System.NullReferenceException": "never",
-                        "System.OutOfMemoryException": "never",
-                        "System.OverflowException": "never",
-                        "System.StackOverflowException": "never",
-                        "System.TypeInitializationException": "never"
+                        "System.Exception": "unhandled",
+                        "System.SystemException": "unhandled",
+                        "System.ArithmeticException": "unhandled",
+                        "System.ArrayTypeMismatchException": "unhandled",
+                        "System.DivideByZeroException": "unhandled",
+                        "System.IndexOutOfRangeException": "unhandled",
+                        "System.InvalidCastException": "unhandled",
+                        "System.NullReferenceException": "unhandled",
+                        "System.OutOfMemoryException": "unhandled",
+                        "System.OverflowException": "unhandled",
+                        "System.StackOverflowException": "unhandled",
+                        "System.TypeInitializationException": "unhandled"
                     }
                 }
             }

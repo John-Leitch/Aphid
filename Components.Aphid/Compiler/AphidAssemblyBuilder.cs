@@ -288,7 +288,7 @@ namespace Components.Aphid.Compiler
             var field = typeBuilder.DefineField(fieldName, t, FieldAttributes.Private);
             var property = typeBuilder.DefineProperty(name, PropertyAttributes.HasDefault, t, null);
 
-            var accessorAttr =
+            const MethodAttributes accessorAttr =
                 MethodAttributes.Public |
                 MethodAttributes.SpecialName |
                 MethodAttributes.HideBySig;

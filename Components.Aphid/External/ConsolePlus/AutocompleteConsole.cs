@@ -266,9 +266,6 @@ namespace Components.External.ConsolePlus
         {
             var backup = Console.CursorVisible;
             Console.CursorVisible = false;
-            var bg = Console.BackgroundColor;
-            var fg = Console.ForegroundColor;
-
             var sb = new StringBuilder(string.Format("\r{0}", _prompt));
 
             foreach (var t in Highlighter.Highlight(_consoleBuffer))
@@ -398,7 +395,7 @@ namespace Components.External.ConsolePlus
                 _autocompleteWidth = maxWidth;
             }
 
-            int tmpLeft = Console.CursorLeft, tmpRight = Console.CursorTop;
+            int tmpLeft = Console.CursorLeft;
 
             var linesNeeded = _autoCompleteHeight + Console.CursorTop + 1 - Console.BufferHeight;
             var t = Console.CursorTop;

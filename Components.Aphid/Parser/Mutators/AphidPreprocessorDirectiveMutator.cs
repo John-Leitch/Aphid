@@ -53,7 +53,7 @@ namespace Components.Aphid.Parser
             {
                 new IdentifierExpression(
                     string.Concat(callExp.Args.Select(ParseArgument)),
-                    callIdExp.Attributes),
+                    callIdExp.Attributes)
             };
         }
 
@@ -102,7 +102,7 @@ namespace Components.Aphid.Parser
 
             return new List<AphidExpression>
             {
-                new StringExpression(string.Format("'{0}'", s)),
+                new StringExpression(string.Format("'{0}'", s))
             };
         }
 

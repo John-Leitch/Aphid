@@ -75,7 +75,7 @@ namespace Components.Aphid.Library
                 {
                     RedirectStandardOutput = opt.RedirectOutput,
                     RedirectStandardError = opt.RedirectOutput,
-                    UseShellExecute = !opt.RedirectOutput,
+                    UseShellExecute = !opt.RedirectOutput
                 }
             };
 

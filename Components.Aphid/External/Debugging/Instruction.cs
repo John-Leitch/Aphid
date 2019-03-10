@@ -32,7 +32,7 @@ namespace Components.Cypress
             {
                 Address = reader.ReadUInt32(),
                 Mnemonic = table[reader.ReadInt32()],
-                ByteString = table[reader.ReadInt32()],
+                ByteString = table[reader.ReadInt32()]
             };
         }
     }

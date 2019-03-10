@@ -1,6 +1,5 @@
 ﻿var getCommand = @() Environment.CommandLine;
 var getCommandLineArgs = @() Environment.GetCommandLineArgs();
-var cls = Console.Clear;
 
 var fixColors = @{
     Console.ForegroundColor = ConsoleColor.Gray;
@@ -12,6 +11,8 @@ var head = @(msg){ Cli.WriteHeader($_, console.defaultHeaderStyle) };
 var header = head;
 var subhead = @(msg) { Cli.WriteSubheader(msg, console.defaultSubheaderStyle) };
 var subheader = subhead;
+
+_ci = macro(@(a) { if (exists()) { a } });
 
 @{
     using Components.PInvoke;
@@ -53,8 +54,14 @@ var subheader = subhead;
 
             ret t;
         },
+
+        clear: @() _ci(Console.Clear()),
+
+        setTitle: @(title) _ci(Console.Title = title),
     };
 }();
+
+var cls = console.clear;
 
 var stdScope = this;
 

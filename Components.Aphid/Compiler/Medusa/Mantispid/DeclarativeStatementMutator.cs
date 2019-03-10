@@ -41,14 +41,14 @@ namespace Mantispid
                     new IdentifierExpression(id.Identifier));
 
                 return attributes.Name == null ?
-                    new List<AphidExpression> { match, } :
+                    new List<AphidExpression> { match } :
                     new List<AphidExpression>
                     {
                         new BinaryOperatorExpression(
                             nameId,
                             AphidTokenType.AssignmentOperator,
                             new IdentifierExpression("TokenType")),
-                        match,
+                        match
                     };
             }
             else if (_parseFunctions.Contains(id.Identifier))

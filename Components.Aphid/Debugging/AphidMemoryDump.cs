@@ -13,7 +13,7 @@ namespace Components.Aphid.Debugging
     {
         public static string Create()
         {
-            var f = PathHelper.GetEntryPath($"AphidMemory-{Guid.NewGuid()}.dmp");
+            var f = PathHelper.GetEntryPath($"AphidMemory-{Guid.NewGuid().ToString()}.dmp");
 
             try
             {

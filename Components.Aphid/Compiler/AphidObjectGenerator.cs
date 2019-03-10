@@ -18,14 +18,14 @@ namespace Components.Aphid.Compiler
             typeof(int),
             typeof(uint),
             typeof(long),
-            typeof(ulong),
+            typeof(ulong)
         };
 
         private static readonly Type[] _arrayTypes = new Type[]
         {
             typeof(decimal),
             typeof(string),
-            typeof(bool),
+            typeof(bool)
         };
 
         public string CodeFile => @"Interpreter\AphidObject.g.cs";

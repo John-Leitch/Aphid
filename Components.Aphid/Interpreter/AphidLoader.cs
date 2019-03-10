@@ -131,7 +131,7 @@ namespace Components.Aphid.Interpreter
             var extensionStrategies = new Func<string, string>[]
             {
                 x => x + ".alx",
-                x => x,
+                x => x
             };
 
             var files = extensionStrategies.Select(x => x(scriptFile)).ToArray();

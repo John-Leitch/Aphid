@@ -24,7 +24,7 @@ namespace Components.Aphid.UI.Formatters
             bool serializeRootScope,
             object value,
             bool ignoreNull = true,
-            bool ignoreClrObj = true,            
+            bool ignoreClrObj = true,
             List<AphidObject> scopes = null)
         {
             string result;
@@ -80,7 +80,7 @@ namespace Components.Aphid.UI.Formatters
                 IgnoreSpecialVariables = true,
                 QuoteToStringResults = false,
                 ToStringClrTypes = false,
-                MaxElements = AphidConfig.Current.StackTraceParamsMax,
+                MaxElements = AphidConfig.Current.StackTraceParamsMax
             };
     }
 }

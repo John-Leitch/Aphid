@@ -109,7 +109,7 @@ namespace Mantispid
 
             var parserType = new CodeTypeDeclaration(_config.ParserClass)
             {
-                IsPartial = true,
+                IsPartial = true
             };
 
             parserType.Members.Add(GenerateContextField());
@@ -187,7 +187,7 @@ namespace Mantispid
             }
 
             _tokenTypes = tokenTypeEnum.Groups[2].Value
-                .Split(new[] { '\r', '\n', ',', }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { '\r', '\n', ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim())
                 .Where(x => x.Length > 0)
                 .ToArray();
@@ -363,7 +363,7 @@ namespace Mantispid
                 CodeHelper.TypeRef(_config.ExpressionContextClass),
                 ParserName.ContextField)
             {
-                Attributes = MemberAttributes.Private,
+                Attributes = MemberAttributes.Private
             };
         }
 
@@ -435,7 +435,7 @@ namespace Mantispid
             var method = new System.CodeDom.CodeMemberMethod
             {
                 Name = funcId.Identifier,
-                ReturnType = methodAttrs.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef,
+                ReturnType = methodAttrs.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef
             };
 
             if (methodAttrs.IsRoot)
@@ -957,7 +957,7 @@ namespace Mantispid
                 { AphidTokenType.LessThanOperator, CodeBinaryOperatorType.LessThan },
                 { AphidTokenType.GreaterThanOperator, CodeBinaryOperatorType.GreaterThan },
                 { AphidTokenType.LessThanOrEqualOperator, CodeBinaryOperatorType.LessThanOrEqual },
-                { AphidTokenType.GreaterThanOrEqualOperator, CodeBinaryOperatorType.GreaterThanOrEqual },
+                { AphidTokenType.GreaterThanOrEqualOperator, CodeBinaryOperatorType.GreaterThanOrEqual }
             };
 
             switch (node.Operator)

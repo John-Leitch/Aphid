@@ -50,10 +50,10 @@ namespace Mantispid
                 Attributes =
                     MemberAttributes.Public |
                     MemberAttributes.Abstract |
-                    MemberAttributes.Final,
+                    MemberAttributes.Final
             };
 
-            var argName = "collection";
+            const string argName = "collection";
             var methodTypeName = "System.Collections.Generic.IEnumerable<" + _baseTypeName + ">";
             var methodType = TypeRef(methodTypeName);
             var t = Type.GetType(methodTypeName);
@@ -64,7 +64,7 @@ namespace Mantispid
                 ReturnType = methodType,
                 Attributes =
                     MemberAttributes.Public |
-                    MemberAttributes.Static,
+                    MemberAttributes.Static
             };
 
             method.Parameters.Add(new CodeParameterDeclarationExpression(
@@ -168,7 +168,7 @@ namespace Mantispid
                         {
                             new CodeAttributeDeclaration(
                                 TypeRef<DataMemberAttribute>())
-                        }),
+                        })
                 })
                 .ToArray();
 
@@ -215,7 +215,7 @@ namespace Mantispid
                             new CodeAttributeDeclaration(
                                 TypeRef<DataMemberAttribute>())
                         } :
-                        new CodeAttributeDeclaration[0]),
+                        new CodeAttributeDeclaration[0])
             };
 
             prop.GetStatements.Add(Return(fieldName));
@@ -233,7 +233,7 @@ namespace Mantispid
             return properties
                 .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name))
                 {
-                    Attributes = MemberAttributes.Private,
+                    Attributes = MemberAttributes.Private
                 })
                 .ToArray();
         }
@@ -247,7 +247,7 @@ namespace Mantispid
             {
                 Attributes = !isInternal ?
                     MemberAttributes.Public :
-                    MemberAttributes.Assembly,
+                    MemberAttributes.Assembly
             };
 
             if (isInternal)
@@ -390,7 +390,7 @@ namespace Mantispid
             {
                 Attributes = MemberAttributes.Public | MemberAttributes.Final,
                 Name = "GetChildren",
-                ReturnType = new CodeTypeReference("IEnumerable", TypeRef(_baseTypeName)),
+                ReturnType = new CodeTypeReference("IEnumerable", TypeRef(_baseTypeName))
             };
 
             method.Statements.Add(Return(childExpression));
@@ -406,7 +406,7 @@ namespace Mantispid
                 Attributes = MemberAttributes.Public |
                     MemberAttributes.Override,
                 Type = TypeRef(enumType),
-                Name = "Type",
+                Name = "Type"
             };
 
             prop.GetStatements.Add(Return(PropRef(enumType, rule.Name)));

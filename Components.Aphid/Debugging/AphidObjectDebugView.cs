@@ -4,7 +4,7 @@ using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Debugging
 {
-    [DebuggerDisplay("{Details}")]
+    [DebuggerDisplay("{Details,nq}")]
     internal class AphidObjectDebugView
     {
         private readonly AphidObject _aphidObject;
@@ -22,7 +22,7 @@ namespace Components.Aphid.Debugging
 
         public override string ToString() =>
             _aphidObject.IsComplex ?
-                $"Object (Count = {_aphidObject.Count})" :
+                $"Object (Count = {_aphidObject.Count.ToString()})" :
             _aphidObject.Value != null ?
                 $"Scalar {_aphidObject.Value.GetType().Name} = {_aphidObject.Value}" :
                 "Scalar null";

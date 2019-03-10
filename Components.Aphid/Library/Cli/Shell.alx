@@ -221,11 +221,7 @@
 
     using Components;
 
-    shell.node = {
-        literal: 0x01,
-        expression: 0x02,
-        concat: 0x03,
-    };
+    shell.node = { literal: 0x01, expression: 0x02, concat: 0x03 };
 
     shell.parseCommand = @(commandTokens)
         commandTokens -< @(t) $(t.type)

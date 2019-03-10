@@ -25,7 +25,7 @@ namespace Components.Aphid.Library.Net.Http
             var upload = new HttpUpload
             {
                 Name = Name,
-                Filename = Filename,
+                Filename = Filename
             };
 
             if (Text != null)

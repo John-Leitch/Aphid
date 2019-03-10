@@ -25,7 +25,7 @@ namespace Components.Cypress
             ReadAV,
             WriteAV,
             DepAV,
-            UnknownAV,
+            UnknownAV
         };
     }
 }

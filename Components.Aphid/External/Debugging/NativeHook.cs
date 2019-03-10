@@ -22,7 +22,7 @@ namespace Components.Cypress
                 addrBytes[0],
                 addrBytes[1],
                 addrBytes[2],
-                addrBytes[3],
+                addrBytes[3]
             };
         }
 
@@ -73,7 +73,7 @@ namespace Components.Cypress
                 Console.WriteLine();
             }
 
-            var originalCodeOffset = 0x10;
+            const int originalCodeOffset = 0x10;
 
             originalCode.CopyTo(objectCode, originalCodeOffset);
             var jmpToFuncOffset = (uint)originalCodeOffset + (uint)originalCode.Length + 0x4;

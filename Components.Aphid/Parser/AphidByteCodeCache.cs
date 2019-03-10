@@ -60,7 +60,7 @@ namespace Components.Aphid.Parser
             {
                 ast = AphidParser.ParseFile(filename, useImplicitReturns: false);
             }
-            
+
             if (InlineScripts)
             {
                 IncludeMutator includeMutator;
@@ -69,14 +69,14 @@ namespace Components.Aphid.Parser
                 {
                     includeMutator = new IncludeMutator
                     {
-                        PerformCommonTransformations = false,
+                        PerformCommonTransformations = false
                     };
                 }
                 else
                 {
                     includeMutator = new IncludeMutator(false)
                     {
-                        PerformCommonTransformations = false,
+                        PerformCommonTransformations = false
                     };
                 }
 
@@ -84,7 +84,7 @@ namespace Components.Aphid.Parser
                 {
                     includeMutator.Loader.SearchPaths.Add(p);
                 }
-                
+
                 ast = includeMutator.Mutate(MutatorGroups.GetMinimal().Mutate(ast));
 
                 if (!DisableConstantFolding)
