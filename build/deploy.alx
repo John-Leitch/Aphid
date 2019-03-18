@@ -1,5 +1,19 @@
-#'std';
-@ ~# (cmd) #> ('cmd /c {0}' :: cmd);
-[ 'Release', 'Release32', 'Release64', 'Debug' ]
-    ->@(c) [ 'exe', 'dll', 'pdb' ]
-        ->@(e) ~# 'copy ..\\Aphid\\bin\\{0}\\*.{1} c:\\tools\\Aphid /y' :: [c,e]
+#'Std';
+#'Math';
+#'System/Process';
+
+[
+    [ 'AphidUI', 'Aphid' ],
+    [ 'Debug', 'Release', 'Release32', 'Release64' ],
+    [ 'exe', 'dll', 'pdb', 'config' ]
+]
+|> permutations
+-?(@()'..\\{0}\\bin\\{1}' :: $_ |> Directory.Exists)
+-> @() ~#('xcopy ..\\{0}\\bin\\{1}\\*.{2} c:\\tools\\Aphid /y /d' :: $_);
+
+
+//Console.ReadLine();
+
+//var permutations = cmds[0]-<@(x) cmds[1]->@(y)[x,y];
+
+//permutations->@() 'copy ..\\Aphid\\bin\\{0}\\*.{1} c:\\tools\\Aphid /y' :: $_ |> print;
