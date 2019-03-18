@@ -9,39 +9,62 @@ using System.Reflection;
 using System.Reflection.Emit;
 head('MakeExe');
 
-var args = parseArgsFor(
-    [ 'run.exe', 'run.alx', 'run' ], 
-    [ 'makeexe.exe', 'makeexe.alx', 'makeexe' ]);
+_ab = macro(@(flag) {
+    var id(flag, 'Name') = '-' + quote(flag);
+    if (var id(flag) = id(flag, 'Name') | args.Contains) {
+         id(flag, 'Name') | args.Remove;
+    }    
+});
 
-var usage = 'MakeExe [script name] {exe name}';
+var args = 
+    parseArgsFor(
+        [ 'run.exe', 'run.alx', 'run' ], 
+        [ 'makeexe.exe', 'makeexe.alx', 'makeexe' ])
+    -.Value
+    @() new List[Object]($_);
+
+var usage = 'MakeExe {-noMerge} {-dumpCode} [script name] {exe name} {merge assemblies/search paths...}';
 
 if (args.Count == 0) {
     print(usage);
     exit(1);
 }
 
-var script = args[0].Value | Path.GetFullPath;
+_ab(noMerge);
+_ab(dumpCode);
+
+var script = args[0] | Path.GetFullPath;
 var scriptDir = script | Path.GetDirectoryName;
 
 var asmName = args.Count >= 2 ?
-    args[1].Value :
-    Path.ChangeExtension(args[0].Value, 'exe');
+    args[1] :
+    Path.ChangeExtension(args[0], 'exe');
 
-var extraRefs = args.Count >= 3 ? args @aq.skip(2) -> @.Value : [];
+var extraRefs = args.Count >= 3 ? args @aq.skip(2) : [];
 
-var pdbFile = Path.ChangeExtension(asmName, 'pdb');
-[ pdbFile, asmName ]-?File.Exists->File.Delete;
+if (noMerge && extraRefs | Enumerable.Any) {
+    printCriticalError(
+        'Merge assemblies and/or search paths cannot be used ' +
+        'when -noMerge is enabled.');
+    exit(0x2);
+}
+
+printInfo('Parsing script');
+
+if (!(script | File.Exists)) {
+    printCriticalError('Could not find script ~Yellow~{0}~R~', script);
+    exit(0x3);
+}
 
 var properties = {
-    name: asmName |> Path.GetFileName,
+    name: asmName | Path.GetFileName,
     path: asmName,
-    title: asmName |> Path.GetFileNameWithoutExtension,
+    title: asmName | Path.GetFileNameWithoutExtension,
     version: '1.0.0.0',
     showConsole: true,
 };
 
-printInfo('Parsing script');
-var scriptAst = script |> AphidParser.ParseFile;
+var scriptAst = script | AphidParser.ParseFile;
 
 if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
     var p = scriptAst[0] |> evalNode;
@@ -64,16 +87,41 @@ var srcAst = scriptAst
     |> constantFoldingMutator.Mutate;
 
 printSuccess('Preprocessing complete');
-
 printInfo('Creating projecting into bytecode', byteCodeFile);
-var byteCode = srcAst |> AphidByteCode.Encode;
+var byteCode = srcAst | AphidByteCode.Encode;
 printSuccess('Projected into ~Cyan~{0:n0}~R~ byte stream', byteCode.Length);
+
+var outFile = properties.path | Path.GetFullPath;
+var getOutFile = @Path.ChangeExtension(outFile);
+
+if (dumpCode) {
+    subhead('Code Dump Begin');
+
+    var code = byteCode
+        | AphidByteCode.Decode
+        ->(@()$_.ToString() + (($_.IsStatement() || $_.isUsing()) ? '' : ';\r\n'))
+        // ->(@()$_.ToString() +
+        //     (($_.IsStatement() ||
+        //     ($_.Operator defined && $_.Operator == AphidTokenType.retKeyword)) ?
+        //         '' :
+        //         ';\r\n'))
+        @join('\r\n');
+
+    code |> SyntaxHighlightingFormatter.Format @print('{0}');
+
+    subhead('Code Dump End');
+    print();    
+    var codeDumpFile = 'exe.dump.alx' | getOutFile;
+    code @File.WriteAllText(codeDumpFile);
+    codeDumpFile @printSuccess('Dumped embedded code to ~Green~{0}~R~');
+}
+
 properties.streams = { ByteCode: new MemoryStream(byteCode) };
 printInfo('Assembly attributes:');
 properties |> keys -> @() print('    [{0}] ~White~{1}~R~', $_, properties.{$_});
 print();
 
-printInfo('Creating module {0} for {1}', asmName, script);
+printInfo('Creating module from ~Cyan~{0}~R~', script);
 
 var addAttrs = @(asm) {
     if (!(properties.mergeAttrs defined)) {
@@ -112,6 +160,12 @@ var addAttrs = @(asm) {
     }
 };
 
+
+
+([ getOutFile('pdb'), outFile ]-?File.Exists)
+    -%@printInfo('Deleting ~Cyan~{0}~R~')
+    ->File.Delete;
+
 importOpcodes();
 @(il, asmObj){
     asmObj.asm | addAttrs;
@@ -133,71 +187,76 @@ importOpcodes();
 }
 @createProgram(properties);
 
-installPackage('ilmerge');
+new FileInfo(outFile)
+@.Length
+@printSuccess('Created executable ~Green~{0}~R~ (~Cyan~{1:n0}~R~ bytes)', outFile);
 
-var ilMergeBin =
-    'packages'
-    |> getEntryPath
-    @() Directory.EnumerateFiles($_, 'ilmerge.exe' ,SearchOption.AllDirectories)
-    |> Enumerable.FirstOrDefault;
+if (!noMerge) {
+    installPackage('ilmerge');
 
-if (ilMergeBin == null) {
-    printError('Could not find ilmerge.exe');
-    exit(0xbad81);
+    var ilMergeBin =
+        'packages'
+        |> getEntryPath
+        @() Directory.EnumerateFiles($_, 'ilmerge.exe', SearchOption.AllDirectories)
+        |> Enumerable.FirstOrDefault;
+
+    if (ilMergeBin == null) {
+        printError('Could not find ilmerge.exe');
+        exit(0xbad81);
+    }
+
+    var asm = load ilMergeBin;
+
+    if (asm != null) {
+        printSuccess('Loaded ~Cyan~{0}~R~:\r\n    {1}', asm, asm.Location);
+    }
+
+    using ILMerging;
+
+    var il = new ILMerge();
+    il.Log = true;
+    il.LogFile = properties.path + '.ilmerge.txt';
+
+    if (il.LogFile | File.Exists) {
+        il.LogFile | File.Delete;
+    }
+
+    var searchDirs = new List[string]();
+
+    [
+        // 'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
+        // 'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
+        'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
+    ]->searchDirs.Add;
+
+    extraRefs-?Directory.Exists->searchDirs.Add;
+
+    if (searchDirs | Enumerable.Any) {
+        il.SetSearchDirectories(searchDirs | Enumerable.ToArray);
+    }
+
+    il.SetTargetPlatform(
+        'v4',
+        'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2');
+
+    var extraAsms = new List[string]();
+    extraRefs-?(@()!searchDirs.Contains($_))->extraAsms.Add;
+
+    var inputAsms = 
+        Enumerable.Concat([
+            properties.path, AphidObject.Assembly.Location ],
+            extraAsms | Enumerable.ToArray)
+        | Enumerable.ToArray;
+
+    [
+        [ 'Merging assemblies', inputAsms ],
+        [ 'Setting search directories' , searchDirs ]
+    ]
+    ->@(p) p[1] @join('\r\n    ') @printInfo('{0}:\r\n    {1}', p[0]);
+    inputAsms | il.SetInputAssemblies;
+    il.OutputFile = outFile;
+    printInfo('Merging into final binary ~Cyan~{0}~R~', il.OutputFile);
+    il.Merge();
 }
-
-var asm = load ilMergeBin;
-
-if (asm != null) {
-    printSuccess('Loaded ~Cyan~{0}~R~:\r\n    {1}', asm, asm.Location);
-}
-
-using ILMerging;
-
-var il = new ILMerge();
-il.Log = true;
-il.LogFile = properties.path + '.ilmerge.txt';
-
-if (il.LogFile | File.Exists) {
-    il.LogFile | File.Delete;
-}
-
-var searchDirs = new List[string]();
-
-[
-    // 'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
-    // 'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
-    'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
-]->searchDirs.Add;
-
-extraRefs-?Directory.Exists->searchDirs.Add;
-
-if (searchDirs | Enumerable.Any) {
-    il.SetSearchDirectories(searchDirs | Enumerable.ToArray);
-}
-
-il.SetTargetPlatform(
-    'v4',
-    'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2');
-
-var extraAsms = new List[string]();
-extraRefs-?(@()!searchDirs.Contains($_))->extraAsms.Add;
-
-var inputAsms = 
-    Enumerable.Concat([
-        properties.path, AphidObject.Assembly.Location ],
-        extraAsms | Enumerable.ToArray)
-    | Enumerable.ToArray;
-
-[
-    [ 'Merging assemblies', inputAsms ],
-    [ 'Setting seasrch directories' , searchDirs ]
-]
-->@(p) p[1] @join('\r\n    ') @printInfo('{0}:\r\n    {1}', p[0]);
-inputAsms | il.SetInputAssemblies;
-
-il.OutputFile = properties.path |> Path.GetFullPath;
-printInfo('Merging into final binary ~Cyan~{0}~R~', il.OutputFile);
-il.Merge();
 
 printSuccess('Done');

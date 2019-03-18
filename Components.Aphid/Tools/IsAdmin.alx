@@ -1,0 +1,8 @@
+#'std';
+using System.Security.Principal;
+printQuery('Checking for admin privileges');
+WindowsBuiltInRole.Administrator
+| (new WindowsPrincipal(WindowsIdentity.GetCurrent())).IsInRole
+|< @printSuccess('Is admin: {0}')
+|> Convert.ToInt32
+|> exit;
