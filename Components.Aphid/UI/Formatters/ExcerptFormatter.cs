@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Components.Aphid.Lexer;
+﻿using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using static Components.Aphid.UI.Formatters.CodeMarker;
 

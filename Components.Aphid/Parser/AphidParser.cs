@@ -1,10 +1,5 @@
 using Components.Aphid.Lexer;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.Parser
 {

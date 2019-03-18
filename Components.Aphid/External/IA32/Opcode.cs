@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Components.Cypress.IA32
+﻿namespace Components.Cypress.IA32
 {
     public enum Opcode : byte
     {

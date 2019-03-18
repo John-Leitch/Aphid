@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Components.External.ConsolePlus;
+﻿using Components.External.ConsolePlus;
 
 namespace Components.Aphid.UI.Colors
 {

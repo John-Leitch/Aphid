@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Components.PInvoke;
 
 namespace Components.Cypress

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Components.Aphid.TypeSystem;
-using Components.Aphid.UI;
-using Components.External.ConsolePlus;
+﻿using System.Collections.Generic;
 
 namespace Components.Aphid.Interpreter
 {

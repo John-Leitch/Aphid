@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-
-using Components;
 
 namespace Components
 {
 #if DBG_STEPTHROUGH
     [DebuggerStepThrough]
 #endif
-   public static class StreamExtension
+    public static class StreamExtension
     {
         public static byte[] Read(this Stream sourceStream, int bufferSize)
         {

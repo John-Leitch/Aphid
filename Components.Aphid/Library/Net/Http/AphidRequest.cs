@@ -1,11 +1,6 @@
-﻿using Components.Aphid.Interpreter;
-using Components.Aphid.TypeSystem;
-using System;
+﻿using Components.Aphid.TypeSystem;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.Library.Net.Http
 {

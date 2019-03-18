@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using AS = Components.Aphid.UI.AphidSettings;
 using static System.IO.Path;
-using LB = System.Lazy< bool>;
-using LI = System.Lazy< int>;
-using LA = System.Lazy< string[]>;
+using LB = System.Lazy<bool>;
+using LI = System.Lazy<int>;
+using LA = System.Lazy<string[]>;
 
 namespace Components.Aphid.UI
 {

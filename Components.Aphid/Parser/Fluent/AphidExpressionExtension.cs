@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Components.Aphid.Parser.Fluent
+﻿namespace Components.Aphid.Parser.Fluent
 {
     public static class AphidExpressionExtension
     {

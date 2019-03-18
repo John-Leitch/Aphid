@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Components.Aphid.Library.Net.Http
+﻿namespace Components.Aphid.Library.Net.Http
 {
     public class HttpRequest : HttpMessagePart
     {

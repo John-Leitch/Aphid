@@ -1,5 +1,4 @@
-﻿using Components.Aphid;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Components.Aphid.Parser

@@ -1,12 +1,4 @@
-﻿using Components.External;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.Serialization.Formatters.Binary;
-
-namespace Components.ObjectDatabase
+﻿namespace Components.ObjectDatabase
 {
     public static class BinaryObjectDatabase
     {

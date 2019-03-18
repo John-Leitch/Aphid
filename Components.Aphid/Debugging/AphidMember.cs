@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Debugging
 {
-        [DebuggerDisplay("{_value,nq}", Name = "{_key}")]
+    [DebuggerDisplay("{_value,nq}", Name = "{_key}")]
         internal class AphidMember
         {
             private readonly AphidObject _aphidObject;

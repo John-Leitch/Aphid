@@ -1,5 +1,4 @@
-﻿using Components.Aphid.Interpreter;
-using Components.Aphid.TypeSystem;
+﻿using Components.Aphid.TypeSystem;
 using System;
 using System.CodeDom;
 using System.Linq;

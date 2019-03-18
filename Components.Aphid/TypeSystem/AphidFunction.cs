@@ -1,10 +1,7 @@
 ﻿using Components.Aphid.Parser;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
 namespace Components.Aphid.TypeSystem

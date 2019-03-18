@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Components.Aphid.Parser;
 using Components.Aphid.UI.Colors;
 using Components.External;
-using Components.External.ConsolePlus;
 using static Components.Aphid.UI.Formatters.SyntaxHighlightingFormatter;
 
 namespace Components.Aphid.UI.Formatters

@@ -1,10 +1,6 @@
 using Components.Aphid.Interpreter;
-using System;
-using System.Linq;
-using System.IO;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library.Net

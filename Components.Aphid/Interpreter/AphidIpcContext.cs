@@ -1,10 +1,5 @@
-﻿using Components.Aphid.Interpreter;
-using Components.Aphid.TypeSystem;
+﻿using Components.Aphid.TypeSystem;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.Interpreter
 {

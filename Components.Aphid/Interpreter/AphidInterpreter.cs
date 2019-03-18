@@ -2849,7 +2849,7 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string FlattenAndJoinPath(AphidExpression exp) => string.Join(".", FlattenPath(exp));
+        private string FlattenAndJoinPath(AphidExpression exp) => Join(".", FlattenPath(exp));
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string[] FlattenPath(AphidExpression exp)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 //using Set = System.Collections.Generic.IEnumerable;
@@ -12,7 +11,7 @@ namespace Components
 #if DBG_STEPTHROUGH
     [DebuggerStepThrough]
 #endif
-   public static class EnumerableExtension
+    public static class EnumerableExtension
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // None

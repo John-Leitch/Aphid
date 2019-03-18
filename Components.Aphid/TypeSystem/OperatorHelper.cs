@@ -1,9 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
-using Components.Aphid.Parser;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Components.Aphid.TypeSystem

@@ -1,11 +1,9 @@
 ﻿#if CHECKED
 #define CHECK_ANCESTORS
 #endif
-using Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Components.Aphid.Parser
 {
