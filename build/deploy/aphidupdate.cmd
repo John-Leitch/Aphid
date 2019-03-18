@@ -1,6 +1,8 @@
 @echo off
 set dst=c:\tools\aphid
-set a=/E /Y /D /F /H
+REM set a=/E /Y /D /F /H
+set a=/Y /D /F /H
+
 
 set hr=call aphid64 *#'std';subhead('%%msg%%');
 set msg=Updating Aphid Binaries
