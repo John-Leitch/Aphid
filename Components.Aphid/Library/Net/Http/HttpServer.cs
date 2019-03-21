@@ -5,6 +5,7 @@ using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using Components.External.ConsolePlus;
 using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -34,6 +35,17 @@ namespace Components.Aphid.Library.Net
         private readonly AphidObject _globals = AphidObject.Scope();
 
         //private string _config = "Config.alx";
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        private static readonly Lazy<Func<string, NameValueCollection>> _parseQueryString = new Lazy<Func<string, NameValueCollection>>(() =>
+            (Func<string, NameValueCollection>)Assembly
+                .LoadWithPartialName("System.Web")
+                .GetType("System.Web.HttpUtility")
+                .GetMethod("ParseQueryString", new[] { typeof(string) })
+                .CreateDelegate(typeof(Func<string, NameValueCollection>)));
+#pragma warning restore CS0618 // Type or member is obsolete)
+
+        protected static Func<string, NameValueCollection> ParseQueryString => _parseQueryString.Value;
 
         public HttpServer(string prefix)
             : this(prefix, GetDefaultWebRoot())
@@ -238,7 +250,7 @@ namespace Components.Aphid.Library.Net
 
         private static AphidObject CreateQueryObject(string query)
         {
-            var s = HttpUtility.ParseQueryString(query);
+            var s = ParseQueryString(query);
 
             var table = s.Keys
                 .OfType<string>()

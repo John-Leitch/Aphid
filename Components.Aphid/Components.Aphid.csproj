@@ -173,9 +173,9 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" Condition="!$(DefineConstants.Contains('NO_JSON'))" />
-    <Reference Include="System.Xml.Linq" />
+    <!-- <Reference Include="System.Web" /> -->
+    <!-- <Reference Include="System.Web.Extensions" Condition="!$(DefineConstants.Contains('NO_JSON'))" /> -->
+    <!-- <Reference Include="System.Xml.Linq" /> -->
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -237,6 +237,7 @@
     <Compile Include="External\ConsolePlus\CliApplication`1.cs" />
     <Compile Include="External\ConsolePlus\CliApplication`2.cs" />
     <Compile Include="External\Debugging\StringTable.cs" />
+    <Compile Include="External\Json\ScriptIgnoreAttribute.cs" />
     <Compile Include="External\Linq\EnumerableMember`2.cs" />
     <Compile Include="External\Linq\ParallelEnumerableExtension.cs" />
     <Compile Include="External\Linq\EnumerableMember.cs" />

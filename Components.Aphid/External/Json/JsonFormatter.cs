@@ -9,7 +9,7 @@ namespace Components.Json
 {
     public class JsonFormatter
     {
-        private int _currentIndent;
+        private int _currentIndent;        
 
         public int IndentSize { get; set; }
 
@@ -74,7 +74,9 @@ namespace Components.Json
         {
             var tokens = new JsonLexer(json)
                 .GetTokens()
-                .Where(x => x.TokenType != JsonTokenType.WhiteSpace && x.TokenType != JsonTokenType.Comment)
+                .Where(x =>
+                    x.TokenType != JsonTokenType.WhiteSpace &&
+                    x.TokenType != JsonTokenType.Comment)
                 .ToArray();
 
             if (ConvertToHex)
