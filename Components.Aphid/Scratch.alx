@@ -1,24 +1,61 @@
-using System;
-using System.IO;
-using System.Reflection;
-cls = Console.Clear;
-print = Console.WriteLine;
-lib = @() Path.Combine($_, 'Library');
-
-cls();
-srcDir = Directory.GetCurrentDirectory() |> lib;
-dstDir = Assembly.GetExecutingAssembly().Location |> Path.GetDirectoryName |> lib;
-files = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories);
-//files.Length @print('Found {0} files');
-files->@{
-    dst = Path.Combine(dstDir, Path.GetFileName($_));
-    //print('Copying {0} to {1}', $_, dst);
-    File.Copy($_, dst, true);
-};
-
 #'Std';
-#'Meta';
-#'Serialization';
-'hello world' |> toJson |> print;
-this |> dump;
-print('foo2');
+#'Gui/Wpf';
+#'Meta/Code/ViewModelCompiler';
+#'Meta/Code/Compiler';
+cls();
+AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e)
+    e.Name.StartsWith('Components.Aphid') ?
+        AphidExpression.Assembly :
+        null);
+
+using Components.ObjectDatabase;
+
+
+var staThread = new Thread(@{
+    load "c:\\source\\aphid\\AphidUI\\bin\\x64\\Release\\AphidUI.exe";
+    using AphidUI;
+    var guiRepl = new CodeViewer();
+
+    guiRepl |> dumpe;
+    guiRepl.funcs('view|open|show');
+    guiRepl.Show();
+});
+
+staThread.SetApartmentState(ApartmentState.STA);
+staThread.Start();
+staThread.Join();
+
+
+// exit();
+
+class ListViewModelBase { Object list Items, Object SelectedItem };
+
+var ListViewModel = viewModel.buildForType('AphidUI.ViewModels', ListViewModelBase);
+var vm = new ListViewModel();
+var db = BinaryObjectDatabase.OpenFile('c:\\source\\aphid\\aphid\\benchmarks\\history.db');
+vm.Items = new ObservableCollection[Object](db.ReadUnsafe());
+var cols = vm.Items[0].results-<@.Keys!?;
+cols|> dump;
+
+var w=wpf.createAppAsync(@{
+    load "C:/source/aphid/AphidUI/bin/x64/Release/aphidui.exe";
+    $_.window.DataContext = vm;
+    // var dg = $_.createDataGrid();
+    // dg.IsReadOnly = true;
+    // dg.AutoGenerateColumns = false;
+    // cols->@() wpf.dataGrid.addTextColumn(dg, $_, '[{0}].Value' :: $_);
+
+    // wpf.dataGrid.addTextColumn(dg, 'X', '[x].Value');
+    // wpf.dataGrid.addTextColumn(dg, 'Y', '[y].Value');
+    // dg.ItemsSource = [{x:10,y:20},{x:20,y:30}];
+    // dg.ItemsSource = rows;
+    
+    $_.window.Content =
+        this.{'$script'}
+        |> Path.GetDirectoryName
+        @() Path.Combine($_, 'Scratch.xaml')
+        |> File.ReadAllText
+        |> XamlReader.Parse;
+
+    // $_.window.Content=dg
+});

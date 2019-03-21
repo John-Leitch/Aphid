@@ -240,3 +240,18 @@ Aphid/Benchmarks/BenchmarkTempBak/*
 # Temporary hack to ignore the bulk of NuGet packages
 *.dll
 *.exe
+Components.Aphid/Scratch.*
+Components.Aphid/Library/PEDump.alx
+Aphid.Benchmarks/Run.alx  
+Aphid.Benchmarks/Stop.alx  
+Components.Aphid/Library/Gui/ClusterGui.alx  
+Components.Aphid/Library/testloop.cmd  
+Components.Aphid/Tools/LanguageServer.alx  
+Components.Aphid/VS.alx  
+Components.Aphid/TypeSystem/OperatorHelper.alx  
+Components.Aphid/Scratch2.alx  
+Components.Aphid/Scratch3.alx  
+Components.Aphid/aphid.html  
+ex.txt  
+fl.txt  
+findLangServer.cmd  

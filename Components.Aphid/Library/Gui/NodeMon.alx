@@ -190,7 +190,8 @@ var createNodeMonWindow = @()
 
 var startNodeMonServices = @{
     print('Starting');
-    var nodes = ['node1','node2','node3','node4','john-pc'];
+//    var nodes = ['node1','node2','node3','node4','node5','node6','john-pc'];
+    var nodes = ['node1','node4','node6'];
 
     var startBackgroundThread = @(f) {
         var t = new Thread(f);
