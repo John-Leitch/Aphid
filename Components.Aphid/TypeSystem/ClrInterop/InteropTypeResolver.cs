@@ -168,7 +168,7 @@ namespace Components.Aphid.TypeSystem
                 case "ushort": return "System.UInt16";
                 case "uint": return "System.UInt32";
                 case "ulong": return "System.UInt64";
-                case "sbyte": return "System.Byte";
+                case "sbyte": return "System.SByte";
                 case "short": return "System.Int16";
                 case "int": return "System.Int32";
                 case "long": return "System.Int64";
