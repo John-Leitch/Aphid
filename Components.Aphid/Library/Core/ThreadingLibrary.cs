@@ -31,8 +31,8 @@ namespace Components.Aphid.Library
         public static WaitHandle StartThread(AphidInterpreter interpreter, AphidFunction function, params object[] parms) =>
             ThreadCore(interpreter, x => new Thread(y => x()).Start(), function, parms);
 
-        [AphidInteropFunction("join")]
-        public static void Join(WaitHandle reset) => reset.WaitOne();
+        //[AphidInteropFunction("join")]
+        //public static void Join(WaitHandle reset) => reset.WaitOne();
 
         [AphidInteropFunction("sleep")]
         public static void Sleep(decimal timeout) => Thread.Sleep((int)timeout);

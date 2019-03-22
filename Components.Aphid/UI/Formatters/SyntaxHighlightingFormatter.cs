@@ -25,16 +25,7 @@ namespace Components.Aphid.UI.Formatters
                 return code;
             }
 
-            var escaped = escapeStyles ? StyleEscape(code) : code;
-
-            //if(code.Contains("tryAction"))
-            //{
-            //    Debugger.Break();
-            //}
-
-            var ct = _highlighter.Highlight(escaped).ToArray();
-
-            //var color = SystemColor.AntiqueWhite;
+            var ct = _highlighter.Highlight(code).ToArray();
 
             int start = Array.FindIndex(ct, x => x.Text == Start.Trim()),
                 end = -1;
@@ -101,7 +92,9 @@ namespace Components.Aphid.UI.Formatters
                 }
             }
 
-            return ct.ToVT100String();
+            var colorStr = ct.ToVT100String();
+
+            return escapeStyles ? StyleEscape(colorStr) : colorStr;
         }
     }
 }

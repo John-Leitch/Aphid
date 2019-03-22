@@ -278,7 +278,7 @@ namespace Components.Aphid.Serialization
                     var trim = body.Min(x => x[0].Length);
 
                     var block = body
-                        .Select(x => new string(' ', (indent + 1) * 4 + x[0].Length - trim) + x[1])
+                        .Select(x => new string(' ', ((indent + 1) * 4) + x[0].Length - trim) + x[1])
                         .JoinLines();
 
                     s.AppendFormat("{0}\r\n{1}}}\r\n", block, new string(' ', indent * 4));

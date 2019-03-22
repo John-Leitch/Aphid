@@ -35,6 +35,7 @@ _ab = macro(@(flag) { var id(flag) = args.Contains('-' + quote(flag)) });
 _ab(png);
 _ab(pngs);
 _ab(all);
+
 var records = 'history.db' | BinaryObjectDatabase.OpenFile @() $_.ReadUnsafe() | Enumerable.ToArray;
 
 var createChart = @(mode){

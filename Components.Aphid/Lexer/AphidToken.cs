@@ -24,20 +24,14 @@ namespace Components.Aphid.Lexer
         public override int GetHashCode()
         {
             var hashCode = 98192144;
-            hashCode = hashCode * -1521134295 + TokenType.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Lexeme);
-            hashCode = hashCode * -1521134295 + Index.GetHashCode();
+            hashCode = (hashCode * -1521134295) + TokenType.GetHashCode();
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(Lexeme);
+            hashCode = (hashCode * -1521134295) + Index.GetHashCode();
             return hashCode;
         }
 
-        public static bool operator ==(in AphidToken token1, in AphidToken token2)
-        {
-            return token1.Equals(token2);
-        }
+        public static bool operator ==(in AphidToken token1, in AphidToken token2) => token1.Equals(token2);
 
-        public static bool operator !=(in AphidToken token1, in AphidToken token2)
-        {
-            return !(token1 == token2);
-        }
+        public static bool operator !=(in AphidToken token1, in AphidToken token2) => !(token1 == token2);
     }
 }

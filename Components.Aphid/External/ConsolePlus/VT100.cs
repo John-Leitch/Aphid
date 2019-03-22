@@ -126,8 +126,8 @@ namespace Components.External.ConsolePlus
                 .Where(x => x.FieldType == typeof(byte[]))
                 .ToDictionary(x => (byte[])x.GetValue(null), x => x.Name)
                 .OrderBy(x =>
-                    x.Key[0] << 0x10 |
-                    x.Key[1] << 0x8 |
+                    (x.Key[0] << 0x10) |
+                    (x.Key[1] << 0x8) |
                     x.Key[2])
                 .Select(x => string.Format(
                     "{0}{1}{2}{3}",

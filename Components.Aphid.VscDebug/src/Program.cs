@@ -34,6 +34,8 @@ namespace VSCodeDebug
 
         private static void Main(string[] argv)
         {
+            //Environment.SetEnvironmentVariable("mono_debug_logfile", $@"d:\staging\vsc.{Guid.NewGuid()}.log");
+            
             string id;
 
             if (!argv.Contains("--child"))
@@ -118,6 +120,7 @@ namespace VSCodeDebug
             }
             else
             {
+                //Debugger.Launch();
                 if (!Debugger.IsAttached)
                 {
                     try
@@ -152,7 +155,7 @@ namespace VSCodeDebug
                 }
                 else
                 {
-                    StartServer(argv);
+                    StartServer(argv);                    
                 }
             }
         }
@@ -242,14 +245,15 @@ namespace VSCodeDebug
 
         private static int LogId;
 
-        public static bool EnableLogging = false;
+        //public static bool EnableLogging = true;
 
+        [Conditional("ENABLE_LOGGING")]
         public static void Log(string format, params object[] data)
         {
-            if (!EnableLogging)
-            {
-                return;
-            }
+            //if (!EnableLogging)
+            //{
+            //    return;
+            //}
 
             try
             {
@@ -267,13 +271,13 @@ namespace VSCodeDebug
 
                 if (LOG_FILE_PATH != null)
                 {
-                    //if (logFile == null)
-                    //{
-                    //    logFile = File.CreateText(LOG_FILE_PATH);
-                    //}
+                    if (logFile == null)
+                    {
+                        logFile = File.CreateText(LOG_FILE_PATH);
+                    }
 
-                    //string msg = string.Format(format, data);
-                    //logFile.WriteLine(string.Format("{0} {1}", DateTime.UtcNow.ToLongTimeString(), msg));
+                    string msg = string.Format(format, data);
+                    logFile.WriteLine(string.Format("{0} {1}", DateTime.UtcNow.ToLongTimeString(), msg));
                 }
             }
             catch (Exception ex)
@@ -282,7 +286,7 @@ namespace VSCodeDebug
                 {
                     try
                     {
-                        //File.WriteAllText(LOG_FILE_PATH + ".err", ex.ToString());
+                        File.WriteAllText(LOG_FILE_PATH + ".err", ex.ToString());
                     }
                     catch
                     {

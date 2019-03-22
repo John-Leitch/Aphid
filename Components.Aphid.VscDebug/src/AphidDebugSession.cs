@@ -89,7 +89,7 @@ namespace VSCodeDebug
                 supportsConfigurationDoneRequest = false,
 
                 // This debug adapter does not support function breakpoints.
-                supportsFunctionBreakpoints = true,
+                supportsFunctionBreakpoints = false,
 
                 // This debug adapter doesn't support conditional breakpoints.
                 supportsConditionalBreakpoints = true,
@@ -219,7 +219,7 @@ namespace VSCodeDebug
             IPAddress address = Utilities.ResolveIPAddress(host);
             if (address == null)
             {
-                SendErrorResponse(response, 3013, "Invalid address '{address}'.", new { address = address });
+                SendErrorResponse(response, 3013, "Invalid address '{address}'.", new { address });
                 return;
             }
 
@@ -350,14 +350,18 @@ namespace VSCodeDebug
             }
             path = ConvertClientPathToDebugger(path);
 
-            if (!HasMonoExtension(path))
+            if (!HasAphidExtension(path))
             {
-                // we only support breakpoints in files mono can handle
                 SendResponse(response, new SetBreakpointsResponseBody());
                 return;
             }
 
             var clientLines = (int[])arguments.lines.ToObject<int[]>();
+            
+            var conditions = ((dynamic[])arguments.breakpoints.ToObject<dynamic[]>())
+                .Select(x => (string)x.condition)
+                .ToArray();
+            //var breakpoints = arguments.breakpoints.ToObject<dynamic[]>();
 
             var bps = new AphidBreakpointController().UpdateBreakpoints(
                 this,
@@ -588,9 +592,7 @@ namespace VSCodeDebug
                 _ast;
         }
 
-        private Source GetSource(AphidExpression expression)
-        {
-            return expression?.Filename != null ?
+        private Source GetSource(AphidExpression expression) => expression?.Filename != null ?
                 new VSCodeDebug.Source(
                     Path.GetFileName(expression.Filename),
                     Path.GetFullPath(expression.Filename),
@@ -601,7 +603,6 @@ namespace VSCodeDebug
                     _script,
                     0,
                     "normal");
-        }
 
         public override void Source(Response response, dynamic arguments) => SendErrorResponse(response, 1020, "No source available");
 
@@ -995,7 +996,7 @@ namespace VSCodeDebug
             }
         }
 
-        private bool HasMonoExtension(string path)
+        private bool HasAphidExtension(string path)
         {
             foreach (var e in _fileExtensions)
             {

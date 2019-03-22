@@ -9,11 +9,8 @@ namespace Components.Aphid.Parser
 
         public string CurrentAttribute { get; private set; }
 
-        public AphidAttributeScanner(IdentifierExpression owner)
-        {
-            _attributes = new Queue<string>(
+        public AphidAttributeScanner(IdentifierExpression owner) => _attributes = new Queue<string>(
                 owner.Attributes.Select(x => x.Identifier));
-        }
 
         public bool Next()
         {

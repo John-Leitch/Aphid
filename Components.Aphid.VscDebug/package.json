@@ -1,7 +1,7 @@
 {
     "name": "aphid-debug",
     "displayName": "Aphid Debug",
-    "version": "0.0.1",
+    "version": "0.2.0",
     "publisher": "ast",
     "description": "Visual Studio Code debugger extension for Aphid",
     "icon": "images/mono-debug-icon.png",
