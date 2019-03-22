@@ -75,8 +75,7 @@ namespace Components.Cypress
         public static CONTEXT GetContext(uint threadId)
         {
             var threadHandle = Kernel32.OpenThread(ThreadAccess.THREAD_GET_CONTEXT, false, threadId);
-            var context = new CONTEXT();
-            context.ContextFlags = CONTEXT_FLAGS.CONTEXT_ALL;
+            var context = new CONTEXT { ContextFlags = CONTEXT_FLAGS.CONTEXT_ALL };
             var success = Kernel32.GetThreadContext(threadHandle, ref context);
             Kernel32.CloseHandle(threadHandle);
             return context;

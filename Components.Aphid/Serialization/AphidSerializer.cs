@@ -481,10 +481,7 @@ namespace Components.Aphid.Serialization
             var tokens = lexer.GetTokens();
 
             var ast = new AphidObjectThisKeywordMutator().Mutate(
-                new List<AphidExpression>
-                {
-                    AphidParser.ParseExpression(tokens, obj)
-                });
+                new List<AphidExpression> { AphidParser.ParseExpression(tokens, obj) });
 
             if (ast.Count != 1)
             {

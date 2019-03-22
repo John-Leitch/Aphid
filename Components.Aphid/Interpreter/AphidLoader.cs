@@ -80,9 +80,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-        private Tuple<string, AphidInteropFunction>[] LoadLibrary(Type libraryType)
-        {
-            return libraryType
+        private Tuple<string, AphidInteropFunction>[] LoadLibrary(Type libraryType) => libraryType
                 .GetMethods(
                     BindingFlags.Static |
                     BindingFlags.NonPublic |
@@ -98,7 +96,6 @@ namespace Components.Aphid.Interpreter
                 .SelectMany(x => x.Attributes
                     .Select(y => Tuple.Create(y.Name, new AphidInteropFunction(y, x.Method))))
                 .ToArray();
-        }
 
         public void LoadLibrary(string libraryType, AphidObject scope)
         {
@@ -119,12 +116,9 @@ namespace Components.Aphid.Interpreter
 
         public void LoadLibrary<TLibrary>(AphidObject scope) => LoadLibrary(typeof(TLibrary), scope);
 
-        public string FindScriptFile(string scriptFile)
-        {
-            return FindScriptFile(
+        public string FindScriptFile(string scriptFile) => FindScriptFile(
                 Path.GetDirectoryName(typeof(AphidLoader).Assembly.Location),
                 scriptFile);
-        }
 
         public string FindScriptFile(string appDir, string scriptFile)
         {
@@ -209,9 +203,11 @@ namespace Components.Aphid.Interpreter
                 {
                     if (AphidConfig.Current.ScriptCaching)
                     {
-                        var cache = new AphidByteCodeCache(SearchPaths.ToArray());
-                        cache.InlineScripts = InlineCachedScripts;
-                        cache.DisableConstantFolding = DisableConstantFolding;
+                        var cache = new AphidByteCodeCache(SearchPaths.ToArray())
+                        {
+                            InlineScripts = InlineCachedScripts,
+                            DisableConstantFolding = DisableConstantFolding
+                        };
                         ast = cache.Read(f);
                     }
                     else

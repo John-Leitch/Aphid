@@ -130,9 +130,7 @@ namespace Components.Aphid.Library
         public static void Exit(decimal exitCode) => Environment.Exit((int)exitCode);
 
         [AphidInteropFunction("env.processes")]
-        public static List<AphidObject> GetProcesses()
-        {
-            return Process
+        public static List<AphidObject> GetProcesses() => Process
                 .GetProcesses()
                 .Select(x => AphidObject.Complex(
                     new Dictionary<string, AphidObject>
@@ -141,6 +139,5 @@ namespace Components.Aphid.Library
                         { "name", AphidObject.Scalar(x.ProcessName) }
                     }))
                 .ToList();
-        }
     }
 }

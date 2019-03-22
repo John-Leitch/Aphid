@@ -29,9 +29,7 @@ namespace Components.Aphid.Compiler
 
         public string CodeFile => @"Interpreter\AphidObject.g.cs";
 
-        private static CodeMethodInvokeExpression CreateSetValue(CodeExpression src)
-        {
-            return CodeHelper
+        private static CodeMethodInvokeExpression CreateSetValue(CodeExpression src) => CodeHelper
                 .Arg("property")
                 .GetMethod("SetValue")
                 .Invoke(new CodeExpression[]
@@ -40,33 +38,31 @@ namespace Components.Aphid.Compiler
                     src,
                     CodeHelper.Null()
                 });
-        }
 
         private static CodeConditionStatement CreateSetValueCondition(Type type, CodeExpression src)
         {
             var prop = CodeHelper.Arg("property");
             var propType = prop.GetProperty("PropertyType");
             var setValue = CreateSetValue(src);
-            var condition = new CodeConditionStatement();
-            condition.Condition = new CodeBinaryOperatorExpression(
+            var condition = new CodeConditionStatement
+            {
+                Condition = new CodeBinaryOperatorExpression(
                 propType,
                 CodeBinaryOperatorType.ValueEquality,
-                CodeHelper.TypeOf(type));
+                CodeHelper.TypeOf(type))
+            };
 
             condition.TrueStatements.Add(setValue);
             condition.TrueStatements.Add(CodeHelper.Return(CodeHelper.True()));
             return condition;
         }
 
-        private static CodeConditionStatement CreateNumberSetValueCondition(Type type)
-        {
-            return CreateSetValueCondition(
+        private static CodeConditionStatement CreateNumberSetValueCondition(Type type) => CreateSetValueCondition(
                 type,
                 CodeHelper
                     .TypeRefExp(typeof(Convert))
                     .GetMethod("To" + type.Name)
                     .Invoke(CodeHelper.Arg("srcObj").GetProperty("Value")));
-        }
 
         private static CodeConditionStatement CreateArraySetValueCondition(Type type)
         {
@@ -86,9 +82,11 @@ namespace Components.Aphid.Compiler
 
         private static CodeMemberMethod TrySetProperty(CodeStatement firstCondition)
         {
-            var method = new CodeMemberMethod();
-            method.ReturnType = CodeHelper.TypeRef(typeof(bool));
-            method.Name = "TrySetProperty";
+            var method = new CodeMemberMethod
+            {
+                ReturnType = CodeHelper.TypeRef(typeof(bool)),
+                Name = "TrySetProperty"
+            };
             method.AddParameter(typeof(PropertyInfo), "property");
             method.AddParameter(typeof(object), "destObj");
             method.AddParameter(typeof(AphidObject), "srcObj");

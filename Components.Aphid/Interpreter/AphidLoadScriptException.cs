@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Components.Aphid.Interpreter
 {
+    [Serializable]
     public class AphidLoadScriptException : AphidRuntimeException
     {
         public string ScriptFile { get; set; }

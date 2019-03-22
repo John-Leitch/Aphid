@@ -34,13 +34,10 @@ namespace Components.External.ConsolePlus
             Text = text;
         }
 
-        public ColoredText Clone()
-        {
-            return new ColoredText(
+        public ColoredText Clone() => new ColoredText(
                 ForegroundRgb != null ? (byte[])ForegroundRgb.Clone() : null,
                 BackgroundRgb != null ? (byte[])BackgroundRgb.Clone() : null,
                 Text);
-        }
 
         public override string ToString() =>
             string.Format(
@@ -53,7 +50,7 @@ namespace Components.External.ConsolePlus
                 BackgroundRgb?[0],
                 BackgroundRgb?[1],
                 BackgroundRgb?[2]);
-                
+
 
         public override bool Equals(object obj)
         {

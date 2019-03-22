@@ -8,15 +8,12 @@
         public int time;
         public int dwExtraInfo;
 
-        public override string ToString()
-        {
-            return string.Format(
+        public override string ToString() => string.Format(
                 "vkCode: {0}, scanCode: {1}, flags: {2}, time: {3}, dwExtraInfo: {4}",
                 vkCode,
                 scanCode,
                 flags,
                 time,
                 dwExtraInfo);
-        }
     }
 }

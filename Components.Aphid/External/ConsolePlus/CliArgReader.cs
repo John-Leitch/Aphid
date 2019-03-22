@@ -212,12 +212,9 @@ namespace Components.External.ConsolePlus
         }
 
         public static CliArgAttribute[] GetAllAttributes<TArgs>()
-            where TArgs : new()
-        {
-            return typeof(TArgs)
+            where TArgs : new() => typeof(TArgs)
                 .GetProperties()
                 .Select(x => x.GetCustomAttribute<CliArgAttribute>())
                 .ToArray();
-        }
     }
 }

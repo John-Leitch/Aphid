@@ -82,26 +82,20 @@ namespace Components.Aphid.Compiler
             }
         }
 
-        private void SetModuleBuilder(AssemblyBuilderAccess access)
-        {
-            _moduleBuilder = new Lazy<ModuleBuilder>(
+        private void SetModuleBuilder(AssemblyBuilderAccess access) => _moduleBuilder = new Lazy<ModuleBuilder>(
                 () => (Assembly = AppDomain.CurrentDomain
                     .DefineDynamicAssembly(
                         new AssemblyName(AssemblyName),
                         access))
                     .DefineDynamicModule(AssemblyName));
-        }
 
-        private void SetModuleBuilder(AssemblyBuilderAccess access, string dir)
-        {
-            _moduleBuilder = new Lazy<ModuleBuilder>(
+        private void SetModuleBuilder(AssemblyBuilderAccess access, string dir) => _moduleBuilder = new Lazy<ModuleBuilder>(
                 () => (Assembly = AppDomain.CurrentDomain
                     .DefineDynamicAssembly(
                         new AssemblyName(AssemblyName),
                         access,
                         dir))
                     .DefineDynamicModule(AssemblyName));
-        }
 
         public Type CreateType(ObjectExpression type, HashSet<string> imports)
         {

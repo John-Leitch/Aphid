@@ -44,15 +44,12 @@ namespace Components.Aphid.Parser
 
         private List<AphidExpression> CreateIdentifer(
             CallExpression callExp,
-            IdentifierExpression callIdExp)
-        {
-            return new List<AphidExpression>
+            IdentifierExpression callIdExp) => new List<AphidExpression>
             {
                 new IdentifierExpression(
-                    string.Concat(callExp.Args.Select(ParseArgument)),
+                    string.Concat(callExp.Args.Select(x => ParseArgument(callExp, x))),
                     callIdExp.Attributes)
             };
-        }
 
         private static List<AphidExpression> CreateString(CallExpression callExp)
         {
@@ -97,13 +94,10 @@ namespace Components.Aphid.Parser
                         callExp);
             }
 
-            return new List<AphidExpression>
-            {
-                new StringExpression(string.Format("'{0}'", s))
-            };
+            return new List<AphidExpression> { new StringExpression(string.Format("'{0}'", s)) };
         }
 
-        private string ParseArgument(AphidExpression argument)
+        private string ParseArgument(CallExpression call, AphidExpression argument)
         {
             switch (argument.Type)
             {
@@ -115,9 +109,13 @@ namespace Components.Aphid.Parser
 
                 default:
                     throw new AphidParserException(
-                        "Unexpected {0} in id() directive, expected " +
-                            "IdentifierExpression or StringExpression",
-                        argument.Type);
+                        string.Format(
+                            "Unexpected {0} {1} in id() directive {2}, expected " +
+                                "IdentifierExpression or StringExpression",
+                            argument.Type,
+                            argument,
+                            call),
+                        argument);
             }
         }
     }

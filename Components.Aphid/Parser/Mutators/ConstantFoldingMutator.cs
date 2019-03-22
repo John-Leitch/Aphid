@@ -21,7 +21,7 @@ namespace Components.Aphid.Parser
                 return null;
             }
 
-            var binOp = (BinaryOperatorExpression)expression;            
+            var binOp = (BinaryOperatorExpression)expression;
 
             if (OperandsAre(binOp, AphidExpressionType.StringExpression) &&
                 binOp.Operator == AphidTokenType.AdditionOperator)
@@ -30,10 +30,10 @@ namespace Components.Aphid.Parser
                 var left = GetString(binOp.LeftOperand);
                 var right = GetString(binOp.RightOperand);
 
-                return new List<AphidExpression> 
-                { 
+                return new List<AphidExpression>
+                {
                     new StringExpression(
-                        "'" + left.Substring(1, left.Length - 2).Replace("\\\"", "\"") + 
+                        "'" + left.Substring(1, left.Length - 2).Replace("\\\"", "\"") +
                         right.Substring(1, right.Length - 2).Replace("\\\"", "\"") + "'")
                 };
             }
@@ -47,36 +47,24 @@ namespace Components.Aphid.Parser
                     case AphidTokenType.AdditionOperator:
                         hasChanged = true;
 
-                        return new List<AphidExpression>
-                        {
-                            new NumberExpression(left + right)
-                        };
+                        return new List<AphidExpression> { new NumberExpression(left + right) };
 
                     case AphidTokenType.MinusOperator:
                         hasChanged = true;
 
-                        return new List<AphidExpression>
-                        {
-                            new NumberExpression(left - right)
-                        };
+                        return new List<AphidExpression> { new NumberExpression(left - right) };
 
                     case AphidTokenType.MultiplicationOperator:
                         hasChanged = true;
 
-                        return new List<AphidExpression>
-                        {
-                            new NumberExpression(left * right)
-                        };
+                        return new List<AphidExpression> { new NumberExpression(left * right) };
 
                     case AphidTokenType.DivisionOperator:
                         if (right != 0)
                         {
                             hasChanged = true;
 
-                            return new List<AphidExpression>
-                            {
-                                new NumberExpression(left / right)
-                            };
+                            return new List<AphidExpression> { new NumberExpression(left / right) };
                         }
                         hasChanged = false;
 

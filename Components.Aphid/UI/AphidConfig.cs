@@ -105,10 +105,7 @@ namespace Components.Aphid.UI
                 }
 
                 return ConfigurationManager.OpenMappedExeConfiguration(
-                    new ExeConfigurationFileMap
-                    {
-                        ExeConfigFilename = path
-                    },
+                    new ExeConfigurationFileMap { ExeConfigFilename = path },
                     ConfigurationUserLevel.None);
             //}
             //catch

@@ -21,14 +21,11 @@ namespace Components.Cypress
             writer.Write(table.GetKey(ByteString));
         }
 
-        public static Instruction Deserialize(StringTable table, BinaryReader reader)
+        public static Instruction Deserialize(StringTable table, BinaryReader reader) => new Instruction
         {
-            return new Instruction
-            {
-                Address = reader.ReadUInt32(),
-                Mnemonic = table[reader.ReadInt32()],
-                ByteString = table[reader.ReadInt32()]
-            };
-        }
+            Address = reader.ReadUInt32(),
+            Mnemonic = table[reader.ReadInt32()],
+            ByteString = table[reader.ReadInt32()]
+        };
     }
 }

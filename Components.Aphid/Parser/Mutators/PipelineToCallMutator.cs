@@ -19,10 +19,7 @@ namespace Components.Aphid.Parser
 
             hasChanged = true;
 
-            return new List<AphidExpression> 
-            { 
-                new CallExpression(binOpExp.RightOperand, binOpExp.LeftOperand) 
-            };
+            return new List<AphidExpression> { new CallExpression(binOpExp.RightOperand, binOpExp.LeftOperand) };
         }
     }
 }

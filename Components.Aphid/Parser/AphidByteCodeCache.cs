@@ -66,17 +66,11 @@ namespace Components.Aphid.Parser
 
                 if ((Flags & 0x1) == 0)
                 {
-                    includeMutator = new IncludeMutator
-                    {
-                        PerformCommonTransformations = false
-                    };
+                    includeMutator = new IncludeMutator { PerformCommonTransformations = false };
                 }
                 else
                 {
-                    includeMutator = new IncludeMutator(false)
-                    {
-                        PerformCommonTransformations = false
-                    };
+                    includeMutator = new IncludeMutator(false) { PerformCommonTransformations = false };
                 }
 
                 foreach (var p in _searchPaths)

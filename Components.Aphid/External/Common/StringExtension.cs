@@ -96,13 +96,10 @@ namespace Components
             return -1;
         }
 
-        public static string NormalizeLines(this string s)
-        {
-            return s
+        public static string NormalizeLines(this string s) => s
                 .Replace("\r\n", "\n")
                 .Replace('\r', '\n')
                 .Replace("\n", "\r\n");
-        }
 
         public static string InsertLineNumbers(this string s, int startLine)
         {

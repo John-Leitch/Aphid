@@ -87,13 +87,10 @@ namespace Components.Aphid.Library.Net.Http
             return false;
         }
 
-        public string GetAttributeString()
-        {
-            return string.Join(
+        public string GetAttributeString() => string.Join(
                 "\r\n",
                 FieldDictionary
                     .Select(x => x.Key + ": " + string.Join(",", x.Value)));
-        }
     }
 }
 

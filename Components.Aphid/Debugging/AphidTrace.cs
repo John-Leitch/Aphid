@@ -182,12 +182,9 @@ namespace Components.Aphid.Debugging
 
         private void TraceTextUnsafe(string message) => _writer.Write(message);
 
-        private string GetLockName()
-        {
-            return string.Format(
+        private string GetLockName() => string.Format(
                 "AphidTraceLock.{0}",
                 OutputFile != null ? OutputFile.Replace('\\', '$') : (Name + ":Stream"));
-        }
 
         public void Dispose()
         {

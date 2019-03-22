@@ -24,12 +24,8 @@ namespace Components.External
 
         public static bool IsDerivedFrom<TBaseType>(this Type type) => type.IsDerivedFrom(typeof(TBaseType));
 
-        private static bool ShouldDeconstructTypes(Type type)
-        {
-            return
-                !type.IsConstructedGenericType ||
+        private static bool ShouldDeconstructTypes(Type type) => !type.IsConstructedGenericType ||
                 type.GetGenericArguments().All(x => x.IsGenericParameter);
-        }
 
         private static Type[] GetComparableType(Type sourceType, Type targetType, List<Type> genericArguments)
         {

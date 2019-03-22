@@ -31,15 +31,6 @@ namespace Components.ObjectDatabase
 
         private static T Deserialize(Stream stream) => (T)_formatter.Deserialize(stream);
 
-        public IEnumerable<T> ReadUnsafe(Expression<Func<T, bool>> predicate)
-        {
-            return ReadUnsafe().Where(predicate.Compile());
-            //var key = predicate.ToString();
-
-
-            //var results = ReadUnsafe().Where(predicate.Compile()).ToArray();
-
-            //throw new NotImplementedException();
-        }
+        public IEnumerable<T> ReadUnsafe(Expression<Func<T, bool>> predicate) => ReadUnsafe().Where(predicate.Compile());//var key = predicate.ToString();//var results = ReadUnsafe().Where(predicate.Compile()).ToArray();//throw new NotImplementedException();
     }
 }

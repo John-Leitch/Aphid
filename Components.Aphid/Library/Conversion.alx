@@ -1,8 +1,24 @@
-﻿extend unknown {
-    byte: @(x) Convert.ToByte(x),
-    int: @(x) Convert.ToInt32(x),
-    char: @(x) Convert.ToChar(Convert.ToByte(x)),
-}
+﻿_c = macro(@(n, f) { _c2(n, '', '', f)  });
+_c2 = macro(@(n, pref1, pref2, type) { _cInner(id(pref1, n), id(To, pref2, type)) });
+_cInner = macro(@(n, f) { extend unknown { n: @(x) Convert.f(x) } });
+
+_cu = macro(@(n, f3) {
+    _c(n, f3);
+    _c2(n, u, U, f3);    
+});
+
+_c(byte, Byte);
+_c(sbyte, SByte);
+_cu(short, Int16);
+_cu(int, Int32);
+_cu(long, Int64);
+_cu(long, Int64);
+_c(float, Single);
+_c(double, Double);
+
+extend unknown { char: @(x) Convert.ToChar(Convert.ToByte(x)), }
 
 var strToHex = @(x) x.chars().map(hexb).addAll();
 var urlEnc = @(x) x.chars().map(@(y) '%' + hexb(y)).addAll();
+
+//aphidupdatescripts.cmd & aphid64 * #'std'; this.dir('\\$ext\\.unknown'); ['uint', 'ulong', 'long']-^>@()0xdeadbeef.{$_}() @()print('{0} 0x{0:x8} {1}', $_, $_.GetType().Name)

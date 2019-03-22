@@ -7,9 +7,7 @@ namespace Components.Aphid.UI
 {
     public class AphidScanner : IScanner
     {
-        public IEnumerable<ScannerToken> Tokenize(string text)
-        {
-            return AphidLexer
+        public IEnumerable<ScannerToken> Tokenize(string text) => AphidLexer
                 .GetTokens(text)
                 .Select(x => new ScannerToken(
                     x.TokenType == AphidTokenType.Identifier ? ScannerTokenType.Identifier :
@@ -17,6 +15,5 @@ namespace Components.Aphid.UI
                     ScannerTokenType.Other,
                     x.Index,
                     x.Lexeme));
-        }
     }
 }

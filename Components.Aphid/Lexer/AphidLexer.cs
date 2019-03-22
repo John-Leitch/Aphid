@@ -23,8 +23,7 @@ namespace Components.Aphid.Lexer
 
         public static AphidToken GetToken(string text, int offset)
         {
-            var lexer = new AphidLexer(text);
-            lexer.charIndex = offset - 1;
+            var lexer = new AphidLexer(text) { charIndex = offset - 1 };
             var type = lexer.GetToken();
             var index = lexer.lastIndex + 1;
             var lexeme = text.Substring(index, lexer.charIndex - lexer.lastIndex);
@@ -36,8 +35,7 @@ namespace Components.Aphid.Lexer
 
         public static AphidTokenType GetTokenType(string text, int offset)
         {
-            var lexer = new AphidLexer(text);
-            lexer.charIndex = offset - 1;
+            var lexer = new AphidLexer(text) { charIndex = offset - 1 };
 
             return lexer.GetToken();
         }

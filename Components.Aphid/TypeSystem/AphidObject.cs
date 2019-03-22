@@ -509,7 +509,21 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public bool IsDefined(string key) => TryResolve(key, out var v);
+        public bool IsDefined(string key)
+        {
+            if (ContainsKey(key))
+            {
+                return true;
+            }
+            else if (Parent != null)
+            {
+                return Parent.IsDefined(key);
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public bool ResolveBool(string key) =>
             TryResolve(key, out var value) &&

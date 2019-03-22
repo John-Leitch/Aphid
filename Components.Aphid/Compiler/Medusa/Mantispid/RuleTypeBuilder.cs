@@ -31,14 +31,11 @@ namespace Mantispid
             _resolver = new RuleStructResolver(_ruleTypes = ruleTypes);
         }
 
-        public CodeTypeDeclarationCollection CreateRuleTypeClasses()
-        {
-            return new CodeTypeDeclarationCollection(
+        public CodeTypeDeclarationCollection CreateRuleTypeClasses() => new CodeTypeDeclarationCollection(
                 _ruleTypes
                     .Select(CreateCodeType)
-                    .Concat(new [] { CreateHelperType(), CreateParserContextType() })
+                    .Concat(new[] { CreateHelperType(), CreateParserContextType() })
                     .ToArray());
-        }
 
         private CodeTypeDeclaration CreateHelperType()
         {
@@ -80,10 +77,7 @@ namespace Mantispid
                             TypeRef(_baseTypeName),
                             0))
                     },
-                    new CodeStatement[]
-                    {
-                        Return(VarRef(argName))
-                    }));
+                    new CodeStatement[] { Return(VarRef(argName)) }));
 
             type.Members.Add(method);
 
@@ -103,10 +97,7 @@ namespace Mantispid
 
             if (publicCtor.Parameters.Count != 0)
             {
-                decl.Members.Add(new CodeConstructor
-                {
-                    Attributes = MemberAttributes.Private
-                });
+                decl.Members.Add(new CodeConstructor { Attributes = MemberAttributes.Private });
             }
 
             AddGetChildrenMethod(rule, decl);
@@ -193,10 +184,7 @@ namespace Mantispid
         {
             var fieldName = GetFieldName(name);
 
-            var field = new CodeMemberField(type, fieldName)
-            {
-                Attributes = MemberAttributes.Private
-            };
+            var field = new CodeMemberField(type, fieldName) { Attributes = MemberAttributes.Private };
 
             var prop = new CodeMemberProperty
             {
@@ -225,15 +213,9 @@ namespace Mantispid
             return new CodeTypeMember[] { field, prop };
         }
 
-        private static CodeMemberField[] CreateFields(CodeMemberProperty[] properties)
-        {
-            return properties
-                .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name))
-                {
-                    Attributes = MemberAttributes.Private
-                })
+        private static CodeMemberField[] CreateFields(CodeMemberProperty[] properties) => properties
+                .Select(x => new CodeMemberField(x.Type, GetFieldName(x.Name)) { Attributes = MemberAttributes.Private })
                 .ToArray();
-        }
 
         private CodeConstructor CreateConstructor(
             RuleStruct rule,

@@ -101,7 +101,7 @@ namespace Components
 
         public static K As<T, K>(this T obj, Func<T, K> func) => func(obj);
 
-        public static TResult Then<T, TResult>(this T obj, Func<T, TResult> func) => func(obj);        
+        public static TResult Then<T, TResult>(this T obj, Func<T, TResult> func) => func(obj);
 
         public static void Then(this Action first, Action action)
         {
@@ -144,5 +144,58 @@ namespace Components
             Func<TInput, bool> condition,
             Func<TInput, TResult> ifResult) =>
             new IfContext<TInput, TResult>(input, condition, ifResult);
+
+        public static void Using<TDisposable>(this TDisposable obj, Action action)
+            where TDisposable : IDisposable
+        {
+            using (obj)
+            {
+                action();
+            }
+        }
+
+        public static void Using<TDisposable>(this TDisposable obj, Action<TDisposable> action)
+            where TDisposable : IDisposable
+        {
+            using (obj)
+            {
+                action(obj);
+            }
+        }
+
+        public static void Using<TSource, TDisposable>(
+            this TSource obj,
+            Func<TSource, TDisposable> selector,
+            Action<TSource> action)
+            where TDisposable : IDisposable
+        {
+            using (selector(obj))
+            {
+                action(obj);
+            }
+        }
+
+        public static TResult Using<TDisposable, TResult>(
+            this TDisposable obj,
+            Func<TDisposable, TResult> func)
+            where TDisposable : IDisposable
+        {
+            using (obj)
+            {
+                return func(obj);
+            }
+        }
+
+        public static TResult Using<TSource, TDisposable, TResult>(
+            this TSource obj,
+            Func<TSource, TDisposable> selector,
+            Func<TSource, TResult> func)
+            where TDisposable : IDisposable
+        {
+            using (selector(obj))
+            {
+                return func(obj);
+            }
+        }
     }
 }

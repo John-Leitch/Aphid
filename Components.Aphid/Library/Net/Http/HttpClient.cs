@@ -256,7 +256,7 @@ namespace Components.Aphid.Library.Net.Http
             return resp;
         }
 
-        public HttpResponse Read() => Read(new MemoryStream());
+        public HttpResponse Read() => new MemoryStream().Using(Read);
 
         public static HttpClient Connect(string host, int port)
         {

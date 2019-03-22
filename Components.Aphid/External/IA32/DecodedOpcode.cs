@@ -12,17 +12,14 @@
 
         public OpcodeSize Size { get; set; }
 
-        public static DecodedOpcode Decode(byte opcode)
+        public static DecodedOpcode Decode(byte opcode) => new DecodedOpcode
         {
-            return new DecodedOpcode
-            {
-                Opcode = (Opcode)opcode,
-                OriginalByte = opcode,
-                DecodedByte = (byte)(opcode & ~3),
-                Direction = (OpcodeDirection)((opcode >> 1) & 1),
-                Size = (OpcodeSize)(opcode & 1)
-            };
-        }
+            Opcode = (Opcode)opcode,
+            OriginalByte = opcode,
+            DecodedByte = (byte)(opcode & ~3),
+            Direction = (OpcodeDirection)((opcode >> 1) & 1),
+            Size = (OpcodeSize)(opcode & 1)
+        };
 
         public override string ToString() => Opcode.ToString();
     }

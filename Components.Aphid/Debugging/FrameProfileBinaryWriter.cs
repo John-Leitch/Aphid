@@ -22,8 +22,10 @@ namespace Components.Aphid.Debugging
         {
             TraceFile = traceFile;
             NameFile = TraceFile + ".names";
+#pragma warning disable CA2000 // Call dispose before reference leaves scope
             _frameWriter = new BinaryWriter(File.Create(traceFile));
             _nameWriter = new BinaryWriter(File.Create(NameFile));
+#pragma warning restore CA2000 // Call dispose before reference leaves scope
         }
 
         public FrameProfileBinaryWriter(Guid traceGuid)

@@ -54,10 +54,7 @@
 
         public string BuildAbsoluteUrl(string host) => "http://" + host + BuildRelativeUrl();
 
-        public string CreateHeader(string host)
-        {
-            return Method + " " + BuildRelativeUrl() + " HTTP/" + Version + "\r\n" +
+        public string CreateHeader(string host) => Method + " " + BuildRelativeUrl() + " HTTP/" + Version + "\r\n" +
                 GetAttributeString() + "\r\n\r\n";
-        }
     }
 }

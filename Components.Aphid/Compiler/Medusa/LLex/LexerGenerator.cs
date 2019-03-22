@@ -55,8 +55,7 @@ namespace LLex
 
             foreach (var group in groups)
             {
-                var groupState = new LexerState();
-                groupState.State = group.Key;
+                var groupState = new LexerState { State = group.Key };
                 var returnTokens = group.Where(x => x.Lexeme.Length - 1 == groupIndex).ToArray();
 
                 if (returnTokens.Length > 1)

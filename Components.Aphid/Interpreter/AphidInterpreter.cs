@@ -196,7 +196,9 @@ namespace Components.Aphid.Interpreter
                     _scopeTrace.Trace("Set scope begin");
                 }
 #endif
+#pragma warning disable IDE0027 // Use expression body for accessors
                 _currentScope = value;
+#pragma warning restore IDE0027 // Use expression body for accessors
 #if TRACE_SCOPE
                 if (_scopeTrace != null)
                 {
@@ -1435,12 +1437,12 @@ namespace Components.Aphid.Interpreter
 
                         var members = GetInteropInstanceMembers(aphidObj.Value, key);
 
-//#if CHECKED
+                        //#if CHECKED
                         if (members.Length > 1)
                         {
                             throw CreateInternalException($"More than one interop instance member {key}");
                         }
-//#endif
+                        //#endif
 
                         for (var i = 0; i < members.Length; i++)
                         {
@@ -1976,7 +1978,7 @@ namespace Components.Aphid.Interpreter
                 case CompositionOperator:
                     return InterpretFunctionComposition(expression);
 
-#region Custom Operator Cases
+                #region Custom Operator Cases
                 case CustomOperator000:
                 case CustomOperator001:
                 case CustomOperator002:
@@ -2297,7 +2299,7 @@ namespace Components.Aphid.Interpreter
                 case CustomOperator317:
                 case CustomOperator318:
                 case CustomOperator319:
-#endregion
+                    #endregion
                     return InterpretCustomBinaryOperator(expression);
 
                 default:
@@ -4026,7 +4028,7 @@ namespace Components.Aphid.Interpreter
                                 throw new NotImplementedException();
                         }
 
-#region Custom Operator Cases
+                    #region Custom Operator Cases
                     case CustomOperator000:
                     case CustomOperator001:
                     case CustomOperator002:
@@ -4347,7 +4349,7 @@ namespace Components.Aphid.Interpreter
                     case CustomOperator317:
                     case CustomOperator318:
                     case CustomOperator319:
-#endregion
+                        #endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:
@@ -4374,9 +4376,15 @@ namespace Components.Aphid.Interpreter
                         switch (expression.Operand.Type)
                         {
                             case Exp.IdentifierExpression:
-                                return Scalar(
-                                    CurrentScope.IsDefined(
-                                        ((IdentifierExpression)expression.Operand).Identifier));
+                                if (CurrentScope.IsDefined(((IdentifierExpression)expression.Operand).Identifier))
+                                {
+                                    return InternedTrue;
+                                }
+                                else
+                                {
+                                    return InternedFalse;
+                                }
+
 
                             case Exp.BinaryOperatorExpression:
                                 try
@@ -4386,13 +4394,31 @@ namespace Components.Aphid.Interpreter
                                             (BinaryOperatorExpression)expression.Operand,
                                             returnRef: true));
 
-                                    var memberRef = memberRefObj as AphidRef;
+                                    switch (memberRefObj)
+                                    {
+                                        case AphidRef memberRef:
+                                            var o = memberRef.Object;
 
-                                    return Scalar(
-                                        (memberRef != null &&
-                                            (!memberRef.Object.IsComplexitySet || memberRef.Object.IsComplex) &&
-                                            memberRef.Object.IsDefined(memberRef.Name)) ||
-                                        memberRefObj is AphidInteropReference);
+                                            if (o.IsComplex && o.IsDefined(memberRef.Name))
+                                            {
+                                                return InternedTrue;
+                                            }
+                                            else
+                                            {
+                                                return InternedFalse;
+                                            }
+
+                                        default:
+                                            if (memberRefObj is AphidInteropReference)
+                                            {
+                                                return InternedTrue;
+                                            }
+                                            else
+                                            {
+                                                return InternedFalse;
+                                            }
+
+                                    }
                                 }
                                 catch
                                 {
@@ -4409,29 +4435,40 @@ namespace Components.Aphid.Interpreter
 
                                 var keyObj = InterpretExpression(arrayExp.KeyExpressions[0]).Value;
 
-                                if (keyObj == null || !(keyObj is string key))
+                                if (keyObj is string key)
+                                {
+                                    var aphidObj = InterpretExpression(arrayExp.ArrayExpression);
+
+                                    if (aphidObj.IsScalar)
+                                    {
+                                        if (aphidObj.Value != null &&
+                                            aphidObj.Value.GetType().GetMember(key).Length != 0)
+                                        {
+                                            return InternedTrue;
+                                        }
+                                        else
+                                        {
+                                            return InternedFalse;
+                                        }
+                                    }
+                                    else if (aphidObj.ContainsKey(key))
+                                    {
+                                        return InternedTrue;
+                                    }
+
+                                    return InternedFalse;
+                                }
+                                //Todo: support numbers
+                                else
                                 {
                                     throw CreateRuntimeException(
                                         "Expected string for object key, encountered {0}.",
                                         keyObj != null ? keyObj.GetType().FullName : "null");
                                 }
 
-                                var targetObj = InterpretExpression(arrayExp.ArrayExpression);
-                                AphidObject aphidObj;
 
-                                if ((aphidObj = targetObj as AphidObject) != null)
-                                {
-                                    if (aphidObj.IsScalar)
-                                    {
-                                        return Scalar(
-                                            aphidObj.Value != null &&
-                                            aphidObj.Value.GetType().GetMember(key).Length != 0);
-                                    }
 
-                                    return Scalar(aphidObj.ContainsKey(key));
-                                }
 
-                                throw new NotImplementedException();
 
                             default:
                                 throw CreateRuntimeException("Unknown ? operand");

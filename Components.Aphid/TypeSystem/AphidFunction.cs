@@ -37,18 +37,12 @@ namespace Components.Aphid.TypeSystem
 
         public AphidFunction Clone() => new AphidFunction(Args, Body, ParentScope);
 
-        public IEnumerator<AphidExpression> GetEnumerator()
-        {
-            return Body != null ?
+        public IEnumerator<AphidExpression> GetEnumerator() => Body != null ?
                 Body.GetEnumerator() :
                 ((IEnumerable<AphidExpression>)new AphidExpression[0]).GetEnumerator();
-        }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return Body != null ?
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => Body != null ?
                 ((System.Collections.IEnumerable)Body).GetEnumerator() :
                 new AphidExpression[0].GetEnumerator();
-        }
     }
 }

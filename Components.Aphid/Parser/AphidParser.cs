@@ -109,10 +109,7 @@ namespace Components.Aphid.Parser
                 return new List<AphidExpression>();
             }
 
-            var parser = new AphidParser(tokens)
-            {
-                UseImplicitReturns = useImplicitReturns
-            };
+            var parser = new AphidParser(tokens) { UseImplicitReturns = useImplicitReturns };
 
             List<AphidExpression> ast;
 

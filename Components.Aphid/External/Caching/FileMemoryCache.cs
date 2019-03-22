@@ -98,11 +98,8 @@ namespace Components.Aphid
         private static CrossProcessLock CreateLock(string filename) =>
             new CrossProcessLock($"FileCache_{CacheName.Sanitize(filename)}");
 
-        private static void SetHiddenFlag(string filename)
-        {
-            File.SetAttributes(
+        private static void SetHiddenFlag(string filename) => File.SetAttributes(
                 filename,
                 File.GetAttributes(filename) | FileAttributes.Hidden);
-        }
     }
 }

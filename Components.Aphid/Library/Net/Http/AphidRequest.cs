@@ -36,17 +36,14 @@ namespace Components.Aphid.Library.Net.Http
             Host = "localhost";
         }
 
-        public HttpRequest ToHttpRequest()
+        public HttpRequest ToHttpRequest() => new HttpRequest
         {
-            return new HttpRequest
-            {
-                Path = Path,
-                Method = Method,
-                QueryString = QueryString,
-                PostValues = PostValues,
-                Uploads = Files
-            };
-        }
+            Path = Path,
+            Method = Method,
+            QueryString = QueryString,
+            PostValues = PostValues,
+            Uploads = Files
+        };
 
         private static FieldValuePair[] GetPairs(AphidObject source, string property)
         {

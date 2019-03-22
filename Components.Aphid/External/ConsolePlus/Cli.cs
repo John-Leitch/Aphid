@@ -358,15 +358,12 @@ namespace Components.External.ConsolePlus
             Write(hrTop + hrMiddle + hrBottom);
         }
 
-        public static void WriteSubheader(string text, string style = DefaultHeaderStyle)
-        {
-            WriteLine(
+        public static void WriteSubheader(string text, string style = DefaultHeaderStyle) => WriteLine(
                 "{0}  {1}{2}{3}",
                 style,
                 Escape(text),
                 new string(' ', BufferWidth - text.Length - 3),
                 "~R~");
-        }
 
 #if UNSAFE_CONSOLE
         private unsafe static void WriteCore(string format, bool newLine, params object[] arg)
@@ -714,57 +711,39 @@ namespace Components.External.ConsolePlus
             }
         }
 
-        public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg)
-        {
-            WriteLine(
+        public static void WriteMessage(ConsoleColor tokenColor, char token, string format, params object[] arg) => WriteLine(
                 string.Format(_messageFormat, tokenColor, token, format),
                 arg);
-        }
 
-        public static void WriteInfoMessage(string format, params object[] arg)
-        {
-            WriteMessage(
+        public static void WriteInfoMessage(string format, params object[] arg) => WriteMessage(
                 ConsoleColor.White,
                 InfoChar,
                 format,
                 arg);
-        }
 
-        public static void WriteQueryMessage(string format, params object[] arg)
-        {
-            WriteMessage(
+        public static void WriteQueryMessage(string format, params object[] arg) => WriteMessage(
                 ConsoleColor.White,
                 QueryChar,
                 format,
                 arg);
-        }
 
-        public static void WriteSuccessMessage(string format, params object[] arg)
-        {
-            WriteMessage(
+        public static void WriteSuccessMessage(string format, params object[] arg) => WriteMessage(
                 ConsoleColor.Green,
                 SuccessChar,
                 format,
                 arg);
-        }
 
-        public static void WriteErrorMessage(string format, params object[] arg)
-        {
-            WriteMessage(
+        public static void WriteErrorMessage(string format, params object[] arg) => WriteMessage(
                 ConsoleColor.Red,
                 ErrorChar,
                 format,
                 arg);
-        }
 
-        public static void WriteCriticalErrorMessage(string format, params object[] arg)
-        {
-            WriteMessage(
+        public static void WriteCriticalErrorMessage(string format, params object[] arg) => WriteMessage(
                 ConsoleColor.Red,
                 FatalErrorChar,
                 format,
                 arg);
-        }
 
         public static void Clear()
         {

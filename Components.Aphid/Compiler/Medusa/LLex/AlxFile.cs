@@ -69,8 +69,7 @@ namespace LLex
         {
             var llexFile = new LLexFile();
             retVal.Bind(llexFile);
-            var tokenTable = new TokenTable();
-            tokenTable.Ignore = llexFile.Ignore;
+            var tokenTable = new TokenTable { Ignore = llexFile.Ignore };
             var nameInfo = LLexNameInfo.Parse(llexFile.Name);
 
             var z = 0;

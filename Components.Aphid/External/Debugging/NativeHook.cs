@@ -33,7 +33,6 @@ namespace Components.Cypress
             var trampolineAddr = heap.Allocate((uint)objectCode.Length);
             var jmpToTrampoline = CreateJmpRel32((uint)funcAddr, (uint)trampolineAddr);
             var originalCode = memory.ReadBytes(funcAddr, 0x100);
-            var bytes = originalCode.Select(x => string.Format("{0:X2}", x)).Join(" ");
             var dasm = IA32Disassembler.Disassemble(originalCode);
 
             var matches = dasm

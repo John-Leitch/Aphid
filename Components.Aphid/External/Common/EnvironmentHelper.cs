@@ -9,13 +9,10 @@ namespace Components
             _amd64 = "amd64",
             _x86 = "x86";
 
-        public static string GetArgString()
-        {
-            return Environment
+        public static string GetArgString() => Environment
                 .GetCommandLineArgs()
                 .Select(x => !x.Any(char.IsWhiteSpace) ? x : "\"" + x + "\"")
                 .Join(" ");
-        }
 
         public static string GetArchitecture() =>
             Environment.GetEnvironmentVariable(architectureVariable);

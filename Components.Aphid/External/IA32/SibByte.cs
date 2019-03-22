@@ -8,14 +8,11 @@
 
         public byte Base { get; set; }
 
-        public static SibByte Decode(byte sib)
+        public static SibByte Decode(byte sib) => new SibByte
         {
-            return new SibByte
-            {
-                Scale = (byte)(sib >> 6),
-                Index = (byte)((sib >> 3) & 7),
-                Base = (byte)(sib & 7)
-            };
-        }
+            Scale = (byte)(sib >> 6),
+            Index = (byte)((sib >> 3) & 7),
+            Base = (byte)(sib & 7)
+        };
     }
 }

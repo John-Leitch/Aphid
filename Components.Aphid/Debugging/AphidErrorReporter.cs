@@ -114,41 +114,41 @@ namespace Components.Aphid.Debugging
 
                 //ThreadPool.QueueUserWorkItem(x =>
                 //{
-                    ignoreTids[1] = Thread.CurrentThread.ManagedThreadId;
+                ignoreTids[1] = Thread.CurrentThread.ManagedThreadId;
 
-                    var p = Process.GetCurrentProcess();
+                var p = Process.GetCurrentProcess();
 
-                    while (true)
+                while (true)
+                {
+                    Thread.Sleep(1000);
+
+                    WriteQueryMessage(
+                        "[Threads~Cyan~{0:x4}~R~] Checking for other exception reporting threads",
+                        tid);
+
+                    if (HasSaveThreads(p, ignoreTids))
                     {
-                        Thread.Sleep(1000);
-
-                        WriteQueryMessage(
-                            "[Threads~Cyan~{0:x4}~R~] Checking for other exception reporting threads",
+                        WriteMessage(
+                            ConsoleColor.Yellow,
+                            '!',
+                            "[Thread ~Cyan~{0:x4}~R~] Found other threads",
                             tid);
 
-                        if (HasSaveThreads(p, ignoreTids))
-                        {
-                            WriteMessage(
-                                ConsoleColor.Yellow,
-                                '!',
-                                "[Thread ~Cyan~{0:x4}~R~] Found other threads",
-                                tid);
-
-                            Thread.Sleep(1000);
-                            p.Refresh();
-                        }
-                        else
-                        {
-                            WriteQueryMessage(
-                                "[Threads~Cyan~{0:x4}~R~] No error reports found, exiting",
-                                tid);
-
-                            break;
-                        }
+                        Thread.Sleep(1000);
+                        p.Refresh();
                     }
-                    //..GetFrames()->@()$_.GetMethod().ToString()
+                    else
+                    {
+                        WriteQueryMessage(
+                            "[Threads~Cyan~{0:x4}~R~] No error reports found, exiting",
+                            tid);
 
-                    Environment.Exit(0xbad02);
+                        break;
+                    }
+                }
+                //..GetFrames()->@()$_.GetMethod().ToString()
+
+                Environment.Exit(0xbad02);
                 //});
 
             }
@@ -387,8 +387,7 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        private static void DebugTry(StreamWriter writer, Action action)
-        {
+        private static void DebugTry(StreamWriter writer, Action action) =>
             DebugTry(() =>
             {
                 try
@@ -400,6 +399,5 @@ namespace Components.Aphid.Debugging
                     writer.WriteLine("Error logging value: {0}", e);
                 }
             });
-        }
     }
 }

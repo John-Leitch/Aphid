@@ -68,12 +68,9 @@ namespace Components.Aphid.Library.Net
             _webRoot = webRoot;
         }
 
-        private static string GetDefaultWebRoot()
-        {
-            return Path.Combine(
+        private static string GetDefaultWebRoot() => Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "WebRoot");
-        }
 
         public void Start()
         {

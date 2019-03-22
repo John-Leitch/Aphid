@@ -12,13 +12,6 @@ namespace Aphid
 {
     internal static class Program
     {
-        private static readonly AphidEvaluator _evaluator = new AphidEvaluator();
-
-        private static void DisplayDirections()
-        {
-            Console.WriteLine("aphid [Script]");
-            Environment.Exit(0);
-        }
 
         private static void Main(string[] args)
         {

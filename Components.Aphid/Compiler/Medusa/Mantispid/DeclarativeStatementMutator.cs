@@ -67,10 +67,7 @@ namespace Mantispid
             {
                 hasChanged = true;
 
-                return new List<AphidExpression>
-                {
-                    new CallExpression(new IdentifierExpression(id.Identifier))
-                };
+                return new List<AphidExpression> { new CallExpression(new IdentifierExpression(id.Identifier)) };
             }
 
             return null;

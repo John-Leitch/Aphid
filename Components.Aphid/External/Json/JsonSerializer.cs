@@ -17,13 +17,11 @@ namespace Components.Json
                     .LoadWithPartialName("System.Web.Extensions")
                     .GetType("System.Web.Script.Serialization.JavaScriptSerializer")));
 
-        private static dynamic _serializer => _lazySerializer.Value;        
+        private static dynamic _serializer => _lazySerializer.Value;
 #pragma warning restore CS0618 // Type or member is obsolete)
 #else
         private static readonly JavaScriptSerializer _serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
 #endif
-
-        private static readonly JsonFormatter _formatter = new JsonFormatter { ConvertToHex = false };
 
         public static T Deserialize<T>(string json) => _serializer.Deserialize<T>(json);
 

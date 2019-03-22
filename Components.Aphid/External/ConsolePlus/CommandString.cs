@@ -6,11 +6,8 @@ namespace Components.External.ConsolePlus
     {
         public static string Create(string[] parts) => string.Join(" ", parts.Select(Escape));
 
-        private static string Escape(string part)
-        {
-            return part.Contains(' ') || part.Contains('\t') || part.Contains('"') ?
+        private static string Escape(string part) => part.Contains(' ') || part.Contains('\t') || part.Contains('"') ?
                 string.Format("\"{0}\"", part.Replace("\"", "\"\"")) :
                 part;
-        }
     }
 }

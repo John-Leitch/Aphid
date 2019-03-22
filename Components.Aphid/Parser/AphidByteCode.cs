@@ -19,10 +19,7 @@ namespace Components.Aphid.Parser
 
         private static BinaryFormatter CreateFormatter() =>
             _useBoundSerializer ?
-                new BinaryFormatter(null, CreateContext())
-                {
-                    Binder = new AphidExpressionBinder()
-                } :
+                new BinaryFormatter(null, CreateContext()) { Binder = new AphidExpressionBinder() } :
                 new BinaryFormatter(null, CreateContext());
 
         private static StreamingContext CreateContext() =>
@@ -40,10 +37,7 @@ namespace Components.Aphid.Parser
             }
         }
 
-        public static void Encode(Stream stream, List<AphidExpression> ast)
-        {
-            CreateFormatter().Serialize(stream, ast);
-        }
+        public static void Encode(Stream stream, List<AphidExpression> ast) => CreateFormatter().Serialize(stream, ast);
 
         public static List<AphidExpression> Decode(byte[] bytecode)
         {

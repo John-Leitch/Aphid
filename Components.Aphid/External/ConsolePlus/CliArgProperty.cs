@@ -15,9 +15,7 @@ namespace Components.External.ConsolePlus
             Attribute = attribute;
         }
 
-        public static CliArgProperty[] GetAll<TArgs>()
-        {
-            return typeof(TArgs)
+        public static CliArgProperty[] GetAll<TArgs>() => typeof(TArgs)
                 .GetProperties()
                 .Select(x => new CliArgProperty(
                     x,
@@ -26,6 +24,5 @@ namespace Components.External.ConsolePlus
                         .SingleOrDefault()))
                 .Where(x => x.Attribute != null)
                 .ToArray();
-        }
     }
 }

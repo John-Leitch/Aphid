@@ -45,16 +45,13 @@ namespace Mantispid
 
         private void LeaveChildScope() => _scope = _scope.Parent;
 
-        private static BinaryOperatorExpression[] GetRules(List<AphidExpression> nodes)
-        {
-            return nodes
+        private static BinaryOperatorExpression[] GetRules(List<AphidExpression> nodes) => nodes
                 .Where(x => x.Type == AphidExpressionType.BinaryOperatorExpression)
                 .Cast<BinaryOperatorExpression>()
                 .Where(x =>
                     x.LeftOperand.Type == AphidExpressionType.IdentifierExpression &&
                     x.RightOperand.Type == AphidExpressionType.FunctionExpression)
                 .ToArray();
-        }
 
         public string Generate(List<AphidExpression> nodes, string code)
         {
@@ -104,10 +101,7 @@ namespace Mantispid
             ns.Types.Add(enumDecl);
             ns.Types.AddRange(typeClasses);
 
-            var parserType = new CodeTypeDeclaration(_config.ParserClass)
-            {
-                IsPartial = true
-            };
+            var parserType = new CodeTypeDeclaration(_config.ParserClass) { IsPartial = true };
 
             parserType.Members.Add(GenerateContextField());
             parserType.Members.AddRange(nodes.Select(Generate).Where(x => x != null).ToArray());
@@ -192,16 +186,13 @@ namespace Mantispid
             return lexerCode;
         }
 
-        private void ParseDirectives(List<AphidExpression> nodes)
-        {
-            _config = new ParserGeneratorConfig(
+        private void ParseDirectives(List<AphidExpression> nodes) => _config = new ParserGeneratorConfig(
                 ParseDirective(nodes, ParserGeneratorDirective.TokenAttribute),
                 ParseDirective(nodes, ParserGeneratorDirective.BaseAttribute),
                 ParseDirective(nodes, ParserGeneratorDirective.NodeAttribute),
                 ParseDirectiveArray(nodes, ParserGeneratorDirective.NamespaceAttribute),
                 ParseDirective(nodes, ParserGeneratorDirective.ParserAttribute),
                 ParseBooleanDirective(nodes, ParserGeneratorDirective.MutableAttribute));
-        }
 
         private static string ParseDirective(List<AphidExpression> nodes, string directive)
         {
@@ -336,33 +327,22 @@ namespace Mantispid
 
         private static CodeMethodInvokeExpression GetNextToken() => CodeHelper.Invoke("NextToken");
 
-        private static string[] GetRuleNames(List<AphidExpression> nodes)
-        {
-            return nodes
+        private static string[] GetRuleNames(List<AphidExpression> nodes) => nodes
                 .OfType<BinaryOperatorExpression>()
                 .Where(x =>
                     x.Operator == AphidTokenType.AssignmentOperator &&
                     x.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
                 .Select(x => ((IdentifierExpression)x.LeftOperand).Identifier)
                 .ToArray();
-        }
 
-        private ReferenceType ResolveType(string typeName)
-        {
-            return _ruleNames.Contains(typeName) ? ReferenceType.RuleDeclaration :
+        private ReferenceType ResolveType(string typeName) => _ruleNames.Contains(typeName) ? ReferenceType.RuleDeclaration :
                 _ruleTypes.ContainsKey(typeName) ? ReferenceType.RuleClass :
                 ReferenceType.TokenType;
-        }
 
-        private CodeMemberField GenerateContextField()
-        {
-            return new CodeMemberField(
+        private CodeMemberField GenerateContextField() => new CodeMemberField(
                 CodeHelper.TypeRef(_config.ExpressionContextClass),
                 ParserName.ContextField)
-            {
-                Attributes = MemberAttributes.Private
-            };
-        }
+        { Attributes = MemberAttributes.Private };
 
         private CodeMemberMethod Generate(AphidExpression node)
         {
@@ -462,21 +442,15 @@ namespace Mantispid
             return attrs;
         }
 
-        private CodeStatement GenerateContextInitialization()
-        {
-            return new CodeConditionStatement(
+        private CodeStatement GenerateContextInitialization() => new CodeConditionStatement(
                 CodeHelper.Eq(
                     CodeHelper.FieldRef(ParserName.ContextField),
                     CodeHelper.Null()),
-                new [] { GenerateContextAssign() });
-        }
+                new[] { GenerateContextAssign() });
 
-        private CodeStatement GenerateContextAssign()
-        {
-            return CodeHelper.Assign(
+        private CodeStatement GenerateContextAssign() => CodeHelper.Assign(
                 ParserName.ContextField,
                 CodeHelper.New(CodeHelper.TypeRef(_config.ExpressionContextClass)));
-        }
 
         private CodeStatementCollection GenerateImperativeStatement(AphidExpression node)
         {
@@ -572,10 +546,7 @@ namespace Mantispid
                             });
 
                         default:
-                            return new CodeStatementCollection(new[]
-                            {
-                                new CodeExpressionStatement(GenerateImperativeExpression(node))
-                            });
+                            return new CodeStatementCollection(new[] { new CodeExpressionStatement(GenerateImperativeExpression(node)) });
                     }
 
                 default:
@@ -598,13 +569,7 @@ namespace Mantispid
             }
         }
 
-        private CodeStatementCollection GenerateImperativeRetStatement(UnaryOperatorExpression node)
-        {
-            return new CodeStatementCollection(new[]
-            {
-                CodeHelper.Return(GenerateImperativeExpression(node.Operand))
-            });
-        }
+        private CodeStatementCollection GenerateImperativeRetStatement(UnaryOperatorExpression node) => new CodeStatementCollection(new[] { CodeHelper.Return(GenerateImperativeExpression(node.Operand)) });
 
         private CodeStatementCollection GenerateImperativeStatement(BinaryOperatorExpression node)
         {
@@ -649,10 +614,7 @@ namespace Mantispid
                 {
                     _scope.Add(id, AphidObject.Complex());
 
-                    return new CodeStatementCollection(new[]
-                    {
-                        CodeHelper.VarDecl(id, GenerateImperativeExpression(node.RightOperand))
-                    });
+                    return new CodeStatementCollection(new[] { CodeHelper.VarDecl(id, GenerateImperativeExpression(node.RightOperand)) });
                 }
             }
 
@@ -757,10 +719,7 @@ namespace Mantispid
                     CodeHelper.False()),
                 new CodeSnippetStatement("break;")));
 
-            return new CodeStatementCollection(new[]
-            {
-                CodeHelper.While(CodeHelper.True(), body.OfType<CodeStatement>().ToArray())
-            });
+            return new CodeStatementCollection(new[] { CodeHelper.While(CodeHelper.True(), body.OfType<CodeStatement>().ToArray()) });
         }
 
         private static CodeStatementCollection GenerateImperativeStatement(BreakExpression node) =>
@@ -977,12 +936,9 @@ namespace Mantispid
             }
         }
 
-        private CodeExpression GenerateImperativeExpression(ArrayAccessExpression node)
-        {
-            return new CodeArrayIndexerExpression(
+        private CodeExpression GenerateImperativeExpression(ArrayAccessExpression node) => new CodeArrayIndexerExpression(
                 GenerateImperativeExpression(node.ArrayExpression),
                 node.KeyExpressions.Select(x => GenerateImperativeExpression(x)).ToArray());
-        }
 
         private static CodeExpression GenerateImperativeExpression(NumberExpression node) =>
             new CodePrimitiveExpression((int)node.Value);

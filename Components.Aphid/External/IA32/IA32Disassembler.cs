@@ -13,10 +13,7 @@ namespace Components.Cypress.IA32
             for (var i = 0; i < bytes.Length; i++)
             {
                 var size = 1;
-                var decodedInstruction = new DecodedInstruction
-                {
-                    Opcode = DecodedOpcode.Decode(bytes[i])
-                };
+                var decodedInstruction = new DecodedInstruction { Opcode = DecodedOpcode.Decode(bytes[i]) };
 
                 if (decodedInstruction.Opcode.Opcode == Opcode.Mov)
                 {

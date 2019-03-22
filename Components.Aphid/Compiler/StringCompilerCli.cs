@@ -141,12 +141,9 @@ namespace Components.Aphid.Compiler
             return new[] { fullname };
         }
 
-        private string GetOutFilename(string filename)
-        {
-            return Path.Combine(
+        private string GetOutFilename(string filename) => Path.Combine(
                 _args.Length == 1 ? Path.GetDirectoryName(filename) : _args[1],
                 Path.GetFileNameWithoutExtension(filename) + "." + _extension);
-        }
 
         private List<AphidExpression> ParseCode(string filename)
         {

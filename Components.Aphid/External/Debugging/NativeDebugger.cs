@@ -505,10 +505,7 @@ namespace Components.Cypress
             _debugThread = Thread.CurrentThread;
             var pi = new PROCESS_INFORMATION();
 
-            var si = new STARTUPINFO
-            {
-                cb = Marshal.SizeOf(typeof(STARTUPINFO))
-            };
+            var si = new STARTUPINFO { cb = Marshal.SizeOf(typeof(STARTUPINFO)) };
 
             var creationFlags = ProcessCreationFlags.DEBUG_PROCESS;
 
