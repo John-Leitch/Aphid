@@ -6287,5 +6287,11 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void TakeOwnership() =>
             OwnerThread = Thread.CurrentThread.ManagedThreadId;
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidInterpreter CreateChild() => AphidThread.CreateChild(this);
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidInterpreter CreateChild(bool createChildScope) => AphidThread.CreateChild(this, createChildScope);
     }
 }

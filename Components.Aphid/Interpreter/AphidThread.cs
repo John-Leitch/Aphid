@@ -6,12 +6,15 @@ namespace Components.Aphid.Interpreter
     {
         internal static class AphidThread
         {
-            public static AphidInterpreter CreateChild(AphidInterpreter parent)
+            public static AphidInterpreter CreateChild(AphidInterpreter parent) =>
+                CreateChild(parent, true);
+
+            public static AphidInterpreter CreateChild(AphidInterpreter parent, bool createChildScope)
             {
-                var childScope = parent.CurrentScope.CreateChild();
+                var scope = createChildScope ? parent.CurrentScope.CreateChild() : parent.CurrentScope;
 
                 var child = new AphidInterpreter(
-                    childScope,
+                    scope,
                     createLoader: false,
                     frames: new Stack<AphidFrame>(parent.GetRawStackTraceReversed()))
                 {

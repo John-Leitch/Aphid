@@ -3,6 +3,8 @@ using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
+using Components.Aphid.UI;
+using Components.Aphid.UI.Formatters;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -811,6 +813,7 @@ namespace VSCodeDebug
                         SendEvent(new ThreadEvent("started", _threadId));
 
                         var backup = Interpreter.SetIsInTryCatchFinally(true);
+                        Interpreter.CurrentScope.Add(AphidName.Script, AphidObject.Scalar(_script));
 
                         try
                         {
@@ -843,9 +846,8 @@ namespace VSCodeDebug
 
         public override void Evaluate(Response response, dynamic arguments)
         {
-            var expression = getString(arguments, "expression");
-
-            var exp = AphidParser.ParseExpression(expression.ToString());
+            var expStr = (string)getString(arguments, "expression");            
+            var exp = AphidParser.ParseExpression(expStr);
 
             var retExp =
                 exp.Type != AphidExpressionType.UnaryOperatorExpression ||
@@ -857,21 +859,41 @@ namespace VSCodeDebug
                         .WithPositionFrom(exp) :
                     exp;
 
-            var value = (AphidObject)new AphidInterpreter(Interpreter.CurrentScope).Interpret(exp);
+            AphidObject value = null;
+
+            try
+            {
+                value = Interpreter.CreateChild(createChildScope: false).Interpret(exp);
+            }
+            catch (Exception e)
+            {
+                SendErrorResponse(response, 3014, ErrorFormatter.FormatByType(e, expStr));
+            }
+
+            if (value == null)
+            {
+                return;
+            }
+                
+            var v = CreateVariable(new KeyValuePair<string, AphidObject>(expStr, value));
+            SendResponse(response, new EvaluateResponseBody(v.value, v.variablesReference));
             
-            if (false)
-            {
-                SendErrorResponse(response, 3014, "Evaluate request failed, invalid expression");
-            }
-            else
-            {
-                var handle = _variableHandles.Create(value.ToArray());
-                SendResponse(
-                    response,
-                    new EvaluateResponseBody(
-                        new AphidSerializer(Interpreter).Serialize(value),
-                        handle));
-            }
+            
+            //var value = (AphidObject)new AphidInterpreter(Interpreter.CurrentScope).Interpret(exp);
+            
+            //if (false)
+            //{
+            //    SendErrorResponse(response, 3014, "Evaluate request failed, invalid expression");
+            //}
+            //else
+            //{
+            //    var handle = _variableHandles.Create(value.ToArray());
+            //    SendResponse(
+            //        response,
+            //        new EvaluateResponseBody(
+            //            new AphidSerializer(Interpreter).Serialize(value),
+            //            handle));
+            //}
         }
 
         private void Stopped()

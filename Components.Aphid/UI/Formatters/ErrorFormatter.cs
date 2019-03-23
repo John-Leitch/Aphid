@@ -8,6 +8,24 @@ namespace Components.Aphid.UI.Formatters
 {
     public static class ErrorFormatter
     {
+        public static string FormatByType(Exception exception, string code)
+        {
+            switch (exception)
+            {
+                case AphidLoadScriptException lse:
+                    return Format(lse, code);
+
+                case AphidRuntimeException re:
+                    return Format(re);
+
+                case AphidParserException pe:
+                    return Format(pe, code);
+
+                default:
+                    return Format(exception);
+            }
+        }
+
         public static string Format(AphidParserException exception, string code) =>
             $"Unhandled parser exception: {ParserErrorMessage.Create(code, exception, true)}";
 
