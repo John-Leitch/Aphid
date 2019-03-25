@@ -4,7 +4,7 @@ using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library
 {
-    [AphidLibraryAttribute("dbg.breakpoint")]
+    [AphidLibrary("dbg.breakpoint")]
     public static class DebugLibrary
     {
         [AphidInteropFunction("dbg.breakpoint")]

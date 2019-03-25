@@ -5,7 +5,7 @@ using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library.Net
 {
-    [AphidLibraryAttribute("tcp")]
+    [AphidLibrary("tcp")]
     public static class TcpLibrary
     {
         private static readonly Dictionary<NetworkStream, TcpClient> _clients = new Dictionary<NetworkStream, TcpClient>();

@@ -7,7 +7,7 @@ using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library.Net
 {
-    [AphidLibraryAttribute("udp")]
+    [AphidLibrary("udp")]
     public static class UdpLibrary
     {
         private static readonly List<UdpClient> _clients = new List<UdpClient>();

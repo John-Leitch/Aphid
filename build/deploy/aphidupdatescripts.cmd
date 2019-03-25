@@ -4,7 +4,7 @@ REM set a=/E /Y /D /F /H /L
 set a=/E /Y /D /F /H
 
 set hr=call aphid64 *#'std';subhead('%%msg%%');
-
+set hr=
 set msg=Updating Application Scripts
 %hr%
 

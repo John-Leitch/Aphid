@@ -27,6 +27,6 @@ namespace Components.Cypress
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _values.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
     }
 }

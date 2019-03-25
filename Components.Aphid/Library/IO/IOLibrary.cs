@@ -7,7 +7,7 @@ using Components.Aphid.TypeSystem;
 
 namespace Components.Aphid.Library
 {
-    [AphidLibraryAttribute("io")]
+    [AphidLibrary("io")]
     public static class IOLibrary
     {
         [AphidInteropFunction("io.file.read")]

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using System.Web.Script.Serialization;
+//using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace Components.ObjectDatabase
@@ -11,7 +11,8 @@ namespace Components.ObjectDatabase
         [NonSerialized]
         private long _offset;
 
-        [IgnoreDataMember, XmlIgnore, ScriptIgnore]
+        //[IgnoreDataMember, XmlIgnore, ScriptIgnore]
+        [IgnoreDataMember, XmlIgnore]
         public long Offset
         {
             get => _offset;
@@ -21,7 +22,8 @@ namespace Components.ObjectDatabase
         [NonSerialized]
         private string _filename;
 
-        [IgnoreDataMember, XmlIgnore, ScriptIgnore]
+        //[IgnoreDataMember, XmlIgnore, ScriptIgnore]
+        [IgnoreDataMember, XmlIgnore]
         public string Filename
         {
             get => _filename;
@@ -31,7 +33,8 @@ namespace Components.ObjectDatabase
         [NonSerialized]
         private IDatabaseContext _context;
 
-        [IgnoreDataMember, XmlIgnore, ScriptIgnore]
+        //[IgnoreDataMember, XmlIgnore, ScriptIgnore]
+        [IgnoreDataMember, XmlIgnore]
         public IDatabaseContext Context
         {
             get => _context;

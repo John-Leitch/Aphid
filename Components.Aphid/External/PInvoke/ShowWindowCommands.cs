@@ -36,7 +36,7 @@ namespace Components.PInvoke
         SW_MAXIMIZE = 3,
 
         /// <summary>
-        ///        Displays a window in its most recent size and position. This value is similar to <see cref="ShowWindowCommands.SW_SHOWNORMAL"/>, except the window is not activated.
+        ///        Displays a window in its most recent size and position. This value is similar to <see cref="SW_SHOWNORMAL"/>, except the window is not activated.
         /// </summary>
         SW_SHOWNOACTIVATE = 4,
 
@@ -51,12 +51,12 @@ namespace Components.PInvoke
         SW_MINIMIZE = 6,
 
         /// <summary>
-        ///        Displays the window as a minimized window. This value is similar to <see cref="ShowWindowCommands.SW_SHOWMINIMIZED"/>, except the window is not activated.
+        ///        Displays the window as a minimized window. This value is similar to <see cref="SW_SHOWMINIMIZED"/>, except the window is not activated.
         /// </summary>
         SW_SHOWMINNOACTIVE = 7,
 
         /// <summary>
-        ///        Displays the window in its current size and position. This value is similar to <see cref="ShowWindowCommands.SW_SHOW"/>, except the window is not activated.
+        ///        Displays the window in its current size and position. This value is similar to <see cref="SW_SHOW"/>, except the window is not activated.
         /// </summary>
         SW_SHOWNA = 8,
 

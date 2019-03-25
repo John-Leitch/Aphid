@@ -3,7 +3,9 @@
 using System;
 using System.IO;
 using System.Reflection;
+#if EAGER_JSON
 using System.Web.Script.Serialization;
+#endif
 
 namespace Components.Json
 {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Web.Script.Serialization;
 
 namespace Components.Aphid.TypeSystem
 {
@@ -12,7 +11,8 @@ namespace Components.Aphid.TypeSystem
         [NonSerialized]
         private AphidObject _parentScope;
 
-        [ScriptIgnore, IgnoreDataMember]
+        //[ScriptIgnore, IgnoreDataMember]
+        [IgnoreDataMember]
         public AphidObject ParentScope
         {
             get => _parentScope;

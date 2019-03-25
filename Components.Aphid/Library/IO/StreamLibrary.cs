@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Components.Aphid.Library
 {
-    [AphidLibraryAttribute("stream")]
+    [AphidLibrary("stream")]
     public static class StreamLibrary
     {
         [AphidInteropFunction("__stream.write", PassInterpreter = true)]

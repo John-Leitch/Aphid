@@ -50,7 +50,7 @@ namespace Components.Cypress
 
         public IEnumerator<string> GetEnumerator() => _values.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_values).GetEnumerator();
 
         public void Serialize(BinaryWriter writer)
         {

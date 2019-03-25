@@ -409,7 +409,7 @@ namespace Mantispid
             var methodAttrs = ParseMethodAttributes(funcId);
             var typeRef = CodeHelper.TypeRef(methodAttrs.Type);
 
-            var method = new System.CodeDom.CodeMemberMethod
+            var method = new CodeMemberMethod
             {
                 Name = funcId.Identifier,
                 ReturnType = methodAttrs.IsList ? ParserCode.GetListTypeRef(typeRef) : typeRef
