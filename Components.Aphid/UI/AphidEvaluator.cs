@@ -1,4 +1,7 @@
-﻿using System;
+﻿#define APHID_FRAME_ADD_DATA
+#define APHID_FRAME_CATCH_POP
+
+using System;
 using System.Linq;
 using System.Threading;
 using Components.Aphid.Debugging;
@@ -33,7 +36,39 @@ namespace Components.Aphid.UI
                 try
                 {
                     backup = interpreter.SetIsInTryCatchFinally(true);
-                    interpreter.Interpret(code, isTextDocument);
+
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+                    try
+                    {
+#endif
+                        interpreter.Interpret(code, isTextDocument);
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+                    }
+#endif
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+#if APHID_FRAME_ADD_DATA
+                    catch (Exception e)
+#else
+                    catch
+#endif
+                    {
+                        if (e.Source != AphidName.DebugInterpreter)
+                        {
+                            e.Source = AphidName.DebugInterpreter;
+
+#if APHID_FRAME_CATCH_POP
+                            interpreter.PopQueuedFrames();
+#endif
+
+#if APHID_FRAME_ADD_DATA
+                            e.Data.Add(AphidName.Interpreter, interpreter);
+                            e.Data.Add(AphidName.FramesKey, interpreter.GetRawStackTrace());
+#endif
+                        }
+
+                        throw;
+                    }
+#endif
                 }
                 catch (ThreadAbortException exception)
                 {

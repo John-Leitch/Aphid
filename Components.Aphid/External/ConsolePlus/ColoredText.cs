@@ -40,16 +40,19 @@ namespace Components.External.ConsolePlus
                 Text);
 
         public override string ToString() =>
-            string.Format(
-                "\"{0}\" Fg: {1:x2}{2:x2}{3:x2}" +
-                    (BackgroundRgb != null ? " Bg: {4:x2}{5:x2}{6:x2}" : ""),
-                Text?.Replace("\"", "\\\""),
-                ForegroundRgb[0],
-                ForegroundRgb[1],
-                ForegroundRgb[2],
-                BackgroundRgb?[0],
-                BackgroundRgb?[1],
-                BackgroundRgb?[2]);
+            
+                string.Format(
+                    (ForegroundRgb != null ? 
+                        "\"{0}\" Fg: {1:x2}{2:x2}{3:x2}" :
+                        "\"{0}\"") +
+                        (BackgroundRgb != null ? " Bg: {4:x2}{5:x2}{6:x2}" : ""),
+                    Text?.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\"", "\\\""),
+                    ForegroundRgb?[0],
+                    ForegroundRgb?[1],
+                    ForegroundRgb?[2],
+                    BackgroundRgb?[0],
+                    BackgroundRgb?[1],
+                    BackgroundRgb?[2]);
 
 
         public override bool Equals(object obj)

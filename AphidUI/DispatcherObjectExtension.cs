@@ -40,6 +40,9 @@ namespace AphidUI
         public static Task Run(this DO @do, Action action, params object[] args) =>
             @do.BeginInvoke(action, args).Task;
 
+        public static Task Run<TArg>(this DO @do, Action<TArg> action, TArg arg0) =>
+            @do.Dispatcher.BeginInvoke(action, new object[] { arg0 }).Task;
+
         public static void Invoke(this DO @do, Action action) =>
             @do.Dispatcher.Invoke(action, Empty<object>());
 

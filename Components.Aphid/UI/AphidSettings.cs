@@ -16,6 +16,7 @@
             ShowErrorFileList = "showErrorFileList",
             FrameExcerptsMax = "frameExcerptsMax",
             FrameExcerptLines = "frameExcerptLines",
+            ShowClrStack = "showClrStack",
             ScriptCaching = "scriptCaching",
             IgnoreDebugger = "ignoreDbg";
     }

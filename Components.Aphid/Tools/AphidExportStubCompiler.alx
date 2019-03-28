@@ -6,11 +6,7 @@ using Components.Aphid.UI;
 // disable, comment line out.
 var ignorePattern = '\\bin\\';
 
-var args = parseArgsFor([
-    'aphidexportstubcompiler.exe',
-    'aphidexportstubcompiler.alx',
-    'aphidexportstubcompiler'
-]);
+var args = parseArgsFor();
 
 if (args.Count == 0) {
     print('aphid AphidExportStubCompiler.alx [namespace] [project dir] [output dir]');

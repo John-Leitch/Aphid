@@ -5,6 +5,9 @@ namespace Components.Aphid.Parser
 {
     public static partial class ParserErrorMessage
     {
+        public static string Create(string code, AphidParserException exception) =>
+            Create(code, exception, true);
+
         public static string Create(string code, AphidParserException exception, bool highlight)
         {
             var actualCode = exception.Filename != null && File.Exists(exception.Filename) ?

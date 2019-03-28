@@ -407,7 +407,7 @@ namespace Components.Aphid.UI
 
             var types = _loader
                 .GetAssemblies()
-                .SelectMany(x => x.GetTypes())
+                .SelectMany(x => x.TryGetTypes() ?? Array.Empty<Type>())
                 .Where(x => imports
                     .Any(y =>
                         x.FullName.StartsWith(y) &&
@@ -434,7 +434,7 @@ namespace Components.Aphid.UI
         private IEnumerable<Autocomplete> CreateNamespaceAutocomplete(string match = null) =>
             _loader
                 .GetAssemblies()
-                .SelectMany(x => x.GetTypes())
+                .SelectMany(x => x.TryGetTypes() ?? Array.Empty<Type>())
                 .Select(x => new
                 {
                     Namespace = x.FullName.Contains('.') ?

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -39,6 +40,20 @@ namespace Components
 
             return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 .AddSeconds(reader.ReadInt32());
+        }
+
+        public static Type[] TryGetTypes(this Assembly asm)
+        {
+            try
+            {
+                return asm.GetTypes();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+
+                return null;
+            }
         }
     }
 }

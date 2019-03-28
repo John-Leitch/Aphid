@@ -92,6 +92,18 @@ namespace AphidUI
                     SetValue(CodeProperty, ViewModel.Code);
                 };
             };
+
+
+            
+            Dispatcher.Invoke(() =>
+            {
+                ViewModel.Code = "#'std'";
+                ViewModel.Execute(ExecutionCallback);
+            });
+            ViewModel.Code = "@{ var foo = @{1/0}; var bar = {f:foo}; var t1 = @()bar.f(123); var o = {t1}; var t2=@o.t1(10);t2() }()";
+            Dispatcher.Invoke(() => ViewModel.Execute(ExecutionCallback));
+            ViewModel.Code = "0..70";
+            Dispatcher.BeginInvoke(() => ViewModel.Execute(ExecutionCallback));
         }
 
         private void ExecutionCallback() => ExecutionCompleted?.Invoke(this, EventArgs.Empty);

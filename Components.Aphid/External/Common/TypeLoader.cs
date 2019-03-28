@@ -2,6 +2,7 @@
 using Components.External;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -54,7 +55,7 @@ namespace Components
 
         private IEnumerable<Type> GetAllTypesCore(HashSet<string> imports) =>
             GetAssemblies()
-                .SelectMany(x => x.GetTypes())
+                .SelectMany(x => x.TryGetTypes() ?? Array.Empty<Type>())
                 .Where(x => imports
                     .Any(y =>
                         x.FullName.StartsWith(y) &&

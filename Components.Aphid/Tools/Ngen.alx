@@ -12,7 +12,7 @@ using Components;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-var args = parseArgsFor([ 'ngen.exe', 'ngen.alx', 'ngen' ]);
+var args = parseArgsFor();
 
 if (args.Count == 0) {
     print('ngen [binary path]');

@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-var args = parseArgsFor([ 'aphiddoc.exe', 'aphiddoc.alx', 'aphiddoc' ]);
+var args = parseArgsFor();
 
 if (args.Count == 0) {
     print('AphidDoc [source dir] [xml output file]');

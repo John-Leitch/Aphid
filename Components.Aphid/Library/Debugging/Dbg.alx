@@ -446,4 +446,10 @@ extend unknown {
             |> SyntaxHighlightingFormatter.Format
             |> Console.WriteLine;
     },
+
+    interfaces: @(o) {
+        var obj = {};
+        o.GetType().GetInterfaces()->@{ obj[$_.FullName] = $_.GetMembers() };
+        obj | dump;
+    }
 }

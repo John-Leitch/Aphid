@@ -233,17 +233,55 @@ namespace Components.Aphid.Serialization
             {
                 if (list.Count > 0)
                 {
+
                     s.Append("[\r\n");
 
-                    foreach (var x in list)
+                    if (MaxElements < 0)
                     {
-                        s.Append(new string(' ', (indent + 1) * 4));
-                        //ObjToString(x, s, indent + 1);
-                        Serialize(s, x, indent + 1);
-                        s.Append(",\r\n");
+
+                        foreach (var x in list)
+                        {
+                            s.Append(new string(' ', (indent + 1) * 4));
+                            //ObjToString(x, s, indent + 1);
+                            Serialize(s, x, indent + 1);
+                            s.Append(",\r\n");
+                        }
+
+                    }
+                    else
+                    {
+                        var h = MaxElements / 2f;
+                        int first = (int)Math.Ceiling(h), last = (int)Math.Floor(h);
+                        var count = list.Count;
+                        var skip = Math.Max(0, count - first - last);
+
+                        foreach (var x in list.Take(first))
+                        {
+                            s.Append(new string(' ', (indent + 1) * 4));
+                            //ObjToString(x, s, indent + 1);
+                            Serialize(s, x, indent + 1);
+                            s.Append(",\r\n");
+                        }
+
+                        if (skip != 0)
+                        {
+                            s.AppendFormat(
+                                "{0}/* Skipped {1:n0} elements */\r\n",
+                                new string(' ', (indent + 1) * 4),
+                                skip);
+                        }
+
+                        foreach (var x in list.Skip(first + skip))
+                        {
+                            s.Append(new string(' ', (indent + 1) * 4));
+                            //ObjToString(x, s, indent + 1);
+                            Serialize(s, x, indent + 1);
+                            s.Append(",\r\n");
+                        }
                     }
 
                     s.AppendFormat("{0}]", new string(' ', indent * 4));
+
                 }
                 else
                 {
@@ -339,11 +377,15 @@ namespace Components.Aphid.Serialization
                 {
                     if (++i > first)
                     {
-                        skipped++;
+                        
 
                         if (head.Count < last)
                         {
                             head.Add(x);
+                        }
+                        else
+                        {
+                            skipped++;
                         }
 
                         if (tail.Count == last)
@@ -376,12 +418,24 @@ namespace Components.Aphid.Serialization
                         s.Append(",\r\n");
                     }
 
-                    s.AppendFormat(
-                        "{0}/* Skipped {1:n0} elements */\r\n",
-                        new string(' ', (indent + 1) * 4),
-                        skipped);
+                    //if (head.Count + tail.Count > MaxElements)
+                    {
+                        s.AppendFormat(
+                            "{0}/* Skipped {1:n0} elements */\r\n",
+                            new string(' ', (indent + 1) * 4),
+                            skipped);
+                    }
 
                     foreach (var x in tail)
+                    {
+                        s.Append(new string(' ', (indent + 1) * 4));
+                        SerializeValue(s, x, indent + 1);
+                        s.Append(",\r\n");
+                    }
+                }
+                else
+                {
+                    foreach (var x in head)
                     {
                         s.Append(new string(' ', (indent + 1) * 4));
                         SerializeValue(s, x, indent + 1);

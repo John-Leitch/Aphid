@@ -47,6 +47,10 @@ echo Starting Ngen
 pushd .
 cd %dst%
 for /f %%f in ('dir aphid*.exe /b') do %dst%\ngen.exe %cd%\%%f
+::for /f %%i in ('dir /s c:\source\Aphid\Components.Aphid.*Test*.dll /b') do c:\tools\aphid\Ngen.exe %%i
+for /f %%i in ('dir /s c:\source\Aphid\*bin /b') do for /f %%a in ('dir %%i\*.dll /s /b') do ngen %%a
+pushd .
+for /f %%i in ('dir /s c:\source\Aphid\*bin /b') do for /f %%a in ('dir %i\*.dll /s /b') do cd %%~dpa & ngen %a
 echo Done > %done%
 popd
 ::pause

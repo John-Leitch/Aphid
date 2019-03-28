@@ -1,4 +1,4 @@
-::@echo off
+@echo off
 call core\init.cmd
 set a=/m /p:BuildInParallel=true /r
 
@@ -23,4 +23,4 @@ echo ================================================================
 echo Error building Aphid!
 echo ================================================================
 :EXIT
-::@echo on
+@echo on

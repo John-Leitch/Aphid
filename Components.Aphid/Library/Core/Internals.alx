@@ -6,38 +6,66 @@ var aphid = _aphid();
 var aphidLocal = new ThreadLocal[AphidInterpreter](@() _aphid());
 var getBlock = @() this.{'$parent'}.{'$block'};
 
+// var aphidExeNames = ;
+
 var parseArgsFor = @{
     var q = getArgQueue();
     
-    $args->q.matchPath;
-
+    $args
+    @Enumerable.Concat(this.{'$script'} defined ?
+        [ ['.alx', '.exe', '' ]
+            ->@(e) this.{'$script'}
+            |> Path.GetFileNameWithoutExtension
+            @()format('{0}{1}', $_, e).ToLower() ] :
+        [])
+    @Enumerable.Concat([
+            [
+                '',
+                '32',
+                '64',
+                '.debug',
+                '32.debug',
+                '64.debug',
+                '.binarytrace',
+                '.binarytrace32',
+                '.binarytrace64',
+                'ui',
+                '-debug'
+            ]
+            ->@format('aphid{0}')
+            -<(@() [ $_, $_ + 'portable' ])
+            -<(@() [ $_, $_ + '.exe' ])
+        ])
+    
+    ->@{
+        // $_ @print('Checking for Aphid binaryies: {0}');
+        $_ | q.matchPath;
+    };
+    
     ret q.args;
 };
 
-//(Directory.GetFiles('..\\..\\..\\', 'aphid*.exe', SearchOption.AllDirectories)-<@(f)[Path.GetFileName, Path.GetFileNameWithoutExtension]->@()$_(f).ToLower())!?->@String.Format("'{0}'") @String.Join(',') |> Console.WriteLine
 var getArgQueue = @{
     var args = new Queue[ArgToken](Environment.CommandLine |> ArgLexer.GetTokenInfo);
     
     var v = @() args.Count > 0 ? args.Peek().Value : null;
     var matchPath = @{
         var argPath = (@() v().ToLower() |> Path.GetFileName) ?| null;
+        // { args: $args, argPath  }| dump;
         
         if ($args =? @(p) p =? @== argPath) {
+            // head('Matched');
+            // args | dump;
             args.Dequeue();
-
+            // args | dump;
+            // head('End matched');
+            
             ret true;
         } else {
             ret false;
         }
     };
-    
-    matchPath([
-        'aphid.exe','aphid','aphid64.exe','aphid64','aphid.debug.exe',
-        'aphid.debug','aphid32.debug.exe','aphid32.debug','aphid32.exe',
-        'aphid32','aphid.binarytrace.exe','aphid.binarytrace','aphid.binarytrace32.exe',
-        'aphid.binarytrace32','aphid.binarytrace64.exe','aphid.binarytrace64',
-        'aphid64.debug.exe','aphid64.debug','aphidui.exe','aphidui','aphid-debug.exe',
-        'aphid-debug']);
 
+    
     ret { args, matchPath };
 };

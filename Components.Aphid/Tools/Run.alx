@@ -11,7 +11,7 @@ using Components;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-var args = parseArgsFor([ 'run.exe', 'run.alx', 'run' ]);
+var args = parseArgsFor();
 
 if(var isAdmin = (?|args.Peek ?.Value) == '-admin') {
     args.Dequeue();

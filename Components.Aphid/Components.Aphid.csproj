@@ -352,11 +352,14 @@
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
     <Compile Include="UI\AphidSettings.cs" />
+    <Compile Include="UI\Colors\DefaultAphidColorTheme.cs" />
     <Compile Include="UI\Colors\ColoredTextExtension.cs" />
     <Compile Include="UI\Colors\ColoredTextInverter.cs" />
     <Compile Include="UI\Colors\ColoredTextSaturator.cs" />
+    <Compile Include="UI\Colors\IAphidColorTheme.cs" />
     <Compile Include="UI\Formatters\CodeMarker.cs" />
     <Compile Include="UI\Formatters\ErrorFormatter.cs" />
+    <Compile Include="UI\Formatters\ErrorHighlightingFormatter.cs" />
     <Compile Include="UI\Formatters\ExcerptFormatter.cs" />
     <Compile Include="UI\Formatters\FrameFormatter.cs" />
     <Compile Include="UI\Formatters\LineNumberFormatter.cs" />
@@ -365,6 +368,7 @@
     <Compile Include="UI\Formatters\SerializingFormatter.cs" />
     <Compile Include="UI\Formatters\SourcePositionFormatter.cs" />
     <Compile Include="UI\Formatters\SyntaxHighlightingFormatter.cs" />
+    <Compile Include="External\Common\MutableLazy.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\AddTokenTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\CaseTemplate.cs" />
     <Resource Include="Compiler\Medusa\LLex\Resources\LexicalAnalyzerTemplate.cs" />

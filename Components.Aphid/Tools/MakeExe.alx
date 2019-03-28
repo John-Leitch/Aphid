@@ -17,9 +17,7 @@ _ab = macro(@(flag) {
 });
 
 var args = 
-    parseArgsFor(
-        [ 'run.exe', 'run.alx', 'run' ], 
-        [ 'makeexe.exe', 'makeexe.alx', 'makeexe' ])
+    parseArgsFor()
     -.Value
     @() new List[Object]($_);
 

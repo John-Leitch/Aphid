@@ -3,9 +3,9 @@ using System.Configuration;
 using System.Linq;
 using AS = Components.Aphid.UI.AphidSettings;
 using static System.IO.Path;
-using LB = System.Lazy<bool>;
-using LI = System.Lazy<int>;
-using LA = System.Lazy<string[]>;
+using LB = Components.MutableLazy<bool>;
+using LI = Components.MutableLazy<int>;
+using LA = Components.MutableLazy<string[]>;
 
 namespace Components.Aphid.UI
 {
@@ -19,7 +19,7 @@ namespace Components.Aphid.UI
 
         private static readonly Lazy<Configuration> _config = new Lazy<Configuration>(LoadConfig);
 
-        private readonly LB
+        private LB
             _strictMode = GetBool(AS.StrictMode, true),
             _saveErrors = GetBool(AS.SaveErrors, false),
             _stackTraceParams = GetBool(AS.StackTraceParams, false),
@@ -28,33 +28,33 @@ namespace Components.Aphid.UI
             _showErrorFrameExcerpts = GetBool(AS.ShowErrorFrameExcerpts, true),
             _showErrorScope = GetBool(AS.ShowErrorScope, false),
             _showErrorFileList = GetBool(AS.ShowErrorFileList, false),
+            _showClrStack = GetBool(AS.ShowClrStack, false),
             _scriptCaching = GetBool(AS.ScriptCaching, false),
             _ignoreDebugger = GetBool(AS.IgnoreDebugger, false);
 
-        private readonly LI
+        private LI
             _stackTraceParamsMax = GetInt32(AS.StackTraceParamsMax, 100),
             _frameExcerptsMax = GetInt32(AS.FrameExcerptsMax, 4),
             _frameExcerptLines = GetInt32(AS.FrameExcerptLines, 12);
 
-        private readonly LA _imports = GetArray(AS.AutoImport, Array.Empty<string>());
-        private readonly LA _includes = GetArray(AS.AutoInclude, Array.Empty<string>());
+        private LA _imports = GetArray(AS.AutoImport, Array.Empty<string>());
+        private LA _includes = GetArray(AS.AutoInclude, Array.Empty<string>());
 
-        public string[] Imports => _imports.Value;
-        public bool StrictMode => _strictMode.Value;
-        public bool SaveErrors => _saveErrors.Value;
-        public bool StackTraceParams => _stackTraceParams.Value;
-        public int StackTraceParamsMax => _stackTraceParamsMax.Value;
-        public bool ShowErrorExpression => _showErrorExpression.Value;
-        public bool ShowErrorStatement => _showErrorStatement.Value;
-        public bool ShowErrorFrameExcerpts => _showErrorFrameExcerpts.Value;
-        public int FrameExcerptsMax => _frameExcerptsMax.Value;
-        public int FrameExcerptLines => _frameExcerptLines.Value;
-        public bool ShowErrorScope => _showErrorScope.Value;
-        public bool ShowErrorFileList => _showErrorFileList.Value;
-        public bool ScriptCaching => _scriptCaching.Value;
-        public bool IgnoreDebugger => _ignoreDebugger.Value;
-        public bool ExceptionHandlingDisabled { get; set; }
-        public bool ExceptionHandlingClrStack { get; set; }
+        public string[] Imports { get => _imports.Value; set => _imports = value; }
+        public bool StrictMode { get => _strictMode.Value; set => _strictMode = value; }
+        public bool SaveErrors { get => _saveErrors.Value; set => _saveErrors = value; }
+        public bool StackTraceParams { get => _stackTraceParams.Value; set => _stackTraceParams = value; }
+        public int StackTraceParamsMax { get => _stackTraceParamsMax.Value; set => _stackTraceParamsMax = value; }
+        public bool ShowErrorExpression { get => _showErrorExpression.Value; set => _showErrorExpression = value; }
+        public bool ShowErrorStatement { get => _showErrorStatement.Value; set => _showErrorStatement = value; }
+        public bool ShowErrorFrameExcerpts { get => _showErrorFrameExcerpts.Value; set => _showErrorFrameExcerpts = value; }
+        public int FrameExcerptsMax { get => _frameExcerptsMax.Value; set => _frameExcerptsMax = value; }
+        public int FrameExcerptLines { get => _frameExcerptLines.Value; set => _frameExcerptLines = value; }
+        public bool ShowErrorScope { get => _showErrorScope.Value; set => _showErrorScope = value; }
+        public bool ShowErrorFileList { get => _showErrorFileList.Value; set => _showErrorFileList = value; }
+        public bool ScriptCaching { get => _scriptCaching.Value; set => _scriptCaching = value; }
+        public bool IgnoreDebugger { get => _ignoreDebugger.Value; set => _ignoreDebugger = value; }
+        public bool ExceptionHandlingClrStack { get => _showClrStack.Value; set => _showClrStack = value; }
         public bool ReplShowHelpArgWarning { get; set; }
         public bool ReplJit { get; set; }
         public bool ReplLoggingInput { get; set; }
@@ -92,21 +92,21 @@ namespace Components.Aphid.UI
         {
             //try
             //{
-                var l = typeof(AphidConfig).Assembly.Location;
-                string path;
+            var l = typeof(AphidConfig).Assembly.Location;
+            string path;
 
-                if (l != null)
-                {
-                    path = Combine(GetDirectoryName(l), FileName);
-                }
-                else
-                {
-                    path = FileName;
-                }
+            if (l != null)
+            {
+                path = Combine(GetDirectoryName(l), FileName);
+            }
+            else
+            {
+                path = FileName;
+            }
 
-                return ConfigurationManager.OpenMappedExeConfiguration(
-                    new ExeConfigurationFileMap { ExeConfigFilename = path },
-                    ConfigurationUserLevel.None);
+            return ConfigurationManager.OpenMappedExeConfiguration(
+                new ExeConfigurationFileMap { ExeConfigFilename = path },
+                ConfigurationUserLevel.None);
             //}
             //catch
             //{

@@ -1,4 +1,7 @@
-﻿using Components.Aphid.Interpreter;
+﻿#define APHID_FRAME_ADD_DATA
+#define APHID_FRAME_CATCH_POP
+
+using Components.Aphid.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +22,8 @@ namespace Components.Aphid.UI
         private const string _messageFormat = "[~{0}~{1}~R~] {2}";
 
         private const char _errorChar = '-';
+        
+        public const string StackTraceHead = "Stack Trace";
 
         private static readonly object _redirectSync = new object();
 
@@ -56,7 +61,38 @@ namespace Components.Aphid.UI
             try
             {
                 backup = interpreter.SetIsInTryCatchFinally(true);
-                action();
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+                try
+                {
+#endif
+                    action();
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+                }
+#endif
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+#if APHID_FRAME_ADD_DATA
+                catch (Exception e)
+#else
+                catch
+#endif
+                {
+                    if (e.Source != AphidName.DebugInterpreter)
+                    {
+                        e.Source = AphidName.DebugInterpreter;
+
+#if APHID_FRAME_CATCH_POP
+                        interpreter.PopQueuedFrames();
+#endif
+
+#if APHID_FRAME_ADD_DATA
+                        e.Data.Add(AphidName.Interpreter, interpreter);
+                        e.Data.Add(AphidName.FramesKey, interpreter.GetRawStackTrace());
+#endif
+                    }
+
+                    throw;
+                }
+#endif
                 interpreter.SetIsInTryCatchFinally(backup);
 
                 return true;
@@ -173,7 +209,7 @@ namespace Components.Aphid.UI
                     WriteLineOut = writeLineOut;
                 }
 
-                return sb.ToString();
+                return sb.ToString().TrimEnd();
             }
         }
 
@@ -184,7 +220,7 @@ namespace Components.Aphid.UI
         {
             WriteErrorMessage(StyleEscape(ErrorFormatter.Format(exception)));
 
-            DumpStackTrace(interpreter);
+            DumpStackTrace(interpreter, exception);
 
             DumpScope(
                     exception.ExceptionScope,
@@ -199,7 +235,7 @@ namespace Components.Aphid.UI
                         exception,
                         AphidScript.Read(exception.ScriptFile))));
 
-            DumpStackTrace(interpreter);
+            DumpStackTrace(interpreter, exception);
 
             if (exception.LoadScriptExceptionType != AphidExceptionType.AphidRuntimeException)
             {
@@ -222,7 +258,7 @@ namespace Components.Aphid.UI
 
             if (interpreter != null)
             {
-                DumpStackTrace(interpreter);
+                DumpStackTrace(interpreter, exception);
                 DumpScope(interpreter);
             }
         }
@@ -302,19 +338,28 @@ namespace Components.Aphid.UI
             }
         }
 
-        public static void DumpStackTrace(AphidInterpreter interpreter)
+        public static void DumpStackTrace(AphidInterpreter interpreter, Exception exception) =>
+            DumpStackTrace(
+                interpreter,
+                exception.Data.Contains(AphidName.FramesKey) ?
+                    (AphidFrame[])exception.Data[AphidName.FramesKey] :
+                    interpreter.GetRawStackTrace());
+
+        public static void DumpStackTrace(AphidInterpreter interpreter) =>
+            DumpStackTrace(interpreter, interpreter.GetRawStackTrace());
+
+        public static void DumpStackTrace(AphidInterpreter interpreter, AphidFrame[] trace)
         {
             var cfg = AphidConfig.Current;
-            var trace = interpreter.GetRawStackTrace();
             var frameNum = 0;
 
             if (!Console.IsOutputRedirected)
             {
-                WriteSubheader("Stack Trace", "~|Blue~~White~");
+                WriteSubheader(StackTraceHead, "~|Blue~~White~");
             }
             else
             {
-                WriteErrorMessage("Stack Trace");
+                WriteErrorMessage(StackTraceHead);
             }
 
             foreach (var frame in trace)
