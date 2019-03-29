@@ -95,8 +95,9 @@
           <param name="nunit_command_line" value="--process=Multiple --agents=16 --workers=64" />
           <param name="nunit_enabled" value="checked" />
           <param name="nunit_environment" value="v4.0" />
-          <param name="nunit_include"><![CDATA[Components.Aphid.Tests.Integration\bin\Release\Components.Aphid.Tests.Integration.dll
-Components.ObjectDatabase.Tests\bin\Release\Components.ObjectDatabase.Tests.dll]]></param>
+          <param name="nunit_include"><![CDATA[Components.ObjectDatabase.Tests\bin\Release\Components.ObjectDatabase.Tests.dll
+Components.Aphid.UnitTests\bin\Release\Components.Aphid.UnitTests.dll
+Components.Aphid.ScriptedUnitTests\bin\Release\Components.Aphid.ScriptedUnitTests.dll]]></param>
           <param name="nunit_path" value="%teamcity.tool.NUnit.Console.DEFAULT%" />
           <param name="nunit_platform" value="MSIL" />
           <param name="nunit_version" value="NUnit-3.0.0" />
