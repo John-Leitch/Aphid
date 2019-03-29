@@ -9,6 +9,7 @@
     </options>
     <disabled-settings>
       <setting-ref ref="BUILD_EXT_3" />
+      <setting-ref ref="RUNNER_7" />
     </disabled-settings>
     <parameters />
     <build-runners>
