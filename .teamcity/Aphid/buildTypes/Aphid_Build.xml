@@ -33,6 +33,18 @@
           <param name="vs.version" value="vs2017" />
         </parameters>
       </runner>
+      <runner id="RUNNER_8" name="New build step" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid.sln" />
+          <param name="msbuild.prop.Configuration" value="Release" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Rebuild" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
       <runner id="RUNNER_4" name="" type="jb.nuget.installer">
         <parameters>
           <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
