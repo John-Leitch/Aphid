@@ -5,6 +5,11 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 
+fatal = @{
+    $_ | printError;
+    exit(0xbad81);
+};
+
 head('Merging .NET Program');
 
 [ 'AphidPortable', 'ildasm' ]->@()Process.GetProcessesByName($_)->@() { $_.Kill(); $_.WaitForExit() };

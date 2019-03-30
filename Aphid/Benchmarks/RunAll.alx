@@ -169,12 +169,12 @@ var run = @{
 
     [ 'aphid*.exe', 'components*.dll', '*.alx*' ]->testRoot
         ->@(f) [' /ah ', '']
-            ->@() ~# ('del ' + f + '\\' + p + ' /s /q' + $_);
+            ->@() ~# ('del ' + f + ' /s /q' + $_);
 
     head('Patching Version Numbers');
     var ver = prevVersion();
 
-    testRoot
+    testRoot()
         @files('AssemblyInfo.cs')
         ->@(f){
             printInfo('Patching {0} to version {1}', f, ver);
@@ -216,7 +216,7 @@ var run = @{
         printSuccess('MSBuild Complete');
         head('Test Fixup');
         ~# ('copy ' + testSrc + '\\*.alx ' + testDst + ' /y');        
-        [ '', ' /ah' ]->@() ~# ('del {0}\\*.alx.cache* /s /q{1}' :: [ testRoot, $_ ]);        
+        [ '', ' /ah' ]->@() ~# ('del {0}\\*.alx.cache* /s /q{1}' :: [ testRoot(), $_ ]);        
         ~# ('mkdir ' + testBin + '\\Library\\Testing');
         //~# ('copy ' + testBin + '\\Library\\Benchmarks.alx ' + testBin + '\\Library\\Testing\\Benchmarks.alx /y');
         //~# ('copy ' + testBin + '\\Library\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
