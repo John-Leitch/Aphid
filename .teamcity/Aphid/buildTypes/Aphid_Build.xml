@@ -9,6 +9,7 @@
     </options>
     <disabled-settings>
       <setting-ref ref="BUILD_EXT_3" />
+      <setting-ref ref="RUNNER_7" />
     </disabled-settings>
     <parameters />
     <build-runners>
@@ -28,6 +29,19 @@
           <param name="msbuild_version" value="15.0" />
           <param name="run-platform" value="x86" />
           <param name="targets" value="Rebuild" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_8" name="Build 64" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid.sln" />
+          <param name="msbuild.prop.Configuration" value="Release64" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
           <param name="teamcity.step.mode" value="default" />
           <param name="toolsVersion" value="15.0" />
           <param name="vs.version" value="vs2017" />
@@ -95,8 +109,9 @@
           <param name="nunit_command_line" value="--process=Multiple --agents=16 --workers=64" />
           <param name="nunit_enabled" value="checked" />
           <param name="nunit_environment" value="v4.0" />
-          <param name="nunit_include"><![CDATA[Components.Aphid.Tests.Integration\bin\Release\Components.Aphid.Tests.Integration.dll
-Components.ObjectDatabase.Tests\bin\Release\Components.ObjectDatabase.Tests.dll]]></param>
+          <param name="nunit_include"><![CDATA[Components.ObjectDatabase.Tests\bin\Release\Components.ObjectDatabase.Tests.dll
+Components.Aphid.UnitTests\bin\Release\Components.Aphid.UnitTests.dll
+Components.Aphid.ScriptedUnitTests\bin\Release\Components.Aphid.ScriptedUnitTests.dll]]></param>
           <param name="nunit_path" value="%teamcity.tool.NUnit.Console.DEFAULT%" />
           <param name="nunit_platform" value="MSIL" />
           <param name="nunit_version" value="NUnit-3.0.0" />
