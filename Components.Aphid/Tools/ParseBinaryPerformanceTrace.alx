@@ -4,6 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+
+head('Binary Trace Parser');
+
 // Console.Clear();
 
 ////////////////////////////////////////////////////////////////
@@ -28,7 +31,7 @@ class of long FrameProfile {
     Hits,
     Ticks,
     TicksExclusive,
-    ArrayList ChildFrames,
+    FrameProfile list ChildFrames,
 };
 
 var dumpFrameJson = @{
@@ -43,10 +46,18 @@ var dumpFrame = @{
 
 var cliArgs = getCommandLineArgs();
 
-
-
 cliArgs.Length == 2 !! 'aphid ParseBinaryPerformanceTrace [file]';
-!File.Exists(var trace = cliArgs[2]) !! ('Could not find trace ~Yellow~{0}~R~' :: trace);
+!File.Exists(var trace = cliArgs[2] | Path.GetFullPath) !! ('Could not find trace ~Yellow~{0}~R~' :: trace);
+
+var threadFiles = Directory.GetFiles(
+    Path.GetDirectoryName(trace),
+    Path.GetFileName(trace) + "*.thread");
+
+
+if (threadFiles.Length != 0) {
+    printInfo("Thread files found:");
+    threadFiles @print('  {0}');
+}
 
 //var trace = 'C:\\source\\Aphid\\Aphid\\bin\\Debug\\AphidFramePerformance.ea27e90b-43c3-4f26-aa7b-7bc3781508d0.dat';
 var nameReader = new BinaryReader(trace + '.names' |> File.OpenRead);
@@ -58,7 +69,8 @@ while (nameReader.BaseStream.Position < nameReader.BaseStream.Length) {
 
 var reader = new BinaryReader(trace |> File.OpenRead);
 var profileHeader = reader.ReadString();
-print(profileHeader);
+print(profileHeader.TrimEnd('\r\n'));
+print();
 // var header = r.ReadString();
 
 // reader.dir();
@@ -75,65 +87,81 @@ using System.Threading;
 
 var t = new Thread(@{
     var lastPct = 0;
+    print();
     while (true) {
         Thread.Sleep(500);
 
         try {
-        var pos = reader.BaseStream.Position;
-        var len = reader.BaseStream.Length;
-        var remaining = len - pos;
-        var pct = Math.Round(pos / len * 100, 2);
-        printInfo('{0:n0}/{1:n0} {2}% {3}% inc', pos, len, pct, pct - lastPct);
-        lastPct = pct;
+            var pos = reader.BaseStream.Position;
+            var len = reader.BaseStream.Length;
+            var remaining = len - pos;
+            var pct = Math.Round(pos / len * 100, 2);
+            Console.CursorTop = Console.CursorTop - 1;
+            printInfo(
+                ('{0:n0}/{1:n0} {2}% (+{3}%)' :: [ pos, len, pct, pct - lastPct ])
+                    .PadRight(Cli.BufferWidth - 4)
+            );
+            lastPct = pct;
 
-        if (pos == len) {
-            printSuccess('Done');
-            break;
-        }
+            if (pos == len) {
+                printSuccess('Done parsing trace\r\n');
+                break;
+            }
         } catch (e) {
             break;
         }
     }
 });
 
+t.IsBackground = true;
 t.Start();
 
 var s = reader.BaseStream;
 var f = FrameProfile;
 var len = s.Length;
+var stackType = Stack[FrameProfile];
+var listType = List[FrameProfile];
+var readBool = reader.ReadBoolean;
+var readInt32 = reader.ReadInt32;
+var readInt64 = reader.ReadInt64;
+var addFrame = frameList.Add;
+var addRoot = root.Add;
+// var lastThread = -1;
+var stack = new stackType();
+var push;
+var pop;
+var peek;
+push = stack.Push;
+pop = stack.Pop;
+peek = stack.Peek;
 
-while (s.Position < len) {
-    
-    var id = reader.ReadInt32();
-    var key = id.ToString();
+var addTotals = frameTotalsList.Add;
+//s.dir();exit(0);
+while (s.Position < len) {    
+    //var id = readInt32();    
 
-    var stack = threadStacks.{key} defined ? 
-        threadStacks.{key} :
-        threadStacks.{key} = new Stack[FrameProfile]();
-
-    var enter = reader.ReadBoolean();    
+    var enter = readBool();    
 
     if (enter) {
-        var name = names[reader.ReadInt32()];
-        var frame = new FrameProfile();
-        frame.ThreadId = id;
-        frame.Name = 'Frame$' + name;
-        frame.ChildFrames = new ArrayList();
+        var name = names[readInt32()];
+        var frame = new f();
+        frame.ThreadId = 1;
+        frame.Name = '^' + name;
+        frame.ChildFrames = new listType();
         
         if (stack.Count > 0) {
-            stack.Peek().ChildFrames.Add(frame);
+            peek().ChildFrames.Add(frame);
         } else {
-            root.Add(frame);
+            lock root addRoot(frame);
         }
 
-        stack.Push(frame);
-        frameList.Add(frame);
+        push(frame);
+        lock frameList addFrame(frame);
         // frame.Name |> Cli.StyleEscape |> print;
     } else {
-        var curFrame = stack.Pop();
-        curFrame.Ticks = reader.ReadInt64();
+        var curFrame = pop();
+        curFrame.Ticks = readInt64();
         var arr = curFrame.ChildFrames;
-
 
         if (arr.Count == 0) {
             curFrame.TicksExclusive = curFrame.Ticks;            
@@ -142,53 +170,96 @@ while (s.Position < len) {
             curFrame.TicksExclusive = _exclusive(Ticks);            
         }
 
-        if (frameTotals.{curFrame.Name} defined) {
-            var t = frameTotals.{curFrame.Name};
-            t.Hits = t.Hits + 1;
-            t.Ticks += curFrame.Ticks;
-            t.TicksExclusive += curFrame.TicksExclusive;            
-        } else {
-            var t = new FrameProfile();
-            t.Hits = 1;
-            t.Name = curFrame.Name;
-            t.Ticks = curFrame.Ticks;
-            t.TicksExclusive = curFrame.TicksExclusive;            
-            frameTotals.{curFrame.Name} = t;
-            frameTotalsList.Add(t);
+        lock frameTotals {
+            if (frameTotals.{curFrame.Name} defined) {
+                var t = frameTotals.{curFrame.Name};
+                t.Hits = t.Hits + 1;
+                t.Ticks += curFrame.Ticks;
+                t.TicksExclusive += curFrame.TicksExclusive;
+            } else {
+                var t = new f();
+                t.Hits = 1;
+                t.Name = curFrame.Name;
+                t.Ticks = curFrame.Ticks;
+                t.TicksExclusive = curFrame.TicksExclusive;            
+                frameTotals.{curFrame.Name} = t;
+                addTotals(t);
+            }
         }
     }
 }
 
-var printFrame = @(frame, indent) print(
-    (indent defined ? indent : '') +
-    ($_.Hits != 0 ? 
-        'Name: {0}, Ticks: {1:n0}, Exclusive: {2:n0}, Hits: {3:n0}' :
-        'Name: {0}, Ticks: {1:n0}, Exclusive: {2:n0}'),
-    $_.Name.Replace('\r', '').Replace('\n', '\\n'),
-    $_.Ticks,
-    $_.TicksExclusive,
-    $_.Hits);
+ t.Join();
+ reader.Dispose();
 
-[ [ 'inclusive ticks', @.Ticks ], [ 'exclusive ticks', @.TicksExclusive ] ]->@{
-    head('Top 100 slowest by ' + $_[0]);
+ #'system/nuget';
 
-    var ordered = frameTotalsList-/$_[1];
-    Enumerable.Take(ordered, 100)->printFrame;
+nuget.reference('MessagePack');
+nuget.reference('System.Threading.Tasks.Extensions');
+using MessagePack;
+using MessagePack.Resolvers;
 
-    print();
-};
+var pack = @(o) MessagePackSerializer.Serialize.Members[1].MakeGenericMethod([Object]).Invoke(
+    null,
+    [ o, ContractlessStandardResolver.Instance ]);
 
-print('Done');
-reader.Dispose();
+var unpack = @(t, o) MessagePackSerializer.Deserialize.Members[1].MakeGenericMethod([t]).Invoke(
+    null,
+    [ o, ContractlessStandardResolver.Instance ]);
 
+var bytes = frameTotalsList | pack;
+bytes @File.WriteAllBytes(trace + '.totals');
+// frameTotalsList = bytes @unpack(List[FrameProfile]);
+
+bytes = root | pack;
+bytes @File.WriteAllBytes(trace + '.reconstructed');
+// root = bytes @unpack(List[FrameProfile]);
+
+var printFrame = @(frame, indent, printFunc)
+    (printFunc defined ? printFunc : Console.WriteLine)(
+        (indent defined ? indent : '') +
+        ($_.Hits != 0 ? 
+            '{0}, Ticks: {1:n0} ({2:n0}), Exclusive: {3:n0} ({4:n0}), Hits: {5:n0}{6}' :
+            '{0}, Ticks: {1:n0}, Exclusive: {3:n0}{6}'),
+        $_.Name.Substring(1).Replace('\r', '').Replace('\n', '\\n'),
+        $_.Ticks,
+        $_.Hits != 0 ? ($_.Ticks / $_.Hits).float() : 0,
+        $_.TicksExclusive,
+        $_.Hits != 0 ? ($_.TicksExclusive / $_.Hits).float() : 0,
+        $_.Hits,
+        printFunc defined ? '\r\n' : '');
+
+var dumpTopTicks = @(count)
+    [
+        [ 'inclusive ticks', @.Ticks ],
+        [ 'exclusive ticks', @.TicksExclusive ],
+        [ 'avg inclusive ticks', @(x) x.Ticks / x.Hits ],
+        [ 'avg exclusive ticks', @(x) x.TicksExclusive / x.Hits ]
+    ]->@{
+        subhead('Top {0:n0} slowest by ' + $_[0] :: count.long());
+
+        var ordered = frameTotalsList-/$_[1];
+        Enumerable.Take(ordered, count)->printFrame;
+
+        print();
+    };
+
+dumpTopTicks(250);
+
+var sb = new StringBuilder();
 var dumpTree = @(root, indent) {
     var i = indent defined ? indent : '';
     root->@{
-        printFrame($_, i);
+        printFrame($_, i, sb.AppendFormat);
         dumpTree($_.ChildFrames, i + '  ');
     };
+
+    ret sb;
 };
 
+subhead('Frame Tree (Thread 0x{0:x8})' :: [ root[0].ThreadId ]);
+var tree = root |> dumpTree;
+tree @File.WriteAllText(trace + '.tree');
+tree |> Console.WriteLine;
 
-// root |> dumpTree;
-    
+printSuccess('Done');

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace Components.Aphid.Interpreter
 {
@@ -18,6 +19,12 @@ namespace Components.Aphid.Interpreter
                     createLoader: false,
                     frames: new Stack<AphidFrame>(parent.GetRawStackTraceReversed()))
                 {
+                    OwnerThread = Thread.CurrentThread.ManagedThreadId,
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+                    _framePerformanceBinaryWriter = parent._framePerformanceBinaryWriter.CreateChild(out var isExisting),
+                    //parent._framePerformanceBinaryWriter,
+#endif
                     //_queuedFramePops = parent._queuedFramePops,
                     //_frames = new Stack<AphidFrame>(parent._frames),
                     //_lazyGetFrameArray = parent._lazyGetFrameArray,
@@ -53,7 +60,23 @@ namespace Components.Aphid.Interpreter
                     OnInterpretObjectExecuting = parent.OnInterpretObjectExecuting
                 };
 
+#if BINARY_FRAME_PERFORMANCE_TRACE
+                //var entry = child.CreateEntryFrame();
+
+                //if (!isExisting)
+                //{
+                //    child.PushFrame(entry);
+                //}
+                //else
+                //{
+                //    child.PushFrameSilent(entry);
+                //}
+                child.PushFrameSilent(child.CreateEntryFrame());
+#else
                 child.PushFrame(child.CreateEntryFrame());
+#endif
+
+                //
                 //child.PushFrame(string.Format("[Entrypoint (Thread 0x{0:X})]", Thread.CurrentThread.ManagedThreadId));
                 child.Loader = parent.Loader.CreateChild(child);
 

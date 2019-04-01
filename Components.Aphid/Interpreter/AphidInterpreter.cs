@@ -382,8 +382,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
-            _framePerformanceBinaryWriter = new FrameProfileBinaryWriter(Guid.NewGuid());
-            _framePerformanceBinaryWriter.WriteStart();
+            if (frames == null)
+            {
+                _framePerformanceBinaryWriter = new FrameProfileBinaryWriter(Guid.NewGuid());
+                _framePerformanceBinaryWriter.WriteStart();
+            }
 #endif
 
 #if APHID_DEBUGGING_ENABLED
@@ -3318,7 +3321,7 @@ namespace Components.Aphid.Interpreter
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
             // Todo: Pack enter/leave in as high order bit of thread id
-            _framePerformanceBinaryWriter.WriteEnter(id, name.Value);
+            _framePerformanceBinaryWriter.WriteEnter(name.Value);
 #endif
 
 #if TEXT_FRAME_PERFORMANCE_TRACE
@@ -3339,17 +3342,14 @@ namespace Components.Aphid.Interpreter
 
             _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, arg));
 
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
-            var id = Thread.CurrentThread.ManagedThreadId;
-#endif
-
 #if TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
             _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, name.Value);
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
             // Todo: Pack enter/leave in as high order bit of thread id
-            _framePerformanceBinaryWriter.WriteEnter(id, name.Value);
+            _framePerformanceBinaryWriter.WriteEnter(name.Value);
 #endif
 
 #if TEXT_FRAME_PERFORMANCE_TRACE
@@ -3373,17 +3373,14 @@ namespace Components.Aphid.Interpreter
 
             _frames.Push(new AphidFrame(this, CurrentScope, callExpression, name, args));
 
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
-            var id = Thread.CurrentThread.ManagedThreadId;
-#endif
-
 #if TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
             _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, name);
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
             // Todo: Pack enter/leave in as high order bit of thread id
-            _framePerformanceBinaryWriter.WriteEnter(id, name);
+            _framePerformanceBinaryWriter.WriteEnter(name);
 #endif
 
 #if TEXT_FRAME_PERFORMANCE_TRACE
@@ -3405,17 +3402,14 @@ namespace Components.Aphid.Interpreter
             _frames.Push(frame);
             //frame.Name.ToString();
 
-#if BINARY_FRAME_PERFORMANCE_TRACE || TEXT_FRAME_PERFORMANCE_TRACE
-            var id = Thread.CurrentThread.ManagedThreadId;
-#endif
-
 #if TEXT_FRAME_PERFORMANCE_TRACE
+            var id = Thread.CurrentThread.ManagedThreadId;
             _framePerformanceTrace.TraceText("{0:x8} > {1}\r\n", id, frame.Name);
 #endif
 
 #if BINARY_FRAME_PERFORMANCE_TRACE
             // Todo: Pack enter/leave in as high order bit of thread id
-            _framePerformanceBinaryWriter.WriteEnter(id, frame.Name);
+            _framePerformanceBinaryWriter.WriteEnter(frame.Name);
 #endif
 
 #if TEXT_FRAME_PERFORMANCE_TRACE
@@ -3424,6 +3418,20 @@ namespace Components.Aphid.Interpreter
             sw.Start();
 #endif
         }
+
+#if BINARY_FRAME_PERFORMANCE_TRACE
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PushFrameSilent(in AphidFrame frame)
+        {
+            while (_queuedFramePops > 0)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+
+            _frames.Push(frame);
+        }
+#endif
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopFrame()

@@ -2,13 +2,13 @@
 
 namespace Components.Aphid.Debugging
 {
-    public class FrameProfileInfo
+    public readonly struct FrameProfileInfo
     {
-        public int ThreadId { get; }
+        public readonly int ThreadId;
 
-        public int NameId { get; }
+        public readonly int NameId;
 
-        public Stopwatch Stopwatch { get; }
+        public readonly Stopwatch Stopwatch;
 
         public FrameProfileInfo(int threadId, int nameId, Stopwatch stopwatch)
         {
