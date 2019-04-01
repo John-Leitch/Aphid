@@ -262,7 +262,7 @@ namespace Components.Aphid.Compiler
             IdentifierExpression propertyDecl,
             HashSet<string> imports)
         {
-            var t = GetPropertyType(defaultType, propertyDecl, imports);
+            var t = GetPropertyType(typeBuilder, defaultType, propertyDecl, imports);
 
             if (t == null)
             {
@@ -314,6 +314,7 @@ namespace Components.Aphid.Compiler
         }
 
         private Type GetPropertyType(
+            TypeBuilder typeBuilder,
             string defaultType,
             IdentifierExpression property,
             HashSet<string> imports)
@@ -329,12 +330,22 @@ namespace Components.Aphid.Compiler
 
             var scanner = new AphidAttributeScanner(property);
             scanner.Next();
+            var typeName = InteropTypeResolver.Unalias(scanner.CurrentAttribute);
 
-            var t = Interpreter.InteropTypeResolver.ResolveType(
-                imports,
-                _importsLock,
-                new[] { InteropTypeResolver.Unalias(scanner.CurrentAttribute) },
-                isType: true);
+            Type t;
+
+            if (typeName == typeBuilder.Name)
+            {
+                t = typeBuilder;
+            }
+            else
+            {
+                t = Interpreter.InteropTypeResolver.ResolveType(
+                    imports,
+                    _importsLock,
+                    new[] { typeName },
+                    isType: true);
+            }
 
             if (!scanner.Next())
             {
