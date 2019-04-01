@@ -25,6 +25,13 @@
         <param name="showChanges" value="false" />
       </parameters>
     </extension>
+    <extension id="PROJECT_EXT_4" type="CloudIntegration">
+      <parameters>
+        <param name="AllowOverride" value="false" />
+        <param name="SubprojectsEnabled" value="false" />
+        <param name="enabled" value="false" />
+      </parameters>
+    </extension>
   </project-extensions>
   <cleanup />
 </project>
