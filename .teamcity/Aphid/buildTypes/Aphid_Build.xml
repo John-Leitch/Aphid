@@ -4,39 +4,41 @@
   <description>Aphid Programming Language</description>
   <settings>
     <options>
-      <option name="artifactRules" value="Aphid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidUI\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidHdl\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToVerilog/&#xA;Mantispid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/ParserGenerator/&#xA;LLex\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/LexerGenerator/&#xA;Coywolf\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPhp/&#xA;Boxelder\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPython/" />
+      <option name="artifactRules" value="Aphid\bin\Release\Aphid.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Aphid.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Aphid.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Components.Aphid.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Components.Aphid.dll.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Components.Aphid.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release32\Aphid32.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release32\Aphid32.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release32\Aphid32.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release32\Components.Aphid32.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release32\Components.Aphid32.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release64\Aphid64.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release64\Aphid64.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release64\Aphid64.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release64\Components.Aphid64.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release64\Components.Aphid64.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.Debug.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid32.Debug.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid64.Debug.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace32.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace64.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.Debug.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid32.Debug.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid64.Debug.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace32.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace64.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.Debug.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid32.Debug.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid64.Debug.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace32.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid.BinaryTrace64.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.BinaryTrace.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.BinaryTrace.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.BinaryTrace32.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.BinaryTrace32.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.BinaryTrace64.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.BinaryTrace64.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.Debug.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.Debug.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.Debug32.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.Debug32.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.Debug64.dll =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Components.Aphid.Debug64.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidUI\bin\Release\AphidUI.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidUI\bin\Release\AphidUI.exe.config =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidUI\bin\Release\AphidUI.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;%system.teamcity.build.checkoutDir%\Components.Aphid\Tools =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Tools/&#xA;%system.teamcity.build.checkoutDir%\Aphid\Samples =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Samples/&#xA;%system.teamcity.build.checkoutDir%\Components.Aphid\Library =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Library/&#xA;Aphid\bin\Release\Ngen.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Ngen.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Run.exe =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release\Run.pdb =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;AphidHdl\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToVerilog/&#xA;Mantispid\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/ParserGenerator/&#xA;LLex\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/LexerGenerator/&#xA;Coywolf\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPhp/&#xA;Boxelder\bin\Release =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/AphidToPython/&#xA;Aphid\Benchmarks\RunAll.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\Run2.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\Run.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\ArithmeticBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\CallBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\Charts.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\Charts.Config.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\ClrInstanceBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\ConditionalBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\CustomOperatorBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\IncludeBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\ListBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\Benchmarks\OperatorBenchmark.alx =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip!/Benchmarks/&#xA;Aphid\bin\Release\Aphid*Portable.* =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release32\Aphid*Portable.* =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Release64\Aphid*Portable.* =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip&#xA;Aphid\bin\Debug\Aphid*Portable.* =&gt; Aphid_0.7.%build.counter%.%build.vcs.number.Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster%.zip" />
       <option name="buildNumberPattern" value="0.7.1.%build.counter%" />
     </options>
     <disabled-settings>
+      <setting-ref ref="BUILD_EXT_1" />
       <setting-ref ref="BUILD_EXT_3" />
-      <setting-ref ref="RUNNER_7" />
+      <setting-ref ref="RUNNER_4" />
     </disabled-settings>
     <parameters />
     <build-runners>
       <runner id="RUNNER_5" name="" type="jb.nuget.installer">
         <parameters>
           <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.updatePackages.include.prerelease" value="true" />
           <param name="nuget.updatePackages.mode" value="perConfig" />
           <param name="nuget.use.restore" value="restore" />
           <param name="sln.path" value="Aphid.sln" />
           <param name="teamcity.step.mode" value="default" />
         </parameters>
       </runner>
-      <runner id="RUNNER_2" name="" type="VS.Solution">
+      <runner id="RUNNER_2" name="Build Release" type="VS.Solution">
         <parameters>
           <param name="build-file-path" value="Aphid.sln" />
           <param name="msbuild.prop.Configuration" value="Release" />
           <param name="msbuild_version" value="15.0" />
           <param name="run-platform" value="x86" />
-          <param name="targets" value="Rebuild" />
+          <param name="targets" value="Build" />
           <param name="teamcity.step.mode" value="default" />
           <param name="toolsVersion" value="15.0" />
           <param name="vs.version" value="vs2017" />
         </parameters>
       </runner>
-      <runner id="RUNNER_8" name="Build 64" type="VS.Solution">
+      <runner id="RUNNER_8" name="Build Release64" type="VS.Solution">
         <parameters>
-          <param name="build-file-path" value="Aphid.sln" />
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
           <param name="msbuild.prop.Configuration" value="Release64" />
           <param name="msbuild.prop.Platform" value="Default" />
           <param name="msbuild_version" value="15.0" />
@@ -45,6 +47,105 @@
           <param name="teamcity.step.mode" value="default" />
           <param name="toolsVersion" value="15.0" />
           <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_9" name="Build Release32" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="Release32" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_10" name="Build Debug" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="Debug" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_11" name="Build Debug32" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="Debug32" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_12" name="Build Debug64" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="Debug64" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_13" name="Build BinaryTrace" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="BinaryTrace" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_15" name="Build BinaryTrace32" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="BinaryTrace32" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_14" name="Build BinaryTrace64" type="VS.Solution">
+        <parameters>
+          <param name="build-file-path" value="Aphid\Aphid.csproj" />
+          <param name="msbuild.prop.Configuration" value="BinaryTrace64" />
+          <param name="msbuild.prop.Platform" value="Default" />
+          <param name="msbuild_version" value="15.0" />
+          <param name="run-platform" value="x86" />
+          <param name="targets" value="Build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="toolsVersion" value="15.0" />
+          <param name="vs.version" value="vs2017" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_16" name="ILMerge" type="simpleRunner">
+        <parameters>
+          <param name="script.content" value="call mergeAphid.cmd" />
+          <param name="teamcity.build.workingDir" value="build" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
         </parameters>
       </runner>
       <runner id="RUNNER_4" name="" type="jb.nuget.installer">
@@ -61,7 +162,7 @@
           <param name="msbuild.prop.Configuration" value="Release" />
           <param name="msbuild_version" value="15.0" />
           <param name="run-platform" value="x86" />
-          <param name="targets" value="Rebuild" />
+          <param name="targets" value="Build" />
           <param name="teamcity.step.mode" value="default" />
           <param name="toolsVersion" value="15.0" />
           <param name="vs.version" value="vs2017" />
@@ -70,6 +171,8 @@
       <runner id="RUNNER_6" name="" type="jb.nuget.installer">
         <parameters>
           <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.updatePackages.include.prerelease" value="true" />
+          <param name="nuget.updatePackages.mode" value="sln" />
           <param name="nuget.use.restore" value="restore" />
           <param name="sln.path" value="Aphid.Test.sln" />
           <param name="teamcity.step.mode" value="default" />
@@ -81,7 +184,7 @@
           <param name="msbuild.prop.Configuration" value="Release" />
           <param name="msbuild_version" value="15.0" />
           <param name="run-platform" value="x86" />
-          <param name="targets" value="Rebuild" />
+          <param name="targets" value="Build" />
           <param name="teamcity.step.mode" value="default" />
           <param name="toolsVersion" value="15.0" />
           <param name="vs.version" value="vs2017" />
@@ -103,16 +206,17 @@
           <param name="dotNetCoverage.PartCover.includes" value="[*]*" />
           <param name="dotNetCoverage.PartCover.platformBitness" value="x86" />
           <param name="dotNetCoverage.PartCover.platformVersion" value="v2.0" />
-          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.bundled%" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.2019.1.0-eap03%" />
           <param name="dotNetCoverage.tool" value="dotcover" />
           <param name="dotNetTestRunner.Type" value="NUnit" />
           <param name="nunit_command_line" value="--process=Multiple --agents=16 --workers=64" />
           <param name="nunit_enabled" value="checked" />
           <param name="nunit_environment" value="v4.0" />
-          <param name="nunit_include"><![CDATA[Components.ObjectDatabase.Tests\bin\Release\Components.ObjectDatabase.Tests.dll
+          <param name="nunit_include"><![CDATA[Components.ObjectDatabase.Tests\bin\x64\Release\Components.ObjectDatabase.Tests.dll
 Components.Aphid.UnitTests\bin\Release\Components.Aphid.UnitTests.dll
-Components.Aphid.ScriptedUnitTests\bin\Release\Components.Aphid.ScriptedUnitTests.dll]]></param>
-          <param name="nunit_path" value="%teamcity.tool.NUnit.Console.DEFAULT%" />
+Components.Aphid.ScriptedUnitTests\bin\Release\Components.Aphid.ScriptedUnitTests.dll
+Components.Aphid.IntelliTests\bin\Release\Components.Aphid.IntelliTests.dll]]></param>
+          <param name="nunit_path" value="%teamcity.tool.NUnit.Console.3.9.0%" />
           <param name="nunit_platform" value="MSIL" />
           <param name="nunit_version" value="NUnit-3.0.0" />
           <param name="teamcity.step.mode" value="default" />
@@ -122,7 +226,11 @@ Components.Aphid.ScriptedUnitTests\bin\Release\Components.Aphid.ScriptedUnitTest
     <vcs-settings>
       <vcs-entry-ref root-id="Aphid_HttpsGithubComJohnLeitchAphidGitRefsHeadsMaster" />
     </vcs-settings>
-    <requirements />
+    <requirements>
+      <exists id="RQ_1" name="teamcity.tool.NUnit.Console.3.10.0" />
+      <exists id="RQ_2" name="teamcity.tool.JetBrains.dotCover.CommandLineTools.2019.1.0-eap03" />
+      <exists id="RQ_3" name="teamcity.tool.NuGet.CommandLine.4.9.2" />
+    </requirements>
     <build-triggers>
       <build-trigger id="vcsTrigger" type="vcsTrigger">
         <parameters>
