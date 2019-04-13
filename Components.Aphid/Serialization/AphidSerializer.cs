@@ -46,6 +46,10 @@ namespace Components.Aphid.Serialization
         private readonly Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
 
         private readonly Stack<string> _currentPath = new Stack<string>();
+        
+        private bool _useDoubleQuotes = false;
+
+        private char _quoteChar = '\'';
 
         public bool IgnoreLazyLists { get; set; }
 
@@ -55,9 +59,21 @@ namespace Components.Aphid.Serialization
 
         public bool QuoteToStringResults { get; set; }
 
+        public bool AlwaysQuoteKeys { get; set; }
+
         public bool ToStringClrTypes { get; set; }
 
         public int MaxElements { get; set; } = -1;
+
+        public bool UseDoubleQuotes
+        {
+            get => _useDoubleQuotes;
+            set
+            {
+                _quoteChar = value ? '"' : '\'';
+                _useDoubleQuotes = value;
+            }
+        }
 
         public AphidSerializer(AphidInterpreter interpreter)
             : base(interpreter) => IgnoreFunctions = true;
@@ -116,7 +132,7 @@ namespace Components.Aphid.Serialization
                         string.Join(
                             ".",
                             _currentPath
-                                .Select(y => !ShouldQuote(y) ? y : string.Format("{{'{0}'}}", y))
+                                .Select(y => !ShouldQuote(y) ? y : Quote(y))
                                 .Reverse()));
                     _traversed.Add(x);
                 }
@@ -173,8 +189,9 @@ namespace Components.Aphid.Serialization
                     }
 
                     s.AppendFormat(
-                        !ShouldQuote(kvp.Key) ? "{0}{1}: " : "{0}'{1}':",
+                        !AlwaysQuoteKeys && !ShouldQuote(kvp.Key) ? "{0}{2}: " : "{0}{1}{2}{1}:",
                         new string(' ', (indent + 1) * 4),
+                        _quoteChar,
                         kvp.Key);
 
                     _currentPath.Push(kvp.Key);
@@ -519,7 +536,7 @@ namespace Components.Aphid.Serialization
             sb.AppendFormat(
                 !QuoteToStringResults ? "clrObject({0})" : "{1}clrObject({0}){1}",
                 clrObject.GetType().FullName,
-                "'");
+                _quoteChar);
 
         public AphidObject Deserialize(string obj)
         {
@@ -585,11 +602,11 @@ namespace Components.Aphid.Serialization
                 return true;
             }
         }
+            
+        private string Quote(string value) =>
+            string.Format("{0}{1}{0}", _quoteChar, Escape(value));
 
-        private static string Quote(string value) =>
-            string.Format("'{0}'", Escape(value));
-
-        private static string Escape(string s) =>
-            Regex.Replace(s, @"([\\'])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
+        private string Escape(string s) =>
+            Regex.Replace(s, $@"([\\{_quoteChar}])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
     }
 }
