@@ -1,0 +1,49 @@
+var sqlite;
+
+@{
+    #'system/nuget';
+    nuget.reference('System.Data.SQLite.Core');
+    using System.Data.SQLite;
+
+    sqlite = {
+        escape: {
+            id: new SQLiteCommandBuilder() @.QuoteIdentifier,
+        },
+        connection: null,
+        open: @(file) {
+            connection = new SQLiteConnection('Data Source="{0}"' :: $_);
+            connection.Open();
+
+            ret sqlite;
+        },
+        getRows: @(tableName) {
+            var cmd = connection.CreateCommand();
+            cmd.CommandText = 'SELECT * FROM ' + escape.id(tableName);
+
+            using (var rows = cmd.ExecuteReader()) {
+                ret rows->@(r){
+                    var o = {};
+                    0..r.FieldCount->@() o[r.GetName($_)] = r.GetValue($_);
+                    ret o;
+                }
+            }
+        },
+        getSchema: @(tableName) {
+            var table = connection.GetSchema(tableName);
+            var cols = table.Columns;
+            
+            ret table.Select()->@(r){
+                var o = {};
+                0..cols.Count->@() o[cols[$_].ColumnName] = r.ItemArray[$_];
+                ret o;
+            }
+        },
+        getTables: @getSchema('Tables'),
+        dump: @{
+            var db = { file: connection.FileName, tables: getTables() };
+            db.tables = db.tables-?(@()$_.TABLE_TYPE == 'table')->@() $_.TABLE_NAME | getRows;
+
+            ret db;
+        }
+    };
+}();
