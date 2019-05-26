@@ -80,7 +80,7 @@ var env = {
     get: _ev(Get),
     set: _ev(Set),
     vars: _evs(Get),
-    __test: @{
+    __test: @{%>
         #'Testing\\AopTest';        
         
         _te = macro(@(n, p) {
@@ -103,5 +103,5 @@ var env = {
 
         _te('SystemDrive', '^[a-zA-Z]:$');
         _te('WinDir', '^[a-zA-Z]:(\\\\[a-zA-Z0-9]+)*$');        
-    }
+    <%}
 };
