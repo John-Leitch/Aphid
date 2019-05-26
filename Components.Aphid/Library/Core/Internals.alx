@@ -69,3 +69,39 @@ var getArgQueue = @{
     
     ret { args, matchPath };
 };
+
+_ev = macro(@(n) { __ev(n, '') });
+_evs = macro(@(n) { __ev(n, 's') });
+__ev = macro(@(p, s) { __ev2(id(p, EnvironmentVariable, s)) });
+__ev2 = macro(@(n){ Environment.n });
+
+var env = {
+    expand: _evs(Expand),
+    get: _ev(Get),
+    set: _ev(Set),
+    vars: _evs(Get),
+    __test: @{
+        #'Testing\\AopTest';        
+        
+        _te = macro(@(n, p) {
+            expand group;
+            isTrue; @{ ('%{0}%' :: n) | env.expand ~= p };
+            isFalse; @{ n | env.expand ~= p };
+
+            get group;
+            isTrue;
+            @{ n | env.get ~= p };
+            @{ 'BadFake' | env.get == null };
+            
+            isFalse;
+            @{ ('BadFake' | env.get) ?? 'BadFake' ~= p };
+
+            vars group;
+            isTrue; @{ env.vars() =?@()$_.Key.ToLower() == n.ToLower() };
+            isFalse; @{ !(env.vars() =?@()$_.Key.ToLower() == n.ToLower()) };
+        });
+
+        _te('SystemDrive', '^[a-zA-Z]:$');
+        _te('WinDir', '^[a-zA-Z]:(\\\\[a-zA-Z0-9]+)*$');        
+    }
+};
