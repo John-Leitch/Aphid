@@ -11,7 +11,7 @@ var sqlite;
         },
         connection: null,
         open: @(file) {
-            connection = new SQLiteConnection('Data Source="{0}"' :: $_);
+            connection = new SQLiteConnection('Data Source="{0}";datetimeformat=ms' :: $_);
             connection.Open();
 
             ret sqlite;
@@ -39,11 +39,10 @@ var sqlite;
             }
         },
         getTables: @getSchema('Tables'),
-        dump: @{
-            var db = { file: connection.FileName, tables: getTables() };
-            db.tables = db.tables-?(@()$_.TABLE_TYPE == 'table')->@() $_.TABLE_NAME | getRows;
-
-            ret db;
-        }
+        dump: @() ({
+            file: connection.FileName,
+            schema: getTables(),
+            tables: schema-?(@()$_.TABLE_TYPE == 'table')->@() $_.TABLE_NAME | getRows,
+        }),
     };
 }();
