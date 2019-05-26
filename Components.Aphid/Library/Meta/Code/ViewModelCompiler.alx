@@ -340,6 +340,14 @@ var viewModel;
                 ret vmType;
             },
 
+            buildForObject: @(namespace, name, object) {
+                var code = fromObject(namespace, name, object);
+                var results = csharp.compileAsm(code);
+                var vmType = results.CompiledAssembly.GetTypes()[0];
+
+                ret vmType;
+            },
+
             compileCode: @(code, aliasTypes) {
                 e.text.Clear();
                 code |> parse |> preprocessor.transform @() compileAst($_, aliasTypes);
