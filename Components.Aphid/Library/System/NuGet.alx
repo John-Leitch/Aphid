@@ -9,6 +9,11 @@ var nuget;
 
     using NuGet;
 
+    var parseVersion = @(v) $(v.GetType())
+        SemanticVersion: v,
+        string: v | SemanticVersion.Parse,
+        throw new InvalidArgumentException('v');
+
     nuget = {
         exe: Path.Combine(AphidObject.Assembly.Location | Path.GetDirectoryName, 'nuget.exe'),
         exeUrl: 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe',
@@ -39,66 +44,77 @@ var nuget;
         createPackageManager: @() new PackageManager(createRepo(), getEntryPath('packages')),
         getLocalPackages: @() createPackageManager().LocalRepository.GetPackages(),
         
-        reference: @(packageId) {
-            if ($args.Count > 1) {
-                ret $args-<reference;
-            }
+        reference: @(packageId, version) {
+            // if ($args.Count > 1) {
+            //     ret $args-<reference;
+            // }
 
-            var packages = getLocalPackages() -? (@(x) x.Id == packageId) -/ @.Version;
+            // printInfo('Referencing {0} {1}', packageId, version);
+
+            var findPackage = @() version defined && version != null ?
+                getLocalPackages() -? @(x) x.Id == packageId && x.Version == parseVersion(version) :
+                getLocalPackages() -? (@(x) x.Id == packageId) -/ @.Version;
+
+            var packages = findPackage();
 
             if (packages #! @== 0) {
-                installPackage(packageId);
+                version defined ?
+                    installPackage(packageId, version) :
+                    installPackage(packageId);
 
-                ret reference(packageId);
-            } else {
-                var p = packages ^!;
-                var fs = createPackageManager().FileSystem;
-                var d = '{0}.{1}' :: [ p.Id, p.Version ] |> fs.GetFullPath;
-                
-                var refAsmGroups = p.AssemblyReferences
-                    -<(@(r) $_.SupportedFrameworks->(@()({
-                        path: r, name: $_.FullName, version: $_.Version
-                    })))
-                    -&@.name;
+                // getLocalPackages() -? (@(x) x.Id == packageId) |> dump;
+                packages = findPackage();
+            }
 
-                var filtered = refAsmGroups -? @() $_.Key.StartsWith('.NETFramework');
+            var p = packages ^!;
+            
+            var fs = createPackageManager().FileSystem;
+            var d = '{0}.{1}' :: [ p.Id, p.Version ] |> fs.GetFullPath;
+            
+            var refAsmGroups = p.AssemblyReferences
+                -<(@(r) $_.SupportedFrameworks->(@()({
+                    path: r, name: $_.FullName, version: $_.Version
+                })))
+                -&@.name;
 
-                var refAsmPaths = ((filtered #!) != 0 ? filtered : refAsmGroups)
-                    -/@.Key
-                    ^!
-                    ->@() Path.Combine(d, $_.path);
+            var filtered = refAsmGroups -? @() $_.Key.StartsWith('.NETFramework');
 
-                var badAsms = refAsmPaths-?(@(x) !File.Exists(x));
+            var refAsmPaths = ((filtered #!) != 0 ? filtered : refAsmGroups)
+                -/@.Key
+                ^!
+                ->@() Path.Combine(d, $_.path);
 
-                if (badAsms #! @!= 0) {
-                     fatal('Bad asms: {0}', badAsms @join(', '));
-                     exit(0xbad01);
-                }
+            var badAsms = refAsmPaths-?(@(x) !File.Exists(x));
 
-                refAsmPaths->@(a) {
-                    var key = a |> Path.GetFileNameWithoutExtension;
-                    traceInfo('Adding ~Magenta~{0}~R~:~Cyan~{1}~R~ to map', key, a);
-                    refMap.Add(key, a);
-                };
+            if (badAsms #! @!= 0) {
+                    fatal('Bad asms: {0}', badAsms @join(', '));
+                    exit(0xbad01);
+            }
 
-                if (customResolver && !isResolveSet) {
-                    AppDomain.CurrentDomain.add_AssemblyResolve(@(o, e) {
-                        trace('Resolving ~Cyan~{0}~R~', e.Name);
-                        var an = new AssemblyName(e.Name);
-                        
-                        // var key = !an.Name.EndsWith('.resources') ?
-                        //     an.Name :
-                        //     an.Name.Remove(an.Name.Length - '.resources'.Length);
+            refAsmPaths->@(a) {
+                var key = a |> Path.GetFileNameWithoutExtension;
+                traceInfo('Adding ~Magenta~{0}~R~:~Cyan~{1}~R~ to map', key, a);
+                refMap.Add(key, a);
+            };
 
-                        var key = an.Name;
+            if (customResolver && !isResolveSet) {
+                AppDomain.CurrentDomain.add_AssemblyResolve(@(o, e) {
+                    trace('Resolving ~Cyan~{0}~R~', e.Name);
+                    var an = new AssemblyName(e.Name);
+                    
+                    // var key = !an.Name.EndsWith('.resources') ?
+                    //     an.Name :
+                    //     an.Name.Remove(an.Name.Length - '.resources'.Length);
 
-                        if (refMap.ContainsKey(key)) {
-                            traceSuccess('Assembly in map');
-                            var asm = refMap.get_Item(key) |> Assembly.LoadFrom;
-                            traceSuccess('Resolved from map: ~Cyan~{0}~R~', asm);
+                    var key = an.Name;
 
-                            ret asm;
-                        } else {
+                    if (refMap.ContainsKey(key)) {
+                        traceSuccess('Assembly in map');
+                        var asm = refMap.get_Item(key) |> Assembly.LoadFrom;
+                        traceSuccess('Resolved from map: ~Cyan~{0}~R~', asm);
+
+                        ret asm;
+                    } else {
                             traceQuery('Assembly not in map');
                             var asm = Assembly.LoadFrom(e.Name);
                             
@@ -116,16 +132,15 @@ var nuget;
                 }
 
                 ret refAsmPaths->Assembly.LoadFrom;
-            }
         },
     };
 
-    installPackage = @(packageId)
+    installPackage = @(packageId, version)
         nuget
             .createPackageManager()
             .InstallPackage(
                 packageId,
-                null,
+                version defined && version != null ? version | parseVersion : null,
                 nuget.ignoreDependencies,
                 nuget.allowPrereleaseVersions);
 
