@@ -24,8 +24,8 @@ var sln = testRoot <| 'Aphid.sln';
 var csProj = testRoot <| 'Aphid\\Aphid.csproj';
 var mantispidCsProj = testRoot <| 'Mantispid\\Mantispid.csproj';
 var mantispidExe = testRoot <| 'Mantispid\\bin\\Release\\Mantispid.exe';
-var benchRel = '\\Aphid\\Benchmarks';
-var testSrc = root + benchRel;
+var benchRel = 'Aphid\\Benchmarks';
+var testSrc = benchRel @Path.Combine(root);
 var testDst = testRoot <| benchRel;
 
 var testBin;
@@ -40,7 +40,7 @@ var setBinDir = @{
     testBin = testRoot <| 'Aphid\\bin';
     
 };
-
+setBinDir();
 var nextAphidCmd = @() exe + (useSingleProcess ? ' run2.alx' : ' run.alx');
 
 var tmpDir = testSrc + '\\BenchmarkTemp';
@@ -152,7 +152,7 @@ var run = @{
 
         if ((exe = findAphid()) != null) {
             printSuccess('Found Aphid exe: {0}', exe);
-
+            testBin = exe | Path.GetDirectoryName;
             ret true;
         } else {
             printSuccess('Could not find Aphid exe');
@@ -167,7 +167,7 @@ var run = @{
 
     ~# ('del {0} /s /q' :: 'aphid*.exe' | testRoot);
 
-    [ 'aphid*.exe', 'components*.dll', '*.alx*' ]->testRoot
+    [ 'aphid*.exe', 'components*.dll', '*.alx.cache*' ]->testRoot
         ->@(f) [' /ah ', '']
             ->@() ~# ('del ' + f + ' /s /q' + $_);
 
@@ -196,6 +196,7 @@ var run = @{
 
     head('Running MSBuild');
     var isLegacyProj = csProj  | read ~= 'Release64\\|Default' @== false;
+    isLegacyProj = true;
 
     if (isLegacyProj) {
         csProj @printError('~Yellow~Legacy CSProj file: {0}~R~')
@@ -215,13 +216,27 @@ var run = @{
     if (hasExe()) {
         printSuccess('MSBuild Complete');
         head('Test Fixup');
-        ~# ('copy ' + testSrc + '\\*.alx ' + testDst + ' /y');        
+        ~# ('copy ' + root + '\\Aphid\\Benchmarks\\*.alx ' + testDst + ' /y');
+        ~# ('copy ' + root + '\\Aphid\\Benchmarks\\*.alx ' + testBin + '\\Benchmarks /y');        
         [ '', ' /ah' ]->@() ~# ('del {0}\\*.alx.cache* /s /q{1}' :: [ testRoot(), $_ ]);        
-        ~# ('mkdir ' + testBin + '\\Library\\Testing');
+
+
+        
+
+        
         //~# ('copy ' + testBin + '\\Library\\Benchmarks.alx ' + testBin + '\\Library\\Testing\\Benchmarks.alx /y');
         //~# ('copy ' + testBin + '\\Library\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
-        ~# ('del ' + testBin + '\\Library\\Testing\\Benchmark.alx /q');
-        ~# ('copy ' + root + '\\Components.Aphid\\Library\\Testing\\Benchmark.alx ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
+        //~# ('del ' + testBin + '\\Library\\Testing\\Benchmark.alx /q');
+
+
+        // ~# ('copy ' + root + '\\Components.Aphid\\Library\\Testing\\Benchmark.alx ' + testDst + '\\Library\\Testing\\Benchmark.alx /y');
+        
+        var benchmarkRel = 'Components.Aphid\\Library\\Testing\\Benchmark.alx';
+        var benchmarkHeader = Path.Combine(root, benchmarkRel);
+        ~# ('mkdir ' + testBin + '\\Library\\Testing');
+        ~# ('mkdir ' + testRoot('Components.Aphid\\Library\\Testing'));
+        ~# ('copy ' + benchmarkHeader + ' ' + testBin + '\\Library\\Testing\\Benchmark.alx /y');
+        ~# ('copy ' + benchmarkHeader + ' ' + testRoot(benchmarkRel) + ' /y');
         
         [testBin, testDst]
             -<@files('*.alx')
@@ -251,7 +266,7 @@ var run = @{
         }
 
         if (saveCharts) {
-            ~# 'c:\\tools\\aphid\\aphid64.exe charts.alx -pngs';
+            ~# ('{0} charts.alx -pngs -all' :: getExe());
         }
         //Console.ReadLine();
     } else {
