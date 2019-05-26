@@ -1,4 +1,6 @@
+// #'std';
 var sqlite;
+var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime();
 
 @{
     #'system/nuget';
@@ -19,11 +21,39 @@ var sqlite;
         getRows: @(tableName) {
             var cmd = connection.CreateCommand();
             cmd.CommandText = 'SELECT * FROM ' + escape.id(tableName);
-
+            var t = byte.MakeArrayType();
             using (var rows = cmd.ExecuteReader()) {
                 ret rows->@(r){
                     var o = {};
-                    0..r.FieldCount->@() o[r.GetName($_)] = r.GetValue($_);
+                    0..r.FieldCount->@{
+                        // r.dir();
+                        var n = r.GetName($_);
+                        // n | print;
+                        // r.GetDataTypeName($_) | print;
+                        // r.GetFieldType($_) | print;
+                        
+                        o[n] = r.GetValue($_);
+                        var vt = o[n].GetType();
+                        if (vt == t) {
+                            var v = o[n];
+                            o[n] = v | Encoding.ASCII.GetString;
+                            o[n + '__unicode'] = v | Encoding.Unicode.GetString;
+                        }
+
+
+                        if ((vt == int || vt == long) && o[n] >= 500000000) {
+                            [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
+                                try {
+                                    o[n + '__epoch_' + $_[0]] =
+                                        o[n] / $_[1]
+                                        | DateTimeOffset.FromUnixTimeSeconds
+                                        @() $_.ToLocalTime();
+                                } catch {
+
+                                }
+                        }
+                        
+                    };
                     ret o;
                 }
             }
@@ -46,3 +76,6 @@ var sqlite;
         }),
     };
 }();
+
+// 'c:/source/malware/test.db' | sqlite.open;
+// sqlite.dump() | print;
