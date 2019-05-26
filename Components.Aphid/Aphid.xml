@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ArrayOfMemberDoc xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <MemberDoc>
-    <Filename>Library\Meta.alx</Filename>
+    <Filename>Meta.alx</Filename>
     <Path>mutate</Path>
     <PathParts>
       <string>mutate</string>
@@ -35,7 +35,7 @@ var block = f.Body @mutate(@{
 block |&gt; evalAst;</Example>
   </MemberDoc>
   <MemberDoc>
-    <Filename>Library\Meta.alx</Filename>
+    <Filename>Meta.alx</Filename>
     <Path>frames</Path>
     <PathParts>
       <string>frames</string>
@@ -43,12 +43,11 @@ block |&gt; evalAst;</Example>
     <Type>Function</Type>
     <Summary>Retrieves the frames currently on the call stack, including the current call.</Summary>
     <Parameters />
-    <Returns>A collection of AphidFrames representative of the current call stack.</Returns>
-    <Example>#'std';
-frames() |&gt; dump;</Example>
+    <Returns>A collection of AphidFrames containing information about the current call stack.</Returns>
+    <Example>frames() |&gt; dump;</Example>
   </MemberDoc>
   <MemberDoc>
-    <Filename>Library\Meta.alx</Filename>
+    <Filename>Meta.alx</Filename>
     <Path>frame</Path>
     <PathParts>
       <string>frame</string>
@@ -61,12 +60,11 @@ frames() |&gt; dump;</Example>
         <Description>The index of the frame to be retrieved.</Description>
       </MethodParamDoc>
     </Parameters>
-    <Returns>An AphidFrames representative of a call on the stack.</Returns>
-    <Example>#'std';
-frame(1) |&gt; dump;</Example>
+    <Returns>An AphidFrame containing information about a single call on the stack.</Returns>
+    <Example>frame(1) |&gt; dump;</Example>
   </MemberDoc>
   <MemberDoc>
-    <Filename>Library\Meta.alx</Filename>
+    <Filename>Meta.alx</Filename>
     <Path>tokenize</Path>
     <PathParts>
       <string>tokenize</string>
@@ -80,11 +78,10 @@ frame(1) |&gt; dump;</Example>
       </MethodParamDoc>
     </Parameters>
     <Returns>An array of AphidTokens.</Returns>
-    <Example>#'std';
-'var x = 10; x *= 2;' |&gt; tokenize |&gt; print;</Example>
+    <Example>'var x = 10; x *= 2;' |&gt; tokenize |&gt; print;</Example>
   </MemberDoc>
   <MemberDoc>
-    <Filename>Library\Meta.alx</Filename>
+    <Filename>Meta.alx</Filename>
     <Path>ast.op</Path>
     <PathParts>
       <string>ast</string>

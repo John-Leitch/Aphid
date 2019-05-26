@@ -1,0 +1,70 @@
+﻿//#'Std';
+//#'Testing\\AopTest';
+//
+//library meta group;
+//
+//_ic = macro(@(exp) {
+    //call begin;
+    //@{ isCollection(exp) };
+    //
+    //pipe begin;
+    //@{ exp |> isCollection };
+    //
+    //contextual pipe begin;
+    //@{ exp | isCollection };
+//
+    //reverse pipe begin;
+    //@{ isCollection <| exp };
+//});
+//
+//_icq = macro(@(exp) {
+    //isTrue;
+    //_ic(exp());
+    //_ic(exp() -?@() true);
+    //_ic(exp() -?@() false);
+    //_ic(exp() -<@()[ ]);
+    //_ic(exp() -<@()[ $_, [ $_, this ] ]);
+    //_ic(exp() ->@*2);
+//
+    //isFalse;
+    //_ic(exp() ->@*2 ^!);
+//});
+//
+//_gr = macro(@{ new List[int](Enumerable.Range(0, 10)) });
+//
+//isTrue;
+//_ic(_gr());
+//_ic(_gr() ->@*2);
+//
+//isFalse;
+//_ic(_gr() ->@*2 ^!);
+
+
+////false
+////new List[int](Enumerable.Range(0, 10))
+//
+//access begin;
+//is9;
+//@{ var x = [ 9, 'foo' ]; x[0] };
+//
+//isFoo;
+//@{ var x = [ 9, 'foo' ]; x[1] };
+//@{ var x = { y:['foo'] }; x.y[0]; };
+//
+//element set begin;
+//@{ var x = [ 'bar' ]; x[0] = 'foo'; x[0]; };
+//@{ var x = [ 'foo' ]; var y = x[0]; y = 'bar'; x[0]; };
+//@{ var x = 'foo'; var y = [ 0 ]; y[0] = x; x = 'bar'; y[0]; };
+//@{ var x = 'foo'; var y = [ x ]; x = 'bar'; y[0]; };
+//
+//aggregate begin;
+//@{ var a = [ 'f', 'o', 'o' ]; a.aggregate(@(x, y)x + y); };
+//@{ var a = 'foo'; a.chars().aggregate(@(x, y)x + y); };
+//
+//insert begin;
+//@{ var a = [ 'bar' ]; a.insert(0, 'foo'); a[0] };
+//@{ var a = [ 'bar' ]; a.insert(1, 'foo'); a[1] };
+//
+//is9;
+//@{ var a = [ 9 ]; a.insert(0, 'foo'); a[1] };
+//@{ var a = [ 9 ]; a.insert(1, 'foo'); a[0] };

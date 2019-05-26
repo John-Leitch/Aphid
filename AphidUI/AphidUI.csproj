@@ -163,6 +163,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\..\SpringPeeper\HwndScratch\Views\HwndDockControl.cs">
+      <Link>Components\HwndDockControl.cs</Link>
+    </Compile>
     <Compile Include="AphidRepl.xaml.cs">
       <DependentUpon>AphidRepl.xaml</DependentUpon>
     </Compile>
@@ -173,7 +176,16 @@
     <Compile Include="CodeTextBox.xaml.cs">
       <DependentUpon>CodeTextBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\AphidAttributeParser.cs" />
+    <Compile Include="Components\AphidBindingContext.cs" />
+    <Compile Include="Components\AphidBindingScriptMutator.cs" />
+    <Compile Include="Components\AphidExtensionTypeConverter.cs" />
+    <Compile Include="Components\AphidMarkupExtension.cs" />
+    <Compile Include="Components\Binding.cs" />
     <Compile Include="Components\DynamicDataClassExtractor.cs" />
+    <Compile Include="Components\Event.cs" />
+    <Compile Include="Components\ExpressionHelper.cs" />
+    <Compile Include="Components\ServiceProviderExtension.cs" />
     <Compile Include="DebugHelper.cs" />
     <Compile Include="DispatcherObjectExtension.cs" />
     <Compile Include="Internal\CodeCanvas.xaml.cs">

@@ -776,6 +776,9 @@
     <None Include="Library\Meta\Code\Aphid\AphidCustomOperators.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Tools\NgenCwd.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="UI\AphidReplInterop.alx">
       <Generator>AphidCodeDomGenerator</Generator>
       <LastGenOutput>AphidReplInterop.cs</LastGenOutput>

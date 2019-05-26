@@ -8,6 +8,10 @@ using LiveCharts.Geared;
 
 var sleepTime = 1000;
 var maxValues = 100;
+// var nodes = ['node1','node2','node3','node4','node5','node6','john-pc'];
+var nodes = ['node1','node2','node3','node4','node6'];
+
+//var nodes = 1..6->@format('Node{0}');
 
 class RuntimeMetrics { Double CounterValue, Int64 Ticks };
 
@@ -190,8 +194,6 @@ var createNodeMonWindow = @()
 
 var startNodeMonServices = @{
     print('Starting');
-//    var nodes = ['node1','node2','node3','node4','node5','node6','john-pc'];
-    var nodes = ['node1','node4','node6'];
 
     var startBackgroundThread = @(f) {
         var t = new Thread(f);
@@ -323,7 +325,26 @@ var startNodeMonServices = @{
 
     #'Core/Threading';
     
-    nodes>~@{
+    var tryConnectNode = @(node){
+        using System.Net.Sockets;
+        
+        // while (true) {
+        //     try {
+                node | connectNode
+        //     } catch(e) {
+        //         if (e.GetType() == SocketException &&
+        //             e.SocketErrorCode == 0xbad01) {
+        //             e @printError('Error connecting to node ~Yellow~{0}~R~: {1}', node);
+        //             1000 | Thread.Sleep;
+        //         } else {
+        //             e @printError('Unknown error connecting to node ~Yellow~{0}~R~: {1}', node);
+        //             250 | Thread.Sleep;
+        //         }
+        //     }
+        // }
+    };
+
+    var connectNode = @{
         #'Remoting/Remote';
         var c = remote.connect($_, 0x5232);
         
@@ -392,6 +413,8 @@ var startNodeMonServices = @{
             cpuCounterThread.Start();
         ");
     };
+
+    nodes>~tryConnectNode;
 
     console.hide();
 };

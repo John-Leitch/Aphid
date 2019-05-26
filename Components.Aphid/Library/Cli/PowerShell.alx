@@ -1,5 +1,6 @@
 ﻿//#'debugdeploy';
-
+//this.Keys -> @() new KeyValuePair[string, Object]($_,  this.{$_}.GetType() == AphidObject ? this.{$_} : this.{$_} | ValueHelper.Unwrap)
+//this |> Enumerable.ToArray -?(@()$_.Key[0] != '$') ->@() new KeyValuePair[string, Object]($_.Key, $_.Value != null && $_.Value.GetType() == AphidObject ? $_.Value : $_.Value | ValueHelper.Unwrap)
 _checkCmdParts = macro(@{
     if (parts == null || ((parts #!) == 0) || parts[0] == null) {
         ret null;
