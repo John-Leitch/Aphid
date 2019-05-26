@@ -1,6 +1,7 @@
 ﻿var system;
 var startProcess;
 var prepareCommand;
+var startProcessSilent = false;
 
 @{
     using Components;
@@ -28,7 +29,11 @@ var prepareCommand;
                         continue;
                     }
 
-                    [ onLine, Console.WriteLine]->@(x)x(line);
+                    if (!startProcessSilent) {
+                        [ onLine, Console.WriteLine]->@(x)x(line);
+                    } else {
+                        onLine(line);
+                    }
                 }
             } catch(e) {
                 _tp('[x] Thread error: ~Yellow~{0}~R~', e.message);
