@@ -1,0 +1,79 @@
+using System.Threading.Tasks;
+#'std';
+#'System/Process';
+startProcessSilent = true;
+#'io';
+
+var ngens = '%windir%/Microsoft.NET' | env.expand :* 'ngen.exe' |> Enumerable.ToArray;
+var files = '.' :* '*.dll' -> Path.GetFullPath |> Enumerable.ToArray;
+var i = 0;
+var sync = new Object();
+var c = (files#!) * (ngens#!);
+var dbDir = this.{'$script'} | Path.GetDirectoryName;
+var exiting = false;
+
+ThreadPool.QueueUserWorkItem(@{
+    while (true) {        
+        if (Console.ReadKey(true).Key.ToString().ToLower() == 'q') {
+            lock sync { printCriticalError('Exiting') }
+            exiting = true;
+        }
+    }
+});
+
+Parallel.ForEach(ngens, @(ngenExe){
+    var sdb = ngenExe ~: ['[:\\\\/]', '$'] @Path.Combine(dbDir) @+ '.sdb';
+    using Components.ObjectDatabase;
+    var db = ObjectDatabase.OpenStringDatabase(sdb, false);
+    
+    var hasRecord = @(r){
+        lock (db) {
+            ret db.ReadUnsafe() =? @== r
+        }
+    };
+    
+    // sdb | dumpe;
+    Parallel.ForEach(files, @(f) {
+    // files -> (@(f) {
+        try {           
+            
+            var f2 = f.ToLower();
+            lock sync { i++ }
+            if (!exiting && !hasRecord(f2)) {
+                lock sync { printInfo('~|Blue~~White~[{0}/{1} ({2:p2})]~R~ Compiling ~Cyan~{3}~R~', i, c, (i/c).double(), f | Cli.Escape) }
+                
+                var c = 'cmd /c cd "{1}" & "{0}" install "{2}" /NoDependencies' :: [
+                    ngenExe,
+                    f | Path.GetDirectoryName,
+                    f //| Path.GetFileName
+                ];
+
+                lock sync { c | Cli.Escape @print('Running ~Magenta~{0}~R~'); }
+                
+                var result = <# c;
+                
+                if (result.exitCode == 0 || (result.out.ToString() ~= '0x80131700|0x80131D0B|0x8007000B|0x80131D02')) {
+                    lock (db) {
+                        f2 | db.Create;
+                    }
+                } else {
+                    lock sync { result.out | Console.WriteLine }
+                }
+            } else if (!exiting) {
+                lock sync { printInfo('~|Blue~~White~[{0}/{1} ({2:p2})]~R~ Skipping ~Yellow~{3}~R~', i, c, (i/c).double(), f | Cli.Escape) }
+            }
+
+            
+        } catch (e) {
+            lock sync {
+                e.message | head;
+                e.stack | Cli.Escape | print;
+            }
+            //exit();
+        }
+    });
+
+    lock sync { ngenExe @printSuccess('~Cyan~{0}~R~ finished') }
+});
+
+printSuccess('~Green~Done~R~');
