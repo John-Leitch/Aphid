@@ -10,10 +10,7 @@ namespace AphidLanguageServer
 
         private List<AphidExpression> _interpret;
 
-        public AphidScopeVisitor(AphidInterpreter interpreter)
-        {
-            _interpreter = interpreter;
-        }
+        public AphidScopeVisitor(AphidInterpreter interpreter) => _interpreter = interpreter;
 
         protected override void Visit(AphidExpression expression)
         {
@@ -29,10 +26,7 @@ namespace AphidLanguageServer
             }
         }
 
-        protected override void BeginVisit(List<AphidExpression> ast)
-        {
-            _interpret = new List<AphidExpression>();
-        }
+        protected override void BeginVisit(List<AphidExpression> ast) => _interpret = new List<AphidExpression>();
 
         protected override void EndVisit(List<AphidExpression> ast)
         {

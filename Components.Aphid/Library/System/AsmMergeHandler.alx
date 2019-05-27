@@ -1,0 +1,45 @@
+using System;
+using System.Reflection;
+
+var asmUnmerged = Assembly
+    .GetEntryAssembly()
+    @(a) (a != null && a.Location != null ? a.Location : '')
+        .ToLower() | Path.GetFileName != mergedAsmName;
+
+var asmMerged = !asmUnmerged;
+
+if (!asmUnmerged) {
+    using Components.External.ConsolePlus;
+    using Components.Aphid.Parser;
+    var aphidAsm = AphidExpression.Assembly;
+
+    AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e) {
+        var n = e.Name.ToLower();        
+        var resolved = (mergedAsmPatterns=?n.Contains) ? aphidAsm : null;
+
+        // var resolved = 
+        //     n.Contains('snapdock') ||
+        //     n.Contains('metricsserver.resources') ||            
+        //     n.Contains('components.aphid') ||
+        //     n.Contains('xceed.wpf.toolkit') ?
+        //         aphidAsm : null;
+        
+        Cli.WriteLine(
+            '{0} resolved ~Cyan~{1}~R~ to ~Green~{2}~R~',
+            e.RequestingAssembly ?? '~Yellow~Unknown~R~',
+            e.Name,
+            resolved != null ? resolved : '~Yellow~unknown~R~');
+
+        ret resolved;
+    });
+}
+
+var asmDump = @{
+    using System.Threading;
+    ThreadPool.QueueUserWorkItem(@(){
+        Thread.Sleep(3000);
+        printInfo('Asssemblies in domain:');
+        getAssemblies()->?>@.Location-?@!=null->@print('    {0}');
+        print();
+    });
+};

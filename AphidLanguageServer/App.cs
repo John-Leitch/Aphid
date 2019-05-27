@@ -36,6 +36,21 @@ namespace AphidLanguageServer
             _interpreter = new AphidInterpreter();
             _interpreter.Interpret(@"
                 #'std';
+                #'math';
+                #'io';
+                #'io/compression';
+                #'gui/winforms';
+                #'gui/wpf';
+                #'system/cryptography';
+                #'system/wmi';
+                #'system/machine';
+                #'system/nuget';
+                #'system/process';
+                #'remoting/remote';
+                #'remoting/ipc';
+                #'net/tcp';
+                #'net/udp';
+                #'net/web';
                 //#'meta';
                 //#'compiler';
                 using System;
@@ -54,16 +69,14 @@ namespace AphidLanguageServer
 
 
 
-        private void Documents_Changed(object sender, TextDocumentChangedEventArgs e)
-        {
-            
+        private void Documents_Changed(object sender, TextDocumentChangedEventArgs e) =>
             ValidateTextDocument(e.Document);
-        }
 
         protected override Result<InitializeResult, ResponseError<InitializeErrorData>> Initialize(InitializeParams @params)
         {
             _workerSpaceRoot = @params.rootUri;
-            var result = new InitializeResult
+            
+            return Result<InitializeResult, ResponseError<InitializeErrorData>>.Success(new InitializeResult
             {
                 capabilities = new ServerCapabilities
                 {
@@ -74,8 +87,7 @@ namespace AphidLanguageServer
                         triggerCharacters = new string[] { ".", " " },
                     },
                 }
-            };
-            return Result<InitializeResult, ResponseError<InitializeErrorData>>.Success(result);
+            });
         }
 
         protected override void DidOpenTextDocument(DidOpenTextDocumentParams @params)
