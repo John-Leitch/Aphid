@@ -1,19 +1,11 @@
-﻿using Components.Aphid.UnitTests.Shared;
-using Components.Aphid.UI;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
-using Components.Aphid.TypeSystem;
+﻿using NUnit.Framework;
 
 namespace Components.Aphid.UnitTests
 {
     public partial class InteropTests
     {
         [Test]
-        public void StreamWriterTest()
-        {
+        public void StreamWriterTest() =>
             Assert9(@"
                 using System;
                 using System.IO;
@@ -25,11 +17,9 @@ namespace Components.Aphid.UnitTests
                 
                 ret s.Position;
             ");
-        }
 
         [Test]
-        public void StreamWriterTest2()
-        {
+        public void StreamWriterTest2() =>
             Assert9(@"
                 using System;
                 using System.IO;
@@ -42,11 +32,9 @@ namespace Components.Aphid.UnitTests
 
                 ret s.Position;
             ");
-        }
 
         [Test]
-        public void StreamWriterTest3()
-        {
+        public void StreamWriterTest3() =>
             Assert9(@"
                 using System;
                 using System.IO;
@@ -58,11 +46,9 @@ namespace Components.Aphid.UnitTests
 
                 ret w.BaseStream.Position;
             ");
-        }
 
         [Test]
-        public void StreamWriterTest4()
-        {
+        public void StreamWriterTest4() =>
             AssertFoo(@"
                 using System;
                 using System.IO;
@@ -79,11 +65,9 @@ namespace Components.Aphid.UnitTests
 
                 ret v;
             ");
-        }
 
         [Test]
-        public void StreamWriterPartialVarCallTest()
-        {
+        public void StreamWriterPartialVarCallTest() =>
             AssertFoo(@"
                 using System;
                 using System.IO;
@@ -99,11 +83,9 @@ namespace Components.Aphid.UnitTests
                 
                 ret v;
             ");
-        }
 
         [Test]
-        public void StreamWriterPartialPipelineTest()
-        {
+        public void StreamWriterPartialPipelineTest() =>
             AssertFoo(@"
                 using System;
                 using System.IO;
@@ -118,6 +100,5 @@ namespace Components.Aphid.UnitTests
                 
                 ret v;
             ");
-        }
     }
 }

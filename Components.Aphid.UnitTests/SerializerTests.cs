@@ -1,11 +1,5 @@
-﻿using Components.Aphid.Parser;
-using Components.Aphid.UnitTests.Shared;
+﻿using Components.Aphid.UnitTests.Shared;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -14,107 +8,113 @@ namespace Components.Aphid.UnitTests
     {
         public override bool LoadStd => true;
 
-        private void AssertSerialization(object expected, string objectDecl, string code)
-        {
-            var script = string.Format(
-                "var o = ({0}) |> serialize |> deserialize;\r\n{1}",
-                objectDecl,
-                code);
+        private void AssertSerialization(object expected, string objectDecl, string code) =>
+            AssertEquals(
+            expected,
+            string.Format("var o = ({0}) |> serialize |> deserialize;\r\n{1}", objectDecl, code));
 
-            AssertEquals(expected, script);
-        }
+        private void AssertFooDeserialization(string objectDecl, string code) =>
+            AssertSerialization("foo", objectDecl, code);
 
-        private void AssertFooDeserialization(string objectDecl, string code) => AssertSerialization("foo", objectDecl, code);
+        private void Assert9Deserialization(string objectDecl, string code) => 
+            AssertSerialization(9, objectDecl, code);
 
-        private void Assert9Deserialization(string objectDecl, string code) => AssertSerialization(9, objectDecl, code);
+        private void AssertTrueDeserialization(string objectDecl, string code) => 
+            AssertSerialization(true, objectDecl, code);
 
-        private void AssertTrueDeserialization(string objectDecl, string code) => AssertSerialization(true, objectDecl, code);
-
-        private void AssertFalseDeserialization(string objectDecl, string code) => AssertSerialization(false, objectDecl, code);
-
-        [Test]
-        public void TestStringSerialization() => AssertFooDeserialization("'foo'", "ret o");
+        private void AssertFalseDeserialization(string objectDecl, string code) => 
+            AssertSerialization(false, objectDecl, code);
 
         [Test]
-        public void TestStringSerialization2() => AssertFooDeserialization("{ x: 'foo' }", "ret o.x");
+        public void TestStringSerialization() => 
+            AssertFooDeserialization("'foo'", "ret o");
 
         [Test]
-        public void TestStringSerialization3() => AssertFooDeserialization("{ vec: { x: 'foo' } }", "ret o.vec.x");
+        public void TestStringSerialization2() => 
+            AssertFooDeserialization("{ x: 'foo' }", "ret o.x");
 
         [Test]
-        public void TestNumberSerialization()
-        {
+        public void TestStringSerialization3() => 
+            AssertFooDeserialization("{ vec: { x: 'foo' } }", "ret o.vec.x");
+
+        [Test]
+        public void TestNumberSerialization() => 
             Assert9Deserialization(
                 "@{ using Components.Aphid.Interpreter; ret 9 }()",
                 "ret o");
-        }
 
         [Test]
-        public void TestNumberSerialization2() => Assert9Deserialization("{ x: 9 }", "ret o.x");
+        public void TestNumberSerialization2() => 
+            Assert9Deserialization("{ x: 9 }", "ret o.x");
 
         [Test]
-        public void TestNumberSerialization3() => Assert9Deserialization("{ vec: { x: 9 } }", "ret o.vec.x");
+        public void TestNumberSerialization3() => 
+            Assert9Deserialization("{ vec: { x: 9 } }", "ret o.vec.x");
 
         [Test]
-        public void TestListSerialization() => AssertFooDeserialization("[ 'foo' ]", "ret o[0]");
+        public void TestListSerialization() =>
+            AssertFooDeserialization("[ 'foo' ]", "ret o[0]");
 
         [Test]
-        public void TestListSerialization2() => AssertFooDeserialization("[ null, 'foo' ]", "ret o[1]");
+        public void TestListSerialization2() => 
+            AssertFooDeserialization("[ null, 'foo' ]", "ret o[1]");
 
         [Test]
-        public void TestListSerialization3() => Assert9Deserialization("[ 9 ]", "ret o[0]");
+        public void TestListSerialization3() =>
+            Assert9Deserialization("[ 9 ]", "ret o[0]");
 
         [Test]
-        public void TestListSerialization4() => Assert9Deserialization("[ null, 9 ]", "ret o[1]");
+        public void TestListSerialization4() =>
+            Assert9Deserialization("[ null, 9 ]", "ret o[1]");
 
         [Test]
-        public void TestListSerialization5() => Assert9Deserialization("0..9", "ret o.Count");
+        public void TestListSerialization5() =>
+            Assert9Deserialization("0..9", "ret o.Count");
 
         [Test]
-        public void TestListSerialization6() => AssertTrueDeserialization("0..0", "ret o.Count == 0");
+        public void TestListSerialization6() =>
+            AssertTrueDeserialization("0..0", "ret o.Count == 0");
 
         [Test]
-        public void TestListSerialization7() => AssertTrueDeserialization("0..0x1000", "ret o.Count == 0x1000");
+        public void TestListSerialization7() =>
+            AssertTrueDeserialization("0..0x1000", "ret o.Count == 0x1000");
 
         [Test, Ignore("Not yet supported")]
-        public void TestListSerialization8()
-        {
+        public void TestListSerialization8() =>
             Assert9Deserialization(
                 "(0..0x100)->@* 2",
                 "ret o.Count == 0x100 && o[0x2] == 0x4");
-        }
 
         [Test]
-        public void TestBoolSerialization() => AssertTrueDeserialization("{ x: true }", "ret o.x");
+        public void TestBoolSerialization() =>
+            AssertTrueDeserialization("{ x: true }", "ret o.x");
 
         [Test]
-        public void TestBoolSerialization2() => AssertTrueDeserialization("{ x: false }", "ret !o.x");
+        public void TestBoolSerialization2() =>
+            AssertTrueDeserialization("{ x: false }", "ret !o.x");
 
         [Test]
-        public void TestBoolSerialization3() => AssertTrueDeserialization("{ foo: { x: true } }", "ret o.foo.x");
+        public void TestBoolSerialization3() =>
+            AssertTrueDeserialization("{ foo: { x: true } }", "ret o.foo.x");
 
         [Test]
-        public void TestBoolSerialization4() => AssertTrueDeserialization("{ foo: { x: false } }", "ret !o.foo.x");
+        public void TestBoolSerialization4() =>
+            AssertTrueDeserialization("{ foo: { x: false } }", "ret !o.foo.x");
 
         [Test]
-        public void TestCircularSerialization()
-        {
+        public void TestCircularSerialization() =>
             AssertTrueDeserialization(
                 "@{ var a = { isActive: false }; a.self = a; ret a }()",
                 "ret !o.self.isActive");
-        }
 
         [Test]
-        public void TestCircularSerialization2()
-        {
+        public void TestCircularSerialization2() =>
             AssertTrueDeserialization(
                 "@{ var a = { isActive: false }; a.self = a; ret a }()",
                 "ret !o.self.self.self.self.self.self.self.isActive");
-        }
 
         [Test]
-        public void TestCircularSerialization3()
-        {
+        public void TestCircularSerialization3() =>
             Assert9Deserialization(
                 @"@{
                     var a = { position: { x: 10, y: 9 }, context: { objectModel: { } } };
@@ -122,11 +122,9 @@ namespace Components.Aphid.UnitTests
                     ret a;
                 }()",
                 "ret o.context.objectModel.selfPosition.y");
-        }
 
         [Test]
-        public void TestCircularSerialization4()
-        {
+        public void TestCircularSerialization4() =>
             Assert9Deserialization(
                 @"@{
                     var a = { x: 10, y: 20 };
@@ -138,11 +136,9 @@ namespace Components.Aphid.UnitTests
                     ret a;
                 }()",
                 "ret o.context.metadata.bar.w[4]");
-        }
 
         [Test, Ignore("Not yet supported.")]
-        public void TestCircularSerialization5()
-        {
+        public void TestCircularSerialization5() =>
             Assert9Deserialization(
                 @"@{
                     var a = { x: 10, y: 20 };
@@ -154,61 +150,61 @@ namespace Components.Aphid.UnitTests
                     ret a;
                 }()",
                 "ret o.context.list[2].context.metadata.bar.w[4]");
-        }
 
-        public void TestCircularSerializationPrimitives<T>(T value, bool isNested)
-        {
+        public void TestCircularSerializationPrimitives<T>(T value, bool isNested) =>
             AssertExpFalse(
                 string.Format(
-                    !isNested ? 
+                    !isNested ?
                         "{{x:{0},y:{0}}}|>serialize@()$_.Contains('this')" :
                         "{{x:{0},y:{{z:{0}}}}}|>serialize@()$_.Contains('this')",
                     typeof(T) != typeof(bool) ? value.ToString() : value.ToString().ToLower()));
-        }
 
         [Test]
-        public void TestCircularSerializationPrimitives() => TestCircularSerializationPrimitives(10, isNested: false);
+        public void TestCircularSerializationPrimitives() =>
+            TestCircularSerializationPrimitives(10, isNested: false);
 
         [Test]
-        public void TestCircularSerializationPrimitives2() => TestCircularSerializationPrimitives(10.10, isNested: false);
+        public void TestCircularSerializationPrimitives2() =>
+            TestCircularSerializationPrimitives(10.10, isNested: false);
 
         [Test]
-        public void TestCircularSerializationPrimitives3() => TestCircularSerializationPrimitives(true, isNested: false);
+        public void TestCircularSerializationPrimitives3() =>
+            TestCircularSerializationPrimitives(true, isNested: false);
 
         [Test]
-        public void TestCircularSerializationPrimitives4() => TestCircularSerializationPrimitives("'foo'", isNested: false);
+        public void TestCircularSerializationPrimitives4() =>
+            TestCircularSerializationPrimitives("'foo'", isNested: false);
 
         [Test]
-        public void TestCircularSerializationPrimitives5() => TestCircularSerializationPrimitives(10, isNested: true);
+        public void TestCircularSerializationPrimitives5() =>
+            TestCircularSerializationPrimitives(10, isNested: true);
 
         [Test]
-        public void TestCircularSerializationPrimitives6() => TestCircularSerializationPrimitives(10.10, isNested: true);
+        public void TestCircularSerializationPrimitives6() =>
+            TestCircularSerializationPrimitives(10.10, isNested: true);
 
         [Test]
-        public void TestCircularSerializationPrimitives7() => TestCircularSerializationPrimitives(true, isNested: true);
+        public void TestCircularSerializationPrimitives7() =>
+            TestCircularSerializationPrimitives(true, isNested: true);
 
         [Test]
-        public void TestCircularSerializationPrimitives8() => TestCircularSerializationPrimitives("'foo'", isNested: true);
+        public void TestCircularSerializationPrimitives8() =>
+            TestCircularSerializationPrimitives("'foo'", isNested: true);
 
         [Test]
-        public void TestDynamicMemberCircularSerialization()
-        {
+        public void TestDynamicMemberCircularSerialization() =>
             AssertTrueDeserialization(
                 "@{ var a = { isActive: false }; a.{'$self'} = a; ret a }()",
                 "ret !o.{'$self'}.isActive");
-        }
 
         [Test]
-        public void TestDynamicMemberCircularSerialization2()
-        {
+        public void TestDynamicMemberCircularSerialization2() =>
             AssertFalseDeserialization(
                 "@{ var a = { isActive: true }; a.{'$self'} = a; ret a }()",
                 "ret !o.{'$self'}.{'$self'}.{'$self'}.{'$self'}.{'$self'}.{'$self'}.isActive");
-        }
 
         [Test]
-        public void TestDynamicMemberCircularSerialization3()
-        {
+        public void TestDynamicMemberCircularSerialization3() =>
             AssertTrueDeserialization(
                 @"@{
                     var a = { isActive: true, '$internal': { } };
@@ -216,11 +212,9 @@ namespace Components.Aphid.UnitTests
                     ret a;
                 }()",
                 "ret o.{'$internal'}.{'$self'}.isActive");
-        }
 
         [Test]
-        public void TestDynamicMemberCircularSerialization4()
-        {
+        public void TestDynamicMemberCircularSerialization4() =>
             AssertTrueDeserialization(
                 @"@{
                     var a = { isActive: true, '~!@': { } };
@@ -228,6 +222,5 @@ namespace Components.Aphid.UnitTests
                     ret a;
                 }()",
                 "ret o.{'~!@'}.{'$self'}.isActive");
-        }
     }
 }

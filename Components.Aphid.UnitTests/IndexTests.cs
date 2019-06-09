@@ -1,10 +1,5 @@
 ﻿using Components.Aphid.UnitTests.Shared;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -15,40 +10,52 @@ namespace Components.Aphid.UnitTests
     public class IndexTests : AphidTests
     {
         [Test]
-        public void TestListIndexGet() => AssertExpFoo(@"[ 'foo' ][0]");
+        public void TestListIndexGet() =>
+            AssertExpFoo(@"[ 'foo' ][0]");
 
         [Test]
-        public void TestListIndexGet2() => AssertExp9(@"[ 9 ][0]");
+        public void TestListIndexGet2() =>
+            AssertExp9(@"[ 9 ][0]");
 
         [Test]
-        public void TestListIndexGet3() => AssertExpFoo(@"[ 'bar', 'foo' ][1]");
+        public void TestListIndexGet3() =>
+            AssertExpFoo(@"[ 'bar', 'foo' ][1]");
 
         [Test]
-        public void TestListIndexGet4() => AssertExp9(@"[ 1, 9 ][1]");
+        public void TestListIndexGet4() =>
+            AssertExp9(@"[ 1, 9 ][1]");
 
         [Test]
-        public void TestListIndexGet5() => AssertExpFoo(@"[ 9, 'foo' ][1]");
+        public void TestListIndexGet5() =>
+            AssertExpFoo(@"[ 9, 'foo' ][1]");
 
         [Test]
-        public void TestListIndexGet6() => AssertExp9(@"[ 'foo', 9 ][1]");
+        public void TestListIndexGet6() =>
+            AssertExp9(@"[ 'foo', 9 ][1]");
 
         [Test]
-        public void TestListIndexSetGet() => AssertFoo(@"var x = [ 'bar' ]; x[0] = 'foo'; ret x[0]");
+        public void TestListIndexSetGet() =>
+            AssertFoo(@"var x = [ 'bar' ]; x[0] = 'foo'; ret x[0]");
 
         [Test]
-        public void TestListIndexSetGet2() => AssertFoo(@"var x = [ 'bar' ]; ret x[0] = 'foo'");
+        public void TestListIndexSetGet2() =>
+            AssertFoo(@"var x = [ 'bar' ]; ret x[0] = 'foo'");
 
         [Test]
-        public void TestListIndexSetGet3() => AssertFoo(@"var x = [ 'bar' ]; x[0] = 'fo'; x[0] += 'o'; ret x[0]");
+        public void TestListIndexSetGet3() =>
+            AssertFoo(@"var x = [ 'bar' ]; x[0] = 'fo'; x[0] += 'o'; ret x[0]");
 
         [Test]
-        public void TestListIndexSetGet4() => AssertFoo(@"var x = [ 'bar' ]; x[0] = 'fo'; ret x[0] += 'o'");
+        public void TestListIndexSetGet4() =>
+            AssertFoo(@"var x = [ 'bar' ]; x[0] = 'fo'; ret x[0] += 'o'");
 
         [Test]
-        public void TestListIndexSetGet5() => AssertFoo(@"var x = [ '', 'o' ]; x[0] = 'fo'; ret x[0] + x[1]");
+        public void TestListIndexSetGet5() =>
+            AssertFoo(@"var x = [ '', 'o' ]; x[0] = 'fo'; ret x[0] + x[1]");
 
         [Test]
-        public void TestListIndexSetGet6() => AssertFoo(@"var x = [ '', '' ]; x[0] = 'fo'; ret x[0] + (x[1] += 'o')");
+        public void TestListIndexSetGet6() =>
+            AssertFoo(@"var x = [ '', '' ]; x[0] = 'fo'; ret x[0] + (x[1] += 'o')");
 
         [Test]
         public void TestArrayIndexGet() => ArrayAssertEquals<byte>(0, 0x1, "ret a[0x0]");
@@ -93,68 +100,44 @@ namespace Components.Aphid.UnitTests
         public void TestArrayIndexSetGet9() => ArrayAssertFoo<string>(0x2, "a[0x0] = 'fo'; a[0x1] = 'o'; ret a[0x0] + a[0x1]");
 
         [Test]
-        public void TestArrayIndexSetAggregate()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate() => ArrayAssertFoo<string>(
                 0x2,
                 "a[0x0] = 'fo'; a[0x1] = 'o'; ret a+>@(x, y) x + y");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate2()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate2() => ArrayAssertFoo<string>(
                 0x3,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; ret a+>@(x, y) x + y");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate3()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate3() => ArrayAssertFoo<string>(
                 0x4,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; a[0x3]=''; ret a+>@(x, y) x + y");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate4()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate4() => ArrayAssertFoo<string>(
                 0x4,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; a[0x3]=''; ret a+>@(x, y) $args[0] + $args[1]");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate5()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate5() => ArrayAssertFoo<string>(
                 0x4,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; a[0x3]=''; ret a+>@(x, y) $_ + $args[1]");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate6()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate6() => ArrayAssertFoo<string>(
                 0x4,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; a[0x3]=''; ret a+>@() $args[0] + $args[1]");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate7()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate7() => ArrayAssertFoo<string>(
                 0x4,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; a[0x3]=''; ret a+>@{ ret $args[0] + $args[1] }");
-        }
 
         [Test]
-        public void TestArrayIndexSetAggregate8()
-        {
-            ArrayAssertFoo<string>(
+        public void TestArrayIndexSetAggregate8() => ArrayAssertFoo<string>(
                 0x4,
                 "a[0x0]='f'; a[0x1]='o'; a[0x2]='o'; a[0x3]=''; ret a+>@+$args[1]");
-        }
 
         [Test]
         public void TestArrayOutOfBounds() => ArrayAssert9<byte>(0x0, "try { a[0x0] } catch { ret 9 }  ret 0");
@@ -192,21 +175,21 @@ namespace Components.Aphid.UnitTests
         [Test, Ignore("Not yet supported.")]
         public void TestArrayTypeCoercion8() => ArrayAssert9<ulong>(0x1, "try { a[0x0] = 0x10000000000000000 } catch { ret 9 }  ret 0");
 
-        private void ArrayAssert9<TElement>(int size, string script) => AssertEquals(9, GetArrayScript<TElement>(size, script));
+        private void ArrayAssert9<TElement>(int size, string script) =>
+            AssertEquals(9, GetArrayScript<TElement>(size, script));
 
-        private void ArrayAssertFoo<TElement>(int size, string script) => AssertEquals("foo", GetArrayScript<TElement>(size, script));
+        private void ArrayAssertFoo<TElement>(int size, string script) =>
+            AssertEquals("foo", GetArrayScript<TElement>(size, script));
 
-        private void ArrayAssertEquals<TElement>(object expected, int size, string script) => AssertEquals(expected, GetArrayScript<TElement>(size, script));
+        private void ArrayAssertEquals<TElement>(object expected, int size, string script) =>
+            AssertEquals(expected, GetArrayScript<TElement>(size, script));
 
-        private string GetArrayScript<TElement>(int size, string script)
-        {
-            return string.Format(
+        private string GetArrayScript<TElement>(int size, string script) => string.Format(
                 "#'Std';\r\n" +
                 "var a = Array.CreateInstance({0}, {1});\r\n" +
                 "{2}",
                 typeof(TElement).Name,
                 size,
                 script);
-        }
     }
 }

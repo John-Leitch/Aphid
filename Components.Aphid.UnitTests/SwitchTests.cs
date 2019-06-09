@@ -1,10 +1,5 @@
 ﻿using Components.Aphid.UnitTests.Shared;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -12,8 +7,7 @@ namespace Components.Aphid.UnitTests
     public class SwitchTests : AphidTests
     {
         [Test]
-        public void SwitchTest()
-        {
+        public void SwitchTest() =>
             Assert9(@"
                 var x = 0;
                 var y = 'bar';
@@ -27,11 +21,9 @@ namespace Components.Aphid.UnitTests
 
                 ret x;
             ");
-        }
 
         [Test]
-        public void SwitchTest2()
-        {
+        public void SwitchTest2() =>
             Assert9(@"
                 var x = 0;
                 var y = 'hello world';
@@ -45,11 +37,9 @@ namespace Components.Aphid.UnitTests
 
                 ret x;
             ");
-        }
 
         [Test]
-        public void SwitchTest3()
-        {
+        public void SwitchTest3() =>
             Assert9(@"
                 var x = 0;
                 var y = 'bar';
@@ -63,11 +53,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 0;
             ");
-        }
 
         [Test]
-        public void SwitchTest4()
-        {
+        public void SwitchTest4() =>
             Assert9(@"
                 var x = 0;
                 var y = 'abc';
@@ -81,11 +69,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 0;
             ");
-        }
 
         [Test]
-        public void SwitchArgsCountTest()
-        {
+        public void SwitchArgsCountTest() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count) {
@@ -95,11 +81,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1)
             ");
-        }
 
         [Test]
-        public void SwitchArgsCountTest2()
-        {
+        public void SwitchArgsCountTest2() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count) {
@@ -109,11 +93,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1, 2, 3)
             ");
-        }
 
         [Test]
-        public void SwitchArgsCountTest3()
-        {
+        public void SwitchArgsCountTest3() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count) {
@@ -123,11 +105,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1, 2)
             ");
-        }
 
         [Test]
-        public void SwitchArgsCountTest4()
-        {
+        public void SwitchArgsCountTest4() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count) {
@@ -137,11 +117,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }()
             ");
-        }
 
         [Test]
-        public void SwitchArgsCountTest5()
-        {
+        public void SwitchArgsCountTest5() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count) {
@@ -151,11 +129,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
             ");
-        }
 
         [Test]
-        public void SwitchStringTest()
-        {
+        public void SwitchStringTest() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count.ToString()) {
@@ -165,11 +141,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1, 2, 3)
             ");
-        }
 
         [Test]
-        public void SwitchStringTest2()
-        {
+        public void SwitchStringTest2() =>
             AssertExp9(@"
                 @{
                     switch ($args.Count.ToString()) {
@@ -179,11 +153,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1, 2, 3)
             ");
-        }
 
         [Test]
-        public void SwitchFalseTest()
-        {
+        public void SwitchFalseTest() =>
             AssertExpFalse(@"
                 @{
                     switch ($args.Count) {
@@ -193,11 +165,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1, 2) == 9
             ");
-        }
 
         [Test]
-        public void SwitchFalseTest2()
-        {
+        public void SwitchFalseTest2() =>
             AssertExpFalse(@"
                 @{
                     switch ($args.Count.ToString()) {
@@ -207,11 +177,9 @@ namespace Components.Aphid.UnitTests
                     }
                 }(1) == 9
             ");
-        }
 
         [Test]
-        public void SwitchFalseTest3()
-        {
+        public void SwitchFalseTest3() =>
             AssertExpFalse(@"
                 @{
                     switch ($args.Count.ToString()) {
@@ -221,6 +189,5 @@ namespace Components.Aphid.UnitTests
                     }
                 }() == 9
             ");
-        }
     }
 }

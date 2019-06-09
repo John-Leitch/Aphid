@@ -4,8 +4,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -22,20 +20,14 @@ namespace Components.Aphid.UnitTests
         }
 
         private void MutatorTest<TMutator>(string expected, string code)
-            where TMutator : AphidMutator, new()
-        {
-            MutatorTest<TMutator>(
+            where TMutator : AphidMutator, new() => MutatorTest<TMutator>(
                 code,
                 ast => Assert.AreEqual(expected, StringParser.Parse(ast.Cast<StringExpression>().Single().Value)));
-        }
 
         private void MutatorTest<TMutator>(decimal expected, string code)
-            where TMutator : AphidMutator, new()
-        {
-            MutatorTest<TMutator>(
+            where TMutator : AphidMutator, new() => MutatorTest<TMutator>(
                 code,
                 ast => Assert.AreEqual(expected, ast.Cast<NumberExpression>().Single().Value));
-        }
 
         [Test]
         public void ConstantFoldingTest1() => MutatorTest<ConstantFoldingMutator>("foo", "'fo' + 'o';");

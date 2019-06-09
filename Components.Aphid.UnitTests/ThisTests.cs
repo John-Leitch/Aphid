@@ -1,10 +1,5 @@
 ﻿using Components.Aphid.UnitTests.Shared;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -14,11 +9,11 @@ namespace Components.Aphid.UnitTests
         public override bool LoadStd => true;
 
         [Test]
-        public void ThisTest1() => Assert9("var x=9; var f=@(a)a.x; ret f(this);");
+        public void ThisTest1() =>
+            Assert9("var x=9; var f=@(a)a.x; ret f(this);");
 
         [Test]
-        public void ThisTest2()
-        {
+        public void ThisTest2() =>
             Assert9(@"
                 var f=@() {
 	                var x = 9;
@@ -26,11 +21,9 @@ namespace Components.Aphid.UnitTests
                 };
                 ret f().x;                
             ");
-        }
 
         [Test]
-        public void ThisTest3()
-        {
+        public void ThisTest3() =>
             Assert9(@"
                 var x = 8;
 
@@ -45,11 +38,9 @@ namespace Components.Aphid.UnitTests
                 
                 ret f().x + 1;                
             ");
-        }
 
         [Test]
-        public void ThisTest4()
-        {
+        public void ThisTest4() =>
             Assert9(@"
                 var f = @() {
                     var z = 8;
@@ -67,6 +58,5 @@ namespace Components.Aphid.UnitTests
                 
                 ret f2(f()).x.y.z + 1;                
             ");
-        }
     }
 }

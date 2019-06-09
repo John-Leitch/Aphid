@@ -2,11 +2,6 @@
 using Components.Aphid.UnitTests.Shared;
 using Components.Aphid.TypeSystem;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -37,45 +32,59 @@ namespace Components.Aphid.UnitTests
         }
 
         [Test]
-        public void DecimalEqualityTest() => AssertEquality(10m, 10m);
+        public void DecimalEqualityTest() =>
+            AssertEquality(10m, 10m);
 
         [Test]
-        public void DecimalInequalityTest() => AssertInequality(10m, 9m);
+        public void DecimalInequalityTest() =>
+            AssertInequality(10m, 9m);
 
         [Test]
-        public void IntEqualityTest() => AssertEquality(10, 10);
+        public void IntEqualityTest() =>
+            AssertEquality(10, 10);
 
         [Test]
-        public void IntInequalityTest() => AssertInequality(10, 9);
+        public void IntInequalityTest() =>
+            AssertInequality(10, 9);
 
         [Test]
-        public void IntDecimalEqualityTest() => AssertEquality(10, 10m);
+        public void IntDecimalEqualityTest() =>
+            AssertEquality(10, 10m);
 
         [Test]
-        public void IntDecimalInequalityTest() => AssertInequality(10, 9m);
+        public void IntDecimalInequalityTest() =>
+            AssertInequality(10, 9m);
 
         [Test]
-        public void StringEqualityTest() => AssertEquality("foo", "foo");
+        public void StringEqualityTest() =>
+            AssertEquality("foo", "foo");
 
         [Test]
-        public void StringInequalityTest() => AssertInequality("foo", "bar");
+        public void StringInequalityTest() =>
+            AssertInequality("foo", "bar");
 
         [Test]
-        public void CharEqualityTest() => AssertEquality('f', 'f');
+        public void CharEqualityTest() =>
+            AssertEquality('f', 'f');
 
         [Test]
-        public void CharInequalityTest() => AssertInequality('f', 'A');
+        public void CharInequalityTest() =>
+            AssertInequality('f', 'A');
 
         [Test]
-        public void CharCharEqualityTest() => AssertEquality("f", 'f');
+        public void CharCharEqualityTest() =>
+            AssertEquality("f", 'f');
 
         [Test]
-        public void CharCharInequalityTest() => AssertInequality("f", 'A');
+        public void CharCharInequalityTest() =>
+            AssertInequality("f", 'A');
 
         [Test]
-        public void CharCharInequalityTest2() => AssertInequality("ff", 'A');
+        public void CharCharInequalityTest2() =>
+            AssertInequality("ff", 'A');
 
         [Test]
-        public void CharCharInequalityTest3() => AssertInequality("", 'A');
+        public void CharCharInequalityTest3() =>
+            AssertInequality("", 'A');
     }
 }

@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Dynamic;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using System.Collections;
@@ -173,12 +170,16 @@ namespace Components.Aphid.UnitTests.Shared
 
         public static AphidToken Token(AphidTokenType type) => Token(type, null);
 
-        public static void IsFalse(bool value) => Assert.IsFalse(value);
-        public static void IsTrue(bool value) => Assert.IsTrue(value);
+        public static void IsFalse(bool value) =>
+            Assert.IsFalse(value);
+        public static void IsTrue(bool value) =>
+            Assert.IsTrue(value);
         public static void IsFoo(object value) => AreEqual("foo", value);
         public static void Is9(object value) => AreEqual(9m, value);
-        public static void IsNull(object value) => Assert.IsNull(value);
-        public static void NotNull(object value) => Assert.NotNull(value);
+        public static void IsNull(object value) =>
+            Assert.IsNull(value);
+        public static void NotNull(object value) =>
+            Assert.NotNull(value);
         public static void IsFail(Action action) => IsThrow<AssertionException>(action);
 
         public static void AllFail(params Action[] actions) =>
@@ -201,10 +202,14 @@ namespace Components.Aphid.UnitTests.Shared
         public void AssertEquals(object expected, string script) =>
             AreEqual(expected, Execute(script).Value);
 
-        public void AssertFoo(string script) => AssertEquals("foo", script);
-        public void Assert9(string script) => AssertEquals(9m, script);
-        public void AssertTrue(string script) => AssertEquals(true, script);
-        public void AssertFalse(string script) => AssertEquals(false, script);
+        public void AssertFoo(string script) =>
+            AssertEquals("foo", script);
+        public void Assert9(string script) =>
+            AssertEquals(9m, script);
+        public void AssertTrue(string script) =>
+            AssertEquals(true, script);
+        public void AssertFalse(string script) =>
+            AssertEquals(false, script);
 
         private static string CreateStatement(string expression) =>
             string.Format("ret {0};", expression);

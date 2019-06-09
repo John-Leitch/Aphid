@@ -7,8 +7,7 @@ namespace Components.Aphid.UnitTests
     public class PrintTests : AphidTests
     {
         [Test]
-        public void TestPrint()
-        {
+        public void TestPrint() =>
             AssertTrue(@"
                 using Components.External.ConsolePlus;
                 //tracePrint;
@@ -53,6 +52,5 @@ namespace Components.Aphid.UnitTests
 
                 ret true;
             ");
-        }
     }
 }

@@ -1,10 +1,6 @@
 ﻿using Components.Aphid.UnitTests.Shared;
-using Components.Aphid.UI;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 using Components.Aphid.TypeSystem;
 using System.Linq.Expressions;
 
@@ -34,9 +30,7 @@ namespace Components.Aphid.UnitTests
         public void StaticPropertyGetBoolTest2() => StaticGetTest(_staticBoolProperty, expected: true, setExpected: true);
 
         [Test, Ignore("Feature needs to be fixed.")]
-        public void StaticPropertySetGetAphidObject()
-        {
-            StaticPathTest<AphidObject>(
+        public void StaticPropertySetGetAphidObject() => StaticPathTest<AphidObject>(
                 _staticAphidObjectProperty,
                 "{x: 10, y: 20}",
                 x =>
@@ -47,12 +41,9 @@ namespace Components.Aphid.UnitTests
                     CollectionAssert.Contains(x.Keys, "x");
                     CollectionAssert.Contains(x.Keys, "y");
                 });
-        }
 
         [Test]
-        public void StaticPropertyGetRootControlTest()
-        {
-            StaticGetTest<UIComponent>(
+        public void StaticPropertyGetRootControlTest() => StaticGetTest<UIComponent>(
                 _rootControlProperty,
                 x =>
                 {
@@ -61,23 +52,16 @@ namespace Components.Aphid.UnitTests
                     Assert.AreEqual(x.Name, "TextBox1");
                     Assert.AreEqual(textBox.MaxLength, 0x100);
                 });
-        }
 
         [Test]
-        public void StaticFieldGetBoolFailTest()
-        {
-            AllFail(
+        public void StaticFieldGetBoolFailTest() => AllFail(
                 () => StaticGetTest(_staticBoolField, expected: true),
                 () => StaticGetTest(_staticBoolField, expected: true, setExpected: false));
-        }
 
         [Test]
-        public void StaticPropertyGetBoolFailTest()
-        {
-            AllFail(
+        public void StaticPropertyGetBoolFailTest() => AllFail(
                 () => StaticGetTest(_staticBoolProperty, expected: true),
                 () => StaticGetTest(_staticBoolProperty, expected: true, setExpected: false));
-        }
 
         //[Test]
         //public void StaticGetInvalidNamespaceFail()

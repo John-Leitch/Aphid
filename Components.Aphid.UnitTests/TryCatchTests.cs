@@ -1,10 +1,5 @@
 ﻿using Components.Aphid.UnitTests.Shared;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
@@ -12,8 +7,7 @@ namespace Components.Aphid.UnitTests
     public class TryCatchTests : AphidTests
     {
         [Test]
-        public void TryCatchNoFaultTest()
-        {
+        public void TryCatchNoFaultTest() =>
             Assert9(@"
                 try {
                     1/1;                    
@@ -23,11 +17,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 9;
             ");
-        }
 
         [Test]
-        public void TryCatchReturnFromTryBlockTest()
-        {
+        public void TryCatchReturnFromTryBlockTest() =>
             Assert9(@"
                 try {
                     1/1;                    
@@ -38,11 +30,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 0;                
             ");
-        }
 
         [Test]
-        public void TryCatchReturnFromCatchBlockTest()
-        {
+        public void TryCatchReturnFromCatchBlockTest() =>
             Assert9(@"
                 try {
                     1/0;
@@ -52,11 +42,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 0;                
             ");
-        }
 
         [Test]
-        public void TryCatchReturnFromArgFreeCatchBlockTest()
-        {
+        public void TryCatchReturnFromArgFreeCatchBlockTest() =>
             Assert9(@"
                 try {
                     1/0;
@@ -66,11 +54,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 0;                
             ");
-        }
 
         [Test]
-        public void TryCatchDivideByZeroMessageTest()
-        {
+        public void TryCatchDivideByZeroMessageTest() =>
             AssertTrue(@"
                 try {
                     1/0;
@@ -80,11 +66,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 0;                
             ");
-        }
 
         [Test]
-        public void TryCatchExceptionStackTraceNameTest()
-        {
+        public void TryCatchExceptionStackTraceNameTest() =>
             AssertTrue(@"
                 var foo = @() 1/0;
 
@@ -96,11 +80,9 @@ namespace Components.Aphid.UnitTests
 
                 ret false;                
             ");
-        }
 
         [Test]
-        public void TryCatchExceptionStackTraceMultiNameTest()
-        {
+        public void TryCatchExceptionStackTraceMultiNameTest() =>
             AssertTrue(@"
                 var foo = @() 1/0;
                 var bar = @() foo();
@@ -113,11 +95,9 @@ namespace Components.Aphid.UnitTests
 
                 ret false;                
             ");
-        }
 
         [Test]
-        public void TryCatchExceptionStackTraceStaleNameTest()
-        {
+        public void TryCatchExceptionStackTraceStaleNameTest() =>
             AssertTrue(@"
                 var stale = @() 1/1;
                 var foo = @() 1/0;
@@ -136,11 +116,9 @@ namespace Components.Aphid.UnitTests
 
                 ret false;
             ");
-        }
 
         [Test]
-        public void TryCatchNestingExceptionStackTraceStaleNameTest()
-        {
+        public void TryCatchNestingExceptionStackTraceStaleNameTest() =>
             AssertTrue(@"
                 #'meta';
                 var stale = @() 1/1;
@@ -173,6 +151,5 @@ namespace Components.Aphid.UnitTests
 
                 ret success;
             ");
-        }
     }
 }

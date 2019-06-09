@@ -1,20 +1,13 @@
 ﻿using Components.Aphid.UnitTests.Shared;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Components.Aphid.UnitTests
 {
     [TestFixture(Category = "AphidExtensionMethod"), Parallelizable(ParallelScope.All)]
     public class ExtensionMethodTests : AphidTests
-    {       
+    {
         [Test]
-        public void ExtensionMethodTest()
-        {
+        public void ExtensionMethodTest() =>
             Assert9(@"
                 extend number {
                     square: @(l) l * l
@@ -23,11 +16,9 @@ namespace Components.Aphid.UnitTests
                 var x = 3;
                 ret x.square();
             ");
-        }
 
         [Test]
-        public void ExtensionMethodTest2()
-        {
+        public void ExtensionMethodTest2() =>
             Assert9(@"
                 extend number {
                     square: @(l) l * l
@@ -35,35 +26,41 @@ namespace Components.Aphid.UnitTests
                 
                 ret (3).square();
             ");
-        }
 
         [Test]
-        public void ExtensionMethodNumberTest() => Assert9("extend number{g:@(x)x}ret(9).g()");
+        public void ExtensionMethodNumberTest() =>
+            Assert9("extend number{g:@(x)x}ret(9).g()");
 
         [Test]
-        public void ExtensionMethodNumberTest2() => Assert9("extend number{g:@(x)$_}ret(9).g()");
+        public void ExtensionMethodNumberTest2() =>
+            Assert9("extend number{g:@(x)$_}ret(9).g()");
 
         [Test]
-        public void ExtensionMethodNumberTest3() => Assert9("extend number{g:@(x)$args[0]}ret(9).g()");
+        public void ExtensionMethodNumberTest3() =>
+            Assert9("extend number{g:@(x)$args[0]}ret(9).g()");
 
         [Test]
-        public void ExtensionMethodNumberTest4() => Assert9("extend number{g:@(x,y)x+y}ret(8).g(1)");
+        public void ExtensionMethodNumberTest4() =>
+            Assert9("extend number{g:@(x,y)x+y}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest5() => Assert9("extend number{g:@(x,y)$_+y}ret(8).g(1)");
+        public void ExtensionMethodNumberTest5() =>
+            Assert9("extend number{g:@(x,y)$_+y}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest6() => Assert9("extend number{g:@(x,y)$args[0]+y}ret(8).g(1)");
+        public void ExtensionMethodNumberTest6() =>
+            Assert9("extend number{g:@(x,y)$args[0]+y}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest7() => Assert9("extend number{g:@(x,y)$_+$args[1]}ret(8).g(1)");
+        public void ExtensionMethodNumberTest7() =>
+            Assert9("extend number{g:@(x,y)$_+$args[1]}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodNumberTest8() => Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
+        public void ExtensionMethodNumberTest8() =>
+            Assert9("extend number{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
 
         [Test]
-        public void ExtensionMethodGenericTest()
-        {
+        public void ExtensionMethodGenericTest() =>
             Assert9(@"
                 #'Std';
                 using Components.Aphid.Parser;
@@ -87,11 +84,9 @@ namespace Components.Aphid.UnitTests
                 var b = @{ a; b; c; d; e; f; g; h; i; };
                 ret b.Body.whereId() -# @() true;
             ");
-        }
 
         [Test]
-        public void ExtensionMethodGenericTest2()
-        {
+        public void ExtensionMethodGenericTest2() =>
             Assert9(@"
                 #'Std';
                 using Components.Aphid.Parser;
@@ -115,11 +110,9 @@ namespace Components.Aphid.UnitTests
                 var b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
                 ret b.Body.whereId() -# @() true;
             ");
-        }
 
         [Test]
-        public void ExtensionMethodGenericTest3()
-        {
+        public void ExtensionMethodGenericTest3() =>
             AssertFalse(@"
                 #'Std';
                 using Components.Aphid.Parser;
@@ -143,11 +136,9 @@ namespace Components.Aphid.UnitTests
                 var b = @{ a; b; c; d; e; f; g; h; i; };
                 ret (b.Body.whereId() -# @() true) == 8;
             ");
-        }
 
         [Test]
-        public void ExtensionMethodGenericTest4()
-        {
+        public void ExtensionMethodGenericTest4() =>
             AssertFalse(@"
                 #'Std';
                 using Components.Aphid.Parser;
@@ -171,11 +162,9 @@ namespace Components.Aphid.UnitTests
                 var b = @{ 'foo'; a; b; c; d; e; f; g; h; i; 'bar'; };
                 ret (b.Body.whereId() -# @() true) == 8;
             ");
-        }
 
         [Test]
-        public void ExtensionMethodGenericTestFault()
-        {
+        public void ExtensionMethodGenericTestFault() =>
             AssertFalse(@"
                 #'Std';
                 try {
@@ -190,11 +179,9 @@ namespace Components.Aphid.UnitTests
                     ret false;
                 }
             ");
-        }
 
         [Test]
-        public void ExtensionMethodGenericTestFault2()
-        {
+        public void ExtensionMethodGenericTestFault2() =>
             AssertFalse(@"
                 #'Std';
                 try {
@@ -209,11 +196,9 @@ namespace Components.Aphid.UnitTests
                     ret false;
                 }
             ");
-        }
 
         [Test]
-        public void ExtensionMethodGenericTestFault3()
-        {
+        public void ExtensionMethodGenericTestFault3() =>
             AssertFalse(@"
                 try {
                     extend AphidExpressiona {
@@ -227,11 +212,11 @@ namespace Components.Aphid.UnitTests
                     ret false;
                 }
             ");
-        }
 
         //Todo: Add alias tests using SuiteAttribute.
         [Test]
-        public void ExtensionMethodCSStyleDecimalAliasTest8() => Assert9("using System; extend decimal{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
+        public void ExtensionMethodCSStyleDecimalAliasTest8() =>
+            Assert9("using System; extend decimal{g:@(x,y)$args[0]+$args[1]}ret(8).g(1)");
 
         //public void ExtensionMethodNumberCore([CallerMemberName] string name = null)
         //{
@@ -256,80 +241,70 @@ namespace Components.Aphid.UnitTests
         //}
 
         [Test]
-        public void ExtensionMethodTestUnknown()
-        {
+        public void ExtensionMethodTestUnknown() =>
             Assert9("extend unknown{g:@(x)9}ret 1.GetType().g()");
-        }
 
         [Test]
-        public void ExtensionMethodTestUnknown2() => Assert9("extend unknown{g:@(x)9}ret 1.Equals.g()");
+        public void ExtensionMethodTestUnknown2() =>
+            Assert9("extend unknown{g:@(x)9}ret 1.Equals.g()");
 
         [Test]
-        public void ExtensionMethodTestUnknown3() => Assert9("extend unknown{g:@()9}ret 1.GetType().g()");
+        public void ExtensionMethodTestUnknown3() =>
+            Assert9("extend unknown{g:@()9}ret 1.GetType().g()");
 
         [Test]
-        public void ExtensionMethodTestUnknown4() => Assert9("extend unknown{g:@()9}ret 1.Equals.g()");
+        public void ExtensionMethodTestUnknown4() =>
+            Assert9("extend unknown{g:@()9}ret 1.Equals.g()");
 
         [Test]
-        public void ExtensionMethodTestUnknownSecondArg() => Assert9("extend unknown{g:@(x, y)y}ret 1.Equals.g(9)");
+        public void ExtensionMethodTestUnknownSecondArg() =>
+            Assert9("extend unknown{g:@(x, y)y}ret 1.Equals.g(9)");
 
         [Test]
-        public void ExtensionMethodTestUnknownImplicitArg()
-        {
+        public void ExtensionMethodTestUnknownImplicitArg() =>
             AssertTrue(@"
                 extend unknown{g:@(x)$_.ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g(2)");
-        }
 
         [Test]
-        public void ExtensionMethodTestUnknownImplicitArg2()
-        {
+        public void ExtensionMethodTestUnknownImplicitArg2() =>
             AssertTrue(@"
                 extend unknown{g:@(x)$_.ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g()");
-        }
 
         [Test]
-        public void ExtensionMethodTestUnknownImplicitArg3()
-        {
+        public void ExtensionMethodTestUnknownImplicitArg3() =>
             AssertTrue(@"
                 extend unknown{g:@()$_.ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g()");
-        }
 
         [Test]
-        public void ExtensionMethodTestUnknownImplicitArgArray()
-        {
+        public void ExtensionMethodTestUnknownImplicitArgArray() =>
             AssertTrue(@"
                 extend unknown{g:@()$args[0].ToString()=='Components.Aphid.TypeSystem.AphidInteropMember'}
                 ret 1.Equals.g()");
-        }
 
         [Test]
-        public void ExtensionMethodInteropTest()
-        {
+        public void ExtensionMethodInteropTest() =>
             Assert9(@"
                 using Components.Aphid.Parser;
                 extend FunctionExpression {isFunc: @(o)9}
                 ret @{@{ }}.Body[0].isFunc();
             ");
-        }
 
         public void ExtensionMethodInteropTest(
             string targetType,
-            string paramDecl = "o", 
-            string paramRef = "o")
-        {
+            string paramDecl = "o",
+            string paramRef = "o") =>
             AssertTrue(@"
                 #'Meta';
                 using Components.Aphid.Parser;
                 using System;
-                extend " + targetType + @" {" + 
-                    @"isFunc: @(" + paramDecl + @")" + paramRef + @".GetType()" + 
+                extend " + targetType + @" {" +
+                    @"isFunc: @(" + paramDecl + @")" + paramRef + @".GetType()" +
                         @"== FunctionExpression}
                 ret @{@{ }}.Body[0].isFunc();
             ");
-        }
 
         [Test]
         public void ExtensionMethodInteropInheritanceTest() => ExtensionMethodInteropTest("FunctionExpression");
@@ -368,8 +343,7 @@ namespace Components.Aphid.UnitTests
         public void ExtensionMethodInteropInheritanceTest12() => ExtensionMethodInteropTest("Object", "", paramRef: "$_");
 
         [Test]
-        public void DynamicExtensionMethodTest()
-        {
+        public void DynamicExtensionMethodTest() =>
             AssertFoo(@"
                 using System;
                 extend string {
@@ -378,11 +352,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 'abc'.foo();
             ");
-        }
 
         [Test]
-        public void DynamicExtensionMethodTest2()
-        {
+        public void DynamicExtensionMethodTest2() =>
             AssertFoo(@"
                 using System;
                 extend string {
@@ -391,11 +363,9 @@ namespace Components.Aphid.UnitTests
 
                 ret 'abc'.f();
             ");
-        }
 
         [Test]
-        public void DynamicExtensionMethodTest3()
-        {
+        public void DynamicExtensionMethodTest3() =>
             AssertFoo(@"
                 using System;
                 extend string {
@@ -404,31 +374,25 @@ namespace Components.Aphid.UnitTests
 
                 ret 'f'.o();
             ");
-        }
 
         [Test]
-        public void DynamicExtensionMethodInheritance()
-        {
+        public void DynamicExtensionMethodInheritance() =>
             Assert9(@"
                 using Components.Aphid.Parser;
                 extend FunctionExpression {dynamic isFunc: @(o)9}
                 ret @{@{ }}.Body[0].aaa();
             ");
-        }
 
         [Test]
-        public void DynamicExtensionMethodInheritance2()
-        {
+        public void DynamicExtensionMethodInheritance2() =>
             Assert9(@"
                 using Components.Aphid.Parser;
                 extend AphidExpression {dynamic isFunc: @(o)9}
                 ret @{@{ }}.Body[0].aaa();
             ");
-        }
 
         [Test, Ignore("Not yet supported.")]
-        public void StaticExtensionMethodDefinedTest()
-        {
+        public void StaticExtensionMethodDefinedTest() =>
             AssertTrue(@"
                 using Components.External.ConsolePlus;
 
@@ -438,11 +402,9 @@ namespace Components.Aphid.UnitTests
 
                 ret Cli.Return defined;
             ");
-        }
 
         [Test, Ignore("Not yet supported.")]
-        public void StaticExtensionMethodNotDefinedTest()
-        {
+        public void StaticExtensionMethodNotDefinedTest() =>
             AssertTrue(@"
                 using Components.External.ConsolePlus;
 
@@ -452,11 +414,9 @@ namespace Components.Aphid.UnitTests
 
                 ret Cli.Return defined;
             ");
-        }
 
         [Test]
-        public void StaticExtensionMethodTest()
-        {
+        public void StaticExtensionMethodTest() =>
             Assert9(@"
                 using Components.External.ConsolePlus;
 
@@ -466,11 +426,9 @@ namespace Components.Aphid.UnitTests
 
                 ret Cli.Return();
             ");
-        }
 
         [Test]
-        public void StaticExtensionMethodTest2()
-        {
+        public void StaticExtensionMethodTest2() =>
             Assert9(@"
                 using Components.External.ConsolePlus;
 
@@ -480,11 +438,9 @@ namespace Components.Aphid.UnitTests
 
                 ret Cli.Return(2, 4, 1, 12);
             ");
-        }
 
         [Test]
-        public void StaticExtensionMethodTest3()
-        {
+        public void StaticExtensionMethodTest3() =>
             AssertFalse(@"
                 using Components.External.ConsolePlus;
 
@@ -494,11 +450,9 @@ namespace Components.Aphid.UnitTests
 
                 ret Cli.Return(2, 4, 1, 12) == 9;
             ");
-        }
 
         [Test]
-        public void StaticExtensionMethodRefTest()
-        {
+        public void StaticExtensionMethodRefTest() =>
             Assert9(@"
                 using Components.External.ConsolePlus;
 
@@ -510,11 +464,9 @@ namespace Components.Aphid.UnitTests
 
                 ret f(2, 4, 1, 12);
             ");
-        }
 
         [Test]
-        public void StaticExtensionMethodRefTest2()
-        {
+        public void StaticExtensionMethodRefTest2() =>
             Assert9(@"
                 using Components.External.ConsolePlus;
 
@@ -527,6 +479,5 @@ namespace Components.Aphid.UnitTests
 
                 ret x(2, 4, 1, 12);
             ");
-        }
     }
 }
