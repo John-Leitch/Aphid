@@ -45,7 +45,10 @@ namespace Components
 
         public static string Slice(this string s, int StartIndex, int EndIndex) => s.Substring(StartIndex, EndIndex - StartIndex);
 
-        public static string[] Split(this string s, int Index) => new[] { s.Remove(Index), s.Substring(Index) };
+        public static string[] Split(this string s, int Index) =>
+            s.Length != Index ?
+                new[] { s.Remove(Index), s.Substring(Index) } :
+                new[] { s, string.Empty };
 
         public static string[] SplitLines(this string s, StringSplitOptions Options) => s.Split(new[] { "\r\n" }, Options);
 

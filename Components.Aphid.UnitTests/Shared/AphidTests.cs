@@ -155,7 +155,7 @@ namespace Components.Aphid.UnitTests.Shared
             var tokens2 = GetTokens(script);
             AreEqual(tokens.Length, tokens2.Count);
 
-            for (int i = 0; i < tokens.Length; i++)
+            for (var i = 0; i < tokens.Length; i++)
             {
                 AreEqual(tokens[i].TokenType, tokens2[i].TokenType);
 
@@ -172,15 +172,24 @@ namespace Components.Aphid.UnitTests.Shared
 
         public static void IsFalse(bool value) =>
             Assert.IsFalse(value);
+        
         public static void IsTrue(bool value) =>
             Assert.IsTrue(value);
-        public static void IsFoo(object value) => AreEqual("foo", value);
-        public static void Is9(object value) => AreEqual(9m, value);
+        
+        public static void IsFoo(object value) => 
+            AreEqual("foo", value);
+        
+        public static void Is9(object value) => 
+            AreEqual(9m, value);
+        
         public static void IsNull(object value) =>
             Assert.IsNull(value);
+        
         public static void NotNull(object value) =>
             Assert.NotNull(value);
-        public static void IsFail(Action action) => IsThrow<AssertionException>(action);
+        
+        public static void IsFail(Action action) => 
+            IsThrow<AssertionException>(action);
 
         public static void AllFail(params Action[] actions) =>
             actions.Do(CollectionAssert.IsNotEmpty).Iter(IsFail);
@@ -204,10 +213,13 @@ namespace Components.Aphid.UnitTests.Shared
 
         public void AssertFoo(string script) =>
             AssertEquals("foo", script);
+        
         public void Assert9(string script) =>
             AssertEquals(9m, script);
+        
         public void AssertTrue(string script) =>
             AssertEquals(true, script);
+        
         public void AssertFalse(string script) =>
             AssertEquals(false, script);
 

@@ -78,6 +78,14 @@ namespace Components.Aphid.Serialization
         public AphidSerializer(AphidInterpreter interpreter)
             : base(interpreter) => IgnoreFunctions = true;
 
+        public string Serialize(object o)
+        {
+            lock (this)
+            {
+                return SerializeCore(ValueHelper.Wrap(o));
+            }
+        }
+
         public string Serialize(AphidObject o)
         {
             lock (this)
@@ -188,11 +196,22 @@ namespace Components.Aphid.Serialization
                         hasAny = true;
                     }
 
-                    s.AppendFormat(
-                        !AlwaysQuoteKeys && !ShouldQuote(kvp.Key) ? "{0}{2}: " : "{0}{1}{2}{1}:",
-                        new string(' ', (indent + 1) * 4),
-                        _quoteChar,
-                        kvp.Key);
+                    if (!AlwaysQuoteKeys && !ShouldQuote(kvp.Key))
+                    {
+                        s.AppendFormat(
+                             "{0}{2}: ",
+                            new string(' ', (indent + 1) * 4),
+                            _quoteChar,
+                            kvp.Key);
+                    }
+                    else
+                    {
+                        s.AppendFormat(
+                            "{0}{1}{2}{1}:",
+                            new string(' ', (indent + 1) * 4),
+                            _quoteChar,
+                            Escape(kvp.Key));
+                    }
 
                     _currentPath.Push(kvp.Key);
                     Serialize(s, kvp.Value, indent + 1);
