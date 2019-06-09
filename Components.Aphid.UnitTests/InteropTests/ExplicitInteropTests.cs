@@ -18,19 +18,24 @@ namespace Components.Aphid.UnitTests
             _rootControlProperty = () => TestClass.RootControl;
 
         [Test]
-        public void StaticFieldGetBoolTest() => StaticGetTest(_staticBoolField, expected: false, setExpected: true);
+        public void StaticFieldGetBoolTest() =>
+            StaticGetTest(_staticBoolField, expected: false, setExpected: true);
 
         [Test]
-        public void StaticFieldGetBoolTest2() => StaticGetTest(_staticBoolField, expected: true, setExpected: true);
+        public void StaticFieldGetBoolTest2() =>
+            StaticGetTest(_staticBoolField, expected: true, setExpected: true);
 
         [Test]
-        public void StaticPropertyGetBoolTest() => StaticGetTest(_staticBoolProperty, expected: false, setExpected: true);
+        public void StaticPropertyGetBoolTest() =>
+            StaticGetTest(_staticBoolProperty, expected: false, setExpected: true);
 
         [Test]
-        public void StaticPropertyGetBoolTest2() => StaticGetTest(_staticBoolProperty, expected: true, setExpected: true);
+        public void StaticPropertyGetBoolTest2() =>
+            StaticGetTest(_staticBoolProperty, expected: true, setExpected: true);
 
         [Test, Ignore("Feature needs to be fixed.")]
-        public void StaticPropertySetGetAphidObject() => StaticPathTest<AphidObject>(
+        public void StaticPropertySetGetAphidObject() =>
+            StaticPathTest<AphidObject>(
                 _staticAphidObjectProperty,
                 "{x: 10, y: 20}",
                 x =>
@@ -43,7 +48,8 @@ namespace Components.Aphid.UnitTests
                 });
 
         [Test]
-        public void StaticPropertyGetRootControlTest() => StaticGetTest<UIComponent>(
+        public void StaticPropertyGetRootControlTest() =>
+            StaticGetTest<UIComponent>(
                 _rootControlProperty,
                 x =>
                 {
@@ -54,12 +60,14 @@ namespace Components.Aphid.UnitTests
                 });
 
         [Test]
-        public void StaticFieldGetBoolFailTest() => AllFail(
+        public void StaticFieldGetBoolFailTest() =>
+            AllFail(
                 () => StaticGetTest(_staticBoolField, expected: true),
                 () => StaticGetTest(_staticBoolField, expected: true, setExpected: false));
 
         [Test]
-        public void StaticPropertyGetBoolFailTest() => AllFail(
+        public void StaticPropertyGetBoolFailTest() =>
+            AllFail(
                 () => StaticGetTest(_staticBoolProperty, expected: true),
                 () => StaticGetTest(_staticBoolProperty, expected: true, setExpected: false));
 

@@ -22,7 +22,8 @@ namespace Components.Aphid.UnitTests
                     .Do(y => y.Loader.LoadModule(Assembly.GetExecutingAssembly()))
                     .Do(y => y.Interpret("##'Components.Aphid.UnitTests.ExplicitInteropTests';")));
 
-        private static void IsFrame(string name) => new StackTrace(true).GetFrame(1).GetMethod().Name.Do(x => AreEqual(x, name));
+        private static void IsFrame(string name) =>
+            new StackTrace(true).GetFrame(1).GetMethod().Name.Do(x => AreEqual(x, name));
 
         //private static void Execute(string code) => _aphid.Execute("##'Components.Aphid.UnitTests.ExplicitInteropTests'; " + code);
 
@@ -37,13 +38,14 @@ namespace Components.Aphid.UnitTests
         private static void Are<T>(Action<object, object> assert, T expected, params object[] args) =>
             assert(expected, ValueHelper.Unwrap(Exec(args)));
 
-        private static AphidObject Exec(params object[] args) => new StackTrace()
-            .GetFrames()
-            .Select(x => x.GetMethod())
-            .First(x => x.IsDefined(typeof(TestAttribute)))
-            .Then(x => _aphid.Execute(
-                $"ret at.{FormatName(x)}" +
-                $"({args.Select(y => y.ToString()).Join(", ")})"));
+        private static AphidObject Exec(params object[] args) =>
+            new StackTrace()
+                .GetFrames()
+                .Select(x => x.GetMethod())
+                .First(x => x.IsDefined(typeof(TestAttribute)))
+                .Then(x => _aphid.Execute(
+                    $"ret at.{FormatName(x)}" +
+                    $"({args.Select(y => y.ToString()).Join(", ")})"));
 
         private static string FormatName(MethodBase x) =>
             (x.Name.StartsWith("Test") ? x.Name.Substring("Test".Length) : x.Name)
@@ -53,7 +55,8 @@ namespace Components.Aphid.UnitTests
         #endregion
 
         [MethodImpl(MethodImplOptions.NoInlining), AphidInteropFunction("at.NoArgsNoReturn")]
-        public static void NoArgsNoReturn() => IsFrame(nameof(NoArgsNoReturn));
+        public static void NoArgsNoReturn() =>
+            IsFrame(nameof(NoArgsNoReturn));
 
         [Test][MethodImpl(MethodImplOptions.NoInlining)] public static void TestNoArgsNoReturn() => Exec();
 

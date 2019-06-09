@@ -177,11 +177,10 @@ namespace Components.Aphid.UnitTests
             Assert9(@"using System.Linq; ret Enumerable.First([ 2, 4, 9, 3, 5 ], @()($_&1)==1);");
 
         [Test]
-        public void EnumerableAphidListFirstPredicateImplicitArgFailTest() => AllFail(
-                () =>
-            Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@(x)(x&1)==0);"),
-                () =>
-            Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@()($_&1)==0);"));
+        public void EnumerableAphidListFirstPredicateImplicitArgFailTest() =>
+            AllFail(
+                () => Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@(x)(x&1)==0);"),
+                () => Assert9(@"using System.Linq;ret Enumerable.First([2,4,9,3,5],@()($_&1)==0);"));
 
         [Test]
         public void EnumerableAphidListOrderByTest() =>

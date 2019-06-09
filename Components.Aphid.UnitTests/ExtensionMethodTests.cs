@@ -307,40 +307,52 @@ namespace Components.Aphid.UnitTests
             ");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest() => ExtensionMethodInteropTest("FunctionExpression");
+        public void ExtensionMethodInteropInheritanceTest() =>
+            ExtensionMethodInteropTest("FunctionExpression");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest2() => ExtensionMethodInteropTest("AphidExpression");
+        public void ExtensionMethodInteropInheritanceTest2() =>
+            ExtensionMethodInteropTest("AphidExpression");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest3() => ExtensionMethodInteropTest("AphidNode");
+        public void ExtensionMethodInteropInheritanceTest3() =>
+            ExtensionMethodInteropTest("AphidNode");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest4() => ExtensionMethodInteropTest("Object");
+        public void ExtensionMethodInteropInheritanceTest4() =>
+            ExtensionMethodInteropTest("Object");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest5() => ExtensionMethodInteropTest("FunctionExpression", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest5() =>
+            ExtensionMethodInteropTest("FunctionExpression", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest6() => ExtensionMethodInteropTest("AphidExpression", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest6() =>
+            ExtensionMethodInteropTest("AphidExpression", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest7() => ExtensionMethodInteropTest("AphidNode", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest7() =>
+            ExtensionMethodInteropTest("AphidNode", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest8() => ExtensionMethodInteropTest("Object", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest8() =>
+            ExtensionMethodInteropTest("Object", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest9() => ExtensionMethodInteropTest("FunctionExpression", "", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest9() =>
+            ExtensionMethodInteropTest("FunctionExpression", "", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest10() => ExtensionMethodInteropTest("AphidExpression", "", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest10() =>
+            ExtensionMethodInteropTest("AphidExpression", "", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest11() => ExtensionMethodInteropTest("AphidNode", "", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest11() =>
+            ExtensionMethodInteropTest("AphidNode", "", paramRef: "$_");
 
         [Test]
-        public void ExtensionMethodInteropInheritanceTest12() => ExtensionMethodInteropTest("Object", "", paramRef: "$_");
+        public void ExtensionMethodInteropInheritanceTest12() =>
+            ExtensionMethodInteropTest("Object", "", paramRef: "$_");
 
         [Test]
         public void DynamicExtensionMethodTest() =>
