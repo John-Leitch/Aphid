@@ -22,3 +22,17 @@ io.dir.getDirs = @getFsos(io.dir.getDirsInternal);
 _ob = macro(@(o) { Directory.GetFiles(path, pattern defined ? pattern : '*', SearchOption.o) });
 @ .* (path, pattern) _ob(TopDirectoryOnly);
 @ :* (path, pattern) _ob(AllDirectories);
+
+var dirExists = Directory.Exists;
+var fileExists = File.Exists;
+var isDir = dirExists;
+var isFile = fileExists;
+
+io.files = Directory.EnumerateFiles;
+io.dirs = Directory.EnumerateDirectories;
+io.text = File.ReadAllText;
+io.lines = File.ReadAllLines;
+io.bytes = File.ReadAllBytes;
+io.del = File.Delete;
+io.rd = Directory.Delete;
+io.len = @() (new FileInfo($_)).Length;

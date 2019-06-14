@@ -1,0 +1,10 @@
+﻿flip = macro(@(f) { @(x, y) f(y, x) });
+var skip = flip(Enumerable.Skip);
+var take = flip(Enumerable.Take);
+var every = flip(EnumerableExtension.GroupEvery);
+var reverse  = Enumerable.Reverse;
+var toArray = Enumerable.ToArray;
+var toList = Enumerable.ToList;
+var distinct = Enumerable.Distinct;
+var zip = @(second, selector, first) Enumerable.Zip(first, second, selector);
+var seqEqual = Enumerable.SequenceEqual;

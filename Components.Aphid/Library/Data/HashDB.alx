@@ -1,0 +1,144 @@
+var hashDB;
+
+@{
+    #'System/Cryptography';
+
+    _hf = macro(@(n) { file | File.Exists ? file | n.hexFile : 'FileNotFound' });
+
+    hashDB = {
+        open: @(dbName) ((!(dbName defined) ? '' : dbName + '_') + 'hashes.txt') | openFile,
+        openFile: @(dbFile){
+            var db = {
+                fast: false,
+                updateOnAdd: false,
+                allowDuplicates: false,
+                hashDBFile: dbFile,
+                md5s: null,
+                sha256s: null,
+                stream: File.Open(hashDBFile, FileMode.OpenOrCreate, FileAccess.ReadWrite),
+                reader: new StreamReader(stream),
+                writer: new StreamWriter(stream),
+                close: stream.Close,
+                getKey: @(f) f | Path.GetFullPath @() $_.Replace('/', '\\'),
+                add: @(f) {
+                    initRows();
+                    // stream.Position | dump;
+                    //stream.Position = stream.Length;
+                    var file = f | getKey;
+
+                    if (!allowDuplicates && rows[file] defined) {
+                        ret rows[file];
+                    }
+
+                    var o;
+                    if (fast) {
+                        o = { path: file, sha256: _hf(sha256) };
+                        rows[file] = o;
+                        [ file, o.sha256 ]->writer.WriteLine;
+
+                        if (updateOnAdd) {
+                            sha256s[o.sha256] = o;
+                        }
+                    } else {
+                        o = { path: file, md5: _hf(md5), sha1: _hf(sha1), sha256: _hf(sha256), sha512: _hf(sha512) };
+                        rows[file] = o;
+                        [ file, o.md5, o.sha1, o.sha256, o.sha512 ]->writer.WriteLine;
+
+                        if (updateOnAdd) {
+                            md5s[o.md5] = o;
+                        }
+                    }
+                    
+                    writer.Flush();
+                    // stream.Position | dump;
+                    ret o;
+                },
+                rows: null,
+                initRows: @{
+                    if (rows == null) {
+                        read();
+                    }
+
+                    ret rows;
+                },
+                read: @{
+                    if (rows == null) {
+                        rows = {};
+                        if (fast) {
+                            sha256s = {};
+                        } else {
+                            md5s = {}
+                        }
+                    }
+
+                    var r = reader.ReadLine;
+
+                    while (!reader.EndOfStream) {
+                        if (fast) {
+                            var o = { path: r(), sha256: r() };
+                            rows[o.path] = o;
+                            sha256s[o.sha256] = o;
+                        } else {
+                            var o = { path: r(), md5: r(), sha1: r(), sha256: r(), sha512: r() };
+                            rows[o.path] = o;
+                            md5s[o.md5] = o;
+                        }
+                    }
+
+                    ret rows;
+                },
+                get: @(f) {
+                    initRows();
+                    var k = f | getKey;
+
+                    if (rows[k] defined) {
+                        ret rows[k];
+                    } else {
+                        ret add(k);
+                    }
+                },
+                has: @(f) initRows()[f | getKey] defined,
+                hasSHA256: @(f) {
+                    initRows();
+                    ret sha256s[f | sha256.hexFile] defined;
+                },
+                hasMD5: @(f) {
+                    initRows();
+                    ret md5s[f | md5.hexFile] defined;
+                },
+                addCheck: @(f) {
+                    initRows();
+                    // stream.Position | dump;
+                    //stream.Position = stream.Length;
+                    var file = f | getKey;
+
+                    if (rows[file] defined) {
+                        ret false;
+                    }
+
+                    var result;
+                    if (fast) {
+                        var o = { path: file, sha256: _hf(sha256) };
+                        rows[file] = o;
+                        [ file, o.sha256 ]->writer.WriteLine;
+                        if ((result = !(sha256s[o.sha256] defined)) && updateOnAdd) {
+                            sha256s[o.sha256] = o;
+                        }
+                    } else {
+                        var o = { path: file, md5: _hf(md5), sha1: _hf(sha1), sha256: _hf(sha256), sha512: _hf(sha512) };
+                        rows[file] = o;
+                        [ file, o.md5, o.sha1, o.sha256, o.sha512 ]->writer.WriteLine;
+                        if ((result = !(md5s[o.md5] defined)) && updateOnAdd) {
+                            md5s[o.md5] = o;
+                        }
+                    }
+                    
+                    writer.Flush();
+                    // stream.Position | dump;
+                    ret result;
+                },
+            };
+            ret db;
+        }
+    };
+}();

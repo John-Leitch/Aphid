@@ -633,6 +633,15 @@
     <Compile Include="Interpreter\AphidLibraryAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Library\Data\AphidDB.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Data\HashDB.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Data\SQlite.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Gui\Colors.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

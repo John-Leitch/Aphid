@@ -1,0 +1,25 @@
+var aphidDB;
+
+@{
+    _hf = macro(@(n) { file | File.Exists ? file | n.hexFile : 'FileNotFound' });
+
+    aphidDB = {    
+        open: @(file, unsafe){
+            if (unsafed defined && unsafe) {
+                throw new InvalidOperationException('Unsafe memory manager not supported.');
+            }
+            
+            using Components.ObjectDatabase;
+
+            ret {
+                db: ObjectDatabase.OpenStringDatabase(file, unsafe defined ? unsafe : false),
+                close: db.Dispose,
+                sync: db.Sync,
+                write:@(obj) obj | serialize | db.Create,
+                read: @() db.ReadUnsafe()->@() deserialize($_),
+                any: @(predicate) db.ReadUnsafe() =? @() $_ | deserialize | predicate,
+                where: @(predicate) db.ReadUnsafe() -? @() $_ | deserialize | predicate,
+            };
+        }
+    };
+}();
