@@ -1,0 +1,36 @@
+#'Std';
+#'Net/Web';
+
+var wiki = {
+    extractFmt = 'https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles={0}',
+    extract: @(title)
+        title
+        |> WebUtility.UrlEncode
+        @format(extractFmt)        
+        |> httpGet
+        @() ($_ ~: [ '\\\\u00', '\\x' ])
+        |> deserialize
+        @() $_.query.pages.Values
+            ->@() ({ title: $_.title, id: $_.pageid, extract: $_.extract }),
+
+    dumpExtract: @(title) title | extract for {
+        head($_.title);
+        print($_.extract ~: [ '\\n', '\n\n' ]);
+    },
+};
+
+var args = getCommandLineArgs();
+
+var skipCount = args
+    @aq.takeWhile(@() $_.ToLower() | Path.GetFileNameWithoutExtension != 'wiki')
+    #!
+    @+ 1;
+
+var title = args @skip(skipCount) @join(' ');
+
+if (title == '') {
+    print('Wiki [search term]');
+    1 | exit;
+}
+
+title |> wiki.dumpExtract;

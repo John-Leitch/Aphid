@@ -340,6 +340,14 @@ var viewModel;
                 ret vmType;
             },
 
+            buildForTypes: @(namespace, types) {
+                var code = types->(@() fromType(namespace, $_))@join('\r\n\r\n');
+                var results = csharp.compileAsm(code);
+                var vmTypes = results.CompiledAssembly.GetTypes();
+
+                ret vmTypes;
+            },
+
             buildForObject: @(namespace, name, object) {
                 var code = fromObject(namespace, name, object);
                 var results = csharp.compileAsm(code);

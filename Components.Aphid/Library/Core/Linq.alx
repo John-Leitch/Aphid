@@ -8,3 +8,6 @@ var toList = Enumerable.ToList;
 var distinct = Enumerable.Distinct;
 var zip = @(second, selector, first) Enumerable.Zip(first, second, selector);
 var seqEqual = Enumerable.SequenceEqual;
+flip2 = macro(@(f) { @(predicate, source) $args.Count == 2 ? Enumerable.f(source, predicate) : Enumerable.f(predicate) });
+var any = flip2(Any);
+// var any = @(predicate, source) $args.Count == 2 ? Enumerable.Any(source, predicate) : Enumerable.Any(predicate)

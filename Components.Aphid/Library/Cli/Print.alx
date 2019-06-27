@@ -1,7 +1,7 @@
 ﻿delete print;
 
-var _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
-
+// var _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
+_t = macro(@(a, b, c, d, e, f, g){ });
 _print(var print, Cli.WriteLine);
 _print(var out, Cli.Write);
 // Todo: add print*() support for Cli.WriteMessage

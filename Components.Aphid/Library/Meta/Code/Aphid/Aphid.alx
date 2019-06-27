@@ -1243,8 +1243,7 @@ FunctionExpression ParseFunctionDeclaration = @{
 ParseFunctionExpression = @{
     exp;
     body;
-    args;
-    argExp;
+    args;    
     NextToken;
 
     switch (TokenType) {

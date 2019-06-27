@@ -205,7 +205,8 @@ namespace Components.Aphid.Interpreter
                     {
                         var cache = new AphidByteCodeCache(SearchPaths.ToArray())
                         {
-                            InlineScripts = InlineCachedScripts,
+                            //InlineScripts = InlineCachedScripts,
+                            InlineScripts = true,
                             DisableConstantFolding = DisableConstantFolding
                         };
                         ast = cache.Read(f);

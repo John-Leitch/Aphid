@@ -126,13 +126,19 @@ var bind;
                     
                     var exThread = new Thread(@{
                         wpfApp.app.add_DispatcherUnhandledException(@(o, e){
-                            var ex = e.Exception | ExceptionHelper.Unwrap;
-                            head('foo');
-                            // print(ex.GetType());
-                            // subhead('bar');
-                            AphidCli.DumpException(e.Exception, ex.Interpreter);
-                            // AphidCli.DumpException(ex, ex.Interpreter);                            
-                            subhead('done');
+                            using (new CrossProcessLock('AphidWpfEx')) {
+                                var ex = e.Exception | ExceptionHelper.Unwrap;
+                                Cli.WriteHeader('Unhandled Dispatcher Exception', '~White~~|Red~');
+                                print(ex.ToString() | Cli.Escape);
+                                print();
+                                
+                                Cli.WriteSubheader('Unhandled Dispatcher Dump', '~White~~|Red~');
+                                AphidCli.DumpException(e.Exception, ex.Interpreter defined ? ex.Interpreter : e.Interpreter defined ? e.Interpreter : null);
+                                print();
+                                // AphidCli.DumpException(ex, ex.Interpreter);                            
+                                Cli.WriteSubheader('Unhandled Dispatcher Output Complete', '~White~~|Red~');
+                                print();
+                            }
                         });
                     });
 

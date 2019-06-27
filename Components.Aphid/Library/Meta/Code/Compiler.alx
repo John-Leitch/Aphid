@@ -12,6 +12,7 @@ var csharp;
     using System.Reflection;
     using System.Security.Cryptography;
     using System.Text;
+    using Microsoft.CSharp;
 
     var md5Provider = new MD5CryptoServiceProvider();
     
@@ -426,11 +427,12 @@ var csharp;
         refs: null,
 
         params: null,
+        provider: new CSharpCodeProvider(),
 
         compileAsm: @(cs) {
-            using Microsoft.CSharp;
+            //using Microsoft.CSharp;
             
-            var provider = new CSharpCodeProvider();
+            //var provider = new CSharpCodeProvider();
 
             if (params == null) {
                 params = createDefaultParams();

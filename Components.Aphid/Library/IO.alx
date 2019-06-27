@@ -30,9 +30,63 @@ var isFile = fileExists;
 
 io.files = Directory.EnumerateFiles;
 io.dirs = Directory.EnumerateDirectories;
-io.text = File.ReadAllText;
-io.lines = File.ReadAllLines;
+
 io.bytes = File.ReadAllBytes;
+io.lines = File.ReadAllLines;
+io.text = File.ReadAllText;
+
+io.out = { bytes: File.WriteAllBytes, lines: File.WriteAllLines, text: File.WriteAllText };
+
 io.del = File.Delete;
 io.rd = Directory.Delete;
 io.len = @() (new FileInfo($_)).Length;
+
+io.parent = Path.GetDirectoryName;
+io.up = io.parent;
+io.name = Path.GetFileName;
+io.base = Path.GetFileNameWithoutExtension;
+io.full = Path.GetFullPath;
+io.attrs = File.GetAttributes;
+
+io.ext = @(pathOrExt, newExt)
+    pathOrExt defined ?
+        newExt defined ?
+            Path.ChangeExtension(newExt, pathOrExt) :
+            Path.GetExtension(pathOrExt) :
+        throw new ArgumentException('Invalid arg count for io.ext()');
+
+io.tmp = Path.GetTempPath;
+io.rnd = Path.GetTempFileName;
+io.copy = File.Copy;
+io.cp = io.copy;
+io.move = File.Move;
+io.mv = io.move;
+
+io.created = File.GetCreationTime;
+io.date = io.created;
+
+io.accessed = File.GetLastAccessTime;
+io.last = io.accessed;
+
+io.modified = File.GetLastWriteTime;
+io.touched = io.modified;
+
+io.drives = Directory.GetLogicalDrives;
+
+var open = {
+    create: File.Create,
+    read: File.OpenRead,
+    write: File.OpenWrite,
+    share: @(path) File.Open(
+        path,
+        FileMode.OpenOrCreate,
+        FileAccess.ReadWrite,
+        FileShare.ReadWrite),
+    
+    append: File.AppendText,
+};
+
+var append = {
+    lines: File.AppendAllLines,
+    text: File.AppendAllText,
+}

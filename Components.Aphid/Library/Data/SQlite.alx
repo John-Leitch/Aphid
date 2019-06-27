@@ -12,8 +12,24 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
             id: new SQLiteCommandBuilder() @.QuoteIdentifier,
         },
         connection: null,
+        version: 3,
+        dateTimeFormat: 'CurrentCulture',
+        dateTimeFormatValues: [
+            null,
+            'ms',
+            'Ticks',
+            'CurrentCulture',
+        ],
         open: @(file) {
-            connection = new SQLiteConnection('Data Source="{0}";datetimeformat=ms' :: $_);
+            connection = new SQLiteConnection(
+                [
+                    'Data Source="{0}"' :: $_,
+                    version != null ? 'version={0}' :: version : null,
+                    dateTimeFormat != null ? 'datetimeformat={0}' :: dateTimeFormat : null,                    
+                ]
+                -?@!= null
+                @join(';'));
+
             connection.Open();
 
             ret sqlite;
@@ -21,41 +37,47 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
         getRows: @(tableName) {
             var cmd = connection.CreateCommand();
             cmd.CommandText = 'SELECT * FROM ' + escape.id(tableName);
+            printQuery('Executing ~Cyan~{0}~R~', cmd.CommandText);
             var t = byte.MakeArrayType();
-            using (var rows = cmd.ExecuteReader()) {
-                ret rows->@(r){
-                    var o = {};
-                    0..r.FieldCount->@{
-                        // r.dir();
-                        var n = r.GetName($_);
-                        // n | print;
-                        // r.GetDataTypeName($_) | print;
-                        // r.GetFieldType($_) | print;
-                        
-                        o[n] = r.GetValue($_);
-                        var vt = o[n].GetType();
-                        if (vt == t) {
-                            var v = o[n];
-                            o[n] = v | Encoding.ASCII.GetString;
-                            o[n + '__unicode'] = v | Encoding.Unicode.GetString;
-                        }
+
+            try {
+                using (var rows = cmd.ExecuteReader()) {
+                    ret rows->@(r){
+                        var o = {};
+                        0..r.FieldCount->@{
+                            // r.dir();
+                            var n = r.GetName($_);
+                            // n | print;
+                            // r.GetDataTypeName($_) | print;
+                            // r.GetFieldType($_) | print;
+                            
+                            o[n] = r.GetValue($_);
+                            var vt = o[n].GetType();
+                            if (vt == t) {
+                                var v = o[n];
+                                o[n] = v | Encoding.ASCII.GetString;
+                                o[n + '__unicode'] = v | Encoding.Unicode.GetString;
+                            }
 
 
-                        if ((vt == int || vt == long) && o[n] >= 500000000) {
-                            [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
-                                try {
-                                    o[n + '__epoch_' + $_[0]] =
-                                        o[n] / $_[1]
-                                        | DateTimeOffset.FromUnixTimeSeconds
-                                        @() $_.ToLocalTime();
-                                } catch {
+                            if ((vt == int || vt == long) && o[n] >= 500000000) {
+                                [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
+                                    try {
+                                        o[n + '__epoch_' + $_[0]] =
+                                            o[n] / $_[1]
+                                            | DateTimeOffset.FromUnixTimeSeconds
+                                            @() $_.ToLocalTime();
+                                    } catch {
 
-                                }
-                        }
-                        
-                    };
-                    ret o;
+                                    }
+                            }
+                            
+                        };
+                        ret o;
+                    }
                 }
+            } catch (e) {
+                ret { error: e, query: cmd.CommandText };
             }
         },
         getSchema: @(tableName) {
