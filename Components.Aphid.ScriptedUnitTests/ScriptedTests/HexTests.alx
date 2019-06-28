@@ -1,0 +1,14 @@
+﻿#'Std';
+#'Testing\\Test';
+using System.Threading;
+
+_h = macro(@(n, x, r) { var id(n, Hex) = @() x.n() | hex == quote(r) });
+_h(byte, 0x41, 41);
+_h(sbyte, 0x41, 41);
+_h(int, 0x7eadbeef, '7eadbeef');
+_h(uint, 0xdeadbeef, deadbeef);
+_h(long, 0x7eadbeefcafebabe, '7eadbeefcafebabe');
+_h(ulong, 0xdeadbeefcafebabe, deadbeefcafebabe);
+
+var stringHex = @() 'AAAA' | hex == '0041004100410041';
+var stringHex2 = @() 'AAAZ' | hex == '004100410041005a';
