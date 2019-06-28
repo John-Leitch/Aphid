@@ -87,12 +87,15 @@ using System.Reflection;
 #'Core\\Operators';
 #'Core\\Enums';
 #'Core\\Linq';
+#'Core\\Async';
 #'String';
 #'List';
 #'Conversion';
 #'Cli';
 #'Query';
 #'Meta';
+#'Math';
+#'IO';
 #'Debugging\\Dbg';
 
 //>>>var attrs = Enumerable.Take(((getAllTypes()-<@()$_.GetMethods()-<@()$_.GetParameters())-?@()(var a = $_.Attributes) !=ParameterAttributes.None&&$_.Attributes!=ParameterAttributes.Out), 100)->@()({attrs:$_.Attributes, meth:$_})

@@ -73,6 +73,19 @@ io.touched = io.modified;
 
 io.drives = Directory.GetLogicalDrives;
 
+io.cat = @(rhs, lhs) _c();
+_cat = macro(@(n) { io.n = io.cat });
+_cat(append);
+_cat(suffix);
+_cat(concat);
+_cat(join);
+
+io.pre = @(lhs, rhs) _c();
+io.prefix = io.pre;
+io.prepend= io.pre;
+
+_c = macro(@{ Path.Combine(rhs, lhs) });
+
 var open = {
     create: File.Create,
     read: File.OpenRead,
