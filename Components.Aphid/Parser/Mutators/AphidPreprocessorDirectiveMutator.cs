@@ -77,6 +77,10 @@ namespace Components.Aphid.Parser
                     s = idExp.Identifier;
                     break;
 
+                case AphidExpressionType.StringExpression:
+                    s = StringParser.Parse(((StringExpression)callExp.Args[0]).Value);
+                    break;
+
                 case AphidExpressionType.NumberExpression:
                     s = ((NumberExpression)callExp.Args[0]).Value.ToString();
                     break;
@@ -88,8 +92,8 @@ namespace Components.Aphid.Parser
                 default:
                     throw new AphidParserException(
                         string.Format(
-                            "Quote preprocessor directive argument must be identifier, number, " +
-                                "or bool. Encountered {0} instead.",
+                            "Quote preprocessor directive argument must be identifier, string, " +
+                                "number, or bool. Encountered {0} instead.",
                             callExp.Args[0].Type),
                         callExp);
             }
