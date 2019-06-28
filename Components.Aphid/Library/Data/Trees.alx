@@ -1,0 +1,53 @@
+﻿var objTree;
+var stringTree;
+
+@{
+    objTree = {
+        fromArrays: @(arrays){
+            var root = {};
+
+            arrays->@{
+                var r = root;
+                $_->@() r = !(r[$_] defined) ? (r[$_] = {}) : r[$_];
+            };
+
+            ret root;
+        }
+    };
+
+    stringTree = {
+        fromObjTree: @(root)
+            stringTree.create(
+                { node: 'root', children: root },
+                @(n) n.node,
+                @(n) n.children.Keys->@(k)({ node: k, children: n.children[k] })),
+
+        fromArrays: objTree.fromArrays @> fromObjTree,
+
+        create: @(root, dumpNode, getChildren) {
+            var sb = new StringBuilder();
+            createCore(root, dumpNode, getChildren, sb, 0, [], true);
+        
+            ret sb.ToString();
+        },
+
+        createCore: @(node, dumpNode, getChildren, sb, indent, depths, lastChild) {
+            0..indent->@(i) sb.Append(
+                (var ai = i == indent - 1) && lastChild ? "└" :
+                (var hd = (depths#!) > 0) && ai && (depths$!) == i ? "├" :
+                hd && (depths=?(@==i)) ? "│" :
+                " ");
+
+            node | dumpNode | sb.AppendLine;        
+
+            (var nodes = node | getChildren) -> @(c) createCore(
+                c,
+                dumpNode,
+                getChildren,
+                sb,
+                indent + 1,
+                (var lc = (nodes$!) | c.Equals) ? depths : aq.concat(depths, [ indent ]),                
+                lc);
+        }
+    };
+}();
