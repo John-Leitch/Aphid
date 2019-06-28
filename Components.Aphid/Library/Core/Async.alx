@@ -1,0 +1,44 @@
+﻿var async;
+
+@{
+    using System.Threading.Tasks;
+    _p = macro(@(n){ Parallel.n });
+    _pf = macro(@{ _p(For) });
+    _pe = macro(@{ _p(ForEach) });
+    _f = macro(@(s, b) { opts == null ? _pe()(s, b) : _pe()(s, opts, b) });
+    _r = macro(@(f, t, b) { opts == null ? _pf()(f, t, b) : _pf()(f, t, opts, b) });
+
+    _select = macro(@(p) {
+        @(predicate, source) {
+            var result = [];
+            _f(
+                source,
+                @{
+                    var x = predicate($_);
+                    lock result p;
+                });
+
+            ret result
+        }
+    });
+
+    async = {
+        opts: null,
+        degree: @(degrees) opts = new ParallelOptions() @() { $_.MaxDegreeOfParallelism = degrees; ret $_ },
+        select: _select(result.add(x)),        
+        selectMany: _select(x->result.add),
+        forEach: @(body, source) {
+            _f(source, body);
+
+            ret source;
+        },        
+        range: @(from, to, body) { _r(from, to, body) },
+        to: @(to, body) { _r(0, to, body) },
+
+        map: select,
+        many: selectMany,
+        reduce: selectMany,
+        each: forEach,
+        iter: forEach,
+    }
+}();
