@@ -20,8 +20,26 @@ var nuget;
 
         init: @{
             if (!File.Exists(exe)) {
-                'Could not find2 ~Cyan~{0}~R~, downloading ~Yellow~{1}~R~' :> [ exe, exeUrl ];
-                (new WebClient()).DownloadFile(exeUrl, exe);
+                var localFound = false;
+
+                [
+                    'c:/tools/nuget.exe',
+                    'c:/source/nuget/nuget.exe',
+                    'd:/source/nuget/nuget.exe',
+                ] for (n) {
+                    if (n | File.Exists) {
+                        print('Copying local nuget binary from ~Green~{0}~R~', n);
+                        localFound = true;
+                        File.Copy(n, exe);
+                        break;
+                    }
+                };
+                
+                if (!localFound) {
+                    'Could not find2 ~Cyan~{0}~R~, downloading ~Yellow~{1}~R~' :> [ exe, exeUrl ];
+                    (new WebClient()).DownloadFile(exeUrl, exe);
+                }
+                
             } /*else {
                 'Nuget assembly found at ~Green~{0}~R~' :> [ exe ];
             }*/
