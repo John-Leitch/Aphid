@@ -11,8 +11,9 @@ fatal = @{
 };
 
 head('Merging .NET Program');
+nuget.init();
 
-[ 'AphidPortable', 'ildasm' ]->@()Process.GetProcessesByName($_)->@() { $_.Kill(); $_.WaitForExit() };
+// [ 'AphidPortable', 'ildasm' ]->@()Process.GetProcessesByName($_)->@() { $_.Kill(); $_.WaitForExit() };
 
 _facade = macro(@(f) {
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\Facades\\' + f
@@ -20,25 +21,30 @@ _facade = macro(@(f) {
 
 var args = new List[string](getCommandLineArgs());
 var isUnattended = args.Contains('-unattended');
+isUnattended = true;
 var asms = [] !?;
 
 var flags = '/ndebug /zeroPeKind';
-var path = Assembly.GetEntryAssembly().Location | Path.GetDirectoryName;
 
-var getILMerge = @() Directory
-    .GetFiles(path, 'ilmerge.exe', SearchOption.AllDirectories)
+var paths = [
+        Assembly.GetEntryAssembly().Location | Path.GetDirectoryName,
+        'c:/tools/ilmerge',
+    ]
+    -?isDir;
+
+var getILMerge = @() paths
+    -<(@() Directory.EnumerateFiles($_, 'ilmerge.exe', SearchOption.AllDirectories))
     |> Enumerable.FirstOrDefault;
     
 var ilmergeExe = getILMerge();
 
 if (ilmergeExe == null) {
     print('Loading NuGet.Core');
+    using NuGet;
     
-    if (load NuGet.Core == null) {
+    if (PackageRepositoryFactory == null) {
         fatal('Failed loading Nuget.Core');
     }
-
-    using NuGet;
 
     print('Connecting to repository');
     var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
