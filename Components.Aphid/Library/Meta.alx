@@ -25,6 +25,9 @@ using Components.Aphid.Interpreter;
 using System;
 using System.Collections.Generic;
 
+var call = @(name) { var n = $_; $args.RemoveAt(0); ret aphid.CallFunction(n, $args) };
+var apply = @(func, args) aphid.CallFunction(func, args);
+
 /*{
     summary: 'Takes an abstract syntax tree and performs transformations on it.',
     returns: 'A transformed copy of an abstract syntax tree.',
