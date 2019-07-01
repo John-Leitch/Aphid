@@ -27,7 +27,7 @@
         | Console.WriteLine;
 
     clrSerializer = {
-        maxDepth: 3,
+        maxDepth: 1,
         map: @(clrObj) internal.mapCore(0, new List[Object](), internal.nextRefTable(), clrObj),
         serialize: map @> toStr,
         dump: map @> highlight,

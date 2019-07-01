@@ -15,7 +15,6 @@
 // * Output multiple formats e.g. HTML, XML, Markdown,
 //   formats used by intellisense/autocomplete, etc.
 // * Support output formats definitions via EBNF-style grammar.
-
 using Components.Aphid;
 using Components.Aphid.UI;
 using Components.Aphid.Lexer;
@@ -25,8 +24,30 @@ using Components.Aphid.Interpreter;
 using System;
 using System.Collections.Generic;
 
-var call = @(name) { var n = $_; $args.RemoveAt(0); ret aphid.CallFunction(n, $args) };
-var apply = @(func, args) aphid.CallFunction(func, args);
+// _op = macro(@(op){ @{ op; } });
+// _ad = macro(@(op){ @{ code.indent = op * code.tab; } });
+
+/*{
+    summary: 'Tokenizes text using the Aphid lexical analyzer.',
+    returns: 'An array of AphidTokens.',
+    params: { text: 'The text to be passed to the Aphid lexer.' },
+    example: @{ 'var x = 10; x *= 2;' |> tokenize |> print; }
+}*/
+var tokenize;
+var getToken;
+var parseFile;
+var parse;
+var parseExp;
+var parseFunc;
+var evalBlock;
+var evalExp;
+var evalNode;
+var evalAst;
+var makeFluent;
+var ast;
+var call;
+var apply;
+var kvpsToObj;
 
 /*{
     summary: 'Takes an abstract syntax tree and performs transformations on it.',
@@ -74,9 +95,55 @@ var frames;
     example: @{ frame(1) |> dump; }
 }*/
 var frame;
+var token;
+var getLexer;
+var dumpAst;
+var dumpAstJson;
+var convention;
+var createVisitor;
+var resolveType;
+var importRules;
+var importMethods;
+var loadTokenDetails;
+var nodeType;
 
 @{
-    using Components.Aphid.Parser;
+    call = @(name) { var n = $_; $args.RemoveAt(0); ret aphid.CallFunction(n, $args) };
+    apply = @(func, args) aphid.CallFunction(func, args);
+    
+    kvpsToObj = @(kvps) {
+        var o = {};
+
+        if (kvps == null) {
+            ret null;
+        } else if ((kvps#!) == 0) {
+            ret o;
+        }
+
+        var p = kvps[0];
+
+        if (p == AphidObject) {
+            var k = p.Keys;
+            var k = k[0];
+            var v = k[1];
+            kvps for (x) o[k] = x[v];
+        } else if (p.Key defined && p.Value defined) {
+            kvps for (x) o[x.Key] = x.Value;
+        } else {
+            throw new ArgumentException('Invalid arg passed to kvpsToObj');
+        }
+
+        ret o;
+    };
+
+    tokenize = @(text) (new AphidLexer(text)).GetTokens();
+    getToken = @(text) tokenize(text)[0].TokenType;
+    parseFile = AphidParser.ParseFile;
+    parse = @(code) AphidParser.Parse(code);
+    parseExp = @(exp) parse(exp)[0];
+    evalBlock = @(code) parseFunc(code)();
+    evalExp = @(code) parseFunc('ret ' + code)();
+    
     mutate = @(mutateNode, rootNode) (new ScriptMutator(mutateNode)).MutateRecursively(rootNode);
     
     mutateFunc = @(mutateBody, func) {
@@ -88,6 +155,52 @@ var frame;
 
         ret func;
     };
+
+    parseFunc = @(code) {
+        var f = new AphidFunction([], new List[AphidExpression](), this);
+        code |> parse -> f.Body.Add;
+        
+        ret f;
+    };
+
+    evalNode = @(node) {
+        var templateFunc = @{ };
+        (ast.isRet($_) ? $_ : ast.makeRet($_)) |> templateFunc.Body.Add;
+        var r = templateFunc();
+        templateFunc.Body.Clear();
+
+        ret r;
+    };
+
+    evalAst = @(ast) {
+        var templateFunc = @{ };
+        ast->templateFunc.Body.Add;
+        var r = templateFunc();
+        templateFunc.Body.Clear();
+
+        ret r;
+    };
+
+    makeFluent = @(obj) {
+        var n = getIdArg(0);
+
+        obj
+        |> keys
+        -> (@() obj.{$_})
+        -? (@has('Body'))
+        -> (@{
+            using System.Linq;
+            if (($_.Body #!) == 0 ||
+                ($_.Body |> Enumerable.Last |> ast.isRet @== false))
+                'ret ' + n  |> parseExp |> $_.Body.Add;
+        });
+
+        ret obj;
+    };
+
+    if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
+        class VisitorFrame { node, context };
+    }
 
     transformBlock = @(f) this.{'$aphid'}.OnInterpretBlock = f;
 
@@ -128,252 +241,369 @@ var frame;
 
     frames = @(i) this.{'$aphid'}.GetStackTrace(i defined ? i + 1 : 1);
     frame = @(i) this.{'$aphid'}.GetStackFrame(i defined ? i + 1 : 1);
-}();
 
-_op = macro(@(op){ @{ op; } });
-_ad = macro(@(op){ @{ code.indent = op * code.tab; } });
+    nodeType = { };
 
-/*{
-    summary: 'Tokenizes text using the Aphid lexical analyzer.',
-    returns: 'An array of AphidTokens.',
-    params: { text: 'The text to be passed to the Aphid lexer.' },
-    example: @{ 'var x = 10; x *= 2;' |> tokenize |> print; }
-}*/
-var tokenize = @(text) (new AphidLexer(text)).GetTokens();
-var getToken = @(text) tokenize(text)[0].TokenType;
+    @{
+        id Identifier;
+        unOp UnaryOperator;
+        binOp BinaryOperator;
+        str String;
+        call Call;
+    }.Body->@{
+        nodeType.{$_.Attributes[0].Identifier} = 
+            $_.Identifier
+            @String.Format('AphidExpressionType.{0}Expression')
+            evalExp
+    };
 
-var parseFile = AphidParser.ParseFile;
-var parse = @(code) AphidParser.Parse(code);
-var parseExp = @(exp) parse(exp)[0];
+    getLexer = @(stream) {
+        var l = {
+            index: -1,
+            token: null,
+            count: stream.Count,
+            eos: false,
+            stream,
 
-var parseFunc = @(code) {
-    var f = new AphidFunction([], new List[AphidExpression](), this);
-    code |> parse -> f.Body.Add;
-    
-    ret f;
-};
+            oneOrNone: @(set, def) {
+                for (x in set) {
+                    //print('[?] Checking for {0}', x);
+                    if (x |> match) {
+                        ret $_;
+                    }
+                }
 
-var evalBlock = @(code) parseFunc(code)();
-var evalExp = @(code) parseFunc('ret ' + code)();
+                ret def;
+            },
 
-var evalNode = @(node) {
-    var templateFunc = @{ };
-    (ast.isRet($_) ? $_ : ast.makeRet($_)) |> templateFunc.Body.Add;
-    var r = templateFunc();
-    templateFunc.Body.Clear();
-
-    ret r;
-};
-
-var evalAst = @(ast) {
-    var templateFunc = @{ };
-    ast->templateFunc.Body.Add;
-    var r = templateFunc();
-    templateFunc.Body.Clear();
-
-    ret r;
-};
-
-var makeFluent = @(obj) {
-    var n = getIdArg(0);
-
-    obj
-    |> keys
-    -> (@() obj.{$_})
-    -? (@has('Body'))
-    -> (@{
-        using System.Linq;
-        if (($_.Body #!) == 0 ||
-            ($_.Body |> Enumerable.Last |> ast.isRet @== false))
-            'ret ' + n  |> parseExp |> $_.Body.Add;
-    });
-
-    ret obj;
-};
-
-if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
-    class VisitorFrame { node, context };
-}
-
-var ast = {
-    /*{
-        summary: 'Gets the operator for the specified abstract syntax tree node.',
-        returns: 'The operator of the node.',
-        example: @{
-            // Todo
-        }
-    }*/
-    op: @() $_.Operator,
-    hasOp: @(op, node) @has('Operator') && isOp(op),
-    isOp: @(op, node) node.Operator == op,
-    isRet: @() $_.Type == nodeType.unOp && ast.isOp(token.return, $_),
-    lhs: @(node) node.LeftOperand,
-    rhs: @(node) node.RightOperand,
-    attr: @(node) node.Attributes[0],
-
-    nodeIs: @(type, node) node.Type == type,
-    isId: @(node) node @ast.nodeIs(
-        AphidExpressionType.IdentifierExpression),
-    
-    attrs: @(node) {
-        if (!(node |> ast.isId))
-        {
-            print('ast.attrs expects id node');
+            match: @(t) {
+                if (token == t) {
+                    //print('[+] token matched');
+                    next();
+                    ret true;
+                } else {
+                    //print('[-] token not matched');
+                    ret false;
+                }
+            },
             
-            ret null;
-        }
+            take: @() {
+                var t = token;
+                if (!eos) next();
 
-        ret node.Attributes->@.Identifier;
-    },
+                ret t;
+            },
 
-    depth: 0,
-    indent: @() ' ' * ast.depth * 2,
+            next: @{
+                if (index < count) index++;
 
-    walk: @(visit, node, context) {
-        _push = macro(@(_c, _n){
-            if (_n defined && _n != null) {
-                var f = new VisitorFrame();
-                f.node = _n;
-                f.context = f;
-                _c.stack.Push(f);
+                if (index != count) {
+                    token = stream[index];
+                    //print('[+] Next token: {0}', token);
+                } else {
+                    token = null;
+                    eos = true;
+                }
+
+                ret token;
             }
-        });
+        };
 
-        var c = context defined ? context : { stack: new Stack[VisitorFrame]()};
-        c.isRoot = ast.depth == 0;
-        c.isBlock = node.GetType() |> IEnumerable[AphidExpression].IsAssignableFrom;
-        c.hasChildren = node['GetChildren'] defined;
-        c.isHandled = false;
-        _push(c, node);        
-        visit(node, c);
-        c.stack.Pop();
+        l.next();
 
-        if (c.isHandled) ret null;
+        ret l;
+    };
 
-        _next = macro(@(_curNode) {
-            if (_curNode != null) {
-                _push(c, _curNode);
-                ast.walk(visit, _curNode, c);
-                c.stack.Pop();
+    token = {
+        return: AphidTokenType.retKeyword
+    };
+
+    
+
+    ast = {
+        /*{
+            summary: 'Gets the operator for the specified abstract syntax tree node.',
+            returns: 'The operator of the node.',
+            example: @{
+                // Todo
             }
-        });
+        }*/
+        op: @() $_.Operator,
+        hasOp: @(op, node) @has('Operator') && isOp(op),
+        isOp: @(op, node) node.Operator == op,
+        isRet: @() $_.Type == nodeType.unOp && ast.isOp(token.return, $_),
+        lhs: @(node) node.LeftOperand,
+        rhs: @(node) node.RightOperand,
+        attr: @(node) node.Attributes[0],
+
+        nodeIs: @(type, node) node.Type == type,
+        isId: @(node) node @ast.nodeIs(
+            AphidExpressionType.IdentifierExpression),
         
-        if (c.isBlock) {
-            ast.depth++;
-            _push(c, node);
-
-            for (n in node) {
-                _next(n);
+        attrs: @(node) {
+            if (!(node |> ast.isId))
+            {
+                print('ast.attrs expects id node');
+                
+                ret null;
             }
 
+            ret node.Attributes->@.Identifier;
+        },
+
+        depth: 0,
+        indent: @() ' ' * ast.depth * 2,
+
+        walk: @(visit, node, context) {
+            _push = macro(@(_c, _n){
+                if (_n defined && _n != null) {
+                    var f = new VisitorFrame();
+                    f.node = _n;
+                    f.context = f;
+                    _c.stack.Push(f);
+                }
+            });
+
+            var c = context defined ? context : { stack: new Stack[VisitorFrame]()};
+            c.isRoot = ast.depth == 0;
+            c.isBlock = node.GetType() |> IEnumerable[AphidExpression].IsAssignableFrom;
+            c.hasChildren = node['GetChildren'] defined;
+            c.isHandled = false;
+            _push(c, node);        
+            visit(node, c);
             c.stack.Pop();
-            ast.depth--;
-        } else if (c.hasChildren) {  
-            var ch = node.GetChildren();
-            _next(ch);
-        }
-    },
 
-    walkNodes: @(visit, node) {
-        node @ast.walk(@(node, context) {
-            if (!context.isRoot && !context.isBlock) {
-                visit(node, context);
+            if (c.isHandled) ret null;
+
+            _next = macro(@(_curNode) {
+                if (_curNode != null) {
+                    _push(c, _curNode);
+                    ast.walk(visit, _curNode, c);
+                    c.stack.Pop();
+                }
+            });
+            
+            if (c.isBlock) {
+                ast.depth++;
+                _push(c, node);
+
+                for (n in node) {
+                    _next(n);
+                }
+
+                c.stack.Pop();
+                ast.depth--;
+            } else if (c.hasChildren) {  
+                var ch = node.GetChildren();
+                _next(ch);
             }
-        });
-    },
+        },
 
-    where: @(predicate, node) {
-        var matches = [];
-        node @walk(@(innerNode, context) {
-            if (predicate(innerNode, context)) {
-                print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
-                matches.add(innerNode);
-            }
-        });
+        walkNodes: @(visit, node) {
+            node @ast.walk(@(node, context) {
+                if (!context.isRoot && !context.isBlock) {
+                    visit(node, context);
+                }
+            });
+        },
 
-        ret matches;
-    },
+        where: @(predicate, node) {
+            var matches = [];
+            node @walk(@(innerNode, context) {
+                if (predicate(innerNode, context)) {
+                    print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
+                    matches.add(innerNode);
+                }
+            });
 
-    whereNode: @(predicate, node)
-        node @where(@(innerNode, context)
-            innerNode != null &&
-            !context.isRoot &&
-            !context.isBlock &&
-            predicate(innerNode, context)),
+            ret matches;
+        },
 
-    id: @(name, attrs) $args.Count == 2 ?
-        (new IdentifierExpression(name, attrs)) :
-        (new IdentifierExpression(name, new List[IdentifierExpression]())),
+        whereNode: @(predicate, node)
+            node @where(@(innerNode, context)
+                innerNode != null &&
+                !context.isRoot &&
+                !context.isBlock &&
+                predicate(innerNode, context)),
 
-    unOp: @(operator, operand, postfix) new UnaryOperatorExpression(operator, operand, false),
-    preUnOp: @(operator, operand) unOp(operator, operand, false),
-    binOp: @(lhs, operator, rhs) new BinaryOperatorExpression(lhs, operator, rhs),
-    member: @(lhs, rhs) binOp(lhs, getToken('.'), rhs),
-    pair: @(lhs, rhs) binOp(lhs, getToken(':'), rhs),
-    call: @(target, args) new CallExpression(target, args),
-    text: @(text) new TextExpression(text),
-    
-    str: @(value) new StringExpression(value
-        .ToString()
-        .Replace('\\', '\\\\')
-        .Replace('"', '\\"')
-        @format('"{0}"')),
+        id: @(name, attrs) $args.Count == 2 ?
+            (new IdentifierExpression(name, attrs)) :
+            (new IdentifierExpression(name, new List[IdentifierExpression]())),
 
-    makeRet: @(operand) preUnOp(token.return, operand),
-    return: makeRet,
-    
-    block: @() new List[AphidExpression](),
-
-    first: @(predicate, rootNode) {
-        var match = null;
-        rootNode @ast.walk(@(node, context){
-            if (match != null) {
-                context.isHandled = true;
-                ret null;
-            } else if (predicate(node, context)) {
-                match = node;
-                context.isHandled = true;
-                ret null;
-            }
-        });
-
-        ret match;
-    },
-
-    firstNode: @(predicate, rootNode)
-        rootNode @ast.first(@(n, c)
-            !c.isBlock && !c.isRoot && predicate(n, c)),
+        unOp: @(operator, operand, postfix) new UnaryOperatorExpression(operator, operand, false),
+        preUnOp: @(operator, operand) unOp(operator, operand, false),
+        binOp: @(lhs, operator, rhs) new BinaryOperatorExpression(lhs, operator, rhs),
+        member: @(lhs, rhs) binOp(lhs, getToken('.'), rhs),
+        pair: @(lhs, rhs) binOp(lhs, getToken(':'), rhs),
+        call: @(target, args) new CallExpression(target, args),
+        text: @(text) new TextExpression(text),
         
-    flatten: @(block) {
-        var nodes = new List[AphidExpression](block);
-        var tmp = block;
+        str: @(value) new StringExpression(value
+            .ToString()
+            .Replace('\\', '\\\\')
+            .Replace('"', '\\"')
+            @format('"{0}"')),
 
-        while (((tmp = tmp-?(@()$_['GetChildren'] defined)-<@() $_.GetChildren()) #!) != 0) {
-            tmp->nodes.Add;
-        }
+        makeRet: @(operand) preUnOp(token.return, operand),
+        return: makeRet,
+        
+        block: @() new List[AphidExpression](),
 
-        ret nodes;
-    },
-};
+        first: @(predicate, rootNode) {
+            var match = null;
+            rootNode @ast.walk(@(node, context){
+                if (match != null) {
+                    context.isHandled = true;
+                    ret null;
+                } else if (predicate(node, context)) {
+                    match = node;
+                    context.isHandled = true;
+                    ret null;
+                }
+            });
 
-var nodeType = { };
+            ret match;
+        },
 
-@{
-    id Identifier;
-    unOp UnaryOperator;
-    binOp BinaryOperator;
-    str String;
-    call Call;
-}.Body->@{
-    nodeType.{$_.Attributes[0].Identifier} = 
-        $_.Identifier
-        @String.Format('AphidExpressionType.{0}Expression')
-        evalExp
-};
+        firstNode: @(predicate, rootNode)
+            rootNode @ast.first(@(n, c)
+                !c.isBlock && !c.isRoot && predicate(n, c)),
+            
+        flatten: @(block) {
+            var nodes = new List[AphidExpression](block);
+            var tmp = block;
 
-var token = {
-    return: AphidTokenType.retKeyword
-};
+            while (((tmp = tmp-?(@()$_['GetChildren'] defined)-<@() $_.GetChildren()) #!) != 0) {
+                tmp->nodes.Add;
+            }
+
+            ret nodes;
+        },
+    };
+
+    dumpAst = @(node) {
+        node @ast.walk(@(node, context) {
+            if (context.isRoot) {
+                print('Root');
+            } else if (!context.isBlock) {
+                (node |> getProps) -> (@.Name) +> (@+ ', ' + $args[1])
+                @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
+                // node |> toJson |> print;
+            }
+        });
+    };
+
+    dumpAstJson = @(node){
+        #'Data\\Serialization';
+        node @ast.walk(@(node, context) {
+            if (context != null &&
+                !context.isBlock &&
+                !context.isRoot &&
+                node != null) {
+                if (node @has('Code')) {
+                    node.Code = null;
+                }
+
+                if (node @has('Index')) {
+                    node.Index = -1;
+                }
+            }
+        });
+
+        node |> toJson |> print;
+        ret null;
+    };    
+
+    convention = {
+        pascalCase: @(str) str != null && str.Length > 0 ?
+            str[0].ToUpper() + str.Substring(1) :
+            str,
+
+        camelCase: @(str) str != null && str.Length > 0 ?
+            str[0].ToLower() + str.Substring(1) :
+            str,
+
+        shortExpName: @(str) str
+            .Replace('Collection', 's')
+            .Replace('Argument', 'Arg')
+            .Replace('Attribute', 'Attr')
+            .Replace('Parameter', 'Param')
+            .Replace('Reference', '')
+            .Replace('This', 'ThisExp')
+            .Replace('NamespaceImport', 'Import')
+            .Replace('Declaration', 'Decl')
+            .Replace('Constructor', 'Ctor')
+            .Replace('Variable', 'Var')
+            .Replace('Expression', 'Exp')
+            .Replace('Statement', 'Stmt')
+            .Replace('Operator', 'Op')
+            .Replace('Binary', 'Bin')
+            .Replace('Unary', 'Un')
+            .Replace('ExpExp', 'Exp')
+            |> camelCase,
+
+        getExpMap: @{
+            var map = AphidExpression.Assembly
+                .GetTypes()
+                -?(@()$_.BaseType == AphidExpression)
+                ->@()({ type: $_, name: $_.Name |> convention.shortExpName });
+
+            if (map -& @.name =? @() ($_ #!) > 1) {
+                throw 'Aphid expression map collision detected';
+            }
+
+            ret map;
+        },
+    };
+
+    createVisitor = @{
+        #'Meta\\Code\\Syntax\\Visitor.g';
+
+        ret visitor;
+    };
+
+    resolveType = @(type)
+        this.{'$aphid'}.InteropTypeResolver.ResolveType(
+            this.{'$imports'}.ToArray(),
+            [ type ],
+            true,
+            true);
+
+    importRules = {
+        camelCase: true,
+        createScope: true,
+        strict: true,
+    };
+
+    var importMethodsScope = this.'$parent';
+
+    importMethods = @(sourceType)
+        copyMethods(
+            sourceType,
+            importRules.camelCase ? language.camelCase : @() $_,
+            importRules.createScope ? {} : importMethodsScope);
+
+    var copyMethods = @(sourceType, prep, scope) {
+        sourceType
+            .GetMethods()
+            ->@.Name
+            !?
+            ->@{
+                scope[$_ |> prep] = evalExp('{0}.{1}' :: [ sourceType.Name, $_ ])
+            };
+        
+        ret scope;
+    };
+
+    //var getNames = @(sourceType)
+
+    loadTokenDetails = @{
+        var getNumber = @() $_;
+        var getString = @() $_;
+        #'Meta/Code/Aphid/Aphid.Tokens';
+        ret tokens;
+    };
+}(); 
 
 extend AphidFrame {
     exp: @(x) x.Expression,
@@ -465,196 +695,3 @@ extend AphidExpression {
 }
 
 extend AphidFunction { map: @(f, selector) f.Body->selector }
-
-// extend TextExpression {
-//     replace: @(text, search, replacement)
-//         text.Text.Replace(search, replacement) |> ast.text @() $_.WithPositionFrom(text),
-// }
-
-var getLexer = @(stream) {
-    var l = {
-        index: -1,
-        token: null,
-        count: stream.Count,
-        eos: false,
-        stream,
-
-        oneOrNone: @(set, def) {
-            for (x in set) {
-                //print('[?] Checking for {0}', x);
-                if (x |> match) {
-                    ret $_;
-                }
-            }
-
-            ret def;
-        },
-
-        match: @(t) {
-            if (token == t) {
-                //print('[+] token matched');
-                next();
-                ret true;
-            } else {
-                //print('[-] token not matched');
-                ret false;
-            }
-        },
-        
-        take: @() {
-            var t = token;
-            if (!eos) next();
-
-            ret t;
-        },
-
-        next: @{
-            if (index < count) index++;
-
-            if (index != count) {
-                token = stream[index];
-                //print('[+] Next token: {0}', token);
-            } else {
-                token = null;
-                eos = true;
-            }
-
-            ret token;
-        }
-    };
-
-    l.next();
-
-    ret l;
-};
-
-
-var dumpAst = @(node) {
-    node @ast.walk(@(node, context) {
-        if (context.isRoot) {
-            print('Root');
-        } else if (!context.isBlock) {
-            (node |> getProps) -> (@.Name) +> (@+ ', ' + $args[1])
-            @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
-            // node |> toJson |> print;
-        }
-    });
-};
-
-var dumpAstJson = @(node){
-    #'Data\\Serialization';
-    node @ast.walk(@(node, context) {
-        if (context != null &&
-            !context.isBlock &&
-            !context.isRoot &&
-            node != null) {
-            if (node @has('Code')) {
-                node.Code = null;
-            }
-
-            if (node @has('Index')) {
-                node.Index = -1;
-            }
-        }
-    });
-
-    node |> toJson |> print;
-    ret null;
-};
-
-var convention = {
-    pascalCase: @(str) str != null && str.Length > 0 ?
-        str[0].ToUpper() + str.Substring(1) :
-        str,
-
-    camelCase: @(str) str != null && str.Length > 0 ?
-        str[0].ToLower() + str.Substring(1) :
-        str,
-
-    shortExpName: @(str) str
-        .Replace('Collection', 's')
-        .Replace('Argument', 'Arg')
-        .Replace('Attribute', 'Attr')
-        .Replace('Parameter', 'Param')
-        .Replace('Reference', '')
-        .Replace('This', 'ThisExp')
-        .Replace('NamespaceImport', 'Import')
-        .Replace('Declaration', 'Decl')
-        .Replace('Constructor', 'Ctor')
-        .Replace('Variable', 'Var')
-        .Replace('Expression', 'Exp')
-        .Replace('Statement', 'Stmt')
-        .Replace('Operator', 'Op')
-        .Replace('Binary', 'Bin')
-        .Replace('Unary', 'Un')
-        .Replace('ExpExp', 'Exp')
-        |> camelCase,
-
-    getExpMap: @{
-        var map = AphidExpression.Assembly
-            .GetTypes()
-            -?(@()$_.BaseType == AphidExpression)
-            ->@()({ type: $_, name: $_.Name |> convention.shortExpName });
-
-        if (map -& @.name =? @() ($_ #!) > 1) {
-            throw 'Aphid expression map collision detected';
-        }
-
-        ret map;
-    },
-};
-
-var createVisitor = @{
-    #'Meta\\Code\\Syntax\\Visitor.g';
-
-    ret visitor;
-};
-
-var resolveType = @(type)
-    this.{'$aphid'}.InteropTypeResolver.ResolveType(
-        this.{'$imports'}.ToArray(),
-        [ type ],
-        true,
-        true);
-
-var importRules;
-var importMethods;
-var importMethodsScope = this;
-var loadTokenDetails;
-
-//tokens-?(@()$_.regex defined)->@.regex->@()$_.Replace('\\s', ' ') |> Regex.Unescape
-
-@{
-    importRules = {
-        camelCase: true,
-        createScope: true,
-        strict: true,
-    };
-
-    importMethods = @(sourceType)
-        copyMethods(
-            sourceType,
-            importRules.camelCase ? language.camelCase : @() $_,
-            importRules.createScope ? {} : importMethodsScope);
-
-    var copyMethods = @(sourceType, prep, scope) {
-        sourceType
-            .GetMethods()
-            ->@.Name
-            !?
-            ->@{
-                scope[$_ |> prep] = evalExp('{0}.{1}' :: [ sourceType.Name, $_ ])
-            };
-        
-        ret scope;
-    };
-
-    //var getNames = @(sourceType)
-
-    loadTokenDetails = @{
-        var getNumber = @() $_;
-        var getString = @() $_;
-        #'Meta/Code/Aphid/Aphid.Tokens';
-        ret tokens;
-    };
-}(); 

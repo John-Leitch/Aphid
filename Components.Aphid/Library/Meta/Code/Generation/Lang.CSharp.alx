@@ -2,9 +2,9 @@
 cls();
 print('Starting\r\n');
 
-f = @ () format($args[0], $args @aq.skip(1));
+var f = @ () format($args[0], $args @aq.skip(1));
 
-code = {
+var code = {
     depth: 0,
     ascend: @() depth--,
     descend: @() depth++,
@@ -113,7 +113,7 @@ code = {
 
 //exit(0);
 
-c = '';
+var c = '';
 c += code.generateNamespaceBegin('Components.Lexer');
 c += code.generateClassBegin({ partial: true }, 'TestLexer');
 c += code.generateMethodBegin({}, 'List<TestToken>', 'GetTokens', [ 'string text', 'foo bar' ]);

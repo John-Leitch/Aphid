@@ -14,21 +14,39 @@ var nuget;
         string: v | SemanticVersion.Parse,
         throw new InvalidArgumentException('v');
 
+    var exeUrls = new List[string]();
+    'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' | exeUrls.Add;
+
+    var localExes = new List[string]();
+    [ 'c:/tools', 'c:/source/nuget', 'd:/source/nuget' ]->@io.end('nuget.exe')->localExes.Add;
+
     nuget = {
         exe: Path.Combine(AphidObject.Assembly.Location | Path.GetDirectoryName, 'nuget.exe'),
-        exeUrl: 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe',
+        exeUrls,
+        localExes,
 
         init: @{
+            #'System/Config';            
+            
+            if (aphidConfig.nugetSource defined) {
+                repoUrl = aphidConfig.nugetSource;
+
+                if (repoUrl | io.local) {
+                    localExes.Insert(0, repoUrl @io.end('nuget.exe'));
+                } else {
+                    new Uri(
+                        new Uri(repoUrl,UriKind.Absolute),
+                        new Uri('nuget.exe',UriKind.Relative))
+                    @exeUrls.Insert(0);                   
+                }
+            }
+
             if (!File.Exists(exe)) {
                 var localFound = false;
 
-                [
-                    'c:/tools/nuget.exe',
-                    'c:/source/nuget/nuget.exe',
-                    'd:/source/nuget/nuget.exe',
-                ] for (n) {
+                localExes for (n) {
                     if (n | File.Exists) {
-                        print('Copying local nuget binary from ~Green~{0}~R~', n);
+                        Cli.WriteLine('Copying local nuget binary from ~Green~{0}~R~', n);
                         localFound = true;
                         File.Copy(n, exe);
                         break;
@@ -36,8 +54,31 @@ var nuget;
                 };
                 
                 if (!localFound) {
-                    'Could not find2 ~Cyan~{0}~R~, downloading ~Yellow~{1}~R~' :> [ exe, exeUrl ];
-                    (new WebClient()).DownloadFile(exeUrl, exe);
+                    exeUrls for (u) {
+                        'Attempting to download nuget.exe from ~Yellow~{0}~R~'
+                            :> [ exe, exeUrl ];
+
+                        var success = false;
+
+                        using (var w = new WebClient()) {
+                            try {
+                                w.DownloadFile(u, exe);
+
+                                if (exe | isFile) {
+                                    printSuccess('Download successful');
+                                    success = true;
+                                    break;
+                                }
+                            } catch (e) {
+                                printError('Error: {0}', e.message);
+                            }
+                        }
+
+                        if (!success) {
+                            throw new InvalidOperationException(
+                                'Could not find or download nuget executable');
+                        }
+                    }
                 }
                 
             } /*else {

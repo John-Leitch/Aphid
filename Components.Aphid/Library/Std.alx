@@ -1,4 +1,8 @@
-﻿// Todo:
+﻿//AppDomain.CurrentDomain.add_AssemblyResolve(@(o, e) (e.Name ~= 'System\\.Threading\\.Tasks\\.Extensions,') ? extAsm : null )
+//ad.add_ReflectionOnlyAssemblyResolve(@(o, e) (e.Name ~= 'System\\.Threading\\.Tasks\\.Extensions,') ? extAsm : null )
+// ad.add_ReflectionOnlyAssemblyResolve(@(o, e)
+
+// Todo:
 // * Extract to separate files e.g. Std.DumpType.alx
 // * Create script to apply include inlining to scripts of same 'namespace'
 //   e.g. Std.DumpType.alx, Std.Print.alx, Std.alx, etc.

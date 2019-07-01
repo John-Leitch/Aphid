@@ -1,63 +1,75 @@
 {
 	"folders": [
-		{
-			"path": "./build"
-		},
-		{
-			"name": "AphidLibrary",
-			"path": "./Components.Aphid/Library"
-		},
-		{
-			"name": "AphidLibrary/Serialization",
-			"path": "./Components.Aphid/Serialization"
-		},
-		{
-			"name": "AphidTools",
-			"path": "Components.Aphid/Tools"
-		},
-		{
-			"name": "AphidTests",
-			"path": "./Components.Aphid.Tests.Integration/ScriptedTests"
-		},
-		{
-			"name": "AphidBenchmarks",
-			"path": "./Aphid/Benchmarks"
-		},
-		{
-			"name": "AphidSamples",
-			"path": "./Aphid/Samples"
-		},
-		{
-			"name": "AphidSamples/WebRoot",
-			"path": "./Samples/HttpServerSample/WebRoot"
-		},
-		{
-			"name": "AphidDialects/Boxelder",
-			"path": "./Boxelder"
-		},
-		{
-			"name": "AphidDialects/AphidHdl",
-			"path": "./AphidHdl"
-		},
-		{
-			"name": "AphidDialects/Coywolf",
-			"path": "./Coywolf"
-		}
-	],
-	"settings": {
+        {
+            "name": "Build",
+            "path": "./build"
+        },
+        {
+            "name": "Library",
+            "path": "./Components.Aphid/Library"
+        },
+        {
+            "name": "Serialization",
+            "path": "./Components.Aphid/Serialization"
+        },
+        {
+            "name": "Tools",
+            "path": "./Components.Aphid/Tools"
+        },
+        {
+            "name": "Tests",
+            "path": "./Components.Aphid.Tests.Integration/ScriptedTests"
+        },
+        {
+            "name": "Samples",
+            "path": "./Aphid/Samples"
+        },
+        {
+            "name": "Benchmarks",
+            "path": "./Aphid/Benchmarks"
+        },
+        {
+            "name": "Sample Projects",
+            "path": "./Samples/HttpServerSample/WebRoot"
+        },
+        {
+            "name": "Dialects/Boxelder",
+            "path": "./Boxelder"
+        },
+        {
+            "name": "Dialects/AphidHdl",
+            "path": "./AphidHdl"
+        },
+        {
+            "name": "Dialects/Coywolf",
+            "path": "./Coywolf"
+        }
+    ],
+	"settings": {        
         "files.exclude": {
-			"**/*.cache": true,
-			"**/*.cacheMetadata": true,
-			"**/*.cs": true,
-			"**/*.csproj": true,
-			"**/*.exe": true,
-			"**/*.pdb": true,
-			"**/*.user": true,
-			"*ilmerge*": true,
-			"*InlineIL*": true,
-			"**/obj": true,
-			"**/bin": true,
-		},
-		"git.ignoreLimitWarning": true
+            "**/*.alx.*": true,
+            "**/*.cache": true,
+            "**/*.cacheMetadata": true,
+            "**/*.cmd": true,
+            // "**/*.cs": true,
+            // "**/*.csproj": true,
+            "**/*.exe": true,
+            "**/*.pdb": true,
+            "**/*.user": true,
+            "**/bin": true,
+            "**/obj": true,
+            "**/xml": true,
+            "*ilmerge*": true,
+            "*InlineIL*": true,
+            "**/Visitors":true,
+            "**/Properties":true,
+
+        },
+        "git.ignoreLimitWarning": true,
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/bower_components": true
+        },
+        "vsintellicode.java.completionsEnabled": false
     }
 }

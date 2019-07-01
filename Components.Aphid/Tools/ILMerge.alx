@@ -4,23 +4,28 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 
-#'Core/Operators';
 #'IO';
+#'Meta';
+#'Core/Operators';
 #'Cli/Console';
 #'Cli/Print';
 #'System/Nuget';
-
-
+#'System/Cryptography';
 
 fatal = @{
     $_ | printError;
     Environment.Exit(0xbad81);
 };
 
-head('Merging .NET Program');
-nuget.init();
+head('Aphid Merge Tool');
+var exe = Assembly.GetEntryAssembly().Location | io.full;
 
-// [ 'AphidPortable', 'ildasm' ]->@()Process.GetProcessesByName($_)->@() { $_.Kill(); $_.WaitForExit() };
+if (exe | io.name ~= 'Portable') {
+    printInfo('Executing assemblies already merged, exiting');
+    exit(0);
+}
+
+nuget.init();
 
 _facade = macro(@(f) {
     'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.5\\Facades\\' + f
@@ -70,7 +75,6 @@ if (ilmergeExe == null) {
     printInfo('ILMerge already installed');
 }
 
-var exe = Assembly.GetEntryAssembly().Location | io.full;
 var outExe = exe |> io.base @+ 'Portable.exe' @io.prefix(exe | io.up);
 
 var aphidDll = AppDomain.CurrentDomain

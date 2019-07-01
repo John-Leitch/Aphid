@@ -105,6 +105,9 @@ var io = {
 
     concat: _p(Combine),
     join: concat,
+    
+    local: @(f) new Uri(f) @.IsFile,
+    remote: @(f) !local(f),
 
     open: {
         create: _f(Create),

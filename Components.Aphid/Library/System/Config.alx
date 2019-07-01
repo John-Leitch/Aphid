@@ -1,0 +1,10 @@
+using System.Reflection;
+using Components.Aphid.UI;
+
+var aphidConfig = AphidConfig
+    .GetField('_config', BindingFlags.NonPublic | BindingFlags.Static)
+    .GetValue(null)
+    .Value
+    .AppSettings
+    .Settings
+    | kvpsToObj;
