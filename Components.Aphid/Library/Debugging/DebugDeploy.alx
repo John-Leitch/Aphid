@@ -8,49 +8,43 @@
     // cls();
     var _print = dv != 0 ? Cli.WriteLine : @{};
     //_print = @{};
-    var scriptDir = (new FileInfo(Assembly.GetExecutingAssembly().Location)).Directory;
-    var dir = scriptDir;
+    var scriptDir = Assembly.GetExecutingAssembly().Location |> io.up;
+    var cur = scriptDir;
 
-    if (aphidSource defined) dir = new DirectoryInfo(aphidSource);
+    if (aphidSource defined) cur = new DirectoryInfo(aphidSource);
 
-    dir @_print('Script dir: ~Green~{0}~R~');
-    var libDir;
-    var libDirTmp;
+    cur @_print('Script dir: ~Green~{0}~R~');
+    var src;
+    
 
     do
     {
-        libDirTmp = dir.FullName \ 'Components.Aphid' \ 'Library';
+        var search = io.join(cur, 'Components.Aphid', 'Library', 'Std.alx');
 
         if (dv > 1) {
-            libDirTmp @_print('Checking dir: ~Cyan~{0}~R~');
+            search @_print('Checking dir: ~Cyan~{0}~R~');
         }
 
-        if (libDirTmp \ 'Std.alx' |> File.Exists) {
-            libDir = libDirTmp;
+        if (search | io.file) {
+            src = search | io.up;
+            src @_print('Found source dir: ~Green~{0}~R~');
+            break;
         }
 
-    } while ((dir = dir.Parent) != null);
+    } while ((cur = cur | io.up) != null);
 
-    if (libDir == null) {
+    if (src == null) {
         _print('~Yellow~Could not find library dir~R~');
         exit(0);
     }
 
-    _print('Found lib dir: ~Green~{0}~R~', libDir);
     _print('[~Green~+~R~] Updating standard headers');
 
-    Directory.GetFiles(libDir, '*.alx')->@ (src){
-        var srcFilename = src |> Path.GetFileName;
-        var dst = scriptDir.FullName \ 'Library' \ srcFilename;
+     var dst = (scriptDir \ 'Library');
+     var si = new ProcessStartInfo('cmd', string.Format('/c xcopy /e /s /d /y "{0}\\*.alx" "{1}"', src, dst));
+     si.UseShellExecute = false;
+     var proc = Process.Start(si);
+     proc.WaitForExit();
 
-        if (dv > 1) {
-            _print('Copying ~Cyan~{0}~R~ to ~Cyan~{1}~R~', src, dst);
-        } else if (dv == 1) {
-            _print('Copying ~Cyan~{0}~R~', srcFilename);
-        }
-
-        File.Copy(src, dst, true);
-    };
-
-    _print();
+    _print('Done');
 }();

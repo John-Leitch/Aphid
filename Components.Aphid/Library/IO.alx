@@ -1,105 +1,128 @@
-﻿##'Components.Aphid.Library.IOLibrary';
+﻿// ##'Components.Aphid.Library.IOLibrary';
 using System.IO;
 
-var getFsos = @(f, dir, opt) {
-    var filter = '*';
-    var recurse = false;
+// var getFsos = @(f, dir, opt) {
+//     var filter = '*';
+//     var recurse = false;
 
-    if (opt defined) {
-        if (opt.filter defined) filter = opt.filter;
-        if (opt.recurse defined) recurse = opt.recurse;
-    }
+//     if (opt defined) {
+//         if (opt.filter defined) filter = opt.filter;
+//         if (opt.recurse defined) recurse = opt.recurse;
+//     }
 
-    ret f(dir, filter, recurse);
-};
+//     ret f(dir, filter, recurse);
+// };
 
-io.dir.getFiles = @getFsos(io.dir.getFilesInternal);
-io.dir.getDirs = @getFsos(io.dir.getDirsInternal);
+// io.dir.getFiles = @getFsos(io.dir.getFilesInternal);
+// io.dir.getDirs = @getFsos(io.dir.getDirsInternal);
 
-@ \ (lhs, rhs) Path.Combine(lhs, rhs);
-@ .\ (path) path |> Path.GetFullPath;
+@ \ (lhs, rhs) lhs @io.end(rhs);
+@ .\ (path) path | io.full;
 
-_ob = macro(@(o) { Directory.GetFiles(path, pattern defined ? pattern : '*', SearchOption.o) });
+_d = macro(@(f) { Directory.f });
+_f = macro(@(f) { File.f });
+_p = macro(@(f) { Path.f });
+_c = macro(@{ _p(Combine)(lhs, rhs) });
+_ob = macro(@(o) { _d(GetFiles)(path, pattern defined ? pattern : '*', SearchOption.o) });
 @ .* (path, pattern) _ob(TopDirectoryOnly);
 @ :* (path, pattern) _ob(AllDirectories);
 
-var dirExists = Directory.Exists;
-var fileExists = File.Exists;
-var isDir = dirExists;
-var isFile = fileExists;
 
-io.files = Directory.EnumerateFiles;
-io.dirs = Directory.EnumerateDirectories;
+var io = {
+    dir: _d(Exists),
+    file: _f(Exists),
 
-io.bytes = File.ReadAllBytes;
-io.lines = File.ReadAllLines;
-io.text = File.ReadAllText;
+    cd: @(path) path defined ? _d(SetCurrentDirectory)(path) : _d(GetCurrentDirectory)(),
 
-io.out = { bytes: File.WriteAllBytes, lines: File.WriteAllLines, text: File.WriteAllText };
+    files: _d(EnumerateFiles),
+    dirs: _d(EnumerateDirectories),
 
-io.del = File.Delete;
-io.rd = Directory.Delete;
-io.len = @() (new FileInfo($_)).Length;
+    bytes: _f(ReadAllBytes),
+    lines: _f(ReadAllLines),
+    text: _f(ReadAllText),
+    txt: text,
 
-io.parent = Path.GetDirectoryName;
-io.up = io.parent;
-io.name = Path.GetFileName;
-io.base = Path.GetFileNameWithoutExtension;
-io.full = Path.GetFullPath;
-io.attrs = File.GetAttributes;
+    out: {
+        bytes: _f(WriteAllBytes),
+        lines: _f(WriteAllLines),
+        text: _f(WriteAllText),
+        txt: text,
+        append: {
+            lines: _f(AppendAllLines),
+            text: _f(AppendAllText),
+            txt: text,
+        },
+    },
 
-io.ext = @(pathOrExt, newExt)
-    pathOrExt defined ?
-        newExt defined ?
-            Path.ChangeExtension(newExt, pathOrExt) :
-            Path.GetExtension(pathOrExt) :
-        throw new ArgumentException('Invalid arg count for io.ext()');
+    del: _f(Delete),
+    rd: _d(Delete),
+    len: @() (new FileInfo($_)).Length,
+    size: len,
 
-io.tmp = Path.GetTempPath;
-io.rnd = Path.GetTempFileName;
-io.copy = File.Copy;
-io.cp = io.copy;
-io.move = File.Move;
-io.mv = io.move;
+    parent: _p(GetDirectoryName),
+    up: parent,
+    name: _p(GetFileName),
+    base: _p(GetFileNameWithoutExtension),
+    full: _p(GetFullPath),
+    attrs: _f(GetAttributes),
 
-io.created = File.GetCreationTime;
-io.date = io.created;
+    ext: @(pathOrExt, newExt)
+        pathOrExt defined ?
+            newExt defined ?
+                _p(ChangeExtension(newExt, pathOrExt)) :
+                _p(GetExtension(pathOrExt)) :
+            throw new ArgumentException('Function io.ext() expects one or two arguments'),
 
-io.accessed = File.GetLastAccessTime;
-io.last = io.accessed;
+    tmp: _p(GetTempPath),
+    rnd: _p(GetTempFileName),
+    copy: _f(Copy),
+    cp: copy,
+    move: _f(Move),
+    mov: move,
+    mv: move,
 
-io.modified = File.GetLastWriteTime;
-io.touched = io.modified;
+    created: _f(GetCreationTime),
+    date: created,
 
-io.drives = Directory.GetLogicalDrives;
+    accessed: _f(GetLastAccessTime),
+    last: accessed,
 
-io.cat = @(rhs, lhs) _c();
-_cat = macro(@(n) { io.n = io.cat });
-_cat(append);
-_cat(suffix);
-_cat(concat);
-_cat(join);
+    modified: _f(GetLastWriteTime),
+    touched: modified,
 
-io.pre = @(lhs, rhs) _c();
-io.prefix = io.pre;
-io.prepend= io.pre;
+    drives: _d(GetLogicalDrives),
 
-_c = macro(@{ Path.Combine(rhs, lhs) });
+    append: @(rhs, lhs) _c(),
+    suffix: append,
+    tail: append,
+    end: append,
 
-var open = {
-    create: File.Create,
-    read: File.OpenRead,
-    write: File.OpenWrite,
-    share: @(path) File.Open(
-        path,
-        FileMode.OpenOrCreate,
-        FileAccess.ReadWrite,
-        FileShare.ReadWrite),
+    pre: @(lhs, rhs) _c(),
+    prefix: pre,
+    prepend: pre,
+    head: pre,
+    start: pre,
+
+    concat: _p(Combine),
+    join: concat,
+
+    open: {
+        create: _f(Create),
+        read: _f(OpenRead),
+        write: _f(OpenWrite),
+        share: @(path) _f(Open)(
+            path,
+            FileMode.OpenOrCreate,
+            FileAccess.ReadWrite,
+            FileShare.ReadWrite),
+        
+        append: _f(AppendText),
+    },
+
     
-    append: File.AppendText,
 };
 
-var append = {
-    lines: File.AppendAllLines,
-    text: File.AppendAllText,
-}
+var isDir = io.dir;
+var isFile = io.file;
+var dirExists = io.dir;
+var fileExists = io.file;

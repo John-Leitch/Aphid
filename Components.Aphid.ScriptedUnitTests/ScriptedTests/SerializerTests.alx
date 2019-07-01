@@ -1,5 +1,12 @@
 ﻿#'Std';
 
+// Todo:
+// * InlineStrings
+// * MapClrObject
+// * StringReferenceThreshold
+// * SplitStrings
+// * StringChunkSize
+
 var root = this;
 var foo = {
     bar: 9,
@@ -29,8 +36,41 @@ var p = @(doubleQuote, quoteKeys, noSpecials, noLazyLists) {
 };
 
 c = macro(@(name, init, obj, check){
-    name begin;
-    @{ var s = init; obj | s.Serialize | s.Deserialize @{ check |> isTrue } }
+    c2(name, init, obj, check, WithNoMaxElements, -1);    
+    c2(name, init, obj, check, WithTenMaxElements, 10);
+    c2(name, init, obj, check, WithOneThousandMaxElements, 1000);
+    c2(name, init, obj, check, WithIntMaxMaxElements, int.MaxValue);
+    c2(name, init, obj, check, WithZeroMaxElements, 0);
+
+});
+
+c2 = macro(@(name, init, obj, check, name2, maxElements) {
+    c3(name, init, obj, check, name2, maxElements, WithSafeCollections, true);
+    c3(name, init, obj, check, name2, maxElements, WithUnsafeCollections, false);
+});
+
+c3 = macro(@(name, init, obj, check, name2, maxElements, name3, safeCollections){
+    c4(name, init, obj, check, name2, maxElements, name3, safeCollections, WithSplitStrings, true);
+    c4(name, init, obj, check, name2, maxElements, name3, safeCollections, WithUnsplitStrings, false);
+});
+
+c4 = macro(@(name, init, obj, check, name2, maxElements, name3, safeCollections, name4, splitStrings){
+    c5(name, init, obj, check, name2, maxElements, name3, safeCollections, name4, splitStrings, With10CharChunks, 10);
+    // c5(name, init, obj, check, name2, maxElements, name3, safeCollections, name4, splitStrings, With100CharChunks, 100);
+    c5(name, init, obj, check, name2, maxElements, name3, safeCollections, name4, splitStrings, With1000000CharChunks, 1000000);
+    c5(name, init, obj, check, name2, maxElements, name3, safeCollections, name4, splitStrings, With0CharChunks, 0);
+});
+
+c5 = macro(@(name, init, obj, check, name2, maxElements, name3, safeCollections, name4, splitStrings, name5, stringChunkSize){
+    name name2 name3 begin;
+    @{
+        var s = init;
+        s.MaxElements = maxElements.int();
+        s.SafeCollectionAccess = safeCollections;
+        s.SplitStrings = splitStrings;
+        s.StringChunkSize = stringChunkSize;
+        obj | s.Serialize | s.Deserialize @{ check |> isTrue }
+    }
 
 });
 

@@ -1,13 +1,95 @@
-﻿flip = macro(@(f) { @(x, y) f(y, x) });
-var skip = flip(Enumerable.Skip);
-var take = flip(Enumerable.Take);
-var every = flip(EnumerableExtension.GroupEvery);
+﻿
+// @{
+//     //Generate
+//     #'std';
+//     var countTable = Enumerable.GetMethods()-&(@()$_.GetParameters().Length);
+//     var oneArg = (countTable-|@()$_.Key == 1)->@.Name;
+//     var twoArg = (countTable-|@()$_.Key == 2)->@.Name;
+
+//     oneArg
+//     @Enumerable.Intersect(twoArg)
+//     !?
+//     \!
+//     ->(@() format('var {0} = flip2({1});', $_ | language.camelCase, $_))
+//     print;
+//     print();
+//     Enumerable.Except(twoArg, oneArg)
+//     !?
+//     \!
+//     ->(@() format('var {0} = flip({1});', $_ | language.camelCase, $_))
+//     print;
+//     print();
+//     Enumerable.Except(oneArg, twoArg)
+//     !?
+//     \!
+//     ->(@() format('var {0} = {1};', $_ | language.camelCase, $_))
+//     print;
+
+//     exit();
+// }();
+
+flip = macro(@(f) { @(x, y) Enumerable.f(y, x) });
+flip2 = macro(@(f) { @(predicate, source) $args.Count == 2 ? Enumerable.f(source, predicate) : Enumerable.f(predicate) });
+
+var every = @(x, y) EnumerableExtension.GroupEvery(y, x);
 var reverse  = Enumerable.Reverse;
 var toArray = Enumerable.ToArray;
 var toList = Enumerable.ToList;
-var distinct = Enumerable.Distinct;
 var zip = @(second, selector, first) Enumerable.Zip(first, second, selector);
 var seqEqual = Enumerable.SequenceEqual;
-flip2 = macro(@(f) { @(predicate, source) $args.Count == 2 ? Enumerable.f(source, predicate) : Enumerable.f(predicate) });
+
+var aggregate = flip(Aggregate);
+var all = flip(All);
+var append = flip(Append);
+// var concat = flip(Concat);
+var contains = flip(Contains);
+var elementAt = flip(ElementAt);
+var elementAtOrDefault = flip(ElementAtOrDefault);
+var except = flip(Except);
+var groupBy = flip(GroupBy);
+var intersect = flip(Intersect);
+var orderBy = flip(OrderBy);
+var orderByDescending = flip(OrderByDescending);
+var prepend = flip(Prepend);
+//var range = flip(Range);
+var repeat = flip(Repeat);
+var select = flip(Select);
+var selectMany = flip(SelectMany);
+var sequenceEqual = flip(SequenceEqual);
+var skip = flip(Skip);
+var skipWhile = flip(SkipWhile);
+var take = flip(Take);
+var takeWhile = flip(TakeWhile);
+var thenBy = flip(ThenBy);
+var thenByDescending = flip(ThenByDescending);
+var toDictionary = flip(ToDictionary);
+var toLookup = flip(ToLookup);
+var union = flip(Union);
+var where = flip(Where);
+
 var any = flip2(Any);
-// var any = @(predicate, source) $args.Count == 2 ? Enumerable.Any(source, predicate) : Enumerable.Any(predicate)
+var average = flip2(Average);
+var count = flip2(Count);
+var defaultIfEmpty = flip2(DefaultIfEmpty);
+var distinct = flip2(Distinct);
+var first = flip2(First);
+var firstOrDefault = flip2(FirstOrDefault);
+var last = flip2(Last);
+var lastOrDefault = flip2(LastOrDefault);
+var longCount = flip2(LongCount);
+var max = flip2(Max);
+var min = flip2(Min);
+var single = flip2(Single);
+var singleOrDefault = flip2(SingleOrDefault);
+var sum = flip2(Sum);
+var toHashSet = flip2(ToHashSet);
+
+// orDefault = macro(@(n, f) {
+//     var id(n) = flip2(f);
+//     var id(n, OrDefault) = flip2(id(f, OrDefault));
+//     var id(n, OrNone) = id(n, OrDefault);
+// });
+
+// orDefault(first, First);
+// orDefault(last, Last);
+// orDefault(single, Single);

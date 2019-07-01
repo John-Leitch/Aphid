@@ -43,6 +43,8 @@ namespace Components.Aphid.Serialization
 
         private List<object> _traversed;
 
+        private HashSet<string> _strings = new HashSet<string>();
+
         private readonly Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
 
         private readonly Stack<string> _currentPath = new Stack<string>();
@@ -64,6 +66,20 @@ namespace Components.Aphid.Serialization
         public bool ToStringClrTypes { get; set; }
 
         public int MaxElements { get; set; } = -1;
+
+        public bool SafeCollectionAccess { get; set; } = true;
+
+        public HashSet<string> InlineStrings { get; set; } = new HashSet<string>();
+
+        public Func<object, int, AphidObject> MapClrObject { get; set; }
+
+        public int StringReferenceThreshold { get; set; } = 60;
+
+        public bool SplitStrings { get; set; } = true;
+
+        public bool SplitAtNewLine { get; set; } = true;
+
+        public int StringChunkSize { get; set; } = 100;
 
         public bool UseDoubleQuotes
         {
@@ -97,6 +113,7 @@ namespace Components.Aphid.Serialization
         private string SerializeCore(AphidObject o)
         {
             _traversedPaths.Clear();
+            _strings.Clear();
             _currentPath.Clear();
             _currentPath.Push("this");
             _traversed = new List<object>();
@@ -104,6 +121,54 @@ namespace Components.Aphid.Serialization
             Serialize(sb, o, 0);
 
             return sb.ToString();
+        }
+
+        private bool CheckGraph(object x, StringBuilder s, bool mapped = false)
+        {
+            AphidObject ao2;
+            
+            void addPath() =>
+                _traversedPaths.Add(
+                    x,
+                    string.Join(
+                        ".",
+                        _currentPath
+                            .Select(y => !ShouldQuote(y) ? y : Quote(y))
+                            .Reverse()));
+
+            if ((x == null ||
+                (ao2 = x as AphidObject) == null ||
+                !ao2.IsComplex) &&
+                !mapped)
+            {
+            }
+            else if (x is string str)
+            {
+                if (_strings.Contains(str))
+                {
+                    s.Append(_traversedPaths[x]);
+                    return true;
+                }
+                else if (!InlineStrings.Contains(str) && str.Length >= StringReferenceThreshold)
+                {
+                    addPath();
+                    _strings.Add(str);
+                }
+
+                return false;
+            }
+            else if (_traversed.Contains(x))
+            {
+                s.Append(_traversedPaths[x]);
+                return true;
+            }
+            else
+            {
+                addPath();
+                _traversed.Add(x);
+            }
+
+            return false;
         }
 
         private void Serialize(StringBuilder s, object obj, int indent)
@@ -117,47 +182,18 @@ namespace Components.Aphid.Serialization
                 return;
             }
 
-            var circular = false;
+            //var circular = false;
 
-            void checkGraph(object x)
-            {
-                AphidObject ao2;
+            
 
-                if (x == null ||
-                    (ao2 = x as AphidObject) == null ||
-                    !ao2.IsComplex)
-                {
-                }
-                else if (_traversed.Contains(x))
-                {
-                    s.Append(_traversedPaths[x]);
-                    circular = true;
-                }
-                else
-                {
-                    _traversedPaths.Add(
-                        x,
-                        string.Join(
-                            ".",
-                            _currentPath
-                                .Select(y => !ShouldQuote(y) ? y : Quote(y))
-                                .Reverse()));
-                    _traversed.Add(x);
-                }
-            }
-
-            checkGraph(obj);
-
-            if (circular)
+            if (CheckGraph(obj, s))
             {
                 return;
             }
 
             if (ao != null)
             {
-                checkGraph(ao.Value);
-
-                if (circular)
+                if (CheckGraph(ao.Value, s))
                 {
                     return;
                 }
@@ -175,7 +211,7 @@ namespace Components.Aphid.Serialization
             {
                 var hasAny = false;
 
-                foreach (var kvp in ao)
+                foreach (var kvp in ao.ToArray())
                 {
                     if ((IgnoreFunctions &&
                         kvp.Value != null &&
@@ -263,13 +299,20 @@ namespace Components.Aphid.Serialization
             }
             else if (value is string str)
             {
-                s.Append(Quote(str));
+                if (CheckGraph(str, s, mapped: true))
+                {
+                    return;                    
+                }
+                
+                if (!SplitStrings || !AppendChunks(s, str, indent))
+                {
+                    s.Append(Quote(str)); ;
+                }
             }
             else if (value is List<AphidObject> list)
             {
                 if (list.Count > 0)
                 {
-
                     s.Append("[\r\n");
 
                     if (MaxElements < 0)
@@ -364,7 +407,7 @@ namespace Components.Aphid.Serialization
             }
             else
             {
-                SerializeToString(s, value);
+                SerializeToString(s, value, indent);
             }
         }
 
@@ -378,17 +421,21 @@ namespace Components.Aphid.Serialization
                     !_safeEnumerableInterfaces
                         .Any(x => type.GetInterface(x.FullName) != null))
                 {
-                    SerializeClrTypeName(s, enumerable);
+                    SerializeClrObject(s, enumerable, indent);
 
                     return;
                 }
             }
 
+            var tmpEnumerable = SafeCollectionAccess ?
+                enumerable.OfType<object>().ToArray() :
+                enumerable;
+
             var hasAny = false;
 
             if (MaxElements < 0)
             {
-                foreach (var x in enumerable)
+                foreach (var x in tmpEnumerable)
                 {
                     if (!hasAny)
                     {
@@ -409,7 +456,7 @@ namespace Components.Aphid.Serialization
                 int first = (int)Math.Ceiling(h), last = (int)Math.Floor(h);
                 List<object> head = new List<object>(), tail = new List<object>();
 
-                foreach (var x in enumerable)
+                foreach (var x in tmpEnumerable)
                 {
                     if (++i > first)
                     {
@@ -490,19 +537,19 @@ namespace Components.Aphid.Serialization
             }
         }
 
-        private void SerializeToString(StringBuilder sb, object value)
+        private void SerializeToString(StringBuilder sb, object value, int indent)
         {
-            try
-            {
-                SerializeToStringCore(sb, value);
-            }
-            catch (Exception e)
-            {
-                sb.Append(Quote($"Error: {e}"));
-            }
+            //try
+            //{
+                SerializeToStringCore(sb, value, indent);
+            //}
+            //catch (Exception e)
+            //{
+            //    sb.Append(Quote($"Error: {e}"));
+            //}
         }
 
-        private void SerializeToStringCore(StringBuilder sb, object value)
+        private void SerializeToStringCore(StringBuilder sb, object value, int indent)
         {
             if (value == null)
             {
@@ -510,7 +557,7 @@ namespace Components.Aphid.Serialization
 
                 return;
             }
-
+            
             Type valueType;
 
             var hasToString =
@@ -532,30 +579,42 @@ namespace Components.Aphid.Serialization
                 valueType == typeof(double) ||
                 valueType == typeof(decimal))
             {
-                sb.Append(value.ToString());
+                var str = value.ToString();
+
+                if (!CheckGraph(str, sb, mapped: true))
+                {
+                    sb.Append(str);
+                }
             }
-            else if (hasToString)
+            else if (hasToString && MapClrObject == null)
             {
-                if (!QuoteToStringResults)
+                var str = !QuoteToStringResults ? value.ToString() : Quote(value.ToString());
+
+                if (!CheckGraph(str, sb, mapped: true))
                 {
-                    sb.Append(value.ToString());
-                }
-                else
-                {
-                    sb.Append(Quote(value.ToString()));
-                }
+                    sb.Append(str);
+                }                
             }
             else
             {
-                SerializeClrTypeName(sb, value);
+                SerializeClrObject(sb, value, indent);
             }
         }
 
-        private void SerializeClrTypeName(StringBuilder sb, object clrObject) =>
-            sb.AppendFormat(
-                !QuoteToStringResults ? "clrObject({0})" : "{1}clrObject({0}){1}",
-                clrObject.GetType().FullName,
-                _quoteChar);
+        private void SerializeClrObject(StringBuilder sb, object clrObject, int indent)
+        {
+            if (MapClrObject == null)
+            {
+                sb.AppendFormat(
+                    !QuoteToStringResults ? "clrObject({0})" : "{1}clrObject({0}){1}",
+                    clrObject.GetType().FullName,
+                    _quoteChar);
+            }
+            else if (!CheckGraph(clrObject, sb, mapped: true))
+            {
+                Serialize(sb, MapClrObject(clrObject, indent), indent);
+            }
+        }
 
         public AphidObject Deserialize(string obj)
         {
@@ -627,5 +686,33 @@ namespace Components.Aphid.Serialization
 
         private string Escape(string s) =>
             Regex.Replace(s, $@"([\\{_quoteChar}])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
+
+        private bool AppendChunks(StringBuilder sb, string str, int indent)
+        {
+            var off = (indent + 1) * 4;
+            var size = StringChunkSize - off;
+            var count = (str.Length / size) + ((str.Length % size) != 0 ? 1 : 0);
+
+            if (count == 1)
+            {
+                return false;
+            }
+
+            var tab = new string(' ', off);
+            sb.AppendLine();
+            
+            var x = 0;
+
+            for (var y = 0; y< str.Length; y += size)
+            {
+                sb.AppendFormat(
+                    "{0}{1}{2}",
+                    tab,
+                    Quote(str.Substring(y, Math.Min(str.Length - y, size))),
+                    ++x != count ? " +\r\n" : "");
+            }
+
+            return true;
+        }
     }
 }

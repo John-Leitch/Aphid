@@ -11,6 +11,138 @@ dbg.code = @(f) {
     if (dbg.enabled) f();
 };
 
+
+dbg.clrDumpOptions = {
+    maxDepth: 5,
+};
+
+dbg.clrToObj = @(clrObj) internal.clrDumpCore(0, new List[Object](), clrObj);
+dbg.clrDump = dbg.clrToObj @> dump;
+dbg.clrDumpe = dbg.clrToObj @> dumpe;
+
+using System.Dynamic.Utils;
+
+dbg.internal = {
+    genericEnumerable: Type.GetType('System.Collections.Generic.IEnumerable`1'),
+    clrDumpError: {
+        id: 0,
+        verbosity: 1,
+
+        next: @(msg) 'clrDump Error #{1:n0}: {0}' :: [ msg, (id++).int() ],
+
+        maxDepth: @(d)
+            (verbosity >= 1 ?
+                'Max depth of {0} reached' :
+                'Max depth reached') :: d |> next,
+
+        getValue: @(t, p, e)
+            'Call to {0}{1}GetValue failed{2}{3}' :: [
+                verbosity >= 4 ? t.FullName + '.' : verbosity >= 3 ? t.Name + '.' : '',
+                verbosity >= 2 ? p.Name + '.' : '',
+                verbosity >= 1 ? ', ' + language.camelCase(e.message) : '',
+                verbosity >= 5 ? '\r\n' + e.exception : '',
+            ]
+            |> next,
+    },
+    references: new Dictionary[Object, Object](new ReferenceEqualityComparer[Object]()),
+    // knowPaths: new Dictionary[Object, ]
+    clrDumpCore: @(depth, traversed, clrObj) {
+        var dprint = @() {
+            using System.Linq;
+            var umsg = $($args.Count) 0: '', 1: ($_ ?? '').ToString(), string.Format(($_ ?? '').ToString(), $args @skip(1));
+            
+            var msg = '{0}[Depth: ~Cyan~{1}~R~] ~Magenta~{2}~R~: {3}' :: [
+                new string(' ', depth.int()),
+                depth,
+                clrObj != null ? clrObj.GetType() : 'null',
+                umsg,
+            ];
+
+            msg |> Cli.WriteLine;
+        };
+        dprint =@{};
+        dprint('clrDumpCore started');
+
+        if (clrObj == null) {
+            ret null;
+        }
+
+        var t = clrObj.GetType();
+        
+        if (t.IsPrimitive || t.IsEnum || t == Decimal || t == string) {
+            ret clrObj;
+        } else if (depth > dbg.clrDumpOptions.maxDepth) {
+            dprint('~Yellow~Max depth reached~R~');
+            ret dbg.clrDumpOptions.maxDepth | clrDumpError.maxDepth;
+        }
+
+        if (isCycle(depth, traversed, clrObj)) {
+            dprint('~Yellow~Cyclical property detected, clrDumpCore finished~R~');
+            // ret 'Dump Error: Cycle detected';
+            // print(clrObj.GetType());
+            ret references.get_Item(clrObj);
+        }
+            
+            
+        // }
+
+        traversed.Add(clrObj);
+        dprint('~Cyan~{0:n0}~R~ objects traversed', traversed.Count);
+
+        // if (t == AphidObject) {
+        //     ret clrObj;
+        // }
+
+        if (t != string &&  t != AphidObject) {
+            var cpy = null;
+
+            if (t.GetInterfaces()=?(@()
+                $_.IsGenericType &&
+                $_.GetGenericTypeDefinition() == genericEnumerable)) {
+                dprint('Serializing IEnumerable[T]');  
+                cpy = clrObj | toArray;                
+            } else if (t.GetInterface(IEnumerable) != null) {
+                dprint('Serializing IEnumerable');  
+                cpy = clrObj->@()$_;
+            }
+
+            if (cpy != null) {
+                var l = [];
+                cpy for clrDumpCore(depth + 1, traversed, $_) | l.add;
+                references.Add(clrObj, l);
+                ret l;
+            }                
+        }
+
+        var mappedObj = {};
+        references.Add(clrObj, mappedObj);
+        
+        clrObj 
+            .GetType()
+            .GetProperties()
+            for (p) {
+                dprint('Reading property {0}.{1}', p.DeclaringType, p.Name);
+                var success = false;
+                var val;
+                try {                        
+                    val = p.GetValue(clrObj);                        
+                    success = true;
+                } catch (e) {
+                    dprint('~Yellow~Dump Error: {0}~R~', e.message);
+                    val = clrDumpError.getValue(t, p, e);
+                }
+
+                var r = success ? clrDumpCore(depth + 1, traversed, val) : val;
+                dprint('{0} reading property {1}.{2}~R~', success ? '~Green~Succeeded' : '~Red~Failed', p.DeclaringType, p.Name);
+                mappedObj[p.Name] = r;
+            };
+            
+        dprint('clrDumpCore finished');        
+        ret mappedObj;
+    },
+    isCycle: @(depth, traversed, clrObj) traversed=?(@() Object.ReferenceEquals($_, clrObj)),
+};
+
 var sigOpt = {
     memberType: false,
 };
