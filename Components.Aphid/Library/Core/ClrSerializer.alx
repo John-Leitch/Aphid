@@ -1,0 +1,190 @@
+﻿var clrSerializer;
+
+@{
+    var rootScope = this.'$parent';
+    
+    // using System.Dynamic.Utils;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Components;
+    using Components.External.ConsolePlus;
+    using Components.Aphid.TypeSystem;
+    using Components.Aphid.UI;
+    using Components.Aphid.UI.Formatters;
+    // rootScope.Keys->Console.WriteLine;
+
+    var toArray = Enumerable.ToArray;
+    var toStr = this.'$aphid'.Serializer.Serialize;
+    var toInt = Convert.ToInt32;
+    var format = string.Format;
+    var camelCase = @(s) s.Length > 0 ? s[0].ToLower() + s.Substring(1) : '';
+
+    var highlight = @()
+        $_
+        | toStr
+        | (VT100.IsEnabled ? SyntaxHighlightingFormatter.Format : @() $_)
+        | Console.WriteLine;
+
+    clrSerializer = {
+        maxDepth: 3,
+        map: @(clrObj) internal.mapCore(0, new List[Object](), internal.nextRefTable(), clrObj),
+        serialize: map @> toStr,
+        dump: map @> highlight,
+        dumpe: map @> highlight,
+        internal: {
+            nextRefTable: @() new Dictionary[Object, Object](new ReferenceEqualityComparer[Object]()),
+            genericEnumerable: Type.GetType('System.Collections.Generic.IEnumerable`1'),
+            error: {
+                id: 0,
+                verbosity: 1,
+
+                next: @(msg) format('clrDump Error #{1:n0}: {0}', msg, toInt(id++)),
+
+                maxDepth: @(d)
+                    d
+                    @format(verbosity >= 1 ?
+                        'Max depth of {0} reached' :
+                        'Max depth reached')
+                    |> next,
+
+                getValue: @(t, p, e)
+                    format(
+                        'Call to {0}{1}GetValue failed{2}{3}',
+                        verbosity >= 4 ? t.FullName + '.' : verbosity >= 3 ? t.Name + '.' : '',
+                        verbosity >= 2 ? p.Name + '.' : '',
+                        verbosity >= 1 ? ', ' + camelCase(e.message) : '',
+                        verbosity >= 5 ? '\r\n' + e.exception : '')
+                    |> next,
+            },
+            
+            // knowPaths: new Dictionary[Object, ]
+            mapCore: @(depth, traversed, references, clrObj) {
+                var dprint = @() {
+                    using System.Linq;
+                    var umsg = $($args.Count) 0: '', 1: ($_ ?? '').ToString(), format(($_ ?? '').ToString(), $args @skip(1));
+            
+                    format(
+                        '{0}[Depth: ~Cyan~{1}~R~] ~Magenta~{2}~R~: {3}',
+                        new string(' ', depth.int()),
+                        depth,
+                        clrObj != null ? clrObj.GetType() : 'null',
+                        umsg)
+                    |> Cli.WriteLine;
+                };
+
+                if (!(traceClrDump defined)) {
+                    dprint =@{};
+                }
+
+                dprint('mapCore started');
+
+                if (clrObj == null) {
+                    ret null;
+                }
+
+                var t = clrObj.GetType();
+        
+                if (t.IsPrimitive || t.IsEnum || t == Decimal || t == string) {
+                    ret clrObj;
+                } else if (depth > clrSerializer.maxDepth) {
+                    dprint('~Yellow~Max depth reached~R~');
+                    ret clrSerializer.maxDepth | error.maxDepth;
+                }
+
+                if (isCycle(depth, traversed, clrObj)) {
+                    dprint('~Yellow~Cyclical property detected, mapCore finished~R~');
+                    // ret 'Dump Error: Cycle detected';
+                    // print(clrObj.GetType());
+                    ret references.get_Item(clrObj);
+                    ret clrObj;
+                    // 
+                }
+            
+            
+                // }
+
+                traversed.Add(clrObj);
+                dprint('~Cyan~{0:n0}~R~ objects traversed', traversed.Count);
+
+                // if (t == AphidObject) {
+                //     ret clrObj;
+                // }
+
+                if (t != string &&  t != AphidObject) {
+                    var cpy = null;
+
+                    if (t.GetInterfaces()=?(@()
+                        $_.IsGenericType &&
+                        $_.GetGenericTypeDefinition() == genericEnumerable)) {
+                        dprint('Serializing IEnumerable[T]');  
+                        cpy = clrObj | toArray;                
+                    } else if (t.GetInterface(IEnumerable) != null) {
+                        dprint('Serializing IEnumerable');  
+                        cpy = clrObj->@()$_;
+                    }
+
+                    if (cpy != null) {
+                        var l = new List[Object]();
+                        cpy for mapCore(depth + 1, traversed, references, $_) | l.Add;
+                        references.Add(clrObj, l);
+                        ret l;
+                    }                
+                }
+
+                var mappedObj = {};
+                references.Add(clrObj, mappedObj);
+        
+                clrObj 
+                    .GetType()
+                    .GetProperties()
+                    for (p) {
+                        dprint('Reading property {0}.{1}', p.DeclaringType, p.Name);
+                        var success = false;
+                        var val;
+                        try {                        
+                            val = p.GetValue(clrObj);                        
+                            success = true;
+                        } catch (e) {
+                            dprint('~Yellow~Dump Error: {0}~R~', e.message);
+                            val = error.getValue(t, p, e);
+                        }
+
+                        var r = success ? mapCore(depth + 1, traversed, references, val) : val;
+                        dprint('{0} reading property {1}.{2}~R~', success ? '~Green~Succeeded' : '~Red~Failed', p.DeclaringType, p.Name);
+                        mappedObj[p.Name] = r;
+                    };
+            
+                dprint('mapCore finished');        
+                ret mappedObj;
+            },
+            isCycle: @(depth, traversed, clrObj) traversed=?(@() Object.ReferenceEquals($_, clrObj)),
+            isAttached: @(serializer) serializer.MapClrObject != null,
+            attach: @(serializer) {
+                serializer.MapClrObject = @(x, d, t) mapCore(d, new List[Object](), nextRefTable(), x);
+            }
+        },
+        enableClrDump = @{
+            var aphid = this.'$aphid';
+            var s = aphid.Serializer;
+
+            if ((s | internal.isAttached == false)) {
+                //Console.WriteLine('Enabling clrDump for default serializer');
+                s | internal.attach;
+            }
+
+            if (rootScope.dumpSerializer defined == false) {
+                using Components.Aphid.UI.Formatters;
+                rootScope.dumpSerializer = SerializingFormatter.CreateSerializer(aphid);
+            }
+            
+            if ((rootScope.dumpSerializer | internal.isAttached) == false) {
+                //Console('Enabling clrDump for REPL serializer');
+                rootScope.dumpSerializer | internal.attach;
+            }
+        }
+    };
+
+    clrSerializer.enableClrDump();
+}();
+

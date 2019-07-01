@@ -18,8 +18,15 @@ _msg2 = macro(@(printName, cliMember) { _print(printName, Cli.cliMember) });
 _msg(Info);
 _msg(Query);
 _msg(Success);
-_msg(Error);
+_msg(Error); 
 _msg(CriticalError);
+
+_isCollection = macro(@(_o) {
+    (_o != null) &&
+    ((var _t = _o.GetType()) != AphidObject) &&
+    (_t != string) &&
+    (_t.GetInterface('IEnumerable') != null)
+});
 
 _print = macro(@(name, write) {
     name = @(fmt, arg0) {
@@ -28,7 +35,7 @@ _print = macro(@(name, write) {
         if ($args.Count >= 1 && fmt == null) {
             _t('null format');
             _null write('null', []);
-        } else if ($args.Count > 1 && isCollection(fmt)) {
+        } else if ($args.Count > 1 && _isCollection(fmt)) {
             _t('format collection');
             var args = $args |> skip -> @() _na($_);
             for (x in fmt) {
@@ -41,10 +48,10 @@ _print = macro(@(name, write) {
                     write('');
                 }
                 1: {
-                    if (isNonNullObject(fmt)) {
+                    if (fmt != null && fmt == AphidObject) {
                         _t('serialized object');
                         write(fmt |> serialize |> Cli.StyleEscape);
-                    } else if (isCollection(fmt)) {
+                    } else if (_isCollection(fmt)) {
                         _t('collection');
                         fmt->@(x) _styleEscaped(x) |> write;
                     } else {
@@ -53,7 +60,7 @@ _print = macro(@(name, write) {
                     }
                 }
                 2: {
-                    if (arg0 != null && (arg0 |> isCollection)) {
+                    if (arg0 != null && (_isCollection(arg0))) {
                         _t('arg collection');
                         arg0->@() _styleEscaped($_) @write(_f(fmt));
                     } else {
@@ -80,13 +87,13 @@ _scalarFormat = macro(@(x4) { x4 == null ? 'null' : x4.ToString() });
 
 _f = macro(@(x5) {
     x5 == null ? 'null' :
-    isObject(x5) ? (x5 |> serialize |> Cli.Escape) :
+    (x5.GetType() == AphidObject) ? (x5 |> serialize |> Cli.Escape) :
     x5.ToString()
 });
 
 _styleEscaped = macro(@(x6) {
     x6 == null ? 'null' :
-    isObject(x6) ? (x6 |> serialize |> Cli.StyleEscape) :
+    (x6.GetType() == AphidObject) ? (x6 |> serialize |> Cli.StyleEscape) :
     _nonPrimitiveToString(x6)
 });
 

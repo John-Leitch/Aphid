@@ -1,50 +1,80 @@
 ﻿@{
-    #'IO';
-    using System;
-    using System.IO;
-    using System.Reflection;
-    using Components.External.ConsolePlus;
-    var dv = deployVerbosity defined ? deployVerbosity : 1;
-    // cls();
-    var _print = dv != 0 ? Cli.WriteLine : @{};
-    //_print = @{};
-    var scriptDir = Assembly.GetExecutingAssembly().Location |> io.up;
-    var cur = scriptDir;
-
-    if (aphidSource defined) cur = new DirectoryInfo(aphidSource);
-
-    cur @_print('Script dir: ~Green~{0}~R~');
-    var src;
     
+    
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;    
+    using System.Linq;
+    using System.Reflection;
+    using Components.Aphid.UI;
+    using Components.External.ConsolePlus;
+    
+    #'Std';
+    #'System/Process';
+    
+    var dv = deployVerbosity defined ? deployVerbosity : 1;
+    var _print = dv != 0 ? Cli.WriteLine : @{};
+    var scriptDir = Assembly.GetExecutingAssembly().Location |> io.up;
+    var searchPaths = new List[string]();
 
-    do
-    {
-        var search = io.join(cur, 'Components.Aphid', 'Library', 'Std.alx');
+    if (AphidConfig.Current.SourcePath != null) {
+        searchPaths.Add(AphidConfig.Current.SourcePath);
+    }
 
-        if (dv > 1) {
-            search @_print('Checking dir: ~Cyan~{0}~R~');
-        }
+    if (aphidSource defined && aphidSource != null) {
+        searchPaths.Add(aphidSource);
+    }
 
-        if (search | io.file) {
-            src = search | io.up;
-            src @_print('Found source dir: ~Green~{0}~R~');
+    searchPaths.Add(scriptDir);    
+    var src;  
+    
+    searchPaths for (cur) {
+        cur @_print('Script dir: ~Green~{0}~R~');        
+
+        do
+        {
+            var search = io.join(cur, 'Components.Aphid', 'Library', 'Std.alx');
+
+            if (dv > 1) {
+                search @_print('Checking dir: ~Cyan~{0}~R~');
+            }
+
+            if (search | io.file) {
+                src = search | io.up;
+                src @_print('Found source dir: ~Green~{0}~R~');
+                break;
+            }
+
+        } while ((cur = cur | io.up) != null);
+
+        if (src != null) {
             break;
         }
+    };
 
-    } while ((cur = cur | io.up) != null);
-
-    if (src == null) {
+    if (src == null) { 
         _print('~Yellow~Could not find library dir~R~');
-        exit(0);
+        Environment.Exit(1);
     }
 
     _print('[~Green~+~R~] Updating standard headers');
 
      var dst = (scriptDir \ 'Library');
-     var si = new ProcessStartInfo('cmd', string.Format('/c xcopy /e /s /d /y "{0}\\*.alx" "{1}"', src, dst));
-     si.UseShellExecute = false;
-     var proc = Process.Start(si);
-     proc.WaitForExit();
+     var cmd = 'xcopy /e /s /d /y "{0}\\*.alx" "{1}"' :: [ src, dst ];
+     printInfo('Executing command ~Cyan~{0}~R~', cmd);
+     var res = <# cmd;
+     
+     res.exitCode != 0 !! ('Fatal error, xcopy exited with code ~Yellow~{0}~R~ (~Yellow~0x{0:x8}~R~)' :: res.exitCode);
+    //  if ((res.out ~= '^0 File\\(s\\) copied') == false) {
+    //     printError('Files updated, restarting');
+    //     var batch = io.rnd() + '.cmd';
+    //     [ getCommand(),  /*'del "{0}"' :: batch*/ ] @io.out.lines(batch);
+    //     var si = new ProcessStartInfo(batch);
+    //     si.UseShellExecute = false;
+    //     Process.Start(si);        
+    //     Environment.Exit(0);
+    //  }
 
     _print('Done');
 }();

@@ -1,6 +1,5 @@
 ﻿// ##'Components.Aphid.Library.IOLibrary';
 using System.IO;
-
 // var getFsos = @(f, dir, opt) {
 //     var filter = '*';
 //     var recurse = false;
@@ -23,12 +22,13 @@ _d = macro(@(f) { Directory.f });
 _f = macro(@(f) { File.f });
 _p = macro(@(f) { Path.f });
 _c = macro(@{ _p(Combine)(lhs, rhs) });
+_h = macro(@(f) { pathHelper.f });
 _ob = macro(@(o) { _d(GetFiles)(path, pattern defined ? pattern : '*', SearchOption.o) });
 @ .* (path, pattern) _ob(TopDirectoryOnly);
 @ :* (path, pattern) _ob(AllDirectories);
 
-
 var io = {
+    // pathHelper: Type.GetType('Components.External.PathHelper'),
     dir: _d(Exists),
     file: _f(Exists),
 
@@ -119,7 +119,8 @@ var io = {
         append: _f(AppendText),
     },
 
-    
+    // entry: @() $args.Count == 0 ? _h(GetEntryDirectory)() : _h(GetEntryPath)($args),
+    // executing: @() $args.Count == 0 ? _h(GetExecutingDirectory)() : _h(GetExecutingyPath)($args),
 };
 
 var isDir = io.dir;

@@ -18,6 +18,7 @@
             FrameExcerptLines = "frameExcerptLines",
             ShowClrStack = "showClrStack",
             ScriptCaching = "scriptCaching",
-            IgnoreDebugger = "ignoreDbg";
+            IgnoreDebugger = "ignoreDbg",
+            SourcePath = "sourcePath";
     }
 }

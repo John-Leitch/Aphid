@@ -189,23 +189,6 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
 
 var cls = console.clear;
 
-var stdScope = this;
-
-if (!(stdScope.dump defined)) {
-    stdScope.dump = @(o){
-        (o != null ?
-            !isNonNullObject(o) && toJson defined ? toJson(o) : serialize(o) :
-            'null')
-        | (VT100.IsEnabled ? SyntaxHighlightingFormatter.Format : @() $_)
-        | Console.WriteLine;
-    };
-}
-
-var dumpe = @{ 
-    $_ |> dump;
-    exit(0);
-};
-
 var exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
 
 var fatal = @{

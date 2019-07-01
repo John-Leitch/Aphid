@@ -92,6 +92,7 @@ using System.Reflection;
 #'List';
 #'Conversion';
 #'Cli';
+#'Core\\ClrSerializer';
 #'Query';
 #'Meta';
 #'Math';
@@ -105,9 +106,9 @@ using System.Reflection;
 
 // this.{"$block"}.AddRange(@{
 //     using System.Text;
-//     var i = 0;
+//     var i = 0; 
 //     cls();
-//     [
+//     [ 
 //         'foobar' ~= 'foo',
 //         'hello world' ~= 'foo',
 //         'foobar' ~~ 'foo',
@@ -119,10 +120,8 @@ using System.Reflection;
 //         |\ 'c:/temp/test.txt',
 //         &\ 'c:/temp/test.dat',
 //         |\ 'c:/temp/test.txt' ~= 'Hello',
-//         |\ 'c:/temp/test.txt' ~= 'Hi'
+//         |\ 'c:/temp/test.txt' ~= 'Hi' 
 //     ]->serialize->@print('Test {0}: {1}', ++i);
 // });
-
-
-
-
+  
+ 

@@ -5,6 +5,7 @@ using AS = Components.Aphid.UI.AphidSettings;
 using static System.IO.Path;
 using LB = Components.MutableLazy<bool>;
 using LI = Components.MutableLazy<int>;
+using LS = Components.MutableLazy<string>;
 using LA = Components.MutableLazy<string[]>;
 
 namespace Components.Aphid.UI
@@ -18,6 +19,9 @@ namespace Components.Aphid.UI
         public const string FileName = "Components.Aphid.dll.config";
 
         private static readonly Lazy<Configuration> _config = new Lazy<Configuration>(LoadConfig);
+
+        private LS
+            _sourcePath = GetSetting(AS.SourcePath);
 
         private LB
             _strictMode = GetBool(AS.StrictMode, true),
@@ -54,7 +58,8 @@ namespace Components.Aphid.UI
         public bool ShowErrorFileList { get => _showErrorFileList.Value; set => _showErrorFileList = value; }
         public bool ScriptCaching { get => _scriptCaching.Value; set => _scriptCaching = value; }
         public bool IgnoreDebugger { get => _ignoreDebugger.Value; set => _ignoreDebugger = value; }
-        public bool ExceptionHandlingClrStack { get => _showClrStack.Value; set => _showClrStack = value; }
+        public string SourcePath { get => _sourcePath.Value; set => _sourcePath = value; }
+        public bool ExceptionHandlingClrStack { get => _showClrStack.Value; set => _showClrStack = value; }        
         public bool ReplShowHelpArgWarning { get; set; }
         public bool ReplJit { get; set; }
         public bool ReplLoggingInput { get; set; }

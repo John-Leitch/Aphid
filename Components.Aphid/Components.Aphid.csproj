@@ -633,6 +633,12 @@
     <Compile Include="Interpreter\AphidLibraryAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Library\Core\ClrSerializer.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Cli\Dump.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Core\Linq.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

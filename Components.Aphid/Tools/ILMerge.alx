@@ -1,13 +1,20 @@
-#'Std';
-#'System/Nuget';
+using Components.External.ConsolePlus;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Reflection;
 
+#'Core/Operators';
+#'IO';
+#'Cli/Console';
+#'Cli/Print';
+#'System/Nuget';
+
+
+
 fatal = @{
     $_ | printError;
-    exit(0xbad81);
+    Environment.Exit(0xbad81);
 };
 
 head('Merging .NET Program');
@@ -58,20 +65,27 @@ if (ilmergeExe == null) {
         fatal('Could not find ilmerge.exe');
     }
 
-    :> 'ILMerge installed';
+    printSuccess('ILMerge installed');
 } else {
-    :> 'ILMerge already installed';
+    printInfo('ILMerge already installed');
 }
 
-var outExe = getExe() |> Path.GetFileNameWithoutExtension @+ 'Portable.exe';
+var exe = Assembly.GetEntryAssembly().Location | io.full;
+var outExe = exe |> io.base @+ 'Portable.exe' @io.prefix(exe | io.up);
 
 var aphidDll = AppDomain.CurrentDomain
     .GetAssemblies()
     ~|'Components\\.Aphid'
     @.Location;
 
-var logFile = getExecutingPath('log.txt');
+var logFile = exe | io.up @io.end('log.txt');
+printInfo('Creating log {0}', logFile);
 File.WriteAllText(logFile, '');
+
+if (outExe | io.file) {
+    printInfo('Deleting old binary {0}', outExe);
+    io.del(outExe);
+}
 
 var procArgs =
     '/target:{0} ' +
@@ -82,7 +96,7 @@ var procArgs =
         Path.GetExtension(outExe).Substring(1),
         logFile,
         outExe,
-        getExe(),
+        exe,
         aphidDll,
     ];
     
@@ -92,11 +106,13 @@ procArgs @print('Starting ilmerge.exe with args ~Magenta~{0}~R~');
 var si = new ProcessStartInfo(ilmergeExe, procArgs);   
 si.UseShellExecute = false;
 var p = Process.Start(si);
+printQuery('Waiting for ilmerge to finish');
 p.WaitForExit();
+printSuccess('ilmerge done running');
 
 var failure = 
     logFile
-    |> File.ReadAllText
+    | io.text
     @()
         $_.Contains('was not merged in correctly. It is still listed as an external reference in the target assembly') ||
         $_.Contains('Duplicate assembly name ') ||
@@ -104,8 +120,8 @@ var failure =
 
 if (failure) {
     print('~Red~Failed merging dll~R~');
-    logFile |> File.ReadAllText |> Console.WriteLine;
-    exit(1);
+    logFile | io.text | Console.WriteLine;
+    Environment.Exit(1);
 }
 
 //Process.Start('ildasm', 'AphidPortable.exe');

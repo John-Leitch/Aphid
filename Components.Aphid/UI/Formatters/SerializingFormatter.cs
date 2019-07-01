@@ -52,18 +52,6 @@ namespace Components.Aphid.UI.Formatters
                 return $"Error dumping {value.GetType()}: {ex}";
             }
 
-            //if(result.StartsWith("clrObject("))
-            //{
-            //    string json;
-
-            //    try
-            //    {
-            //        json = JsonSerializer.Serialize(interpreter.ValueHelper.Unwrap(value));
-            //        result = json;
-            //    }
-            //    catch { }
-            //}
-
             return
                 (ignoreClrObj && result.StartsWith("clrObject(")) ||
                 (ignoreNull && result == "null") ? "" :
@@ -71,6 +59,10 @@ namespace Components.Aphid.UI.Formatters
         }
 
         public static AphidSerializer CreateSerializer(AphidInterpreter interpreter) =>
+            interpreter.CurrentScope.TryResolve(AphidName.DumpSerializer, out var dumpSerializerObj) &&
+            dumpSerializerObj != null &&
+            dumpSerializerObj.IsScalar &&
+            dumpSerializerObj.Value is AphidSerializer dumpSerializer ? dumpSerializer :
             new AphidSerializer(interpreter)
             {
                 IgnoreFunctions = true,

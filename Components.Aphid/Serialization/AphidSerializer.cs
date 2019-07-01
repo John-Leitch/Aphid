@@ -71,7 +71,7 @@ namespace Components.Aphid.Serialization
 
         public HashSet<string> InlineStrings { get; set; } = new HashSet<string>();
 
-        public Func<object, int, AphidObject> MapClrObject { get; set; }
+        public Func<object, int, List<object>, AphidObject> MapClrObject { get; set; }
 
         public int StringReferenceThreshold { get; set; } = 60;
 
@@ -612,7 +612,7 @@ namespace Components.Aphid.Serialization
             }
             else if (!CheckGraph(clrObject, sb, mapped: true))
             {
-                Serialize(sb, MapClrObject(clrObject, indent), indent);
+                Serialize(sb, MapClrObject(clrObject, indent, _traversed), indent);
             }
         }
 

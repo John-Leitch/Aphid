@@ -1,0 +1,21 @@
+﻿var stdScope = this;
+
+if (!(stdScope.dump defined)) {
+    stdScope.dump = @(o){
+        using Components.External.ConsolePlus;
+        using Components.Aphid.UI;
+        using Components.Aphid.UI.Formatters;
+
+        o
+        | this.'$aphid'.Serializer.Serialize
+        | (VT100.IsEnabled ? SyntaxHighlightingFormatter.Format : @() $_)
+        | Console.WriteLine;
+    };
+}
+
+var dumpe = @{ 
+    using System;
+
+    $_ |> dump;
+    Environment.Exit(0);
+};
