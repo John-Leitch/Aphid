@@ -377,7 +377,8 @@ namespace AphidUI.Internal
         private GlyphRun BuildGlyphRun(int column, int line, char c)
         {
             var paddingTop = FontSize / 3;
-            var glyphs = new GlyphRun();
+            var dpi = VisualTreeHelper.GetDpi(this);
+            var glyphs = new GlyphRun((float)dpi.PixelsPerDip);
             ISupportInitialize isi = glyphs;
             isi.BeginInit();
             glyphs.GlyphTypeface = glyphFace;

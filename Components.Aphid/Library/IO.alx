@@ -55,43 +55,50 @@ var io = {
     },
 
     find: {
-        files: @() ($($args.Count)
-            0: _af('.', '*'),
-            1: _af('.', $_),
-            2: _af($_, $args[1]),
-            throw new ArgumentException('io.find.files() expects one to three arguments')),
-        dirs: @() ($($args.Count)
-            0: _ad('.', '*'),
-            1: _ad('.', $_),
-            2: _ad($_, $args[1]),
-            throw new ArgumentException('io.find.dirs() expects one to three arguments')),
-        file: @() ($($args.Count)
-            0: _af('.', '*'),
-            1: _af('.', $_),
-            2: _af($_, $args[1]),
-            throw new ArgumentException('io.find.files() expects one to three arguments'))
-            |> Enumerable.Single,
-        dir: @() ($($args.Count)
-            0: _ad('.', '*'),
-            1: _ad('.', $_),
-            2: _ad($_, $args[1]),
-            throw new ArgumentException('io.find.dirs() expects one to three arguments'))
-            |> Enumerable.Single,
+        files: @(pattern, path)
+            ($($args.Count)
+                0: _af('.', '*'),
+                1: _af('.', $_),
+                2: _af($args[1], $_),
+                throw new ArgumentException('io.find.files() expects one to three arguments')),
+        dirs: @(pattern, path)
+            ($($args.Count)
+                0: _ad('.', '*'),
+                1: _ad('.', $_),
+                2: _ad($args[1], $_),
+                throw new ArgumentException('io.find.dirs() expects one to three arguments')),
+        file: @(pattern, path)
+            ($($args.Count)
+                0: _af('.', '*'),
+                1: _af('.', $_),
+                2: _af($args[1], $_),
+                throw new ArgumentException('io.find.files() expects one to three arguments'))
+                |> Enumerable.Single,
+        dir: @(pattern, path)
+            ($($args.Count)
+                0: _ad('.', '*'),
+                1: _ad('.', $_),
+                2: _ad($args[1], $_),
+                throw new ArgumentException('io.find.dirs() expects one to three arguments'))
+                |> Enumerable.Single,
     },
 
     first: {
-        file: @() ($($args.Count)
-            0: _af('.', '*'),
-            1: _af('.', $_),
-            2: _af($_, $args[1]),
-            throw new ArgumentException('io.find.files() expects one to three arguments'))
-            |> Enumerable.FirstOrDefault,
-        dir: @() ($($args.Count)
-            0: _ad('.', '*'),
-            1: _ad('.', $_),
-            2: _ad($_, $args[1]),
-            throw new ArgumentException('io.find.dirs() expects one to three arguments'))
-            |> Enumerable.FirstOrDefault,
+        file: @(pattern, path)
+            ($($args.Count)
+                0: _af('.', '*'),
+                1: _af('.', $_),
+                2: _af($args[1], $_),
+                throw new ArgumentException('io.find.file() expects zero to two arguments'))
+                |> Enumerable.FirstOrDefault,
+
+        dir: @(pattern, path)
+            ($($args.Count)
+                0: _ad('.', '*'),
+                1: _ad('.', $_),
+                2: _ad($args[1], $_),
+                throw new ArgumentException('io.find.dir() expects zero to two arguments'))
+                |> Enumerable.FirstOrDefault,
     },
 
     bytes: _f(ReadAllBytes),

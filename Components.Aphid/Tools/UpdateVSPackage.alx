@@ -1,0 +1,47 @@
+#'std';
+#'system/process';
+
+var hasFlag = @(flag) getCommandLineArgs()=?@==flag;
+
+var xcopy = @(src, pattern, dst) {
+    var si = new ProcessStartInfo(
+        'c:\\windows\\system32\\xcopy.exe',
+        format(
+            '/e /s /j /y /f "{0}{1}{2}" "{3}"',
+            src,
+            (src ~= '[\\\\/]$') ? '' : '\\',
+            pattern,
+            dst));
+
+    si.UseShellExecute = false;
+    var p = Process.Start(si);
+    p.WaitForExit();
+};
+
+printInfo('Searching for library dirs');
+var libDirs = 'C:\\Users\\John\\AppData\\Local\\Microsoft\\VisualStudio' @io.find.dirs('Library');
+
+if ('-l' | hasFlag) {
+    libDirs->Console.WriteLine;
+}
+
+if ('-d' | hasFlag) {
+    printInfo('Deleting old scripts');
+    libDirs-<io.all.files->io.del;
+}
+
+if ('-s' | hasFlag) {
+    printInfo('Copying updated scripts');
+    libDirs->@xcopy("c:\\source\\aphid\\components.aphid\\library", "*.alx");
+}
+
+if ('-b' | hasFlag) {
+    printInfo('Copying bins');
+    var binSrc =
+        'c:/source/aphid'
+        @io.first.dir('*package*')
+        @io.first.file('*aphid.debug.dll')
+        io.up;
+
+    libDirs->io.up->@xcopy(binSrc, '*.dll');
+}
