@@ -183,6 +183,11 @@
     <Compile Include="Compiler\Medusa\LLex\LexFileMode.cs" />
     <Compile Include="Compiler\Medusa\LLex\LLexFile.cs" />
     <Compile Include="Compiler\Medusa\LLex\LLexNameInfo.cs" />
+    <Compile Include="Compiler\Medusa\LLex\LLexTemplates.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LLexTemplates.alx</DependentUpon>
+    </Compile>
     <Compile Include="Compiler\Medusa\LLex\OperatorExpression.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexCompiler.cs" />
     <Compile Include="Compiler\Medusa\LLex\RegexExpression.cs" />
@@ -295,6 +300,7 @@
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Interpreter\AphidThread.cs" />
     <Compile Include="Lexer\AphidToken.cs" />
+    <!-- <Compile Include="Library\std.cs" /> -->
     <Compile Include="Parser\AphidByteCode.cs" />
     <Compile Include="Parser\Mutators\AphidDirective.cs" />
     <Compile Include="Parser\Mutators\AphidExpressionBinder.cs" />
@@ -610,6 +616,10 @@
     <Compile Include="Interpreter\AphidLibraryAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Compiler\Medusa\LLex\LLexTemplates.alx">
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>LLexTemplates.cs</LastGenOutput>
+    </None>
     <None Include="Library\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -649,7 +659,22 @@
     <None Include="Library\Meta\Code\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Meta\Code\Aphid\*.alx">
+    <None Include="Library\Meta\Code\Aphid\Aphid.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\Aphid.Code.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\Aphid.Tmpl.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\Aphid.Tokens.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\AphidCustomOperators.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Code\Aphid\LLexTemplates.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Meta\Code\Generation\*.alx">
@@ -672,7 +697,7 @@
     </None>
     <None Include="Tools\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>    
+    </None>
     <None Include="Parser\ParserErrorMessageInterop.alx">
       <Generator>AphidCodeDomGenerator</Generator>
       <LastGenOutput>ParserErrorMessageInterop.cs</LastGenOutput>
