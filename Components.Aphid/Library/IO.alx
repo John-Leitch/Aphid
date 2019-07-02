@@ -1,5 +1,6 @@
 ﻿// ##'Components.Aphid.Library.IOLibrary';
 using System.IO;
+using System.Linq;
 // var getFsos = @(f, dir, opt) {
 //     var filter = '*';
 //     var recurse = false;
@@ -23,9 +24,12 @@ _f = macro(@(f) { File.f });
 _p = macro(@(f) { Path.f });
 _c = macro(@{ _p(Combine)(lhs, rhs) });
 _h = macro(@(f) { pathHelper.f });
-_ob = macro(@(o) { _d(GetFiles)(path, pattern defined ? pattern : '*', SearchOption.o) });
+_ob = macro(@(o) { _d(EnumerateFiles)(path, pattern defined ? pattern : '*', SearchOption.o) });
 @ .* (path, pattern) _ob(TopDirectoryOnly);
 @ :* (path, pattern) _ob(AllDirectories);
+_ea = macro(@(n, d, p) { _d(id(Enumerate, n))(d, p, SearchOption.AllDirectories) });
+_af = macro(@(d, p) { _ea(Files, d, p) });
+_ad = macro(@(d, p) { _ea(Directories, d, p) });
 
 var io = {
     // pathHelper: Type.GetType('Components.External.PathHelper'),
@@ -36,6 +40,59 @@ var io = {
 
     files: _d(EnumerateFiles),
     dirs: _d(EnumerateDirectories),
+
+    all: {
+        files: @() ($($args.Count)
+            0: _af('.', '*'),
+            1: _af($_, '*'),
+            2: _af($_, $args[1]),
+            throw new ArgumentException('io.all.files() expects one to three arguments')),
+        dirs: @() ($($args.Count)
+            0: _ad('.', '*'),
+            1: _ad($_, '*'),
+            2: _ad($_, $args[1]),
+            throw new ArgumentException('io.all.dirs() expects one to three arguments')),
+    },
+
+    find: {
+        files: @() ($($args.Count)
+            0: _af('.', '*'),
+            1: _af('.', $_),
+            2: _af($_, $args[1]),
+            throw new ArgumentException('io.find.files() expects one to three arguments')),
+        dirs: @() ($($args.Count)
+            0: _ad('.', '*'),
+            1: _ad('.', $_),
+            2: _ad($_, $args[1]),
+            throw new ArgumentException('io.find.dirs() expects one to three arguments')),
+        file: @() ($($args.Count)
+            0: _af('.', '*'),
+            1: _af('.', $_),
+            2: _af($_, $args[1]),
+            throw new ArgumentException('io.find.files() expects one to three arguments'))
+            |> Enumerable.Single,
+        dir: @() ($($args.Count)
+            0: _ad('.', '*'),
+            1: _ad('.', $_),
+            2: _ad($_, $args[1]),
+            throw new ArgumentException('io.find.dirs() expects one to three arguments'))
+            |> Enumerable.Single,
+    },
+
+    first: {
+        file: @() ($($args.Count)
+            0: _af('.', '*'),
+            1: _af('.', $_),
+            2: _af($_, $args[1]),
+            throw new ArgumentException('io.find.files() expects one to three arguments'))
+            |> Enumerable.FirstOrDefault,
+        dir: @() ($($args.Count)
+            0: _ad('.', '*'),
+            1: _ad('.', $_),
+            2: _ad($_, $args[1]),
+            throw new ArgumentException('io.find.dirs() expects one to three arguments'))
+            |> Enumerable.FirstOrDefault,
+    },
 
     bytes: _f(ReadAllBytes),
     lines: _f(ReadAllLines),

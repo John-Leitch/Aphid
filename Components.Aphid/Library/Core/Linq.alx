@@ -84,6 +84,37 @@ var singleOrDefault = flip2(SingleOrDefault);
 var sum = flip2(Sum);
 var toHashSet = flip2(ToHashSet);
 
+using System.Collections.Generic;
+
+_ie = macro(@(x) { x.GetType().GetInterface(IEnumerable) != null });
+
+var seq = {
+    count: @(source) _ie(source) ? (source#!) : source,
+    to: @(source) 0..(source | count),
+    from: @(source) source | to | reverse,    
+    
+    untilTrue: @(predicate) {
+        var l = new List[Decimal]();
+        var i = 0;        
+        while (!predicate(i)) l.Add(i++);
+        ret l;
+    },
+
+    whileTrue: @(predicate) {
+        var l = new List[Decimal]();
+        var i = 0;        
+        while (predicate(i)) l.Add(i++);
+        ret l;
+    },
+
+    until: untilTrue,
+    when: whileTrue,
+    // fanReduce = @(set) set |> seq.to-< @(i) set |> toList @{ $_.RemoveAt(i); ret $_.Count > 1 ? $_ |> fanReduce : [$_] })<| (1..10) |> dump }()
+    
+};
+
+
+
 // orDefault = macro(@(n, f) {
 //     var id(n) = flip2(f);
 //     var id(n, OrDefault) = flip2(id(f, OrDefault));

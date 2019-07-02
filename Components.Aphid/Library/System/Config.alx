@@ -7,4 +7,9 @@ var aphidConfig = AphidConfig
     .Value
     .AppSettings
     .Settings
-    | kvpsToObj;
+    @kvpsToObj(@(x)
+        x != null &&
+            (x.Equals('true', StringComparison.OrdinalIgnoreCase) ||
+            x.Equals('false', StringComparison.OrdinalIgnoreCase)) ?
+            bool.Parse(x) :
+            x);

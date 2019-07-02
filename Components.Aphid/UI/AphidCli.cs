@@ -81,7 +81,7 @@ namespace Components.Aphid.UI
                         e.Source = AphidName.DebugInterpreter;
 
 #if APHID_FRAME_CATCH_POP
-                        interpreter.PopQueuedFrames();
+                        interpreter.PopQueuedFrames(1);
 #endif
 
 #if APHID_FRAME_ADD_DATA

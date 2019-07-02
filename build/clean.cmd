@@ -1,5 +1,5 @@
 pushd .
-cd c:\source\aphid
+cd /d c:\source\aphid
 for /F %%i IN ('dir /s bin /ad /b') DO rd /s /q %%i 
 for /F %%i IN ('dir /s obj /ad /b') DO rd /s /q %%i 
 del /s *.alx.cache*

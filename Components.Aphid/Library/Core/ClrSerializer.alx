@@ -165,22 +165,30 @@
             }
         },
         enableClrDump = @{
-            var aphid = this.'$aphid';
-            var s = aphid.Serializer;
+            #'System/Config';
 
-            if ((s | internal.isAttached == false)) {
-                //Console.WriteLine('Enabling clrDump for default serializer');
-                s | internal.attach;
+            _t = macro(@(n) { aphidConfig.n defined && aphidConfig.n });
+
+            if (_t(useClrSerializeForDump)) {
+                var aphid = this.'$aphid';
+                var s = aphid.Serializer;
+
+                if ((s | internal.isAttached == false)) {
+                    //Console.WriteLine('Enabling clrDump for default serializer');
+                    s | internal.attach;
+                }
             }
 
-            if (rootScope.dumpSerializer defined == false) {
-                using Components.Aphid.UI.Formatters;
-                rootScope.dumpSerializer = SerializingFormatter.CreateSerializer(aphid);
-            }
-            
-            if ((rootScope.dumpSerializer | internal.isAttached) == false) {
-                //Console('Enabling clrDump for REPL serializer');
-                rootScope.dumpSerializer | internal.attach;
+            if (_t(useClrSerializeForReplOut)) {
+                if (rootScope.dumpSerializer defined == false) {
+                    using Components.Aphid.UI.Formatters;
+                    rootScope.dumpSerializer = SerializingFormatter.CreateSerializer(aphid);
+                }
+                
+                if ((rootScope.dumpSerializer | internal.isAttached) == false) {
+                    //Console('Enabling clrDump for REPL serializer');
+                    rootScope.dumpSerializer | internal.attach;
+                }
             }
         }
     };

@@ -111,8 +111,20 @@ var nodeType;
     call = @(name) { var n = $_; $args.RemoveAt(0); ret aphid.CallFunction(n, $args) };
     apply = @(func, args) aphid.CallFunction(func, args);
     
-    kvpsToObj = @(kvps) {
+    kvpsToObj = @(kvpsOrSelector, optKvps) {
         var o = {};
+
+        var kvps;
+        var selector = null;
+
+        switch ($args.Count) {
+            1: kvps = kvpsOrSelector;
+            2: {
+                kvps = optKvps;
+                selector = kvpsOrSelector;
+            }
+            default: throw new InvalidArgumentException('kvpsToObj expects one or two args');
+        }
 
         if (kvps == null) {
             ret null;
@@ -126,9 +138,17 @@ var nodeType;
             var k = p.Keys;
             var k = k[0];
             var v = k[1];
-            kvps for (x) o[k] = x[v];
+            if (selector == null) {
+                kvps for (x) o[k] = x[v];
+            } else {
+                kvps for (x) o[k] = x[v] | selector;
+            }
         } else if (p.Key defined && p.Value defined) {
-            kvps for (x) o[x.Key] = x.Value;
+            if (selector == null) {
+                kvps for (x) o[x.Key] = x.Value;
+            } else {
+                kvps for (x) o[x.Key] = x.Value | selector;
+            }
         } else {
             throw new ArgumentException('Invalid arg passed to kvpsToObj');
         }

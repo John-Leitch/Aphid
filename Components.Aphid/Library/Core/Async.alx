@@ -40,5 +40,7 @@
         reduce: selectMany,
         each: forEach,
         iter: forEach,
+        task: @(action) Task.Factory.StartNew(action),
+        long: @(action) Task.Factory.StartNew(action, TaskCreationOptions.LongRunning),
     }
 }();

@@ -9,7 +9,7 @@ set msg=Cleaning Aphid
 
 pushd .
 
-cd %dst%
+cd /d %dst%
 
 for %%i in (exe dll pdb config bak) do (
     echo Renaming c:\tools\aphid\*.%%i to *.%id%.%%i

@@ -9,7 +9,7 @@ set msg=Updating Aphid Binaries
 %hr%
 
 pushd .
-cd %dst%
+cd /d %dst%
 aphid64 * Console.WriteLine(Guid.NewGuid().ToString().Replace('-', '')) > rnd.txt
 set /p rnd=<rnd.txt
 del rnd.txt

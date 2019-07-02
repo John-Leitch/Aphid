@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Choose>
     <!--                                -->
@@ -112,26 +112,15 @@
     <AssemblyName>Components.Aphid$(TraceSuffix)$(IsAphidDbg)$(IsDebug)$(Bitness)</AssemblyName>
     <ProjectGuid>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Components.Aphid</RootNamespace>
     <FileAlignment>512</FileAlignment>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>latest</LangVersion>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>7.3</LangVersion>    
   </PropertyGroup>
+  
+  
   <!--                                -->
   <!-- DEBUG                          -->
   <!--                                -->

@@ -1,6 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('32')) ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('64')) ">x64</Platform>
+    <Platform Condition=" '$(Platform)' == '' And !$(Configuration.Contains('32')) And !$(Configuration.Contains('64')) ">AnyCPU</Platform>
+    <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aphid</RootNamespace>
+    <!-- <AssemblyName>Aphid</AssemblyName> -->
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ErrorReport>prompt</ErrorReport>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
       <PropertyGroup>
@@ -73,80 +88,32 @@
   <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
   <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
   <!-- </PropertyGroup> -->
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('32')) ">x86</Platform>
-    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('64')) ">x64</Platform>
-    <Platform Condition=" '$(Platform)' == '' And !$(Configuration.Contains('32')) And !$(Configuration.Contains('64')) ">AnyCPU</Platform>
-    <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aphid</RootNamespace>
-    <!-- <AssemblyName>Aphid</AssemblyName> -->
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <TargetFrameworkProfile />
-    <ErrorReport>prompt</ErrorReport>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <LangVersion>7.2</LangVersion>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    <Prefer32Bit>true</Prefer32Bit>
-    <LangVersion>7.3</LangVersion>
+    <Prefer32Bit>true</Prefer32Bit>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
+  </PropertyGroup>  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>..\Components.Aphid\Performance.ruleset</CodeAnalysisRuleSet>
+    <ErrorReport>prompt</ErrorReport>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
     <OutputPath>bin\Release32\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
     <OutputPath>bin\Release64\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>..\Components.Aphid\Analyzers.ruleset</CodeAnalysisRuleSet>
+    <ErrorReport>prompt</ErrorReport>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
     <DebugSymbols>true</DebugSymbols>
@@ -157,8 +124,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
-    <Optimize>true</Optimize>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Optimize>true</Optimize>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
     <DebugSymbols>true</DebugSymbols>
@@ -166,8 +132,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <Optimize>true</Optimize>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Optimize>true</Optimize>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
     <DebugSymbols>true</DebugSymbols>
@@ -175,29 +140,25 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <Optimize>true</Optimize>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Optimize>true</Optimize>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
     <DebugType>pdbonly</DebugType>
     <Prefer32Bit>false</Prefer32Bit>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <OutputPath>bin\Debug\</OutputPath>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <OutputPath>bin\Debug\</OutputPath>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <OutputPath>bin\Debug\</OutputPath>    
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -321,19 +282,7 @@
       <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
       <Name>Components.Aphid</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
+  </ItemGroup>  
   <!-- <ItemGroup> -->
   <!-- <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1"> -->
   <!-- <Visible>False</Visible> -->

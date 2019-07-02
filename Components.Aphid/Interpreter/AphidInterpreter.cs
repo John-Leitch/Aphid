@@ -3481,6 +3481,16 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void PopQueuedFrames(int offset)
+        {
+            while (_queuedFramePops > offset)
+            {
+                _frames.Pop();
+                _queuedFramePops--;
+            }
+        }
+
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal AphidFrame CreateEntryFrame() =>
             OwnerThread != -1 ?
                 CreateNameFrame(GetEntryName()) :

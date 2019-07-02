@@ -1,2 +1,2 @@
 call core\init.cmd
-msbuild core\buildSln.proj
+%B% core\buildSln.proj
