@@ -5,7 +5,6 @@ var resources;
 var csharp;
 
 @{
-    #'Cli\\Print';
     #'Meta\\Code\\Syntax\\CodeDom';
     #'Meta\\Code\\ViewModelCompiler';
 
@@ -76,7 +75,16 @@ var csharp;
                 srcAst = srcCode |> parse |> preprocessor.transform;
             } catch (e) {
                 using Components.Aphid.UI;
-                AphidCli.DumpException(e.exception.InnerException, srcCode);
+                
+                if (e.exception.GetType() == AphidParserException) {
+                    AphidCli.DumpException(e.exception, srcCode);
+                } else if (e.exception.InnerException != null && 
+                    e.exception.InnerException.GetType() == AphidParserException) {
+                    AphidCli.DumpException(e.exception.InnerException srcCode);
+                } else {
+                    AphidCli.DumpException(e.exception, this.'$aphid');
+                }                
+
                 ret null;
             }
 

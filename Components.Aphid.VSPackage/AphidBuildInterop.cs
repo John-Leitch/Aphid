@@ -38,6 +38,11 @@ namespace Components.Aphid.VSPackage
             {
                 new LoadScriptExpression(
                     new StringExpression(
+                        "'Std'"
+                    )
+                ),
+                new LoadScriptExpression(
+                    new StringExpression(
                         "'Meta/Code/Compiler'"
                     )
                 ),
