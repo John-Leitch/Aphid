@@ -5,6 +5,7 @@ var resources;
 var csharp;
 
 @{
+    #'Cli\\Print';
     #'Meta\\Code\\Syntax\\CodeDom';
     #'Meta\\Code\\ViewModelCompiler';
 

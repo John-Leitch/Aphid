@@ -1,5 +1,7 @@
 ﻿delete print;
 
+using Components.External.ConsolePlus;
+
 // var _t = tracePrint defined ? @() Cli.WriteLine('~Magenta~Printing {0}~R~', [ $_ ]) : @{};
 _t = macro(@(a, b, c, d, e, f, g){ });
 _print(var print, Cli.WriteLine);

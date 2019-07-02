@@ -10,7 +10,7 @@ namespace Components.Aphid.Parser
 
         public static string Create(string code, AphidParserException exception, bool highlight)
         {
-            var actualCode = exception.Filename != null && File.Exists(exception.Filename) ?
+            var actualCode = exception?.Filename != null && File.Exists(exception.Filename) ?
                 AphidScript.Read(exception.Filename) :
                 code;
 

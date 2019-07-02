@@ -2,7 +2,7 @@
 
 var isInitialized = false;
 
-export void AphidRepl.Init = @{
+export void AphidRepl.Init = @{ 
     if (isInitialized) ret null;
     using System;
 
@@ -19,7 +19,7 @@ export void AphidRepl.Init = @{
                 using System.Diagnostics;
 
                 if (Debugger.IsAttached) {
-                    Environment.Exit(0);
+                    Environment.Exit(0); 
                 }
             }
     });
