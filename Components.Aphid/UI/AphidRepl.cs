@@ -154,7 +154,8 @@ namespace Components.Aphid.UI
                         RunBlock(Epilogue, handleExceptions: false);
                     }
                 });
-
+                
+                RunThread.IsBackground = true;
                 RunThread.Start();
             }
 

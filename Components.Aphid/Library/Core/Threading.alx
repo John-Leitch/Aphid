@@ -9,7 +9,7 @@ var parallel;
 
     var _ts = traceService defined && traceService ? print : @{ };
     
-    startThread = @(action) new Thread(action) @{ $_.Start(); ret $_ };
+    startThread = @(action) new Thread(action) @{ $_.IsBackground = true; $_.Start(); ret $_ };
 
     startWorker = @(action, interval, runCondition) 
         startThread(@{ 

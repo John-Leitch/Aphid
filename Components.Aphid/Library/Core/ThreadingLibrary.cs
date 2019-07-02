@@ -29,7 +29,7 @@ namespace Components.Aphid.Library
 
         [AphidInteropFunction("thread", PassInterpreter = true)]
         public static WaitHandle StartThread(AphidInterpreter interpreter, AphidFunction function, params object[] parms) =>
-            ThreadCore(interpreter, x => new Thread(y => x()).Start(), function, parms);
+            ThreadCore(interpreter, x => new Thread(y => x()).Do(y => y.IsBackground = true).Start(), function, parms);
 
         //[AphidInteropFunction("join")]
         //public static void Join(WaitHandle reset) => reset.WaitOne();

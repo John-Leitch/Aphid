@@ -168,6 +168,7 @@ var bind;
                 });
 
                 printInfo('Creating thread');
+                wpfApp.uiThread.IsBackground = true;
                 wpfApp.uiThread.SetApartmentState(ApartmentState.STA);
                 
                 wpfApp.waitForExit = @{

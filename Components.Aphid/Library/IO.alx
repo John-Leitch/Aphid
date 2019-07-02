@@ -105,11 +105,15 @@ var io = {
         text: _f(WriteAllText),
         txt: text,
         append: {
-            lines: _f(AppendAllLines),
+            
             text: _f(AppendAllText),
             txt: text,
+            line: @(line, file) text(line + '\r\n', file),
+            lines: _f(AppendAllLines),
         },
     },
+
+    add: out.append,
 
     del: _f(Delete),
     rd: _d(Delete),
