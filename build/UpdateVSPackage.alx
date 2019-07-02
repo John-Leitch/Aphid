@@ -1,7 +1,9 @@
 #'std';
 #'system/process';
+head('VS Package Update Tool');
 
 var hasFlag = @(flag) getCommandLineArgs()=?@==flag;
+var hasAllFlag = '-a' | hasFlag;
 
 var xcopy = @(src, pattern, dst) {
     var si = new ProcessStartInfo(
@@ -21,21 +23,15 @@ var xcopy = @(src, pattern, dst) {
 printInfo('Searching for library dirs');
 var libDirs = 'C:\\Users\\John\\AppData\\Local\\Microsoft\\VisualStudio' @io.find.dirs('Library');
 
-if ('-l' | hasFlag) {
+_c = macro(@(f) { ('-' + quote(f)) | hasFlag || hasAllFlag });
+
+if (_c(l)) {
+    subhead('Detected Extension Libraries');
     libDirs->Console.WriteLine;
 }
 
-if ('-d' | hasFlag) {
-    printInfo('Deleting old scripts');
-    libDirs-<io.all.files->io.del;
-}
-
-if ('-s' | hasFlag) {
-    printInfo('Copying updated scripts');
-    libDirs->@xcopy("c:\\source\\aphid\\components.aphid\\library", "*.alx");
-}
-
-if ('-b' | hasFlag) {
+if (_c(b)) {
+    subhead('Binary Deployment');
     printInfo('Copying bins');
     var binSrc =
         'c:/source/aphid'
@@ -43,5 +39,21 @@ if ('-b' | hasFlag) {
         @io.first.file('*aphid.debug.dll')
         io.up;
 
-    libDirs->io.up->@xcopy(binSrc, '*.dll');
+    libDirs->io.up->@xcopy(binSrc, '*');
 }
+
+if (_c(d)) {
+    subhead('Library Cleanup');
+    printInfo('Deleting old scripts');
+    libDirs-<io.all.files->@{
+        print('Deleting ~Yellow~{0}~R~', $_);
+        $_ | io.del;
+    }
+}
+
+if (_c(s)) {
+    subhead('Library Deployment');
+    printInfo('Copying updated scripts');
+    libDirs->@xcopy("c:\\source\\aphid\\components.aphid\\library", "*.alx");
+}
+

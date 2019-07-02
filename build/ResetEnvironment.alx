@@ -1,0 +1,21 @@
+#'Std';
+#'System/Machine';
+
+machine
+    .getProcs()
+    -?(@()
+        $_.CommandLine != null &&
+        ($_.CommandLine.ToLower() ~= '(visual studio)|(msbuild)|(vs code)'))
+    
+    ->?>@(p)
+        $_.ProcessId.int()
+        | Process.GetProcessById 
+        @{ print(
+            'Found build related process\r\n' +
+            'Name: ~Cyan~{0}~R~\r\n' +
+            'Command: ~Cyan~{1}~R~\r\n',
+            $_.ProcessName,
+            p.CommandLine);
+            ret $_
+        }
+        @() $_.Kill();

@@ -2,115 +2,139 @@ using global::Components.Aphid.Parser;
 using global::Components.Aphid.Interpreter;
 
 namespace Components.Aphid.Parser {
-
+    
+    
     public partial class ParserErrorMessage {
+        
         private static FromExpressionDelegate _FromExpression;
-
+        
         public static FromExpressionDelegate FromExpression {
             get {
                 if ((ParserErrorMessage._FromExpression == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_53beab64b1eb6c2f209957efbe33cd2b());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
                 }
                 return ParserErrorMessage._FromExpression;
             }
-            set => ParserErrorMessage._FromExpression = value;
+            set {
+                ParserErrorMessage._FromExpression = value;
+            }
         }
-
+        
         public delegate string FromExpressionDelegate(string code, AphidParserException exception, bool highlight);
     }
 }
 
 namespace Components.Aphid.Parser {
-
+    
+    
     public partial class ParserErrorMessage {
+        
         private static AppendFilenameDelegate _AppendFilename;
-
+        
         public static AppendFilenameDelegate AppendFilename {
             get {
                 if ((ParserErrorMessage._AppendFilename == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_53beab64b1eb6c2f209957efbe33cd2b());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
                 }
                 return ParserErrorMessage._AppendFilename;
             }
-            set => ParserErrorMessage._AppendFilename = value;
+            set {
+                ParserErrorMessage._AppendFilename = value;
+            }
         }
-
+        
         public delegate System.Text.StringBuilder AppendFilenameDelegate(System.Text.StringBuilder sb, AphidParserException exception);
     }
 }
 
 namespace Components.Aphid.Parser {
-
+    
+    
     public partial class ParserErrorMessage {
+        
         private static FromTokenDelegate _FromToken;
-
+        
         public static FromTokenDelegate FromToken {
             get {
                 if ((ParserErrorMessage._FromToken == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_53beab64b1eb6c2f209957efbe33cd2b());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
                 }
                 return ParserErrorMessage._FromToken;
             }
-            set => ParserErrorMessage._FromToken = value;
+            set {
+                ParserErrorMessage._FromToken = value;
+            }
         }
-
+        
         public delegate string FromTokenDelegate(string code, AphidParserException exception, bool highlight);
     }
 }
 
 namespace Components.Aphid.Parser {
-
+    
+    
     public partial class ParserErrorMessage {
+        
         private static AppendPositionAndExcerptDelegate _AppendPositionAndExcerpt;
-
+        
         public static AppendPositionAndExcerptDelegate AppendPositionAndExcerpt {
             get {
                 if ((ParserErrorMessage._AppendPositionAndExcerpt == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_53beab64b1eb6c2f209957efbe33cd2b());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
                 }
                 return ParserErrorMessage._AppendPositionAndExcerpt;
             }
-            set => ParserErrorMessage._AppendPositionAndExcerpt = value;
+            set {
+                ParserErrorMessage._AppendPositionAndExcerpt = value;
+            }
         }
-
+        
         public delegate System.Text.StringBuilder AppendPositionAndExcerptDelegate(System.Text.StringBuilder sb, string code, int index, bool highlight);
     }
 }
 
 namespace Components.Aphid.Parser {
-
+    
+    
     public partial class ParserErrorMessage {
+        
         private static AppendPositionDelegate _AppendPosition;
-
+        
         public static AppendPositionDelegate AppendPosition {
             get {
                 if ((ParserErrorMessage._AppendPosition == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_53beab64b1eb6c2f209957efbe33cd2b());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
                 }
                 return ParserErrorMessage._AppendPosition;
             }
-            set => ParserErrorMessage._AppendPosition = value;
+            set {
+                ParserErrorMessage._AppendPosition = value;
+            }
         }
-
+        
         public delegate System.Text.StringBuilder AppendPositionDelegate(System.Text.StringBuilder sb, string code, int index, bool highlight);
     }
 }
 
 namespace Components.Aphid.Parser {
-
+    
+    
     public partial class ParserErrorMessage {
+        
         private static AppendExcerptDelegate _AppendExcerpt;
-
+        
         public static AppendExcerptDelegate AppendExcerpt {
             get {
                 if ((ParserErrorMessage._AppendExcerpt == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_53beab64b1eb6c2f209957efbe33cd2b());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
                 }
                 return ParserErrorMessage._AppendExcerpt;
             }
-            set => ParserErrorMessage._AppendExcerpt = value;
+            set {
+                ParserErrorMessage._AppendExcerpt = value;
+            }
         }
-
+        
         public delegate System.Text.StringBuilder AppendExcerptDelegate(System.Text.StringBuilder sb, string code, int index, bool highlight);
     }
 }
@@ -120,10 +144,10 @@ namespace Components.Aphid.Parser
     using global::Components.Aphid.Lexer;
     using global::Components.Aphid.Parser;
     using System.Collections.Generic;
-
+    
     public static partial class AphidCompilerResources
     {
-        public static List<AphidExpression> ByteCode_53beab64b1eb6c2f209957efbe33cd2b()
+        public static List<AphidExpression> ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca()
         {
             return             new List<AphidExpression>
             {

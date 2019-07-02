@@ -582,9 +582,20 @@ var nodeType;
         ret visitor;
     };
 
+    var importsLock = null;
+    
+    var getImportsLock = @()
+        (var a = this.'$aphid')
+            .GetType()
+            .GetField(
+                '_importsLock',
+                BindingFlags.NonPublic | BindingFlags.Instance)
+            .GetValue(a);
+
     resolveType = @(type)
         this.{'$aphid'}.InteropTypeResolver.ResolveType(
-            this.{'$imports'}.ToArray(),
+            this.{'$imports'},
+            importsLock != null ? importsLock : (importsLock = getImportsLock()),
             [ type ],
             true,
             true);

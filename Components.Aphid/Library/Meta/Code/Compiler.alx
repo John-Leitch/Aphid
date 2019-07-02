@@ -80,7 +80,7 @@ var csharp;
                     AphidCli.DumpException(e.exception, srcCode);
                 } else if (e.exception.InnerException != null && 
                     e.exception.InnerException.GetType() == AphidParserException) {
-                    AphidCli.DumpException(e.exception.InnerException srcCode);
+                    AphidCli.DumpException(e.exception.InnerException, srcCode);
                 } else {
                     AphidCli.DumpException(e.exception, this.'$aphid');
                 }                

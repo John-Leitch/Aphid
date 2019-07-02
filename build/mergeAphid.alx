@@ -1,0 +1,32 @@
+#'std';
+
+head('Creating Merged Binaries');
+var root = Path.Combine(this.'$script' | io.up | io.up, 'Aphid', 'bin');
+root :* 'aphid*portable*.*' -> io.del;
+var d = Directory.GetCurrentDirectory(); // Todo: io.cwd() and io.cd()
+root :* '*aphid*.exe' -> io.full -?(@()!$_.ToLower().Contains('trace')) -> @{
+    print('Merging {0}', $_);
+    var binDir = $_ | io.up;
+    binDir | Directory.SetCurrentDirectory;
+    var args = '{0} -unattended' :: Path.Combine(binDir, 'tools', 'ILMerge.alx');
+    printInfo('Running {0} with args {1}', $_, args);
+    var si = new ProcessStartInfo($_, args);
+    si.UseShellExecute = false;
+    var p = Process.Start(si);
+    p.WaitForExit();
+    printSuccess('Done merging ~Green~{0}~R~', $_);
+    //result | dumpe;
+};
+
+printQuery('Setting cwd');
+d | Directory.SetCurrentDirectory;
+printSuccess('Done');
+
+// for /r ..\aphid\bin %%i in (aphid*portable*.*) do del %%i
+
+// for /f %%i in ('dir ..\Aphid\bin\*aphid*.exe /s /b') do (
+//     pushd .
+//     cd %%~dpi
+//     %%i tools\ILMerge.alx -unattended || exit bad80
+//     popd
+// )
