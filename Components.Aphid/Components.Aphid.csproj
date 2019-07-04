@@ -302,6 +302,11 @@
     <Compile Include="Lexer\AphidToken.cs" />
     <!-- <Compile Include="Library\std.cs" /> -->
     <Compile Include="Parser\AphidByteCode.cs" />
+    <Compile Include="Parser\AphidByteCodeCache.Interop.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidByteCodeCache.Interop.alx</DependentUpon>
+    </Compile>
     <Compile Include="Parser\Mutators\AphidDirective.cs" />
     <Compile Include="Parser\Mutators\AphidExpressionBinder.cs" />
     <Compile Include="Parser\AphidByteCodeCache.cs" />
@@ -674,9 +679,6 @@
     <None Include="Library\Meta\Code\Aphid\AphidCustomOperators.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Meta\Code\Aphid\LLexTemplates.alx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Library\Meta\Code\Generation\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -694,6 +696,10 @@
     </None>
     <None Include="Library\Remoting\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Parser\AphidByteCodeCache.Interop.alx">
+      <Generator>AphidCodeDomGenerator</Generator>
+      <LastGenOutput>AphidByteCodeCache.Interop.cs</LastGenOutput>
     </None>
     <None Include="Tools\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
