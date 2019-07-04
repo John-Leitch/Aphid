@@ -66,21 +66,22 @@ namespace Aphid
 #if !APHID_DEBUGGING_ENABLED
             if (AphidConfig.Current.ScriptCaching)
             {
+                var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray())
+                {
+                    DisableConstantFolding = false,
+                    InlineScripts = true,
+                };
+
                 if (AphidErrorHandling.HandleErrors)
                 {
                     AphidCli.TryAction(
                         interpreter,
                         () => AphidScript.Read(file),
-                        () =>
-                        {
-                            var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
-                            interpreter.Interpret(cache.Read(file));
-                        },
+                        () => interpreter.Interpret(cache.Read(file)),
                         allowErrorReporting: true);
                 }
                 else
                 {
-                    var cache = new AphidByteCodeCache(interpreter.Loader.SearchPaths.ToArray());
                     interpreter.Interpret(cache.Read(file));
                 }
             }

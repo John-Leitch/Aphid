@@ -150,8 +150,14 @@ if (!(global.childCreated defined )) {
 
                 if (Environment.UserInteractive && !Console.IsOutputRedirected) {
                     var len = format('Running test {0}', k).Length;
-                    Console.CursorTop = Console.CursorTop - 1;
-                    Console.CursorLeft = len + 4;
+                    var x = len + 4;
+
+                    if (x < Console.WindowWidth) {
+                        Console.CursorTop = Console.CursorTop - 1;                    
+                        Console.CursorLeft = len + 4;
+                    } else {
+                        Console.CursorLeft = 0;
+                    }
                 }
 
                 if (r.result == null || r.result.GetType() != bool || r.result) {

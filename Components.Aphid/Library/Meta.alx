@@ -678,7 +678,7 @@ extend AphidExpression {
     isUnOp: @(x) _is(UnaryOperator),
     isBinOp: @(x) _is(BinaryOperator),
     isObj: @(x) _is(Object),
-    isExt: @(exp, type) exp.is(Extend) \ exp.extType() == (1`0),
+    isExt: @(exp, type) exp.is(Extend) && (exp.extType() | resolveType) == type,
     isString: @(x) _is(String),
     isText: @(x) _is(Text),
     isUsing: @(exp) exp.isOp(getToken('using')),

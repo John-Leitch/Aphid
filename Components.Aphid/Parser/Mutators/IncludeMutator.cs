@@ -102,7 +102,11 @@ namespace Components.Aphid.Parser
 
                 if (UseImplicitReturns)
                 {
-                    cache = new AphidByteCodeCache(Loader.SearchPaths.ToArray());
+                    cache = new AphidByteCodeCache(Loader.SearchPaths.ToArray())
+                    {
+                        DisableConstantFolding = false,
+                        InlineScripts = true,
+                    };
                 }
                 else
                 {

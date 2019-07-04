@@ -1,0 +1,87 @@
+﻿using Components.Aphid.Parser;
+using Components.Aphid.Lexer;
+using Components.Aphid.UI;
+using Components.Aphid.UI.Formatters;
+using System;
+using System.Text;
+
+AphidConfig.Current.ScriptCaching = false;
+#'Std';
+#'Meta/Code/Compiler';
+AphidConfig.Current.ScriptCaching = true;
+
+
+/*
+export string AphidByteCodeCache.CompileFile = @(filename){
+    var parts = filename.Split('/\\');
+
+    var ns =
+        'BuiltInLibrary.' +
+        (parts @take(parts.Length - 1)
+        @skipWhile(@(x) x.ToLower() != 'library')
+        ->language.capitalize
+        @join('.'));
+
+    var type = filename | io.base @()$_.Replace('.', '_');
+    (ns + '.' + type) @print('Creating CLR type ~Cyan~{0}~R~');
+    
+    try {
+        preprocessor.inlineScripts = true;
+        block = filename | io.txt | parse | preprocessor.transform;        
+        var cs = csharp.fromAst(ns, type, block) @() $_.ToString();
+        printInfo('Compiling CS');
+        csharp.params = csharp.createDefaultParams();
+        csharp.params.GenerateInMemory = false;
+        var result = csharp.compileAsmFromSource(cs);
+        var asmPath = result.CompiledAssembly @.Location;
+        printInfo('Created {0}', asmPath);
+        ret asmPath;
+    } catch (e) {
+        printError(e.message);
+    }
+    ret null;
+};
+*/
+/*
+export IEnumerable AphidByteCodeCache.CompileAst = @(string filename, IEnumerable block){
+    
+    var parts = filename.Split('/\\');
+
+    var ns =
+        'BuiltInLibrary.' +
+        (parts @take(parts.Length - 1)
+        @skipWhile(@(x) x.ToLower() != 'library')
+        ->language.capitalize
+        @join('.')) +
+        '.' + (filename | io.base @()$_.Replace('.', '_'));
+
+    ns @print('Creating CLR type ~Cyan~{0}~R~');
+    
+    try {
+        var cs = csharp.fromAst(ns, 'GetAst', block) @() $_.ToString();
+        printInfo('Compiling CS');
+        csharp.params = csharp.createDefaultParams();
+        csharp.params.GenerateInMemory = false;
+        var asm = csharp.compileAsm(cs).CompiledAssembly;
+        File.Copy(asm.Location, filename + '.dll', true);
+        ret asm.GetTypes()[0].GetAst();
+    } catch (e) {
+        printError(e.message);
+    }
+    ret null;
+};
+*/
+export Array AphidByteCodeCache.CompileAstToBytes = @(IEnumerable block){
+    
+    var name = 'AphidLibrary.Compiled' + Guid.NewGuid().ToString().Replace('-', '');
+    var cs = csharp
+        .fromAst(name, 'GetAst', block)
+         @() $_.ToString();
+
+    printInfo('Compiling CS');
+    csharp.params = csharp.createDefaultParams();
+    csharp.params.GenerateInMemory = false;
+    var csFile = getEntryPath('library', name + '.cs');    
+    cs @io.out.text(csFile);
+    ret csharp.compileAsmFromFiles([csFile]).CompiledAssembly.Location |> io.bytes;
+};

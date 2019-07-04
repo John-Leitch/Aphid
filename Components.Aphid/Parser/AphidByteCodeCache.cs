@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Components.Aphid.Parser
 {
-    public class AphidByteCodeCache : FileSerializationCache<List<AphidExpression>>
+    public partial class AphidByteCodeCache : FileSerializationCache<List<AphidExpression>>
     {
         public bool InlineScripts
         {
@@ -37,13 +38,38 @@ namespace Components.Aphid.Parser
             }
         }
 
+        public bool Is64Bit
+        {
+            get => (Flags & 0x8) != 0;
+            set
+            {
+                if (value)
+                {
+                    Flags |= 0x8;
+                }
+                else
+                {
+                    Flags &= ~0x8u;
+                }
+            }
+        }
+
         private readonly string[] _searchPaths;
 
         public AphidByteCodeCache(string[] searchPaths)
-            : base(typeof(AphidExpression).Assembly.GetName().Version) => _searchPaths = searchPaths;
+            : base(typeof(AphidExpression).Assembly.GetName().Version)
+        {
+            Is64Bit = Environment.Is64BitProcess;
+            _searchPaths = searchPaths;
+        }
 
         public AphidByteCodeCache(string[] searchPaths, uint flags)
-            : base(typeof(AphidExpression).Assembly.GetName().Version, flags) => _searchPaths = searchPaths;
+            : base(
+                typeof(AphidExpression).Assembly.GetName().Version,
+                Environment.Is64BitProcess ?
+                    (flags | 0x8) :
+                    flags & (~0x8u)) =>
+            _searchPaths = searchPaths;
 
         protected override List<AphidExpression> CreateCache(
             string filename,

@@ -304,7 +304,7 @@ namespace Components.Aphid.Serialization
                     return;                    
                 }
                 
-                if (!SplitStrings || !AppendChunks(s, str, indent))
+                if (!SplitStrings || StringChunkSize <= 0 || !AppendChunks(s, str, indent))
                 {
                     s.Append(Quote(str)); ;
                 }
@@ -315,7 +315,7 @@ namespace Components.Aphid.Serialization
                 {
                     s.Append("[\r\n");
 
-                    if (MaxElements < 0)
+                    if (MaxElements <= 0)
                     {
 
                         foreach (var x in list)
@@ -433,7 +433,7 @@ namespace Components.Aphid.Serialization
 
             var hasAny = false;
 
-            if (MaxElements < 0)
+            if (MaxElements <= 0)
             {
                 foreach (var x in tmpEnumerable)
                 {
@@ -689,11 +689,22 @@ namespace Components.Aphid.Serialization
 
         private bool AppendChunks(StringBuilder sb, string str, int indent)
         {
+            if (str.Length == 0)
+            {
+                return false;
+            }
+
             var off = (indent + 1) * 4;
             var size = StringChunkSize - off;
+
+            if (size <= 0)
+            {
+                return false;
+            }
+
             var count = (str.Length / size) + ((str.Length % size) != 0 ? 1 : 0);
 
-            if (count == 1)
+            if (count <= 1)
             {
                 return false;
             }

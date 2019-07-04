@@ -28,14 +28,15 @@ if (args.Count == 0) {
 
 var srcDir = args[0].Value |> Path.GetFullPath;
 var xmlFile = args[1].Value |> Path.GetFullPath;
+var off = getEntryDir().Length;
 printQuery('Generating documentation for files in dir ~Cyan~{0}~R~', srcDir);
 
 var srcFiles = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories)
     -? @(x)
-        !x.ToLower().EndsWith('\\aphid.alx') &&
-        !x.ToLower().Contains('\\bin\\') &&
-        !x.ToLower().Contains('\\aphid\\debug\\') &&
-        !x.ToLower().EndsWith('.alxt');
+        !x.ToLower().Substring(off).EndsWith('\\aphid.alx') &&
+        !x.ToLower().Substring(off).Contains('\\bin\\') &&
+        !x.ToLower().Substring(off).Contains('\\aphid\\debug\\') &&
+        !x.ToLower().Substring(off).EndsWith('.alxt');
     
 printInfo('Found ~Cyan~{0}~R~ files', srcFiles #!);
 

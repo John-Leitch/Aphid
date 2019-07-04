@@ -181,7 +181,7 @@ namespace Components.Aphid.Interpreter
             return null;
         }
 
-        public List<AphidExpression> LoadScript(string scriptFile, bool isTextDocument = false)
+        public virtual List<AphidExpression> LoadScript(string scriptFile, bool isTextDocument = false)
         {
             var f = FindScriptFile(null, scriptFile);
 
@@ -206,8 +206,9 @@ namespace Components.Aphid.Interpreter
                         var cache = new AphidByteCodeCache(SearchPaths.ToArray())
                         {
                             //InlineScripts = InlineCachedScripts,
+                            //DisableConstantFolding = DisableConstantFolding
+                            DisableConstantFolding = false,
                             InlineScripts = true,
-                            DisableConstantFolding = DisableConstantFolding
                         };
                         ast = cache.Read(f);
                     }

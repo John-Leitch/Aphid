@@ -1,9 +1,13 @@
 ﻿#'Std';
 #'Data\\Xml';
 #'Html\\Tags';
+load System.Web.Extensions;
+load System.Xml.Linq;
+using System.Web;
+using System.Xml.Linq;
+using System.Collections.Generic;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.UI;
-using System.Collections.Generic;
 
 @ -: (source, fmt) source->@format(fmt);
 @ :+ (source, fmt) source -: fmt @join('');
@@ -42,8 +46,13 @@ var highlight = @(code) code
         h.ForegroundRgb[0],
         h.ForegroundRgb[1],
         h.ForegroundRgb[2],
-        h.Text))
-    +> @(x, y) x + y;
+        h.Text
+        | HttpUtility.HtmlEncode
+        ~: [ ' ', '&nbsp;' ]
+        ~: [ '\\t', '&nbsp;' * 4 ]
+        ~: [ '(\\r?)\\n', '<br />' ]
+        ))
+    +>@(x, y) x + y;
 
 var language = {
     pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),
@@ -96,13 +105,21 @@ var generateHtml = @(codeDoc) {
             style %| @{ %>
                 h2 { margin-bottom: 0px; }
                 table { border: solid 1px black; width: 100%; margin-bottom: 6px; }
+                table table { border: none }
                 table th { text-align: left; background-color: #C0C0C0; padding:2px; }
-                table td { background-color: #E0E0E0; padding:1px; }                
+                table td { background-color: #E0E0E0; padding:1px; }
 
+                .memberHeader {
+                    background-color:rgb(5,5,5);
+                    padding: 4px;
+                    border: black;
+                }
+                
                 .memberTable { margin-bottom: 10px; }
-                .memberTable:last-child { margin-bottom: 0px; }
-                .signature { font-size:130%; margin-left: 8px; }
-                .exampleTable{ margin-bottom: 0px; }
+                .memberTable:last-child { margin-bottom: 2px; }
+                .signature { font-size:100%; margin-left: 2px; margin-top:0px; margin-bottom:0px; }                
+                .exampleTable { margin-bottom: 0px; }
+                .example { background: rgb(10,10,10); padding: 8px; }
                 
                 .param {
                     text-align: left;
@@ -161,7 +178,7 @@ var generateTableOfContents = @(codeDoc) {
             ul %| (f.members->@(m) {
                 li %| @{
                     span %| m.type;
-                    ul %| (m.typeMembers->(@(t) li a code %| t.signature));
+                    ul %| (m.typeMembers->(@(t) li a %| @{ code %| t.signature }));
                 }
             })
         }
@@ -182,8 +199,8 @@ _kvp = macro(@(key, value) { %>
 <% });
 
 _kvp2 = macro(@(key, value) { %>
+    <div class="memberHeader"><%= key %></div>
     <table class="memberTable">
-        <tr><th style="background-color:rgb(5,5,5); height: 38px;"><%= key %></th></tr>
         <tr><td><%= value %></td></tr>
     </table>
 <% });
@@ -197,11 +214,14 @@ _kvp3 = macro(@(key, value) { %>
 
 var generateBody = @(codeDoc) {
     codeDoc->@(f){
+        //h2 %| f.file;
+        div %| @{
         f.members->@(m) {
-            table %| @{
-                tr th h2 %| ('{0} {1}' :: [ f.file, m.type ]);
-            
-                tr td %| @{
+            // table %| @{
+                //tr th h3 %| m.type;
+                h2 %| ('{0} {1}' :: [ f.file, m.type ]);
+            // };
+                //tr td %| @{
                     m.typeMembers->@(t) {
                         _kvp2(
                             @{ %>
@@ -229,17 +249,18 @@ var generateBody = @(codeDoc) {
                                 if (t.example != null) {
                                     _kvp3(
                                         'Example',
-                                        @{ %><pre style="background: rgb(10,10,10); padding: 8px;"><%
+                                        @{ %><div class="example"><%
                                             code %| (t.example |> highlight);
-                                        %></pre> <% }());
+                                        %></div> <% }());
                                 }
                             }());
                     };
-                };
+                //};
 
                 //hr;
-            };
+            //};
         };        
+        };
     };
 };
 

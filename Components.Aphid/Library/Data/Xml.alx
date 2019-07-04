@@ -78,17 +78,36 @@ var xsd;
 
         extend XDocument {  }
 
-        var _p = print;
-        _p = @{};
+        var _xmlPrint = print;
+        _xmlPrint = @{};
 
         this |> keys -?(@(k)k.StartsWith('$ext')) ->@(k){
-            $_ @_p('Importing extension method ~Magenta~{0}~R~');
+            $_ @_xmlPrint('Importing extension method ~Magenta~{0}~R~');
             p.{$_} = this.{$_};
         };
     };
 
     var initXml = @{
+        // printQuery('Verifying XDocument is loaded');
+        
+        // if (XDocument != null) {
+        //     printSuccess('XDocument found');
+        // } else {
+        //     printError('XDocument not found');
+        // }
+
+        // printInfo('extendXElement body:');
+        // dump(extendXElement.Body);
+
+        // printQuery('Finding XDocument extension node');
         var xdExtend = (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XDocument)));
+
+        // if (xdExtend != null) {
+        //     printSuccess('Found node');
+        // } else {
+        //     printError('Failed to find node');
+        // }
+
         (extendXElement.Body @ast.firstNode(@(n, c) n.isExt(XElement))).obj().pairs()->@(p){
             var ext = p.lhs().id();
             // ext @print('Adding XDocument extension {0}');

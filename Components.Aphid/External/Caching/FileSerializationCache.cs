@@ -174,24 +174,10 @@ namespace Components.Aphid
 
         protected abstract T DeserializeCache(Stream stream);
 
-        protected virtual string GetCacheFilename(string filename)
-        {
-            if (Flags == 0x0)
-            {
-                return filename + ".cache";
-            }
+        protected virtual string GetCacheFilename(string filename) =>
+            $"{filename}.{Flags:x2}.cache";
 
-            return filename + "." + Flags.ToString() + ".cache";
-        }
-
-        protected virtual string GetCacheInfoFilename(string filename)
-        {
-            if (Flags == 0x0)
-            {
-                return filename + ".cache.metadata";
-            }
-
-            return filename + "." + Flags.ToString() + ".cache.metadata";
-        }
+        protected virtual string GetCacheInfoFilename(string filename) =>
+            $"{GetCacheFilename(filename)}.metadata";
     }
 }
