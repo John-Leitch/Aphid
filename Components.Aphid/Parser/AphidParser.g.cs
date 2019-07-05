@@ -5085,7 +5085,6 @@ namespace Components.Aphid.Parser
             AphidExpression exp = default(AphidExpression);
             var body = new System.Collections.Generic.List<AphidExpression>();
             var args = new System.Collections.Generic.List<AphidExpression>();
-            AphidExpression argExp = default(AphidExpression);
             NextToken();
             if ((CurrentToken.TokenType == AphidTokenType.LeftParenthesis))
             {
@@ -6293,31 +6292,31 @@ namespace Components.Aphid.Lexer
         public bool IsKeyword()
         {
             return TokenType == AphidTokenType.breakKeyword ||
-                TokenType == AphidTokenType.catchKeyword ||
-                TokenType == AphidTokenType.continueKeyword ||
-                TokenType == AphidTokenType.defaultKeyword ||
-                TokenType == AphidTokenType.definedKeyword ||
-                TokenType == AphidTokenType.deleteKeyword ||
-                TokenType == AphidTokenType.doKeyword ||
-                TokenType == AphidTokenType.elseKeyword ||
-                TokenType == AphidTokenType.extendKeyword ||
-                TokenType == AphidTokenType.falseKeyword ||
-                TokenType == AphidTokenType.finallyKeyword ||
-                TokenType == AphidTokenType.forKeyword ||
-                TokenType == AphidTokenType.ifKeyword ||
-                TokenType == AphidTokenType.inKeyword ||
-                TokenType == AphidTokenType.loadKeyword ||
-                TokenType == AphidTokenType.lockKeyword ||
-                TokenType == AphidTokenType.newKeyword ||
-                TokenType == AphidTokenType.nullKeyword ||
-                TokenType == AphidTokenType.retKeyword ||
-                TokenType == AphidTokenType.switchKeyword ||
-                TokenType == AphidTokenType.thisKeyword ||
-                TokenType == AphidTokenType.throwKeyword ||
-                TokenType == AphidTokenType.trueKeyword ||
-                TokenType == AphidTokenType.tryKeyword ||
-                TokenType == AphidTokenType.usingKeyword ||
-                TokenType == AphidTokenType.whileKeyword;
+            TokenType == AphidTokenType.catchKeyword ||
+            TokenType == AphidTokenType.continueKeyword ||
+            TokenType == AphidTokenType.defaultKeyword ||
+            TokenType == AphidTokenType.definedKeyword ||
+            TokenType == AphidTokenType.deleteKeyword ||
+            TokenType == AphidTokenType.doKeyword ||
+            TokenType == AphidTokenType.elseKeyword ||
+            TokenType == AphidTokenType.extendKeyword ||
+            TokenType == AphidTokenType.falseKeyword ||
+            TokenType == AphidTokenType.finallyKeyword ||
+            TokenType == AphidTokenType.forKeyword ||
+            TokenType == AphidTokenType.ifKeyword ||
+            TokenType == AphidTokenType.inKeyword ||
+            TokenType == AphidTokenType.loadKeyword ||
+            TokenType == AphidTokenType.lockKeyword ||
+            TokenType == AphidTokenType.newKeyword ||
+            TokenType == AphidTokenType.nullKeyword ||
+            TokenType == AphidTokenType.retKeyword ||
+            TokenType == AphidTokenType.switchKeyword ||
+            TokenType == AphidTokenType.thisKeyword ||
+            TokenType == AphidTokenType.throwKeyword ||
+            TokenType == AphidTokenType.trueKeyword ||
+            TokenType == AphidTokenType.tryKeyword ||
+            TokenType == AphidTokenType.usingKeyword ||
+            TokenType == AphidTokenType.whileKeyword;
         }
     }
 
@@ -13572,7 +13571,6 @@ namespace Components.Aphid.Lexer
                     var lexeme = text.Substring(index, charIndex - lastIndex);
 
                     tokens.Add(new AphidToken(tokenType, lexeme, index));
-
                 }
 
                 lastIndex = charIndex;
@@ -13597,7 +13595,6 @@ namespace Components.Aphid.Lexer
                 var lexeme = text.Substring(index, charIndex - lastIndex);
 
                 tokens.Add(new AphidToken(tokenType, lexeme, index));
-
 
                 lastIndex = charIndex;
             }

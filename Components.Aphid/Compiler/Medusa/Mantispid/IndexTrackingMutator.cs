@@ -40,7 +40,7 @@ namespace Mantispid
             var indexId = new IdentifierExpression("Index");
 
             var currentTokenIndex = new BinaryOperatorExpression(
-                new IdentifierExpression("_currentToken"),
+                new IdentifierExpression("CurrentToken"),
                 AphidTokenType.MemberOperator,
                 indexId);
 

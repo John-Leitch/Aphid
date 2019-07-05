@@ -206,6 +206,7 @@ ilmerge.*/
 *.alx.cache
 *.alx.cacheMetadata
 *.alx.cache.metadata
+*.cache.metadata
 
 # AphidDoc files
 Aphid.xml

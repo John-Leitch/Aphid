@@ -1,14 +1,14 @@
-﻿#'Std';
-using Components.Aphid.Lexer;
+﻿using Components.Aphid.Lexer;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-
+ 
 //cls();
 
 var customOps = AphidTokenType
-    |> getEnums
+    |> Enum.GetValues
     -? @(x) x.ToString().Contains('CustomOperator');
 
 var getCases = @(indent) customOps
@@ -24,15 +24,17 @@ var getTup = @(indent)
     (customOps +>(@(x, y) x + ',\r\n' + indent + y)) +
     '\r\n';
 
-var dir = Environment.GetCommandLineArgs()[1]
-    |> Path.GetFullPath
-    |> Path.GetDirectoryName;
+var dir = (this.'$script' | Path.GetDirectoryName) + '\\..' * 4 |> Path.GetFullPath;
+
+// var dir = Environment.GetCommandLineArgs()[1]
+//     |> Path.GetFullPath
+//     |> Path.GetDirectoryName;
 
 var updateCustomOperators = @(codeFile, regionBegin, regionEnd, getText) {
     var code = codeFile |> File.ReadAllText;
     var matches = @Regex.Matches(code);
     var ends = regionEnd |> matches;
-    var ranges = [];
+    var ranges = new List[Object]();
 
     ('(( |\t)+)' + regionBegin) |> matches
      for {
@@ -41,7 +43,7 @@ var updateCustomOperators = @(codeFile, regionBegin, regionEnd, getText) {
             start: $_.Index,
             end: code.IndexOf(regionEnd, $_.Index)
         };
-        ranges.add(o);
+        ranges.Add(o);
     };
 
     ranges.Reverse();
@@ -64,13 +66,13 @@ updateCustomOperators(
     getCases);
 
 updateCustomOperators(
-    Path.Combine(dir, 'Aphid.alx'),
+    Path.Combine(dir, 'Library', 'Meta', 'Code', 'Aphid', 'Aphid.alx'),
     '// CustomOperatorOr Begin',
     '// CustomOperatorOr End',
     getOr);
 
 updateCustomOperators(
-    Path.Combine(dir, 'Aphid.alx'),
+    Path.Combine(dir, 'Library', 'Meta', 'Code', 'Aphid', 'Aphid.alx'),
     '// CustomOperatorTup Begin',
     '// CustomOperatorTup End',
     getTup);

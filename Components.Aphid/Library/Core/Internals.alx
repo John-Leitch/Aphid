@@ -9,38 +9,36 @@ var getBlock = @() this.{'$parent'}.{'$block'};
 // var aphidExeNames = ;
 
 var parseArgsFor = @{
+    var la = $args;
     var q = getArgQueue();
-    
-    $args
-    @Enumerable.Concat(this.{'$script'} defined ?
-        [ ['.alx', '.exe', '' ]
+
+    ([
+        '',
+        '32',
+        '64',
+        '.debug',
+        '32.debug',
+        '64.debug',
+        '.binarytrace',
+        '.binarytrace32',
+        '.binarytrace64',
+        'ui',
+        '-debug'
+    ]
+    ->@format('aphid{0}')
+    -<(@() [ $_, $_ + 'portable' ])
+    -<(@() [ $_, $_ + '.exe' ]))
+    |> q.matchPath;
+
+    if (this.{'$script'} defined) {
+        (['.alx', '.exe', '' ]
             ->@(e) this.{'$script'}
-            |> Path.GetFileNameWithoutExtension
-            @()format('{0}{1}', $_, e).ToLower() ] :
-        [])
-    @Enumerable.Concat([
-            [
-                '',
-                '32',
-                '64',
-                '.debug',
-                '32.debug',
-                '64.debug',
-                '.binarytrace',
-                '.binarytrace32',
-                '.binarytrace64',
-                'ui',
-                '-debug'
-            ]
-            ->@format('aphid{0}')
-            -<(@() [ $_, $_ + 'portable' ])
-            -<(@() [ $_, $_ + '.exe' ])
-        ])
+                | Path.GetFileNameWithoutExtension
+                @()format('{0}{1}', $_, e).ToLower())
+        |> q.matchPath
+    }
     
-    ->@{
-        // $_ @print('Checking for Aphid binaryies: {0}');
-        $_ | q.matchPath;
-    };
+    la | q.matchPath;
     
     ret q.args;
 };
@@ -50,15 +48,17 @@ var getArgQueue = @{
     
     var v = @() args.Count > 0 ? args.Peek().Value : null;
     var matchPath = @{
+        //args | dump;
         var argPath = (@() v().ToLower() |> Path.GetFileName) ?| null;
+        //print (argPath);
         // { args: $args, argPath  }| dump;
         
         if ($args =? @(p) p =? @== argPath) {
-            // head('Matched');
-            // args | dump;
+            //head('Matched');
+            //args | dump;
             args.Dequeue();
-            // args | dump;
-            // head('End matched');
+            //args | dump;
+            //head('End matched');
             
             ret true;
         } else {

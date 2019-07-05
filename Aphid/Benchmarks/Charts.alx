@@ -34,7 +34,7 @@ _af(sum);
 _ab = macro(@(flag) { var id(flag) = args.Contains('-' + quote(flag)) });
 _ab(png);
 _ab(pngs);
-_ab(all);
+_ab(allTests);
 
 var records = 'history.db' | BinaryObjectDatabase.OpenFile @() $_.ReadUnsafe() | Enumerable.ToArray;
 
@@ -69,7 +69,7 @@ var createChart = @(mode){
 
     var l = {};
 
-    if (!all) {
+    if (!allTests) {
         flattened = flattened-?((@.name) @> testNames.contains);
     }
 

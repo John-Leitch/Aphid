@@ -1711,12 +1711,12 @@ ParseFactorExpression = @{
         breakKeyword: _keywordExp(BreakExpression);
 
         HexNumber: {
-            exp = NumberExpression(System.Convert.ToUInt64(_currentToken.Lexeme.Substring(2), 16));
+            exp = NumberExpression(System.Convert.ToUInt64(CurrentToken.Lexeme.Substring(2), 16));
             NextToken;
         }
 
         BinaryNumber: {
-            exp = NumberExpression(BinaryNumber.Parse(_currentToken.Lexeme.Substring(2)));
+            exp = NumberExpression(BinaryNumber.Parse(CurrentToken.Lexeme.Substring(2)));
             NextToken;
         }
 

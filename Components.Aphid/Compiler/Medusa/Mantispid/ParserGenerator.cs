@@ -508,7 +508,7 @@ namespace Mantispid
                     new CodeThrowExceptionStatement(
                         new CodeObjectCreateExpression(
                             _config.ExceptionClass,
-                            CodeHelper.VarRef("_currentToken")))
+                            CodeHelper.VarRef("CurrentToken")))
                 });
         }
 
@@ -950,7 +950,7 @@ namespace Mantispid
             GetCurrentTokenProp(ParserGeneratorDirective.CurrentLexeme);
 
         private static CodePropertyReferenceExpression GetCurrentTokenProp(string propertyName) =>
-            CodeHelper.PropRef("_currentToken", propertyName);
+            CodeHelper.PropRef("CurrentToken", propertyName);
 
         private CodeFieldReferenceExpression GetTokenTypeRef(string tokenName) =>
             CodeHelper.FieldRef(CodeHelper.TypeRefExp(_config.TokenType), tokenName);

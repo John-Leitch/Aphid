@@ -5,40 +5,17 @@ using System.Text.RegularExpressions;
 using Components.Aphid.Interpreter;
 using Components.Aphid.TypeSystem;
 using Components.External;
+using Components.Aphid.Compiler.Medusa.LLex;
 
 namespace LLex
 {
     public class LexerGenerator
     {
-        private string
-            _templateFile =
-                PathHelper.GetEntryPath("Library", "Meta", "Code", "Aphid", "LLexTemplates.alx"),
-            _lexerTemplate,
-            _caseTemplate,
-            _stateTemplate,
-            _rootStateTemplate,
-            _addTokenTemplate;
-
         private readonly TokenTable table;
 
         public bool IgnoreCase { get; set; }
 
         public LexerGenerator(TokenTable table) => this.table = table;
-
-        private void Init()
-        {
-            lock (_templateFile)
-            {
-                if (_lexerTemplate != null)
-                {
-                    return;
-                }
-
-                var aphid = new AphidInterpreter();
-                aphid.CurrentScope.Add("lexerGenerator", AphidObject.Scalar(this));
-                aphid.InterpretFile(_templateFile);
-            }
-        }
 
         private static string EncodeChar(char c) =>
             c < 32 ? "\\x" + Convert.ToString(c, 16).PadLeft(2, '0') :
@@ -164,7 +141,7 @@ namespace LLex
                             body += "\r\nbreak;\r\n";
                         }
 
-                        var t = _caseTemplate
+                        var t = LLexTemplates.CaseTemplate()
                             .Replace("{{Cases}}", CreateCases(EncodeChar(x.State)))
                             .Replace("{{Body}}", body)
                             .Replace("{{States}}", x.Children.Count > 0 ? EmitState(x, false) : "");
@@ -185,8 +162,8 @@ namespace LLex
             }
 
             var template = !root ?
-                _stateTemplate :
-                _rootStateTemplate;
+                LLexTemplates.StateTemplate() :
+                LLexTemplates.RootStateTemplate();
 
             return template.Replace("{{States}}", childTemplates);
         }
@@ -241,7 +218,8 @@ namespace LLex
                     ")
                 .Aggregate((x, y) => x + "else " + y);
 
-            var s = _lexerTemplate
+            var s = LLexTemplates
+                .LexerTemplate()
                 .Replace("{Root}", root)
                 .Replace("{Enums}", enums)
                 .Replace("{IsKeyword}", GenerateIsKeyword())
@@ -253,8 +231,8 @@ namespace LLex
             }
 
             return s
-                .Replace("{Body}", _addTokenTemplate)
-                .Replace("{AllBody}", _addTokenTemplate)
+                .Replace("{Body}", LLexTemplates.AddTokenTemplate())
+                .Replace("{AllBody}", LLexTemplates.AddTokenTemplate())
                 .Replace("PreviousChar();", "charIndex--;");
         }
 

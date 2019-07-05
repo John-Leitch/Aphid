@@ -9,9 +9,7 @@ namespace Components.Aphid.Parser
 
         private int _tokenIndex = -1;
 
-        private AphidToken _currentToken;
-
-        public AphidToken CurrentToken => _currentToken;
+        public AphidToken CurrentToken { get; private set; }
 
         public bool UseImplicitReturns { get; set; }
 
@@ -27,13 +25,13 @@ namespace Components.Aphid.Parser
 #endif
         public bool Match(AphidTokenType tokenType)
         {
-            if (_currentToken.TokenType == tokenType)
+            if (CurrentToken.TokenType == tokenType)
             {
                 NextToken();
                 return true;
             }
 
-            throw new AphidParserException(_currentToken, tokenType);
+            throw new AphidParserException(CurrentToken, tokenType);
         }
 
 #if DBG_STEPTHROUGH
@@ -45,11 +43,11 @@ namespace Components.Aphid.Parser
 
             if (_tokenIndex < _tokens.Count)
             {
-                _currentToken = _tokens[_tokenIndex];
+                CurrentToken = _tokens[_tokenIndex];
                 return true;
             }
 
-            _currentToken = AphidToken.GetNone(_currentToken.Index + _currentToken.Lexeme.Length);
+            CurrentToken = AphidToken.GetNone(CurrentToken.Index + CurrentToken.Lexeme.Length);
 
             return false;
         }
@@ -61,12 +59,12 @@ namespace Components.Aphid.Parser
         {
             if (_tokens.Count == 0 || _tokenIndex == 0)
             {
-                _currentToken = AphidToken.None;
+                CurrentToken = AphidToken.None;
 
                 return false;
             }
 
-            _currentToken = _tokens[--_tokenIndex];
+            CurrentToken = _tokens[--_tokenIndex];
 
             return true;
         }
@@ -80,11 +78,11 @@ namespace Components.Aphid.Parser
 
             if (_tokenIndex < _tokens.Count)
             {
-                _currentToken = _tokens[_tokenIndex];
+                CurrentToken = _tokens[_tokenIndex];
                 return true;
             }
 
-            _currentToken = AphidToken.None;
+            CurrentToken = AphidToken.None;
 
             return false;
         }

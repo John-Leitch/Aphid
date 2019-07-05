@@ -10,9 +10,7 @@ var tokens = [
     { regex: ":", type: "ColonOperator" },
     { regex: "@", type: "FunctionOperator" },
     { regex: "@>", type: "CompositionOperator" },
-    { regex: "<@", type: "ReverseCompositionOperator" },
     { regex: "\\?", type: "ConditionalOperator" },
-    { regex: "\\?\\?", type: "NullCoalesceOperator" },
     { regex: "..", type: "RangeOperator" },
 
     { regex: "\\(", type: "LeftParenthesis" },
@@ -63,51 +61,30 @@ var tokens = [
     { regex: "<=", type: "LessThanOrEqualOperator" },
     { regex: ">=", type: "GreaterThanOrEqualOperator" },
 
-    { regex: "\\|>", type: "PipelineOperator" },
-    { regex: "<\\|", type: "ReversePipelineOperator" },
-    { regex: "\\|<", type: "DoOperator" },
+    { regex: "\\|>", type: "PipelineOperator" },    
                 
     { regex: "\\+>", type: "AggregateOperator" },
     { regex: "=\\?", type: "AnyOperator" },
-    { regex: "-\\*", type: "AnyOperator" },
     { regex: "-#", type: "CountOperator" },
     { regex: "-&", type: "GroupByOperator" },
-    { regex: "-\\|", type: "SingleOperator" },
-    { regex: "-\\|\\?", type: "SingleOrDefaultOperator" },
     { regex: "-<", type: "SelectManyOperator" },
-    { regex: "->", type: "SelectOperator" },
-    { regex: "<-", type: "ReverseSelectOperator" },
+    { regex: "->", type: "SelectOperator" },        
     { regex: "-\\?", type: "WhereOperator" },
-    { regex: "\\?-", type: "ReverseWhereOperator" },
-    { regex: "-\\+", type: "JoinOperator" },
-    { regex: "-.", type: "SelectMemberOperator" },
-    { regex: "-{", type: "SelectObjectOperator" },
-    { regex: "<{", type: "SelectWithOperator" },
-    { regex: "-%", type: "ForOperator" },
 
     { regex: "-\\\\", type: "OrderByOperator" },
     { regex: "-/", type: "OrderByDescendingOperator" },
 
     { regex: ">^", type: "FirstOperator" },
-    { regex: ">^\\?", type: "FirstOrDefaultOperator" },
     { regex: ">$", type: "LastOperator" },
-    { regex: ">$\\?", type: "LastOrDefaultOperator" },
     { regex: ">#", type: "CountOperator" },
 
     { regex: "~^", type: "StartsWithOperator" },
     { regex: "~$", type: "EndsWithOperator" },
 
     { regex: "!\\?", type: "DistinctOperator" },
-    { regex: "\\*!", type: "PostfixAnyOperator" },
-    { regex: ">!", type: "PostfixFlattenOperator" },
     { regex: "#!", type: "PostfixCountOperator" },
     { regex: "^!", type: "PostfixFirstOperator" },
-    { regex: "^!\\?", type: "PostfixFirstOrDefaultOperator" },
     { regex: "$!", type: "PostfixLastOperator" },
-    { regex: "$!\\?", type: "PostfixLastOrDefaultOperator" },
-    { regex: "+!", type: "PostfixConcatOperator" },
-    { regex: "\\|!", type: "PostfixSingleOperator" },
-    { regex: "\\|!\\?", type: "PostfixSingleOrDefaultOperator" },
     { regex: "\\\\!", type: "PostfixOrderOperator" },
     { regex: "/!", type: "PostfixOrderDescendingOperator" },
     
@@ -138,7 +115,7 @@ Console.WriteLine('Adding custom operators');
 var tokenChars = [ 
     '`', '~', '!', /*'@',*/ '#', '%', '^',
     '&', '*', '-', /*'_',*/ '=', '\\\\', '+', ':',
-    '<', '>', '.', '|', '/', '?'
+    '<', '>', '.', '|', '/', '?'/*, '$'*/
 ];
 
 using System.Text.RegularExpressions;

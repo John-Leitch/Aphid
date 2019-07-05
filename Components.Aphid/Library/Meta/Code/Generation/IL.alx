@@ -130,7 +130,7 @@ var asmAttrs;
         var src = name |> Path.GetFullPath;
         var dst = fullName |>  Path.GetFullPath;
 
-        if (src != dst) {
+        if (src.ToLower() != dst.ToLower()) {
             if (File.Exists(dst)) {
                 File.Delete(dst);
             }
