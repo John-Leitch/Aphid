@@ -1,9 +1,9 @@
-var execution;
+var runtime;
 
 @{
-    execution = {
+    runtime = {
         '$internal': {
-            init: @(aphid) {
+            initTrace: @(aphid) {
                 var s = new AphidSerializer(aphid);
                 s.IgnoreFunctions = true;
                 s.IgnoreSpecialVariables = true;
@@ -42,7 +42,7 @@ var execution;
                 dumpScope: true,
             },            
             expressions: @{
-                var state = this.'$aphid' | this.'$internal'.init;
+                var state = this.'$aphid' | this.'$internal'.initTrace;
                 
                 state.aphid.OnInterpretExpression = @(x) {
                     var o = options;

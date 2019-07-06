@@ -1,0 +1,18 @@
+var proc = machine.getProcCommandsLike('%MetricsServer%')$!
+var asms = nuget.reference('MDbg');
+clrSerializer.maxDepth = 1;
+using Microsoft.Samples.Debugging.MdbgEngine;
+var mdbg = new MDbgEngine();
+
+var debugger = 
+    '%MetricsServer%'
+    | machine.getProcCommandsLike
+    $!
+    @() $_.ProcessId.int()
+    |> mdbg.Attach;
+
+debugger.FindModuleByName('Components.Aphid64.dll') |> dump;
+debugger.Runtimes[0].CorProcess.Threads
+    ->@{ var f=[]; $_.ActiveChain.Frames for f.add($_); ret f }
+    -?(@()($_#!) > 0)
+    ^!

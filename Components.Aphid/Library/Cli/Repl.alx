@@ -3,11 +3,78 @@
 @{
     repl = {
         run: @{
+            var f = frame(1);
+            var a= new AphidRepl(this.'$aphid'.CreateChild(true));
+            a.Run();
+        },
+        attach: @(interpreter){
             using Components.Aphid.UI;
-            var r = new AphidRepl(new AphidInterpreter(this.'$parent'.'$scope'));
+            var r = new AphidRepl(interpreter);
+            r.Run();
+        },
+        mirror: @(scope) {
+            var s = scope defined ? scope : this.'$aphid'.InitialScope;//this.'$parent'.'$scope';
+            var copy = { };
+            printInfo('Copying scope for REPL');
+            var walked = new List[Object]();
+            var stack = new Stack[Object]();
 
-            try r.Run();
-            finally r.Dispose();
-        }
+            while (s != null) {
+                walked.Add(s);
+                s |> toArray -?(@()$_.Key != '$parent' && $_.Key != '$scope') for (p) {
+                    var key = p.Key;
+                    var val = p.Value;
+                    print(' ~Magenta~<-~R~ {0}', key);
+
+                    var i = 0;
+                    var key2 = key;
+                    while (copy[key2] defined) {
+                        print('     ~Yellow~!~R~ {0}', key2);
+                        key2 = '{0}_Parent_{1}' :: [ key, ++i ];                        
+                    }
+
+                    try {
+                        if (p != null &&
+                            val.GetType() == AphidObject &&
+                            !walked.Contains(val) &&
+                            !stack.Contains(val)) {
+                            stack.Push(val);
+                        }
+
+                        copy[key2] = val;
+                    } catch (e) {
+                        printError(e.message);
+                    }
+                };
+
+                if (stack.Count == 0) {
+                    break;
+                }
+                // if (s.get_Item('$parent') != null) {
+                s = stack.Pop();
+                // } else {
+                //     break;
+                // }
+            }
+
+            printSuccess('Done copying scope');
+            var s2 = this.'$aphid'.InitialScope;
+            var i = 0;
+            var base = 'replMirror';
+            var name = base;
+            while (true) {
+                name @printQuery('Trying to attach copy to root scope with name ~Cyan~{0}~R~');
+                if (s2[name] defined) {
+                    name = base + ++i;
+                } else {
+                    s2[name] = copy;
+                    name @printSuccess('Succeeded, mirror can be accessed via ~Green~{0}~R~');
+                    break;
+                }            
+            }
+
+            var r = new AphidRepl(new AphidInterpreter(s));
+            r.Run();
+        },
     }
 }()

@@ -644,6 +644,7 @@
     <None Include="Library\Cli\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Library\Core\Runtime.alx" />
     <None Include="Library\Data\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

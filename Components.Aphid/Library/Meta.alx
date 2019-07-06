@@ -218,11 +218,12 @@ var nodeType;
         ret obj;
     };
 
-    if (!this.{'$asm'}.IsTypeDefined('VisitorFrame')) {
+    
+    if (!this.'$asm'.IsTypeDefined('VisitorFrame')) {
         class VisitorFrame { node, context };
     }
 
-    transformBlock = @(f) this.{'$aphid'}.OnInterpretBlock = f;
+    transformBlock = @(f) aphid.OnInterpretBlock = f;
 
     transformStream = @(depth, after, pattern, replace) {
         var block = frame(depth + 1).Scope.{'$block'};
@@ -498,6 +499,16 @@ var nodeType;
             }
 
             ret nodes;
+        },
+
+        findStmt: @(node, block) {
+            block for (s) {
+                if ((var match = s @ast.firstNode(@(x, ctx) x == node)) != null) {
+                    ret s;
+                }
+            };
+
+            ret null;
         },
     };
 

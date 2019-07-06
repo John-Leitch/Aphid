@@ -37,15 +37,19 @@
             genericEnumerable: Type.GetType('System.Collections.Generic.IEnumerable`1'),
             error: {
                 id: 0,
-                verbosity: 1,
+                verbosity: 0,
 
-                next: @(msg) format('clrDump Error #{1:n0}: {0}', msg, toInt(id++)),
+                next: @(msg) format(
+                    verbosity >= 1 ? 'clrDump Error #{1:n0}: {0}' : '/* {0} */',
+                    msg,
+                    toInt(id++)),
 
                 maxDepth: @(d)
                     d
-                    @format(verbosity >= 1 ?
-                        'Max depth of {0} reached' :
-                        'Max depth reached')
+                    @format(
+                        verbosity >= 3 ? 'Max depth of {0} reached' :
+                        verbosity >= 2 ? 'Max depth reached' :
+                        '/*...*/')
                     |> next,
 
                 getValue: @(t, p, e)
@@ -116,18 +120,28 @@
 
                 if (t != string &&  t != AphidObject) {
                     var cpy = null;
-
+                    var itemType = null;
+                    var g;
                     if (t.GetInterfaces()=?(@()
-                        $_.IsGenericType &&
+                        (g = $_).IsGenericType &&
                         $_.GetGenericTypeDefinition() == genericEnumerable)) {
                         dprint('Serializing IEnumerable[T]');  
                         cpy = clrObj | toArray;                
+                        itemType = g.GenericTypeArguments$!;
                     } else if (t.GetInterface(IEnumerable) != null) {
                         dprint('Serializing IEnumerable');  
                         cpy = clrObj->@()$_;
                     }
 
                     if (cpy != null) {
+                        if (depth + 1 >= maxDepth) {
+                            //repl.run();
+                            var retVal = ('{0}[{1:n0}]' ::
+                                [(itemType != null ? itemType : 'object'), (cpy#!)])
+                                |> parseExp;
+                            ret res;
+                        }
+
                         var l = new List[Object]();
                         cpy for mapCore(depth + 1, traversed, references, $_) | l.Add;
                         references.Add(clrObj, l);
@@ -196,6 +210,6 @@
         }
     };
 
-    clrSerializer.enableClrDump();
+    // clrSerializer.enableClrDump();
 }();
 

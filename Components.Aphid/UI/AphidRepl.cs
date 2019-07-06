@@ -153,9 +153,11 @@ namespace Components.Aphid.UI
                         RunCode(code);
                         RunBlock(Epilogue, handleExceptions: false);
                     }
-                });
-                
-                RunThread.IsBackground = true;
+                })
+                {
+                    IsBackground = true
+                };
+
                 RunThread.Start();
             }
 
@@ -214,16 +216,18 @@ namespace Components.Aphid.UI
                 return;
             }
 
-            var exp = AphidParser.ParseExpression(code);
-            
-            var retExp = new UnaryOperatorExpression(
-                AphidTokenType.retKeyword,
-                MutatorGroups.GetStandard().MutateSingle(exp))
-                .WithPositionFrom(exp);
+
+            var exp = MutatorGroups
+                .GetStandard()
+                .MutateSingle(AphidParser.ParseExpression(code));
+
+            var retExp = !exp.IsStatement() ?
+                new UnaryOperatorExpression(AphidTokenType.retKeyword, exp) :
+                exp;
 
             //new AphidCodeVisitor(code).VisitExpression(retExp);
             //Interpreter.TakeOwnership();
-            Interpreter.Interpret(retExp);
+            Interpreter.Interpret(retExp.WithPositionFrom(exp));
             var value = Interpreter.GetReturnValue();
 
             if (value != null &&
