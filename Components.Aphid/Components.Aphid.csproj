@@ -218,6 +218,7 @@
     <Compile Include="External\Common\ArgToken.cs" />
     <Compile Include="External\Common\ArgTokenType.cs" />
     <Compile Include="External\Common\DirectArgLockingMemoizer.cs" />
+    <Compile Include="External\Common\IAutoSingleton.cs" />
     <Compile Include="External\Common\ObjectLockTable.cs" />
     <Compile Include="External\Common\DateTimeExtension.cs" />
     <Compile Include="External\Common\AssemblyExtension.cs" />
@@ -225,6 +226,8 @@
     <Compile Include="External\Common\FluentExtensions.cs" />
     <Compile Include="External\Common\IfContext.cs" />
     <Compile Include="External\Common\SelectorComparer`2.cs" />
+    <Compile Include="External\Common\SingletonException.cs" />
+    <Compile Include="External\Common\AutoSingleton.cs" />
     <Compile Include="External\Common\Singleton`1.cs" />
     <Compile Include="External\ConsolePlus\CliApplication`1.cs" />
     <Compile Include="External\ConsolePlus\CliApplication`2.cs" />
@@ -331,6 +334,7 @@
     <Compile Include="TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeContextComparer.cs" />
+    <Compile Include="TypeSystem\ClrInterop\PathTailComparer.cs" />
     <Compile Include="TypeSystem\ClrInterop\TargetTypeCache.cs" />
     <Compile Include="TypeSystem\IAphidCallable.cs" />
     <Compile Include="UI\AphidAutocompleteConsole.cs" />

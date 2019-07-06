@@ -679,11 +679,17 @@ extend AphidExpression {
     isBinOp: @(x) _is(BinaryOperator),
     isObj: @(x) _is(Object),
     isExt: @(exp, type) exp.is(Extend) && (exp.extType() | resolveType) == type,
+    isNumber: @(x) _is(Number),
     isString: @(x) _is(String),
     isText: @(x) _is(Text),
     isUsing: @(exp) exp.isOp(getToken('using')),
 
-    isOp: @(x, op) (x.isUnOp() || x.isBinOp()) && x.op() == op,
+    isOp: @(x, op)
+        (x.isUnOp() || x.isBinOp()) &&
+        $args.Count > 2 ? $args @skip(1) =? x.isOp : x.op() == (op.GetType() == string ? op | getToken : op),
+        // (var t = op.GetType()) != string && t.GetInterface(IEnumerable) ?
+        //     op=? x.isOp :
+        //     x.op() == (t == string ? op | getToken : op),
 
     isParent: @(x) x.GetType().GetMethod('GetChildren') != null,
     anyChild: @(x, predicate)
@@ -701,6 +707,15 @@ extend AphidExpression {
     func: @(x) x.FunctionExpression,
     args: @(x) x.Args,
     op: @(x) x.Operator,
+    
+    str: @(x) x.isString() ?
+        x.Value | StringParser.Parse :
+        throw new ArgumentException('Not string expression'),
+
+    num: @(x) x.isNumber() ?
+        x.Value :
+        throw new ArgumentException('Not number expression'),
+
     obj: @(x) x.Object,
     pairs: @(x) x.Pairs,
     extType: @(x) exp.is(Extend) ? x.ExtendType.id() : null,

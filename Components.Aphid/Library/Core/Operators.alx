@@ -102,7 +102,17 @@ _poe = macro(@{ var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> 
     }
 };
 
-@`(depth, num) frame(depth).Expression.Args[num].Identifier;
+@`(depth, num)
+    (var exp = frame(depth).Expression).Type == AphidTokenType.CallExpression ?
+        exp.Args[num].Identifier :
+    exp.Type == AphidTokenType.BinaryOperatorExpression ?
+        ($(exp.Operand)
+            AphidTokenType.BinaryOrOperator, AphidTokenType.PipelineOperator:
+                (num == 0 ? exp.LeftOperand.Identifier : ex.arg(num)),
+            AphidTokenType.CustomOperator234: /*getToken('<|')*/              
+                (num == 0 ? exp.RightOperand.Identifier : ex.arg(num))) :
+        ex.arg(num);
+
 _sub = macro(@(pattern, replacement) { Regex.Replace(input.ToString(), pattern, replacement) });
 
 _re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString()) });

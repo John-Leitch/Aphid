@@ -24,6 +24,22 @@ namespace Components.External
             }
         }
 
+        public TResult Overwite(Func<TArg, TResult> func, TArg arg)
+        {
+            lock (_cache)
+            {
+                return _cache[arg] = func(arg);
+            }
+        }
+
+        public void Remove(TArg arg)
+        {
+            lock (_cache)
+            {
+                _cache.Remove(arg);
+            }
+        }
+
         public void Clear() => _cache.Clear();
     }
 }

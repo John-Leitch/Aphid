@@ -1,0 +1,55 @@
+
+@{
+    this.'$aphid'.InsertNext(console defined ? @{} : @{ #'std' });    
+
+    console.bindArgs = @(m) {
+        var argMap = {
+            list: [ ],
+            keys: { },
+            names: { },
+        };
+        
+        frame(0)
+            .exp()
+            @(x)
+                (x.isCall() ? x.args()^! : x.isOp('|>', '|') ? x.lhs() : x.isOp('<|') ? x.rhs() : ex.arg() )
+            .pairs() for {
+                var mo = {
+                    name: $_.lhs().id(),
+                    key: $_.rhs().str(),
+                    type: ($($_.lhs().attrs()#!)
+                        0: 'string',
+                        1: $_.lhs().attr(0).id(),
+                        ex.arg($args | serialize))
+                        |> resolveType,
+            };
+
+            mo | argMap.list.add;
+            argMap.keys[mo.name] = mo;
+            argMap.names[mo.key] = mo;
+        };
+
+        var boundArgs = {};
+
+        [
+            [var boolValues = (var n = argMap.names.Values)-?(@()$_.type == bool), false],
+            [var otherValues = n->(@()$_) |> toArray @except(boolValues), null]
+        ]
+        for (t) t^! for boundArgs[$_.name] = t$!;
+        
+        var args = parseArgsFor();
+        for (var i = 0; i < (args#!); i++) {
+            if(argMap.names[var v = args[i].Value] defined) {
+                var m = argMap.names[v];
+                boundArgs[m.name] = $(var t = m.type)
+                    bool: true,
+                    string: i < args.Count - 1 ?
+                        args[++i].Value :
+                        e.args('Missing value for argument {0}' :: m.name),
+                    e.args('Unsuppoted arg type {0}' :: t);
+            }
+        }
+
+        ret boundArgs;
+    }
+}();

@@ -1,5 +1,6 @@
 ﻿#define TYPE_CACHE_NULL
 using Components.Aphid.Interpreter;
+using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,8 @@ namespace Components.Aphid.TypeSystem
 
         private static readonly ReaderWriterLockSlim _typeCacheLock = new ReaderWriterLockSlim();
 
-        private static readonly LockTable<InteropTypeContext> _contextLocks =
-            new LockTable<InteropTypeContext>(new InteropTypeContextExactComparer());
+        private static readonly LockTable<string[]> _pathLocks =
+            new LockTable<string[]>(new PathTailComparer());
 
         public InteropTypeResolver(AphidInterpreter interpreter)
             : base(interpreter)
@@ -38,7 +39,8 @@ namespace Components.Aphid.TypeSystem
         {
             var ctx = new InteropTypeContext(imports, path, isType, importsLock);
 
-            lock (_contextLocks[ctx])
+            //lock (_contextLocks[ctx])
+            lock (_pathLocks[path])
             {
                 return ResolveTypeCore(ctx, imports, path, isFatal, isType);
             }

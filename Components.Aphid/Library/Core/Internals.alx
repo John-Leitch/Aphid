@@ -6,6 +6,8 @@ var aphid = _aphid();
 //var aphidLocal = new ThreadLocal[AphidInterpreter](@() _aphid());
 var getBlock = @() this.{'$parent'}.{'$block'};
 
+var ex = { arg: @() throw new ArgumentException(frame(1).Arguments), };
+
 // var aphidExeNames = ;
 
 var parseArgsFor = @{

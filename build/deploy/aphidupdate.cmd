@@ -23,6 +23,8 @@ for %%d in (AphidUI\bin\x64\Release Aphid\bin\Debug Aphid\bin\Release Aphid\bin\
 )
 
 popd
-call aphidupdatescripts
+cd c:\source\aphid\build\deploy
+call %cd%\aphidupdatescripts.cmd
 ::call aphidngen
+popd.
 @echo on

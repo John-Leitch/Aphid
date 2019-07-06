@@ -62,7 +62,10 @@
             mapCore: @(depth, traversed, references, clrObj) {
                 var dprint = @() {
                     using System.Linq;
-                    var umsg = $($args.Count) 0: '', 1: ($_ ?? '').ToString(), format(($_ ?? '').ToString(), $args @skip(1));
+                    var umsg = $($args.Count)
+                        0: '',
+                        1: ($_ ?? '').ToString(),
+                        format(($_ ?? '').ToString(), $args @skip(1));
             
                     format(
                         '{0}[Depth: ~Cyan~{1}~R~] ~Magenta~{2}~R~: {3}',

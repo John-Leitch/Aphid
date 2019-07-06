@@ -1,0 +1,49 @@
+{
+	"folders": [
+		{
+			"name": "Library",
+			"path": "Components.Aphid/Library"
+		},
+		{
+			"name": "Serialization",
+			"path": "Components.Aphid/Serialization"
+		},
+		{
+			"name": "Tools",
+			"path": "Components.Aphid/Tools"
+		},
+		{
+			"name": "Samples",
+			"path": "Aphid/Samples"
+		},
+		{
+			"name": "Benchmarks",
+			"path": "Aphid/Benchmarks"
+		}
+	],
+	"settings": {        
+        "files.exclude": {
+            "**/*.alx.*": true,
+            "**/*.cache": true,
+            "**/*.cacheMetadata": true,
+            "**/*.cmd": true,
+            "**/*.cs": true,
+            "**/*.csproj": true,
+            "**/*.exe": true,
+            "**/*.pdb": true,
+			"**/*.user": true,
+			"**/temp": true,
+			"**/*.sdb": true,
+			"**/*.odm": true,
+            "**/bin": true,
+            "**/obj": true,
+            "**/xml": true,
+            "*ilmerge*": true,
+            "*InlineIL*": true,
+            "**/Visitors":true,
+            "**/Properties":true,
+
+		},
+		"typescript.disableAutomaticTypeAcquisition": true,
+    }
+}
