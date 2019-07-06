@@ -1,16 +1,13 @@
-﻿var repl = {
-    run: @(scope){
-        using Components.Aphid.UI;
-        var aphidScope = this;        
-        var a = aphidScope.{'$aphid'};
+﻿var repl;
 
-        if (a defined && scope defined) {
-            a.SetInitialScope(scope);
+@{
+    repl = {
+        run: @{
+            using Components.Aphid.UI;
+            var r = new AphidRepl(new AphidInterpreter(this.'$parent'.'$scope'));
+
+            try r.Run();
+            finally r.Dispose();
         }
-
-        var r = a defined ? new AphidRepl(a) : new AphidRepl();
-
-        try r.Run();
-        finally r.Dispose();
     }
-};
+}()

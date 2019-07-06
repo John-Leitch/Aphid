@@ -1,7 +1,5 @@
 
 @{
-    this.'$aphid'.InsertNext(console defined ? @{} : @{ #'std' });    
-
     console.bindArgs = @(m) {
         var argMap = {
             list: [ ],

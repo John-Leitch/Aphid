@@ -143,7 +143,7 @@ var io = {
     ext: @(pathOrExt, newExt)
         pathOrExt defined ?
             newExt defined ?
-                _p(ChangeExtension(pathOrExt, newExt)) : 
+                _p(ChangeExtension(pathOrExt, newExt)) :
                 _p(GetExtension(pathOrExt)) :
             throw new ArgumentException('Function io.ext() expects one or two arguments'),
 

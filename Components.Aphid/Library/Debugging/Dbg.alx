@@ -11,14 +11,6 @@ dbg.code = @(f) {
     if (dbg.enabled) f();
 };
 
-dbg.dumpTrace = @()
-    aphid.OnInterpretExpression = @(x)
-        Console.WriteLine(
-            '[{0}, offset {1:n0}]\r\n{2}\r\n\r\n',
-            x.Expression.Context.Filename,
-            x.Expression.Index,
-            x.Expression | SyntaxHighlightingFormatter.Format);
-
 var sigOpt = {
     memberType: false,
 };

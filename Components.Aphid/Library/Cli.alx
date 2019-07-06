@@ -5,6 +5,7 @@ using System.Reflection;
 
 #'Cli\\Print';
 #'Cli\\Console';
+#'Cli\\CliArgBinding';
 #'Cli\\Dump';
 #'Cli\\Out';
 #'Cli\\Repl';

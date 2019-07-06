@@ -606,8 +606,82 @@ namespace Components.Aphid.TypeSystem
                     hash = 0x100000;
                 }
 
-                hash += IsScalar ? 0x10 : 0x100;
-                hash += IsComplex ? 0x20 : 0x200;
+
+                if (IsScalar)
+                {
+                    hash += 0x210;
+                }
+                else if (IsComplex)
+                {
+                    hash += 0x120;
+                }
+
+#if STRICT_APHID_OBJECT_TYPE_CHECKS
+                var tmp = _value != null ?_value.GetHashCode() : 0x300;
+#else
+                var tmp = Value != null ? Value.GetHashCode() : 0x300;
+#endif
+                hash += tmp != 0 ? tmp : 0x400;
+
+#if APHID_OBJECT_OWNER_THREAD
+                tmp = OwnerThread.GetHashCode();
+                hash += tmp != 0 ? tmp : 0x500;
+#endif
+
+                tmp = Parent != null ? Parent.GetHashCode() : 0x600;
+                hash += tmp != 0 ? tmp : 0x700;
+                //hash = ((hash * ~hash) ^ hash) * hash;
+
+                return hash;
+            }
+        }
+
+        public int GetDeepHashCode()
+        {
+            unchecked
+            {
+                var hash = base.GetHashCode();
+
+                if (hash == 0)
+                {
+                    hash = 0x100000;
+                }
+
+                if (IsScalar)
+                {
+                    hash += 0x210;
+
+                    if (Value != null)
+                    {
+                        hash += Value.GetHashCode();
+                    }
+                    else
+                    {
+                        hash = ~hash;
+                    }
+                }
+                else if (IsComplex)
+                {
+                    hash += 0x120;
+
+                    var nullSeed = 0x2;
+
+                    foreach (var kvp in this)
+                    {
+                        hash += kvp.Key.GetHashCode();
+
+                        var v = kvp.Value;
+
+                        if (v != null)
+                        {
+                            hash += v.GetHashCode();
+                        }
+                        else
+                        {
+                            hash += ((nullSeed *= nullSeed + 7) + nullSeed + 3);
+                        }
+                    }
+                }
 
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
                 var tmp = _value != null ?_value.GetHashCode() : 0x300;
