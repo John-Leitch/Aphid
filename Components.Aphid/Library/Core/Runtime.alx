@@ -1,5 +1,67 @@
 var runtime;
 
+_trace = macro(@(handlerName) {
+    @{
+        var state = this.'$aphid' | this.'$internal'.initTrace;
+        
+        state.aphid.handlerName = @(x) {
+            var o = options;
+            var sb = state.out;
+            var hl = state.highlight;                    
+            var file = x.Expression.Context.Filename;
+            var index = x.Expression.Index;
+            sb.Clear();
+            sb.Append('[');
+
+            if (o.showFilename)
+            {
+                if (file != null)
+                {
+                    sb.Append(file);
+                }
+                else
+                {
+                    sb.Append('$No File');
+                }
+            }
+
+            if (o.calculatePosition && file != null)
+            {
+                var pos = state.posMemoizer.Call(
+                    @(t) state.getPos(state.readScript(t.Item1), t.Item2),
+                    new Tuple[string, int](file, index));                        
+
+                sb.AppendFormat(', line {0:n0}, column {1:n0}', pos.Item1, pos.Item2);
+            }
+
+            if (o.showOffset)
+            {
+                sb.AppendFormat(', offset {0:n0}', index);
+            }
+
+            if (o.syntaxHighlighting)
+            {
+                sb.AppendFormat(
+                    ']\r\n{0}\r\n',
+                    hl(x.Expression));
+            }
+            else
+            {
+                sb.AppendFormat(
+                    ']\r\n{0}\r\n',
+                    x.Expression);
+            }
+
+            Console.WriteLine(sb);
+
+            if (o.dumpScope && state.hasHashChanged())
+            {
+                Console.WriteLine(hl(state.serialize(state.scope)));
+            }
+        }
+    }
+});
+
 @{
     runtime = {
         '$internal': {
@@ -31,7 +93,7 @@ var runtime;
                     },
                     posMemoizer: new ArgLockingMemoizer[Tuple[string, int], Tuple[int, int]](),
                 }
-            },
+            },            
         },
         trace: {
             options: {
@@ -40,67 +102,9 @@ var runtime;
                 calculatePosition: true,
                 syntaxHighlighting: true,
                 dumpScope: true,
-            },            
-            expressions: @{
-                var state = this.'$aphid' | this.'$internal'.initTrace;
-                
-                state.aphid.OnInterpretExpression = @(x) {
-                    var o = options;
-                    var sb = state.out;
-                    var hl = state.highlight;                    
-                    var file = x.Expression.Context.Filename;
-                    var index = x.Expression.Index;
-                    sb.Clear();
-                    sb.Append('[');
-
-                    if (o.showFilename)
-                    {
-                        if (file != null)
-                        {
-                            sb.Append(file);
-                        }
-                        else
-                        {
-                            sb.Append('$No File');
-                        }
-                    }
-
-                    if (o.calculatePosition && file != null)
-                    {
-                        var pos = state.posMemoizer.Call(
-                            @(t) state.getPos(state.readScript(t.Item1), t.Item2),
-                            new Tuple[string, int](file, index));
-                        // var pos = state.getPos(state.readScript(file), index);
-
-                        sb.AppendFormat(', line {0:n0}, column {1:n0}', pos.Item1, pos.Item2);
-                    }
-
-                    if (o.showOffset)
-                    {
-                        sb.AppendFormat(', offset {0:n0}', index);
-                    }
-
-                    if (o.syntaxHighlighting)
-                    {
-                        sb.AppendFormat(
-                            ']\r\n{0}\r\n',
-                            hl(x.Expression));
-                    }
-                    else
-                    {
-                        sb.AppendFormat(
-                            ']\r\n{0}\r\n',
-                            x.Expression);
-                    }
-
-                    Console.WriteLine(sb);
-
-                    if (o.dumpScope && state.hasHashChanged())
-                    {
-                        Console.WriteLine(hl(state.serialize(state.scope)));
-                    }
-                }
             },
+            expressions: _trace(OnInterpretExpression),
+            statements: _trace(OnInterpretStatement),
         },
     }
 }();
