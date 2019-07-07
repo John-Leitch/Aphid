@@ -1,11 +1,11 @@
 ﻿var stdio;
 
 @{
-    var traceLevel = 1;
+    var traceLevel = 3;
 
     trace = macro(@(l, m){
         if (traceLevel >= l) {
-            print(m)
+            print('[~Cyan~{0:x4}~R~] {1}' :: [ Thread.CurrentThread.ManagedThreadId, m ]);
         }
     });
 
@@ -16,12 +16,18 @@
             read: @(callback){
                 var charsRead = 0;
                 var lastPeek = 0;
-                while (pipe.Peek() > -1 &&
-                    (charsRead = pipe.Read(buffer, 0, bufferSize)) != 0) {
+                while (pipe.Peek() > -1 //&&
+                    // (charsRead = pipe.Read(buffer, 0, bufferSize)) != 0) {
+                ){
+                    charsRead = pipe.Read(buffer, 0, bufferSize);
+                    trace(3, 'reader.read: data received');
                     callback(new string(buffer, 0, charsRead));
+                    trace(4, 'reader.read: succeeded');
 
                     ret true;                
                 }
+
+                trace(4, 'reader.read: failed');
 
                 ret false;
             },        
@@ -49,22 +55,37 @@
                     data.Clear();
                 }
 
-                trace(4, 'redirect: invoking callback');
+                trace(4, 'redirect: callback started');
                 tmp for callback($_[0], $_[1]);
+                trace(4, 'redirect: callback finished');
+                process.Refresh();
             } while (!process.HasExited || !reset.SafeWaitHandle.IsClosed);
 
+            trace(1, 'redirect: waiting for exit');
             process.WaitForExit();
+            trace(1, 'redirect: done waiting for exit');
 
             if (data.Count > 0) {
                 trace(2, 'redirect: handling remaining data');
                 data for callback($_[0], $_[1]);
             }
 
-            trace(2, 'redirect: finished');
+            trace(0, 'redirect: finished');
         },
+        pipeName: @(process, pipe) process.StandardOutput == pipe ? 'stdout' : 'stderr',
         redirectAsync: @(process, callback, context) {
             trace(0, 'redirectAsync: started');
             var reset = new AutoResetEvent(false);
+            var tasks = [ [process.StandardOutput, false], [process.StandardError, true] ]
+                ->@(p) bufferPipeAsync(
+                    process,
+                    p[0],
+                    @(x) {
+                        trace(2, 'redirectAsync: ~Magenta~{0}~R~ data received ({1:n0} bytes)' ::[ pipeName(process, p[0]), x.Length]);
+                        callback(x, p[1], context);
+                        trace(2, 'redirectAsync: ~Magenta~{0}~R~ event set' :: pipeName(process, p[0]));
+                        reset.Set();
+                    });
 
             @{ 
                 trace(1, 'redirectAsync: disposing reset started');
@@ -72,26 +93,17 @@
                 reset.Dispose();
                 trace(0, 'redirectAsync: done');
             }
-            @when.all([ [process.StandardOutput, false], [process.StandardError, true] ]
-                ->@(p) bufferPipeAsync(
-                    process,
-                    p[0],
-                    @(x) {
-                        trace(2, 'redirectAsync: data received');
-                        callback(x, p[1], context);
-                        trace(3, 'redirectAsync: event set');
-                        reset.Set();
-                    }));
+            @when.all(tasks);
             
             ret reset;
         },
         bufferPipeAsync = @(process, pipe, callback)
             async.long(@{
-                trace(0, 'bufferPipeAsync: started for {0}' :: pipe);
+                trace(0, 'bufferPipeAsync: started watching ~Magenta~{0}~R~' :: pipeName(process, pipe));                
                 var pipeReader = stdio.reader(pipe);
 
                 do {
-                    trace(3, 'bufferPipeAsync: read started on {0}' :: pipe);
+                    trace(5, 'bufferPipeAsync: read started on {0}' :: pipe);
                 } while (pipeReader.read(callback) || !process.HasExited);
 
                 trace(0, 'bufferPipeAsync: finished for {0}' :: pipe);
