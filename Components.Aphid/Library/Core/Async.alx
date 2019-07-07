@@ -38,6 +38,8 @@ var wait;
             ret t;
         }
     });
+    
+    _e = macro(@{});
 
     async = {
         opts: null,
@@ -63,10 +65,25 @@ var wait;
         delay: Task.Delay,
         pool: ThreadPool.QueueUserWorkItem,
         sleep: Thread.Sleep,
-        thread: _thread(),
+        thread: _thread(_e()),
         background: _thread(t.IsBackground = true),
+        then: @(action, task) task.ContinueWith(action),
     };
 
-    when = { all: Task.WhenAll, any: Task.WhenAny, };
-    wait = { all: Task.WaitAll, any: Task.WaitAny, };
+    _wo(when, When);
+    _wo(wait, Wait);
+
+    _wo = macro(@(v, p) {
+        v = { all: _wm(id(p, All)), any: _wm(id(p, Any)) };
+    });
+
+    _wm = macro (@(n) {
+        // Todo: fix wait -> void issue.
+        @(tasks, continuation) continuation defined ?
+            Task.n(tasks).ContinueWith(continuation) :
+            Task.n(tasks)
+    });
+
+    // when = { all: _w(WhenAll), any: _w(WhenAny), };
+    // wait = { all: Task.WaitAll, any: Task.WaitAny, };
 }();
