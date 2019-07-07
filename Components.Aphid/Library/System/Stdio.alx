@@ -1,0 +1,117 @@
+﻿var stdio;
+
+@{
+    var traceLevel = 1;
+
+    trace = macro(@(l, m){
+        if (traceLevel >= l) {
+            print(m)
+        }
+    });
+
+    stdio = {
+        reader: @(pipe, bufferSize) ({
+            bufferSize: bufferSize defined ? bufferSize : 0x100,
+            buffer: Array.CreateInstance(char, bufferSize),
+            read: @(callback){
+                var charsRead = 0;
+                var lastPeek = 0;
+                while (pipe.Peek() > -1 &&
+                    (charsRead = pipe.Read(buffer, 0, bufferSize)) != 0) {
+                    callback(new string(buffer, 0, charsRead));
+
+                    ret true;                
+                }
+
+                ret false;
+            },        
+        }),
+        redirect: @(process, callback) {            
+            var data = new List[Object]();
+            
+            var reset = redirectAsync(
+                process,
+                @(data, isError, context) {
+                    trace(2, 'redirect: data received');
+                    lock context context.Add($args);
+                    trace(3, 'redirect: data added');
+                },
+                data);
+            
+            do {
+                trace(4, 'redirect: waiting on event');
+                reset.WaitOne();
+                trace(4, 'redirect: event set');
+                var tmp;
+                
+                lock data {
+                    tmp = data.ToArray();
+                    data.Clear();
+                }
+
+                trace(4, 'redirect: invoking callback');
+                tmp for callback($_[0], $_[1]);
+            } while (!process.HasExited || !reset.SafeWaitHandle.IsClosed);
+
+            process.WaitForExit();
+
+            if (data.Count > 0) {
+                trace(2, 'redirect: handling remaining data');
+                data for callback($_[0], $_[1]);
+            }
+
+            trace(2, 'redirect: finished');
+        },
+        redirectAsync: @(process, callback, context) {
+            trace(0, 'redirectAsync: started');
+            var reset = new AutoResetEvent(false);
+
+            @{ 
+                trace(1, 'redirectAsync: disposing reset started');
+                reset.Set();
+                reset.Dispose();
+                trace(0, 'redirectAsync: done');
+            }
+            @when.all([ [process.StandardOutput, false], [process.StandardError, true] ]
+                ->@(p) bufferPipeAsync(
+                    process,
+                    p[0],
+                    @(x) {
+                        trace(2, 'redirectAsync: data received');
+                        callback(x, p[1], context);
+                        trace(3, 'redirectAsync: event set');
+                        reset.Set();
+                    }));
+            
+            ret reset;
+        },
+        bufferPipeAsync = @(process, pipe, callback)
+            async.long(@{
+                trace(0, 'bufferPipeAsync: started for {0}' :: pipe);
+                var pipeReader = stdio.reader(pipe);
+
+                do {
+                    trace(3, 'bufferPipeAsync: read started on {0}' :: pipe);
+                } while (pipeReader.read(callback) || !process.HasExited);
+
+                trace(0, 'bufferPipeAsync: finished for {0}' :: pipe);
+            }),
+    };
+}();
+
+// var outReader = stdio.reader(stdOut);
+// var errReader = stdio.reader(stdErr);
+
+// async.long(@{
+//     do {
+//         Console.WriteLine('Out redirection started');
+//         if (!outReader.read(Console.Write)) {
+//             // p.Refresh();
+//         }
+//     } while (!p.HasExited);
+
+//     Console.WriteLine('Out redirection finished');
+// });
+
+// bufferPipeAsync(stdOut, Console.Write);
+// bufferPipeAsync(stdErr, Console.Write);

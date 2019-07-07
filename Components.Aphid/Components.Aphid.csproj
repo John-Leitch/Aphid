@@ -638,13 +638,33 @@
     <None Include="Library\Cli\CliArgBinding.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Core\*.alx">
+    <None Include="Library\Core\Async.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\ClrSerializer.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\Enums.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\Internals.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\Linq.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\Operators.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Core\Threading.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Cli\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Library\Core\Runtime.alx" />
+    <None Include="Library\Core\Runtime.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Library\Data\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
