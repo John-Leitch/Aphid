@@ -1,6 +1,7 @@
 ﻿var system;
 var startProcess;
 var prepareCommand;
+var splitCommand;
 var startProcessSilent = false;
 
 @{
@@ -11,7 +12,7 @@ var startProcessSilent = false;
 
     var _tp = traceProcess defined && traceProcess ? print : @{ };
 
-    startProcess = @(exe, args, onLine, noWindow) {
+    startProcess = @(exe, args, onLine, noWindow, silent) {
         _tp('Starting process');
         var si = new ProcessStartInfo(exe, args);
         si.UseShellExecute = false;
@@ -29,7 +30,7 @@ var startProcessSilent = false;
                         continue;
                     }
 
-                    if (!startProcessSilent) {
+                    if (silent defined ? !silent : !startProcessSilent) {
                         [ onLine, Console.WriteLine]->@(x)x(line);
                     } else {
                         onLine(line);
@@ -50,7 +51,13 @@ var startProcessSilent = false;
         ret proc;
     };
 
-    system = @(cmd) cmd ~> print @() try $_.WaitForExit(); catch(e) { };
+    system = @(cmd, callback) {
+        var c = cmd |> splitCommand;
+        var sb = new StringBuilder();
+        startProcess(c[0], c[1], sb.AppendLine, true, true).WaitForExit();
+        
+        ret sb.ToString();
+    };
 
     prepareCommand = @(cmd)
         cmd == null ? null :
@@ -59,19 +66,23 @@ var startProcessSilent = false;
             0: null,
             [
                 cmd[0],
-                cmd @aq.skip(1) -> (@(x) x.Contains(' ') ? format('"{0}"', x) : x) @String.Join(' ')
+                cmd @skip(1) -> (@(x) x.Contains(' ') ? format('"{0}"', x) : x) @String.Join(' ')
             ];
+
+    splitCommand = @(cmd)
+        cmd 
+        ?? ''
+        |> ArgLexer.GetTokenInfo
+        @(t) $(t#!)
+            0: [ null, null ],
+            [ t[0].Value, $(t#!) 1: null, t[1].Offset | cmd.Substring ]
 }();
 
 @ ~> (cmd, onLine) cmd |> prepareCommand @() startProcess($_[0], $_[1], onLine);
 
 @ <# (cmd, onLine) {
-    var sb = new StringBuilder();
-    
-    var proc = cmd
-        |> prepareCommand
-        @() startProcess($_[0], $_[1], sb.AppendLine, true);
-
+    var sb = new StringBuilder();    
+    var proc = cmd |> prepareCommand @() startProcess($_[0], $_[1], sb.AppendLine, true);
     proc.WaitForExit();
 
     ret { proc, out: sb, exitCode: proc.ExitCode }
