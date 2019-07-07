@@ -1,0 +1,17 @@
+var msgpack;
+
+@{
+    nuget.reference('MessagePack');
+    nuget.reference('System.Threading.Tasks.Extensions');
+
+    using MessagePack;
+    using MessagePack.Resolvers;
+
+    msgpack = {
+        pack: @(o) MessagePackSerializer.Serialize.Members[1].MakeGenericMethod([Object]).Invoke(null, [ o, ContractlessStandardResolver.Instance ]),
+        unpack: @(t, o) MessagePackSerializer.Deserialize.Members[1].MakeGenericMethod([t]).Invoke(null, [ o, ContractlessStandardResolver.Instance ]),
+    };
+
+    var ad = AppDomain.CurrentDomain;
+    ad.add_ReflectionOnlyAssemblyResolve(@(o, e) (e.Name ~= 'System\\.Threading\\.Tasks\\.Extensions,') ? extAsm : nll )
+}()

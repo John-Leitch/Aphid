@@ -1,4 +1,6 @@
 ﻿var async;
+var when;
+var wait;
 
 @{
     using System.Threading.Tasks;
@@ -22,6 +24,21 @@
         }
     });
 
+    _thread = macro(@(_i){
+        @(action, state) {
+            var t = new Thread(action);
+            _i;
+            
+            if (state defined) {
+                t.Start(state);
+            } else {
+                t.Start();
+            }
+
+            ret t;
+        }
+    });
+
     async = {
         opts: null,
         degree: @(degrees) opts = new ParallelOptions() @() { $_.MaxDegreeOfParallelism = degrees; ret $_ },
@@ -34,13 +51,22 @@
         },        
         range: @(from, to, body) { _r(from, to, body) },
         to: @(to, body) { _r(0, to, body) },
-
         map: select,
         many: selectMany,
         reduce: selectMany,
         each: forEach,
         iter: forEach,
-        task: @(action) Task.Factory.StartNew(action),
+        run: @(action) Task.Factory.StartNew(action),
+        task: run,
+        action: run,
         long: @(action) Task.Factory.StartNew(action, TaskCreationOptions.LongRunning),
-    }
+        delay: Task.Delay,
+        pool: ThreadPool.QueueUserWorkItem,
+        sleep: Thread.Sleep,
+        thread: _thread(),
+        background: _thread(t.IsBackground = true),
+    };
+
+    when = { all: Task.WhenAll, any: Task.WhenAny, };
+    wait = { all: Task.WaitAll, any: Task.WaitAny, };
 }();

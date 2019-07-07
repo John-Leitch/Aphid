@@ -103,9 +103,9 @@ _poe = macro(@{ var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> 
 };
 
 @`(depth, num)
-    (var exp = frame(depth).Expression).Type == AphidTokenType.CallExpression ?
+    (var exp = frame(depth).Expression).Type == AphidExpressionType.CallExpression ?
         exp.Args[num].Identifier :
-    exp.Type == AphidTokenType.BinaryOperatorExpression ?
+    exp.Type == AphidExpressionType.BinaryOperatorExpression ?
         ($(exp.Operand)
             AphidTokenType.BinaryOrOperator, AphidTokenType.PipelineOperator:
                 (num == 0 ? exp.LeftOperand.Identifier : ex.arg(num)),
