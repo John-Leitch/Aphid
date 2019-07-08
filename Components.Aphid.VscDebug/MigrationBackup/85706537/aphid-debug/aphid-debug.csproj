@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
@@ -55,6 +55,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\AphidBreakpointController.cs" />
     <Compile Include="src\AphidIndexVisitor.cs" />
@@ -93,6 +94,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="package.json" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aphid\Aphid.csproj">
@@ -111,15 +113,13 @@
     <Reference Include="Aphid64">
       <HintPath>..\Aphid\bin\Release64\Aphid64.exe</HintPath>
     </Reference> -->
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <!-- <Reference Include="System.Windows.Forms" /> -->
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.2</Version>
-    </PackageReference>
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>::powershell -Command "Get-Process aphid-debug -ErrorAction SilentlyContinue  | Stop-Process -Force; Exit 0"</PreBuildEvent>
