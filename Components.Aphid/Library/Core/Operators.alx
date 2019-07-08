@@ -106,7 +106,7 @@ _poe = macro(@{ var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> 
     (var exp = frame(depth).Expression).Type == AphidExpressionType.CallExpression ?
         exp.Args[num].Identifier :
     exp.Type == AphidExpressionType.BinaryOperatorExpression ?
-        ($(exp.Operand)
+        ($(exp.Operator)
             AphidTokenType.BinaryOrOperator, AphidTokenType.PipelineOperator:
                 (num == 0 ? exp.LeftOperand.Identifier : ex.arg(num)),
             AphidTokenType.CustomOperator234: /*getToken('<|')*/              

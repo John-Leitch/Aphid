@@ -87,9 +87,15 @@ var toHashSet = flip2(ToHashSet);
 using System.Collections.Generic;
 
 _ie = macro(@(x) { x.GetType().GetInterface(IEnumerable) != null });
+_ia = macro(@(i){ i.IsAssignableFrom(t) });
 
 var seq = {
-    count: @(source) _ie(source) ? (source#!) : source,
+    count: @(source)
+        (var t = source.GetType()).IsArray ? source.Length :
+            _ia(ICollection) ? source.Count :
+            _ia(IEnumerable) ? source#! :
+            source,
+
     to: @(source) 0..(source | count),
     from: @(source) source | to | reverse,    
     
@@ -107,8 +113,25 @@ var seq = {
         ret l;
     },
 
+    iter: @(func, source) {
+        var i = 0;
+        ret source->@(x) func(x, i++);
+    },
+
+    whileFalse: untilTrue,
+    untilFalse: whileTrue,
     until: untilTrue,
     when: whileTrue,
+    whenNot: whileFalse,
+    
+    init: @(func, source) source | to -> func,
+
+    array: @(type, source) {
+        var a = source | count @Array.CreateInstance(type);
+        source @iter(@(x, i) a.Set(i, x));
+
+        ret a;
+    },
     // fanReduce = @(set) set |> seq.to-< @(i) set |> toList @{ $_.RemoveAt(i); ret $_.Count > 1 ? $_ |> fanReduce : [$_] })<| (1..10) |> dump }()
     
 };

@@ -65,7 +65,7 @@ namespace Components.Aphid.Debugging
 
         public static void Report(Exception o, AphidInterpreter interpreter, bool passThrough)
         {
-            //lock (_sync)
+            lock (_sync)
             {
                 if (IsEnabled)
                 {
@@ -81,7 +81,7 @@ namespace Components.Aphid.Debugging
             Exception exception,
             AphidInterpreter interpreter,
             bool passThrough) =>
-            SaveException(exception, interpreter, exit: true, passThrough: passThrough);
+            SaveException(exception, interpreter, exit: false, passThrough: passThrough);
 
         private static void SaveException(
             Exception exception,
@@ -89,16 +89,22 @@ namespace Components.Aphid.Debugging
             bool exit,
             bool passThrough)
         {
-            var dumpFile = AphidMemoryDump.Create();
+            var dumpFile = AphidMemoryDump.Create() ?? AphidMemoryDump.CreateName();
 
             if (exception is AggregateException ae)
             {
-                new[] { ae }.Concat(ae.InnerExceptions).For((e, i) =>
-                SaveExceptionLogs(e, interpreter, i, dumpFile, passThrough));
+                new[] { ae }
+                    .Concat(ae.InnerExceptions)
+                    .For((e, i) => SaveExceptionLogs(e, interpreter, i, dumpFile, passThrough));
             }
             else
             {
                 SaveExceptionLogs(exception, interpreter, -1, dumpFile, passThrough);
+            }
+
+            if (exit)
+            {
+                Environment.Exit(0xbad5230);
             }
         }        
 

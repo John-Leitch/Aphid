@@ -1,113 +1,139 @@
 ﻿var stdio;
 
 @{
-    var traceLevel = 3;
-
     trace = macro(@(l, m){
-        if (traceLevel >= l) {
-            print('[~Cyan~{0:x4}~R~] {1}' :: [ Thread.CurrentThread.ManagedThreadId, m ]);
-        }
+        // if (traceLevel >= l) {
+        //     print('[Thread ~Cyan~{0:x4}~R~] {1}' :: [ Thread.CurrentThread.ManagedThreadId, m ]);
+        // }
+    });
+
+    tracep = macro(@(l, n, m){
+        // if (traceLevel >= l) {
+        //     print('[Thread ~Cyan~{0:x4}~R~ ~Magenta~{1}~R~] {2}' :: [ Thread.CurrentThread.ManagedThreadId, n, m ]);
+        // }
     });
 
     stdio = {
+        traceLevel = 0,
         reader: @(pipe, bufferSize) ({
             bufferSize: bufferSize defined ? bufferSize : 0x100,
             buffer: Array.CreateInstance(char, bufferSize),
             read: @(callback){
-                var charsRead = 0;
-                var lastPeek = 0;
-                while (pipe.Peek() > -1 //&&
-                    // (charsRead = pipe.Read(buffer, 0, bufferSize)) != 0) {
-                ){
-                    charsRead = pipe.Read(buffer, 0, bufferSize);
-                    trace(3, 'reader.read: data received');
+                if ((var charsRead = pipe.Read(buffer, 0, bufferSize)) > 0) {
+                    trace(4, 'reader.read: data received');
                     callback(new string(buffer, 0, charsRead));
-                    trace(4, 'reader.read: succeeded');
+                    trace(5, 'reader.read: succeeded');
 
-                    ret true;                
+                    ret true;
+                } else {
+                    trace(6, 'reader.read: failed');
+                    ret false;
                 }
-
-                trace(4, 'reader.read: failed');
-
-                ret false;
             },        
         }),
-        redirect: @(process, callback) {            
-            var data = new List[Object]();
-            
-            var reset = redirectAsync(
+        redirect: @(process, callback) {    
+            using System.Collections.Concurrent;
+            var queue = new ConcurrentQueue[Object]();            
+
+            var asyncInfo = redirectAsync(
                 process,
                 @(data, isError, context) {
-                    trace(2, 'redirect: data received');
-                    lock context context.Add($args);
-                    trace(3, 'redirect: data added');
+                    trace(3, 'redirect: data received');
+                    // lock context context.Add($args);
+                    context.Enqueue($args);
+                    trace(4, 'redirect: data added');
                 },
-                data);
+                queue);
+
+            var args = Array.CreateInstance(Object,1);
+
+            _dq = macro(@{
+                do {
+                    if (queue.TryDequeue.Members[0].Invoke(queue, args)) {
+                        trace(1, 'redirect: callback started');
+                        var t = args[0];
+                        callback(t[0], t[1]);
+                        trace(1, 'redirect: callback finished');
+                    }
+                } while (queue.Count > 0);
+            });
             
             do {
-                trace(4, 'redirect: waiting on event');
-                reset.WaitOne();
-                trace(4, 'redirect: event set');
-                var tmp;
-                
-                lock data {
-                    tmp = data.ToArray();
-                    data.Clear();
-                }
+                trace(5, 'redirect: waiting on event');
+                WaitHandle.WaitAny(asyncInfo.resets);
+                trace(5, 'redirect: event set');
+                _dq();
+                // process.Refresh();
+            } while (!process.HasExited);
 
-                trace(4, 'redirect: callback started');
-                tmp for callback($_[0], $_[1]);
-                trace(4, 'redirect: callback finished');
-                process.Refresh();
-            } while (!process.HasExited || !reset.SafeWaitHandle.IsClosed);
+            trace(1, 'redirect: wait for task'); 
+            asyncInfo.task.Wait();
+            trace(1, 'redirect: finished');
+        },       
 
-            trace(1, 'redirect: waiting for exit');
-            process.WaitForExit();
-            trace(1, 'redirect: done waiting for exit');
-
-            if (data.Count > 0) {
-                trace(2, 'redirect: handling remaining data');
-                data for callback($_[0], $_[1]);
-            }
-
-            trace(0, 'redirect: finished');
-        },
-        pipeName: @(process, pipe) process.StandardOutput == pipe ? 'stdout' : 'stderr',
         redirectAsync: @(process, callback, context) {
-            trace(0, 'redirectAsync: started');
-            var reset = new AutoResetEvent(false);
-            var tasks = [ [process.StandardOutput, false], [process.StandardError, true] ]
-                ->@(p) bufferPipeAsync(
-                    process,
-                    p[0],
-                    @(x) {
-                        trace(2, 'redirectAsync: ~Magenta~{0}~R~ data received ({1:n0} bytes)' ::[ pipeName(process, p[0]), x.Length]);
-                        callback(x, p[1], context);
-                        trace(2, 'redirectAsync: ~Magenta~{0}~R~ event set' :: pipeName(process, p[0]));
-                        reset.Set();
-                    });
-
-            @{ 
-                trace(1, 'redirectAsync: disposing reset started');
-                reset.Set();
-                reset.Dispose();
-                trace(0, 'redirectAsync: done');
-            }
-            @when.all(tasks);
+            trace(1, 'redirectAsync: started');
             
-            ret reset;
+            var redirects = [
+                { pipe: process.StandardOutput, isErr: false, name: pipeName(process, pipe), reset: new AutoResetEvent(false) },
+                { pipe: process.StandardError, isErr: true, name: pipeName(process, pipe), reset: new AutoResetEvent(false) }
+            ];
+            
+            ret {
+                resets: redirects->@.reset @seq.array(WaitHandle),
+
+                task:
+                    when.all(
+                        redirects->@(p) bufferPipeAsync(
+                            process,
+                            p.pipe,
+                            @(x) {
+                                tracep(2, p.name, 'redirectAsync: data received ({0:n0} bytes)' :: x.Length);
+                                callback(x, p.isErr, context);
+                                tracep(2, p.name, 'redirectAsync: setting event');
+                                p.reset.Set();
+                            }),
+                        @() redirects @async.each(@(p){
+                            trace(2, 'redirectAsync: All tasks done, cleanup started');
+                            p.reset.Set();
+                            trace(1, 'redirectAsync: done');
+                        }))
+                    @async.then(@() resets->@()$_.Dispose()),
+            };
         },
-        bufferPipeAsync = @(process, pipe, callback)
+
+        bufferPipeAsync: @(process, pipe, callback)
             async.long(@{
-                trace(0, 'bufferPipeAsync: started watching ~Magenta~{0}~R~' :: pipeName(process, pipe));                
+                tracep(1, pipeName(process, pipe), 'bufferPipeAsync: started watching');
                 var pipeReader = stdio.reader(pipe);
+                var success;
 
                 do {
-                    trace(5, 'bufferPipeAsync: read started on {0}' :: pipe);
-                } while (pipeReader.read(callback) || !process.HasExited);
+                    tracep(
+                        5,
+                        pipeName(process, pipe),
+                        'bufferPipeAsync: read started (proc exited: {0}, last read succeeded: {1})' ::
+                            [ process.HasExited, success ]);
+                    
+                    success = pipeReader.read(callback)
 
-                trace(0, 'bufferPipeAsync: finished for {0}' :: pipe);
+                    // if (!(success = pipeReader.read(callback))) {
+                    //     process.Refresh();
+                    // }
+                } while (success || !process.HasExited);
+
+                tracep(
+                    1,
+                    pipeName(process, pipe),
+                    'bufferPipeAsync: finished (proc exited: {0}, last read succeeded: {1})' ::
+                        [ process.HasExited, success ]);
             }),
+
+        pipeName: @(process, pipe) ($(pipe)
+            process.StandardInput: 'stdin',
+            process.StandardOutput: 'stdout',
+            process.StandardError: 'stderr',
+            throw new InvalidOperationException('Not stdio pipe')),
     };
 }();
 

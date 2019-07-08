@@ -6,7 +6,27 @@ var aphid = _aphid();
 //var aphidLocal = new ThreadLocal[AphidInterpreter](@() _aphid());
 var getBlock = @() this.{'$parent'}.{'$block'};
 
-var ex = { arg: @() throw new ArgumentException(frame(1).Arguments), };
+var ex = {
+    arg: @(param) {
+        var pn = 1`0;
+        var st = this.{'$aphid'}.GetStackTrace();
+        var fr = st[1];
+        var msg = (pn != null ?
+            'Invalid argument passed as {0} to {1}' :
+            'Invalid argument passed to {1}') ::
+            [ pn, fr.Name ];
+        
+        if (fr.Expression != null) {
+            msg += ' in expression ' + fr.Expression;
+        }
+
+        if (pn != null && st[0].Scope[pn] defined) {
+            msg += ': ' + st[0].Scope[pn];
+        }
+        
+        throw new ArgumentException(msg)
+    },
+};
 
 // var aphidExeNames = ;
 

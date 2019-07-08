@@ -58,16 +58,16 @@ var wait;
         reduce: selectMany,
         each: forEach,
         iter: forEach,
-        run: @(action) Task.Factory.StartNew(action) | fatal,
+        run: @(action) Task.Factory.StartNew(action),
         task: run,
         action: run,
-        long: @(action) Task.Factory.StartNew(action, TaskCreationOptions.LongRunning) | fatal,
+        long: @(action) Task.Factory.StartNew(action, TaskCreationOptions.LongRunning),
         delay: Task.Delay,
         pool: ThreadPool.QueueUserWorkItem,
         sleep: Thread.Sleep,
         thread: _thread(_e()),
         background: _thread(t.IsBackground = true),
-        then: @(action, task) task.ContinueWith(action) | fatal,
+        then: @(action, task) task.ContinueWith(action),
         fatal: @(task) {
             task
                 .GetAwaiter()

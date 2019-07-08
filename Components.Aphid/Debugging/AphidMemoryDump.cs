@@ -9,7 +9,7 @@ namespace Components.Aphid.Debugging
     {
         public static string Create()
         {
-            var f = PathHelper.GetEntryPath($"AphidMemory-{Guid.NewGuid().ToString()}.dmp");
+            var f = CreateName();
 
             try
             {
@@ -25,5 +25,8 @@ namespace Components.Aphid.Debugging
                 return null;
             }
         }
+
+        public static string CreateName() =>
+            PathHelper.GetEntryPath($"AphidMemory-{Guid.NewGuid().ToString()}.dmp");
     }
 }
