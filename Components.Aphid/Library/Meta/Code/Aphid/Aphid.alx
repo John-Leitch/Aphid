@@ -10,7 +10,7 @@ Lexer({
         #'Std';
         #'Aphid.Tmpl';
         #'Aphid.Code';
-        #'Aphid.Tokens';
+        #'Aphid.Tokens';        
     },
     name: "Components.Aphid.Lexer.Aphid",
     modes: [ 
@@ -741,9 +741,7 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator314,
         CustomOperator315,
         CustomOperator316,
-        CustomOperator317,
-        CustomOperator318,
-        CustomOperator319
+        CustomOperator317
         // CustomOperatorTup End
         : {
             TakeToken(t);
@@ -1595,9 +1593,7 @@ ParseFunctionExpression = @{
         CustomOperator314,
         CustomOperator315,
         CustomOperator316,
-        CustomOperator317,
-        CustomOperator318,
-        CustomOperator319
+        CustomOperator317
         // CustomOperatorTup End
         : {
             TakeToken(op);
@@ -2070,7 +2066,5 @@ CustomOperatorOr = macro(@{
     | CustomOperator315
     | CustomOperator316
     | CustomOperator317
-    | CustomOperator318
-    | CustomOperator319
     // CustomOperatorOr End
 });

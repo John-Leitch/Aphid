@@ -91,6 +91,7 @@ using System.Reflection;
 #'Core\\Operators';
 #'Core\\Enums';
 #'Core\\Linq';
+#'Core\\Seq';
 #'Core\\Async';
 #'String';
 #'List';

@@ -1,4 +1,21 @@
 ﻿using System;
+using System.Reflection;
+
+if (Assembly.GetExecutingAssembly().Location.ToLower().Contains('components.aphid.scriptdebugger64.dll')) {    
+    using Components.Aphid.Parser;
+    var off = this.'$block'$!@.Index;
+    var b = this.'$parent'.'$block';
+    var index = b >^ (@(x) x.Index > off) |> b.IndexOf;
+    '
+        #"Std";        
+        var sp = @(n) this."$script" @io.sibling(n);
+        #"Aphid.Code" | sp;
+        #"Aphid.Tmpl" | sp;        
+        subhead("Running in test mode");
+    '
+    |> AphidParser.Parse
+    @b.InsertRange(index) ;
+}
 
 var tokens = [
     { regex: '%>', type: 'GatorCloseOperator', newMode: "Text" },
@@ -85,6 +102,8 @@ var tokens = [
     { regex: "#!", type: "PostfixCountOperator" },
     { regex: "^!", type: "PostfixFirstOperator" },
     { regex: "$!", type: "PostfixLastOperator" },
+    { regex: "\\?!", type: "PostfixAnyOperator" },
+    { regex: "\\*!", type: "PostfixManyOperator" },
     { regex: "\\\\!", type: "PostfixOrderOperator" },
     { regex: "/!", type: "PostfixOrderDescendingOperator" },
     
@@ -112,46 +131,94 @@ var tokens = [
 
 Console.WriteLine('Adding custom operators');
 
-var tokenChars = [ 
-    '`', '~', '!', /*'@',*/ '#', '%', '^',
-    '&', '*', '-', /*'_',*/ '=', '\\\\', '+', ':',
-    '<', '>', '.', '|', '/', '?'/*, '$'*/
-];
+var reChars = '\\+*|?()[]';
 
-using System.Text.RegularExpressions;
+var customTokens =
+    1..2
+    ->@seq.rep($_,'`~!#%^&*-=\\+:<>.|/?')
+    -<permutations
+    ->concat
+    ->(@()$_ ~: [ (reChars->@concat('\\'))-+'|', '\\$0' ])
+    @except(tokens->?>@.regex-?@!= null @seq.array(string))
+    @seq.iter(@(x,i) ({ regex: x, type: "CustomOperator{0:D3}" :: i.int() }));
 
-var usedTokens = tokens
-    .where(@() $_.regex defined)    
-    .select(@() $_.regex);
+customTokens->tokens.Add;
 
-Console.WriteLine('Built in tokens:');    
-usedTokens.select(@{ Console.WriteLine('  {0}', $_); });
+var parserRel = io.concat('Library', 'Meta', 'Code', 'Aphid', 'Aphid.alx');
+var interpRel = io.concat('Interpreter', 'AphidInterpreter.cs');
 
-Console.WriteLine('\r\nCustom tokens:');
+var paths = aphid
+    .GetRawStackTrace()
+    ->?>(@()$_.Expression.Context.Filename)
+    -?@!=null
+    ->(@(f) 1..5 @prepend(f) +>@(x)io.up(x))
+    -?(@io.end(parserRel) @> io.file)
+    -?@io.end(interpRel) @> io.file;
 
-extend string {
-    e: @(s, value) s.replace(value, '\\' + value),
+if ((paths#!) == 0) {
+    throw new InvalidOperationException('Could not find {0}', interpRel);
 }
 
-var regexEscape = @() $_.e('+').e('*').e('|').e('?').e('(').e(')').e('[').e(']');
+var updateCustomOperators = @(relCodeFile, regionBegin, regionEnd, getText) {
+    var codeFile = relCodeFile @io.head(paths^!);
+    codeFile @printInfo('Updating ~Cyan~{0}~R~ with custom operators');
+    var code = codeFile |> File.ReadAllText;
+    var matches = @Regex.Matches(code);
+    var ends = regionEnd |> matches;
+    var ranges = new List[Object]();
 
-var customTokenNumber = 0;
+    ('(( |\t)+)' + regionBegin) |> matches
+     for {
+        var o = {
+            indent: $_.Groups[1].Value,
+            start: $_.Index,
+            end: code.IndexOf(regionEnd, $_.Index)
+        };
+        ranges.Add(o);
+    };
 
-var addToken = @(t) {
-    if (!usedTokens.contains(t)) {
-        Console.WriteLine('  {0}', t);
-        tokens.add({ regex: t, type: "CustomOperator" + str(customTokenNumber++).PadLeft(3, '0') });
-    }
+    ranges.Reverse();
+
+    ranges->@() code = code
+        .Remove($_.start, $_.end - $_.start)
+        .Insert(
+            $_.start,
+            $_.indent + regionBegin + '\r\n' +
+            ($_.indent |> getText) + 
+            $_.indent);
+
+    code @File.WriteAllText(codeFile);
 };
 
-for (x in tokenChars) {
-    for (y in tokenChars) {
-        addToken(x + y |> regexEscape);
-    }
+var customOps = customTokens-.type;
 
-    addToken(x |> regexEscape);
-}
+var getCases = @(indent) customOps
+    ->(@String.Format('{0}case AphidTokenType.{1}:\r\n', indent))
+    +>(@(x, y) x + y);
 
-//Console.ReadLine();
+var getOr = @(indent)
+    indent +
+    (customOps ->(@+'\r\n') +>(@(x, y) x + indent + '| ' + y));
 
+var getTup = @(indent)
+    indent +
+    (customOps +>(@(x, y) x + ',\r\n' + indent + y)) +
+    '\r\n';
 
+updateCustomOperators(
+    interpRel,
+    '#region Custom Operator Cases',
+    '#endregion',
+    getCases);
+
+updateCustomOperators(
+    parserRel,
+    '// CustomOperatorOr Begin',
+    '// CustomOperatorOr End',
+    getOr);
+
+updateCustomOperators(
+    parserRel,
+    '// CustomOperatorTup Begin',
+    '// CustomOperatorTup End',
+    getTup);

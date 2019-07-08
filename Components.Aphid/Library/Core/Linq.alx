@@ -40,8 +40,13 @@ var seqEqual = Enumerable.SequenceEqual;
 
 var aggregate = flip(Aggregate);
 var all = flip(All);
-var append = flip(Append);
-// var concat = flip(Concat);
+var combine = Enumerable.Concat;
+
+// Begin workaround hacks
+var append = @(x, y) [x] @combine(y @seq.array(Object));
+var prepend = @(x, y) y @seq.array(Object) @combine([x]);
+// End workaround hacks
+
 var contains = flip(Contains);
 var elementAt = flip(ElementAt);
 var elementAtOrDefault = flip(ElementAtOrDefault);
@@ -50,8 +55,6 @@ var groupBy = flip(GroupBy);
 var intersect = flip(Intersect);
 var orderBy = flip(OrderBy);
 var orderByDescending = flip(OrderByDescending);
-var prepend = flip(Prepend);
-//var range = flip(Range);
 var repeat = flip(Repeat);
 var select = flip(Select);
 var selectMany = flip(SelectMany);
@@ -83,60 +86,6 @@ var single = flip2(Single);
 var singleOrDefault = flip2(SingleOrDefault);
 var sum = flip2(Sum);
 var toHashSet = flip2(ToHashSet);
-
-using System.Collections.Generic;
-
-_ie = macro(@(x) { x.GetType().GetInterface(IEnumerable) != null });
-_ia = macro(@(i){ i.IsAssignableFrom(t) });
-
-var seq = {
-    count: @(source)
-        (var t = source.GetType()).IsArray ? source.Length :
-            _ia(ICollection) ? source.Count :
-            _ia(IEnumerable) ? source#! :
-            source,
-
-    to: @(source) 0..(source | count),
-    from: @(source) source | to | reverse,    
-    
-    untilTrue: @(predicate) {
-        var l = new List[Decimal]();
-        var i = 0;        
-        while (!predicate(i)) l.Add(i++);
-        ret l;
-    },
-
-    whileTrue: @(predicate) {
-        var l = new List[Decimal]();
-        var i = 0;        
-        while (predicate(i)) l.Add(i++);
-        ret l;
-    },
-
-    iter: @(func, source) {
-        var i = 0;
-        ret source->@(x) func(x, i++);
-    },
-
-    whileFalse: untilTrue,
-    untilFalse: whileTrue,
-    until: untilTrue,
-    when: whileTrue,
-    whenNot: whileFalse,
-    
-    init: @(func, source) source | to -> func,
-
-    array: @(type, source) {
-        var a = source | count @Array.CreateInstance(type);
-        source @iter(@(x, i) a.Set(i, x));
-
-        ret a;
-    },
-    // fanReduce = @(set) set |> seq.to-< @(i) set |> toList @{ $_.RemoveAt(i); ret $_.Count > 1 ? $_ |> fanReduce : [$_] })<| (1..10) |> dump }()
-    
-};
-
-
 
 // orDefault = macro(@(n, f) {
 //     var id(n) = flip2(f);

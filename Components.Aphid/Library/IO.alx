@@ -147,6 +147,7 @@ var io = {
                 _p(GetExtension(pathOrExt)) :
             throw new ArgumentException('Function io.ext() expects one or two arguments'),
 
+    sibling: @(name, path) path | up @end(name),
     tmp: _p(GetTempPath),
     rnd: _p(GetTempFileName),
     copy: _f(Copy),
