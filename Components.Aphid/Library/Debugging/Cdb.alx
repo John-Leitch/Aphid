@@ -66,7 +66,7 @@ var cdb;
                     }));
         },
         writeLineCore: @(input) {
-            printInfo('~Cyan~[WriteLine]~R~ {0}', input);
+            // printInfo('~Cyan~[WriteLine]~R~ {0}', input);
             stdIn.WriteLine(input);
         },
         write: @(input, flush) {
@@ -84,36 +84,73 @@ var cdb;
         
         template: {
             cmdOutXml: @{
-                #'Std';
+                load System.Xml.Linq;
+                using System.Xml.Linq;
                 var indent = 0;
                 var margin = @() '  ' * indent;
-                print('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>');
-                print('<CmdOut>');
+                var w = Console.WriteLine;
+                var padding = '\r\n' * 3;
+                padding | w;
+                using System.Collections.Generic;
+                var lines = new List[Object]();
+                new XDeclaration("1.0", "utf-8", "yes") |> w;
+                new XAttribute('Cmd', cmdIn) @w('<CmdOut {0}>');
 
                 var line = null;
+                indent++;
                 while ((line = Console.In.ReadLine()) != null) {
-                    print('{0}<{1}>{2}</{1}>', margin(), 'CmdLineOut', line);
+                    new XElement('CmdLineOut', line)
+                    @w('{0}{1}', margin());
+                }
+                indent--;
+                w('</CmdOut>');
+                padding | w;
+            },
+
+            cmdOutAphidObject: @{
+                using System.Collections.Generic;
+                var w = Console.WriteLine;
+                var padding = '\r\n' * 3;
+                padding | w;               
+                
+                var lines = new List[Object]();
+                var line = null;
+                
+                while ((line = Console.In.ReadLine()) != null) {
+                    if (line.TrimEnd() != '') {
+                        line | lines.Add;
+                    }
                 }
 
-                print('</CmdOut>');
+                lines | this.'$aphid'.Serializer.Serialize | w;
+                padding | w;
             },
 
-            format: @(func){
-                var startOff = func.Body^!@.Index;
-                var endOff = func.Body$! @() $_.Index + $_.Length;
-                var len = endOff - startOff;
-                
-                ret func[0].Context.Code.Substring(func.Body^!@.Index, len)
+            format: @(tmplFunc)
+                tmplFunc[0].Context.Code.Substring(
+                    (var startOff = tmplFunc.Body^!@.Index),
+                    (tmplFunc.Body$! @() $_.Index + $_.Length) - startOff)
                 | minTokens
-                | quote;
-            },
+                | quote,
         },    
-        execBlock: @(dbgCmd, block)
+        execBlock: @(dbgCmd, aphidBlock)
             strOut(@{%>
-                .shell -ci <%= dbgCmd | quote %> aphid64 * #'std';eval(<%= block | template.format %>)
+                .shell -ci <%= dbgCmd | quote %> aphid64 * #'std';var cmdIn=<%= dbgCmd | quote %>;eval(<%= aphidBlock | template.format %>)
             <%})
             .ToString()
             .Trim(),
-        pipe: @(dbgCmd) execBlock(dbgCmd, template.cmdOutXml) | write,
+        pipe: @(dbgCmd) execBlock(dbgCmd, cdb.template.cmdOutAphidObject) | write,
+        sos: {
+            findModules: @()
+                '%windir%'
+                | env.expand
+                @io.end('Microsoft.NET')
+                @io.find.files('sos.dll'),
+
+            loadExtension: @()
+                findModules()
+                ->@format('!load {0}')
+                |> write,
+        },
     }
 }();
