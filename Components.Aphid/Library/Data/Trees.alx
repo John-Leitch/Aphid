@@ -16,11 +16,12 @@ var stringTree;
     };
 
     stringTree = {
-        fromObjTree: @(root)
+        defaultIndent: 2,
+        fromObjTree: @(root, name)
             stringTree.create(
-                { node: 'root', children: root },
+                { node: name defined ? name : root, children: root },
                 @(n) n.node,
-                @(n) n.children.Keys->@(k)({ node: k, children: n.children[k] })),
+                @(n) n.children | keys->@(k)({ node: k, children: n.children[k] })),
 
         fromArrays: objTree.fromArrays @> fromObjTree,
 
@@ -32,11 +33,13 @@ var stringTree;
         },
 
         createCore: @(node, dumpNode, getChildren, sb, indent, depths, lastChild) {
+            this.'$internal'.CopyTo(this);
+
             0..indent->@(i) sb.Append(
-                (var ai = i == indent - 1) && lastChild ? "└" :
-                (var hd = (depths#!) > 0) && ai && (depths$!) == i ? "├" :
-                hd && (depths=?(@==i)) ? "│" :
-                " ");
+                (var ai = i == indent - 1) && lastChild ? ("└" + getHorizontalLine()) :
+                (var hd = (depths#!) > 0) && ai && (depths$!) == i ? ("├"+ getHorizontalLine()) :
+                hd && (depths=?(@==i)) ? ("│" + getSpace()) :
+                (" " + getSpace()));
 
             node | dumpNode | sb.AppendLine;        
 
@@ -48,6 +51,11 @@ var stringTree;
                 indent + 1,
                 (var lc = (nodes$!) | c.Equals) ? depths : aq.concat(depths, [ indent ]),                
                 lc);
-        }
+        },
+
+        '$internal': {
+            getSpace: @() (defaultIndent - 1) * ' ',
+            getHorizontalLine: @() (defaultIndent - 1) * '─',
+        },
     };
 }();

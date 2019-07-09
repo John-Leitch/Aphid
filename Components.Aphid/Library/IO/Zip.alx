@@ -1,0 +1,7 @@
+var zipFile;
+
+@{
+    load System.IO.Compression.FileSystem;
+    using System.IO.Compression;
+    zipFile = importMethods(ZipFile);
+}();
