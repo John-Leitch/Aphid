@@ -1,0 +1,119 @@
+var cdb;
+
+@{
+    #'System/Stdio';
+    #'Meta/Code/TokenMinimizer';
+
+    cdb = {
+        cdbPath: 'c:\\debuggers\\cdb.exe',
+        cdbProc: null,
+        stdIn: null,
+        redirectTask: null,
+        consoleOut: true,    
+        serializer: null,
+        quote: null,
+        buffers: { shared: null, stdOut: null, stdError: null },
+        callbacks: {} |< @(o) buffers.Keys->@()o[$_] = null,
+        open: @(dmpFile) run('-Z "{0}"' :: dmpFile),
+        run: @(args) {
+            var s = new AphidSerializer(aphid);
+            s.AlwaysQuoteKeys = true;
+            s.UseDoubleQuotes = true;
+            s.IgnoreLazyLists = false;
+            s.IgnoreFunctions = true;
+            s.IgnoreSpecialVariables = true;
+            s.MaxElements = -1;
+            s.SafeCollectionAccess = true;
+            s.StringReferenceThreshold = 100000;
+            s.SplitStrings = false;
+            serializer = s;
+            quote = serializer.Serialize;
+
+            var si = new ProcessStartInfo(cdbPath, args);
+            si.UseShellExecute = false;
+            si.RedirectStandardError = true;
+            si.RedirectStandardInput = true;
+            si.RedirectStandardOutput = true;
+            si.CreateNoWindow = true;
+            si.WindowStyle = ProcessWindowStyle.Hidden;
+            cdbProc = Process.Start(si);
+            stdIn = cdbProc.StandardInput;
+            buffers | keys->@() buffers[$_] = new StringBuilder();        
+
+            redirectTask = async.long(@()
+                stdio.redirect(
+                    cdbProc,
+                    @(data, isError){
+                        _append = macro(@(n) { 
+                            buffers.n.Append(data);
+
+                            if (callbacks.n != null) {
+                                callbacks.n(data, isError);
+                            }
+                        });
+
+                        _append(shared);
+
+                        if (!isError) {
+                            _append(stdOut);
+                        } else {
+                            _append(stdErr);
+                        }
+                        
+                        if (consoleOut) {
+                            Console.Write(data);
+                        }
+                    }));
+        },
+        writeLineCore: @(input) {
+            printInfo('~Cyan~[WriteLine]~R~ {0}', input);
+            stdIn.WriteLine(input);
+        },
+        write: @(input, flush) {
+            $(var t = input.GetType())
+                string: writeLineCore(input),
+                AphidObject: input | quote | writeLineCore,
+                IEnumerable.IsAssignableFrom(t) ?
+                    input->@() write($_, false) :
+                    ex.arg(input);
+            
+            if (!(flush defined) || flush) {
+                stdIn.Flush();
+            }        
+        },
+        
+        template: {
+            cmdOutXml: @{
+                #'Std';
+                var indent = 0;
+                var margin = @() '  ' * indent;
+                print('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>');
+                print('<CmdOut>');
+
+                var line = null;
+                while ((line = Console.In.ReadLine()) != null) {
+                    print('{0}<{1}>{2}</{1}>', margin(), 'CmdLineOut', line);
+                }
+
+                print('</CmdOut>');
+            },
+
+            format: @(func){
+                var startOff = func.Body^!@.Index;
+                var endOff = func.Body$! @() $_.Index + $_.Length;
+                var len = endOff - startOff;
+                
+                ret func[0].Context.Code.Substring(func.Body^!@.Index, len)
+                | minTokens
+                | quote;
+            },
+        },    
+        execBlock: @(dbgCmd, block)
+            strOut(@{%>
+                .shell -ci <%= dbgCmd | quote %> aphid64 * #'std';eval(<%= block | template.format %>)
+            <%})
+            .ToString()
+            .Trim(),
+        pipe: @(dbgCmd) execBlock(dbgCmd, template.cmdOutXml) | write,
+    }
+}();
