@@ -3,6 +3,7 @@ var cdb;
 @{
     #'System/Stdio';
     #'Meta/Code/TokenMinimizer';
+    _outObj = macro(@{ { enabled: true, shared: null, stdOut: null, stdError: null } });
 
     cdb = {
         cdbPath: 'c:\\debuggers\\cdb.exe',
@@ -12,8 +13,8 @@ var cdb;
         consoleOut: true,    
         serializer: null,
         quote: null,
-        buffers: { shared: null, stdOut: null, stdError: null },
-        callbacks: {} |< @(o) buffers.Keys->@()o[$_] = null,
+        buffers: _outObj(),
+        callbacks: _outObj(),
         open: @(dmpFile) run('-Z "{0}"' :: dmpFile),
         run: @(args) {
             var s = new AphidSerializer(aphid);
@@ -38,16 +39,22 @@ var cdb;
             si.WindowStyle = ProcessWindowStyle.Hidden;
             cdbProc = Process.Start(si);
             stdIn = cdbProc.StandardInput;
-            buffers | keys->@() buffers[$_] = new StringBuilder();        
+            
+            buffers
+            | keys
+            -?@!='enabled'
+            ->@() buffers[$_] = new StringBuilder();        
 
             redirectTask = async.long(@()
                 stdio.redirect(
                     cdbProc,
                     @(data, isError){
                         _append = macro(@(n) { 
-                            buffers.n.Append(data);
+                            if (buffers.enabled) {
+                                buffers.n.Append(data);
+                            }
 
-                            if (callbacks.n != null) {
+                            if (callbacks.enabled && callbacks.n != null) {
                                 callbacks.n(data, isError);
                             }
                         });
@@ -111,18 +118,25 @@ var cdb;
                 using System.Collections.Generic;
                 var w = Console.WriteLine;
                 var padding = '\r\n' * 3;
-                padding | w;               
-                
-                var lines = new List[Object]();
-                var line = null;
-                
-                while ((line = Console.In.ReadLine()) != null) {
-                    if (line.TrimEnd() != '') {
-                        line | lines.Add;
-                    }
-                }
+                padding | w;
 
-                lines | this.'$aphid'.Serializer.Serialize | w;
+                Console.In
+                    .ReadToEnd()
+                    .Split('\n')
+                    ->(@()$_.TrimEnd())
+                    |> this.'$aphid'.Serializer.Serialize
+                    |> w;
+                
+                // var lines = new List[Object]();
+                // var line = null;
+                
+                // while ((line = Console.In.ReadLine()) != null) {
+                //     // if (line.TrimEnd() != '') {
+                //         line.TrimEnd() | lines.Add;
+                //     // }
+                // }
+
+                // lines | this.'$aphid'.Serializer.Serialize | w;
                 padding | w;
             },
 

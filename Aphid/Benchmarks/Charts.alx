@@ -1,14 +1,21 @@
-﻿#'Std';
+﻿using Components.External.ConsolePlus;
+
+[
+    'add_ReflectionOnlyAssemblyResolve',
+    'add_AssemblyResolve'
+]
+->@()AppDomain.CurrentDomain[$_](@(sender, e){
+    e.Name @Cli.WriteLine('Loading ~Cyan~{0}~R~');
+    ret e.Name.StartsWith('Components.Aphid') ? AphidExpression.Assembly : null;
+});
+
+#'Std';
 #'Gui/WinForms';
 #'Charts.Config';
 #'Core/Threading';
 using Components.ObjectDatabase;
 using System.Reflection;
 using Components.Aphid.Parser;
-
-AppDomain.CurrentDomain.add_AssemblyResolve(@(sender, e){
-    ret e.Name.StartsWith('Components.Aphid') ? AphidExpression.Assembly : null;
-});
 
 var pixelsPerStack = 25;
 var widthMultipier = 2;
@@ -36,24 +43,60 @@ _ab(png);
 _ab(pngs);
 _ab(allTests);
 
-var records = 'history.db' | BinaryObjectDatabase.OpenFile @() $_.ReadUnsafe() | Enumerable.ToArray;
+var dbFile = this.'$script' | io.up @io.end('history.db');
+printInfo('Loading DB ~Cyan~{0}~R~', dbFile);
+
+if (dbFile | io.file == false) {
+    printError('Could not find DB file');
+    exit(0xbad01);
+}
+
+var fixObj = @(o) {
+    if (o == null ||
+        (var t = o.GetType()) == AphidObject ||
+        t.IsPrimitive ||
+        t == string ||
+        (!(var isCollection = IEnumerable.IsAssignableFrom(t)))) {
+        ret o;
+    } else if (t.Name == AphidObject.Name) {
+        if (o.IsScalar) {
+            ret o.Value | fixObj;
+        } else {
+            var o2 = {};    
+            o for (p) o2[p.Key] = p.Value | fixObj;
+
+            ret o2;
+        }
+    } else if (isCollection) {
+        ret o->fixObj;
+    }
+};
+
+var records =
+    dbFile
+    |> BinaryObjectDatabase.OpenFile
+    @() $_.ReadUnsafe()
+    |> toArray;
+
+if ((records#!) > 0 && records[0].GetType() != AphidObject) {
+    printError('Library versioning issues, fixing objects');
+    0..records.Length for (i) records.Set(i, fixObj(records[i]));
+    printSuccess('Done fixing objects');
+}
+
+printSuccess('Successfully loaded {0:n0} records', records#!);
 
 var createChart = @(mode){
-    var xCount;
-    var flattened;
     var r;
 
-    //using (var db = 'history.db' |> BinaryObjectDatabase.OpenFile) {
-        flattened =
-            //(r = db.ReadUnsafe)()
-            records
-            -<(@(x) x.results
-            -> @(y) ({
-                version: new Version(x.version),
-                name: y.name,
-                ms: y.ticks / TimeSpan.TicksPerMillisecond
-            }));
-    //}
+    var flattened =
+        records
+        -<(@(x) x.results
+        -> @(y) ({
+            version: new Version(x.version),
+            name: y.name,
+            ms: y.ticks / TimeSpan.TicksPerMillisecond
+        }));
 
     var chart = winForms.chart();
     var area = chart.area();
@@ -103,7 +146,7 @@ var createChart = @(mode){
     area.RecalculateAxesScale();
     var vi = 0;
     var pts = dataOut[0];
-    xCount = pts #!;
+    var xCount = pts #!;
     0..xCount->@(i) area.AxisX.CustomLabels.Add(i - 0.5, i + 0.5, pts[i][2].ToString());
 
     if (png) {

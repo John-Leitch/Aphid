@@ -1,10 +1,11 @@
 using System;
+using System.IO;
 using System.Reflection;
 
 var asmUnmerged = Assembly
     .GetEntryAssembly()
     @(a) (a != null && a.Location != null ? a.Location : '')
-        .ToLower() | Path.GetFileName != mergedAsmName;
+        .ToLower() | Path.GetFileName != mergedAsmName.ToLower();
 
 var asmMerged = !asmUnmerged;
 
