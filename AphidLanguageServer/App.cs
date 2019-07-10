@@ -36,8 +36,6 @@ namespace AphidLanguageServer
             _interpreter = new AphidInterpreter();
             _interpreter.Interpret(@"
                 #'std';
-                #'math';
-                #'io';
                 #'io/compression';
                 #'gui/winforms';
                 #'gui/wpf';
@@ -205,15 +203,15 @@ namespace AphidLanguageServer
         protected override Result<CompletionResult, ResponseError> Completion(CompletionParams @params)
         {
             Logger.Instance.Log("Completion");
+
             var index = TokenHelper.GetIndex(
                 _text,
                 (int)@params.position.line,
                 (int)@params.position.character);
 
-            string buf;
             //Logger.Instance.Log(_text.Remove(index));
-            var tmp = _scope.GetWords(_text, index, false, out buf);
-            
+            var tmp = _scope.GetWords(_text, index, false, out var buf);
+
             _words = tmp != null ?
                 tmp.ToArray() :
                 Array.Empty<Autocomplete>();

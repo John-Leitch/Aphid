@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Mantispid
 {
-    internal class Program
+    internal static class Program
     {
         private static void DisplayDirections()
         {

@@ -9,7 +9,7 @@ namespace Components.External.ConsolePlus
 
         private SmallRect _writeRegion;
 
-        private Coord _bufferCoords;
+        public Coord BufferCoords { get; set; }
 
         public int CanvasWidth { get; set; }
 
@@ -57,13 +57,24 @@ namespace Components.External.ConsolePlus
 
             IsInitialized = true;
 
-            for (var cursorY = 0; cursorY < CanvasWidth; cursorY++)
-            {
-                for (var cursorX = 0; cursorX < CanvasHeight; cursorX++)
-                {
-                    Canvas[cursorX, cursorY] = new CharInfo();
-                }
-            }
+            //for (var cursorX = 0; cursorX < CanvasWidth; cursorX++)
+            //{
+            //    for (var cursorY = 0; cursorY < CanvasHeight; cursorY++)
+            //    {
+            //        Canvas[cursorY, cursorX] = new CharInfo
+            //        {
+            //            Attributes = CharAttributes.BACKGROUND_BLUE,
+            //            Char = new CharUnion { AsciiChar = 0x41 }
+            //        };
+            //    }
+            //}
+        }
+
+        public void UpdateCanvas()
+        {
+            CanvasWidth = Console.WindowWidth;
+            CanvasHeight = Console.WindowHeight;
+            Canvas = new CharInfo[CanvasHeight, CanvasWidth];
         }
 
         public void DrawRectangle(
@@ -101,34 +112,37 @@ namespace Components.External.ConsolePlus
                 throw new InvalidOperationException();
             }
 
+            var xEnd = x + width;
+            var yEnd = y + height;
+
             if (brush != null && asciiChar != null)
             {
-                for (var cursorY = 0; cursorY < CanvasWidth; cursorY++)
+                for (var cursorX = x; cursorX < xEnd; cursorX++)
                 {
-                    for (var cursorX = 0; cursorX < CanvasHeight; cursorX++)
+                    for (var cursorY = y; cursorY < yEnd; cursorY++)
                     {
-                        Canvas[cursorX, cursorY].Char.AsciiChar = (byte)asciiChar;
-                        Canvas[cursorX, cursorY].Attributes = (CharAttributes)brush;
+                        Canvas[cursorY, cursorX].Char.AsciiChar = (byte)asciiChar;
+                        Canvas[cursorY, cursorX].Attributes = (CharAttributes)brush;
                     }
                 }
             }
             else if (brush != null)
             {
-                for (var cursorY = 0; cursorY < CanvasWidth; cursorY++)
+                for (var cursorX = x; cursorX < xEnd; cursorX++)
                 {
-                    for (var cursorX = 0; cursorX < CanvasHeight; cursorX++)
+                    for (var cursorY = y; cursorY < yEnd; cursorY++)
                     {
-                        Canvas[cursorX, cursorY].Attributes = (CharAttributes)brush;
+                        Canvas[cursorY, cursorX].Attributes = (CharAttributes)brush;
                     }
                 }
             }
             else if (asciiChar != null)
             {
-                for (var cursorY = 0; cursorY < CanvasWidth; cursorY++)
+                for (var cursorX = x; cursorX < xEnd; cursorX++)
                 {
-                    for (var cursorX = 0; cursorX < CanvasHeight; cursorX++)
+                    for (var cursorY = y; cursorY < yEnd; cursorY++)
                     {
-                        Canvas[cursorX, cursorY].Char.AsciiChar = (byte)asciiChar;
+                        Canvas[cursorY, cursorX].Char.AsciiChar = (byte)asciiChar;
                     }
                 }
             }
@@ -137,8 +151,9 @@ namespace Components.External.ConsolePlus
                 throw new InvalidOperationException();
             }
 
-            _writeRegion = new SmallRect(x, y, (short)(x + width - 1), (short)(y + height - 1));
-            _bufferCoords = new Coord(x, y);
+            SetArea(x, y, width, height);
+            //_writeRegion = new SmallRect(x, y, (short)(x + width - 1), (short)(y + height - 1));
+            //BufferCoords = new Coord(x, y);
         }
 
         public void Paint(short x, short y, CharAttributes brush) => Canvas[y, x].Attributes = brush;
@@ -160,13 +175,24 @@ namespace Components.External.ConsolePlus
             }
         }
 
+        public void SetArea(short x, short y, short width, short height)
+        {
+            SetWriteRegion(x, y, width, height);
+            //BufferCoords = new Coord((short)(Console.WindowLeft + x), (short)(Console.WindowTop + y));
+            BufferCoords = new Coord(x, y);
+
+        }
+
+        public void SetWriteRegion(short x, short y, short width, short height) =>
+            _writeRegion = new SmallRect(x, y, (short)(x + width - 1), (short)(y + height - 1));
+
         public void Render()
         {
             if (!Kernel32.WriteConsoleOutput(
                 _stdOut,
                 Canvas,
                 new Coord((short)CanvasWidth, (short)CanvasHeight),
-                _bufferCoords,
+                BufferCoords,
                 ref _writeRegion))
             {
                 Win32.ThrowWin32Exception();

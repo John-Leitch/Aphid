@@ -8,14 +8,28 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using AT = Components.Aphid.Lexer.AphidTokenType;
+using AC = Components.External.ConsolePlus.Autocomplete;
+using System.Text;
 
 namespace Components.Aphid.UI
 {
     public class AphidScopeObjectAutocompletionSource : IAutocompletionSource, IDisposable
     {
+        private static readonly Lazy<AC[]> _keywords = new Lazy<AC[]>(() =>
+            Enum
+                .GetValues(typeof(AphidTokenType))
+                .OfType<AphidTokenType>()
+                .Select(x => x.ToString())
+                .Where(x => x.EndsWith("Keyword"))
+                .Select(x => x.Replace("Keyword", ""))
+                .Where(x => AphidLexer.GetToken(x).TokenType.ToString().EndsWith("Keyword"))
+                .Select(x => new AC($"{x} keyword", x))
+                .ToArray());
+
         private static readonly string[] _wordContainsIgnore = new[]
         {
-            "`",
+            //"`",
             "<"
         };
 
@@ -31,14 +45,14 @@ namespace Components.Aphid.UI
         private const string _skipTokens =
             "( ) { } ! @ # $ % ^ & * + - = | \\ ; : ' \" < > , / ? \t";
 
-        private static readonly List<AphidTokenType> _skipTokenTypes = AphidLexer
+        private static readonly List<AT> _skipTokenTypes = AphidLexer
             .GetTokens(_skipTokens)
             .Select(x => x.TokenType)
-            .Concat((AphidTokenType[])Enum
-                .GetValues(typeof(AphidTokenType)))
-                .OfType<AphidTokenType>()
+            .Concat((AT[])Enum
+                .GetValues(typeof(AT)))
+                .OfType<AT>()
                 .Where(y =>
-                    y != AphidTokenType.MemberOperator &&
+                    y != AT.MemberOperator &&
                     y.ToString().EndsWith("Operator"))
             .ToList();
 
@@ -48,56 +62,73 @@ namespace Components.Aphid.UI
 
         public AphidScopeObjectAutocompletionSource(AphidObject currentScope) => _currentScope = currentScope;
 
-        public IEnumerable<Autocomplete> GetWords(
+        public IEnumerable<AC> GetWords(
             string text,
             int offset,
             bool allowEmptySearch,
             out string searchBuffer)
         {
             var subStr = offset == text.Length ? text : text.Remove(offset);
-            var tokens = AphidLexer.GetTokens(subStr);
+            var tokens = AphidLexer.GetTokens(subStr).ToArray();
 
-            var lastSkipTokenIndex = tokens.FindLastIndex(x => _skipTokenTypes.Contains(x.TokenType));
+            var lastSkipTokenIndex = -1;
+
+            for (var i = 0; i < tokens.Length; i++)
+            {
+                if (_skipTokenTypes.Contains(tokens[i].TokenType))
+                {
+                    lastSkipTokenIndex = i;
+                }
+            }
 
             if (lastSkipTokenIndex >= 0)
             {
-                tokens = tokens.Skip(lastSkipTokenIndex + 1).ToList();
+                var len = tokens.Length - (++lastSkipTokenIndex);
+                var tmp = new AphidToken[len];
+
+                for (var i = 0; i < len; i++)
+                {
+                    tmp[i] = tokens[lastSkipTokenIndex + i];
+                }
+                //tokens = tokens.Skip(lastSkipTokenIndex + 1).ToArray();
             }
 
             var lastToken = default(AphidToken);
 
             var inLastToken =
-                tokens.Count != 0 &&
-                (lastToken = tokens[tokens.Count - 1]).TokenType == AphidTokenType.Identifier &&
+                tokens.Length != 0 &&
+                ((lastToken = tokens[tokens.Length - 1]).TokenType == AT.Identifier ||
+                    lastToken.TokenType == AT.newKeyword ||
+                    lastToken.TokenType == AT.usingKeyword) &&
                 lastToken.Index + lastToken.Lexeme.Length == offset;
 
-            var isMemberAccess = lastToken.TokenType == AphidTokenType.MemberOperator;
+            var isMemberAccess = lastToken.TokenType == AT.MemberOperator;
 
             // Todo: eliminate repetition
-            if (lastToken.TokenType == AphidTokenType.newKeyword)
+            if (lastToken.TokenType == AT.newKeyword)
             {
                 searchBuffer = "";
 
-                return text[text.Length - 1] != 'w' ?
+                return subStr[subStr.Length - 1] != 'w' ?
                     FilterAndSortWords(CreateTypeAutocomplete(null)) :
-                    new Autocomplete[0];
+                    Array.Empty<AC>();
             }
-            else if (tokens.Count >= 2 &&
-                tokens[tokens.Count - 2].TokenType == AphidTokenType.newKeyword)
+            else if (tokens.Length >= 2 &&
+                tokens[tokens.Length - 2].TokenType == AT.newKeyword)
             {
-                searchBuffer = tokens[tokens.Count - 1].Lexeme;
+                searchBuffer = tokens[tokens.Length - 1].Lexeme;
 
                 return FilterAndSortWords(CreateTypeAutocomplete(searchBuffer));
             }
-            else if (lastToken.TokenType == AphidTokenType.usingKeyword)
+            else if (lastToken.TokenType == AT.usingKeyword)
             {
                 searchBuffer = "";
 
-                return text[text.Length - 1] != 'g' ?
+                return subStr[subStr.Length - 1] != 'g' ?
                     FilterAndSortWords(CreateNamespaceAutocomplete(null)) :
-                    new Autocomplete[0];
+                    Array.Empty<AC>();
             }
-            else if (tokens.Count >= 2 && tokens[0].TokenType == AphidTokenType.usingKeyword)
+            else if (tokens.Length >= 2 && tokens[0].TokenType == AT.usingKeyword)
             {
                 searchBuffer = tokens.Skip(1).Select(x => x.Lexeme).Join();
 
@@ -107,25 +138,26 @@ namespace Components.Aphid.UI
             AphidExpression exp = null;
             AphidToken[] expTokens = null;
 
-            try
-            {
-                var parseTokens = inLastToken ?
-                    tokens :
-                    tokens.Take(tokens.Count - 1).ToList();
+            //try
+            //{
+            //    var parseTokens = inLastToken ?
+            //        tokens :
+            //        tokens.Take(tokens.Count - 1).ToList();
 
-                if (parseTokens.Count > 0)
-                {
-                    exp = AphidParser.Parse(parseTokens, subStr).LastOrDefault();
-                    expTokens = tokens.SkipWhile(x => x.Index != exp.Index).ToArray();
-                }
-                else
-                {
-                    expTokens = tokens.ToArray();
-                }
-            }
-            catch { }
+            //    if (parseTokens.Count > 0)
+            //    {
+            //        exp = AphidParser.Parse(parseTokens, subStr).LastOrDefault();
+            //        expTokens = tokens.SkipWhile(x => x.Index != exp.Index).ToArray();
+            //    }
+            //    else
+            //    {
+            //        expTokens = tokens.ToArray();
+            //    }
+            //}
+            //catch { }
+            expTokens = tokens;
 
-            IEnumerable<Autocomplete> words;
+            IEnumerable<AC> words;
 
             if (expTokens != null)
             {
@@ -145,138 +177,232 @@ namespace Components.Aphid.UI
             {
                 searchBuffer = "";
 
-                if (!allowEmptySearch && !isMemberAccess && !isMemberAccess)
+                if (!allowEmptySearch && !isMemberAccess)
                 {
-                    return null;
+                    words = GetGlobalWords();
+                    //return null;
                 }
             }
 
             return FilterAndSortWords(words);
         }
 
-        private IEnumerable<Autocomplete> ResolveAphidObject(AphidToken[] tokens, bool inLastToken)
+        private AphidObject CreateTypeMemberScope(IEnumerable<Type> types, bool isStatic = false)
+        {
+            var scope = AphidObject.Scope();
+            types
+                .SelectMany(x =>
+                    x.GetMembers(
+                        isStatic ?
+                            BindingFlags.Static |
+                            BindingFlags.FlattenHierarchy |
+                            BindingFlags.Public :
+                            BindingFlags.Instance |
+                            BindingFlags.Static |
+                            BindingFlags.FlattenHierarchy |
+                            BindingFlags.Public))
+                .GroupBy(x => x.Name)
+                .Iter(x => scope.Add(x.Key, AphidObject.Scalar(x.Distinct())));
+
+            scope.Add(AphidName.MemberSets, AphidObject.InternedTrue);
+
+            return scope;
+        }
+
+        private AphidObject CreateTypeMemberScope(Type type, bool isStatic = false)
+        {
+            var scope = AphidObject.Scope();
+            type
+                .GetMembers(
+                        isStatic ?
+                            BindingFlags.Static |
+                            BindingFlags.FlattenHierarchy |
+                            BindingFlags.Public :
+                            BindingFlags.Instance |
+                            BindingFlags.Static |
+                            BindingFlags.FlattenHierarchy |
+                            BindingFlags.Public)
+                .GroupBy(x => x.Name)
+                .Iter(x => scope.Add(x.Key, AphidObject.Scalar(x.Distinct())));
+
+            scope.Add(AphidName.MemberSets, AphidObject.InternedTrue);
+
+            return scope;
+        }
+
+        private IEnumerable<AC> ResolveAphidObject(AphidToken[] tokens, bool inLastToken)
         {
             var scope = _currentScope;
             bool inClrType = false, inStaticClrType = false;
 
             var staticTypes = _loader.GetStaticTypes(GetImports());
-            var tokenSet = !inLastToken ? tokens : tokens.Take(tokens.Length - 1);
+            var memberAccess = false;
+            var tokenSet = !inLastToken ? tokens : tokens.Take(tokens.Length - 1).ToArray();
 
-            foreach (var t in tokenSet)
+            for (var i = 0; i < tokenSet.Length; i++)
             {
+                var t = tokenSet[i];
+                var scanningLast = i == tokenSet.Length - 1;
+
+                //if (memberAccess)
+                //{
+                //    if (scope.TryGetValue(t.Lexeme, out var member))
+                //    {
+                //        scope = member;
+                //    }
+
+                //    memberAccess = false;
+
+                //    if (inLastToken)
+                //    {
+                //        return CreateAphidMemberAutocompleteSet(scope);
+                //    }
+                //}                
+
                 switch (t.TokenType)
                 {
-                    case AphidTokenType.MemberOperator:
+                    case AT.MemberOperator:
+                        memberAccess = true;
                         break;
 
-                    case AphidTokenType.Identifier:
-                        if (staticTypes.Any(x => x.Name == t.Lexeme))
+                    case AT.Identifier:
+                        if (inClrType || inStaticClrType)
+                        {
+                            inClrType = false;
+                            inStaticClrType = false;
+                            if (!scope.TryGetValue(t.Lexeme, out var memberSetObj))
+                            {
+                                scope = _currentScope;
+                                continue;
+                            }
+
+                            var memberSet = (IEnumerable<MemberInfo>)memberSetObj.Value;
+
+                            if (memberSet.Count() == 1)
+                            {
+                                var member = memberSet.First();
+
+                                if (member is PropertyInfo prop)
+                                {
+                                    scope = CreateTypeMemberScope(prop.PropertyType);
+                                    inClrType = true;
+                                }
+                                else if (member is FieldInfo field)
+                                {
+                                    scope = CreateTypeMemberScope(field.FieldType);
+                                    inClrType = true;
+                                }
+                                else if (member is MethodInfo m)
+                                {
+                                    scope = CreateTypeMemberScope(m.ReturnType);
+                                }
+                                else
+                                {
+                                    inClrType = false;
+                                    scope = _currentScope;
+                                }
+                            }
+                            else if (memberSet.OfType<MethodInfo>().Any())
+                            {
+                                inClrType = true;
+
+                                scope = CreateTypeMemberScope(memberSet
+                                    .OfType<MethodInfo>()
+                                    .Select(x => x.ReturnType).ToArray());                               
+                            }
+                            else
+                            {                                
+                                scope = _currentScope;
+                            }
+                        }
+                        else if (staticTypes.Any(x => x.Name == t.Lexeme))
                         {
                             inStaticClrType = true;
 
-                            // First() hack until folding for overlapping types
-                            // is implemented.
-                            var staticType = staticTypes.First(x => x.Name == t.Lexeme);
-                            scope = AphidObject.Scope();
-
-                            foreach (var m in staticType
-                                .GetMembers(BindingFlags.Public | BindingFlags.Static)
-                                .GroupBy(x => x.Name))
-                            {
-                                // Todo: add all instead of first
-                                scope.Add(m.Key, AphidObject.Scalar(m.First()));
-                            }
-                        }
-                        else if (inStaticClrType)
-                        {
-                            scope = AphidObject.Scope();
-
-                            if (scope.Value == null)
-                            {
-                                return new Autocomplete[0];
-                            }
-
-                            foreach (var m in ((Type)scope.Value)
-                                .GetMembers(BindingFlags.Public | BindingFlags.Static)
-                                .GroupBy(x => x.Name))
-                            {
-                                scope.Add(m.Key, AphidObject.Scalar(m.First()));
-                            }
+                            scope = CreateTypeMemberScope(
+                                staticTypes.Where(x => x.Name == t.Lexeme),
+                                isStatic: true);
                         }
                         else if (!inClrType && scope.Value == null)
                         {
                             if (!scope.TryResolve(t.Lexeme, out scope))
                             {
-                                return new Autocomplete[0];
+                                scope = _currentScope;                                
+                            }
+                            else if (scope.Value != null)
+                            {
+                                inClrType = true;
+
+                                scope = CreateTypeMemberScope(scope.Value.GetType());
                             }
                         }
                         else if (scope.Value == null && scope.Keys.Count == 0)
                         {
-                            return new Autocomplete[0];
-                        }
-                        else if (scope.Value != null)
-                        {
-                            inClrType = true;
-                            return CreateTypeMemberObject(scope.Value.GetType());
-                        }
-                        else if (inClrType)
-                        {
-                            if (!scope.TryGetValue(t.Lexeme, out var obj))
-                            {
-                                return new Autocomplete[0];
-                            }
-
-                            var prop = obj.Value as PropertyInfo;
-                            var field = obj.Value as FieldInfo;
-
-                            if (prop != null)
-                            {
-                                return CreateTypeMemberObject(prop.PropertyType);
-                            }
-                            else if (field != null)
-                            {
-                                return CreateTypeMemberObject(field.FieldType);
-                            }
-                            else
-                            {
-                                return new Autocomplete[0];
-                            }
-                        }
+                            scope = _currentScope;
+                        }                        
                         else
                         {
                             throw new NotImplementedException();
                         }
+
+                        break;
+
+                    default:
+                        //memberAccess = false;
+                        //inClrType = false;
+                        //inStaticClrType = false;
+                        //scope = _currentScope;
                         break;
                 }
             }
 
-            if (inStaticClrType)
+            if (inStaticClrType || inClrType || scope.ContainsKey(AphidName.MemberSets))
             {
-                return scope.Select(x => CreateMemberAutocomplete((MemberInfo)x.Value.Value));
+                return CreateMemberGroupAutoCompleteSet(scope);
             }
-
-            if (scope.Value == null)
+            else if (scope.Value == null)
             {
-                var ac = CreateAphidMemberAutocompleteSet(scope, scope.Keys);
-
                 if (_currentScope == scope)
                 {
-                    ac = ac.Concat(
-                        _loader.GetStaticTypes(GetImports())
-                            .Select(x => new Autocomplete(x.Name, x.Name)));
+                    return CreateAphidMemberAutocompleteSet(scope)
+                        .Concat(_loader.GetAllTypes(GetImports())
+                        .Select(x => new AC(x.Name, x.Name))
+                        .Concat(_keywords.Value))
+                        #if NO_LAZY_EVAL
+                        .ToArray()
+                        #endif
+                        ;
                 }
-
-                return ac;
-                //return scope.Keys;
+                else
+                {
+                    return CreateAphidMemberAutocompleteSet(scope, scope.Keys);
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
             }
 
-            return CreateTypeMemberObject(scope.Value.GetType());
+            return CreateMemberGroupAutoCompleteSet(CreateTypeMemberScope(scope.Value.GetType()));
         }
 
-        private IEnumerable<Autocomplete> GetGlobalWords() =>
-            CreateAphidMemberAutocompleteSet(_currentScope);
+        private IEnumerable<AC> CreateMemberGroupAutoCompleteSet(AphidObject scope)
+        { 
+            scope.Remove(AphidName.MemberSets);
 
-        private static IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(AphidObject scope)
+            return scope
+                .SelectMany(x => (IEnumerable<MemberInfo>)x.Value.Value)
+                .Select(CreateMemberAutocomplete)
+                #if NO_LAZY_EVAL
+                .ToArray()
+                #endif
+                ;
+        }
+
+        private IEnumerable<AC> GetGlobalWords() =>
+            CreateAphidMemberAutocompleteSet(_currentScope);
+        
+        private static IEnumerable<AC> CreateAphidMemberAutocompleteSet(AphidObject scope)
         {
             var words = CreateAphidMemberAutocompleteSet(scope, scope.Keys);
 
@@ -288,18 +414,18 @@ namespace Components.Aphid.UI
             return words;
         }
 
-        private static IEnumerable<Autocomplete> CreateAphidMemberAutocompleteSet(
+        private static IEnumerable<AC> CreateAphidMemberAutocompleteSet(
             AphidObject scope,
             IEnumerable<string> keys) => keys.Select(x => CreateAphidMemberAutocomplete(scope, x));
 
-        private static Autocomplete CreateAphidMemberAutocomplete(AphidObject scope, string key)
+        private static AC CreateAphidMemberAutocomplete(AphidObject scope, string key)
         {
-            var view = key;
+            var sb = new StringBuilder(key);
             var obj = scope[key];
 
             if (obj == null || (obj.Value == null && obj.Count == 0))
             {
-                view += " null";
+                sb.Append(" null");
             }
             else if (obj.Keys.Count > 0)
             {
@@ -312,73 +438,54 @@ namespace Components.Aphid.UI
                 //    .Join(", ");
 
                 //view += string.Format(" {{ {0} }}", objKeys);
-                view += " { }";
+                sb.AppendFormat(" {{ {0} members }}", obj.Keys.Count);
             }
-            else if (obj.Value != null)
+            else if (obj.Value is AphidFunction func)
             {
-                var func = obj.Value as AphidFunction;
-
-                if (func != null)
-                {
-                    view += "(" + string.Join(", ", func.Args) + ")";
-                }
-
-                var interopFunc = obj.Value as AphidInteropFunction;
-
-                if (interopFunc != null)
-                {
-                    view += CreateArgTuple(interopFunc.InvokeDelegate.Method);
-                }
-
-                if (func == null && interopFunc == null)
-                {
-                    view += string.Format(
-                        " {0}",
-                        obj.Value.GetType().Name);
-                }
+                sb.Append("(" + string.Join(", ", func.Args) + ")");
+            }
+            //else if (obj.Value is AphidInteropMember interopMember)
+            //{
+            //    sb.Append(CreateArgTuple(interopMember.Members.First()));
+            //}
+            else if  (obj.Value is AphidInteropFunction interopFunc)
+            {
+                sb.Append(CreateArgTuple(interopFunc.InvokeDelegate.Method));
+            }
+            else
+            {
+                sb.AppendFormat(" {0}", obj.Value.GetType().Name);
             }
 
-            return new Autocomplete(view, key);
+            return new AC(sb.ToString(), key);
         }
 
-        private static IEnumerable<Autocomplete> CreateTypeMemberObject(Type type)
+        private static AC CreateMemberAutocomplete(MemberInfo member)
         {
-            var scope = new List<Autocomplete>();
-
-            foreach (var m in type.GetMembers(BindingFlags.Instance | BindingFlags.Public))
-            {
-                scope.Add(CreateMemberAutocomplete(m));
-            }
-
-            return scope;
-        }
-
-        private static Autocomplete CreateMemberAutocomplete(MemberInfo member)
-        {
-            var view = member.Name;
+            var sb = new StringBuilder(member.Name);
 
             if (member is MethodBase mb)
             {
-                view += CreateArgTuple(mb);
+                sb.Append(CreateArgTuple(mb));
             }
             else if (member is PropertyInfo prop)
             {
-                view += " { ";
+                sb.Append(" { ");
                 var accessors = prop.GetAccessors();
                 if (accessors.Any(x => x.ReturnType != typeof(void)))
                 {
-                    view += "get; ";
+                    sb.Append("get; ");
                 }
 
                 if (accessors.Any(x => x.ReturnType == typeof(void)))
                 {
-                    view += "set; ";
+                    sb.Append("set; ");
                 }
 
-                view += string.Format("}} -> {0}", prop.PropertyType.Name);
+                sb.AppendFormat("}} -> {0}", prop.PropertyType.Name);
             }
 
-            return new Autocomplete(view, member.Name);
+            return new AC(sb.ToString(), member.Name);
         }
 
         private static string CreateArgTuple(MethodBase method)
@@ -396,14 +503,9 @@ namespace Components.Aphid.UI
                 string.Format("({0})", tup);
         }
 
-        private IEnumerable<Autocomplete> CreateTypeAutocomplete(string match = null)
+        private IEnumerable<AC> CreateTypeAutocomplete(string match = null)
         {
-            if (!_currentScope.TryGetValue(AphidName.Imports, out var importObj))
-            {
-                return new Autocomplete[0];
-            }
-
-            var imports = (HashSet<string>)importObj.Value;
+            var imports = GetImports();
 
             var types = _loader
                 .GetAssemblies()
@@ -419,7 +521,7 @@ namespace Components.Aphid.UI
             var typeMatches = types
                 .Where(x =>
                     match != null ? x.DeclaringType.Name.StartsWith(match) : true)
-                .Select(x => new Autocomplete(
+                .Select(x => new AC(
                     x.DeclaringType.Name + CreateArgTuple(x),
                     x.DeclaringType.Name));
 
@@ -431,7 +533,7 @@ namespace Components.Aphid.UI
             return typeMatches;
         }
 
-        private IEnumerable<Autocomplete> CreateNamespaceAutocomplete(string match = null) =>
+        private IEnumerable<AC> CreateNamespaceAutocomplete(string match = null) =>
             _loader
                 .GetAssemblies()
                 .SelectMany(x => x.TryGetTypes() ?? Array.Empty<Type>())
@@ -444,7 +546,7 @@ namespace Components.Aphid.UI
                 })
                 .Where(x => match == null || x.Namespace.StartsWith(match))
                 .GroupToDictionary(x => x.Namespace, x => x.Select(y => y.Assembly).Distinct())
-                .Select(x => new Autocomplete(
+                .Select(x => new AC(
                     string.Format(
                         "{0} -> {1}",
                         x.Key,
@@ -455,7 +557,7 @@ namespace Components.Aphid.UI
                             .Join(", ")),
                     x.Key));
 
-        private static IEnumerable<Autocomplete> FilterAndSortWords(IEnumerable<Autocomplete> words) =>
+        private static IEnumerable<AC> FilterAndSortWords(IEnumerable<AC> words) =>
             words
                 .Where(x =>
                     _wordContainsIgnore.None(y => x.Text.Contains(y)) &&
@@ -465,9 +567,9 @@ namespace Components.Aphid.UI
 
         private HashSet<string> GetImports()
         {
-            if (!_currentScope.TryGetValue(AphidName.Imports, out var importObj))
+            if (!_currentScope.TryResolve(AphidName.Imports, out var importObj))
             {
-                return new HashSet<string>();
+                return new HashSet<string>(AphidConfig.Current.Imports);
             }
 
             return (HashSet<string>)importObj.Value;

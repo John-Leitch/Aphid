@@ -19,6 +19,9 @@
 		{
 			"name": "Benchmarks",
 			"path": "Aphid/Benchmarks"
+		},
+		{
+			"path": "build"
 		}
 	],
 	"settings": {        
@@ -26,7 +29,6 @@
             "**/*.alx.*": true,
             "**/*.cache": true,
             "**/*.cacheMetadata": true,
-            "**/*.cmd": true,
             "**/*.cs": true,
             "**/*.csproj": true,
             "**/*.exe": true,

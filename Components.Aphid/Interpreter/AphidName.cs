@@ -18,6 +18,7 @@
             Code = "$code",
             Interpreter = "$aphid",
             DebugInterpreter = "$aphidDebug",
+            MemberSets = "$memberSets",
             OpenRepl = "openRepl",
             DumpSerializer = "dumpSerializer",
             Var = "var",

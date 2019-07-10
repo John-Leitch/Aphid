@@ -1,4 +1,6 @@
 @echo off
+pushd .
+cd /d c:\source\aphid\build
 call core\init.cmd
 
 for %%c in (Debug BinaryTrace Release) do (
@@ -22,4 +24,5 @@ echo ================================================================
 echo Error building Aphid!
 echo ================================================================
 :EXIT
+popd
 @echo on

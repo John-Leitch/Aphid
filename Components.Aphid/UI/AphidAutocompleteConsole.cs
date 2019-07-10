@@ -6,12 +6,13 @@ namespace Components.Aphid.UI
 {
     public class AphidAutocompleteConsole : AutocompleteConsole, IDisposable
     {
-        public AphidAutocompleteConsole(AphidInterpreter interpreter)
+        public AphidAutocompleteConsole(AphidInterpreter interpreter, bool useNativeApi)
             : base(
                 ">>>",
                 new AphidScanner(),
                 new AphidSyntaxHighlighter(),
-                new AphidScopeObjectAutocompletionSource(interpreter.CurrentScope))
+                new AphidScopeObjectAutocompletionSource(interpreter.CurrentScope),
+                useNativeApi)
         {
         }
 

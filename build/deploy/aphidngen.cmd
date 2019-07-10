@@ -1,5 +1,6 @@
 @echo off
 cls 
+set src=%~dp0..\..
 set dst=c:\tools\aphid
 set done=%dst%\aphidNgenDone.txt
 set working=%cd%
@@ -22,7 +23,7 @@ if "%1" neq "" (
 :RUN_CHILD
 echo Starting child
 del %done%
-run.exe -admin cmd /c call %~dp0%0 child
+run.exe -admin cmd /c call %~f0 child & pause
 echo Waiting
 :WAIT
 aphid64 * Thread.Sleep(10)
@@ -47,10 +48,10 @@ echo Starting Ngen
 pushd .
 cd /d %dst%
 for /f %%f in ('dir aphid*.exe /b') do %dst%\ngen.exe %cd%\%%f
-::for /f %%i in ('dir /s c:\source\Aphid\Components.Aphid.*Test*.dll /b') do c:\tools\aphid\Ngen.exe %%i
-for /f %%i in ('dir /s c:\source\Aphid\*bin /b') do for /f %%a in ('dir %%i\*.dll /s /b') do ngen %%a
+::for /f %%i in ('dir /s %src%\Components.Aphid.*Test*.dll /b') do %dst%\Ngen.exe %%i
+for /f %%i in ('dir /s %src%\*bin /b') do for /f %%a in ('dir %%i\*.dll /s /b') do ngen %%a
 pushd .
-for /f %%i in ('dir /s c:\source\Aphid\*bin /b') do for /f %%a in ('dir %i\*.dll /s /b') do cd /d %%~dpa & ngen %a
+for /f %%i in ('dir /s %src%\*bin /b') do for /f %%a in ('dir %i\*.dll /s /b') do cd /d %%~dpa & ngen %a
 echo Done > %done%
 popd
 ::pause

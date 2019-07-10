@@ -73,7 +73,10 @@ namespace Components
 
         private IEnumerable<Type> GetStaticTypesCore(HashSet<string> imports) =>
             GetAllTypes(imports)
-                .Where(x => x.GetMembers(BindingFlags.Public | BindingFlags.Static).Length > 0)
+                .Where(x => x.GetMembers(
+                    BindingFlags.Public |
+                    BindingFlags.Static |
+                    BindingFlags.FlattenHierarchy).Length > 0)
                 .ToArray();
 
         public Type ResolveFullType(string fullTypeName)

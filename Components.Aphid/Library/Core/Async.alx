@@ -67,6 +67,7 @@ var wait;
         sleep: Thread.Sleep,
         thread: _thread(_e()),
         background: _thread(t.IsBackground = true),
+        staThread: _thread(t.SetApartmentState(ApartmentState.STA)),
         then: @(action, task) task.ContinueWith(action),
         fatal: @(task) {
             task

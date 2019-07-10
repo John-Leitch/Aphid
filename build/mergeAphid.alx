@@ -1,7 +1,7 @@
 #'std';
 
 head('Creating Merged Binaries');
-var root = Path.Combine(this.'$script' | io.up | io.up, 'Aphid', 'bin');
+var root = this.'$script' | io.up | io.up , 'Aphid', 'bin');
 root :* 'aphid*portable*.*' -> io.del;
 var d = Directory.GetCurrentDirectory(); // Todo: io.cwd() and io.cd()
 root :* '*aphid*.exe' -> io.full -?(@()!$_.ToLower().Contains('trace')) -> @{

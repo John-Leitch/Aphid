@@ -42,6 +42,10 @@ namespace Aphid
             {
                 RunStatements(args);
             }
+            else if (args[0][0] == '!')
+            {
+                RunQuotedStatements(args);
+            }
             else
             {
                 RunScript(args);
@@ -118,6 +122,9 @@ namespace Aphid
 
         private static void RunStatements(string[] args) =>
             AphidEvaluator.Eval(GetInlineCode('*'));
+
+            private static void RunQuotedStatements(string[] args) =>
+            AphidEvaluator.Eval(StringParser.Parse(GetInlineCode('!')));
 
         private static string GetInlineCode(char startToken)
         {

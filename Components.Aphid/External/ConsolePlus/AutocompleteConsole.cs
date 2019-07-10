@@ -2,11 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static System.Console;
+using static System.ConsoleKey;
 
 namespace Components.External.ConsolePlus
 {
     public class AutocompleteConsole
     {
+        private ConsoleGraphics _gfx;
+
+        private readonly string _prompt;
+
+        private readonly List<string> _history = new List<string>();
+
+        private bool _autocompleteActive, _forceAutocomplete;
+
         private int
             _autocompleteLeft,
             _autocompleteTop,
@@ -15,25 +25,18 @@ namespace Components.External.ConsolePlus
             _autocompleteIndex,
             _oldLeft,
             _oldTop,
-            _cursorIndex;
+            _cursorIndex,
+            _historyIndex;
 
-        private string _consoleBuffer = "";
+        private string _consoleBuffer = "", _searchBuffer;        
 
-        private bool _autocompleteActive;
+        private Autocomplete[] _matches = Array.Empty<Autocomplete>();
 
-        private Autocomplete[] _matches = new Autocomplete[0];
+        public int MaxHistoryCount { get; set; } = 100;
 
-        private string _searchBuffer;
+        public int MaxListSize { get; set; } = 10;
 
-        private readonly string _prompt;
-
-        private bool _forceAutocomplete;
-
-        private int _historyIndex;
-
-        private readonly List<string> _history = new List<string>();
-
-        public int MaxListSize { get; set; }
+        public string TabValue { get; set; } = "    ";
 
         public IScanner Scanner { get; }
 
@@ -41,20 +44,25 @@ namespace Components.External.ConsolePlus
 
         public IAutocompletionSource Source { get; }
 
-        public int MaxHistoryCount { get; set; }
+        public bool UseNativeApi { get; }
 
         public AutocompleteConsole(
             string prompt,
             IScanner scanner,
             ISyntaxHighlighter highlighter,
-            IAutocompletionSource sources)
+            IAutocompletionSource sources,
+            bool useNativeApi)
         {
-            MaxListSize = 10;
-            MaxHistoryCount = 100;
             _prompt = prompt;
             Scanner = scanner;
             Highlighter = highlighter;
             Source = sources;
+            
+            if (UseNativeApi = useNativeApi)
+            {
+                _gfx = new ConsoleGraphics();
+                _gfx.Init();
+            }
         }
 
         public string ReadLine()
@@ -63,28 +71,38 @@ namespace Components.External.ConsolePlus
 
             while (true)
             {
-                var k = Console.ReadKey(true);
+                var k = ReadKey(true);
 
                 if (_autocompleteActive)
                 {
                     _autocompleteActive = false;
 
-                    Erase(
-                        _autocompleteLeft,
-                        _autocompleteTop,
-                        _autocompleteWidth,
-                        _autoCompleteHeight);
+                    if (!UseNativeApi)
+                    {
+                        Erase(
+                            _autocompleteLeft,
+                            _autocompleteTop,
+                            _autocompleteWidth,
+                            _autoCompleteHeight);
+                    }
+                    else
+                    {
+                        NativeErase(
+                            _autocompleteLeft,
+                            _autocompleteTop,
+                            _autocompleteWidth,
+                            _autoCompleteHeight);
+                    }
                 }
 
                 if (k.Modifiers == ConsoleModifiers.Control &&
-                    k.Key == ConsoleKey.Spacebar)
+                    k.Key == Spacebar)
                 {
                     _forceAutocomplete = true;
                     UpdateAutocomplete();
                     continue;
                 }
-                else if (k.Key != ConsoleKey.UpArrow &&
-                    k.Key != ConsoleKey.DownArrow)
+                else if (k.Key != UpArrow && k.Key != DownArrow)
                 {
                     _historyIndex = -1;
                     _forceAutocomplete = false;
@@ -92,42 +110,42 @@ namespace Components.External.ConsolePlus
 
                 switch (k.Key)
                 {
-                    case ConsoleKey.LeftArrow:
+                    case LeftArrow:
                         InterpretHorizontalArrow(left: true);
                         break;
 
-                    case ConsoleKey.RightArrow:
+                    case RightArrow:
                         InterpretHorizontalArrow(left: false);
                         break;
 
-                    case ConsoleKey.UpArrow:
+                    case UpArrow:
                         InterpretVerticalArrow(up: true);
                         break;
 
-                    case ConsoleKey.DownArrow:
+                    case DownArrow:
                         InterpretVerticalArrow(up: false);
                         break;
 
-                    case ConsoleKey.Tab:
+                    case Tab:
                         InterpretTab();
                         break;
 
-                    case ConsoleKey.Home:
+                    case Home:
                         InterpretHome();
                         break;
 
-                    case ConsoleKey.End:
+                    case End:
                         InterpretEnd();
                         break;
 
-                    case ConsoleKey.Enter:
+                    case Enter:
                         return InterpretEnter();
 
-                    case ConsoleKey.Backspace:
+                    case Backspace:
                         InterpretBackspace();
                         break;
 
-                    case ConsoleKey.Delete:
+                    case Delete:
                         InterpretDelete();
                         break;
 
@@ -183,8 +201,8 @@ namespace Components.External.ConsolePlus
             }
             else
             {
-                _consoleBuffer += "    ";
-                _cursorIndex += "    ".Length;
+                _consoleBuffer = _consoleBuffer.Insert(_cursorIndex, TabValue);
+                _cursorIndex += TabValue.Length;
             }
 
             if (remaining != null)
@@ -194,7 +212,7 @@ namespace Components.External.ConsolePlus
                     remaining = remaining.Substring(_searchBuffer.Length);
                 }
 
-                _consoleBuffer += remaining;
+                _consoleBuffer = _consoleBuffer.Insert(_cursorIndex, remaining);
                 _cursorIndex += remaining.Length;
                 _searchBuffer = "";
             }
@@ -216,13 +234,19 @@ namespace Components.External.ConsolePlus
 
         private string InterpretEnter()
         {
-            Console.WriteLine();
-            var value = _consoleBuffer;
-            _history.Insert(0, value);
+            WriteLine();
 
-            if (_history.Count > MaxHistoryCount)
+            var value = _consoleBuffer;
+
+            if (value.Trim() != "" &&
+                (_history.Count == 0 || _history[0] != value))
             {
-                _history.Remove(_history.Last());
+                _history.Insert(0, value);
+
+                if (_history.Count > MaxHistoryCount)
+                {
+                    _history.Remove(_history.Last());
+                }
             }
 
             _consoleBuffer = "";
@@ -254,6 +278,11 @@ namespace Components.External.ConsolePlus
 
         private void InterpretOther(ConsoleKeyInfo k)
         {
+            if (k.KeyChar < 0x20 || k.KeyChar > 0x7f)
+            {
+                return;
+            }
+
             var keyStr = k.KeyChar.ToString();
             _consoleBuffer = _consoleBuffer.Insert(_cursorIndex, keyStr);
             _cursorIndex++;
@@ -263,8 +292,8 @@ namespace Components.External.ConsolePlus
 
         private void DrawText(bool skipAutocomplete = false)
         {
-            var backup = Console.CursorVisible;
-            Console.CursorVisible = false;
+            var backup = CursorVisible;
+            CursorVisible = false;
             var sb = new StringBuilder(string.Format("\r{0}", _prompt));
 
             foreach (var t in Highlighter.Highlight(_consoleBuffer))
@@ -272,28 +301,28 @@ namespace Components.External.ConsolePlus
                 VT100.Append(sb, t);
             }
 
-            Console.Write(sb.ToString());
+            Write(sb.ToString());
 
             if (!skipAutocomplete)
             {
                 UpdateAutocomplete();
             }
 
-            Console.CursorVisible = backup;
+            CursorVisible = backup;
         }
 
         private void BackupCursor()
         {
-            _oldLeft = Console.CursorLeft;
-            _oldTop = Console.CursorTop;
+            _oldLeft = CursorLeft;
+            _oldTop = CursorTop;
         }
 
-        private void RestoreCursor() => Console.SetCursorPosition(_oldLeft, _oldTop);
+        private void RestoreCursor() => SetCursorPosition(_oldLeft, _oldTop);
 
         private void Erase(int left, int top, int width, int height)
         {
-            var backup = Console.CursorVisible;
-            Console.CursorVisible = false;
+            var backup = CursorVisible;
+            CursorVisible = false;
             BackupCursor();
             var line = new string(' ', width);
 
@@ -301,17 +330,28 @@ namespace Components.External.ConsolePlus
             {
                 var t = top + i;
 
-                if (t >= Console.BufferHeight)
+                if (t >= BufferHeight)
                 {
                     continue;
                 }
-
-                Console.SetCursorPosition(left, t);
-                Console.Write(line);
+                
+                SetCursorPosition(left, t);
+                Write(line);
             }
 
             RestoreCursor();
-            Console.CursorVisible = backup;
+            CursorVisible = backup;
+        }
+
+        private void NativeErase(int left, int top, int width, int height)
+        {
+            if (_gfx.CanvasWidth != WindowWidth || _gfx.CanvasHeight != WindowHeight)
+            {
+                _gfx.UpdateCanvas();
+            }
+
+            _gfx.SetWriteRegion((short)left, (short)top, (short)width, (short)height);
+            _gfx.Render();
         }
 
         private void UpdateAutocomplete() => UpdateAutocomplete(clearMatches: true);
@@ -334,7 +374,7 @@ namespace Components.External.ConsolePlus
 
                 if ((!_forceAutocomplete && tokens.Length == 0) || matches == null)
                 {
-                    _matches = new Autocomplete[0];
+                    _matches = Array.Empty<Autocomplete>();
 
                     return;
                 }
@@ -359,13 +399,13 @@ namespace Components.External.ConsolePlus
                 _autocompleteIndex = 0;
             }
 
-            var oldTop = Console.CursorTop;
+            var oldTop = CursorTop;
 
             _autocompleteWidth = _matches.Length != 0 ?
                 _matches.Max(x => Cli.EraseStyles(x.View).Length) : 0;
 
             var maxWidth =
-                Console.WindowWidth -
+                WindowWidth -
                 _prompt.Length -
                 _cursorIndex +
                 _searchBuffer.Length -
@@ -383,7 +423,7 @@ namespace Components.External.ConsolePlus
 
             _autocompleteActive = true;
             _autocompleteLeft = _cursorIndex + _prompt.Length + 0 - _searchBuffer.Length;
-            _autocompleteTop = Console.CursorTop + 1;
+            _autocompleteTop = CursorTop + 1;
 
             _autoCompleteHeight = _matches.Length < GetMaxResults() ?
                 _matches.Length :
@@ -394,23 +434,25 @@ namespace Components.External.ConsolePlus
                 _autocompleteWidth = maxWidth;
             }
 
-            int tmpLeft = Console.CursorLeft;
+            var tmpLeft = CursorLeft;
 
-            var linesNeeded = _autoCompleteHeight + Console.CursorTop + 1 - Console.BufferHeight;
-            var t = Console.CursorTop;
+            var linesNeeded = _autoCompleteHeight + CursorTop + 1 - BufferHeight;
+            var t = CursorTop;
 
             if (linesNeeded > 0)
             {
                 oldTop -= linesNeeded;
                 t -= linesNeeded;
+                Write(new string('\n', linesNeeded));
             }
 
-            for (var i = 0; i < linesNeeded; i++)
-            {
-                Console.WriteLine();
-            }
+            
+            //for (var i = 0; i < linesNeeded; i++)
+            //{
+            //    WriteLine();
+            //}
 
-            Console.SetCursorPosition(tmpLeft, t);
+            SetCursorPosition(tmpLeft, t);
 
             var entryNum = -1;
             var linesDrawn = 0;
@@ -425,18 +467,18 @@ namespace Components.External.ConsolePlus
                     continue;
                 }
 
-                var top = Console.CursorTop + 1;
-                Console.SetCursorPosition(_autocompleteLeft, top);
+                var top = CursorTop + 1;
+                SetCursorPosition(_autocompleteLeft, top);
 
                 if (_autocompleteIndex != entryNum)
                 {
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    Console.BackgroundColor = ConsoleColor.White;
+                    ForegroundColor = ConsoleColor.Black;
+                    BackgroundColor = ConsoleColor.White;
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.BackgroundColor = ConsoleColor.Blue;
+                    ForegroundColor = ConsoleColor.White;
+                    BackgroundColor = ConsoleColor.Blue;
                 }
 
                 // Hack, until Cli tokenizer is rewritten and exposed
@@ -444,16 +486,16 @@ namespace Components.External.ConsolePlus
                 var viewLen = Cli.EraseStyles(n.View).Length;
                 var viewStr = viewLen <= maxWidth ? n.View : n.View.Remove(maxWidth);
                 var space = _autocompleteWidth - (viewLen <= maxWidth ? viewLen : maxWidth);
-                Console.Write(viewStr + (space > 0 ? new string(' ', space) : ""));
+                Write(viewStr + (space > 0 ? new string(' ', space) : ""));
                 linesDrawn++;
             }
 
-            Console.ResetColor();
-            Console.SetCursorPosition(_prompt.Length + _cursorIndex, oldTop);
+            ResetColor();
+            SetCursorPosition(_prompt.Length + _cursorIndex, oldTop);
         }
 
         private void SetCursor() =>
-            Console.SetCursorPosition(_prompt.Length + _cursorIndex, Console.CursorTop);
+            SetCursorPosition(_prompt.Length + _cursorIndex, CursorTop);
 
         private void SetHistoryValue(bool up)
         {
@@ -476,11 +518,7 @@ namespace Components.External.ConsolePlus
 
             if (_consoleBuffer.Length > historyVal.Length)
             {
-                Erase(
-                    _prompt.Length,
-                    Console.CursorTop,
-                    _consoleBuffer.Length,
-                    1);
+                Erase(_prompt.Length, CursorTop, _consoleBuffer.Length, 1);
             }
 
             _consoleBuffer = historyVal;
@@ -492,24 +530,24 @@ namespace Components.External.ConsolePlus
         private void EraseChar(int index)
         {
             _consoleBuffer = _consoleBuffer.Remove(index, 1);
-            Console.CursorVisible = false;
+            CursorVisible = false;
 
-            Console.SetCursorPosition(
+            SetCursorPosition(
                 _prompt.Length + _consoleBuffer.Length,
-                Console.CursorTop);
+                CursorTop);
 
-            Console.Write(" ");
+            Write(" ");
             DrawText();
 
-            Console.SetCursorPosition(
+            SetCursorPosition(
                 _prompt.Length + _cursorIndex,
-                Console.CursorTop);
+                CursorTop);
 
-            Console.CursorVisible = true;
+            CursorVisible = true;
         }
 
-        private int GetMaxResults() => Math.Min(Console.WindowHeight - 6, MaxListSize);
+        private int GetMaxResults() => Math.Min(WindowHeight - 6, MaxListSize);
 
-        private int GetMaxWidth() => Console.WindowWidth - _autocompleteLeft - 1;
+        private int GetMaxWidth() => WindowWidth - _autocompleteLeft - 1;
     }
 }

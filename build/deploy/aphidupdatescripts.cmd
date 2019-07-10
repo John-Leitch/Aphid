@@ -15,8 +15,14 @@ for %%i in (Samples Benchmarks) do (
 set msg=Updating Library Scripts
 %hr%
 
-for %%i in (Library Tools) do (
-    xcopy c:\source\aphid\Components.Aphid\%%i\*.alx c:\tools\aphid\%%i\ %a%
+
+for %%d in (c:\tools\aphid c:\users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug) do (
+    echo Cleaning %%d cache
+    del /s /ah %%d\*.cache*
+    for %%i in (Library Tools) do (
+        echo Updating %%d\%%i
+        xcopy c:\source\aphid\Components.Aphid\%%i\*.alx %%d\%%i\ %a%
+    )
 )
 
 @echo on

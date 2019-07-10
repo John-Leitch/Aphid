@@ -67,7 +67,7 @@ namespace Components.Aphid.UI
                 Interpreter = new AphidInterpreter();
             }
 
-            using (var console = new AphidAutocompleteConsole(Interpreter))
+            using (var console = new AphidAutocompleteConsole(Interpreter, true))
             {
                 while (true)
                 {
@@ -107,7 +107,7 @@ namespace Components.Aphid.UI
                         {
                             Cli.WriteCriticalErrorMessage(
                                 "Internal error encountered in autocomplete console:\r\n{0}",
-                                e.Message);
+                                e);
 
                             AphidErrorReporter.Report(e, Interpreter, passThrough: true);
 
