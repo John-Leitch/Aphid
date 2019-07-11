@@ -88,10 +88,11 @@ var csharp;
             templates.entrypoint(ns, cl) @io.txt(entryFile);
             csharp.roslyn.enable();
             csharp.exeCfg(ns, cl, asm);  
-            csharp.optimize();      
+            csharp.optimize();
+
             ret csharp.compileAsmFromFiles([entryFile, csFile]);
         },
-        
+
         templates: {
             entrypoint: @(namespace, class)
                 strOut(@{%>
@@ -601,17 +602,18 @@ var csharp;
             getPackageDir: @(p) 'packages' | io.app.path @io.first.dir('{0}.{1}' :: p.Values), 
             getCsc: @() packages.codeDom | getPackageDir @io.first.file('csc.exe'),
             verify: @{
-                var missing = packages.Values -> getPackageDir -? io.no.dir;
+                var missing = packages.Values -? getPackageDir @> io.no.dir;
 
                 if ((missing#!) > 0) {
-                    missing->printError('Package not found: ~Yellow~{0}.{1}~R~');
+                    missing-> @() printError('Package not found: ~Yellow~{0}.{1}~R~', $_.name, $_.version);
                     ret false;
                 }
 
                 var csc = getCsc();
 
                 if (csc == null || csc | io.not.file) {
-                    packages.compiler @printError('Could not locate csc.exe from ~Yellow~{0}.{1}~R~ package');
+                    packages.compiler 
+                    @() printError('Could not locate csc.exe from ~Yellow~{0}.{1}~R~ package', $_.name);
                     ret false;
                 }
 
@@ -620,7 +622,7 @@ var csharp;
             update: @{
                 #'System/Nuget';
 
-                packages->@() installPackage($_.name, $_.version);
+                packages.Values->@() installPackage($_.name, $_.version);
 
                 if (!verify()) {
                     throw new InvalidOperationException('Could not install Roslyn packages');
@@ -642,7 +644,14 @@ var csharp;
                 var settings = f.GetValue(csharp.provider);
                 var f2 = settings @getField('_compilerFullPath');        
                 var oldPath = f2.GetValue(settings);
-                f2.SetValue(settings, getCsc());
+                var csc = getCsc();
+
+                if (oldPath == csc) {
+                    printSuccess('CodeDom path already set to ~Cyan~{0}~R~', csc);
+                    ret null;
+                }
+
+                f2.SetValue(settings, csc);
                 var v = f2.GetValue(settings);
 
                 if (v == oldPath) {

@@ -1,5 +1,6 @@
 ﻿//#'DebugDeploy';
 #'Std';
+#'Meta\\Code\\Compiler';
 #'Meta\\Code\\Generation\\IL';
 #'System\\Nuget';
 using Components.Aphid.Interpreter;
@@ -21,7 +22,7 @@ var args =
     -.Value
     @() new List[Object]($_);
 
-var usage = 'MakeExe {-noMerge} {-dumpCode} [script name] {exe name} {merge assemblies/search paths...}';
+var usage = 'MakeExe {-noMerge} {-medusa} {-dumpCode} [script name] {exe name} {merge assemblies/search paths...}';
 
 if (args.Count == 0) {
     print(usage);
@@ -29,6 +30,7 @@ if (args.Count == 0) {
 }
 
 _ab(noMerge);
+_ab(medusa);
 _ab(dumpCode);
 
 var script = args[0] | Path.GetFullPath;
@@ -69,123 +71,126 @@ if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
     p |> keys -> @() properties.{$_} = p.{$_};
 }
 
-printInfo('Starting preprocessing');
-var partialOpMutator = new PartialOperatorMutator();
-var macroMutator = new AphidMacroMutator();
-var directiveMutator = new AphidPreprocessorDirectiveMutator();
-var includeMutator = new IncludeMutator(scriptDir);
-//includeMutator.PerformCommonTransformations = false;
-var constantFoldingMutator = new ConstantFoldingMutator();
-
-var srcAst = scriptAst
-    |> partialOpMutator.Mutate
-    |> macroMutator.Mutate
-    |> directiveMutator.Mutate
-    |> includeMutator.Mutate
-    |> constantFoldingMutator.Mutate;
-
-printSuccess('Preprocessing complete');
-printInfo('Creating projecting into bytecode', byteCodeFile);
-var byteCode = srcAst | AphidByteCode.Encode;
-printSuccess('Projected into ~Cyan~{0:n0}~R~ byte stream', byteCode.Length);
 
 var outFile = properties.path | Path.GetFullPath;
 var getOutFile = @Path.ChangeExtension(outFile);
 
-if (dumpCode) {
-    subhead('Code Dump Begin');
+if (!medusa) {
+    printInfo('Starting preprocessing');
+    preprocessor.inlineScripts = true;
+    var srcAst = scriptAst | preprocessor.transform;
 
-    var code = byteCode
-        | AphidByteCode.Decode
-        // ->(@()$_.ToString() + (($_.IsStatement() || $_.isUsing()) ? '' : ';\r\n'))
-        ->(@()$_.ToString() + ($_.IsStatement() ? '' : ';\r\n'))
+    printSuccess('Preprocessing complete');
+    printInfo('Projecting into bytecode', byteCodeFile);
+    var byteCode = srcAst | AphidByteCode.Encode;
+    printSuccess('Projected into ~Cyan~{0:n0}~R~ byte stream', byteCode.Length);
 
-        // ->(@()$_.ToString() +
-        //     (($_.IsStatement() ||
-        //     ($_.Operator defined && $_.Operator == AphidTokenType.retKeyword)) ?
-        //         '' :
-        //         ';\r\n'))
-        @join('\r\n');
+    if (dumpCode) {
+        subhead('Code Dump Begin');
 
-    code |> SyntaxHighlightingFormatter.Format @print('{0}');
+        var code = byteCode
+            | AphidByteCode.Decode
+            // ->(@()$_.ToString() + (($_.IsStatement() || $_.isUsing()) ? '' : ';\r\n'))
+            ->(@()$_.ToString() + ($_.IsStatement() ? '' : ';\r\n'))
 
-    subhead('Code Dump End');
-    print();    
-    var codeDumpFile = 'exe.dump.alx' | getOutFile;
-    code @File.WriteAllText(codeDumpFile);
-    codeDumpFile @printSuccess('Dumped embedded code to ~Green~{0}~R~');
-}
+            // ->(@()$_.ToString() +
+            //     (($_.IsStatement() ||
+            //     ($_.Operator defined && $_.Operator == AphidTokenType.retKeyword)) ?
+            //         '' :
+            //         ';\r\n'))
+            @join('\r\n');
 
-properties.streams = { ByteCode: new MemoryStream(byteCode) };
-printInfo('Assembly attributes:');
-properties |> keys -> @() print('    [{0}] ~White~{1}~R~', $_, properties.{$_});
-print();
+        code |> SyntaxHighlightingFormatter.Format @print('{0}');
 
-printInfo('Creating module from ~Cyan~{0}~R~', script);
-
-var addAttrs = @(asm) {
-    if (!(properties.mergeAttrs defined)) {
-        ret null;
+        subhead('Code Dump End');
+        print();    
+        var codeDumpFile = 'exe.dump.alx' | getOutFile;
+        code @File.WriteAllText(codeDumpFile);
+        codeDumpFile @printSuccess('Dumped embedded code to ~Green~{0}~R~');
     }
 
-    subhead('Attribute Merging');
+    properties.streams = { ByteCode: new MemoryStream(byteCode) };
+    printInfo('Assembly attributes:');
+    properties |> keys -> @() print('    [{0}] ~White~{1}~R~', $_, properties.{$_});
+    print();
 
-    properties.mergeAttrs->@(attrMerge) {
-        var srcAsm = load attrMerge.asm;
+    printInfo('Creating module from ~Cyan~{0}~R~', script);
 
-        if (srcAsm == null) {
-            printError(
-                'Failed copying attributes, could not load source assembly ~Yellow~{0}~R~',
-                attrMerge.asm);
+    var addAttrs = @(asm) {
+        if (!(properties.mergeAttrs defined)) {
             ret null;
         }
 
-        printQuery('Loaded ~Cyan~{0}~R~', srcAsm);
-        
-        if (attrMerge.patterns defined && (attrMerge.patterns #!) > 0) {
-            print(
-                '    {0} using namespace patterns:\r\n{1}',
-                srcAsm,
-                attrMerge.patterns->@format('    {0}')@join('\r\\n'));
-        }
-        
-        var clonedAttrs = attrMerge.patterns-<@(p) srcAsm @asmAttrs.clone(p);
+        subhead('Attribute Merging');
 
-        if (clonedAttrs | Enumerable.Any) {
-            clonedAttrs #! @printSuccess('Cloned ~Cyan~{0}~R~ assembly attributes');
-            clonedAttrs->asm.SetCustomAttribute;
-        } else {
-            printError('Failed to match any assembly attributes');
+        properties.mergeAttrs->@(attrMerge) {
+            var srcAsm = load attrMerge.asm;
+
+            if (srcAsm == null) {
+                printError(
+                    'Failed copying attributes, could not load source assembly ~Yellow~{0}~R~',
+                    attrMerge.asm);
+                ret null;
+            }
+
+            printQuery('Loaded ~Cyan~{0}~R~', srcAsm);
+            
+            if (attrMerge.patterns defined && (attrMerge.patterns #!) > 0) {
+                print(
+                    '    {0} using namespace patterns:\r\n{1}',
+                    srcAsm,
+                    attrMerge.patterns->@format('    {0}')@join('\r\\n'));
+            }
+            
+            var clonedAttrs = attrMerge.patterns-<@(p) srcAsm @asmAttrs.clone(p);
+
+            if (clonedAttrs | Enumerable.Any) {
+                clonedAttrs #! @printSuccess('Cloned ~Cyan~{0}~R~ assembly attributes');
+                clonedAttrs->asm.SetCustomAttribute;
+            } else {
+                printError('Failed to match any assembly attributes');
+            }
         }
+    };
+
+
+
+    ([ getOutFile('pdb'), outFile ]-?File.Exists)
+        -%@printInfo('Deleting ~Cyan~{0}~R~')
+        ->File.Delete;
+
+    importOpcodes();
+    @(il, asmObj){
+        asmObj.asm | addAttrs;
+        var e = $_.Emit;
+        $_.DeclareLocal(AphidInterpreter);
+        e(Newobj, AphidInterpreter.GetConstructor([]));
+        e(Stloc_0);
+
+        e(Ldloc_0);
+        e(Ldstr, script);
+        e(Call, AphidInterpreter.GetMethod('SetScriptFilename', [ string ]));    
+
+        e(Ldloc_0);
+        e(Ldstr, 'ByteCode');
+        e(Call, AphidByteCode.GetMethod('DecodeResource'));
+        
+        e(Call, AphidInterpreter.GetMethod('Interpret', [ List[AphidExpression] ]));
+        e(Ret);
     }
-};
+    @createProgram(properties);
 
-
-
-([ getOutFile('pdb'), outFile ]-?File.Exists)
-    -%@printInfo('Deleting ~Cyan~{0}~R~')
-    ->File.Delete;
-
-importOpcodes();
-@(il, asmObj){
-    asmObj.asm | addAttrs;
-    var e = $_.Emit;
-    $_.DeclareLocal(AphidInterpreter);
-    e(Newobj, AphidInterpreter.GetConstructor([]));
-    e(Stloc_0);
-
-    e(Ldloc_0);
-    e(Ldstr, script);
-    e(Call, AphidInterpreter.GetMethod('SetScriptFilename', [ string ]));    
-
-    e(Ldloc_0);
-    e(Ldstr, 'ByteCode');
-    e(Call, AphidByteCode.GetMethod('DecodeResource'));
-    
-    e(Call, AphidInterpreter.GetMethod('Interpret', [ List[AphidExpression] ]));
-    e(Ret);
+} else {
+    printInfo('Projecting into C#', byteCodeFile);
+    try {
+        aphidCompiler.buildExe(script, outFile);
+    } catch (e) {
+        printError('Compilation failed');
+        e.message | print;
+        exit(0xbad5235);
+    }
 }
-@createProgram(properties);
+
 
 new FileInfo(outFile)
 @.Length
