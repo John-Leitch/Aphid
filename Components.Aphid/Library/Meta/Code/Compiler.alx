@@ -36,7 +36,91 @@ var csharp;
 
             printSuccess('Compilation complete');
             ret sb.ToString();
-        }
+        },
+
+        emitCSFile: @(alxFile, namespace, method) {
+            preprocessor.inlineScripts = true;
+            
+            ret alxFile |> io.text |> parse |> preprocessor.transform
+                @csharp.fromAst(namespace, method)
+                @(cs){
+                    printInfo('Creating CS file from {0} with namespace {1} and method {2}', alxFile, namespace, method);
+                    var csFile = alxFile + '.compiled.cs';
+                    cs @io.out.txt(csFile);
+
+                    ret csFile;
+                }
+        },
+
+        buidDll: @(namespace, asmFile, alxFiles) {
+            var csFiles = alxFiles
+                ->io.full
+                ->?>@(f) emitCSFile(
+                    f,
+                    namespace,
+                    io.up(f)
+                    .Split('/\\.')
+                    @skipWhile(@(x) x.ToLower() != 'aphid')
+                    @skipWhile(@(x) x.ToLower() != 'library' && x.ToLower() != 'tools')
+                    ->language.capitalize
+                    @join('_')
+                    @+ ('_' + io.base(f).replace('.','__')));
+
+            csharp.params = csharp.createDefaultParams();
+            csharp.params.GenerateInMemory = false;
+            csharp.params.OutputAssembly = asmFile;
+            csharp.params.CompilerOptions = "/optimize";
+
+            var tmp = csFiles -?(@!= null) |> Enumerable.ToArray;
+            var tmp2 = new List[string]();
+            tmp->tmp2.Add;
+            
+            ret csharp.compileAsmFromFiles(tmp2 | toArray).CompiledAssembly;
+        },
+
+        buildExe: @(alxFile, exeOut) {
+            var asm = exeOut defined ? exeOut : alxFile @io.ext('.exe');
+            printInfo('Compiling ~Cyan~{0}~R~ into ~Magenta~{1}~R~', alxFile, asm);
+            var ns = alxFile | io.base;
+            var cl = 'CompiledAphidProgram';
+            var entryFile = alxFile @io.ext('.main') @+ '.cs';
+            var csFile = emitCSFile(alxFile, ns, 'GetAst');
+            templates.entrypoint(ns, cl) @io.txt(entryFile);
+            csharp.roslyn.enable();
+            csharp.exeCfg(ns, cl, asm);  
+            csharp.optimize();      
+            ret csharp.compileAsmFromFiles([entryFile, csFile]);
+        },
+        
+        templates: {
+            entrypoint: @(namespace, class)
+                strOut(@{%>
+                    using Components.External;
+                    using Components.Aphid.Interpreter;
+                    using Components.Aphid.TypeSystem;
+                    using Components.IO;
+                    using Components.PInvoke;
+                    using System;
+                    using System.Diagnostics;
+                    using System.IO;
+
+                    namespace <%= namespace %>
+                    {
+                        internal class <%=class%>
+                        {
+                            private static void Main(string[] args)
+                            {
+                                var interpreter = new AphidInterpreter();
+                                interpreter.CurrentScope.Add(
+                                    "$script",
+                                    AphidObject.Scalar(PathHelper.GetExecutingPath("<%= namespace %>.alx")));
+                                interpreter.Interpret(<%= namespace %>.AphidCompilerResources.GetAst());
+                            }
+                        }
+                    }
+                <%})
+                .ToString(),
+        },
     };
 
     preprocessor = {
@@ -274,6 +358,7 @@ var csharp;
         tabList: 0..128->@(i) i * '    ',
         tab: '',
         propCache: new Dictionary[string, Object](),
+        useExpBodies: true,
         
         fromAst: @(namespace, resource, block) {
             sb = new StringBuilder(0x1000000);
@@ -292,14 +377,24 @@ var csharp;
             emitLineFormat('public static partial class {0}', resources.typeName);
             emitLine('{');
             indent();
-            emitLineFormat('public static List<AphidExpression> {0}()', resource);
-            emitLine('{');
-            indent();
-            emit('return ');
-            compileAst(block);
-            sb.AppendLine(';');
-            unindent();
-            emitLine('}');
+
+            if (!useExpBodies) {
+                emitLineFormat('public static List<AphidExpression> {0}()', resource);
+                emitLine('{');
+                indent();
+                emit('return ');
+                compileAst(block);
+                sb.AppendLine(';');
+                unindent();
+                emitLine('}');
+            } else {
+                emitLineFormat('public static List<AphidExpression> {0}() =>', resource);
+                indent();
+                compileAst(block);
+                sb.AppendLine(';');
+                unindent();
+            }
+
             unindent();
             emitLine('}');
             unindent();
@@ -497,5 +592,96 @@ var csharp;
 
             ret params;
         },
+
+        roslyn: {
+            packages: {
+                compiler: { name: 'Microsoft.Net.Compilers', version: '3.2.0-beta3-final' },
+                codeDom: { name: 'Microsoft.CodeDom.Providers.DotNetCompilerPlatform', version: '2.0.1' },
+            },
+            getPackageDir: @(p) 'packages' | io.app.path @io.first.dir('{0}.{1}' :: p.Values), 
+            getCsc: @() packages.codeDom | getPackageDir @io.first.file('csc.exe'),
+            verify: @{
+                var missing = packages.Values -> getPackageDir -? io.no.dir;
+
+                if ((missing#!) > 0) {
+                    missing->printError('Package not found: ~Yellow~{0}.{1}~R~');
+                    ret false;
+                }
+
+                var csc = getCsc();
+
+                if (csc == null || csc | io.not.file) {
+                    packages.compiler @printError('Could not locate csc.exe from ~Yellow~{0}.{1}~R~ package');
+                    ret false;
+                }
+
+                ret true;
+            },
+            update: @{
+                #'System/Nuget';
+
+                packages->@() installPackage($_.name, $_.version);
+
+                if (!verify()) {
+                    throw new InvalidOperationException('Could not install Roslyn packages');
+                }
+            },
+            enable: @{
+                #'System/Nuget';
+                
+                if (!verify()) {
+                    update();
+                }
+
+                var p = packages.codeDom;
+                nuget.reference(p.name, p.version);
+                var t = findType('Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider');
+                csharp.provider = new t();
+                var getField = @(p, o) o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance) ~| p;
+                var f = csharp.provider @getField('_compilerSettings');        
+                var settings = f.GetValue(csharp.provider);
+                var f2 = settings @getField('_compilerFullPath');        
+                var oldPath = f2.GetValue(settings);
+                f2.SetValue(settings, getCsc());
+                var v = f2.GetValue(settings);
+
+                if (v == oldPath) {
+                    throw new InvalidOperationException('Failed updating roslyn exe path');
+                } else {
+                    print('CSharpCodeProvider compiler path successfully set to ~Cyan~{0}~R~', v);
+                }
+            },
+        },
+
+        optimize = @{
+            var p = getParams();
+            
+            if (p.CompilerOptions == null) {
+                p.CompilerOptions = '';
+            }
+
+            p.CompilerOptions += '/optimize';
+        },
+
+        exeCfg = @(asmNamespace, startupClass, asmOut) {
+            var p = getParams();
+            p.MainClass = '{0}.{1}' :: [ asmNamespace, startupClass ];
+            p.GenerateExecutable = true;
+            p.GenerateInMemory = false;
+            p.OutputAssembly = asmOut;
+        },
+
+        '$internal' = {
+            getParams: @{
+                if (csharp.params == null) {
+                    csharp.params = csharp.createDefaultParams();
+                }
+
+                ret csharp.params;
+            },
+        },
+        
     };
+
+    var getParams = csharp.'$internal'.getParams;
 }();

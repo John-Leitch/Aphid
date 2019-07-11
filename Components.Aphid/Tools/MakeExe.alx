@@ -97,7 +97,9 @@ if (dumpCode) {
 
     var code = byteCode
         | AphidByteCode.Decode
-        ->(@()$_.ToString() + (($_.IsStatement() || $_.isUsing()) ? '' : ';\r\n'))
+        // ->(@()$_.ToString() + (($_.IsStatement() || $_.isUsing()) ? '' : ';\r\n'))
+        ->(@()$_.ToString() + ($_.IsStatement() ? '' : ';\r\n'))
+
         // ->(@()$_.ToString() +
         //     (($_.IsStatement() ||
         //     ($_.Operator defined && $_.Operator == AphidTokenType.retKeyword)) ?

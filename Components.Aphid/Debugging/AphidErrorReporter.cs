@@ -50,10 +50,10 @@ namespace Components.Aphid.Debugging
                     if (IsEnabled)
                     {
                         AppDomain.CurrentDomain.UnhandledException += (o, e) =>
-                            Report((Exception)e.ExceptionObject, passThrough: true);
+                            Report((Exception)e.ExceptionObject, passThrough: true, exit: true);
 
                         TaskScheduler.UnobservedTaskException += (o, e) =>
-                            Report(e.Exception, passThrough: true);
+                            Report(e.Exception, passThrough: true, exit: true);
                     }
 
                     IsInitialized = true;
@@ -61,15 +61,20 @@ namespace Components.Aphid.Debugging
             }
         }
 
-        public static void Report(Exception o, bool passThrough) => Report(o, null, passThrough);
+        public static void Report(Exception o, bool passThrough, bool exit = false) =>
+            Report(o, null, passThrough, exit);
 
-        public static void Report(Exception o, AphidInterpreter interpreter, bool passThrough)
+        public static void Report(
+            Exception o,
+            AphidInterpreter interpreter,
+            bool passThrough,
+            bool exit = false)
         {
             lock (_sync)
             {
                 if (IsEnabled)
                 {
-                    SaveException(o, interpreter, passThrough);
+                    SaveException(o, interpreter, exit, passThrough);
                 }
             }
         }
