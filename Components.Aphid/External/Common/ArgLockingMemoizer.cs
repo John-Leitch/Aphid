@@ -8,13 +8,21 @@ namespace Components
     {
         private readonly Dictionary<TArg, TResult> _cache;
 
-        private readonly LockTable<TArg> _locks = new LockTable<TArg>();
+        private readonly LockTable<TArg> _locks;
 
         private readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
 
-        public ArgLockingMemoizer() => _cache = new Dictionary<TArg, TResult>();
+        public ArgLockingMemoizer()
+        {
+            _cache = new Dictionary<TArg, TResult>();
+            _locks = new LockTable<TArg>();
+        }
 
-        public ArgLockingMemoizer(IEqualityComparer<TArg> comparer) => _cache = new Dictionary<TArg, TResult>(comparer);
+        public ArgLockingMemoizer(IEqualityComparer<TArg> comparer)
+        {
+            _cache = new Dictionary<TArg, TResult>(comparer);
+            _locks = new LockTable<TArg>(comparer);
+        }
 
         public TResult Call(Func<TArg, TResult> func, TArg arg)
         {

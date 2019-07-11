@@ -154,7 +154,12 @@ var viewModel;
         object.Pairs->emitProperty;
         
         onChangeMap->@(m){
-            appendLine('private void ' + m.func + '()');
+            [
+                'public event System.EventHandler {1}Changing, {1}Changed;',
+                'partial void {0}();',
+                'private void {0}Internal()'
+            ]
+            -> @() appendLine($_ :: [ m.func, m.prop ]);
             appendLine('{');
             indent();
             
@@ -264,10 +269,12 @@ var viewModel;
         appendLine('set');
         appendLine('{');
         indent();
-        appendLine(field + ' = value;');
-        var onChangeName = 'On' + name + 'Changed';
+        appendLine('{0}Changing?.Invoke(this, System.EventArgs.Empty);' :: name);
+        appendLine('{0} = value;' :: field);
+        appendLine('{0}Changed?.Invoke(this, System.EventArgs.Empty);' :: name);
+        var onChangeName = 'On{0}Changed' :: name;
         onChangeMap.add({ prop: name, func: onChangeName });
-        appendLine(onChangeName + '();');
+        ['Internal','']->@format('{0}{1}();', onChangeName)->appendLine;
         //appendLine('');
         
         if (!e.propertyAspects.silent && !attrs.silent) {
