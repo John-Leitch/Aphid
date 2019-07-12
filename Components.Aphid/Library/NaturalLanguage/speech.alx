@@ -32,19 +32,17 @@ var speech;
 
                 ret p;
             },
+            
             say: @(pronunciation, wavStream)  speech.say(pronunciation | prompt, wavStream),
             sayToWavStream: @(pronunciation, wavStream) speech.sayToWavStream(pronunciation | prompt, wavStream),
-            fromText: @(text)
-                text
-                | speech.sayToWavStream
-                | speech.recognize.wavStream
-                @(recognized) recognized != null ? recognized.Words -> @.Pronunciation : null,
+            
+            '$detailsFrom': @(o, x) x | o.sayToWavStream | speech.recognize.wavStream,        
+            detailsFromText: @this.'$detailsFrom'(speech),
+            detailsFromIpa: @this.'$detailsFrom'(ipa),
 
-            fromIpa: @(pronunciation)
-                pronunciation
-                | ipa.sayToWavStream
-                | speech.recognize.wavStream
-                @(recognized) recognized != null ? recognized.Words -> @.Pronunciation : null,
+            '$getPronunciation': @(recognized) recognized != null ? recognized.Words -> @.Pronunciation : null,
+            fromText: detailsFromText @> this.'$getPronunciation',
+            fromIpa: detailsFromIpa @> this.'$getPronunciation',        
         },
 
         recognize: {
@@ -52,7 +50,7 @@ var speech;
             wavStream: @(s) { _recognize(recognizer.SetInputToWaveStream(s)) },
 
             syllables: {
-                text: @(t){
+                text: @(t, recurse){
                     var pass = 0;
                     var passResults = new List[Object]();
                     var pronunciation = t | speech.ipa.fromText;
@@ -66,18 +64,28 @@ var speech;
                     while (true) {                   
                         
                         var fanned = 1..(pronunciation.Length-(pass == 0 ? 1 : 0))->@pronunciation.Substring(0);
-                        var recognized = fanned->@(f)({ ipaIn: f, ipaOut: f |>?> speech.ipa.fromIpa, });
+                        
+                        var detailSet = fanned->@(f)({
+                            ipaIn: f,
+                            details: f |>?> speech.ipa.detailsFromIpa,
+                            ipaOut: details != null ? details.Words -> @.Pronunciation : [],
+                            // detailJson: details | clrSerializer.serialize,
+                        });                        
 
                         var result = {
                             pass: pass++,
-                            text,
+                            t,
                             ipa: pronunciation,
-                            recognized,
-                            syllables: recognized
+                            syllables: detailSet
                                 -?@!= null
                                 -?(@()$_.ipaOut != null && ($_.ipaOut#!) == 1 && $_.ipaIn == $_.ipaOut[0])
-                                ->@()$_.ipaOut[0]
-                            };
+                                ->@()({ text: $_.details.Text, ipa: $_.ipaOut[0], confidence: $_.details.Confidence }),
+                            detailSet
+                        };
+
+                        if (!(recurse defined) || !recurse) {
+                            ret result;
+                        }
 
                         passResults.Add(result);
 
@@ -90,5 +98,5 @@ var speech;
                 },
             },
         },
-    }
+    };
 }();
