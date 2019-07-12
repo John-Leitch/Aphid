@@ -1,0 +1,94 @@
+var speech;
+
+@{
+    load System.Speech;
+    using System.Speech;
+    using System.Speech.Synthesis;
+    using System.Speech.Recognition;
+
+    speech = {
+        say: @(text, wavStream) {
+            var speech = new SpeechSynthesizer();
+
+            if (wavStream defined && wavStream != null) {
+                speech.SetOutputToWaveStream(wavStream);
+            }
+
+            speech.Speak(text);
+        },
+
+        sayToWavStream: @(text, wavStream) {
+            var s = _wavStream();
+            say(text, s);
+            s.Position = 0;
+            
+            ret s;
+        },
+
+        ipa: {
+            prompt: @(pronunciation) {
+                var p = new PromptBuilder();
+                p.AppendTextWithPronunciation('foo', pronunciation);
+
+                ret p;
+            },
+            say: @(pronunciation, wavStream)  speech.say(pronunciation | prompt, wavStream),
+            sayToWavStream: @(pronunciation, wavStream) speech.sayToWavStream(pronunciation | prompt, wavStream),
+            fromText: @(text)
+                text
+                | speech.sayToWavStream
+                | speech.recognize.wavStream
+                @(recognized) recognized != null ? recognized.Words -> @.Pronunciation : null,
+
+            fromIpa: @(pronunciation)
+                pronunciation
+                | ipa.sayToWavStream
+                | speech.recognize.wavStream
+                @(recognized) recognized != null ? recognized.Words -> @.Pronunciation : null,
+        },
+
+        recognize: {
+            audio: @{ _recognize(recognizer.SetInputToDefaultAudioDevice()) },
+            wavStream: @(s) { _recognize(recognizer.SetInputToWaveStream(s)) },
+
+            syllables: {
+                text: @(t){
+                    var pass = 0;
+                    var passResults = new List[Object]();
+                    var pronunciation = t | speech.ipa.fromText;
+                    
+                    if ((pronunciation#!) != 1) {
+                        ex.arg(t);
+                    }
+
+                    pronunciation = pronunciation$!;
+
+                    while (true) {                   
+                        
+                        var fanned = 1..(pronunciation.Length-(pass == 0 ? 1 : 0))->@pronunciation.Substring(0);
+                        var recognized = fanned->@(f)({ ipaIn: f, ipaOut: f |>?> speech.ipa.fromIpa, });
+
+                        var result = {
+                            pass: pass++,
+                            text,
+                            ipa: pronunciation,
+                            recognized,
+                            syllables: recognized
+                                -?@!= null
+                                -?(@()$_.ipaOut != null && ($_.ipaOut#!) == 1 && $_.ipaIn == $_.ipaOut[0])
+                                ->@()$_.ipaOut[0]
+                            };
+
+                        passResults.Add(result);
+
+                        if ((result.syllables#!) == 0) {
+                            ret passResults;
+                        }
+
+                        pronunciation = pronunciation.Remove(0, result.syllables[0].Length);
+                    }
+                },
+            },
+        },
+    }
+}();
