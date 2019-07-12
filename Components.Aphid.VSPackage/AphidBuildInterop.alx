@@ -1,5 +1,6 @@
-﻿#'Compiler';
-using Components.Aphid.VSPackage;
-
+﻿#'c:/source/aphid/components.aphid/Library/std';
+#'c:/source/aphid/components.aphid/Library/meta/code/Compiler';      
+using Components.Aphid.VSPackage;  
+print('foo');   
 export string AphidBuildInterop.Compile = @(string path, string input, string namespace)
-	aphidCompiler.compileCode(namespace, input);  
+	aphidCompiler.compileCode(namespace, input);      

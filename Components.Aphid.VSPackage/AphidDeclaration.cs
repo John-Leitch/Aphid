@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Components.Aphid.VSPackage
 {
-    public class AphidDeclaration
+    public readonly struct AphidDeclaration
     {
-        public string Name { get; set; }
+        public readonly string Name;
 
-        public string Description { get; set; }
+        public readonly string Description;
 
-        public string DisplayText { get; set; }
+        public readonly string DisplayText;
 
-        public StandardGlyphGroup Glyph { get; set; }
+        public readonly StandardGlyphGroup Glyph;
 
         public AphidDeclaration(string name, string description, string displayText, StandardGlyphGroup glyph)
         {

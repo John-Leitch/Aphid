@@ -16,6 +16,8 @@ _ci = macro(@(a) { if (exists()) { a } });
 _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
 
 @{
+    using Components.Aphid.UI.Formatters;
+    
     using Components.PInvoke;
     using Components.ConsolePlus;
 
@@ -37,6 +39,8 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
         runWindowCmd: @User32.ShowWindow(getWindow()),
         show: @() runWindowCmd(ShowWindowCommands.SW_SHOW),
         hide: @() runWindowCmd(ShowWindowCommands.SW_HIDE),
+        highlight: SyntaxHighlightingFormatter.Format,
+        writeCode: highlight @> Console.WriteLine,
 
         bindKeyAsync: @(key, action) {
             using System.Threading;

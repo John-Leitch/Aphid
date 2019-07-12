@@ -133,7 +133,10 @@ namespace Components.Aphid.TypeSystem
 
             try
             {
-                _typeCache.Add(ctx, type.Type);
+                if (!_typeCache.ContainsKey(ctx))
+                {
+                    _typeCache.Add(ctx, type.Type);
+                }
             }
             finally
             {

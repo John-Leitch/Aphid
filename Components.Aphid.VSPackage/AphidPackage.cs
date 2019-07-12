@@ -31,22 +31,22 @@ namespace Components.Aphid.VSPackage
             {
                 base.Initialize();
 
-                IServiceContainer serviceContainer = this as IServiceContainer;
-                AphidLanguageService langService = new AphidLanguageService();
+                var serviceContainer = this as IServiceContainer;
+                var langService = new AphidLanguageService();
                 langService.SetSite(this);
                 serviceContainer.AddService(typeof(AphidLanguageService), langService, true);
-                IOleComponentManager manager = GetService(typeof(SOleComponentManager)) as IOleComponentManager;
+                var manager = GetService(typeof(SOleComponentManager)) as IOleComponentManager;
 
                 if (_componentID == 0 && manager != null)
                 {
-                    OLECRINFO[] crinfo = new OLECRINFO[1];
+                    var crinfo = new OLECRINFO[1];
                     crinfo[0].cbSize = (uint)Marshal.SizeOf(typeof(OLECRINFO));
                     crinfo[0].grfcrf = (uint)_OLECRF.olecrfNeedIdleTime | (uint)_OLECRF.olecrfNeedPeriodicIdleTime;
                     crinfo[0].grfcadvf = (uint)_OLECADVF.olecadvfModal |
                         (uint)_OLECADVF.olecadvfRedrawOff |
                         (uint)_OLECADVF.olecadvfWarningsOff;
                     crinfo[0].uIdleTimeInterval = 500;
-                    int hr = manager.FRegisterComponent(this, crinfo, out _componentID);
+                    var hr = manager.FRegisterComponent(this, crinfo, out _componentID);
                 }
             }
 
@@ -56,7 +56,7 @@ namespace Components.Aphid.VSPackage
                 {
                     if (GetService(typeof(SOleComponentManager)) is IOleComponentManager manager)
                     {
-                        int hr = manager.FRevokeComponent(_componentID);
+                        var hr = manager.FRevokeComponent(_componentID);
                     }
                     _componentID = 0;
                 }
@@ -78,30 +78,15 @@ namespace Components.Aphid.VSPackage
                 return 0;
             }
 
-            public int FContinueMessageLoop(uint uReason, IntPtr pvLoopData, MSG[] pMsgPeeked)
-            {
-                return 1;
-            }
+            public int FContinueMessageLoop(uint uReason, IntPtr pvLoopData, MSG[] pMsgPeeked) => 1;
 
-            public int FPreTranslateMessage(MSG[] pMsg)
-            {
-                return 0;
-            }
+            public int FPreTranslateMessage(MSG[] pMsg) => 0;
 
-            public int FQueryTerminate(int fPromptUser)
-            {
-                return 1;
-            }
+            public int FQueryTerminate(int fPromptUser) => 1;
 
-            public int FReserved1(uint dwReserved, uint message, IntPtr wParam, IntPtr lParam)
-            {
-                return 1;
-            }
+            public int FReserved1(uint dwReserved, uint message, IntPtr wParam, IntPtr lParam) => 1;
 
-            public IntPtr HwndGetWindow(uint dwWhich, uint dwReserved)
-            {
-                return IntPtr.Zero;
-            }
+            public IntPtr HwndGetWindow(uint dwWhich, uint dwReserved) => IntPtr.Zero;
 
             public void OnActivationChange(IOleComponent pic, int fSameComponent,
                 OLECRINFO[] pcrinfo, int fHostIsActivating, OLECHOSTINFO[] pchostinfo,

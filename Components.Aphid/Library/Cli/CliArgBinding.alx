@@ -41,6 +41,7 @@
                 var m = argMap.names[v];
                 boundArgs[m.name] = $(var t = m.type)
                     bool: true,
+                    int: args[++i].Value | int.Parse,
                     string: i < args.Count - 1 ?
                         args[++i].Value :
                         e.args('Missing value for argument {0}' :: m.name),

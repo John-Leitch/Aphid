@@ -24,6 +24,10 @@ namespace Components.Aphid.VSPackage
     [CodeGeneratorRegistration(typeof(AphidCodeDomGenerator), "AphidCodeDomGenerator", "{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}", GeneratesDesignTimeSource = true)]
     public class AphidCodeDomGenerator : IVsSingleFileGenerator, IObjectWithSite
     {
+        private FileInfo _interopScript = new FileInfo(@"c:\source\aphid\Components.Aphid.VSPackage\AphidBuildInterop.alx");
+
+        private DateTime _lastRun;
+
         private object site = null;
 
         private Lazy<CodeDomProvider> codeDomProvider;
@@ -53,6 +57,7 @@ namespace Components.Aphid.VSPackage
 
             try
             {
+#if RELEASE
                 if (AphidBuildInterop.Compile == null)
                 {
                     var interpreter = new AphidInterpreter();
@@ -63,6 +68,17 @@ namespace Components.Aphid.VSPackage
 
                     interpreter.InterpretFile(interopScript);
                 }
+#else
+                _interopScript.Refresh();
+
+                if (_lastRun < _interopScript.LastWriteTime)
+                {
+                    _lastRun = DateTime.Now;
+                    var interpreter = new AphidInterpreter();
+                    interpreter.InterpretFile(_interopScript.FullName);
+                }
+                
+#endif
 
                 csOut = AphidBuildInterop.Compile(
                     wszInputFilePath,
@@ -170,7 +186,7 @@ namespace Components.Aphid.VSPackage
 
             // Query for the interface using the site object initially passed to the generator
             var punk = Marshal.GetIUnknownForObject(site);
-            int hr = Marshal.QueryInterface(punk, ref riid, out ppvSite);
+            var hr = Marshal.QueryInterface(punk, ref riid, out ppvSite);
             Marshal.Release(punk);
             ErrorHandler.ThrowOnFailure(hr);
         }

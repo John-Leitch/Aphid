@@ -66,6 +66,7 @@ namespace Aphid
             var interpreter = new AphidInterpreter();
             interpreter.SetScriptFilename(file);
             EnvironmentLibrary.SetEnvArgs(true);
+            var result = true;
 
 #if !APHID_DEBUGGING_ENABLED
             if (AphidConfig.Current.ScriptCaching)
@@ -78,7 +79,7 @@ namespace Aphid
 
                 if (AphidErrorHandling.HandleErrors)
                 {
-                    AphidCli.TryAction(
+                    result = AphidCli.TryAction(
                         interpreter,
                         () => AphidScript.Read(file),
                         () => interpreter.Interpret(cache.Read(file)),
@@ -96,7 +97,7 @@ namespace Aphid
 
                 if (AphidErrorHandling.HandleErrors)
                 {
-                    AphidCli.TryAction(
+                    result = AphidCli.TryAction(
                         interpreter,
                         code,
                         () => interpreter.Interpret(code, file, isTextDocument),
@@ -114,7 +115,10 @@ namespace Aphid
 #if !APHID_DEBUGGING_ENABLED
             }
 #endif
-
+            if (!result)
+            {
+                Environment.Exit(0xbad5230);
+            }
         }
 
         private static void RunExpression(string[] args) =>
@@ -123,7 +127,7 @@ namespace Aphid
         private static void RunStatements(string[] args) =>
             AphidEvaluator.Eval(GetInlineCode('*'));
 
-            private static void RunQuotedStatements(string[] args) =>
+        private static void RunQuotedStatements(string[] args) =>
             AphidEvaluator.Eval(StringParser.Parse(GetInlineCode('!')));
 
         private static string GetInlineCode(char startToken)

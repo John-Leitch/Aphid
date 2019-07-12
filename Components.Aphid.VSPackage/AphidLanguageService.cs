@@ -16,42 +16,33 @@ namespace Components.Aphid.VSPackage
     {
         private readonly bool _isTest = true;
 
-        public override string GetFormatFilterList()
-        {
-            return "Aphid files (*.alx)\n*.alx\n";
-        }
+        public override string GetFormatFilterList() => "Aphid files (*.alx)\n*.alx\n";
 
-        public override LanguagePreferences GetLanguagePreferences()
+        public override LanguagePreferences GetLanguagePreferences() => new LanguagePreferences()
         {
-            return new LanguagePreferences()
-            {
-                EnableMatchBracesAtCaret = true,
-                EnableCodeSense = true,
-                CodeSenseDelay = 500,
-                AutoListMembers = true,
-                EnableFormatSelection = true,
-                EnableMatchBraces = true,
-                LineNumbers = true,
-                EnableCommenting = true,
-                EnableShowMatchingBrace = true,
-                IndentStyle = IndentingStyle.Smart,
-                IndentSize = 4,
-                InsertTabs = false,
-                EnableQuickInfo = true,
-                MaxErrorMessages = 100,
-                HighlightMatchingBraceFlags = _HighlightMatchingBraceFlags.HMB_USERECTANGLEBRACES,
-            };
-        }
+            EnableMatchBracesAtCaret = true,
+            EnableCodeSense = true,
+            CodeSenseDelay = 500,
+            AutoListMembers = true,
+            EnableFormatSelection = true,
+            EnableMatchBraces = true,
+            LineNumbers = true,
+            EnableCommenting = true,
+            EnableShowMatchingBrace = true,
+            IndentStyle = IndentingStyle.Smart,
+            IndentSize = 4,
+            InsertTabs = false,
+            EnableQuickInfo = true,
+            MaxErrorMessages = 100,
+            AutoOutlining = true,
+            EnableAsyncCompletion = true,
+            ParameterInformation = true,
+            HighlightMatchingBraceFlags = _HighlightMatchingBraceFlags.HMB_USERECTANGLEBRACES,
+        };
 
-        public override IScanner GetScanner(Microsoft.VisualStudio.TextManager.Interop.IVsTextLines buffer)
-        {
-            return new AphidScanner();
-        }
+        public override IScanner GetScanner(Microsoft.VisualStudio.TextManager.Interop.IVsTextLines buffer) => new AphidScanner();
 
-        public override string Name
-        {
-            get { return "Aphid"; }
-        }
+        public override string Name => "Aphid";
 
         private void CheckParseRequest(ParseRequest req)
         {
@@ -83,33 +74,28 @@ namespace Components.Aphid.VSPackage
             }
         }
 
-        static TextSpan CreateSpan(int line, int col)
+        static TextSpan CreateSpan(int line, int col) => new TextSpan()
         {
-            return new TextSpan()
-            {
-                iStartLine = line,
-                iStartIndex = col,
-                iEndLine = line,
-                iEndIndex = col + 1,
-            };
-        }
+            iStartLine = line,
+            iStartIndex = col,
+            iEndLine = line,
+            iEndIndex = col + 1,
+        };
 
-        private List<AphidToken> GetTokens(string text)
-        {
-            return new AphidLexer(text).GetAllTokens();
-        }
+        private List<AphidToken> GetTokens(string text) => new AphidLexer(text).GetAllTokens();
 
         public override AuthoringScope ParseSource(ParseRequest req)
         {
             Debug.WriteLine("Parse reason: {0}", req.Reason);
 
-            var scope = new AphidAuthoringScope();
-
-            scope.Identifiers = GetTokens(req.Text)
-                .Where(x => x.TokenType == AphidTokenType.Identifier)
-                .Select(x => x.Lexeme)
-                .Distinct()
-                .ToArray();
+            var scope = new AphidAuthoringScope
+            {
+                Identifiers = GetTokens(req.Text)
+                    .Where(x => x.TokenType == AphidTokenType.Identifier)
+                    .Select(x => x.Lexeme)
+                    .Distinct()
+                    .ToArray()
+            };
 
             switch (req.Reason)
             {
@@ -135,7 +121,13 @@ namespace Components.Aphid.VSPackage
 
                     if (braces != null)
                     {
-                        req.Sink.MatchPair(CreateSpan(braces[0][0], braces[0][1]), CreateSpan(braces[1][0], braces[1][1]), 1);
+                        req.Sink.MatchPair(
+                            CreateSpan(braces[0][0],
+                            braces[0][1]),
+                            CreateSpan(braces[1][0],
+                            braces[1][1]), 1);
+
+                        return scope;
                     }
 
                     var index = TokenHelper.GetIndex(req.Text, req.Line, req.Col - 1);
@@ -144,31 +136,91 @@ namespace Components.Aphid.VSPackage
 
                     var depth = 1;
                     var rightBraceIndex = -1;
-                    for (int i = 1; i < tokens.Count; i++)
+                    var braceType = tokens[0].TokenType;
+                    var i = 1;
+
+                    switch (braceType)
                     {
-                        switch (tokens[i].TokenType)
-                        {
-                            case AphidTokenType.LeftBrace:
-                                depth++;
-                                break;
+                        case AphidTokenType.LeftBrace:
+                            for (; i < tokens.Count; i++)
+                            {
+                                switch (tokens[i].TokenType)
+                                {
+                                    case AphidTokenType.LeftBrace:
+                                        depth++;
+                                        break;
 
-                            case AphidTokenType.RightBrace:
-                                depth--;
-                                break;
-                        }
+                                    case AphidTokenType.RightBrace:
+                                        depth--;
+                                        break;
+                                }
 
-                        if (depth == 0)
-                        {
-                            rightBraceIndex = index + tokens[i].Index;
+                                if (depth == 0)
+                                {
+                                    rightBraceIndex = index + tokens[i].Index;
+                                    break;
+                                }
+                            }
                             break;
-                        }
+
+                        case AphidTokenType.LeftParenthesis:
+                            for (; i < tokens.Count; i++)
+                            {
+                                switch (tokens[i].TokenType)
+                                {
+                                    case AphidTokenType.LeftParenthesis:
+                                        depth++;
+                                        break;
+
+                                    case AphidTokenType.RightParenthesis:
+                                        depth--;
+                                        break;
+                                }
+
+                                if (depth == 0)
+                                {
+                                    rightBraceIndex = index + tokens[i].Index;
+                                    break;
+                                }
+                            }
+                            break;
+
+                        case AphidTokenType.LeftBracket:
+                            for (; i < tokens.Count; i++)
+                            {
+                                switch (tokens[i].TokenType)
+                                {
+                                    case AphidTokenType.LeftBracket:
+                                        depth++;
+                                        break;
+
+                                    case AphidTokenType.RightBracket:
+                                        depth--;
+                                        break;
+                                }
+
+                                if (depth == 0)
+                                {
+                                    rightBraceIndex = index + tokens[i].Index;
+                                    break;
+                                }
+                            }
+                            break;
+
+                            //Todo: handle other direction
                     }
+
+
+                    
+
 
                     if (rightBraceIndex != -1)
                     {
                         var rightLineCol = TokenHelper.GetIndexPosition(req.Text, rightBraceIndex);
 
-                        req.Sink.MatchPair(CreateSpan(req.Line, req.Col - 1), CreateSpan(rightLineCol.Item1, rightLineCol.Item2), 1);
+                        req.Sink.MatchPair(
+                            CreateSpan(req.Line, req.Col - 1),
+                            CreateSpan(rightLineCol.Item1, rightLineCol.Item2), 1);
                     }
 
                     break;

@@ -190,17 +190,17 @@ namespace Components.Aphid.TypeSystem
             {
                 return null;
             }
+            else if ((srcType = srcValue.GetType()) == targetType ||
+                srcType.IsDerivedFromOrImplements(targetType, targetGenerics))
+            {
+                return srcValue;
+            }
             else if (targetType.IsDerivedFrom<Delegate>())
             {
                 return Interpreter.FunctionConverter.Convert(
                     targetType,
                     srcValue,
                     genericArguments);
-            }
-            else if ((srcType = srcValue.GetType()) == targetType ||
-                srcType.IsDerivedFromOrImplements(targetType, targetGenerics))
-            {
-                return srcValue;
             }
             else if (srcType == typeof(decimal))
             {

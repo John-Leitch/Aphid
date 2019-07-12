@@ -335,11 +335,20 @@ var viewModel;
     @{
         using System.Colletions.Generic;
 
-        viewModel = {
+        viewModel = {            
             setText: @(sb) e.text = sb,
             typeSuffix: 'ViewModel',
 
+            compilerInitialized: false,
+            initCompiler: @{
+                if (!compilerInitialized) {
+                    csharp.roslyn.enable();
+                    compilerInitialized = true;
+                }
+            },
+
             buildForType: @(namespace, type) {
+                initCompiler();
                 var code = fromType(namespace, type);
                 var results = csharp.compileAsm(code);
                 var vmType = results.CompiledAssembly.GetTypes()[0];
@@ -348,6 +357,7 @@ var viewModel;
             },
 
             buildForTypes: @(namespace, types) {
+                initCompiler();
                 var code = types->(@() fromType(namespace, $_))@join('\r\n\r\n');
                 var results = csharp.compileAsm(code);
                 var vmTypes = results.CompiledAssembly.GetTypes();
@@ -356,6 +366,7 @@ var viewModel;
             },
 
             buildForObject: @(namespace, name, object) {
+                initCompiler();
                 var code = fromObject(namespace, name, object);
                 var results = csharp.compileAsm(code);
                 var vmType = results.CompiledAssembly.GetTypes()[0];

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Components.Aphid.Lexer.AphidTokenType;
 
 namespace Components.Aphid.VSPackage
 {
@@ -36,16 +37,16 @@ namespace Components.Aphid.VSPackage
                     tokenInfo.Color = TokenColor.String;
                     break;
 
-                case AphidTokenType.Number:
-                case AphidTokenType.HexNumber:
-                case AphidTokenType.BinaryNumber:
+                case Number:
+                case HexNumber:
+                case BinaryNumber:
                     tokenInfo.Type = TokenType.Literal;
                     tokenInfo.Color = TokenColor.Number;
                     break;
 
-                case AphidTokenType.Identifier:
+                case Identifier:
                     if (_tokens.Length != _index &&
-                        _tokens[_index].TokenType == AphidTokenType.Identifier)
+                        _tokens[_index].TokenType == Identifier)
                     {
                         tokenInfo.Type = TokenType.Keyword;
                         tokenInfo.Color = TokenColor.Keyword;
@@ -57,119 +58,119 @@ namespace Components.Aphid.VSPackage
                     }
                     break;
                 // AphidTokenType |> Enum.GetValues-?(@()$_.ToString().EndsWith('Keyword'))->@format('case AphidTokenType.{0}:') @join('\r\n') |> print
-                case AphidTokenType.breakKeyword:
-                case AphidTokenType.catchKeyword:
-                case AphidTokenType.continueKeyword:
-                case AphidTokenType.defaultKeyword:
-                case AphidTokenType.definedKeyword:
-                case AphidTokenType.deleteKeyword:
-                case AphidTokenType.doKeyword:
-                case AphidTokenType.elseKeyword:
-                case AphidTokenType.extendKeyword:
-                case AphidTokenType.falseKeyword:
-                case AphidTokenType.finallyKeyword:
-                case AphidTokenType.forKeyword:
-                case AphidTokenType.ifKeyword:
-                case AphidTokenType.inKeyword:
-                case AphidTokenType.loadKeyword:
-                case AphidTokenType.lockKeyword:
-                case AphidTokenType.newKeyword:
-                case AphidTokenType.nullKeyword:
-                case AphidTokenType.retKeyword:
-                case AphidTokenType.switchKeyword:
-                case AphidTokenType.thisKeyword:
-                case AphidTokenType.throwKeyword:
-                case AphidTokenType.trueKeyword:
-                case AphidTokenType.tryKeyword:
-                case AphidTokenType.usingKeyword:
-                case AphidTokenType.whileKeyword:
+                case breakKeyword:
+                case catchKeyword:
+                case continueKeyword:
+                case defaultKeyword:
+                case definedKeyword:
+                case deleteKeyword:
+                case doKeyword:
+                case elseKeyword:
+                case extendKeyword:
+                case falseKeyword:
+                case finallyKeyword:
+                case forKeyword:
+                case ifKeyword:
+                case inKeyword:
+                case loadKeyword:
+                case lockKeyword:
+                case newKeyword:
+                case nullKeyword:
+                case retKeyword:
+                case switchKeyword:
+                case thisKeyword:
+                case throwKeyword:
+                case trueKeyword:
+                case tryKeyword:
+                case usingKeyword:
+                case whileKeyword:
 
-                case AphidTokenType.ImplicitArgumentOperator:
-                case AphidTokenType.ImplicitArgumentsOperator:
+                case ImplicitArgumentOperator:
+                case ImplicitArgumentsOperator:
 
-                case AphidTokenType.FunctionOperator:
-                case AphidTokenType.InteropOperator:
-                case AphidTokenType.LoadLibraryOperator:
-                case AphidTokenType.LoadScriptOperator:                
-                case AphidTokenType.PatternMatchingOperator:
+                case FunctionOperator:
+                case InteropOperator:
+                case LoadLibraryOperator:
+                case LoadScriptOperator:                
+                case PatternMatchingOperator:
 
                     tokenInfo.Type = TokenType.Keyword;
                     tokenInfo.Color = TokenColor.Keyword;
                     break;
 
-                case AphidTokenType.AdditionOperator:
-                case AphidTokenType.AggregateOperator:
-                case AphidTokenType.AndOperator:
-                case AphidTokenType.AnyOperator:
-                case AphidTokenType.AssignmentOperator:
-                case AphidTokenType.BinaryAndEqualOperator:
-                case AphidTokenType.BinaryAndOperator:
-                case AphidTokenType.BinaryOrOperator:
-                case AphidTokenType.ColonOperator:
-                case AphidTokenType.ComplementOperator:
-                case AphidTokenType.ConditionalOperator:
-                case AphidTokenType.DecrementOperator:
-                case AphidTokenType.DistinctOperator:
-                case AphidTokenType.DivisionEqualOperator:
-                case AphidTokenType.DivisionOperator:
-                case AphidTokenType.EqualityOperator:
-                case AphidTokenType.GreaterThanOperator:
-                case AphidTokenType.GreaterThanOrEqualOperator:
-                case AphidTokenType.IncrementOperator:
-                case AphidTokenType.LessThanOperator:
-                case AphidTokenType.LessThanOrEqualOperator:
-                case AphidTokenType.MinusEqualOperator:
-                case AphidTokenType.MinusOperator:
-                case AphidTokenType.ModulusEqualOperator:
-                case AphidTokenType.ModulusOperator:
-                case AphidTokenType.MultiplicationEqualOperator:
-                case AphidTokenType.MultiplicationOperator:
-                case AphidTokenType.NotEqualOperator:
-                case AphidTokenType.NotOperator:
-                case AphidTokenType.OrEqualOperator:
-                case AphidTokenType.OrOperator:
-                case AphidTokenType.PipelineOperator:
-                case AphidTokenType.PlusEqualOperator:
-                case AphidTokenType.RangeOperator:
-                case AphidTokenType.SelectManyOperator:
-                case AphidTokenType.SelectOperator:
-                case AphidTokenType.ShiftLeftEqualOperator:
-                case AphidTokenType.ShiftRightEqualOperator:
-                case AphidTokenType.WhereOperator:
-                case AphidTokenType.XorEqualOperator:
-                case AphidTokenType.XorOperator:
+                case AdditionOperator:
+                case AggregateOperator:
+                case AndOperator:
+                case AnyOperator:
+                case AssignmentOperator:
+                case BinaryAndEqualOperator:
+                case BinaryAndOperator:
+                case BinaryOrOperator:
+                case ColonOperator:
+                case ComplementOperator:
+                case ConditionalOperator:
+                case DecrementOperator:
+                case DistinctOperator:
+                case DivisionEqualOperator:
+                case DivisionOperator:
+                case EqualityOperator:
+                case GreaterThanOperator:
+                case GreaterThanOrEqualOperator:
+                case IncrementOperator:
+                case LessThanOperator:
+                case LessThanOrEqualOperator:
+                case MinusEqualOperator:
+                case MinusOperator:
+                case ModulusEqualOperator:
+                case ModulusOperator:
+                case MultiplicationEqualOperator:
+                case MultiplicationOperator:
+                case NotEqualOperator:
+                case NotOperator:
+                case OrEqualOperator:
+                case OrOperator:
+                case PipelineOperator:
+                case PlusEqualOperator:
+                case RangeOperator:
+                case SelectManyOperator:
+                case SelectOperator:
+                case ShiftLeftEqualOperator:
+                case ShiftRightEqualOperator:
+                case WhereOperator:
+                case XorEqualOperator:
+                case XorOperator:
                     tokenInfo.Type = TokenType.Operator;                    
                     break;
 
-                case AphidTokenType.LeftBrace:
-                case AphidTokenType.RightBrace:
-                case AphidTokenType.LeftBracket:
-                case AphidTokenType.RightBracket:
+                case LeftBrace:
+                case RightBrace:
+                case LeftBracket:
+                case RightBracket:
                     tokenInfo.Trigger = TokenTriggers.MatchBraces;                    
                     break;
 
-                case AphidTokenType.MemberOperator:
+                case MemberOperator:
                     tokenInfo.Trigger = TokenTriggers.MemberSelect;
                     tokenInfo.Type = TokenType.Delimiter;                    
                     break;
 
-                case AphidTokenType.LeftParenthesis:
+                case LeftParenthesis:
                     tokenInfo.Trigger = TokenTriggers.MatchBraces;                    
                     //tokenInfo.Trigger = TokenTriggers.ParameterStart;
                     break;
 
-                case AphidTokenType.RightParenthesis:
+                case RightParenthesis:
                     tokenInfo.Trigger = TokenTriggers.MatchBraces;                    
                     //tokenInfo.Trigger = TokenTriggers.ParameterEnd;
                     break;
 
-                case AphidTokenType.Comment:
+                case Comment:
                     tokenInfo.Type = TokenType.Comment;
                     tokenInfo.Color = TokenColor.Comment;
                     break;
 
                 default:
-                    tokenInfo.Trigger = TokenTriggers.MemberSelect;
+                    //tokenInfo.Trigger = TokenTriggers.MemberSelect;
                     break;
             }
 
@@ -190,7 +191,7 @@ namespace Components.Aphid.VSPackage
 
                 _tokens = lexer
                     .GetAllTokens()
-                    .Where(x => x.TokenType != AphidTokenType.WhiteSpace)
+                    .Where(x => x.TokenType != WhiteSpace)
                     .ToArray();
 
                 _lexerMode = lexer.GetMode();

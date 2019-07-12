@@ -220,7 +220,9 @@
     <Compile Include="External\Caching\FileCacheInfo.cs" />
     <Compile Include="External\Caching\ICacheInfo.cs" />
     <Compile Include="External\Common\ArgLexerState.cs" />
+    <Compile Include="External\Common\ArgLockingMemoizationWrapper.cs" />
     <Compile Include="External\Common\ArgLockingMemoizer.cs" />
+    <Compile Include="External\Common\ArgLockingMemoizingContainer.cs" />
     <Compile Include="External\Common\ArgToken.cs" />
     <Compile Include="External\Common\ArgTokenType.cs" />
     <Compile Include="External\Common\DirectArgLockingMemoizer.cs" />
@@ -231,6 +233,7 @@
     <Compile Include="External\Common\DefaultSingleton.cs" />
     <Compile Include="External\Common\FluentExtensions.cs" />
     <Compile Include="External\Common\IfContext.cs" />
+    <Compile Include="External\Common\PathCachingWrapper.cs" />
     <Compile Include="External\Common\SelectorComparer`2.cs" />
     <Compile Include="External\Common\SingletonException.cs" />
     <Compile Include="External\Common\AutoSingleton.cs" />

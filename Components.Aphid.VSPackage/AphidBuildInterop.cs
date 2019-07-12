@@ -10,13 +10,13 @@ namespace Components.Aphid.VSPackage {
         
         public static CompileDelegate Compile {
             get {
-                if ((AphidBuildInterop._Compile == null)) {
+                if ((_Compile == null)) {
                     new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_bc79b1c90375a7efa721519452f6737c());
                 }
-                return AphidBuildInterop._Compile;
+                return _Compile;
             }
             set {
-                AphidBuildInterop._Compile = value;
+                _Compile = value;
             }
         }
         
@@ -32,9 +32,7 @@ namespace Components.Aphid.VSPackage
     
     public static partial class AphidCompilerResources
     {
-        public static List<AphidExpression> ByteCode_bc79b1c90375a7efa721519452f6737c()
-        {
-            return             new List<AphidExpression>
+        public static List<AphidExpression> ByteCode_bc79b1c90375a7efa721519452f6737c() => new List<AphidExpression>
             {
                 new LoadScriptExpression(
                     new StringExpression(
@@ -186,7 +184,6 @@ namespace Components.Aphid.VSPackage
                 ),
             }
 ;
-        }
     }
 }
 
