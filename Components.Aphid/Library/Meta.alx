@@ -1,4 +1,5 @@
-﻿// Todo: generate API documentation from AST e.g.
+﻿//extend unknown { dynamic priv: @(o, n, v) { if (n.StartsWith('get')) { } else { throw new InvalidCastException() } } }
+// Todo: generate API documentation from AST e.g.
 //
 // // Summary: Walks the abstract syntax tree beginning
 // // with the root specified via the node parameter and
@@ -106,6 +107,7 @@ var importRules;
 var importMethods;
 var loadTokenDetails;
 var nodeType;
+var resourceComment;
 
 @{
     call = @(name) { var n = $_; $args.RemoveAt(0); ret aphid.CallFunction(n, $args) };
@@ -573,18 +575,22 @@ var nodeType;
             .Replace('ExpExp', 'Exp')
             |> camelCase,
 
-        getExpMap: @{
-            var map = AphidExpression.Assembly
-                .GetTypes()
-                -?(@()$_.BaseType == AphidExpression)
-                ->@()({ type: $_, name: $_.Name |> convention.shortExpName });
+        getMap: @(getTypes, getName){
+            var map = getTypes()
+                ->@()({ type: $_, name: $_ | getName | convention.shortExpName });
 
             if (map -& @.name =? @() ($_ #!) > 1) {
-                throw 'Aphid expression map collision detected';
+                throw 'Aphid map collision detected';
             }
 
             ret map;
         },
+
+        getExpMap: @getMap(
+            @() AphidExpression.Assembly.GetTypes()-?AphidExpression.IsAssignableFrom,
+            @.Name),
+
+        getTokenMap: @getMap(@() AphidTokenType.values(), @()$_.ToString()),
     };
 
     createVisitor = @{
@@ -644,6 +650,18 @@ var nodeType;
         var getString = @() $_;
         #'Meta/Code/Aphid/Aphid.Tokens';
         ret tokens;
+    };
+
+    resourceComment = {
+        extract: @(name, text) {
+            var start = '/*$' + name;
+            var end = start.ToCharArray();
+            end | Array.Reverse;
+
+            ret text.Split([start, new string(end)], StringSplitOptions.None)[1];
+        },
+
+        extractBinary: @(name, text) text @extract(name) |> Convert.FromBase64String,
     };
 }(); 
 

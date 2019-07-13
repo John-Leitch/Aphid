@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using static System.Reflection.Emit.AssemblyBuilderAccess;
 
 namespace Components.Aphid.Compiler
 {

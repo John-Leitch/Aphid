@@ -252,7 +252,8 @@ namespace Components.Aphid.Lexer
             return null;
         }
 
-        public static string GetCodeExcerpt(string code, in AphidToken token, int surroundingLines = 4) => GetCodeExcerpt(code, token.Index, surroundingLines);
+        public static string GetCodeExcerpt(string code, in AphidToken token, int surroundingLines = 4) =>
+            GetCodeExcerpt(code, token.Index, surroundingLines);
 
         public static string GetCodeExcerpt(string code, int index, int surroundingLines = 4)
         {

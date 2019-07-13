@@ -8,12 +8,13 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+var iconBytes;
 head('MakeExe');
 
 _ab = macro(@(flag) {
     var id(flag, 'Name') = '-' + quote(flag);
     if (var id(flag) = id(flag, 'Name') | args.Contains) {
-         id(flag, 'Name') | args.Remove;
+        id(flag, 'Name') | args.Remove;
     }    
 });
 
@@ -74,6 +75,10 @@ if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
 
 var outFile = properties.path | Path.GetFullPath;
 var getOutFile = @Path.ChangeExtension(outFile);
+
+([ getOutFile('pdb'), outFile ]-?File.Exists)
+    -%@printInfo('Deleting ~Cyan~{0}~R~')
+    ->File.Delete;
 
 if (!medusa) {
     printInfo('Starting preprocessing');
@@ -154,11 +159,6 @@ if (!medusa) {
     };
 
 
-
-    ([ getOutFile('pdb'), outFile ]-?File.Exists)
-        -%@printInfo('Deleting ~Cyan~{0}~R~')
-        ->File.Delete;
-
     importOpcodes();
     @(il, asmObj){
         asmObj.asm | addAttrs;
@@ -183,10 +183,36 @@ if (!medusa) {
 } else {
     printInfo('Projecting into C#', byteCodeFile);
     try {
+        var pkgDir = io.app.path('packages');
+        if (pkgDir | io.not.dir) {
+            pkgDir | io.mkdir;
+        }
+
+        csharp.optimize();
+
+        if (!properties.showConsole) {
+            csharp.params.CompilerOptions += ' -target:winexe ';
+        }
+
+        var icon = 'a.ico';            
+        var iconPath = this.'$script' @io.sibling(icon) |> io.full;
+        printInfo('Extracted embedded Aphid icon to ~Cyan~{0}~R~', iconPath);
+        
+        aphid.CurrentExpression.Context.Code 
+        @resourceComment.extractBinary(icon)
+        @io.bytes(iconPath);
+
+        csharp.params.CompilerOptions += ' -debug- ';
+        csharp.params.CompilerOptions += ' -parallel+ ';
+        csharp.params.CompilerOptions += ' -platform:x64 ';
+        csharp.params.CompilerOptions += ' -langversion:preview ';
+        csharp.params.CompilerOptions += ' -win32icon:"{0}" ' :: iconPath;
+        
         aphidCompiler.buildExe(script, outFile);
     } catch (e) {
         printError('Compilation failed');
         e.message | print;
+        e.exception | print;
         exit(0xbad5235);
     }
 }
@@ -265,3 +291,38 @@ if (!noMerge) {
 }
 
 printSuccess('Done');
+
+
+    /*$a.ico
+    
+    AAABAAEAQEAAAAAAIADwBwAAFgAAAIlQTkcNChoKAAAADUlIRFIAAABAAAAAQAgGAAAAqmlx3gAAAAFzUkdCAK7OHOkAAAAE
+    Z0FNQQAAsY8L/GEFAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAHhUlEQVR4Xt1bX4gVVRwWfamHIIIUe5AeIn2olvAho4y1P5T2
+    0iYmEmGwrmaoqeu/THPWiMAtWlt7sAQD20hJY1t80P6MoJuFC9cocWMTWaGuEtouBNvTnvY7d77dmd89Z8+ZmXt3r/7gY5i5
+    M2fO7/u++Z0z5947JU+sOvhI8NrBeUpi4+H5akfXk+qtrgVBdOqtFYtb6+qXtNYFr3w8NwAJEhsOzw+Q/Bieqo8uvTUCyY9A
+    YRsdMgaSvyWcsFVNq9+spgVN3TOReLCz84Vwb/er6vPe9eE59WEQquagUy0LutTShNJQHsm/8+0zQevphSN4/uZ0ApLfoqap
+    ld0zobpC8j2qbRSh2qy+UcsUSIguSUQp+UUK2+jQzRFUfs/wveE+9ZD66MqzOvljV7YlCPhR7dYknBxeE5qcAOVLJEjUuCOo
+    PJKHwkgynriEvxOIGndEWgLSOqH97NLg03NNMTTWliPSEkC4nMBA0gd6mhSB/eijyQ357B9RDTopKGxKWMKfgMb6pAMkJskR
+    WZUnfAmQgaRrwhGSgPfDBrUyeE7tD9cYE5YgAagFmCeMg4TCNkd0FJqDoxdagq9/3TUxjpAELAseVCOHNQmmhCVIgMs5IKF0
+    R3MgeTih45dmdexCiwIJ0UfVCT77W4anhpVwgIuAnuE2OsSoLB1BB0hU3BFUnshbA3yvczmBgaThBAL70UeVCRKwceg2tfbG
+    HaplaJYmwXcU4DyA8B01XE5gQPG4A4gTfe1Bd39HcPryoXyOIAFIfsWlGXqbxgn4PItjCF8nMJA8nHCyr12NEADkcwRrwOtX
+    7wxBwOq/7vJyQmblBc4M79QzSLxdRo6wQStNR9ABEpkd0XhpRgACCJcTsJ9HecK3HZAQdTURUeJ0Q3ZHNPbNqC+RMD3hhLah
+    ubqDJ9Qq3UmJrMqndpClZkDxiITqOKH1xjxNgAQ6beyoJ3B9lnZsTmBEBIzvhGgdz8gQCZC1gDikns5FQO7a4Rg96IhC8XjQ
+    d/1s0Pf32fLzsIoLEqLdRJAA1gAJW03wBa6rhINcTkDyf1z/SWEbHRoLELDpyBNh/D2deLvn0XDb+YfVjt8fUC39s8vQ1v+4
+    Otj/ouroX66+6l+rvhvYZeygDXRAauUFOHrI9QcGlNcOIOJOAAHbOxfEVmmyAySYOlht0Emut0+jE2D/NzsXlKk/ngOoPEEH
+    HOpdrT4prFBdxe2JDmLfdLxSoJPghPFqAp3w5+DFYHDoWvDPUNF43mjYagCffYLPMJKEo7CNd9B2vFpw1QQkP/jfNYVtdMgc
+    chTAO4KJgC+Ky3VyBJWm8ntOLdaPGRwiO1sNuGoClE/lAIJOkAR8UFg4rvKsMRNVI3xrgjPkjFAS8FmxQSdPHC2W1guoPNH+
+    89IJJWBsftGcjwCGrAUkgMpji31bLUDikzFKuGqBd0gCdhfvTygPJ4AA1oJ9hZf08QO9L+ukMUpgtDg+sMHYUQnMJ3Bd2nlF
+    GTzXGZwhCXijMCuhPIH9+HEkDeWxxT4d4kKlHZPbCSSAo8G6y3drEvYWH9OJyVpAR5AAOADJ22Z8vjUj68zRNSo4gwQQrlpA
+    kACXkkga1xO2UQPJo11fJxG8LvOoYFsf4NshagIcgS329w/U6+QJPvtSaRtsDmAicj3C5YiKjQo2J0hguowEkHxcMSQXV5rA
+    8XiHkfh4BEiwfRfy1wKLE4itV+9JvCt8ObBEd1DOFDlKYIt9zhwJGwFUEg6IE0BHOGtDpUcFCbw4xZUnWCOoNJW0KWcjgOD1
+    Erb2JCruhHUX79PJ863xvd5SQZSAE9BJwqaYi4C8Tsg9KjDoBCqP5FEDOE8gkHy8o+ikqWOEiwAC7cTb9W2f1+V+V9haqAuQ
+    PIEaAAJsM0WXQlQW8wYfAtI6QZ6fm4DSwskinTycwFGB8wMJ3DzeIQl8jvNQQ3wIIHidhLyfPC8zAfK3Pht+m5N4W3xXzdQk
+    cNXYpYiErwMIlxMI+XkOAkrKY4t91gISQNAJuLmp4zge7xDP860BErI9F1ITUP57v9Lv/GwE0An8TlGCikiHZCXA5gQbMhCQ
+    VJ5hI4Cw1QQCnY4nkpUAAu2Z7iPhTYBNeYaLAFkTCKk8kZcAXyekIMCsPMNFACGdIJUn8hJAuJwwSgC+GzR9R+hSnkEC5Orx
+    zUSA/ucHtvpAFC7lGSSA8K0FNUuAr/IM2+qxhO/8wJcAPus2eNeAcgL8lJdRqVrgSwCui7eTFmU1oPw7wnS/5/etBTYnEJwJ
+    ci3RBpfCErhf/L6jBDCyKs/wrQWEdALBdwG5rpAXuF/8vgYC+OynU55hWzHydQLhSwAV9QXuh/viV/BIPvd6gC3yOsGXAFxn
+    as8F/BQw6mp1IqsTCKwpggBs48clqKg3hqeGSB6/h4y6Wt1I6wSCq8pcYaoUqq68jLROIHwJQDtoz4b1/96uFScmTHkZaZ3g
+    SwDaibcrgftGXZjcsDnBhubzs/XXY5tO1ekFVgLfScbPQzulZKeHaL8MI/eNulAbgU7FFbJh5Q9zEqvKBI6bzke70S1qO+gE
+    F5q+n534NzqB46bzsys9Zcr/QYbjwz5RUCgAAAAASUVORK5CYII=
+
+    oci.a$*/

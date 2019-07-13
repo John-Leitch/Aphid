@@ -6,6 +6,20 @@ var speech;
     using System.Speech.Synthesis;
     using System.Speech.Recognition;
 
+    _wavStream = macro(@{
+        wavStream defined && wavStream != null ?
+            wavStream : new MemoryStream()
+    });
+
+    _recognize = macro(@(init) {
+        var recognizer = new SpeechRecognitionEngine();
+        recognizer.LoadGrammar(new DictationGrammar());
+        init;
+        var result = 5 | TimeSpan.FromSeconds | recognizer.Recognize;
+
+        ret result;
+    });
+
     speech = {
         say: @(text, wavStream) {
             var speech = new SpeechSynthesizer();
@@ -50,7 +64,7 @@ var speech;
             wavStream: @(s) { _recognize(recognizer.SetInputToWaveStream(s)) },
 
             syllables: {
-                text: @(t, recurse){
+                text: @(t, recurse) {
                     var pass = 0;
                     var passResults = new List[Object]();
                     var pronunciation = t | speech.ipa.fromText;

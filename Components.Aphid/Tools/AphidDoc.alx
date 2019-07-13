@@ -32,11 +32,12 @@ var off = getEntryDir().Length;
 printQuery('Generating documentation for files in dir ~Cyan~{0}~R~', srcDir);
 
 var srcFiles = Directory.GetFiles(srcDir, '*.alx', SearchOption.AllDirectories)
-    -? @(x)
+    -? (@(x)
         !x.ToLower().Substring(off).EndsWith('\\aphid.alx') &&
         !x.ToLower().Substring(off).Contains('\\bin\\') &&
         !x.ToLower().Substring(off).Contains('\\aphid\\debug\\') &&
-        !x.ToLower().Substring(off).EndsWith('.alxt');
+        !x.ToLower().Substring(off).EndsWith('.alxt'))
+    |> toArray;
     
 printInfo('Found ~Cyan~{0}~R~ files', srcFiles #!);
 
@@ -89,7 +90,16 @@ var members = new List[MemberDoc]();
 
 using System.Threading.Tasks;
 
-srcFiles->@(srcFile) {
+var tryExtractCommentObjs = @(srcFile) {
+    try {
+        extractCommentObjs(srcFile);
+    } catch (e) {
+        printError('Extraction failed for ~Yellow~{0}~R~', srcFile);
+        print(e.exception);
+    }
+};
+
+var extractCommentObjs = @(srcFile) {
     printInfo('Parsing ~Cyan~{0}~R~', srcFile);
     var src = srcFile |> File.ReadAllText;
     var tokens = (new AphidLexer(src)).GetAllTokens();
@@ -105,7 +115,9 @@ srcFiles->@(srcFile) {
         }));
     
     var codeDocQueue = new Queue(codeDocComments);
-    var srcAst = parseFile(srcFile);
+
+    var srcAst = new AphidParser((new AphidLexer(src)).GetTokens())
+        @()$_.Parse();
     
     srcAst @ast.walk(@(node, context) {
         if (codeDocQueue.Count == 0 ||
@@ -169,9 +181,11 @@ srcFiles->@(srcFile) {
 
         m.Parameters = params;
 
-        members.Add(m);
+        lock members members.Add(m);
     });
 };
+
+srcFiles @async.each(@(f){ tryExtractCommentObjs(f) });
 
 printInfo('Writing XML to ~Cyan~{0}~R~', xmlFile);
 members |> toXml @File.WriteAllText(xmlFile);

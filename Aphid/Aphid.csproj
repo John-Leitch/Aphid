@@ -161,6 +161,9 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>a.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -293,6 +296,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="a.ico" />
   </ItemGroup>
   <!-- <ItemGroup> -->
   <!-- <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1"> -->

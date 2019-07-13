@@ -1,0 +1,56 @@
+var aphidUI;
+
+@{
+    aphidUI = {
+        sync: new Object(),
+        initialized: false,
+        thread: null,
+        init: @{
+            print('Loading AphidUI.exe');
+            var asm = load 'c:/tools/aphid/aphidui.exe';
+
+            if (asm == null) {
+                throw new InvalidOperationException('Could not load AphidUI.exe');
+            } else {
+                print('Module loaded');
+            }
+        },
+        open: @() openAsync().Join(),
+        openAsync: @{
+            lock sync {
+                if (thread != null) {
+                    throw new InvalidOperationException('Instance of AphidUI already running');
+                }                
+
+                thread = async.staThread(@{
+                    #'Wpf';
+
+                    if (!initialized) {
+                        init();
+                    }
+
+                    using AphidUI;
+
+                    try {
+                        var app = new Application();
+                        app.add_DispatcherUnhandledException(@(o, e) {
+                            this | dump;
+                            Console.ReadLine();
+                            
+                        });
+                        app.dir();
+                        app.Run(new MainWindow());
+                    } catch (e) {
+                        print(e.message);
+                    }
+                });
+            }
+
+            ret thread;
+        },
+    };
+}();
+
+#'Std';
+#'Wpf';
+aphidUI.open();
