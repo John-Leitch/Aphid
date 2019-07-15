@@ -2,6 +2,9 @@ echo ================================================================
 echo Creating Merged Binaries
 echo ================================================================
 
+pushd .
+cd %~dp0
+
 for /r ..\aphid\bin %%i in (aphid*portable*.*) do del %%i
 
 for /f %%i in ('dir ..\Aphid\bin\*aphid*.exe /s /b') do (
@@ -10,3 +13,5 @@ for /f %%i in ('dir ..\Aphid\bin\*aphid*.exe /s /b') do (
     %%i tools\ILMerge.alx -unattended || exit bad80
     popd
 )
+
+popd

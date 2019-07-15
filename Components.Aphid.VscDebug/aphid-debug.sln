@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid", "..\Comp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aphid", "..\Aphid\Aphid.csproj", "{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AphidUI", "..\AphidUI\AphidUI.csproj", "{B828964B-52F1-4EA5-9AB3-26D698DB8325}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AphidDebug|Default = AphidDebug|Default
@@ -55,6 +57,19 @@ Global
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.TimeTravel32|Default.Build.0 = TimeTravel32|Default
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.TimeTravel64|Default.ActiveCfg = TimeTravel64|Default
 		{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}.TimeTravel64|Default.Build.0 = TimeTravel64|Default
+		
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.AphidDebug|Default.ActiveCfg = AphidDebug|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.AphidDebug|Default.Build.0 = AphidDebug|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.AphidDebug32|Default.ActiveCfg = AphidDebug32|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.AphidDebug32|Default.Build.0 = AphidDebug32|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.AphidDebug64|Default.ActiveCfg = AphidDebug64|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.AphidDebug64|Default.Build.0 = AphidDebug64|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.TimeTravel|Default.ActiveCfg = TimeTravel|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.TimeTravel|Default.Build.0 = TimeTravel|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.TimeTravel32|Default.ActiveCfg = TimeTravel32|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.TimeTravel32|Default.Build.0 = TimeTravel32|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.TimeTravel64|Default.ActiveCfg = TimeTravel64|Default
+		{B828964B-52F1-4EA5-9AB3-26D698DB8325}.TimeTravel64|Default.Build.0 = TimeTravel64|Default
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

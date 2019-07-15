@@ -3,9 +3,6 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('32')) ">x86</Platform>
-    <Platform Condition=" '$(Platform)' == '' And $(Configuration.Contains('64')) ">x64</Platform>
-    <Platform Condition=" '$(Platform)' == '' And !$(Configuration.Contains('32')) And !$(Configuration.Contains('64')) ">AnyCPU</Platform>
     <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -81,7 +78,7 @@
     </When>
     <Otherwise>
       <PropertyGroup>
-        <DebugType>pdbonly</DebugType>
+        <DebugType>none</DebugType>
         <Optimize>true</Optimize>
         <IsDebug>
         </IsDebug>        
