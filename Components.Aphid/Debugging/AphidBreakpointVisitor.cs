@@ -3,6 +3,7 @@
 #define APHID_DEBUGGING_TRACE
 #define APHID_DEBUGGING_TRACE_VERBOSE
 #endif
+using Components;
 using Components.Aphid.Parser;
 using Components.External.ConsolePlus;
 using System;
@@ -15,14 +16,17 @@ namespace Components.Aphid.Debugging
 {
     public class AphidBreakpointVisitor : AphidVisitor
     {
-        private string _filename;
+        private readonly string _filename;
 
-        private int[] _indexes;
+        private readonly int[] _indexes;
+
+        private readonly Dictionary<int, bool> _indexSet = new Dictionary<int, bool>();
 
         public AphidBreakpointVisitor(string filename, int[] indexes)
         {
             _filename = filename;
             _indexes = indexes;
+            _indexSet = _indexes.AsKeyFor(x => false);
         }
 
         protected override void Visit(AphidExpression expression)
@@ -32,7 +36,18 @@ namespace Components.Aphid.Debugging
 #if APHID_DEBUGGING_TRACE
                 var oldValue = expression.HasBreakpoint;
 #endif
-                expression.HasBreakpoint = _indexes.Contains(expression.Index);
+                if (_indexes.Contains(expression.Index))
+                {
+                    if (!_indexSet[expression.Index])
+                    {
+                        expression.HasBreakpoint = true;
+                        _indexSet[expression.Index] = true;
+                    }
+                }
+                else if (expression.HasBreakpoint)
+                {
+                    expression.HasBreakpoint = false;
+                }
 
 #if APHID_DEBUGGING_TRACE
                 if (oldValue != expression.HasBreakpoint)

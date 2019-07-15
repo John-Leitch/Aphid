@@ -171,7 +171,7 @@ namespace VSCodeDebug
 
         public void Stop() => _stopRequested = true;
 
-        public void SendEvent(Event e) => SendMessage(e);
+        public void SendEvent<TEvent>(TEvent e) where TEvent : Event => SendMessage(e);
 
         public Task<Response> SendRequest(string command, dynamic args)
         {
@@ -273,7 +273,8 @@ namespace VSCodeDebug
             }
         }
 
-        protected void SendMessage(ProtocolMessage message)
+        protected void SendMessage<TMessage>(TMessage message)
+            where TMessage : ProtocolMessage
         {
             if (message.seq == 0)
             {
@@ -296,6 +297,10 @@ namespace VSCodeDebug
 
                 if (message.type == "response")
                 {
+                    if (((Response)(object)message).body is ExceptionInfoResponseBody ex)
+                    {
+                        Program.Log("[o] resp: {0}", JsonConvert.SerializeObject((Response)(object)message));
+                    }
                     //Program.Log("[o] resp: {0}", JsonConvert.SerializeObject((Response)message));
                 }
                 else if (message.type == "event")
@@ -314,8 +319,15 @@ namespace VSCodeDebug
             }
         }
 
-        private static byte[] ConvertToBytes(ProtocolMessage request)
+        private static byte[] ConvertToBytes<TMessage>(TMessage request)
+            where TMessage : ProtocolMessage
         {
+            //if (typeof(TMessage) != request.GetType())
+            //{
+            //    throw new InvalidOperationException(request.GetType().ToString());
+            //}
+
+            //var jsonBytes = Utf8Json.JsonSerializer.Serialize(request);
             var asJson = JsonConvert.SerializeObject(request);
             var jsonBytes = Encoding.GetBytes(asJson);
 

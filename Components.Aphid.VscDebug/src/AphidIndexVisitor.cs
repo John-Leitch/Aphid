@@ -15,7 +15,7 @@ namespace VSCodeDebug
         {
             if (!_indexTable.ContainsKey(expression.Index))
             {
-                Program.Log("Index: {0}, Exp: {1}", expression.Index, expression.ToString());
+                //Program.Log("Index: {0}, Exp: {1}", expression.Index, expression.ToString());
                 _indexTable.Add(expression.Index, expression);
             }
         }

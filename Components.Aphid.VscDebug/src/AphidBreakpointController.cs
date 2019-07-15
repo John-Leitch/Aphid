@@ -2,6 +2,7 @@
 using Components.Aphid.Parser;
 using Components.External;
 using Components.External.ConsolePlus;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,20 +11,37 @@ namespace VSCodeDebug
 {
     public class AphidBreakpointController
     {
-        private Memoizer<string, string> _codeMemoizer = new Memoizer<string, string>();
+        //private readonly Dictionary<string, DateTime> _codeCacheTime = new Dictionary<string, DateTime>();
 
-        private Memoizer<string, List<AphidExpression>> _astMemoizer = new Memoizer<string, List<AphidExpression>>();
+        //private ArgLockingMemoizer<string, string> _codeMemoizer = new ArgLockingMemoizer<string, string>();
+
+        private ArgLockingMemoizer<string, List<AphidExpression>> _astMemoizer = new ArgLockingMemoizer<string, List<AphidExpression>>(StringComparer.OrdinalIgnoreCase);
 
         public List<Breakpoint> UpdateBreakpoints(
             AphidDebugSession session,
             Response response,
             string scriptFile,
-            int[] clientLines)
+            SourceBreakpoint[] sourceBreakpoints)
         {
             // Todo: better handle forward slashes
             var fullScriptFile = Path.GetFullPath(scriptFile).Replace('/', '\\');
+            var lastWrite = new FileInfo(fullScriptFile).LastWriteTime;
+
+            //if (_codeCacheTime.TryGetValue(fullScriptFile, out var time) && time < lastWrite)
+            //{
+            //    _astMemoizer.Remove(fullScriptFile);
+            //    _codeMemoizer.Remove(fullScriptFile);
+            //    _codeCacheTime[fullScriptFile] = lastWrite;
+            //}
+            //else
+            //{
+            //    _codeCacheTime.Add(fullScriptFile, lastWrite);
+            //}
+            
             Cli.WriteInfoMessage("Parsing {0}", fullScriptFile);
-            var code = _codeMemoizer.Call(File.ReadAllText, fullScriptFile);
+            //var code = _codeMemoizer.Call(File.ReadAllText, fullScriptFile);
+            var code = File.ReadAllText(fullScriptFile);
+
             var ast = _astMemoizer.Call(x => session.Parse(response, x), fullScriptFile);
 
             if (ast == null)
@@ -36,7 +54,7 @@ namespace VSCodeDebug
             var breakpointExpressions = lineResolver.ResolveLineExpressions(
                 ast,
                 code,
-                clientLines);
+                sourceBreakpoints);
             
             var bps = new List<Breakpoint>();
             var j = 0;
@@ -44,16 +62,20 @@ namespace VSCodeDebug
 
             foreach (var exp in breakpointExpressions)
             {
-                var line = clientLines[j++];
-                Program.Log("Setting breakpoint on line {0}: {1}", line, exp.ToString());
-                bps.Add(new Breakpoint(true, line));
-            }
+                //var line = clientLines[j++];
+                Program.Log("Setting breakpoint at index {0}: {1}",
+                    exp.Index,
+                    exp.ToString());
+                
+            }            
 
             session.Interpreter.SetFileBreakpoints(
                 fullScriptFile,
                 breakpointExpressions.Select(x => x.Index).ToArray());
 
-            return bps;
+            return sourceBreakpoints
+                .Select(x => new Breakpoint(true, x.line, x.column))
+                .ToList(); ;
         }
 
         //public void SetExpressionBreakpointFlags(string filename, List<AphidExpression> ast)

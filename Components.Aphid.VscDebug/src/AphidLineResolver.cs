@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Lexer;
+using Components.Aphid.Parser;
 using Components.Json;
 using System;
 using System.Collections.Generic;
@@ -36,10 +37,20 @@ namespace VSCodeDebug
         public AphidExpression[] ResolveLineExpressions(
             List<AphidExpression> ast,
             string code,
-            int[] clientLines)
+            SourceBreakpoint[] clientLines)
         {
+            var indexes = clientLines
+                .Select(x => TokenHelper
+                    .GetIndex(code, x.line - 1, x.column - 1))
+                .ToArray();
+
+            Program.Log(
+                "Breakpoint offsets: {0}",
+                string.Join("\r\n", indexes.Select(x => x.ToString())));
+
+            //IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
+            //var indexes = ResolveLines(code, clientLines);
             IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
-            var indexes = ResolveLines(code, clientLines);
 
             return indexes
                 .Select(x => IndexTable.FirstOrDefault(y => y.Key >= x).Value)
@@ -47,39 +58,65 @@ namespace VSCodeDebug
                 .ToArray();
         }
 
-        public int ResolveExpressionLine(List<AphidExpression> ast, AphidExpression expression)
+        public (int, int) ResolvePosition(List<AphidExpression> ast, AphidExpression expression)
         {
             if (expression == null)
             {
                 Program.Log("Resolving line for expression null");
-                return 0;
+                return (0, 0);
             }
 
             var lineIndexes = GetLineIndexes(expression.Code);
 
-            Program.Log(
-                "Line indexes: {0}",
-                JsonSerializer.Serialize(lineIndexes));
+            //Program.Log(
+            //    "Line indexes: {0}",
+            //    JsonSerializer.Serialize(lineIndexes));
 
             IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
 
-            Program.Log(
-                "Index table: {0}",
-                JsonSerializer.Serialize(IndexTable.Select(x => x.Key).ToArray()));
+            //Program.Log(
+            //    "Index table: {0}",
+            //    JsonSerializer.Serialize(IndexTable.Select(x => x.Key).ToArray()));
 
             var lineMatch = lineIndexes
                 .Select((x, i) => new { Index = x, Line = i })
                 .FirstOrDefault(x => x.Index >= expression.Index);
 
-            var line = lineMatch != null ? lineMatch.Line : lineIndexes.Length;
+            if (lineMatch != null)
+            {
+                int line, col;
+                if (expression.Index == 0)
+                {
+                    line = 1;
+                    col = 1;
+                }
+                else
+                {
+                    line = lineMatch.Line;
+                    col = expression.Index - lineIndexes[lineMatch.Line - 1];
+                }
 
-            Program.Log(
-                "Expression {0} at index {1} resolved to line {2}",
-                expression,
-                expression.Index,
-                line);
+                Program.Log(
+                    "Expression {0} at index {1} resolved to line {2} col {3}",
+                    expression,
+                    expression.Index,
+                    lineMatch.Line,
+                    col);
 
-            return line;
+                return (line, col);
+            }
+            else
+            {
+                Program.Log(
+                    "Expression {0} at index {1} guessed to be on to line {2}",
+                    expression,
+                    expression.Index,
+                    lineIndexes.Length);
+
+                
+
+                return (lineIndexes.Length, expression.Index - lineIndexes[lineIndexes.Length - 1]);
+            }
         }
     }
 }

@@ -20,7 +20,8 @@ namespace VSCodeDebug
         {
         }
 
-        public void SendResponse(Response response, dynamic body = null)
+        public void SendResponse<TResponse>(TResponse response, dynamic body = null)
+            where TResponse : Response
         {
             if (body != null)
             {
@@ -29,7 +30,8 @@ namespace VSCodeDebug
             SendMessage(response);
         }
 
-        public void SendErrorResponse(Response response, int id, string format, dynamic arguments = null, bool user = true, bool telemetry = false)
+        public void SendErrorResponse<TResponse>(TResponse response, int id, string format, dynamic arguments = null, bool user = true, bool telemetry = false)
+            where TResponse : Response
         {
             var msg = new Message(id, format, arguments, user, telemetry);
             var message = Utilities.ExpandVariables(msg.format, msg.variables);
@@ -39,7 +41,7 @@ namespace VSCodeDebug
 
         protected override void DispatchRequest(string command, dynamic args, Response response)
         {
-            //Program.Log("Command: {0}\r\n", command);
+            Program.Log("Command: {0}\r\n", command);
             if (args == null)
             {
                 args = new { };
@@ -101,6 +103,12 @@ namespace VSCodeDebug
                         StepOut(response, args);
                         break;
 
+#if EXPRESSION_HISTORY
+                    case "stepBack":
+                        StepBack(response, args);
+                        break;
+#endif
+
                     case "pause":
                         Pause(response, args);
                         break;
@@ -141,7 +149,12 @@ namespace VSCodeDebug
                         Evaluate(response, args);
                         break;
 
+                    case "exceptionInfo":
+                        ExceptionInfo(response, args);
+                        break;
+
                     default:
+                        Program.Log("Invalid req");
                         SendErrorResponse(response, 1014, "unrecognized request: {_request}", new { _request = command });
                         break;
                 }
@@ -184,6 +197,10 @@ namespace VSCodeDebug
 
         public abstract void StepOut(Response response, dynamic arguments);
 
+#if EXPRESSION_HISTORY
+        public abstract void StepBack(Response response, dynamic arguments);
+#endif
+
         public abstract void Pause(Response response, dynamic arguments);
 
         public abstract void StackTrace(Response response, dynamic arguments);
@@ -197,6 +214,8 @@ namespace VSCodeDebug
         public abstract void Threads(Response response, dynamic arguments);
 
         public abstract void Evaluate(Response response, dynamic arguments);
+
+        public abstract void ExceptionInfo(Response response, dynamic arguments);
 
         // protected
 

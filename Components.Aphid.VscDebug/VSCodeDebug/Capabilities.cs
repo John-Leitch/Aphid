@@ -17,6 +17,12 @@ namespace VSCodeDebug
         public bool supportsFunctionBreakpoints;
         public bool supportsConditionalBreakpoints;
         public bool supportsEvaluateForHovers;
+        public bool supportsExceptionInfoRequest;
+        public bool supportsSetVariable;
+        public bool supportsSetExpression;
+        public bool supportsModulesRequest;
+        public bool supportsStepBack;
+        public bool supportsTerminateRequest;
         public dynamic[] exceptionBreakpointFilters;
     }
 }

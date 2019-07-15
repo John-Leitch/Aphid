@@ -24,36 +24,50 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
+  <Choose>
+    <!--                                -->
+    <!-- Aphid Time Travel Script Debug             -->
+    <!--                                -->
+    <When Condition="$(Configuration.StartsWith('TimeTravel'))">
+      <PropertyGroup>
+        <AphidDbgDirective>;EXPRESSION_HISTORY</AphidDbgDirective>
+        <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <AphidDbgDirective>
+        </AphidDbgDirective>
+        <IsAphidDbg>
+        </IsAphidDbg>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Configuration Condition=" '$(Configuration)' == '' ">AphidDebug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
     <ProjectGuid>{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VSCodeDebug</RootNamespace>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <!-- <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir> -->
+    <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)(AphidDbgDirective)</DefineConstants>
     <RestorePackages>true</RestorePackages>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <OutputPath>bin\Debug$(Bitness)\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
-    <!-- <OutputPath>bin\Debug\</OutputPath> -->
-    <!-- <PlatformTarget>x86</PlatformTarget>     -->
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
-    <!-- <OutputPath>bin\Debug\</OutputPath>     -->
-    <!-- <PlatformTarget>x64</PlatformTarget> -->
-    <!-- <DebugType>pdbonly</DebugType>     -->
-    <!-- <Optimize>true</Optimize>     -->
-    <!-- <ErrorReport>prompt</ErrorReport> -->
     <LangVersion>latest</LangVersion>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'" />
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\AphidBreakpointController.cs" />
@@ -64,6 +78,8 @@
     <Compile Include="VSCodeDebug\Capabilities.cs" />
     <Compile Include="VSCodeDebug\ErrorResponseBody.cs" />
     <Compile Include="VSCodeDebug\EvaluateResponseBody.cs" />
+    <Compile Include="VSCodeDebug\ExceptionDetails.cs" />
+    <Compile Include="VSCodeDebug\ExceptionInfoResponseBody.cs" />
     <Compile Include="VSCodeDebug\ExitedEvent.cs" />
     <Compile Include="src\Handles.cs" />
     <Compile Include="VSCodeDebug\InitializedEvent.cs" />
@@ -72,6 +88,7 @@
     <Compile Include="VSCodeDebug\Scope.cs" />
     <Compile Include="VSCodeDebug\ScopesResponseBody.cs" />
     <Compile Include="VSCodeDebug\SetBreakpointsResponseBody.cs" />
+    <Compile Include="VSCodeDebug\SourceBreakpoint.cs" />
     <Compile Include="VSCodeDebug\Source.cs" />
     <Compile Include="VSCodeDebug\StackFrame.cs" />
     <Compile Include="VSCodeDebug\StackTraceResponseBody.cs" />
@@ -117,21 +134,30 @@
     <!-- <Reference Include="System.Windows.Forms" /> -->
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers">
+      <Version>3.2.0-beta3-final</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup>
-    <PreBuildEvent>::powershell -Command "Get-Process aphid-debug -ErrorAction SilentlyContinue  | Stop-Process -Force; Exit 0"</PreBuildEvent>
+    <PreBuildEvent>::powershell -Command "Get-Process aphid-debug -ErrorAction SilentlyContinue  | Stop-Process -Force; Exit 0"
+cmd /c start taskkill /im aphid-debug.exe /f</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(ProjectDir)*.json C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
-xcopy $(ProjectDir)*.yml C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
-xcopy $(ProjectDir)*.config C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
-xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /e /d /y
-xcopy $(TargetDir)..\..\..\Components.Aphid\Library\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Library /e /d /y
-xcopy $(TargetDir)..\..\..\Components.Aphid\Tools\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Tools /e /d /y
+    <PostBuildEvent>cmd /c start taskkill /im aphid-debug.exe /f
+::xcopy $(ProjectDir)*.json C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
+::xcopy $(ProjectDir)*.yml C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
+::xcopy $(ProjectDir)*.config C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
+::xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /e /d /y
+::xcopy $(TargetDir)*.dll C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /e /d /y
+xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /s /e /d /y
+::xcopy $(TargetDir)..\..\..\Components.Aphid\Library\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Library /e /d /y
+::xcopy $(TargetDir)..\..\..\Components.Aphid\Tools\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Tools /e /d /y
 ::ngen.exe C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe
-ngen.exe C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
+::ngen.exe C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
   </PropertyGroup>
 </Project>

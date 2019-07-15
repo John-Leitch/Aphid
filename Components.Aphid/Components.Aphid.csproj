@@ -74,6 +74,25 @@
   </Choose>
   <Choose>
     <!--                                -->
+    <!-- Aphid Time Travel Script Debug             -->
+    <!--                                -->
+    <When Condition="$(Configuration.StartsWith('TimeTravel'))">
+      <PropertyGroup>
+        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective>
+        <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <AphidDbgDirective>
+        </AphidDbgDirective>
+        <IsAphidDbg>
+        </IsAphidDbg>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Choose>
+    <!--                                -->
     <!-- Debug                          -->
     <!--                                -->
     <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
@@ -107,7 +126,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
     <DefineConstants>$(DefineConstants);$(CommonDirectives);$(BitnessDirective)$(TraceDirective)$(AphidDbgDirective)</DefineConstants>
     <AssemblyName>Components.Aphid$(TraceSuffix)$(IsAphidDbg)$(IsDebug)$(Bitness)</AssemblyName>
     <ProjectGuid>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</ProjectGuid>
@@ -151,7 +170,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">    
+  </PropertyGroup>
+  <!--                                -->
+  <!-- APHID SCRIPT DEBUG             -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">    
   </PropertyGroup>
   <!--                                -->
   <!-- BINARY TRACE                   -->

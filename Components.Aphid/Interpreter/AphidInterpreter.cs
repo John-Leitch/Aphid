@@ -3,6 +3,8 @@
 //#define BINARY_FRAME_PERFORMANCE_TRACE
 #define APHID_FRAME_ADD_DATA
 #define APHID_FRAME_CATCH_POP
+#define TRACK_PREVIOUS_SCOPE
+//#define EXPRESSION_HISTORY
 
 using System;
 using System.Collections;
@@ -167,7 +169,7 @@ namespace Components.Aphid.Interpreter
 
         #region Instance Fields
 
-        private bool _isReturning, _isContinuing, _isBreaking, _isInTryCatchFinally;        
+        private bool _isReturning, _isContinuing, _isBreaking, _isInTryCatchFinally;
 
         private int _queuedFramePops;
 
@@ -181,6 +183,14 @@ namespace Components.Aphid.Interpreter
         private bool _isSingleStepping;
 
         private AutoResetEvent _singleStepReset;
+
+#if EXPRESSION_HISTORY
+        private ExpressionHistoryRecord[] _expressionHistory = new ExpressionHistoryRecord[0x1000];
+
+        private int _expressionHistoryIndex = 0;
+
+        private bool _isSteppingBack;
+#endif
 #endif
 
 #if TRACE_SCOPE
@@ -199,6 +209,10 @@ namespace Components.Aphid.Interpreter
 
         private AphidObject _localScope, _currentScope;
 
+#if TRACK_PREVIOUS_SCOPE
+        private AphidObject _previousScope;
+#endif
+
         #endregion
 
         #region Instance Properties
@@ -216,6 +230,10 @@ namespace Components.Aphid.Interpreter
                     _scopeTrace.Trace("Set scope begin");
                 }
 #endif
+#if TRACK_PREVIOUS_SCOPE
+                _previousScope = CurrentScope;
+#endif
+
 #pragma warning disable IDE0027 // Use expression body for accessors
                 _currentScope = value;
 #pragma warning restore IDE0027 // Use expression body for accessors
@@ -227,6 +245,10 @@ namespace Components.Aphid.Interpreter
 #endif
             }
         }
+
+#if TRACK_PREVIOUS_SCOPE
+        public AphidObject PreviousScope => _previousScope;
+#endif
 
 #if APHID_DEBUGGING_ENABLED
         public Dictionary<string, int[]> FileBreakpointIndexMap { get; private set; }
@@ -921,7 +943,7 @@ namespace Components.Aphid.Interpreter
         }
 
         #endregion
-        
+
         #region Function Call Methods
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -953,10 +975,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                     e.Data.Add(AphidName.Interpreter, this);
                     e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                    e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                 }
 
@@ -1146,77 +1169,78 @@ namespace Components.Aphid.Interpreter
             }
         }
 
-       [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-       public AphidObject CallInteropFunction(
-           AphidExpression callExpression,
-           AphidInteropMethodInfo methodInfo,
-           AphidInteropMember interopMembers)
-       {
-           MethodBase method;
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AphidObject CallInteropFunction(
+            AphidExpression callExpression,
+            AphidInteropMethodInfo methodInfo,
+            AphidInteropMember interopMembers)
+        {
+            MethodBase method;
 
-           if (!methodInfo.Method.IsGenericMethod)
-           {
-               method = methodInfo.Method;
-           }
-           else
-           {
-               method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
-           }
+            if (!methodInfo.Method.IsGenericMethod)
+            {
+                method = methodInfo.Method;
+            }
+            else
+            {
+                method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
+            }
 
-           var convertedArgs = TypeConverter.Convert(
-               methodInfo.Arguments,
-               methodInfo.GenericArguments);
+            var convertedArgs = TypeConverter.Convert(
+                methodInfo.Arguments,
+                methodInfo.GenericArguments);
 
-           PushFrame(
-               callExpression,
-               new Lazy<string>(() =>
-                   Format(
-                       "{0}.{1}",
-                       AphidType.TypeToString(method.DeclaringType),
-                       method.Name)),
-               convertedArgs);
+            PushFrame(
+                callExpression,
+                new Lazy<string>(() =>
+                    Format(
+                        "{0}.{1}",
+                        AphidType.TypeToString(method.DeclaringType),
+                        method.Name)),
+                convertedArgs);
 
-           try
-           {
-               return Wrap(
-                   method.Invoke(
-                       interopMembers.Target,
-                       convertedArgs));
-           }
+            try
+            {
+                return Wrap(
+                    method.Invoke(
+                        interopMembers.Target,
+                        convertedArgs));
+            }
 #if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
 #if APHID_FRAME_ADD_DATA
-           catch (Exception e)
+            catch (Exception e)
 #else
            catch
 #endif
-           {
-               if (e.Source != AphidName.DebugInterpreter)
-               {
-                   e.Source = AphidName.DebugInterpreter;
+            {
+                if (e.Source != AphidName.DebugInterpreter)
+                {
+                    e.Source = AphidName.DebugInterpreter;
 #if APHID_FRAME_CATCH_POP
-                   while (_queuedFramePops > 0)
-                   {
-                       _frames.Pop();
-                       _queuedFramePops--;
-                   }
+                    while (_queuedFramePops > 0)
+                    {
+                        _frames.Pop();
+                        _queuedFramePops--;
+                    }
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
-                   e.Data.Add(AphidName.Interpreter, this);
-                   e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+                    e.Data.Add(AphidName.Interpreter, this);
+                    e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
+#if TRACK_PREVIOUS_SCOPE
+                    e.Data.Add(AphidName.Scope, PreviousScope);
 #endif
-               }
-
-               throw;
-           }
 #endif
-           finally
-           {
-               PopFrame();
-           }
-       }
+                }
+
+                throw;
+            }
+#endif
+            finally
+            {
+                PopFrame();
+            }
+        }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallStaticInteropFunction(CallExpression callExpression)
@@ -1375,10 +1399,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                     e.Data.Add(AphidName.Interpreter, this);
                     e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                    e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                 }
 
@@ -2076,6 +2101,70 @@ namespace Components.Aphid.Interpreter
                 var expression = expressions[i];
                 CurrentStatement = CurrentExpression = expression;
 
+#if EXPRESSION_HISTORY
+                if (!_isSteppingBack)
+                {
+                    if (++_expressionHistoryIndex == 0x100)
+                    {
+                        _expressionHistoryIndex = 0;
+                    }
+
+                    AphidObject scopeCopy;
+
+                    if (CurrentScope != null)
+                    {
+                        //var num = 0;
+                        scopeCopy = Complex();
+
+                        var dst = scopeCopy;
+                        var src = CurrentScope;
+
+                        while (true)
+                        {
+                            foreach (var kvp in src)
+                            {
+                                dst.Add(
+                                    kvp.Key,
+                                    kvp.Value == null ? null :
+                                    kvp.Value.IsComplex ? Complex(kvp.Value) :
+                                    Scalar(kvp.Value.Value));
+                            }
+
+                            //dst.Add("$copy", Scalar(num++));
+
+                            if (src.Parent != null)
+                            {
+                                var p = Scope();
+                                dst.Parent = p;
+                                dst["$parent"] = p;
+                                dst = p;
+                                src = src.Parent;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        scopeCopy = null;
+                    }
+
+
+                    _expressionHistory[_expressionHistoryIndex] = new ExpressionHistoryRecord(
+                        CurrentStatement,
+                        expressions,
+                        i,
+                        scopeCopy,
+                        GetStackTrace(-1));
+                }
+                else
+                {
+                    _isSteppingBack = false;
+                }
+#endif
+
                 if (OnInterpretStatement != null && !OnInterpretStatementExecuting)
                 {
                     OnInterpretStatementExecuting = true;
@@ -2103,7 +2192,34 @@ namespace Components.Aphid.Interpreter
                 if (expression.Type == Exp.IdentifierExpression)
                 {
 #if APHID_DEBUGGING_ENABLED
-                    HandleDebugging(expression);
+#if EXPRESSION_HISTORY
+                    try
+                    {
+#endif
+                        HandleDebugging(expression);
+#if EXPRESSION_HISTORY
+                    }
+                    catch (StepBackException)
+                    {
+                        var rec = _expressionHistory[_expressionHistoryIndex];
+                        expressions = rec.Block;
+                        i = rec.BlockIndex - 1;
+                        CurrentStatement = CurrentExpression = rec.Statement;
+
+                        if (_singleStepReset != null)
+                        {
+                            _singleStepReset.Reset();
+                        }
+                        else
+                        {
+                            _singleStepReset = new AutoResetEvent(false);
+                        }
+
+                        BreakExecution(CurrentStatement);
+                        _isSingleStepping = true;
+                        continue;
+                    }
+#endif
 #endif
 
                     var idExp = (IdentifierExpression)expression;
@@ -2125,7 +2241,34 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    InterpretExpression(expression);
+#if APHID_DEBUGGING_ENABLED && EXPRESSION_HISTORY
+                    try
+                    {
+#endif
+                        InterpretExpression(expression);
+#if APHID_DEBUGGING_ENABLED && EXPRESSION_HISTORY
+                    }
+                    catch (StepBackException)
+                    {
+                        var rec = _expressionHistory[_expressionHistoryIndex];
+                        expressions = rec.Block;
+                        i = rec.BlockIndex - 1;
+                        CurrentStatement = CurrentExpression = rec.Statement;
+
+                        if (_singleStepReset != null)
+                        {
+                            _singleStepReset.Reset();
+                        }
+                        else
+                        {
+                            _singleStepReset = new AutoResetEvent(false);
+                        }
+
+                        BreakExecution(CurrentStatement);
+                        _isSingleStepping = true;
+                        continue;
+                    }
+#endif
                 }
 
                 if (_isBreaking || _isContinuing)
@@ -2276,10 +2419,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                             e.Data.Add(AphidName.Interpreter, this);
                             e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                            e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                         }
 
@@ -2847,7 +2991,7 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.CustomOperator317:
                     case AphidTokenType.CustomOperator318:
                     case AphidTokenType.CustomOperator319:
-                    #endregion
+                        #endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:
@@ -3445,10 +3589,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                     e.Data.Add(AphidName.Interpreter, this);
                     e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                    e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                 }
 
@@ -4226,10 +4371,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                             e.Data.Add(AphidName.Interpreter, this);
                             e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                            e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                         }
 
@@ -4282,10 +4428,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                             e.Data.Add(AphidName.Interpreter, this);
                             e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                            e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                         }
 
@@ -4323,10 +4470,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                             e.Data.Add(AphidName.Interpreter, this);
                             e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                            e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                         }
 
@@ -4409,10 +4557,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                                     e.Data.Add(AphidName.Interpreter, this);
                                     e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                                    e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                                 }
 
@@ -4518,10 +4667,11 @@ namespace Components.Aphid.Interpreter
 #endif
 
 #if APHID_FRAME_ADD_DATA
-
                     e.Data.Add(AphidName.Interpreter, this);
                     e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
-
+#if TRACK_PREVIOUS_SCOPE
+                    e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
 #endif
                 }
 
@@ -5804,7 +5954,7 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CustomOperator317:
                 case AphidTokenType.CustomOperator318:
                 case AphidTokenType.CustomOperator319:
-                #endregion
+                    #endregion
                     return InterpretCustomBinaryOperator(expression);
 
                 default:
@@ -5988,8 +6138,7 @@ namespace Components.Aphid.Interpreter
             {
                 BreakExecution(expression);
             }
-
-            if (expression.HasBreakpoint)
+            else if (expression.HasBreakpoint)
             {
                 using (_breakpointReset = new ManualResetEvent(false))
                 {
@@ -6014,6 +6163,13 @@ namespace Components.Aphid.Interpreter
                     _singleStepReset = null;
                 }
             }
+
+#if EXPRESSION_HISTORY
+            if (_isSteppingBack)
+            {
+                throw new StepBackException();
+            }
+#endif
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -6088,6 +6244,12 @@ namespace Components.Aphid.Interpreter
         {
             if (HandleExecutionBreak != null)
             {
+                while (_queuedFramePops > 0)
+                {
+                    _frames.Pop();
+                    _queuedFramePops--;
+                }
+
                 new Thread(() => HandleExecutionBreak(expression)) { IsBackground = true }
                     .Start();
             }
@@ -6127,6 +6289,37 @@ namespace Components.Aphid.Interpreter
                 _breakpointReset.Set();
             }
         }
+
+#if EXPRESSION_HISTORY
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SingleStepBack()
+        {
+            _isSteppingBack = true;
+            _expressionHistoryIndex = _expressionHistoryIndex > 0 ?
+            _expressionHistoryIndex - 1 : (0x100 - 1);
+            var entry = _expressionHistory[_expressionHistoryIndex];
+            _currentScope = entry.Scope;
+            _frames.Clear();
+            _queuedFramePops = 0;
+
+            for (var i = 0; i < entry.Frames.Length; i++)
+            {
+                _frames.Push(entry.Frames[i]);
+            }
+
+
+            if (_breakpointReset != null)
+            {
+                _breakpointReset.Set();
+            }
+
+            if (_isSingleStepping)
+            {
+                _isSingleStepping = false;
+                _singleStepReset.Set();
+            }
+        }
+#endif
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pause() => SingleStep();
@@ -6397,6 +6590,47 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidInterpreter CreateChild(bool createChildScope) => AphidThread.CreateChild(this, createChildScope);
 
+        #endregion
+
+        #region Inner Types
+#if APHID_DEBUGGING_ENABLED && EXPRESSION_HISTORY
+        private readonly struct ExpressionHistoryRecord
+        {
+            public readonly AphidExpression Statement;
+
+            public readonly List<AphidExpression> Block;
+
+            public readonly int BlockIndex;
+
+            public readonly AphidObject Scope;
+
+            public readonly AphidFrame[] Frames;
+
+            //public readonly int FramesLength;
+
+            //public readonly int QueuedFramePops;
+
+            public ExpressionHistoryRecord(
+                AphidExpression statement,
+                List<AphidExpression> block,
+                int blockIndex,
+                AphidObject scope,
+                AphidFrame[] frame)
+            //int framesLength,
+            //int queuedFramePops)
+            {
+                Statement = statement;
+                Block = block;
+                BlockIndex = blockIndex;
+                Scope = scope;
+                Frames = frame;
+                //FramesLength = framesLength;
+                //QueuedFramePops = queuedFramePops;
+            }
+        }
+
+        private class StepBackException : Exception { }
+#endif
         #endregion
     }
 }

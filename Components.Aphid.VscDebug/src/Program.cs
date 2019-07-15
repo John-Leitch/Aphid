@@ -34,6 +34,10 @@ namespace VSCodeDebug
 
         private static void Main(string[] argv)
         {
+            //var bytes = Utf8Json.JsonSerializer.Serialize(new Request(123, "foo", "bar") { seq = 1 });
+
+            //var msg = Utf8Json.JsonSerializer.Serialize(Utf8Json.JsonSerializer.Deserialize<ProtocolMessage>(bytes)).GetString();
+            //Console.WriteLine(msg);
             //Environment.SetEnvironmentVariable("mono_debug_logfile", $@"d:\staging\vsc.{Guid.NewGuid()}.log");
             
             string id;
@@ -77,7 +81,10 @@ namespace VSCodeDebug
                             stdOut.Flush();
                         }
                     }
-                });
+                })
+                {
+                    IsBackground = true
+                };
 
                 t.Start();
 
@@ -109,7 +116,10 @@ namespace VSCodeDebug
                             stdInPipe.Flush();
                         }
                     }
-                });
+                })
+                {
+                    IsBackground = true
+                };
 
                 t2.Start();
 
@@ -255,6 +265,8 @@ namespace VSCodeDebug
             //    return;
             //}
 
+            string msg = data == null  || data.Length == 0 ? format : string.Format(format, data);
+
             try
             {
                 lock (Console.Error)
@@ -263,9 +275,7 @@ namespace VSCodeDebug
                     var fullStack = stackTrace.GetFrames().Select(x => x.ToString()).Aggregate((x, y) => x + "\r\n" + y);
                     //fullStack = "";
                     Console.Error.WriteLine(
-                        string.Format("[{0:x4}, {1:x8}]", LogId++, System.Threading.Thread.CurrentThread.ManagedThreadId) +
-                        format,
-                        data);
+                        "[{0:x4}, {1:x8}] {2}", LogId++, System.Threading.Thread.CurrentThread.ManagedThreadId, msg);
                     //Console.Error.WriteLine(" \n");
                 }
 
@@ -276,7 +286,6 @@ namespace VSCodeDebug
                         logFile = File.CreateText(LOG_FILE_PATH);
                     }
 
-                    string msg = string.Format(format, data);
                     logFile.WriteLine(string.Format("{0} {1}", DateTime.UtcNow.ToLongTimeString(), msg));
                 }
             }
@@ -301,9 +310,12 @@ namespace VSCodeDebug
         {
             Log("[s] Begin debug session");
             //System.Diagnostics.Debugger.Launch();
-            DebugSession debugSession = new AphidDebugSession();
-            debugSession.TRACE = trace_requests;
-            debugSession.TRACE_RESPONSE = trace_responses;
+            DebugSession debugSession = new AphidDebugSession
+            {
+                TRACE = trace_requests,
+                TRACE_RESPONSE = trace_responses
+            };
+
             debugSession.Start(inputStream, outputStream).Wait();
 
             if (logFile!=null)
