@@ -40,8 +40,12 @@ var csharp;
 
         emitCSFile: @(alxFile, namespace, method) {
             preprocessor.inlineScripts = true;
+            printInfo('Parsing {0}', alxFile);
+            var ast = alxFile |> io.text |> parse;
+            printInfo('Transforming {0}', alxFile);
+            var transformed = ast |> preprocessor.transform;
             
-            ret alxFile |> io.text |> parse |> preprocessor.transform
+            ret transformed
                 @csharp.fromAst(namespace, method)
                 @(cs){
                     printInfo('Creating CS file from {0} with namespace {1} and method {2}', alxFile, namespace, method);
@@ -83,30 +87,36 @@ var csharp;
             printInfo('Compiling ~Cyan~{0}~R~ into ~Magenta~{1}~R~', alxFile, asm);
             var ns = alxFile | io.base;
             var cl = 'CompiledAphidProgram';
-            var entryFile = alxFile @io.ext('.main') @+ '.cs';
             var csFile = emitCSFile(alxFile, ns, 'GetAst');
-            templates.entrypoint(ns, cl) @io.txt(entryFile);
+            templates.entrypoint(ns, cl) @io.out.append.txt(csFile);
+            
+            // if (csharp.params == null) {
+            //     csharp.params = csharp.createDefaultParams();
+            // }
+            
             csharp.roslyn.enable();
             csharp.exeCfg(ns, cl, asm);  
             csharp.optimize();
 
-            ret csharp.compileAsmFromFiles([entryFile, csFile]);
+            printInfo('Launching Roslyn');
+
+            ret csharp.compileAsmFromFiles([csFile]);
         },
 
         templates: {
             entrypoint: @(namespace, class)
                 strOut(@{%>
-                    using Components.External;
-                    using Components.Aphid.Interpreter;
-                    using Components.Aphid.TypeSystem;
-                    using Components.IO;
-                    using Components.PInvoke;
-                    using System;
-                    using System.Diagnostics;
-                    using System.IO;
-
                     namespace <%= namespace %>
                     {
+                        using Components.External;
+                        using Components.Aphid.Interpreter;
+                        using Components.Aphid.TypeSystem;
+                        using Components.IO;
+                        //using Components.PInvoke;
+                        using System;
+                        //using System.Diagnostics;
+                        using System.IO;
+
                         internal class <%=class%>
                         {
                             private static void Main(string[] args)
@@ -136,10 +146,10 @@ var csharp;
             var constantFoldingMutator = new ConstantFoldingMutator();
 
             ret srcAst
-                |> partialOpMutator.MutateRecursively
-                |> macroMutator.MutateRecursively
-                |> directiveMutator.MutateRecursively
-                |> (inlineScripts ? includeMutator.MutateRecursively : @() $_)
+                |> partialOpMutator.Mutate
+                |> macroMutator.Mutate
+                |> directiveMutator.Mutate
+                |> (inlineScripts ? includeMutator.Mutate : @() $_)
                 |> constantFoldingMutator.MutateRecursively;
         },
     };
@@ -356,58 +366,106 @@ var csharp;
     csharp = {
         sb: null,
         indentCount: 0,
-        tabList: 0..128->@(i) i * '    ',
+        tabList: 0..100->@(i) i * '    ',
         tab: '',
         propCache: new Dictionary[string, Object](),
         useExpBodies: true,
-        
+        emptyListTypes: null,
+        defaultCtorTypes: null,
         fromAst: @(namespace, resource, block) {
+            printInfo('Generating C# type ~Cyan~{0}.{1}~R~ from AST', namespace, resources.typeName);
             sb = new StringBuilder(0x1000000);
+            emptyListTypes = new List[string]();
+            defaultCtorTypes = new List[string]();
             getTab = macro(@{ tab });
             indent = macro(@{ tab = tabList[++indentCount] });
             unindent = macro(@{ tab = tabList[--indentCount] });
 
-            emit('namespace ');
-            concatLine(namespace);
-            emitLine('{');
-            indent();
-            emitLine('using global::Components.Aphid.Lexer;');
-            emitLine('using global::Components.Aphid.Parser;');
-            emitLine('using System.Collections.Generic;');
-            emitLine('');
-            emitLineFormat('public static partial class {0}', resources.typeName);
-            emitLine('{');
-            indent();
-
+            // @ %* (x,y) { sb.Append(getTab());sb.AppendLine('{'); indent(); y; };
+            // @ *% (x,y) { unindent();  sb.Append(getTab());sb.AppendLine('}'); y; };
+            // @ *> (x,y) { indent(); y; };
+            // @ <* (x,y) {  y;unindent(); };
+            var _b = @(f){ strOut(f) |> sb.Append };
+            _b(@{%>
+            namespace <%= namespace %>
+            {
+                /* Test */
+                using global::Components.Aphid.Lexer;
+                using global::Components.Aphid.Parser;
+                using System;
+                using System.Collections.Generic;
+            
+                public static partial class <%= resources.typeName %>
+                {
+                    <%});
             if (!useExpBodies) {
-                emitLineFormat('public static List<AphidExpression> {0}()', resource);
-                emitLine('{');
-                indent();
-                emit('return ');
-                compileAst(block);
-                sb.AppendLine(';');
-                unindent();
-                emitLine('}');
+                emitLineFormat('private static System.Lazy<List<AphidExpression>> {0}()', resource);
+                _b(@{%>
+                {
+                    return new System.Lazy<List<AphidExpression>>(() =>
+                    
+                        <%}); compileAst(block); _b(@{%>
+                    
+                    );
+                }
+                <%});
             } else {
-                emitLineFormat('public static List<AphidExpression> {0}() =>', resource);
-                indent();
-                compileAst(block);
-                sb.AppendLine(';');
-                unindent();
+                _b(@{%>
+                    /*fmt*/
+
+                    public static List<AphidExpression> <%=resource%>() =>
+                        <%=resource%>Lazy.Value;
+
+                    private static readonly List<AphidExpression> _empty = new List<AphidExpression>();                    
+
+                    private static System.Lazy<List<AphidExpression>> <%=resource%>Lazy =>
+                        new System.Lazy<List<AphidExpression>>(() =>
+                            <%}); compileAst(block); _b(@{%>
+                        );
+
+                    <% emptyListTypes->@(t){%>
+                        private static readonly List<<%= t %>> _<%= t %>s = new List<<%= t %>>();
+                    <%};%>
+
+                    <% defaultCtorTypes->@(t){%>
+                        private static readonly <%= t %> _<%= t %> = new <%= t %>();
+                    <%};%>
+                    
+                <%});
             }
-
-            unindent();
-            emitLine('}');
-            unindent();
-            emitLine('}');
-
+            _b(@{%>
+                }
+            }
+            <%});
             ret sb;
        },
 
        compileAst: @(compileBlock, compileDelim, genericParam) {
             if (genericParam defined) {
+                if (compileBlock.Count == 0) {                    
+                    if (!emptyListTypes.Contains(genericParam)) {
+                        emptyListTypes.Add(genericParam);
+                    }
+
+                    emitLine('_{0}s{1}' :: [
+                        genericParam,
+                        compileDelim defined && compileDelim.Length != 0 ? ',' : ''
+                    ]);
+
+                    ret null;
+                }
+
                 emitLineFormat('new List<{0}>', genericParam);
             } else {
+                if (compileBlock.Count == 0) {                    
+                    
+                    emitLine(
+                        '_empty{0}' ::
+                        (compileDelim defined && compileDelim.Length != 0 ? ',' : ''));
+
+                    ret null;
+                }
+
                 emitLine('new List<AphidExpression>');
             }
 
@@ -427,11 +485,6 @@ var csharp;
 
         compileNode: @(node, compileNodeDelim) {
             var t = node.GetType();
-            emit('new ');
-            concat(t.Name);
-            concatLine('(');
-            indent();
-            
             var ctorParams;
 
             if (propCache.ContainsKey(t.FullName)) {
@@ -448,6 +501,21 @@ var csharp;
 
                 propCache.Add(t.FullName, ctorParams);
             }
+
+            if (ctorParams.Count == 0) {
+                if (!defaultCtorTypes.Contains(t.Name)) {
+                    defaultCtorTypes.Add(t.Name);
+                }
+
+                emitLine('_{0}{1}' :: [ t.Name, compileNodeDelim defined ? ',' : '' ]);
+
+                ret null;
+            }
+
+            emit('new ');
+            concat(t.Name);
+            concatLine('(');
+            indent();
             
             var count = ctorParams #!;
             var last = count - 1;
@@ -600,14 +668,17 @@ var csharp;
                 codeDom: { name: 'Microsoft.CodeDom.Providers.DotNetCompilerPlatform', version: '2.0.1' },
             },
             getPackageDir: @(p) 'packages' | io.app.path @io.first.dir('{0}.{1}' :: p.Values), 
-            getCsc: @() packages.codeDom | getPackageDir @io.first.file('csc.exe'),
+            getCsc: @() packages.compiler | getPackageDir @io.first.file('csc.exe'),
             verify: @{
+                printQuery('Verifying Roslyn installation');
                 var missing = packages.Values -? getPackageDir @> io.no.dir;
 
                 if ((missing#!) > 0) {
                     missing-> @() printError('Package not found: ~Yellow~{0}.{1}~R~', $_.name, $_.version);
                     ret false;
                 }
+
+                printSuccess('Packages found');
 
                 var csc = getCsc();
 
@@ -617,11 +688,14 @@ var csharp;
                     ret false;
                 }
 
+                printSuccess('CSC found');
+
                 ret true;
             },
             update: @{
                 #'System/Nuget';
 
+                printInfo('Installing Roslyn packages');
                 packages.Values->@() installPackage($_.name, $_.version);
 
                 if (!verify()) {
@@ -629,14 +703,21 @@ var csharp;
                 }
             },
             enable: @{
-                #'System/Nuget';
-                
                 if (!verify()) {
                     update();
                 }
 
-                var p = packages.codeDom;
-                nuget.reference(p.name, p.version);
+                printInfo('Referencing {0}', packages.codeDom.name);
+
+                var p = packages.codeDom
+                    | getPackageDir
+                    @io.end('lib')
+                    @io.first.file('Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll');
+
+                load p;
+                
+                // nuget.reference(p.name, p.version);
+                printInfo('Looking for CSharpCodeProvider');
                 var t = findType('Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider');
                 csharp.provider = new t();
                 var getField = @(p, o) o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance) ~| p;
@@ -657,7 +738,7 @@ var csharp;
                 if (v == oldPath) {
                     throw new InvalidOperationException('Failed updating roslyn exe path');
                 } else {
-                    print('CSharpCodeProvider compiler path successfully set to ~Cyan~{0}~R~', v);
+                    printSuccess('CSharpCodeProvider compiler path successfully set to ~Cyan~{0}~R~', v);
                 }
             },
         },

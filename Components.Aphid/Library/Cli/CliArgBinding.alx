@@ -28,14 +28,23 @@
         };
 
         var boundArgs = {};
+        var mapped = {};
 
         [
             [var boolValues = (var n = argMap.names.Values)-?(@()$_.type == bool), false],
             [var otherValues = n->(@()$_) |> toArray @except(boolValues), null]
         ]
-        for (t) t^! for boundArgs[$_.name] = t$!;
-        
+        for (t) t^! for {
+            boundArgs[$_.name] = t$!;
+            mapped[$_.name] = false;
+        };
+
+        boundArgs.remaining = new List[Object]();
+        boundArgs.mapped = mapped;
+        boundArgs.anyMapped = false;
+        boundArgs.anyRemaining = false;
         var args = parseArgsFor();
+
         for (var i = 0; i < (args#!); i++) {
             if(argMap.names[var v = args[i].Value] defined) {
                 var m = argMap.names[v];
@@ -46,6 +55,12 @@
                         args[++i].Value :
                         e.args('Missing value for argument {0}' :: m.name),
                     e.args('Unsuppoted arg type {0}' :: t);
+
+                boundArgs.mapped[m.name] = true;
+                boundArgs.anyMapped = true;
+            } else {
+                args[i].Value | boundArgs.remaining.Add;
+                boundArgs.anyRemaining = true;
             }
         }
 

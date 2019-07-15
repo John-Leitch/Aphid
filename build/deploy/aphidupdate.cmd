@@ -3,7 +3,7 @@ set src=%~dp0..\..
 set dst=c:\tools\aphid
 REM set a=/E /Y /D /F /H
 set a=/Y /D /F /H
-
+pushd .
 
 set hr=call %src%\Aphid\bin\Release64\aphid64.exe *#'std';subhead('%%msg%%');
 set msg=Updating Aphid Binaries

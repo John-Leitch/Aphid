@@ -115,6 +115,10 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <DocumentationFile>
+    </DocumentationFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
     <DebugSymbols>true</DebugSymbols>
@@ -163,6 +167,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>a.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -318,19 +325,19 @@
 
 IF NOT EXIST "$(TargetDir)Aphid64.exe" (
     IF NOT EXIST "$(TargetDir)Ngen.exe" (
-        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" || exit 20
+        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" -medusa "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" || exit 20
     )
 
     IF NOT EXIST "$(TargetDir)Run.exe" (
-        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe" || exit 21
+        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" -medusa "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe" || exit 21
     )
 ) ELSE (
     IF NOT EXIST "$(TargetDir)Ngen.exe" (
-        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" || exit 22
+        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" -medusa "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" || exit 22
     )
 
     IF NOT EXIST "$(TargetDir)Run.exe" (
-        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe" || exit 23
+        "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" -medusa "$(TargetDir)Tools\Run.alx" "$(TargetDir)Run.exe" || exit 23
     )
 )</PostBuildEvent>
   </PropertyGroup>

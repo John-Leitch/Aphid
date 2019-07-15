@@ -65,5 +65,13 @@ namespace Components
             _cache.Clear();
             _locks.Clear();
         }
+
+        public void Remove(TArg arg)
+        {
+            lock (_locks[arg])
+            {
+                _cache.Remove(arg);
+            }
+        }
     }
 }

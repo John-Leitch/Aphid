@@ -1,4 +1,11 @@
-﻿//#'DebugDeploy';
+﻿{
+    title: 'MakeExe',
+    version: '1.0.0.0',
+    company: 'AutoSec Tools LLC',
+    copyright: '© AutoSec Tools LLC 2018',
+    showConsole: true,
+};
+
 #'Std';
 #'Meta\\Code\\Compiler';
 #'Meta\\Code\\Generation\\IL';
@@ -8,42 +15,31 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
-var iconBytes;
 head('MakeExe');
 
-_ab = macro(@(flag) {
-    var id(flag, 'Name') = '-' + quote(flag);
-    if (var id(flag) = id(flag, 'Name') | args.Contains) {
-        id(flag, 'Name') | args.Remove;
-    }    
+var args = console.bindArgs({
+    bool noMerge: '-noMerge',
+    bool medusa: '-medusa',
+    bool dumpCode:'-dumpCode',
 });
-
-var args = 
-    parseArgsFor()
-    -.Value
-    @() new List[Object]($_);
 
 var usage = 'MakeExe {-noMerge} {-medusa} {-dumpCode} [script name] {exe name} {merge assemblies/search paths...}';
 
-if (args.Count == 0) {
+if (!args.anyRemaining) {
     print(usage);
     exit(1);
 }
 
-_ab(noMerge);
-_ab(medusa);
-_ab(dumpCode);
+var script = args.remaining[0] | io.full;
+var scriptDir = script | io.up;
 
-var script = args[0] | Path.GetFullPath;
-var scriptDir = script | Path.GetDirectoryName;
+var asmName = args.remaining.Count >= 2 ?
+    args.remaining[1] :
+    args.remaining[0] @io.ext('exe');
 
-var asmName = args.Count >= 2 ?
-    args[1] :
-    Path.ChangeExtension(args[0], 'exe');
+var extraRefs = args.remaining.Count > 2 ? args.remaining @skip(2) : [];
 
-var extraRefs = args.Count >= 3 ? args @aq.skip(2) : [];
-
-if (noMerge && extraRefs | Enumerable.Any) {
+if (args.noMerge && (extraRefs | Enumerable.Any)) {
     printCriticalError(
         'Merge assemblies and/or search paths cannot be used ' +
         'when -noMerge is enabled.');
@@ -52,7 +48,7 @@ if (noMerge && extraRefs | Enumerable.Any) {
 
 printInfo('Parsing script');
 
-if (!(script | File.Exists)) {
+if (!(script | io.file)) {
     printCriticalError('Could not find script ~Yellow~{0}~R~', script);
     exit(0x3);
 }
@@ -73,14 +69,14 @@ if (scriptAst.Count >= 0 && scriptAst[0].GetType() == ObjectExpression) {
 }
 
 
-var outFile = properties.path | Path.GetFullPath;
+var outFile = properties.path | io.full;
 var getOutFile = @Path.ChangeExtension(outFile);
 
-([ getOutFile('pdb'), outFile ]-?File.Exists)
+([ getOutFile('pdb'), outFile ]-?io.file)
     -%@printInfo('Deleting ~Cyan~{0}~R~')
-    ->File.Delete;
+    ->io.del;
 
-if (!medusa) {
+if (!args.medusa) {
     printInfo('Starting preprocessing');
     preprocessor.inlineScripts = true;
     var srcAst = scriptAst | preprocessor.transform;
@@ -90,7 +86,7 @@ if (!medusa) {
     var byteCode = srcAst | AphidByteCode.Encode;
     printSuccess('Projected into ~Cyan~{0:n0}~R~ byte stream', byteCode.Length);
 
-    if (dumpCode) {
+    if (args.dumpCode) {
         subhead('Code Dump Begin');
 
         var code = byteCode
@@ -110,7 +106,7 @@ if (!medusa) {
         subhead('Code Dump End');
         print();    
         var codeDumpFile = 'exe.dump.alx' | getOutFile;
-        code @File.WriteAllText(codeDumpFile);
+        code @io.txt(codeDumpFile);
         codeDumpFile @printSuccess('Dumped embedded code to ~Green~{0}~R~');
     }
 
@@ -204,7 +200,14 @@ if (!medusa) {
 
         csharp.params.CompilerOptions += ' -debug- ';
         csharp.params.CompilerOptions += ' -parallel+ ';
-        csharp.params.CompilerOptions += ' -platform:x64 ';
+        
+        csharp.params.CompilerOptions += ' -platform:{0} ' ::
+            $(Assembly.GetEntryAssembly().GetName().ProcessorArchitecture)
+                ProcessorArchitecture.X86: 'x86',
+                ProcessorArchitecture.Amd64: 'x64',
+                ProcessorArchitecture.MSIL: 'anycpu',
+                throw new InvalidOperationException('Unknown process architecture');
+
         csharp.params.CompilerOptions += ' -langversion:preview ';
         csharp.params.CompilerOptions += ' -win32icon:"{0}" ' :: iconPath;
         
@@ -222,14 +225,10 @@ new FileInfo(outFile)
 @.Length
 @printSuccess('Created executable ~Green~{0}~R~ (~Cyan~{1:n0}~R~ bytes)', outFile);
 
-if (!noMerge) {
+if (!args.noMerge) {
     installPackage('ilmerge');
 
-    var ilMergeBin =
-        'packages'
-        |> getEntryPath
-        @() Directory.EnumerateFiles($_, 'ilmerge.exe', SearchOption.AllDirectories)
-        |> Enumerable.FirstOrDefault;
+    var ilMergeBin = io.app.path('packages') @io.first.file('ilmerge.exe');
 
     if (ilMergeBin == null) {
         printError('Could not find ilmerge.exe');
@@ -248,8 +247,8 @@ if (!noMerge) {
     il.Log = true;
     il.LogFile = properties.path + '.ilmerge.txt';
 
-    if (il.LogFile | File.Exists) {
-        il.LogFile | File.Delete;
+    if (il.LogFile | io.file) {
+        il.LogFile | io.del;
     }
 
     var searchDirs = new List[string]();
@@ -260,7 +259,7 @@ if (!noMerge) {
         'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
     ]->searchDirs.Add;
 
-    extraRefs-?Directory.Exists->searchDirs.Add;
+    extraRefs-?io.dir->searchDirs.Add;
 
     if (searchDirs | Enumerable.Any) {
         il.SetSearchDirectories(searchDirs | Enumerable.ToArray);

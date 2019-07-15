@@ -1,0 +1,119 @@
+var args =
+    frame(0).Scope.'$block'
+    ^!
+    @.Pairs
+    $!
+    @.RightOperand
+    @ast.call(@{ console.bindArgs }[0])
+    aphid.Interpret;
+
+var analyzeDump = @(dmp) {
+    #'Debugging/Cdb';
+    cdb.cdbPath = cdbPath;
+    printInfo('Opening dump ~Cyan~{0}~R~', dmp);
+
+    using (var writer = new StreamWriter(io.open.write(dmp + '.sos.log'))) {
+        cdb.consoleOut = false;
+        // cdb.callbacks.shared = @(data) { writer.Write(data) };
+        cdb.open(dmp);
+        print('Loading SOS extension');
+        cdb.sos.loadExtension();
+        var hr = '\r\n' + '=' * 80;
+        var hr2 = '=' * 80;
+        var w = writer.WriteLine;
+        
+        var r = @(c){
+            w(hr);            
+            w('Command: {0}' :: c);
+            w(hr2);
+            var o = c | cdb.pipe;
+
+            if (o != null) {
+                o->w;
+            } else {
+                'Error running command' | w;
+            }
+            w();
+            ret o;
+        };
+
+        var l = @(h, o) [ [ hr, h, hr2 ], o, ]->@()$_->w;
+        r('.symfix');
+        r('.reload');
+
+        var i = 0;
+        cdb.sos.dumpExceptions()-> @l('Exception Dump {0}' :: ++i);
+        
+
+        [
+            '!DumpDomain',
+            '!ThreadPool',
+            '!CLRStack -i -a',
+            '!DumpStackObjects',
+            '!DumpStack',
+            '!EEHeap',
+            '!VerifyHeap',
+            '!GCHandles',
+            '!FinalizeQueue',
+            '!DumpRuntimeTypes',
+            '!ObjSize',
+        ]
+        ->r;
+        
+        var obj = r('!Threads');
+        
+        if (obj != null) {
+            obj
+            @skipWhile(@(x) !x.Contains('ThreadOBJ'))
+            @skip(1)
+            ->(@()$_
+                .Trim()
+                .Split(
+                    [' '],
+                    StringSplitOptions.RemoveEmptyEntries))
+            -?(@() ($_#!) >= 4)
+            ->@skip(3)
+            ->first
+            -<(@(a) [
+                    '!ThreadState {0}',
+                    '!CLRStack -a -i {0}',
+                    '!DumpStack {0}',
+                    '!DumpStackObjects {0}',
+                    '!ListNearObj {0}',
+                ]
+                -> @() format($_, a))
+            ->r;
+        }        
+    }
+
+    cdb.write('q');
+};
+
+var scrapeHelp = @(cdb) {
+    print('Running help command');
+    var obj = cdb.pipe('!help');
+
+    if (obj == null) {
+        printError('Error analyzing ~Yellow~{0}~R~', dmp);
+        ret null;
+    }
+
+    obj
+    @skip(1)
+    @skipWhile(@(x) !x.StartsWith('-'))
+    @skip(1)
+    -?(@() $_ != null && !$_.Contains('Examining CLR'))
+    @takeWhile(@(x) !x.Contains('Examining the GC history'))
+    -<@()($_ ~: '\\([a-zA-Z]+\\)' ~~ '[a-zA-Z]+')
+    ->@format('!{0}')
+    -?@!='!GCHandleLeaks'
+    -?@!='!VMMap'
+    -?@!='!VMStat'
+    ->@{
+        printInfo('Running {0}', $_);
+        '.echo ' + '=' * 40 |> cdb.write;
+        '.echo Running {0} command' :: $_ |> cdb.write;
+        '.echo ' + '=' * 40 |> cdb.write;
+        $_ |> cdb.write;
+    }
+};

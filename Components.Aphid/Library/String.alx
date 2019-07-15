@@ -9,6 +9,23 @@ var language = {
     pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),    
     capitalize: _firstChar(ToUpper),
     camelCase: _firstChar(ToLower),
+    
+    acronym: @(camel, str) {
+        if (string.IsNullOrEmpty(str)) {
+            ret str;
+        }
+
+        var s = camel ? str[0].ToLower() : str[0].ToUpper();
+
+        for (var i = 1; i < str.Length; i++) {
+            var c = str[i];
+            if (char.IsUpper(c)) {
+                s += c.ToLower();
+            }   
+        }
+
+        ret s.Length == 2 && !camel ? s.ToUpper() : s;
+    },
 };
 
 extend string {

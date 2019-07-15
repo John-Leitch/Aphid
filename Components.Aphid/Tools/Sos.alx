@@ -13,6 +13,7 @@
 
 #'Std';
 #'Sos.Actions';
+
 head('SOS Dump Analyzer');
 print();
 var cdbPath = 'c:\\debuggers\\cdb.exe';
