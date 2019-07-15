@@ -14,9 +14,9 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>7.3</LangVersion>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>a.ico</ApplicationIcon>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
@@ -43,12 +43,39 @@
     </Otherwise>
   </Choose>
   <Choose>
+    <!--                                -->
+    <!-- Aphid Script Debug             -->
+    <!--                                -->
+    <When Condition="$(Configuration.StartsWith('AphidDebug'))">
+      <PropertyGroup>
+        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
+        <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
+      </PropertyGroup>
+    </When>
+    <!--                                -->
+    <!-- Aphid Time Travel Script Debug             -->
+    <!--                                -->
+    <When Condition="$(Configuration.StartsWith('TimeTravel'))">
+      <PropertyGroup>
+        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective>
+        <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <AphidDbgDirective>
+        </AphidDbgDirective>
+        <IsAphidDbg>
+        </IsAphidDbg>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Choose>
     <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
       <PropertyGroup>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
-        <IsDebug>.Debug</IsDebug>
-        <OutputPath>bin\Debug\</OutputPath>
+        <IsDebug>.Debug</IsDebug>        
         <DefineConstants>$(DefineConstants);TRACE;DEBUG;$(BitnessDirective)</DefineConstants>
       </PropertyGroup>
     </When>
@@ -57,8 +84,7 @@
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <IsDebug>
-        </IsDebug>
-        <OutputPath>bin\Release\</OutputPath>
+        </IsDebug>        
         <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)</DefineConstants>
       </PropertyGroup>
     </Otherwise>
@@ -69,12 +95,12 @@
   <Choose>
     <When Condition="$(Configuration.Contains('BinaryTrace'))">
       <PropertyGroup>
-        <AssemblyName>Aphid.BinaryTrace$(Bitness)$(IsDebug)</AssemblyName>
+        <AssemblyName>Aphid$(Bitness).BinaryTrace$(IsDebug)$(IsAphidDbg)</AssemblyName>
       </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
-        <AssemblyName>Aphid$(Bitness)$(IsDebug)</AssemblyName>
+        <AssemblyName>Aphid$(Bitness)$(IsDebug)$(IsAphidDbg)</AssemblyName>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -90,87 +116,21 @@
   <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
   <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
   <!-- </PropertyGroup> -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
-    <OutputPath>bin\Release32\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    <OutputPath>bin\Release64\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <DocumentationFile>
-    </DocumentationFile>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\AphidDebug\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\AphidDebug32\</OutputPath>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\AphidDebug64\</OutputPath>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
-    <DebugType>pdbonly</DebugType>
-    <Prefer32Bit>false</Prefer32Bit>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>a.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Default' "><OutputPath>bin\Debug\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'"><OutputPath>bin\Debug32\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'"><OutputPath>bin\Debug64\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Default' "><OutputPath>bin\Release\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />

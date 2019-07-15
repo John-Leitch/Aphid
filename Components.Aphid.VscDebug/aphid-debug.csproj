@@ -26,11 +26,20 @@
   </Choose>
   <Choose>
     <!--                                -->
+    <!-- Aphid Script Debug             -->
+    <!--                                -->
+    <When Condition="$(Configuration.StartsWith('AphidDebug'))">
+      <PropertyGroup>
+        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
+        <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
+      </PropertyGroup>
+    </When>
+    <!--                                -->
     <!-- Aphid Time Travel Script Debug             -->
     <!--                                -->
     <When Condition="$(Configuration.StartsWith('TimeTravel'))">
       <PropertyGroup>
-        <AphidDbgDirective>;EXPRESSION_HISTORY</AphidDbgDirective>
+        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective>
         <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
       </PropertyGroup>
     </When>
@@ -51,13 +60,13 @@
     <RootNamespace>VSCodeDebug</RootNamespace>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <!-- <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir> -->
-    <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)(AphidDbgDirective)</DefineConstants>
+    <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)$(AphidDbgDirective)</DefineConstants>
     <RestorePackages>true</RestorePackages>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>
-    <OutputPath>bin\Debug$(Bitness)\</OutputPath>
+    <OutputPath>bin\Release$(Bitness)\</OutputPath>
     <LangVersion>latest</LangVersion>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>

@@ -63,16 +63,6 @@
         <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
       </PropertyGroup>
     </When>
-    <Otherwise>
-      <PropertyGroup>
-        <AphidDbgDirective>
-        </AphidDbgDirective>
-        <IsAphidDbg>
-        </IsAphidDbg>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Choose>
     <!--                                -->
     <!-- Aphid Time Travel Script Debug             -->
     <!--                                -->
@@ -136,7 +126,8 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>7.3</LangVersion>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <LangVersion>latest</LangVersion>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -158,10 +149,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    <DocumentationFile>
-    </DocumentationFile>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <!--                                -->
   <!-- APHID SCRIPT DEBUG             -->
@@ -173,7 +160,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">    
   </PropertyGroup>
   <!--                                -->
-  <!-- APHID SCRIPT DEBUG             -->
+  <!-- TIME TRAVEL                    -->
   <!--                                -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'">
   </PropertyGroup>
