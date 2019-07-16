@@ -113,14 +113,16 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
 
                     update: @{
                         if ($args.Count > 0) {
-                            setValue($_);
-                            $args.RemoveAt(0);
-                            apply(setStatus, $args);
+                            lock state {
+                                setValue($_);
+                                $args.RemoveAt(0);
+                                apply(setStatus, $args);
+                            }
                         }
                     },
 
                     setValue: @(value) {
-                        state.progress.Value = value;
+                        state.progress.Value = value.double();
                         writeBar();
                     },
 
@@ -158,28 +160,57 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
                 ret p;
             },
         },
-        pipeline: {
-            process: @(func, source) {
+        pipeline: {            
+            processCore: @(isAsync, func, source) {
                 Console.CursorVisible = false;
 
                 try {
+                    var curRef = [0.int()] @seq.array(Object);
                     var total = source #!;
                     var result = [];
-                    var cur = 0;
                     var p = console.progress.create(total.double());
+                    
                     var next = @{
-                        var m = '{0:n0}/{1:n0} ({2:p2})' :: [ cur.int(), total.int(), (total != 0 ? (cur / total) : 0).double() ];
-                        p.update(cur++, m);
+                        var cur = Interlocked.Increment.Members[0].Invoke(
+                            null,
+                            curRef);
+
+                        if (udpateReset.WaitOne(0)) {
+                            p.update(
+                                cur, 
+                                '{0:n0}/{1:n0} ({2:p2})' :: [
+                                    cur.int(),
+                                    total.int(),
+                                    (total != 0 ? (cur / total) : 0).double()
+                                ]);
+                        }
                     };
 
                     p.setStatus('Starting task');
+                    var udpateReset = new AutoResetEvent(true);
+                    // using (var udpateReset = new AutoResetEvent(false)) {
+                        async.background(@{
+                            while (curRef[0] < total) {
+                                async.sleep(10);
+                                udpateReset.Set();
+                            }
+                        });
 
-                    source for {
+                        if (!isAsync) {
+                            source for {
+                                next();
+                                result.add(func($_));
+                            };
+                        } else {
+                            result = source @async.select(@{
+                                next();
+                                ret func($_);                                
+                            });
+                        }
+
                         next();
-                        result.add(func($_));
-                    };
-
-                    next();
+                    // }
+                    
                     p.finish();
                     
                     ret result;
@@ -187,6 +218,8 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
                     Console.CursorVisible = true;
                 }
             },
+            process: @(func, source) processCore(false, func, source),
+            parallel: @(func, source) processCore(true, func, source),
         },
     };
 }();

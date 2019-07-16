@@ -708,17 +708,22 @@ var csharp;
                 }
 
                 printInfo('Referencing {0}', packages.codeDom.name);
-
-                var p = packages.codeDom
+                var pkg = packages.codeDom;
+                var n = pkg.name;
+                var p = pkg
                     | getPackageDir
                     @io.end('lib')
-                    @io.first.file('Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll');
+                    @io.first.file('{0}.dll' :: n);
 
-                load p;
+                var domAsm = load p;
+
+                if (domAsm == null) {
+                    throw new InvalidOperationException('Could not find {0} assembly' :: n);
+                }
                 
                 // nuget.reference(p.name, p.version);
                 printInfo('Looking for CSharpCodeProvider');
-                var t = findType('Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider');
+                var t = domAsm.GetType('{0}.CSharpCodeProvider' :: n);
                 csharp.provider = new t();
                 var getField = @(p, o) o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance) ~| p;
                 var f = csharp.provider @getField('_compilerSettings');        

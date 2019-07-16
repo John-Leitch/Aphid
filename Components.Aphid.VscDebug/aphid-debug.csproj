@@ -83,6 +83,13 @@
     <Compile Include="src\AphidIndexVisitor.cs" />
     <Compile Include="src\AphidLineResolver.cs" />
     <Compile Include="src\AphidDebugSession.cs" />
+    <Compile Include="VSCodeDebug\ByteBuffer.cs" />
+    <Compile Include="VSCodeDebug\Event.cs" />
+    <Compile Include="VSCodeDebug\ProtocolMessage.cs" />
+    <Compile Include="VSCodeDebug\ProtocolServer.cs" />
+    <Compile Include="VSCodeDebug\Request.cs" />
+    <Compile Include="VSCodeDebug\Response.cs" />
+    <Compile Include="VSCodeDebug\ResponseBody.cs" />
     <Compile Include="VSCodeDebug\Breakpoint.cs" />
     <Compile Include="VSCodeDebug\Capabilities.cs" />
     <Compile Include="VSCodeDebug\ErrorResponseBody.cs" />
@@ -109,7 +116,6 @@
     <Compile Include="src\Utilities.cs" />
     <Compile Include="VSCodeDebug\DebugSession.cs" />
     <Compile Include="src\Program.cs" />
-    <Compile Include="src\Protocol.cs" />
     <Compile Include="VSCodeDebug\Variable.cs" />
     <Compile Include="VSCodeDebug\VariablesResponseBody.cs" />
   </ItemGroup>
@@ -121,6 +127,10 @@
     <None Include="package.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AphidUI\AphidUI.csproj">
+      <Project>{b828964b-52f1-4ea5-9ab3-26d698db8325}</Project>
+      <Name>AphidUI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aphid\Aphid.csproj">
       <Project>{efde894b-fa3d-4202-9a08-c9f69c0b0799}</Project>
       <Name>Aphid</Name>
@@ -158,14 +168,7 @@ cmd /c start taskkill /im aphid-debug.exe /f</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>cmd /c start taskkill /im aphid-debug.exe /f
-::xcopy $(ProjectDir)*.json C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
-::xcopy $(ProjectDir)*.yml C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
-::xcopy $(ProjectDir)*.config C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1 /d /y
-::xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /e /d /y
-::xcopy $(TargetDir)*.dll C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /e /d /y
-xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /s /e /d /y
-::xcopy $(TargetDir)..\..\..\Components.Aphid\Library\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Library /e /d /y
-::xcopy $(TargetDir)..\..\..\Components.Aphid\Tools\*.alx C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\Tools /e /d /y
+xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /d /y
 ::ngen.exe C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe
 ::ngen.exe C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
   </PropertyGroup>

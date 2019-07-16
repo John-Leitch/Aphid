@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using static Components.Aphid.TypeSystem.AphidObject;
 
 namespace VSCodeDebug
 {
@@ -53,7 +54,7 @@ namespace VSCodeDebug
             _variableHandles = new Handles<KeyValuePair<string, AphidObject>[]>();
             _frameHandles = new Handles<StackFrame>();
             _seenThreads = new Dictionary<int, Thread>();
-            Interpreter.CurrentScope.Add("$debugger", AphidObject.Scalar(this));
+            Interpreter.CurrentScope.Add("$debugger", Scalar(this));
             Interpreter.HandleExecutionBreak = HandleBreak;
         }
 
@@ -610,16 +611,43 @@ namespace VSCodeDebug
 
             if (_exception != null)
             {
-                var exScope = AphidObject.Complex();
-                exScope.Add("object", AphidObject.Scalar(_exception));
-                exScope.Add("message", AphidObject.Scalar(_exception.Message));
-                exScope.Add("clrStack", AphidObject.Scalar(_exception.StackTrace));
-                exScope.Add("inner", AphidObject.Scalar(_exception.InnerException));
-                exScope.Add("hresult", AphidObject.Scalar(_exception.HResult));
+                var exScope = Complex();
+                exScope.Add("object", Scalar(_exception));
+                exScope.Add("message", Scalar(_exception.Message));
+                exScope.Add("clrStack", Scalar(_exception.StackTrace));
+                exScope.Add("inner", Scalar(_exception.InnerException));
+                exScope.Add("hresult", Scalar(_exception.HResult));
 
                 var exHandle = _variableHandles.Create(exScope.ToArray());
                 scopes.Add(new Scope("Exception", exHandle));
             }
+
+#if EXPRESSION_HISTORY
+            var expRecords = Interpreter.ExpressionHistory.Take(Interpreter.ExpressionHistoryIndex);
+
+            if (Interpreter.ExpressionHistoryCount >= AphidInterpreter.ExpressionHistorySize)
+            {
+                expRecords = Interpreter.ExpressionHistory
+                    .Skip(Interpreter.ExpressionHistoryIndex)
+                    .Concat(expRecords);
+            }
+
+            var historyScope = Complex();
+            var i = 0;
+            foreach (var rec in expRecords.Take(Interpreter.ExpressionHistoryCount))
+            {
+                //var expRecordObj = Complex();
+                //expRecordObj.Add("statement", Scalar(rec.Statement));
+                //expRecordObj.Add("frames", Scalar(rec.Frames));
+                //expRecordObj.Add("block", Scalar(rec.Block));
+                //expRecordObj.Add("blockIndex", Scalar(rec.BlockIndex));
+                historyScope.Add($"[#{i++:x4},Depth={rec.Frames.Length:x2},Index={rec.BlockIndex:x2}]", Scalar(rec));
+            }
+
+            scopes.Add(new Scope(
+                "Statement Tracing",
+                _variableHandles.Create(historyScope.ToArray())));
+#endif
 
             SendResponse(response, new ScopesResponseBody(scopes));
         }
@@ -667,7 +695,7 @@ namespace VSCodeDebug
                             CreateVariable(
                                 new KeyValuePair<string, AphidObject>(
                                     c.Key,
-                                    AphidObject.Scalar(c.Value.GetList()))));
+                                    Scalar(c.Value.GetList()))));
 
                         //variables.Add(CreateVariable(c));
                         foreach (var o in c.Value.GetList().Select(x => x.ToArray()))
@@ -779,7 +807,7 @@ namespace VSCodeDebug
                         SendEvent(new ThreadEvent("started", _threadId));
 
                         var backup = Interpreter.SetIsInTryCatchFinally(true);
-                        Interpreter.CurrentScope.Add(AphidName.Script, AphidObject.Scalar(_script));
+                        Interpreter.CurrentScope.Add(AphidName.Script, Scalar(_script));
 
                         try
                         {

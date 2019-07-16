@@ -4,7 +4,6 @@
 #define APHID_FRAME_ADD_DATA
 #define APHID_FRAME_CATCH_POP
 #define TRACK_PREVIOUS_SCOPE
-//#define EXPRESSION_HISTORY
 
 using System;
 using System.Collections;
@@ -42,6 +41,8 @@ using static Components.Aphid.TypeSystem.ValueHelper;
 
 using Exp = Components.Aphid.Parser.AphidExpressionType;
 using LinqExp = System.Linq.Expressions.Expression;
+
+[assembly: InternalsVisibleTo("aphid-debug")]
 
 namespace Components.Aphid.Interpreter
 {
@@ -143,6 +144,10 @@ namespace Components.Aphid.Interpreter
 
         private const bool _createLoaderDefault = true;
 
+#if EXPRESSION_HISTORY
+        internal const int ExpressionHistorySize = 0x100;
+#endif
+
         #endregion
 
         #region Static Readonly Fields
@@ -185,9 +190,9 @@ namespace Components.Aphid.Interpreter
         private AutoResetEvent _singleStepReset;
 
 #if EXPRESSION_HISTORY
-        private ExpressionHistoryRecord[] _expressionHistory = new ExpressionHistoryRecord[0x1000];
+        private ExpressionHistoryRecord[] _expressionHistory = new ExpressionHistoryRecord[ExpressionHistorySize];
 
-        private int _expressionHistoryIndex = 0;
+        private int _expressionHistoryIndex = -1, _expressionHistoryCount = 0;
 
         private bool _isSteppingBack;
 #endif
@@ -256,6 +261,14 @@ namespace Components.Aphid.Interpreter
         public string CurrentFileContext { get; private set; }
 
         public Action<AphidExpression> HandleExecutionBreak { get; set; }
+
+#if EXPRESSION_HISTORY
+        internal ExpressionHistoryRecord[] ExpressionHistory => _expressionHistory;
+
+        internal int ExpressionHistoryIndex => _expressionHistoryIndex;
+
+        internal int ExpressionHistoryCount => _expressionHistoryCount;
+#endif
 #endif
 
         public int OwnerThread { get; private set; }
@@ -2104,7 +2117,9 @@ namespace Components.Aphid.Interpreter
 #if EXPRESSION_HISTORY
                 if (!_isSteppingBack)
                 {
-                    if (++_expressionHistoryIndex == 0x100)
+                    _expressionHistoryCount++;
+
+                    if (++_expressionHistoryIndex == ExpressionHistorySize)
                     {
                         _expressionHistoryIndex = 0;
                     }
@@ -6296,7 +6311,7 @@ namespace Components.Aphid.Interpreter
         {
             _isSteppingBack = true;
             _expressionHistoryIndex = _expressionHistoryIndex > 0 ?
-            _expressionHistoryIndex - 1 : (0x100 - 1);
+            _expressionHistoryIndex - 1 : (ExpressionHistorySize - 1);
             var entry = _expressionHistory[_expressionHistoryIndex];
             _currentScope = entry.Scope;
             _frames.Clear();
@@ -6594,7 +6609,7 @@ namespace Components.Aphid.Interpreter
 
         #region Inner Types
 #if APHID_DEBUGGING_ENABLED && EXPRESSION_HISTORY
-        private readonly struct ExpressionHistoryRecord
+        internal readonly struct ExpressionHistoryRecord
         {
             public readonly AphidExpression Statement;
 
@@ -6627,6 +6642,8 @@ namespace Components.Aphid.Interpreter
                 //FramesLength = framesLength;
                 //QueuedFramePops = queuedFramePops;
             }
+
+            public override string ToString() => $"{Statement}, {Scope}";
         }
 
         private class StepBackException : Exception { }

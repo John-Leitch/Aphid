@@ -157,7 +157,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
   </PropertyGroup>
   <!--                                -->
   <!-- TIME TRAVEL                    -->
@@ -166,7 +166,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">
   </PropertyGroup>
   <!--                                -->
   <!-- BINARY TRACE                   -->
@@ -663,7 +663,37 @@
       <Generator>AphidCodeDomGenerator</Generator>
       <LastGenOutput>LLexTemplates.cs</LastGenOutput>
     </None>
-    <None Include="Library\*.alx">
+    <None Include="Library\Cli.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Conversion.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Csv.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\IO.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\List.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Math.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Meta\Meta.Ast.g.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Query.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\Std.alx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Library\String.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Library\Automation\*.alx">

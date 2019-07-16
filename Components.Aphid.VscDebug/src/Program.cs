@@ -257,9 +257,15 @@ namespace VSCodeDebug
 
         //public static bool EnableLogging = true;
 
-        [Conditional("ENABLE_LOGGING")]
+        //[Conditional("ENABLE_LOGGING")]
         public static void Log(string format, params object[] data)
         {
+            if (format == null || 
+                !format.ToLower().Contains("exception"))
+            {
+                return;
+            }
+
             //if (!EnableLogging)
             //{
             //    return;

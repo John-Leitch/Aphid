@@ -337,12 +337,6 @@ var resourceComment;
         ret l;
     };
 
-    token = {
-        return: AphidTokenType.retKeyword
-    };
-
-    
-
     ast = {
         /*{
             summary: 'Gets the operator for the specified abstract syntax tree node.',
@@ -354,7 +348,7 @@ var resourceComment;
         op: @() $_.Operator,
         hasOp: @(op, node) @has('Operator') && isOp(op),
         isOp: @(op, node) node.Operator == op,
-        isRet: @() $_.Type == nodeType.unOp && ast.isOp(token.return, $_),
+        isRet: @() $_.Type == nodeType.unOp && ast.isOp(ast.token.retKeyword, $_),
         lhs: @(node) node.LeftOperand,
         rhs: @(node) node.RightOperand,
         attr: @(node) node.Attributes[0],
@@ -434,7 +428,7 @@ var resourceComment;
             var matches = [];
             node @walk(@(innerNode, context) {
                 if (predicate(innerNode, context)) {
-                    print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
+                    // print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
                     matches.add(innerNode);
                 }
             });
@@ -467,7 +461,7 @@ var resourceComment;
             .Replace('"', '\\"')
             @format('"{0}"')),
 
-        makeRet: @(operand) preUnOp(token.return, operand),
+        makeRet: @(operand) preUnOp(ast.token.retKeyword, operand),
         return: makeRet,
         
         block: @() new List[AphidExpression](),
@@ -513,6 +507,8 @@ var resourceComment;
             ret null;
         },
     };
+
+    #'Meta/Meta.Ast.g';
 
     dumpAst = @(node) {
         node @ast.walk(@(node, context) {

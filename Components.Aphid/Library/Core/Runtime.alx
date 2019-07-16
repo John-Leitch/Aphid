@@ -6,6 +6,12 @@ _trace = macro(@(handlerName) {
         
         state.aphid.handlerName = @(x) {
             var o = options;
+
+            if ((o.typeFilter != null && x.Expression.Type != o.typeFilter) ||
+                (o.predicate != null && !o.predicate(x))) {
+                ret null;
+            }
+
             var sb = state.out;
             var hl = state.highlight;                    
             var file = x.Expression.Context.Filename;
@@ -71,8 +77,7 @@ _trace = macro(@(handlerName) {
                 s.IgnoreSpecialVariables = true;
                 s.SplitStrings = true;
                 s.StringChunkSize = 90;
-                s.MaxElements = -1;
-                
+                s.MaxElements = -1;                
 
                 ret {
                     aphid,
@@ -102,6 +107,8 @@ _trace = macro(@(handlerName) {
                 calculatePosition: true,
                 syntaxHighlighting: true,
                 dumpScope: true,
+                typeFilter: null,
+                predicate: null,
             },
             expressions: _trace(OnInterpretExpression),
             statements: _trace(OnInterpretStatement),
