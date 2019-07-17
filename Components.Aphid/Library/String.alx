@@ -5,8 +5,25 @@
             word
 });
 
+_rml = macro(@(c) { word.Remove(word.Length - c) });
+
+// Todo: -f/-fe into v/es
 var language = {
-    pluralize: @(word) ($(word $!) 'y': word.Trim('y') + 'ies', word + 's'),    
+    pluralize: (@(word)
+        $(word#!) 0, 1: word,
+        $(word $!)
+            's', 'x', 'o': word + 'es',
+            'y': ($(word[word.Length - 2])
+                'b', 'c', 'd', 'f', 'g', 'h', 'j',
+                'k', 'l', 'm', 'n', 'p', 'q', 'r',
+                's', 't', 'v', 'x', 'z', 'w':
+                _rml(1) + 'ies',
+                word + 's'),                
+            $(word.Substring(word.Length - 2))
+                'sh', 'ch': word + 'es',
+                's', 'x': _rml() + 'es',
+                word + 's'),    
+
     capitalize: _firstChar(ToUpper),
     camelCase: _firstChar(ToLower),
     
@@ -27,6 +44,25 @@ var language = {
         ret s.Length == 2 && !camel ? s.ToUpper() : s;
     },
 };
+
+// var tests =
+//     'boy,boys
+//     girl,girls
+//     book,books
+//     piano,pianos
+//     photo,photos
+//     stereo,stereos
+//     dynamo,dynamos
+//     baby,babies
+//     lady,ladies
+//     city,cities
+//     story,stories
+//     box,boxes
+//     class,classes
+//     branch,branches
+//     brush,brushes
+//     watch,watches'
+//     .Split('\n')->@()$_.Trim().Split(',') @() [ $_[0].Trim() |language.pluralize, $_[1].Trim()];
 
 extend string {
     chars: @(s) __string.getChars(s),

@@ -1,4 +1,5 @@
-﻿using Components.Aphid.Parser;
+﻿using Components.Aphid.Debugging;
+using Components.Aphid.Parser;
 using Components.External;
 using Components.External.ConsolePlus;
 using System;
@@ -37,6 +38,7 @@ namespace Components.Aphid.Compiler
             _emitter = emitter;
             _isText = isText;
             _args = Environment.GetCommandLineArgs().Skip(1).ToArray();
+            AphidErrorReporter.Init();
         }
 
         private readonly Memoizer<string, string[]> _inputFileMemoizer = new Memoizer<string, string[]>();

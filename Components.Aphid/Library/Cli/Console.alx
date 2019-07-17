@@ -1,5 +1,12 @@
-﻿var getCommand = @() Environment.CommandLine;
-var getCommandLineArgs = @() Environment.GetCommandLineArgs();
+﻿// #'conversion';
+using Components;
+using Components.ConsolePlus;
+using Components.External.ConsolePlus;
+
+var cls;
+var exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
+var getCommand = @() Environment.CommandLine;
+var getCommandLineArgs = Environment.GetCommandLineArgs;
 
 var fixColors = @{
     Console.ForegroundColor = ConsoleColor.Gray;
@@ -12,6 +19,11 @@ var header = head;
 var subhead = @(msg) { Cli.WriteSubheader(msg, console.defaultSubheaderStyle) };
 var subheader = subhead;
 
+var fatal = @{
+    var msg = 'Fatal error';
+    throw $($args.Count) 0: msg, '{0}: {1}' :: [ msg, $args[0] :: ($args @aq.skip(1)) ];
+};
+
 _ci = macro(@(a) { if (exists()) { a } });
 _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
 
@@ -22,6 +34,10 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
     using Components.ConsolePlus;
 
     console = {
+        vt100Supported: VT100.TryEnable(),
+        writeLine: Console.WriteLine,
+        line: writeLine,        
+        write: Console.Write,
         head,
         header,
         subhead,
@@ -40,7 +56,8 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
         show: @() runWindowCmd(ShowWindowCommands.SW_SHOW),
         hide: @() runWindowCmd(ShowWindowCommands.SW_HIDE),
         highlight: SyntaxHighlightingFormatter.Format,
-        writeCode: highlight @> Console.WriteLine,
+        writeCode: highlight @> line,
+        code: writeCode,
 
         bindKeyAsync: @(key, action) {
             using System.Threading;
@@ -221,14 +238,74 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             process: @(func, source) processCore(false, func, source),
             parallel: @(func, source) processCore(true, func, source),
         },
+
+        getHistory: @(filterSyntaxErrors) this.'$replConsole'
+            .GetType().BaseType
+            .GetField('_history', BindingFlags.NonPublic | BindingFlags.Instance)
+            .GetValue(this.'$replConsole')
+            | reverse
+            -?<!(@() filterSyntaxErrors defined && filterSyntaxErrors ? 
+                $_ | parse != null :
+                true)
+            ->(@()$_ + 
+                ($_
+                |>?> parse
+                |>?> last
+                @() ($_ != null && $_.IsStatement() ? '' : ';'))),
+
+        dumpHistory: @(filterSyntaxErrors)
+            filterSyntaxErrors defined ? filterSyntaxErrors : false
+            |> getHistory
+            -> code,
+
+        color: {
+            invert = @(c) c->(@(b) (0xff - b).byte()) |> toArray,            
+            invertText = @(t) {
+                _inv = macro(@(n) { t.n = (t.n == null ? [0,0,0] : t.n) | invert });
+                _inv(ForegroundRgb);
+                _inv(BackgroundRgb);
+                ret t
+            },
+            remove: @(t) t ~: '\\x1b.*?m',
+            clearResets: @(t) t.Replace(VT100.Reset, ''),
+            strLen: @(s) s | remove @.Length,
+        },
+
+        dumpSysColors: @{
+            SystemColor
+                .GetFields()
+                ->@(f)$_
+                    .GetValue(null)
+                    @(c) c | VT100.Background
+                    @format(
+                        '{3}{0}{1}{2}',
+                        VT100.Foreground(c|color.invert),
+                        f.Name.PadRight(Console.BufferWidth - 2), VT100.Reset)
+                        |> line;
+        },
+
+        stdIn: {
+            lines: @(handle){
+                var lines = new List[string]();
+
+                if (handle defined) {
+                    while ((line = Console.In.ReadLine()) != null) {
+                        line | handle | lines.Add;
+                    }
+                } else {
+                    while ((line = Console.In.ReadLine()) != null) {
+                        line | lines.Add;
+                    }   
+                }
+
+                ret lines;
+            },
+
+            text: @() Console.In.ReadToEnd(),
+            txt: text,
+        },
     };
+
+    cls = console.clear;
 }();
 
-var cls = console.clear;
-
-var exit = @() ($args.Count != 0 ? $_ : 0) |> Environment.Exit;
-
-var fatal = @{
-    var msg = 'Fatal error';
-    throw $($args.Count) 0: msg, '{0}: {1}' :: [ msg, $args[0] :: ($args @aq.skip(1)) ];
-};

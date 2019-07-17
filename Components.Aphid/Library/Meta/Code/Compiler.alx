@@ -109,18 +109,18 @@ var csharp;
                     namespace <%= namespace %>
                     {
                         using Components.External;
+                        using Components.External.ConsolePlus;
                         using Components.Aphid.Interpreter;
                         using Components.Aphid.TypeSystem;
                         using Components.IO;
-                        //using Components.PInvoke;
                         using System;
-                        //using System.Diagnostics;
                         using System.IO;
 
                         internal class <%=class%>
                         {
                             private static void Main(string[] args)
-                            {
+                            {                                
+                                VT100.TryEnable();
                                 var interpreter = new AphidInterpreter();
                                 interpreter.CurrentScope.Add(
                                     "$script",

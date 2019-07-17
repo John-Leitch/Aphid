@@ -1,0 +1,135 @@
+#'Std';
+
+{
+    string path: '-p',
+    string filter: '-f',
+    bool replace: '-r',
+    // Todo:
+    //bool useEvaluator: '-e',
+    bool recurse: '-s',
+    string out: '-o',
+    bool write: '-w',
+    int indentSize: '-t',
+}
+| console.importArgs;
+
+_da = macro(@(n, v) { if (n == null) { n = v } });
+_da(filter, '*');
+_da(path, '.');
+_da(indentSize, 2);
+var groupIndent = ' ' * indentSize;
+
+if (!anyRemaining) {
+    print(
+        're { -p [path] } { -f [filter] } { -r } { -s } { -o [out str] } ' +
+        '{ -t [group indent size] } [pattern]'); // { -e evaluator statements ... }');
+
+    exit(1);
+}
+
+var func = recurse ? io.all.files : io.files;
+
+var pattern = remaining[0];
+
+func(path, filter) for (f){
+    var text = f | io.txt;
+    var matches = text ~~ pattern;
+    var c = matches#!;
+
+    if (c == 0 ){
+        continue;
+    }
+    
+    Console.WriteLine(
+        '{0}{1}{2}\r\n',
+        SystemColor.DarkBlue | VT100.Background,
+        '[{0} {1} in {2}]' :: [
+            c,
+            c != 1 ? language.pluralize('Match') : '',
+            f | io.full
+        ]
+        |> console.highlight
+        |> console.color.clearResets,
+        VT100.Reset);
+    
+    var matchNum = 0;
+    matches for (m) {        
+        var i2 = 0;        
+        m.Groups ->(@()$_) for (g) {
+            if (i2 > 0 && $_.Length == 0) {
+                '{0}Capture Group {1}: empty' :: [ groupIndent, i2++ ]
+                |> console.highlight
+                |> Console.WriteLine;
+
+                if (i2 == (m.Groups#!)) {
+                    Console.WriteLine();
+                }
+                continue;
+            }
+            var pos = TokenHelper.GetIndexPosition(text, $_.Index);
+            var newLen;
+            Console.WriteLine('{0}\r\n{1}', 
+                ($(i2) 0: 'Match {0}', '{1}Capture Group {2}') +
+                ': Line {3:n0}, Column {4:n0}, Index {5:n0}, Length {6:n0}' :: [
+                    ++matchNum,
+                    groupIndent,
+                    i2,
+                    pos.Item1 + 1,
+                    pos.Item2 + 1,
+                    $_.Index,
+                    $_.Length
+                ]
+                |> console.highlight
+                |> console.color.clearResets
+                |> (@()format(
+                    i2 == 0  ? '{0}{1}{0}{2}{3}' : '{1}',
+                    SystemColor.DarkBlue | VT100.Background,
+                    $_,
+                    new string(' ', Math.Max(0, Console.BufferWidth - 1 - ($_ | console.color.strLen))),
+                    VT100.Reset)),
+                i2++ == 0 ?
+                    TokenHelper
+                        .GetCodeExcerpt(
+                            text
+                                @{
+                                    ret [
+                                        text.Remove(g.Index) | console.highlight @{
+                                            newLen = $_.Length;
+                                            ret $_;
+                                        },
+                                        text.Substring(g.Index, g.Length)| SyntaxHighlightingFormatter.Highlight->console.color.invertText->VT100.GetString|>concat,
+                                        text.Substring(g.Index + g.Length) | console.highlight
+                                    ]
+                                    | concat;
+                                },
+                                // .Remove(g.Index, g.Length)
+                                // |> console.highlight
+                                // @() $_
+                                // .Insert(g.Index, g.Value | SyntaxHighlightingFormatter.Highlight->console.color.invertText->VT100.GetString|>concat),
+                            newLen,
+                            3)
+                        .TrimEnd()
+                        .Split(['\r\n'],  StringSplitOptions.None)
+                        ->(@() '{0}{1}{0}{2}{3}' :: [
+                            VT100.Background(SystemColor.DarkSlateGray->@()Math.Max(0, $_- 0x30).byte()),
+                            $_ | console.color.clearResets,
+                            new string(' ', Math.Max(0, Console.BufferWidth - ($_ | console.color.remove @.Length) - 1)),
+                            VT100.Reset
+                        ])
+                        @join('\r\n')
+                        @+ '\r\n' :
+                        '{0}{1}\r\n' :: [ groupIndent, $_.Value ]);
+        };
+
+        if (out != null) {
+            Console.WriteLine('{0}\r\n{1}\r\n', 
+                'Updated:' |> console.highlight,
+                $_.Groups[0].Value ~: [ pattern, out ]);
+        }
+    };
+
+    if ((matches#!) > 0 && write) {
+        printInfo('Writing updated text');
+        text ~: [ pattern, out ] |> @io.txt(f);
+    }
+};
