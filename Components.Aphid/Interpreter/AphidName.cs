@@ -20,7 +20,10 @@
             DebugInterpreter = "$aphidDebug",
             MemberSets = "$memberSets",
             OpenRepl = "openRepl",
-            DumpSerializer = "dumpSerializer",
+            DumpSerializer = "$dumpSerializer",
+            Prologue = "$prologue",
+            Epilogue = "$epilogue",
+            ReplConsole = "$replConsole",
             Var = "var",
             Class = "class",
             Of = "of";

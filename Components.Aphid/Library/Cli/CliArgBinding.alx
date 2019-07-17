@@ -1,13 +1,13 @@
 
 @{
-    console.bindArgs = @(m) {
+    console.bindArgs = @(m, skipFrames) {
         var argMap = {
             list: [ ],
             keys: { },
             names: { },
         };
         
-        frame(0)
+        frame(skipFrames defined ? skipFrames : 0)
             .exp()
             @(x)
                 (x.isCall() ? x.args()^! : x.isOp('|>', '|') ? x.lhs() : x.isOp('<|') ? x.rhs() : ex.arg() )
@@ -65,5 +65,11 @@
         }
 
         ret boundArgs;
-    }
+    };
+
+    console.importArgs = @(m)
+        console.bindArgs(m, 1)
+        | toArray
+        ->@() aphid.InitialScope[$_.Key] = $_.Value;
+
 }();

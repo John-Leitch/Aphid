@@ -5,10 +5,7 @@ namespace Coywolf.Visitors
 {
     public class PhpUseIdFinder : ExpressionFinder
     {
-        public List<AphidExpression> Find(List<AphidExpression> source)
-        {
-            return Find(source, AphidExpressionType.IdentifierExpression);
-        }
+        public List<AphidExpression> Find(List<AphidExpression> source) => Find(source, AphidExpressionType.IdentifierExpression);
 
         protected override IEnumerable<AphidExpression> GetChildren(IParentNode parent)
         {

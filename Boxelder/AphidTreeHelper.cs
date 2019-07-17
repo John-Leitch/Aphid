@@ -13,12 +13,9 @@ namespace Boxelder
 
         public static AphidExpression[] FirstOrDefaultPath(
             List<AphidExpression> ast,
-            Func<AphidExpression, bool> predicate)
-        {
-            return ast
+            Func<AphidExpression, bool> predicate) => ast
                 .Select(x => FirstOrDefaultPath(x, predicate))
                 .FirstOrDefault(x => x != null);
-        }
 
         public static AphidExpression[] FirstOrDefaultPath(
             AphidExpression expression,

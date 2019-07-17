@@ -85,12 +85,16 @@ namespace Components.Aphid.UI
                             AphidObject.Scalar(Serializer));
 
                         Interpreter.CurrentScope.Add(
-                            "prologue",
+                            AphidName.Prologue,
                             AphidObject.Scalar(Prologue));
 
                         Interpreter.CurrentScope.Add(
-                            "epilogue",
+                            AphidName.Epilogue,
                             AphidObject.Scalar(Epilogue));
+
+                        Interpreter.CurrentScope.Add(
+                            AphidName.ReplConsole,
+                            AphidObject.Scalar(console));
 
                         _isSerializerShared = true;
                     }

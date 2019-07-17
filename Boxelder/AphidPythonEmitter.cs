@@ -1,7 +1,9 @@
 ﻿using Components.Aphid.Compiler;
+using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
 using Components.Aphid.Parser.Fluent;
+using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,7 @@ namespace Boxelder
             { AphidTokenType.retKeyword, "return " },
             { AphidTokenType.NotOperator, "not " },
             { AphidTokenType.throwKeyword, "raise " },
+            { AphidTokenType.newKeyword, "" }
         };
 
         private Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
@@ -34,12 +37,12 @@ namespace Boxelder
         {
             var mutators = new AphidMutator[]
             {
+                new AphidMacroMutator(),
                 new IncludeMutator
                 {
                     PerformCommonTransformations = false,
                     DisableCaching = true
                 },
-                new AphidMacroMutator(),
                 new PipelineToCallMutator(),
                 new PartialOperatorMutator(),
                 new UnaryExpressionMutator(),
@@ -49,16 +52,14 @@ namespace Boxelder
 
             foreach (var mutator in mutators)
             {
+                Cli.WriteInfoMessage("Applying ~Cyan~{0}~R~", mutator.GetType());
                 ast = mutator.MutateRecursively(ast);
             }
 
             return base.Compile(filename, ast);
         }
 
-        private void AppendStatement(string format, params object[] args)
-        {
-            Append(GetTabs() + format, args);
-        }
+        private void AppendStatement(string format, params object[] args) => Append(GetTabs() + format, args);
 
         protected override void BeginStatement(AphidExpression expression)
         {
@@ -86,21 +87,16 @@ namespace Boxelder
                 "https://github.com/John-Leitch/Aphid/releases");
         }
 
-        protected override void EmitNumberExpression(NumberExpression expression, bool isStatement = false)
-        {
-            Append(expression.Value);
-        }
+        protected override void EmitNumberExpression(NumberExpression expression, bool isStatement = false) => Append(expression.Value);
 
-        protected override void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false)
-        {
-            Append(expression.Value ? "True" : "False");
-        }
+        protected override void EmitBooleanExpression(BooleanExpression expression, bool isStatement = false) => Append(expression.Value ? "True" : "False");
 
         protected override void EmitIdentifierExpression(IdentifierExpression expression, bool isStatement = false)
         {
             if (!isStatement)
             {
-                if (expression.Attributes.Count > 0)
+                if (expression.Attributes.Count > 1 ||
+                    (expression.Attributes.Count == 1 && expression.Attributes[0].Identifier != AphidName.Var))
                 {
                     throw new NotImplementedException();
                 }
@@ -113,10 +109,7 @@ namespace Boxelder
             }
         }
 
-        protected override void EmitNullExpression(NullExpression expression, bool isStatement = false)
-        {
-            Append("None");
-        }
+        protected override void EmitNullExpression(NullExpression expression, bool isStatement = false) => Append("None");
 
         protected void EmitIdentifierStatement(IdentifierExpression expression)
         {
@@ -242,6 +235,15 @@ namespace Boxelder
             }
         }
 
+        protected override void EmitForExpression(ForExpression expression, bool isStatement = false)
+        {
+            Emit(expression.Initialization);
+            AppendLine();
+            AppendTabs();
+            EmitWhileExpression(expression.Condition, expression.Body.Append(expression.Afterthought));
+            
+        }
+
         protected override void EmitForEachExpression(ForEachExpression expression, bool isStatement = false)
         {
             Append("for ");
@@ -254,20 +256,20 @@ namespace Boxelder
             Unindent();
         }
 
-        protected override void EmitWhileExpression(WhileExpression expression, bool isStatement = false)
+        protected override void EmitWhileExpression(WhileExpression expression, bool isStatement = false) =>
+            EmitWhileExpression(expression.Condition, expression.Body);
+
+        protected void EmitWhileExpression(AphidExpression condition, IEnumerable<AphidExpression> body)
         {
             Append("while ");
-            Emit(expression.Condition);
+            Emit(condition);
             Append(":\r\n");
             Indent();
-            Emit(expression.Body);
+            Emit(body);
             Unindent();
         }
 
-        protected override void EmitBreakExpression(BreakExpression expression, bool isStatement = false)
-        {
-            Append("break");
-        }
+        protected override void EmitBreakExpression(BreakExpression expression, bool isStatement = false) => Append("break");
 
         protected override void EmitCallExpression(CallExpression expression, bool isStatement = false)
         {
@@ -319,14 +321,15 @@ namespace Boxelder
                 throw new NotImplementedException();
             }
 
-            Append("{");
+            Append("{\r\n");
+            Indent();
             var isFirst = true;
 
             foreach (var kvp in expression.Pairs)
             {
                 if (!isFirst)
                 {
-                    Append(", ");
+                    Append(",\r\n");
                 }
                 else
                 {
@@ -336,12 +339,27 @@ namespace Boxelder
                 var exp = new StringExpression(
                     string.Format("'{0}'", kvp.LeftOperand.ToIdentifier().Identifier));
 
+                AppendTabs();
                 Emit(exp);
                 Append(": ");
-                Emit(kvp.RightOperand);
+
+                if (kvp.RightOperand.Type != AphidExpressionType.FunctionExpression)
+                {
+                    Emit(kvp.RightOperand);
+                }
+                else
+                {
+                    AppendLine();
+                    Indent();
+                    AppendTabs();
+                    EmitFunctionDeclarationStatement(kvp, true);
+                    Unindent();
+                }
             }
 
-            Append("}");
+            Unindent();
+            AppendTabs();
+            Append("}\r\n");
         }
 
         protected void EmitObjectStatement(ObjectExpression statement)
@@ -449,10 +467,10 @@ namespace Boxelder
             }
         }
 
-        private bool HasAllStringArgs(CallExpression expression)
-        {
-            return expression.Args.All(x => x.Type == AphidExpressionType.StringExpression);
-        }
+        protected override void EmitThisExpression(ThisExpression expression, bool isStatement = false) =>
+            Append("self");
+
+        private bool HasAllStringArgs(CallExpression expression) => expression.Args.All(x => x.Type == AphidExpressionType.StringExpression);
 
         protected void EmitImportStatement(CallExpression statement)
         {
@@ -493,44 +511,30 @@ namespace Boxelder
             Append(ParseStringArgs(statement).Single());
         }
 
-        protected void EmitBlock(List<AphidExpression> block)
+        protected void EmitBlock(IEnumerable<AphidExpression> block)
         {
             Indent();
             Emit(block);
             Unindent();
         }
 
-        private IEnumerable<string> ParseStringArgs(CallExpression expression)
-        {
-            return expression.Args
+        private IEnumerable<string> ParseStringArgs(CallExpression expression) => expression.Args
                 .Cast<StringExpression>()
                 .Select(x => StringParser.Parse(x.Value));
-        }
 
-        protected override string GetBinaryOperator(AphidTokenType op)
-        {
-
-            return !_binaryOperators.TryGetValue(op, out var value) ?
+        protected override string GetBinaryOperator(AphidTokenType op) => !_binaryOperators.TryGetValue(op, out var value) ?
                 base.GetBinaryOperator(op) :
                 value;
-        }
 
-        protected override string GetUnaryPrefixOperator(AphidTokenType op)
-        {
-
-            return !_unaryPrefixOperators.TryGetValue(op, out var value) ?
+        protected override string GetUnaryPrefixOperator(AphidTokenType op) => !_unaryPrefixOperators.TryGetValue(op, out var value) ?
                 base.GetUnaryPrefixOperator(op) :
                 value;
-        }
 
-        private BinaryOperatorExpression CreateIterExpression()
-        {
-            return AphidParser
+        private BinaryOperatorExpression CreateIterExpression() => AphidParser
                 .Parse("{__iter__:@()self};")
                 .Cast<ObjectExpression>()
                 .Single().Pairs
                 .Single();
-        }
 
         private void UpdateInitExpression(ObjectExpression classDeclaration)
         {
@@ -585,9 +589,6 @@ namespace Boxelder
             }
         }
 
-        private string NextVarId()
-        {
-            return string.Format("var_{0:X8}", _varId++);
-        }
+        private string NextVarId() => string.Format("var_{0:X8}", _varId++);
     }
 }

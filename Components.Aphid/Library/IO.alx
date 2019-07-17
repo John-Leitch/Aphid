@@ -1,6 +1,7 @@
 ﻿// ##'Components.Aphid.Library.IOLibrary';
 using System.IO;
 using System.Linq;
+using System.Reflection;
 // var getFsos = @(f, dir, opt) {
 //     var filter = '*';
 //     var recurse = false;

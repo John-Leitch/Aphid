@@ -34,7 +34,8 @@ namespace Components.Aphid.UI
             _showErrorFileList = GetBool(AS.ShowErrorFileList, false),
             _showClrStack = GetBool(AS.ShowClrStack, false),
             _scriptCaching = GetBool(AS.ScriptCaching, false),
-            _ignoreDebugger = GetBool(AS.IgnoreDebugger, false);
+            _ignoreDebugger = GetBool(AS.IgnoreDebugger, false),
+            _requestDebugger = GetBool(AS.RequestDebugger, false);
 
         private LI
             _stackTraceParamsMax = GetInt32(AS.StackTraceParamsMax, 100),
@@ -58,6 +59,7 @@ namespace Components.Aphid.UI
         public bool ShowErrorFileList { get => _showErrorFileList.Value; set => _showErrorFileList = value; }
         public bool ScriptCaching { get => _scriptCaching.Value; set => _scriptCaching = value; }
         public bool IgnoreDebugger { get => _ignoreDebugger.Value; set => _ignoreDebugger = value; }
+        public bool RequestDebugger { get => _requestDebugger.Value; set => _requestDebugger = value; }
         public string SourcePath { get => _sourcePath.Value; set => _sourcePath = value; }
         public bool ExceptionHandlingClrStack { get => _showClrStack.Value; set => _showClrStack = value; }        
         public bool ReplShowHelpArgWarning { get; set; }
@@ -92,6 +94,9 @@ namespace Components.Aphid.UI
 
         private static string GetSetting(string name) =>
             _config.Value.AppSettings.Settings[name]?.Value;
+
+        //private static string GetSettingOverride(string name) =>
+        //    Environment.GetCommandLineArgs
 
         private static Configuration LoadConfig()
         {

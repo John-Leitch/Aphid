@@ -19,10 +19,7 @@ namespace Boxelder
 
         private int _varId = 0;
 
-        protected override void BeginRecursiveMutationPass(List<AphidExpression> ast)
-        {
-            _ast = ast;
-        }
+        protected override void BeginRecursiveMutationPass(List<AphidExpression> ast) => _ast = ast;
 
         protected override void EndRecursiveMutationPass(List<AphidExpression> ast)
         {
@@ -140,9 +137,6 @@ namespace Boxelder
             return id;
         }
 
-        private string NextVarId()
-        {
-            return string.Format("var_func_{0:X8}", _varId++);
-        }
+        private string NextVarId() => string.Format("var_func_{0:X8}", _varId++);
     }
 }

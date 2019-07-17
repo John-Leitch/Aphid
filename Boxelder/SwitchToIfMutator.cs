@@ -13,10 +13,8 @@ namespace Boxelder
     {
         private int _id = 0;
 
-        private IdentifierExpression NextId()
-        {
-            return new IdentifierExpression(string.Format("_cwSwitchValue_{0:X4}", _id++));
-        }
+        private IdentifierExpression NextId() =>
+            new IdentifierExpression(string.Format("_cwSwitchValue_{0:X4}", _id++));
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {
@@ -67,10 +65,8 @@ namespace Boxelder
             return new List<AphidExpression> { idDecl, rootIfExp };
         }
 
-        private IfExpression CreateIfExpression(BinaryOperatorExpression condition, List<AphidExpression> body)
-        {
-            return new IfExpression(condition, body, new List<AphidExpression>());
-        }
+        private IfExpression CreateIfExpression(BinaryOperatorExpression condition, List<AphidExpression> body) =>
+            new IfExpression(condition, body, new List<AphidExpression>());
 
         private BinaryOperatorExpression CreateCaseCondition(
             SwitchCase caseExp,
@@ -95,9 +91,7 @@ namespace Boxelder
 
         private BinaryOperatorExpression CreateCaseEqualityExpression(
             IdentifierExpression valueId,
-            AphidExpression caseExpression)
-        {
-            return new BinaryOperatorExpression(valueId, AphidTokenType.EqualityOperator, caseExpression);
-        }
+            AphidExpression caseExpression) =>
+            new BinaryOperatorExpression(valueId, AphidTokenType.EqualityOperator, caseExpression);
     }
 }

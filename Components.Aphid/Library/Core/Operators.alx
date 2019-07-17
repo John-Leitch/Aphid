@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 // Todo: move ops and other common funcs to core header,
 // autoload using INI setting.
+
 @ :: (fmt, args) string.Format(fmt, args);
 @ :> (fmt, args) args defined ? fmt :: args : fmt |> print;
 @ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
@@ -113,8 +114,8 @@ _poe = macro(@{ var f = new PartialOperatorExpression(getToken('.'), _rhs()) |> 
                 (num == 0 ? exp.RightOperand.Identifier : ex.arg(num))) :
         ex.arg(num);
 
-_sub = macro(@(pattern, replacement) { Regex.Replace(input.ToString(), pattern, replacement) });
-
-_re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString()) });
+var defaultRegexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+_sub = macro(@(pattern, replacement) { Regex.Replace(input.ToString(), pattern, replacement, defaultRegexOptions) });
+_re = macro(@(f) { Regex.f(input.ToString(), pattern.ToString(), defaultRegexOptions) });
 _rec = macro(@{ input -? @() $_ ~= pattern });
 _in = macro(@(f) { File.f(file.ToString()) });

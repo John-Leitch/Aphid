@@ -37,10 +37,7 @@ if (!function_exists('__add')) {
 }
 ?>";
 
-        private bool IsBuildInFunction(string id)
-        {
-            return _builtInFunctions.Contains(id);
-        }
+        private bool IsBuildInFunction(string id) => _builtInFunctions.Contains(id);
 
         public override string Compile(string filename, List<AphidExpression> ast)
         {
@@ -123,7 +120,7 @@ if (!function_exists('__add')) {
             base.EndExpression(expression);
         }
 
-        public override void Emit(List<AphidExpression> statements)
+        public override void Emit(IEnumerable<AphidExpression> statements)
         {
             base.Emit(statements);
 
@@ -151,20 +148,14 @@ if (!function_exists('__add')) {
             }
         }
 
-        protected override void EmitGatorOpenExpression(GatorOpenExpression expression, bool isStatement = false)
-        {
+        protected override void EmitGatorOpenExpression(GatorOpenExpression expression, bool isStatement = false) =>
             Append("<?php\r\n");
-        }
 
-        protected override void EmitGatorCloseExpression(GatorCloseExpression expression, bool isStatement = false)
-        {
+        protected override void EmitGatorCloseExpression(GatorCloseExpression expression, bool isStatement = false) =>
             Append("?>");
-        }
 
-        protected override void EmitTextExpression(TextExpression expression, bool isStatement = false)
-        {
+        protected override void EmitTextExpression(TextExpression expression, bool isStatement = false) =>
             Append(expression.Text);
-        }
 
         protected override void EmitGatorEmitExpression(GatorEmitExpression expression, bool isStatement = false)
         {
@@ -685,9 +676,6 @@ if (!function_exists('__add')) {
             EmitTuple(expression.Args);
         }
 
-        private string NextId()
-        {
-            return string.Format("id_{0:X8}", _varNumber++);
-        }
+        private string NextId() => string.Format("id_{0:X8}", _varNumber++);
     }
 }

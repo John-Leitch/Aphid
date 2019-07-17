@@ -16,7 +16,7 @@ set msg=Updating Library Scripts
 %hr%
 
 
-for %%d in (c:\tools\aphid c:\users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug) do (
+for %%d in (c:\tools\aphid) do (
     echo Cleaning %%d cache
     del /s /ah %%d\*.cache*
     for %%i in (Library Tools) do (

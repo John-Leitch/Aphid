@@ -180,7 +180,6 @@ namespace Components.External.ConsolePlus
             SetWriteRegion(x, y, width, height);
             //BufferCoords = new Coord((short)(Console.WindowLeft + x), (short)(Console.WindowTop + y));
             BufferCoords = new Coord(x, y);
-
         }
 
         public void SetWriteRegion(short x, short y, short width, short height) =>

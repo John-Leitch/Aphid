@@ -4,73 +4,74 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using TokenMap = System.Collections.Generic.Dictionary<Components.Aphid.Lexer.AphidTokenType, string>;
+using static Components.Aphid.Lexer.AphidTokenType;
+using System.Text.RegularExpressions;
 
 namespace Components.Aphid.Compiler
 {
     public abstract partial class AphidStringEmitter
     {
-        private readonly Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
+        private readonly TokenMap _unaryPrefixOperators = new TokenMap
         {
-            { AphidTokenType.retKeyword, "ret " },
-            { AphidTokenType.NotOperator, "!" },
-            { AphidTokenType.MinusOperator, "-" },
-            { AphidTokenType.ComplementOperator, "~" }
+            { retKeyword, "ret " },
+            { NotOperator, "!" },
+            { MinusOperator, "-" },
+            { ComplementOperator, "~" }
         };
 
-        private readonly Dictionary<AphidTokenType, string> _unaryPostfixOperators = new Dictionary<AphidTokenType, string>
+        private readonly TokenMap _unaryPostfixOperators = new TokenMap
         {
-            { AphidTokenType.IncrementOperator, "++" },
-            { AphidTokenType.DecrementOperator, "--" }
+            { IncrementOperator, "++" },
+            { DecrementOperator, "--" }
         };
 
-        private readonly Dictionary<AphidTokenType, string> _binaryOperators = new Dictionary<AphidTokenType, string>
+        private readonly TokenMap _binaryOperators = new TokenMap
         {
-            { AphidTokenType.AdditionOperator, " + " },
-            { AphidTokenType.MinusOperator, " - " },
-            { AphidTokenType.MultiplicationOperator, " * " },
-            { AphidTokenType.DivisionOperator, " / " },
-            { AphidTokenType.ModulusOperator, " % " },
+            { AdditionOperator, " + " },
+            { MinusOperator, " - " },
+            { MultiplicationOperator, " * " },
+            { DivisionOperator, " / " },
+            { ModulusOperator, " % " },
 
-            { AphidTokenType.AndOperator, " && " },
-            { AphidTokenType.OrOperator, " || " },
+            { AndOperator, " && " },
+            { OrOperator, " || " },
 
-            { AphidTokenType.BinaryAndOperator, " & " },
-            { AphidTokenType.BinaryOrOperator, " | " },
-            { AphidTokenType.XorOperator,  " ^ " },
-            { AphidTokenType.ShiftLeft, " << " },
-            { AphidTokenType.ShiftRight, " >> " },
+            { BinaryAndOperator, " & " },
+            { BinaryOrOperator, " | " },
+            { XorOperator,  " ^ " },
+            { ShiftLeft, " << " },
+            { ShiftRight, " >> " },
 
-            { AphidTokenType.MemberOperator, "." },
+            { MemberOperator, "." },
 
-            { AphidTokenType.EqualityOperator, " == " },
-            { AphidTokenType.NotEqualOperator, " != " },
-            { AphidTokenType.LessThanOperator, " < " },
-            { AphidTokenType.LessThanOrEqualOperator, " <= " },
-            { AphidTokenType.GreaterThanOperator, " > " },
-            { AphidTokenType.GreaterThanOrEqualOperator, " >= " },
+            { EqualityOperator, " == " },
+            { NotEqualOperator, " != " },
+            { LessThanOperator, " < " },
+            { LessThanOrEqualOperator, " <= " },
+            { GreaterThanOperator, " > " },
+            { GreaterThanOrEqualOperator, " >= " },
 
-            { AphidTokenType.Comma, ", " },
+            { Comma, ", " },
 
-            { AphidTokenType.AssignmentOperator, " = " },
-            { AphidTokenType.PlusEqualOperator, " += " },
-            { AphidTokenType.MinusEqualOperator, " -= " },
-            { AphidTokenType.MultiplicationEqualOperator, " *= " },
-            { AphidTokenType.DivisionEqualOperator, " /= " },
-            { AphidTokenType.ModulusEqualOperator, " %= " },
-            { AphidTokenType.ShiftLeftEqualOperator, " <<= " },
-            { AphidTokenType.ShiftRightEqualOperator, " >>= " },
-            { AphidTokenType.BinaryAndEqualOperator, " &= " },
-            { AphidTokenType.OrEqualOperator, " |= " },
-            { AphidTokenType.XorEqualOperator, " ^= " }
+            { AssignmentOperator, " = " },
+            { PlusEqualOperator, " += " },
+            { MinusEqualOperator, " -= " },
+            { MultiplicationEqualOperator, " *= " },
+            { DivisionEqualOperator, " /= " },
+            { ModulusEqualOperator, " %= " },
+            { ShiftLeftEqualOperator, " <<= " },
+            { ShiftRightEqualOperator, " >>= " },
+            { BinaryAndEqualOperator, " &= " },
+            { OrEqualOperator, " |= " },
+            { XorEqualOperator, " ^= " }
         };
 
         private readonly Stack<string> _tabs = new Stack<string>();
 
         protected StringBuilder _out = new StringBuilder();
 
-        private readonly Stack<List<AphidExpression>> _scope = new Stack<List<AphidExpression>>();
-
-        protected Stack<List<AphidExpression>> Scope => _scope;
+        protected Stack<IEnumerable<AphidExpression>> Scope { get; } = new Stack<IEnumerable<AphidExpression>>();
 
         protected void Indent() => _tabs.Push("    ");
 
@@ -90,9 +91,9 @@ namespace Components.Aphid.Compiler
 
         protected virtual void EmitHeader() { }
 
-        public virtual void Emit(List<AphidExpression> statements)
+        public virtual void Emit(IEnumerable<AphidExpression> statements)
         {
-            _scope.Push(statements);
+            Scope.Push(statements);
 
             foreach (var stmt in statements)
             {
@@ -117,7 +118,7 @@ namespace Components.Aphid.Compiler
                 EndStatement(stmt);
             }
 
-            _scope.Pop();
+            Scope.Pop();
         }
 
         protected virtual void BeginExpression(AphidExpression expression) { }
@@ -138,7 +139,7 @@ namespace Components.Aphid.Compiler
             return _out.ToString();
         }
 
-        protected static string GetOperator(Dictionary<AphidTokenType, string> table, AphidTokenType op)
+        protected static string GetOperator(TokenMap table, AphidTokenType op)
         {
             if (!table.TryGetValue(op, out var s))
             {
@@ -205,6 +206,11 @@ namespace Components.Aphid.Compiler
                 .Replace("\n", "\\n")
                 .Replace("\r", "\\r")
                 .Replace("\"", "\\\"");
+
+            escaped = Regex.Replace(
+                escaped,
+                @"[\x00-\x20\x7e-\xff]",
+                x => $"\\x{(byte)x.Value[0]:x2}");
 
             Append("\"{0}\"", escaped);
         }

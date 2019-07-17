@@ -9,6 +9,9 @@ namespace Boxelder
 {
     public class FunctionDeclarationAttributes
     {
+        [AphidAttribute("var")]
+        public bool IsVar { get; set; }
+
         [AphidAttribute("static")]
         public bool IsStatic { get; set; }
     }

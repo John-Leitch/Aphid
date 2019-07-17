@@ -1,116 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Choose>
-    <!--                                -->
-    <!-- 32 Bit                         -->
-    <!--                                -->
-    <When Condition="$(Configuration.EndsWith('32'))">
-      <PropertyGroup>
-        <PlatformTarget>x86</PlatformTarget>
-        <Bitness>32</Bitness>
-        <BitnessDirective>FULL_DBG;X86</BitnessDirective>
-      </PropertyGroup>
-    </When>
-    <!--                                -->
-    <!-- 64 Bit                         -->
-    <!--                                -->
-    <When Condition="$(Configuration.EndsWith('64'))">
-      <PropertyGroup>
-        <PlatformTarget>x64</PlatformTarget>
-        <Bitness>64</Bitness>
-        <BitnessDirective>AMD64</BitnessDirective>
-      </PropertyGroup>
-    </When>
-    <!--                                -->
-    <!-- Any CPU                        -->
-    <!--                                -->
-    <Otherwise>
-      <PropertyGroup>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <Bitness>
-        </Bitness>
-        <BitnessDirective>FULL_DBG;ANY_CPU</BitnessDirective>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Choose>
-    <!--                                -->
-    <!-- Binary Trace                   -->
-    <!--                                -->
-    <When Condition="$(Configuration.Contains('BinaryTrace'))">
-      <PropertyGroup>
-        <TraceSuffix>.BinaryTrace</TraceSuffix>
-        <TraceDirective>;BINARY_FRAME_PERFORMANCE_TRACE</TraceDirective>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <TraceSuffix>
-        </TraceSuffix>
-        <TraceDirective>
-        </TraceDirective>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Choose>
-    <!--                                -->
-    <!-- Aphid Script Debug             -->
-    <!--                                -->
-    <When Condition="$(Configuration.StartsWith('AphidDebug'))">
-      <PropertyGroup>
-        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
-        <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
-      </PropertyGroup>
-    </When>
-    <!--                                -->
-    <!-- Aphid Time Travel Script Debug             -->
-    <!--                                -->
-    <When Condition="$(Configuration.StartsWith('TimeTravel'))">
-      <PropertyGroup>
-        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective>
-        <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <AphidDbgDirective>
-        </AphidDbgDirective>
-        <IsAphidDbg>
-        </IsAphidDbg>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Choose>
-    <!--                                -->
-    <!-- Debug                          -->
-    <!--                                -->
-    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
-      <PropertyGroup>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <IsDebug>.Debug</IsDebug>
-        <OutputPath>bin\Debug\</OutputPath>
-        <CommonDirectives>TRACE;DEBUG</CommonDirectives>
-      </PropertyGroup>
-    </When>
-    <!--                                -->
-    <!-- Release                        -->
-    <!--                                -->
-    <Otherwise>
-      <PropertyGroup>
-        <DebugType>none</DebugType>
-        <Optimize>true</Optimize>
-        <IsDebug>
-        </IsDebug>
-        <OutputPath>bin\Release\</OutputPath>
-        <CommonDirectives>RELEASE</CommonDirectives>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <!-- <PropertyGroup> -->
-  <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
-  <!-- </PropertyGroup> -->
+  <Import Project="AphidBase.proj" />  
   <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE'))">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -123,7 +14,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Components.Aphid</RootNamespace>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -131,6 +22,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <!--                                -->
   <!-- DEBUG                          -->
@@ -332,7 +224,6 @@
     <Compile Include="External\PInvoke\UserEnv.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="External\PInvoke\WindowStyle.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Interpreter\AphidExecutionContext`1.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Interpreter\AphidThread.cs" />
@@ -827,13 +718,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.2.0-beta3-final</Version>
+      <Version>3.2.0-beta4-final</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="a.ico" />
+    <None Include="a.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

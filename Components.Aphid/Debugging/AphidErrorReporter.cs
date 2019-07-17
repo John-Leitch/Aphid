@@ -57,6 +57,11 @@ namespace Components.Aphid.Debugging
                     }
 
                     IsInitialized = true;
+
+                    if (AphidConfig.Current.RequestDebugger)
+                    {
+                        Debugger.Launch();
+                    }
                 }
             }
         }

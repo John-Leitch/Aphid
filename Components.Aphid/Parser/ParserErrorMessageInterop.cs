@@ -11,7 +11,7 @@ namespace Components.Aphid.Parser {
         public static FromExpressionDelegate FromExpression {
             get {
                 if ((ParserErrorMessage._FromExpression == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_c30ca71051b15c3d6b7fe56936b22b37());
                 }
                 return ParserErrorMessage._FromExpression;
             }
@@ -34,7 +34,7 @@ namespace Components.Aphid.Parser {
         public static AppendFilenameDelegate AppendFilename {
             get {
                 if ((ParserErrorMessage._AppendFilename == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_c30ca71051b15c3d6b7fe56936b22b37());
                 }
                 return ParserErrorMessage._AppendFilename;
             }
@@ -57,7 +57,7 @@ namespace Components.Aphid.Parser {
         public static FromTokenDelegate FromToken {
             get {
                 if ((ParserErrorMessage._FromToken == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_c30ca71051b15c3d6b7fe56936b22b37());
                 }
                 return ParserErrorMessage._FromToken;
             }
@@ -80,7 +80,7 @@ namespace Components.Aphid.Parser {
         public static AppendPositionAndExcerptDelegate AppendPositionAndExcerpt {
             get {
                 if ((ParserErrorMessage._AppendPositionAndExcerpt == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_c30ca71051b15c3d6b7fe56936b22b37());
                 }
                 return ParserErrorMessage._AppendPositionAndExcerpt;
             }
@@ -103,7 +103,7 @@ namespace Components.Aphid.Parser {
         public static AppendPositionDelegate AppendPosition {
             get {
                 if ((ParserErrorMessage._AppendPosition == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_c30ca71051b15c3d6b7fe56936b22b37());
                 }
                 return ParserErrorMessage._AppendPosition;
             }
@@ -126,7 +126,7 @@ namespace Components.Aphid.Parser {
         public static AppendExcerptDelegate AppendExcerpt {
             get {
                 if ((ParserErrorMessage._AppendExcerpt == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca());
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_c30ca71051b15c3d6b7fe56936b22b37());
                 }
                 return ParserErrorMessage._AppendExcerpt;
             }
@@ -139,1420 +139,920 @@ namespace Components.Aphid.Parser {
     }
 }
 
-namespace Components.Aphid.Parser
-{
-    using global::Components.Aphid.Lexer;
-    using global::Components.Aphid.Parser;
-    using System.Collections.Generic;
-    
-    public static partial class AphidCompilerResources
-    {
-        public static List<AphidExpression> ByteCode_37b23a98bc84ab0bcae3d96e99e0b1ca()
-        {
-            return             new List<AphidExpression>
+
+            namespace Components.Aphid.Parser
             {
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
-                    new BinaryOperatorExpression(
-                        new BinaryOperatorExpression(
-                            new IdentifierExpression(
-                                "Components",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            ),
-                            AphidTokenType.MemberOperator,
-                            new IdentifierExpression(
-                                "Aphid",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            )
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "Parser",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    false
+                /* Test */
+                using global::Components.Aphid.Lexer;
+                using global::Components.Aphid.Parser;
+                using System;
+                using System.Collections.Generic;
+            
+                public static partial class AphidCompilerResources
+                {
+                    
+                    /*fmt*/
+
+                    public static List<AphidExpression> ByteCode_c30ca71051b15c3d6b7fe56936b22b37() =>
+                        ByteCode_c30ca71051b15c3d6b7fe56936b22b37Lazy.Value;
+
+                    //private static readonly List<AphidExpression> _empty = new List<AphidExpression>();                    
+
+                    private static System.Lazy<List<AphidExpression>> ByteCode_c30ca71051b15c3d6b7fe56936b22b37Lazy =>
+                        new System.Lazy<List<AphidExpression>>(() =>
+                            new List<AphidExpression>
+{
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new BinaryOperatorExpression(
+            new BinaryOperatorExpression(
+                new IdentifierExpression(
+                    "Components",
+                    _IdentifierExpressions
                 ),
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
-                    new BinaryOperatorExpression(
-                        new BinaryOperatorExpression(
-                            new IdentifierExpression(
-                                "Components",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            ),
-                            AphidTokenType.MemberOperator,
-                            new IdentifierExpression(
-                                "Aphid",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            )
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "Lexer",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    false
+                AphidTokenType.MemberOperator,
+                new IdentifierExpression(
+                    "Aphid",
+                    _IdentifierExpressions
+                )
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "Parser",
+                _IdentifierExpressions
+            )
+        ),
+        false
+    ),
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new BinaryOperatorExpression(
+            new BinaryOperatorExpression(
+                new IdentifierExpression(
+                    "Components",
+                    _IdentifierExpressions
                 ),
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
-                    new BinaryOperatorExpression(
-                        new BinaryOperatorExpression(
-                            new IdentifierExpression(
-                                "Components",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            ),
-                            AphidTokenType.MemberOperator,
-                            new IdentifierExpression(
-                                "Aphid",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            )
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "UI",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    false
+                AphidTokenType.MemberOperator,
+                new IdentifierExpression(
+                    "Aphid",
+                    _IdentifierExpressions
+                )
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "Lexer",
+                _IdentifierExpressions
+            )
+        ),
+        false
+    ),
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new BinaryOperatorExpression(
+            new BinaryOperatorExpression(
+                new IdentifierExpression(
+                    "Components",
+                    _IdentifierExpressions
                 ),
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
-                    new BinaryOperatorExpression(
-                        new BinaryOperatorExpression(
-                            new BinaryOperatorExpression(
-                                new IdentifierExpression(
-                                    "Components",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                AphidTokenType.MemberOperator,
-                                new IdentifierExpression(
-                                    "Aphid",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                )
-                            ),
-                            AphidTokenType.MemberOperator,
-                            new IdentifierExpression(
-                                "UI",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            )
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "Formatters",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    false
-                ),
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
+                AphidTokenType.MemberOperator,
+                new IdentifierExpression(
+                    "Aphid",
+                    _IdentifierExpressions
+                )
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "UI",
+                _IdentifierExpressions
+            )
+        ),
+        false
+    ),
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new BinaryOperatorExpression(
+            new BinaryOperatorExpression(
+                new BinaryOperatorExpression(
                     new IdentifierExpression(
-                        "System",
+                        "Components",
+                        _IdentifierExpressions
+                    ),
+                    AphidTokenType.MemberOperator,
+                    new IdentifierExpression(
+                        "Aphid",
+                        _IdentifierExpressions
+                    )
+                ),
+                AphidTokenType.MemberOperator,
+                new IdentifierExpression(
+                    "UI",
+                    _IdentifierExpressions
+                )
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "Formatters",
+                _IdentifierExpressions
+            )
+        ),
+        false
+    ),
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new IdentifierExpression(
+            "System",
+            _IdentifierExpressions
+        ),
+        false
+    ),
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "System",
+                _IdentifierExpressions
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "Text",
+                _IdentifierExpressions
+            )
+        ),
+        false
+    ),
+    new LoadScriptExpression(
+        new StringExpression(
+            "'Std'"
+        )
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "ParserErrorMessage",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
+                    ),
+                    new IdentifierExpression(
+                        "string",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "FromExpression",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "code",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "exception",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "AphidParserException",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "highlight",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "bool",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
+                new BinaryOperatorExpression(
+                    new IdentifierExpression(
+                        "sb",
                         new List<IdentifierExpression>
                         {
+                            new IdentifierExpression(
+                                "var",
+                                _IdentifierExpressions
+                            ),
                         }
-                    ),
-                    false
-                ),
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
-                    new BinaryOperatorExpression(
-                        new IdentifierExpression(
-                            "System",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "Text",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    false
-                ),
-                new LoadScriptExpression(
-                    new StringExpression(
-                        "'Std'"
-                    )
-                ),
-                new BinaryOperatorExpression(
-                    new BinaryOperatorExpression(
-                        new IdentifierExpression(
-                            "ParserErrorMessage",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "string",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "FromExpression",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
                     ),
                     AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
-                        new List<AphidExpression>
-                        {
+                    new UnaryOperatorExpression(
+                        AphidTokenType.newKeyword,
+                        new CallExpression(
                             new IdentifierExpression(
-                                "code",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
+                                "StringBuilder",
+                                _IdentifierExpressions
                             ),
-                            new IdentifierExpression(
-                                "exception",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "AphidParserException",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "highlight",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "bool",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                        },
-                        new List<AphidExpression>
-                        {
-                            new BinaryOperatorExpression(
-                                new IdentifierExpression(
-                                    "sb",
-                                    new List<IdentifierExpression>
-                                    {
-                                        new IdentifierExpression(
-                                            "var",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                    }
-                                ),
-                                AphidTokenType.AssignmentOperator,
-                                new UnaryOperatorExpression(
-                                    AphidTokenType.newKeyword,
-                                    new CallExpression(
-                                        new IdentifierExpression(
-                                            "StringBuilder",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                        }
-                                    ),
-                                    false
-                                )
-                            ),
-                            new CallExpression(
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.MemberOperator,
-                                    new IdentifierExpression(
-                                        "Append",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
-                                ),
-                                new List<AphidExpression>
-                                {
-                                    new BinaryOperatorExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "exception",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.CustomOperator316,
-                                            new IdentifierExpression(
-                                                "Message",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        AphidTokenType.CustomOperator313,
-                                        new StringExpression(
-                                            "'Unexpected parser error '"
-                                        )
-                                    ),
-                                }
-                            ),
-                            new BinaryOperatorExpression(
-                                new IdentifierExpression(
-                                    "exp",
-                                    new List<IdentifierExpression>
-                                    {
-                                        new IdentifierExpression(
-                                            "var",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                    }
-                                ),
-                                AphidTokenType.AssignmentOperator,
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "exception",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.CustomOperator316,
-                                    new IdentifierExpression(
-                                        "Expression",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
-                                )
-                            ),
-                            new CallExpression(
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "ParserErrorMessage",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.MemberOperator,
-                                    new IdentifierExpression(
-                                        "AppendFilename",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
-                                ),
-                                new List<AphidExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    new IdentifierExpression(
-                                        "exception",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new CallExpression(
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "ParserErrorMessage",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.MemberOperator,
-                                    new IdentifierExpression(
-                                        "AppendPositionAndExcerpt",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
-                                ),
-                                new List<AphidExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    new BinaryOperatorExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "exp",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.CustomOperator316,
-                                            new IdentifierExpression(
-                                                "Code",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        AphidTokenType.CustomOperator313,
-                                        new IdentifierExpression(
-                                            "code",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "exp",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        AphidTokenType.CustomOperator316,
-                                        new IdentifierExpression(
-                                            "Index",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    new IdentifierExpression(
-                                        "highlight",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
-                                new CallExpression(
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "sb",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "ToString",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    new List<AphidExpression>
-                                    {
-                                    }
-                                ),
-                                false
-                            ),
-                        }
+                            _AphidExpressions
+                        ),
+                        false
                     )
                 ),
+                new CallExpression(
+                    new BinaryOperatorExpression(
+                        new IdentifierExpression(
+                            "sb",
+                            _IdentifierExpressions
+                        ),
+                        AphidTokenType.MemberOperator,
+                        new IdentifierExpression(
+                            "Append",
+                            _IdentifierExpressions
+                        )
+                    ),
+                    new List<AphidExpression>
+                    {
+                        new BinaryOperatorExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "exception",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.CustomOperator316,
+                                new IdentifierExpression(
+                                    "Message",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            AphidTokenType.CustomOperator313,
+                            new StringExpression(
+                                "'Unexpected parser error '"
+                            )
+                        ),
+                    }
+                ),
                 new BinaryOperatorExpression(
+                    new IdentifierExpression(
+                        "exp",
+                        new List<IdentifierExpression>
+                        {
+                            new IdentifierExpression(
+                                "var",
+                                _IdentifierExpressions
+                            ),
+                        }
+                    ),
+                    AphidTokenType.AssignmentOperator,
+                    new BinaryOperatorExpression(
+                        new IdentifierExpression(
+                            "exception",
+                            _IdentifierExpressions
+                        ),
+                        AphidTokenType.CustomOperator316,
+                        new IdentifierExpression(
+                            "Expression",
+                            _IdentifierExpressions
+                        )
+                    )
+                ),
+                new CallExpression(
                     new BinaryOperatorExpression(
                         new IdentifierExpression(
                             "ParserErrorMessage",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "StringBuilder",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
+                            _IdentifierExpressions
                         ),
                         AphidTokenType.MemberOperator,
                         new IdentifierExpression(
                             "AppendFilename",
-                            new List<IdentifierExpression>
-                            {
-                            }
+                            _IdentifierExpressions
                         )
                     ),
-                    AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
-                        new List<AphidExpression>
-                        {
-                            new IdentifierExpression(
-                                "sb",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "StringBuilder",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "exception",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "AphidParserException",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                        },
-                        new List<AphidExpression>
-                        {
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
-                                new BinaryOperatorExpression(
-                                    new BinaryOperatorExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "exception",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.CustomOperator316,
-                                            new IdentifierExpression(
-                                                "Expression",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        AphidTokenType.CustomOperator316,
-                                        new IdentifierExpression(
-                                            "Filename",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    AphidTokenType.PipelineOperator,
-                                    new PartialFunctionExpression(
-                                        new CallExpression(
-                                            new BinaryOperatorExpression(
-                                                new IdentifierExpression(
-                                                    "sb",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                                AphidTokenType.MemberOperator,
-                                                new IdentifierExpression(
-                                                    "AppendFormat",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                )
-                                            ),
-                                            new List<AphidExpression>
-                                            {
-                                                new PatternMatchingExpression(
-                                                    new ImplicitArgumentExpression(
-                                                        AphidTokenType.ImplicitArgumentOperator
-                                                    ),
-                                                    new List<PatternExpression>
-                                                    {
-                                                        new PatternExpression(
-                                                            new StringExpression(
-                                                                "\"\""
-                                                            ),
-                                                            new List<AphidExpression>
-                                                            {
-                                                                new NullExpression(
-                                                                ),
-                                                            }
-                                                        ),
-                                                        new PatternExpression(
-                                                            new StringExpression(
-                                                                "\" in script '{0}'\""
-                                                            ),
-                                                            new List<AphidExpression>
-                                                            {
-                                                            }
-                                                        ),
-                                                    }
-                                                ),
-                                            }
-                                        )
-                                    )
-                                ),
-                                false
-                            ),
-                        }
-                    )
-                ),
-                new BinaryOperatorExpression(
-                    new BinaryOperatorExpression(
+                    new List<AphidExpression>
+                    {
                         new IdentifierExpression(
-                            "ParserErrorMessage",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "string",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
+                            "sb",
+                            _IdentifierExpressions
                         ),
-                        AphidTokenType.MemberOperator,
                         new IdentifierExpression(
-                            "FromToken",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
-                        new List<AphidExpression>
-                        {
-                            new IdentifierExpression(
-                                "code",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "exception",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "AphidParserException",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "highlight",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "bool",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                        },
-                        new List<AphidExpression>
-                        {
-                            new BinaryOperatorExpression(
-                                new IdentifierExpression(
-                                    "sb",
-                                    new List<IdentifierExpression>
-                                    {
-                                        new IdentifierExpression(
-                                            "var",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                    }
-                                ),
-                                AphidTokenType.AssignmentOperator,
-                                new UnaryOperatorExpression(
-                                    AphidTokenType.newKeyword,
-                                    new CallExpression(
-                                        new IdentifierExpression(
-                                            "StringBuilder",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                        }
-                                    ),
-                                    false
-                                )
-                            ),
-                            new CallExpression(
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.MemberOperator,
-                                    new IdentifierExpression(
-                                        "AppendFormat",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
-                                ),
-                                new List<AphidExpression>
-                                {
-                                    new StringExpression(
-                                        "\"Unexpected {0} '{1}'\""
-                                    ),
-                                    new CallExpression(
-                                        new BinaryOperatorExpression(
-                                            new CallExpression(
-                                                new BinaryOperatorExpression(
-                                                    new BinaryOperatorExpression(
-                                                        new BinaryOperatorExpression(
-                                                            new IdentifierExpression(
-                                                                "exception",
-                                                                new List<IdentifierExpression>
-                                                                {
-                                                                }
-                                                            ),
-                                                            AphidTokenType.MemberOperator,
-                                                            new IdentifierExpression(
-                                                                "UnexpectedToken",
-                                                                new List<IdentifierExpression>
-                                                                {
-                                                                }
-                                                            )
-                                                        ),
-                                                        AphidTokenType.MemberOperator,
-                                                        new IdentifierExpression(
-                                                            "TokenType",
-                                                            new List<IdentifierExpression>
-                                                            {
-                                                            }
-                                                        )
-                                                    ),
-                                                    AphidTokenType.MemberOperator,
-                                                    new IdentifierExpression(
-                                                        "ToString",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    )
-                                                ),
-                                                new List<AphidExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "ToLower",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                        }
-                                    ),
-                                    new BinaryOperatorExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "exception",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "UnexpectedToken",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "Lexeme",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                }
-                            ),
-                            new IfExpression(
-                                new BinaryOperatorExpression(
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "exception",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "ExpectedToken",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    AphidTokenType.NotEqualOperator,
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "AphidTokenType",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "None",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    )
-                                ),
-                                new List<AphidExpression>
-                                {
-                                    new CallExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "sb",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "AppendFormat",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                            new StringExpression(
-                                                "\" expected {0}\""
-                                            ),
-                                            new BinaryOperatorExpression(
-                                                new IdentifierExpression(
-                                                    "exception",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                                AphidTokenType.MemberOperator,
-                                                new IdentifierExpression(
-                                                    "ExpectedToken",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                )
-                                            ),
-                                        }
-                                    ),
-                                },
-                                null
-                            ),
-                            new CallExpression(
-                                new BinaryOperatorExpression(
-                                    new IdentifierExpression(
-                                        "ParserErrorMessage",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    AphidTokenType.MemberOperator,
-                                    new IdentifierExpression(
-                                        "AppendPositionAndExcerpt",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    )
-                                ),
-                                new List<AphidExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    new IdentifierExpression(
-                                        "code",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    new BinaryOperatorExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "exception",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "UnexpectedToken",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "Index",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    new IdentifierExpression(
-                                        "highlight",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
-                                new CallExpression(
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "sb",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "ToString",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    new List<AphidExpression>
-                                    {
-                                    }
-                                ),
-                                false
-                            ),
-                        }
-                    )
+                            "exception",
+                            _IdentifierExpressions
+                        ),
+                    }
                 ),
-                new BinaryOperatorExpression(
+                new CallExpression(
                     new BinaryOperatorExpression(
                         new IdentifierExpression(
                             "ParserErrorMessage",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "StringBuilder",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
+                            _IdentifierExpressions
                         ),
                         AphidTokenType.MemberOperator,
                         new IdentifierExpression(
                             "AppendPositionAndExcerpt",
-                            new List<IdentifierExpression>
-                            {
-                            }
+                            _IdentifierExpressions
                         )
                     ),
-                    AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
-                        new List<AphidExpression>
-                        {
-                            new IdentifierExpression(
-                                "sb",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "StringBuilder",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "code",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "index",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "int",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "highlight",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "bool",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                        },
-                        new List<AphidExpression>
-                        {
+                    new List<AphidExpression>
+                    {
+                        new IdentifierExpression(
+                            "sb",
+                            _IdentifierExpressions
+                        ),
+                        new BinaryOperatorExpression(
                             new BinaryOperatorExpression(
-                                new ArrayExpression(
-                                    new List<AphidExpression>
-                                    {
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "ParserErrorMessage",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "AppendPosition",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "ParserErrorMessage",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "AppendExcerpt",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                    }
+                                new IdentifierExpression(
+                                    "exp",
+                                    _IdentifierExpressions
                                 ),
-                                AphidTokenType.SelectOperator,
-                                new FunctionExpression(
-                                    new List<AphidExpression>
-                                    {
-                                    },
-                                    new List<AphidExpression>
-                                    {
-                                        new UnaryOperatorExpression(
-                                            AphidTokenType.retKeyword,
-                                            new CallExpression(
-                                                new ImplicitArgumentExpression(
-                                                    AphidTokenType.ImplicitArgumentOperator
-                                                ),
-                                                new List<AphidExpression>
-                                                {
-                                                    new IdentifierExpression(
-                                                        "sb",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                    new IdentifierExpression(
-                                                        "code",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                    new IdentifierExpression(
-                                                        "index",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                    new IdentifierExpression(
-                                                        "highlight",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                }
-                                            ),
-                                            false
-                                        ),
-                                    }
+                                AphidTokenType.CustomOperator316,
+                                new IdentifierExpression(
+                                    "Code",
+                                    _IdentifierExpressions
                                 )
                             ),
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
-                                new IdentifierExpression(
-                                    "sb",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                false
-                            ),
-                        }
-                    )
-                ),
-                new BinaryOperatorExpression(
-                    new BinaryOperatorExpression(
-                        new IdentifierExpression(
-                            "ParserErrorMessage",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "StringBuilder",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "AppendPosition",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
-                    ),
-                    AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
-                        new List<AphidExpression>
-                        {
-                            new IdentifierExpression(
-                                "sb",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "StringBuilder",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
+                            AphidTokenType.CustomOperator313,
                             new IdentifierExpression(
                                 "code",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
+                                _IdentifierExpressions
+                            )
+                        ),
+                        new BinaryOperatorExpression(
                             new IdentifierExpression(
-                                "index",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "int",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
+                                "exp",
+                                _IdentifierExpressions
                             ),
+                            AphidTokenType.CustomOperator316,
                             new IdentifierExpression(
-                                "highlight",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "bool",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
+                                "Index",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        new IdentifierExpression(
+                            "highlight",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new CallExpression(
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(
+                                "sb",
+                                _IdentifierExpressions
                             ),
-                        },
-                        new List<AphidExpression>
-                        {
-                            new IfExpression(
-                                new BinaryOperatorExpression(
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "line",
-                                            new List<IdentifierExpression>
-                                            {
-                                                new IdentifierExpression(
-                                                    "var",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                            }
-                                        ),
-                                        AphidTokenType.AssignmentOperator,
-                                        new CallExpression(
-                                            new BinaryOperatorExpression(
-                                                new IdentifierExpression(
-                                                    "TokenHelper",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                                AphidTokenType.MemberOperator,
-                                                new IdentifierExpression(
-                                                    "GetIndexPosition",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                )
-                                            ),
-                                            new List<AphidExpression>
-                                            {
-                                                new IdentifierExpression(
-                                                    "code",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                                new IdentifierExpression(
-                                                    "index",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                            }
-                                        )
-                                    ),
-                                    AphidTokenType.NotEqualOperator,
-                                    new NullExpression(
-                                    )
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "ToString",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        _AphidExpressions
+                    ),
+                    false
+                ),
+            }
+        )
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "ParserErrorMessage",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
+                    ),
+                    new IdentifierExpression(
+                        "StringBuilder",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "AppendFilename",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "sb",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "StringBuilder",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "exception",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "AphidParserException",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new BinaryOperatorExpression(
+                        new BinaryOperatorExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "exception",
+                                    _IdentifierExpressions
                                 ),
-                                new List<AphidExpression>
-                                {
-                                    new CallExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "sb",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "AppendFormat",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                            new StringExpression(
-                                                "\" on line {0:n0}, column {1:n0}, \""
-                                            ),
-                                            new BinaryOperatorExpression(
-                                                new BinaryOperatorExpression(
-                                                    new IdentifierExpression(
-                                                        "line",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                    AphidTokenType.MemberOperator,
-                                                    new IdentifierExpression(
-                                                        "Item1",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    )
-                                                ),
-                                                AphidTokenType.AdditionOperator,
-                                                new NumberExpression(
-                                                    1
-                                                )
-                                            ),
-                                            new BinaryOperatorExpression(
-                                                new IdentifierExpression(
-                                                    "line",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                ),
-                                                AphidTokenType.MemberOperator,
-                                                new IdentifierExpression(
-                                                    "Item2",
-                                                    new List<IdentifierExpression>
-                                                    {
-                                                    }
-                                                )
-                                            ),
-                                        }
-                                    ),
-                                },
-                                new List<AphidExpression>
-                                {
-                                    new CallExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "sb",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "Append",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                            new StringExpression(
-                                                "'at '"
-                                            ),
-                                        }
-                                    ),
-                                }
+                                AphidTokenType.CustomOperator316,
+                                new IdentifierExpression(
+                                    "Expression",
+                                    _IdentifierExpressions
+                                )
                             ),
+                            AphidTokenType.CustomOperator316,
+                            new IdentifierExpression(
+                                "Filename",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        AphidTokenType.PipelineOperator,
+                        new PartialFunctionExpression(
                             new CallExpression(
                                 new BinaryOperatorExpression(
                                     new IdentifierExpression(
                                         "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
+                                        _IdentifierExpressions
                                     ),
                                     AphidTokenType.MemberOperator,
                                     new IdentifierExpression(
                                         "AppendFormat",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
+                                        _IdentifierExpressions
                                     )
                                 ),
                                 new List<AphidExpression>
                                 {
-                                    new StringExpression(
-                                        "'offset {0:n0} '"
-                                    ),
-                                    new IdentifierExpression(
-                                        "index",
-                                        new List<IdentifierExpression>
+                                    new PatternMatchingExpression(
+                                        new ImplicitArgumentExpression(
+                                            AphidTokenType.ImplicitArgumentOperator
+                                        ),
+                                        new List<PatternExpression>
                                         {
+                                            new PatternExpression(
+                                                new StringExpression(
+                                                    "\"\""
+                                                ),
+                                                new List<AphidExpression>
+                                                {
+                                                    _NullExpression,
+                                                }
+                                            ),
+                                            new PatternExpression(
+                                                new StringExpression(
+                                                    "\" in script '{0}'\""
+                                                ),
+                                                _AphidExpressions
+                                            ),
                                         }
                                     ),
                                 }
+                            )
+                        )
+                    ),
+                    false
+                ),
+            }
+        )
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "ParserErrorMessage",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
+                    ),
+                    new IdentifierExpression(
+                        "string",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "FromToken",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "code",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "exception",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "AphidParserException",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "highlight",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "bool",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
+                new BinaryOperatorExpression(
+                    new IdentifierExpression(
+                        "sb",
+                        new List<IdentifierExpression>
+                        {
+                            new IdentifierExpression(
+                                "var",
+                                _IdentifierExpressions
                             ),
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
+                        }
+                    ),
+                    AphidTokenType.AssignmentOperator,
+                    new UnaryOperatorExpression(
+                        AphidTokenType.newKeyword,
+                        new CallExpression(
+                            new IdentifierExpression(
+                                "StringBuilder",
+                                _IdentifierExpressions
+                            ),
+                            _AphidExpressions
+                        ),
+                        false
+                    )
+                ),
+                new CallExpression(
+                    new BinaryOperatorExpression(
+                        new IdentifierExpression(
+                            "sb",
+                            _IdentifierExpressions
+                        ),
+                        AphidTokenType.MemberOperator,
+                        new IdentifierExpression(
+                            "AppendFormat",
+                            _IdentifierExpressions
+                        )
+                    ),
+                    new List<AphidExpression>
+                    {
+                        new StringExpression(
+                            "\"Unexpected {0} '{1}'\""
+                        ),
+                        new CallExpression(
+                            new BinaryOperatorExpression(
+                                new CallExpression(
+                                    new BinaryOperatorExpression(
+                                        new BinaryOperatorExpression(
+                                            new BinaryOperatorExpression(
+                                                new IdentifierExpression(
+                                                    "exception",
+                                                    _IdentifierExpressions
+                                                ),
+                                                AphidTokenType.MemberOperator,
+                                                new IdentifierExpression(
+                                                    "UnexpectedToken",
+                                                    _IdentifierExpressions
+                                                )
+                                            ),
+                                            AphidTokenType.MemberOperator,
+                                            new IdentifierExpression(
+                                                "TokenType",
+                                                _IdentifierExpressions
+                                            )
+                                        ),
+                                        AphidTokenType.MemberOperator,
+                                        new IdentifierExpression(
+                                            "ToString",
+                                            _IdentifierExpressions
+                                        )
+                                    ),
+                                    _AphidExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "ToLower",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            _AphidExpressions
+                        ),
+                        new BinaryOperatorExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "exception",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "UnexpectedToken",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "Lexeme",
+                                _IdentifierExpressions
+                            )
+                        ),
+                    }
+                ),
+                new IfExpression(
+                    new BinaryOperatorExpression(
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(
+                                "exception",
+                                _IdentifierExpressions
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "ExpectedToken",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        AphidTokenType.NotEqualOperator,
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(
+                                "AphidTokenType",
+                                _IdentifierExpressions
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "None",
+                                _IdentifierExpressions
+                            )
+                        )
+                    ),
+                    new List<AphidExpression>
+                    {
+                        new CallExpression(
+                            new BinaryOperatorExpression(
                                 new IdentifierExpression(
                                     "sb",
-                                    new List<IdentifierExpression>
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "AppendFormat",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            new List<AphidExpression>
+                            {
+                                new StringExpression(
+                                    "\" expected {0}\""
+                                ),
+                                new BinaryOperatorExpression(
+                                    new IdentifierExpression(
+                                        "exception",
+                                        _IdentifierExpressions
+                                    ),
+                                    AphidTokenType.MemberOperator,
+                                    new IdentifierExpression(
+                                        "ExpectedToken",
+                                        _IdentifierExpressions
+                                    )
+                                ),
+                            }
+                        ),
+                    },
+                    null
+                ),
+                new CallExpression(
+                    new BinaryOperatorExpression(
+                        new IdentifierExpression(
+                            "ParserErrorMessage",
+                            _IdentifierExpressions
+                        ),
+                        AphidTokenType.MemberOperator,
+                        new IdentifierExpression(
+                            "AppendPositionAndExcerpt",
+                            _IdentifierExpressions
+                        )
+                    ),
+                    new List<AphidExpression>
+                    {
+                        new IdentifierExpression(
+                            "sb",
+                            _IdentifierExpressions
+                        ),
+                        new IdentifierExpression(
+                            "code",
+                            _IdentifierExpressions
+                        ),
+                        new BinaryOperatorExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "exception",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "UnexpectedToken",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "Index",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        new IdentifierExpression(
+                            "highlight",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new CallExpression(
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(
+                                "sb",
+                                _IdentifierExpressions
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "ToString",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        _AphidExpressions
+                    ),
+                    false
+                ),
+            }
+        )
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "ParserErrorMessage",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
+                    ),
+                    new IdentifierExpression(
+                        "StringBuilder",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "AppendPositionAndExcerpt",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "sb",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "StringBuilder",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "code",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "index",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "int",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "highlight",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "bool",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
+                new BinaryOperatorExpression(
+                    new ArrayExpression(
+                        new List<AphidExpression>
+                        {
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "ParserErrorMessage",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "AppendPosition",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "ParserErrorMessage",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "AppendExcerpt",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                        }
+                    ),
+                    AphidTokenType.SelectOperator,
+                    new FunctionExpression(
+                        _AphidExpressions,
+                        new List<AphidExpression>
+                        {
+                            new UnaryOperatorExpression(
+                                AphidTokenType.retKeyword,
+                                new CallExpression(
+                                    new ImplicitArgumentExpression(
+                                        AphidTokenType.ImplicitArgumentOperator
+                                    ),
+                                    new List<AphidExpression>
                                     {
+                                        new IdentifierExpression(
+                                            "sb",
+                                            _IdentifierExpressions
+                                        ),
+                                        new IdentifierExpression(
+                                            "code",
+                                            _IdentifierExpressions
+                                        ),
+                                        new IdentifierExpression(
+                                            "index",
+                                            _IdentifierExpressions
+                                        ),
+                                        new IdentifierExpression(
+                                            "highlight",
+                                            _IdentifierExpressions
+                                        ),
                                     }
                                 ),
                                 false
@@ -1560,254 +1060,449 @@ namespace Components.Aphid.Parser
                         }
                     )
                 ),
-                new BinaryOperatorExpression(
-                    new BinaryOperatorExpression(
-                        new IdentifierExpression(
-                            "ParserErrorMessage",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "StringBuilder",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "AppendExcerpt",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new IdentifierExpression(
+                        "sb",
+                        _IdentifierExpressions
                     ),
-                    AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
-                        new List<AphidExpression>
-                        {
+                    false
+                ),
+            }
+        )
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "ParserErrorMessage",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
+                    ),
+                    new IdentifierExpression(
+                        "StringBuilder",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "AppendPosition",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "sb",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "StringBuilder",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "code",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "index",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "int",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "highlight",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "bool",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
+                new IfExpression(
+                    new BinaryOperatorExpression(
+                        new BinaryOperatorExpression(
                             new IdentifierExpression(
-                                "sb",
+                                "line",
                                 new List<IdentifierExpression>
                                 {
                                     new IdentifierExpression(
-                                        "StringBuilder",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
+                                        "var",
+                                        _IdentifierExpressions
                                     ),
                                 }
                             ),
-                            new IdentifierExpression(
-                                "code",
-                                new List<IdentifierExpression>
+                            AphidTokenType.AssignmentOperator,
+                            new CallExpression(
+                                new BinaryOperatorExpression(
+                                    new IdentifierExpression(
+                                        "TokenHelper",
+                                        _IdentifierExpressions
+                                    ),
+                                    AphidTokenType.MemberOperator,
+                                    new IdentifierExpression(
+                                        "GetIndexPosition",
+                                        _IdentifierExpressions
+                                    )
+                                ),
+                                new List<AphidExpression>
                                 {
                                     new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
+                                        "code",
+                                        _IdentifierExpressions
                                     ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "index",
-                                new List<IdentifierExpression>
-                                {
                                     new IdentifierExpression(
-                                        "int",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
+                                        "index",
+                                        _IdentifierExpressions
                                     ),
                                 }
-                            ),
-                            new IdentifierExpression(
-                                "highlight",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "bool",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                        },
-                        new List<AphidExpression>
-                        {
+                            )
+                        ),
+                        AphidTokenType.NotEqualOperator,
+                        _NullExpression
+                    ),
+                    new List<AphidExpression>
+                    {
+                        new CallExpression(
                             new BinaryOperatorExpression(
                                 new IdentifierExpression(
-                                    "e",
-                                    new List<IdentifierExpression>
-                                    {
-                                        new IdentifierExpression(
-                                            "var",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                    }
+                                    "sb",
+                                    _IdentifierExpressions
                                 ),
-                                AphidTokenType.AssignmentOperator,
-                                new CallExpression(
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "AppendFormat",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            new List<AphidExpression>
+                            {
+                                new StringExpression(
+                                    "\" on line {0:n0}, column {1:n0}, \""
+                                ),
+                                new BinaryOperatorExpression(
                                     new BinaryOperatorExpression(
                                         new IdentifierExpression(
-                                            "TokenHelper",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
+                                            "line",
+                                            _IdentifierExpressions
                                         ),
                                         AphidTokenType.MemberOperator,
                                         new IdentifierExpression(
-                                            "GetCodeExcerpt",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
+                                            "Item1",
+                                            _IdentifierExpressions
+                                        )
+                                    ),
+                                    AphidTokenType.AdditionOperator,
+                                    new NumberExpression(
+                                        1
+                                    )
+                                ),
+                                new BinaryOperatorExpression(
+                                    new IdentifierExpression(
+                                        "line",
+                                        _IdentifierExpressions
+                                    ),
+                                    AphidTokenType.MemberOperator,
+                                    new IdentifierExpression(
+                                        "Item2",
+                                        _IdentifierExpressions
+                                    )
+                                ),
+                            }
+                        ),
+                    },
+                    new List<AphidExpression>
+                    {
+                        new CallExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "sb",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "Append",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            new List<AphidExpression>
+                            {
+                                new StringExpression(
+                                    "'at '"
+                                ),
+                            }
+                        ),
+                    }
+                ),
+                new CallExpression(
+                    new BinaryOperatorExpression(
+                        new IdentifierExpression(
+                            "sb",
+                            _IdentifierExpressions
+                        ),
+                        AphidTokenType.MemberOperator,
+                        new IdentifierExpression(
+                            "AppendFormat",
+                            _IdentifierExpressions
+                        )
+                    ),
+                    new List<AphidExpression>
+                    {
+                        new StringExpression(
+                            "'offset {0:n0} '"
+                        ),
+                        new IdentifierExpression(
+                            "index",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new IdentifierExpression(
+                        "sb",
+                        _IdentifierExpressions
+                    ),
+                    false
+                ),
+            }
+        )
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "ParserErrorMessage",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
+                    ),
+                    new IdentifierExpression(
+                        "StringBuilder",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "AppendExcerpt",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "sb",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "StringBuilder",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "code",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "index",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "int",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "highlight",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "bool",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
+                new BinaryOperatorExpression(
+                    new IdentifierExpression(
+                        "e",
+                        new List<IdentifierExpression>
+                        {
+                            new IdentifierExpression(
+                                "var",
+                                _IdentifierExpressions
+                            ),
+                        }
+                    ),
+                    AphidTokenType.AssignmentOperator,
+                    new CallExpression(
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(
+                                "TokenHelper",
+                                _IdentifierExpressions
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "GetCodeExcerpt",
+                                _IdentifierExpressions
+                            )
+                        ),
+                        new List<AphidExpression>
+                        {
+                            new IdentifierExpression(
+                                "code",
+                                _IdentifierExpressions
+                            ),
+                            new IdentifierExpression(
+                                "index",
+                                _IdentifierExpressions
+                            ),
+                            new NumberExpression(
+                                4
+                            ),
+                        }
+                    )
+                ),
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new TernaryOperatorExpression(
+                        AphidTokenType.ConditionalOperator,
+                        new CallExpression(
+                            new BinaryOperatorExpression(
+                                new IdentifierExpression(
+                                    "String",
+                                    _IdentifierExpressions
+                                ),
+                                AphidTokenType.MemberOperator,
+                                new IdentifierExpression(
+                                    "IsNullOrEmpty",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            new List<AphidExpression>
+                            {
+                                new IdentifierExpression(
+                                    "e",
+                                    _IdentifierExpressions
+                                ),
+                            }
+                        ),
+                        new IdentifierExpression(
+                            "sb",
+                            _IdentifierExpressions
+                        ),
+                        new BinaryOperatorExpression(
+                            new TernaryOperatorExpression(
+                                AphidTokenType.ConditionalOperator,
+                                new IdentifierExpression(
+                                    "highlight",
+                                    _IdentifierExpressions
+                                ),
+                                new CallExpression(
+                                    new BinaryOperatorExpression(
+                                        new IdentifierExpression(
+                                            "SyntaxHighlightingFormatter",
+                                            _IdentifierExpressions
+                                        ),
+                                        AphidTokenType.MemberOperator,
+                                        new IdentifierExpression(
+                                            "Format",
+                                            _IdentifierExpressions
                                         )
                                     ),
                                     new List<AphidExpression>
                                     {
                                         new IdentifierExpression(
-                                            "code",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
+                                            "e",
+                                            _IdentifierExpressions
                                         ),
+                                    }
+                                ),
+                                new IdentifierExpression(
+                                    "e",
+                                    _IdentifierExpressions
+                                )
+                            ),
+                            AphidTokenType.PipelineOperator,
+                            new PartialFunctionExpression(
+                                new CallExpression(
+                                    new BinaryOperatorExpression(
                                         new IdentifierExpression(
-                                            "index",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
+                                            "sb",
+                                            _IdentifierExpressions
                                         ),
-                                        new NumberExpression(
-                                            4
+                                        AphidTokenType.MemberOperator,
+                                        new IdentifierExpression(
+                                            "AppendFormat",
+                                            _IdentifierExpressions
+                                        )
+                                    ),
+                                    new List<AphidExpression>
+                                    {
+                                        new StringExpression(
+                                            "'\\r\\n\\r\\n{0}\\r\\n'"
                                         ),
                                     }
                                 )
-                            ),
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
-                                new TernaryOperatorExpression(
-                                    AphidTokenType.ConditionalOperator,
-                                    new CallExpression(
-                                        new BinaryOperatorExpression(
-                                            new IdentifierExpression(
-                                                "String",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            AphidTokenType.MemberOperator,
-                                            new IdentifierExpression(
-                                                "IsNullOrEmpty",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        new List<AphidExpression>
-                                        {
-                                            new IdentifierExpression(
-                                                "e",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                        }
-                                    ),
-                                    new IdentifierExpression(
-                                        "sb",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                    new BinaryOperatorExpression(
-                                        new TernaryOperatorExpression(
-                                            AphidTokenType.ConditionalOperator,
-                                            new IdentifierExpression(
-                                                "highlight",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            ),
-                                            new CallExpression(
-                                                new BinaryOperatorExpression(
-                                                    new IdentifierExpression(
-                                                        "SyntaxHighlightingFormatter",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                    AphidTokenType.MemberOperator,
-                                                    new IdentifierExpression(
-                                                        "Format",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    )
-                                                ),
-                                                new List<AphidExpression>
-                                                {
-                                                    new IdentifierExpression(
-                                                        "e",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                }
-                                            ),
-                                            new IdentifierExpression(
-                                                "e",
-                                                new List<IdentifierExpression>
-                                                {
-                                                }
-                                            )
-                                        ),
-                                        AphidTokenType.PipelineOperator,
-                                        new PartialFunctionExpression(
-                                            new CallExpression(
-                                                new BinaryOperatorExpression(
-                                                    new IdentifierExpression(
-                                                        "sb",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    ),
-                                                    AphidTokenType.MemberOperator,
-                                                    new IdentifierExpression(
-                                                        "AppendFormat",
-                                                        new List<IdentifierExpression>
-                                                        {
-                                                        }
-                                                    )
-                                                ),
-                                                new List<AphidExpression>
-                                                {
-                                                    new StringExpression(
-                                                        "'\r\n\r\n{0}\r\n'"
-                                                    ),
-                                                }
-                                            )
-                                        )
-                                    )
-                                ),
-                                false
-                            ),
-                        }
-                    )
+                            )
+                        )
+                    ),
+                    false
                 ),
             }
-;
-        }
-    }
+        )
+    ),
 }
 
+                        );
+
+                    
+                        //private static readonly List<IdentifierExpression> _IdentifierExpressions = new List<IdentifierExpression>();
+                    
+                        //private static readonly List<AphidExpression> _AphidExpressions = new List<AphidExpression>();
+                    
+
+                    
+                        private static readonly NullExpression _NullExpression = new NullExpression();
+                    
+                    
+                
+                }
+            }
+            
 

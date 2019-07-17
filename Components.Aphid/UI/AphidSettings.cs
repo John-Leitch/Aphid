@@ -19,6 +19,7 @@
             ShowClrStack = "showClrStack",
             ScriptCaching = "scriptCaching",
             IgnoreDebugger = "ignoreDbg",
+            RequestDebugger = "requestDbg",
             SourcePath = "sourcePath";
     }
 }

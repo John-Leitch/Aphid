@@ -1,20 +1,23 @@
 ﻿using Components.Aphid.Parser.Fluent;
 using System.Collections.Generic;
 using System.Linq;
+using ET = Components.Aphid.Parser.AphidExpressionType;
+using Exp = Components.Aphid.Parser.AphidExpression;
+
 
 namespace Components.Aphid.Parser
 {
     public class AphidPreprocessorDirectiveMutator : AphidMutator
     {
-        protected override List<AphidExpression> MutateCore(
-            AphidExpression expression,
+        protected override List<Exp> MutateCore(
+            Exp expression,
             out bool hasChanged)
         {
             CallExpression callExp;
 
-            if (expression.Type != AphidExpressionType.CallExpression ||
+            if (expression.Type != ET.CallExpression ||
                 (callExp = expression.ToCall()).FunctionExpression.Type !=
-                    AphidExpressionType.IdentifierExpression)
+                    ET.IdentifierExpression)
             {
                 hasChanged = false;
 
@@ -42,16 +45,16 @@ namespace Components.Aphid.Parser
             }
         }
 
-        private List<AphidExpression> CreateIdentifer(
+        private List<Exp> CreateIdentifer(
             CallExpression callExp,
-            IdentifierExpression callIdExp) => new List<AphidExpression>
+            IdentifierExpression callIdExp) => new List<Exp>
             {
                 new IdentifierExpression(
                     string.Concat(callExp.Args.Select(x => ParseArgument(callExp, x))),
                     callIdExp.Attributes)
             };
 
-        private static List<AphidExpression> CreateString(CallExpression callExp)
+        private static List<Exp> CreateString(CallExpression callExp)
         {
             if (callExp.Args.Count != 1)
             {
@@ -64,7 +67,7 @@ namespace Components.Aphid.Parser
 
             switch (callExp.Args[0].Type)
             {
-                case AphidExpressionType.IdentifierExpression:
+                case ET.IdentifierExpression:
                     var idExp = (IdentifierExpression)callExp.Args[0];
 
                     if (idExp.Attributes.Count != 0)
@@ -77,15 +80,15 @@ namespace Components.Aphid.Parser
                     s = idExp.Identifier;
                     break;
 
-                case AphidExpressionType.StringExpression:
+                case ET.StringExpression:
                     s = StringParser.Parse(((StringExpression)callExp.Args[0]).Value);
                     break;
 
-                case AphidExpressionType.NumberExpression:
+                case ET.NumberExpression:
                     s = ((NumberExpression)callExp.Args[0]).Value.ToString();
                     break;
 
-                case AphidExpressionType.BooleanExpression:
+                case ET.BooleanExpression:
                     s = ((BooleanExpression)callExp.Args[0]).Value.ToString();
                     break;
 
@@ -98,17 +101,17 @@ namespace Components.Aphid.Parser
                         callExp);
             }
 
-            return new List<AphidExpression> { new StringExpression(string.Format("'{0}'", s)) };
+            return new List<Exp> { new StringExpression(string.Format("'{0}'", s)) };
         }
 
-        private string ParseArgument(CallExpression call, AphidExpression argument)
+        private string ParseArgument(CallExpression call, Exp argument)
         {
             switch (argument.Type)
             {
-                case AphidExpressionType.IdentifierExpression:
+                case ET.IdentifierExpression:
                     return argument.ToIdentifier().Identifier;
 
-                case AphidExpressionType.StringExpression:
+                case ET.StringExpression:
                     return StringParser.Parse(((StringExpression)argument).Value);
 
                 default:

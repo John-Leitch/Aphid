@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using static System.Console;
 using static System.ConsoleKey;
+using static System.Diagnostics.Process;
 
 namespace Components.External.ConsolePlus
 {
@@ -58,7 +59,8 @@ namespace Components.External.ConsolePlus
             Highlighter = highlighter;
             Source = sources;
             
-            if (UseNativeApi = useNativeApi)
+            if (UseNativeApi = (useNativeApi &&
+                GetCurrentProcess().MainWindowHandle != IntPtr.Zero))
             {
                 _gfx = new ConsoleGraphics();
                 _gfx.Init();

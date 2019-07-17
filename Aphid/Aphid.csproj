@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,7 +8,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aphid</RootNamespace>
     <!-- <AssemblyName>Aphid</AssemblyName> -->
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
     <LangVersion>latest</LangVersion>
@@ -72,7 +72,7 @@
       <PropertyGroup>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
-        <IsDebug>.Debug</IsDebug>        
+        <IsDebug>.Debug</IsDebug>
         <DefineConstants>$(DefineConstants);TRACE;DEBUG;$(BitnessDirective)</DefineConstants>
       </PropertyGroup>
     </When>
@@ -81,7 +81,7 @@
         <DebugType>none</DebugType>
         <Optimize>true</Optimize>
         <IsDebug>
-        </IsDebug>        
+        </IsDebug>
         <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)</DefineConstants>
       </PropertyGroup>
     </Otherwise>
@@ -113,21 +113,51 @@
   <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
   <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
   <!-- </PropertyGroup> -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Default' "><OutputPath>bin\Debug\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'"><OutputPath>bin\Debug32\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'"><OutputPath>bin\Debug64\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Default' "><OutputPath>bin\Release\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Default' ">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
+    <OutputPath>bin\Debug32\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
+    <OutputPath>bin\Debug64\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Default' ">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
+    <OutputPath>bin\Release32\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
+    <OutputPath>bin\Release64\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
+    <OutputPath>bin\Release32\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+    <OutputPath>bin\Release64\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'">
+    <OutputPath>bin\Release32\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">
+    <OutputPath>bin\Release64\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
+    <OutputPath>bin\Release32\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
+    <OutputPath>bin\Release64\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -256,13 +286,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.2.0-beta3-final</Version>
+      <Version>3.2.0-beta4-final</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="a.ico" />
+    <None Include="a.ico" />
   </ItemGroup>
   <!-- <ItemGroup> -->
   <!-- <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1"> -->
