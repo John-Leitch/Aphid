@@ -259,9 +259,10 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             -> code,
 
         color: {
-            invert = @(c) c->(@(b) (0xff - b).byte()) |> toArray,            
+            // invert = @(c) c->(@(b) (0xff - b).byte()) |> toArray,            
+            invert = @(c) c->@+0->(@(b) ~b |> Decimal.GetBits ^! @+0 @&0xff @()$_.byte()) |> toArray,            
             invertText = @(t) {
-                _inv = macro(@(n) { t.n = (t.n == null ? [0,0,0] : t.n) | invert });
+                _inv = macro(@(n) { t.n = (t.n == null ? [0xff,0xff,0xff] : t.n) | invert });
                 _inv(ForegroundRgb);
                 _inv(BackgroundRgb);
                 ret t
@@ -269,6 +270,7 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             remove: @(t) t ~: '\\x1b.*?m',
             clearResets: @(t) t.Replace(VT100.Reset, ''),
             strLen: @(s) s | remove @.Length,
+            pad: @(s) new string(' ', Math.Max(0, Console.BufferWidth - 1 - (s | console.color.strLen))),
         },
 
         dumpSysColors: @{
@@ -276,11 +278,15 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
                 .GetFields()
                 ->@(f)$_
                     .GetValue(null)
-                    @(c) c | VT100.Background
-                    @format(
-                        '{3}{0}{1}{2}',
-                        VT100.Foreground(c|color.invert),
-                        f.Name.PadRight(Console.BufferWidth - 2), VT100.Reset)
+                    @(c) format(
+                        '{0}{1}{2}{3}\r\n{4}{5}{6}{3}',
+                        c | VT100.Background,
+                        c | color.invert | VT100.Foreground,
+                        Console.BufferWidth - 2 |> f.Name.PadRight,
+                        VT100.Reset,
+                        c | VT100.Foreground,
+                        c | color.invert | VT100.Background,
+                        Console.BufferWidth - 2 |> (f.Name + ' Background').PadRight)
                         |> line;
         },
 

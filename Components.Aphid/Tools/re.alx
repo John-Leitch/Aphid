@@ -3,9 +3,8 @@
 {
     string path: '-p',
     string filter: '-f',
-    bool replace: '-r',
-    // Todo:
-    //bool useEvaluator: '-e',
+    bool replace: '-r',    
+    bool useEvaluator: '-e',
     bool recurse: '-s',
     string out: '-o',
     bool write: '-w',
@@ -28,6 +27,23 @@ if (!anyRemaining) {
 }
 
 var func = recurse ? io.all.files : io.files;
+var evaluatorBlock;
+var execEvaluator;
+
+if (useEvaluator) {
+    evaluatorBlock = 
+        Environment.CommandLine
+        | ArgLexer.GetTokenInfo
+        >^(@(x) x.Value == '-e')
+        @.Offset
+        @+2
+        |> Environment.CommandLine.Substring
+        @format('this."$aphid".InitialScope.result = @() {{ {0} }}()');
+
+    execEvaluator = @() AphidEvaluator.Eval(aphid, evaluatorBlock);    
+} else {
+    execEvaluator = @{};
+}
 
 var pattern = remaining[0];
 
@@ -36,22 +52,30 @@ func(path, filter) for (f){
     var matches = text ~~ pattern;
     var c = matches#!;
 
-    if (c == 0 ){
+    if (c == 0 ) {
         continue;
     }
     
-    Console.WriteLine(
-        '{0}{1}{2}\r\n',
-        SystemColor.DarkBlue | VT100.Background,
-        '[{0} {1} in {2}]' :: [
+    var matchHeader =
+        '[ {0} {1} in {2} ]' :: [
             c,
-            c != 1 ? language.pluralize('Match') : '',
+            'Match' |> c != 1 ? language.pluralize : @(x)x,
             f | io.full
         ]
         |> console.highlight
-        |> console.color.clearResets,
-        VT100.Reset);
+        |> console.color.clearResets;
+
+
     
+    Console.WriteLine(
+        '{0}{1}\r\n{2}{3}{4}{5}\r\n',
+        SystemColor.White | VT100.Background,
+        console.color.pad(''),
+        SystemColor.DarkBlue | VT100.Background,
+        matchHeader,
+        console.color.pad(matchHeader),
+        VT100.Reset);    
+
     var matchNum = 0;
     matches for (m) {        
         var i2 = 0;        
@@ -91,21 +115,19 @@ func(path, filter) for (f){
                     TokenHelper
                         .GetCodeExcerpt(
                             text
-                                @{
-                                    ret [
-                                        text.Remove(g.Index) | console.highlight @{
-                                            newLen = $_.Length;
-                                            ret $_;
-                                        },
-                                        text.Substring(g.Index, g.Length)| SyntaxHighlightingFormatter.Highlight->console.color.invertText->VT100.GetString|>concat,
-                                        text.Substring(g.Index + g.Length) | console.highlight
+                                @() [
+                                        g.Index | text.Remove | console.highlight |< @() newLen = $_.Length,
+                                        
+                                        text
+                                            .Substring(g.Index, g.Length)
+                                            |> SyntaxHighlightingFormatter.Highlight
+                                            -> console.color.invertText
+                                            -> VT100.GetString
+                                            |> concat,
+
+                                        g.Index + g.Length |> text.Substring |> console.highlight
                                     ]
-                                    | concat;
-                                },
-                                // .Remove(g.Index, g.Length)
-                                // |> console.highlight
-                                // @() $_
-                                // .Insert(g.Index, g.Value | SyntaxHighlightingFormatter.Highlight->console.color.invertText->VT100.GetString|>concat),
+                                    | concat,                                
                             newLen,
                             3)
                         .TrimEnd()
@@ -118,7 +140,7 @@ func(path, filter) for (f){
                         ])
                         @join('\r\n')
                         @+ '\r\n' :
-                        '{0}{1}\r\n' :: [ groupIndent, $_.Value ]);
+                    '{0}{1}\r\n' :: [ groupIndent, $_.Value ]);
         };
 
         if (out != null) {
@@ -128,8 +150,26 @@ func(path, filter) for (f){
         }
     };
 
-    if ((matches#!) > 0 && write) {
-        printInfo('Writing updated text');
-        text ~: [ pattern, out ] |> @io.txt(f);
+    if ((matches#!) > 0 && (useEvaluator|| write)) {
+        var updated = text ~: [ pattern, out ];
+        
+        if (useEvaluator) {
+            printInfo('Running evaluator');
+            
+            execEvaluator();
+            if (result defined && result != null) {
+                Console.WriteLine(
+                    '{0}\r\n{1}\r\n', 
+                    'Evaluator:' |> console.highlight,
+                    result);
+                // printSuccess('Evaluator updated value:\r\n{0}', result);
+                updated = result;
+            }
+        }
+
+        if (write) {
+            printInfo('Writing updated text');
+            updated |> @io.txt(f);
+        }
     }
 };
