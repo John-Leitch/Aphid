@@ -257,3 +257,9 @@ ex.txt
 fl.txt  
 findLangServer.cmd  
 push  
+*.compiled.cs
+*.main.cs
+*.ilmerge.txt
+*.exe.sdb
+*.exe.odm
+MigrationBackup/*
