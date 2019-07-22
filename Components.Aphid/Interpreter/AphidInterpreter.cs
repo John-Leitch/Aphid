@@ -3662,38 +3662,30 @@ namespace Components.Aphid.Interpreter
 
             if (obj.Value is AphidFunction func)
             {
-                var paramOffset = Math.Max(func.Args.Length - expression.Call.Args.Count, 0);
-                var paramCount = Math.Max(func.Args.Length - paramOffset, 0);
-                var callArgs = new List<AphidExpression>(expression.Call.Args.Count + paramCount);
+                
+                //var paramOffset = Math.Max(func.Args.Length - expression.Call.Args.Count, 0);
+                var paramCount = expression.Call.Args.Count;
+                var applied2 = new AphidObject[paramCount];
 
-                for (var i = 0; i < expression.Call.Args.Count; i++)
+                for (var i = 0; i < paramCount; i++)
                 {
-                    callArgs.Add(expression.Call.Args[i]);
+                    applied2[i] = InterpretExpression(expression.Call.Args[i]);
                 }
 
-                var paramSet = new string[paramCount];
+                return Scalar(new AphidPartialFunction(func, applied2));
+            }
+            else if (obj.Value is AphidPartialFunction partial)
+            {
+                var args = expression.Call.Args;
+                var applied2 = new AphidObject[partial.Applied.Length + args.Count];
+                Array.Copy(partial.Applied, applied2, partial.Applied.Length);
 
-                for (var i = 0; i < paramSet.Length; i++)
+                for (var i = 0; i < args.Count; i++)
                 {
-                    callArgs.Add(
-                        new IdentifierExpression(paramSet[i] = func.Args[paramOffset + i])
-                            .WithPositionFrom(expression.Call.Args[i]));
+                    applied2[partial.Applied.Length + i] = InterpretExpression(args[i]);
                 }
 
-                return Scalar(
-                    new AphidFunction(
-                        paramSet,
-                        new List<AphidExpression>
-                        {
-                            new UnaryOperatorExpression(
-                                retKeyword,
-                                new CallExpression(
-                                    expression.Call.FunctionExpression,
-                                    callArgs)
-                                    .WithPositionFrom(expression.Call))
-                                .WithPositionFrom(expression.Call)
-                        },
-                        CurrentScope));
+                return Scalar(new AphidPartialFunction(partial.Function, applied2));
             }
 
             if (!(obj.Value is AphidInteropMember interopObj))
@@ -4407,6 +4399,18 @@ namespace Components.Aphid.Interpreter
                         functionExpression,
                         DeepUnwrapObjectArrayRef(args),
                         interopMembers);
+
+                case AphidPartialFunction aphidPartial:
+                    var applied = aphidPartial.Applied;
+                    var argUnion = new AphidObject[args.Length + applied.Length];
+                    Array.Copy(applied, argUnion, applied.Length);
+
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        argUnion[applied.Length + i] = Wrap(args[i]);
+                    }
+
+                    return CallFunction(aphidPartial.Function, argUnion);
 
                 case AphidInteropPartialFunction interopPartial:
                     return InterpretInteropCallExpression(
