@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="AphidBase.proj" />  
+  <Import Project="AphidBase.proj" />
   <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE'))">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -253,6 +253,7 @@
     </Compile>
     <Compile Include="Debugging\AphidObjectDebugView.cs" />
     <Compile Include="Parser\StringParser.cs" />
+    <Compile Include="TypeSystem\AphidPartialFunction.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropCallContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeContextExactComparer.cs" />
     <Compile Include="TypeSystem\ClrInterop\ParameterInfoCache.cs" />

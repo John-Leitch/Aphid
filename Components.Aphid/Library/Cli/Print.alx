@@ -1,4 +1,82 @@
-﻿delete print;
+﻿
+
+if (print defined && print != Cli.WriteLine) {
+delete print;
+using Components.External.ConsolePlus;
+using Components.Aphid.TypeSystem;
+using Components.Aphid.Interpreter;
+using System.Threading;
+using System.Diagnostics;
+
+var handler = @(line, fmt) {
+
+// if (Cli.WriteHandler == null || Cli.WriteHandler.GetType() != AphidFunction) {
+
+    var tagFmt = '[Tid {1}{2}0x{0:x2}{3}';
+    tagFmt = '[{1}{2}0x{0:x2}{3}';
+    var tagDelim = ' ';
+        
+    var clamp = @(i) SystemColor.GetFields() @(f) f[i % (f.Length)].GetValue(null);
+    var invert = @(c) c->@+0->(@(b) ~b |> Decimal.GetBits ^! @+0 @&0xff |> Convert.ToByte) |> Enumerable.ToArray;
+    var tag = false;
+    var sb = new StringBuilder();
+     
+    if(Console.CursorLeft == 0 &&
+    !(var n = this.'$aphid'.GetStackFrame(1).Name).StartsWith('Cli.WriteHeader') &&
+    true) {
+    //(@{n|Console.WriteLine; ret n}()
+    // (n
+    // .StartsWith('Cli.Write') || n.StartsWith('Cli.WriteLine') || n.StartsWith('_styleEscaped'))) {
+        tag = true;
+        sb.AppendFormat(
+            tagFmt,
+            (var tid = Thread.CurrentThread.ManagedThreadId),
+            (var tc = (tid | clamp)) | VT100.Foreground,
+            tc | invert |> VT100.Background,
+            VT100.Reset);
+        
+
+        var l = fmt;
+        var hasToken = (l | Cli.EraseStyles).StartsWith('[');
+
+        if (tag && !hasToken) {
+            l = tagDelim + '*] ' + l;
+        }
+
+        var off = sb.Length;   
+        sb.Append(l);
+        
+        if (tag && hasToken) {
+            // var tmp = Console.CursorLeft;
+            // Console.CursorLeft = off;
+            sb.Remove(off, tagDelim.Length).Insert(off, tagDelim);
+            // Console.Write(tagDelim);
+            // Console.CursorLeft = tmp;
+        }
+    } else {
+        if (fmt defined && fmt != null && fmt.Length > 0) {
+            sb.Append(fmt);
+        }
+    }
+
+    if (line)
+    sb.Append('\r\n');
+
+    if (sb.Length > 0) {
+        lock (Console.Out) 
+        sb.ToString() | Console.Write;
+    }
+};
+
+//Cli.WriteHandler = @(msg) handler(false, msg);
+//Cli.WriteLineHandler = @(msg) handler(true, msg);
+// if ((this.'$aphid'.GetStackTrace()#!) == 1 && Thread.CurrentThread.ManagedThreadId == 1) {
+// if (Cli.WriteHandler.Method.DeclaringType == Console && 
+//  Thread.CurrentThread.ManagedThreadId == 1) {
+//     Console.WriteLine('hooking');
+//     Cli.WriteHandler = @(msg) handler(false, msg);
+// }
+}
 
 using Components.External.ConsolePlus;
 
@@ -102,3 +180,5 @@ _styleEscaped = macro(@(x6) {
 _nonPrimitiveToString = macro(@(value) {
     !value.GetType().IsPrimitive ? value.ToString() : value
 });
+
+

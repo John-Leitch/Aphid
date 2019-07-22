@@ -117,23 +117,49 @@ namespace Components.Aphid.TypeSystem
         private static string[] FanAphidName(Type t)
         {
             var names = new List<string>();
-
+            var curType = t;
             string aphidType;
 
             do
             {
-                if ((aphidType = AphidAlias.Resolve(t)) != null)
+                if ((aphidType = AphidAlias.Resolve(curType)) != null)
                 {
                     names.Add(aphidType);
                 }
 
-                names.Add(GetInteropName(t));
-                t = t.BaseType;
-            } while (t != null);
+                FanInteropType(curType, names);
+
+                curType = curType.BaseType;
+            } while (curType != null);
+
+            var interfaces = t.GetInterfaces();
+
+            for (var i = 0; i < interfaces.Length; i++)
+            {
+                FanInteropType(interfaces[i], names);
+            }
 
             names.Add(AphidType.Unknown);
 
             return names.ToArray();
+        }
+
+
+        private static void FanInteropType(Type t, List<string> names)
+        {
+            if (!t.IsGenericType)
+            {
+                names.Add(t.FullName);
+            }
+            else
+            {
+                names.Add(GetGenericInteropName(t));
+
+                if (t.IsConstructedGenericType)
+                {
+                    names.Add(t.GetGenericTypeDefinition().FullName);
+                }
+            }
         }
 
         private static string GetInteropName(Type t)
@@ -142,7 +168,14 @@ namespace Components.Aphid.TypeSystem
             {
                 return t.FullName;
             }
+            else
+            {
+                return GetGenericInteropName(t);
+            }
+        }
 
+        private static string GetGenericInteropName(Type t)
+        {
             var isFirstTypeArg = true;
             var sb = new StringBuilder(t.FullName);
             sb.Append('[');

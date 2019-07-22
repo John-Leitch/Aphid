@@ -260,8 +260,8 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
 
         color: {
             // invert = @(c) c->(@(b) (0xff - b).byte()) |> toArray,            
-            invert = @(c) c->@+0->(@(b) ~b |> Decimal.GetBits ^! @+0 @&0xff @()$_.byte()) |> toArray,            
-            invertText = @(t) {
+            invert: @(c) c->@+0->(@(b) ~b |> Decimal.GetBits ^! @+0 @&0xff @()$_.byte()) |> toArray,            
+            invertText: @(t) {
                 _inv = macro(@(n) { t.n = (t.n == null ? [0xff,0xff,0xff] : t.n) | invert });
                 _inv(ForegroundRgb);
                 _inv(BackgroundRgb);
@@ -271,6 +271,142 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             clearResets: @(t) t.Replace(VT100.Reset, ''),
             strLen: @(s) s | remove @.Length,
             pad: @(s) new string(' ', Math.Max(0, Console.BufferWidth - 1 - (s | console.color.strLen))),
+            darken: @(c) c->@()Math.Max(0, $_- 0x30).byte(),
+            wrapLines: @(maxLineLen, text)
+                text
+                @console.color.wrapItems(maxLineLen)
+                ->@(l)
+                    l
+                    |> VT100.GetString @> console.color.clearResets
+                    |> @+ new string(' ', maxLineLen - (l ->@.Text->@.Length +>@(x,y) x + y)),
+
+            wrapItems: @(maxLineLen, text) {
+                var tl = List[ColoredText];
+                var lines = new List[tl]();
+                var curLen = 0;
+                lines.Add(var curLine = new tl());
+                
+                text | SyntaxHighlightingFormatter.Highlight for (p2) {
+                    p2.Text
+                        ~:'\r'
+                        @()($_.Split('\n')
+                            ->@()new ColoredText(
+                                p2.ForegroundRgb,
+                                p2.BackgroundRgb,
+                                $_))
+                    @seq.iter(@(p, i) {
+                        if (i != 0) {
+                            curLen = 0;
+                            lines.Add(curLine = new tl());
+                        }
+
+                        if ((curLen += p.Text.Length) > maxLineLen) {                
+                            while (true) {
+                                if (curLen != p.Text.Length) {
+                                    lines.Add(curLine = new tl());
+                                }
+                                
+                                if ((curLen = p.Text.Length) > maxLineLen) {                        
+                                    new ColoredText(
+                                        p.ForegroundRgb,
+                                        p.BackgroundRgb,
+                                        p.Text.Remove(maxLineLen))
+                                    |> curLine.Add;
+                                    
+                                    p = new ColoredText(
+                                        p.ForegroundRgb,
+                                        p.BackgroundRgb,
+                                        p.Text.Substring(maxLineLen));
+                                    
+                                    curLen = p.Text.Length;
+                                    lines.Add(curLine = new tl());
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+
+                        p | curLine.Add;
+                    });
+
+                    // if (!split) {
+                        
+                    // }
+                };
+
+                ret lines;
+            },
+
+            headerStyle: {
+                border: {
+                    background: SystemColor.DarkBlue,
+                    foreground: SystemColor.AntiqueWhite,
+                },
+
+                content: {
+                    background: SystemColor.DarkBlue,
+                    foreground: null,
+                },
+            },
+
+            style: {
+                tryGetValue: @(bg, v) v != null ? v | (bg ? VT100.Background : VT100.Foreground) : '',
+                
+                getValue: @(s)
+                    [ s?.background @tryGetValue(true), s?.foreground @tryGetValue(false) ]
+                    | concat,
+            },
+
+            line: @() ($($args.Count)
+                0: console.line(),
+                console.line($_.Replace('{R}', VT100.Reset), $args @skip(1))),
+
+            header: @(msg) {        
+                var lines = msg @console.color.wrapLines(Console.BufferWidth - 5);
+                var hr = new string('═', Console.BufferWidth - 1);
+                var headerTop = '╔{0}╗' :: hr.Substring(2);
+                var headerBottom = '╚{0}╝' :: hr.Substring(2);
+                
+                var borderColor = console.color.headerStyle.border | console.color.style.getValue;
+                var contentColor = console.color.headerStyle.content | console.color.style.getValue;
+                var cl = color.line;
+
+                cl(
+                    '{0}{1}{R}',
+                    borderColor,
+                    headerTop);
+
+                lines for (t) cl(
+                    '{0}║{R}{1} {2}{R}{1} {0}║{R}',
+                    borderColor,
+                    contentColor,
+                    t);
+
+                cl(
+                    '{0}{1}{R}',
+                    borderColor,
+                    headerBottom);
+                
+                // ret null;
+                    
+
+
+                //     var hr = new string('═', Console.BufferWidth - 1);
+                //     var headerTop = '╔{0}╗' :: hr.Substring(2);
+                //     var msgPad = msg | console.color.pad;
+                //     var headerMiddle = @(t) '║ {0}{1}{2}║' :: [ t, (t | console.color.pad).Substring(3), VT100.Reset ];
+                //     var headerBottom = '╚{0}╝' :: hr.Substring(2);
+
+                //     Console.WriteLine(
+                //         '{0}{1}\r\n{0}{2}\r\n{0}{3}{4}\r\n',
+                //         SystemColor.DarkBlue | VT100.Background,
+                //         headerTop,
+                //         msg | console.highlight | console.color.clearResets | headerMiddle,
+                //         headerBottom,
+                //         // console.color.pad(matchHeader),
+                //         VT100.Reset); 
+                // };
+            },
         },
 
         dumpSysColors: @{
@@ -280,12 +416,12 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
                     .GetValue(null)
                     @(c) format(
                         '{0}{1}{2}{3}\r\n{4}{5}{6}{3}',
-                        c | VT100.Background,
-                        c | color.invert | VT100.Foreground,
-                        Console.BufferWidth - 2 |> f.Name.PadRight,
-                        VT100.Reset,
                         c | VT100.Foreground,
                         c | color.invert | VT100.Background,
+                        Console.BufferWidth - 2 |> f.Name.PadRight,
+                        VT100.Reset,
+                        c | VT100.Background,
+                        c | color.invert | VT100.Foreground,                        
                         Console.BufferWidth - 2 |> (f.Name + ' Background').PadRight)
                         |> line;
         },

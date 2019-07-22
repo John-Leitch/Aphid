@@ -132,5 +132,13 @@
         }
     };
 }();
-
+// var c = 0;
+// using Components.Json;
+// this.'$block' @skipWhile(@(x) !x.ToString().Contains('var tests'))
+// for (n) {
+//     n.Context.Code = '';
+//     n.Context.Filename = '';
+//     n | JsonSerializer.Serialize @io.txt('c:/temp/node{0}.json':: c++);
+// };
+// repl.run();
 var tests;

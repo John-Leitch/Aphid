@@ -1,7 +1,11 @@
-﻿#'Std';
+/*nostdheader*/
 using System.Linq;
+var asm;
 
-var asm = AppDomain.CurrentDomain.GetAssemblies() ~? 'Components.Aphid' |> Enumerable.First @.Location;
+@{
+    #'Core/Operators';
+    asm = AppDomain.CurrentDomain.GetAssemblies() ~? 'Components.Aphid' |> Enumerable.First @.Location;
+}();
 
 _n = macro(@(n) { var id('load', n) });
 _load = macro(@(n, p, f) {

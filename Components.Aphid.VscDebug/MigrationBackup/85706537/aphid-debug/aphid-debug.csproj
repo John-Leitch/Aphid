@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
       <PropertyGroup>
@@ -30,7 +30,7 @@
     <ProjectGuid>{6B18B22D-6B1A-4BF9-BD46-DF84EE2181C5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VSCodeDebug</RootNamespace>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <!-- <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir> -->
     <RestorePackages>true</RestorePackages>
     <DebugSymbols>true</DebugSymbols>

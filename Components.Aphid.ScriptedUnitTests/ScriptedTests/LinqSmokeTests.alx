@@ -1,6 +1,6 @@
-﻿using System.Linq;
+using System.Linq;
 var numbers = 1..10;
-#'Std';
+///*nostdheader*/
 #'Testing\\AopTest';
 
 linq smoke group;

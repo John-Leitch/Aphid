@@ -262,4 +262,5 @@ push
 *.ilmerge.txt
 *.exe.sdb
 *.exe.odm
+*.alx.out
 MigrationBackup/*

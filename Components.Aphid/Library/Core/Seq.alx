@@ -17,6 +17,11 @@ var seq;
         to: @(source, start) start defined ? start..((source | count) - start) : 0..(source | count),
         from: @(source) source | to | reverse,    
         rep: @(count, source) count | to -> @() source,
+
+        each: @(func, source) {
+            source | to for (x) func(source[x], x);
+            ret source;
+        },
         
         untilTrue: @(predicate) {
             var l = new List[Decimal]();

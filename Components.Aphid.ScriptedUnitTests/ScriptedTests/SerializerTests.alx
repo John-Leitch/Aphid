@@ -1,4 +1,4 @@
-﻿#'Std';
+/*nostdheader*/
 
 // Todo:
 // * InlineStrings
@@ -6,6 +6,7 @@
 // * StringReferenceThreshold
 // * SplitStrings
 // * StringChunkSize
+using System.Linq;
 
 var root = this;
 var foo = {
@@ -20,7 +21,7 @@ var foo = {
     f: @(x) x * x
 };
 
-var roundTrip = serialize @> deserialize;
+// var roundTrip = serialize @> deserialize;
 //var s = aphid.Serializer;
 
 var p = @(doubleQuote, quoteKeys, noSpecials, noLazyLists) {
@@ -107,7 +108,7 @@ r(root, s.IgnoreLazyLists || ($_.foo.lazy #!) == 4);
 
 fault;
 
-@{ #'Std'; this |> serialize @+ '~!%$' |> deserialize };
+@{ /*nostdheader*/ this |> serialize @+ '~!%$' |> deserialize };
 r(1, $_ == 2);
 r('test', $_ == 'testa');
 r(false, $_);

@@ -1,4 +1,4 @@
-﻿#'Std';
+// /*nostdheader*/
 #'Testing\\Test';
 var decimalToInt = @() 'f'.PadRight(3) == 'f  ';
 var decimalToInt2 = @() 'foo'.PadRight(3) == 'foo';

@@ -145,11 +145,14 @@ var io = {
     },
 
     app: {
-        asm: Assembly.GetEntryAssembly,
+        asm: @(x) 
+            ((var a = Assembly.GetEntryAssembly()) != null) ? a :
+            ((a = Assembly.GetExecutingAssembly()) != null) ? a :
+            ex.arg(x),
         bin: asm @> @.Location,
         dir: bin @> up,
-        path: join @> @head(app.dir()),
-        files: @all.files(app.dir()),
+        path: join @> @head(dir()),
+        files: @all.files(dir()),
     },
     
     bytes: _f2(Bytes),

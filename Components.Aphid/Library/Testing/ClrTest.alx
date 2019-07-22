@@ -1,7 +1,34 @@
 ﻿#'Std';
-#'Cli/Powershell';
-cls();
 
+
+
+// if (Cli.WriteLineHandler.Method.DeclaringType == Console &&
+//     Thread.CurrentThread.ManagedThreadId == 1) {
+//         Console.WriteLine('hooking');
+//     Cli.WriteLineHandler = @(msg) handler(true, msg);
+// }
+// // }
+// if (!(cliHooked defined)) {
+    //if ((this.'$aphid'.GetStackTrace()#!) == 1 && Thread.CurrentThread.ManagedThreadId == 1) {
+        // Cli.WriteHandler |> Console.WriteLine;
+
+
+
+// #'Cli/Powershell';
+cls();
+var t = @{
+var getGenericFunc = @(a0,a10,a20,a30,a40,a50,a60,a70,a8,a90) {
+    var c = $args.Count - 2;
+    var m = $args $!;
+    //var f = (new AphidFunctionWrapper(aphid, @(x) [x, 1])).Call.Members;
+    var f =  m.Members
+    >^ @(x) x.ReturnType != Void && (x.GetParameters()#!) == c;
+
+    f.MakeGenericMethod($args @take(2));
+};
+
+(new AphidFunctionWrapper(aphid, @(x) [x,1])).Call @getGenericFunc(string, string) |> dump;
+};
 var arch = Assembly
     .GetExecutingAssembly()
     .GetName()
@@ -9,45 +36,42 @@ var arch = Assembly
 
 var testDll = 'Components.Aphid.UnitTests.dll';
 
+printInfo('Searching for test assembly');
+
 var asm = 
-    0..10
-    ->(@()'dir {0}Components.Aphid.UnitTests/bin/*/{1} -r' :: [ $_ * '../', testDll ])
-    -<psContext.exec
-    -/@.LastWriteTime
-    ->@.FullName
+    [ '', '/source/aphid/' ]
+    -<(@(r) 0..1 ->@()[ r, $_ * '../' ])
+    ->@format('{0}{1}Components.Aphid.UnitTests/bin')
+    -?io.dir
+    -<@io.find.files(testDll)
+    -?@!= null
+    ->io.full
+    -/io.date
+    ->(@(x) x|<(io.date @>print))
     >^(AssemblyName.GetAssemblyName @> (@.ProcessorArchitecture) @> @== arch);
 
-var tests = (load asm)
+
+var f = @{#'Testing\\Test'};
+
+printInfo('Loading test asm');
+(load asm)
     .GetTypes()
     -<(@()$_.GetMethods())
     -?(@()
         $_.Name != 'RunTestScript' &&
         ($_.CustomAttributes=?@()$_~='\\.TestAttribute') &&
         !($_.CustomAttributes=?@()$_~='\\.Ignore'))
-    -&@.DeclaringType;
-
-var testScript = strOut(@{
-    %>
-        #'Std';
-        var asm = Assembly.LoadFile("<%= asm.Replace('\\', '\\\\') %>");
-    <%
-
-    tests->@(x){%>
-        var <%= x.Key.Name %>Type = asm.GetType("<%= x.Key %>");
-        var <%= x.Key.Name %>Obj;
-        try { <%= x.Key.Name %>Obj = new <%= x.Key.Name %>Type(); } catch { }
-    <%};
-
-    %>
-        #'Testing\\Test';
-    <%
-
-    tests->@(x)x->@{ %>
-        var <%= x.Key.Name %><%= $_.Name %>Stub = @{
-            <%= x.Key.Name %>Obj.<%= $_.Name %>();
-            ret true;
-        };
-    <%}
-});
-testScript | print;
-testScript |> str |> eval;
+    -&@.DeclaringType
+    ->(@(x) x |<@() printSuccess('Projecting CLR type {0}', x.Key))
+    @seq.each(
+        @(x) aphid.InitialScope[x.Key.Name + 'Obj'] =
+            x.Key.IsAbstract ? x.Key : (new x.Key()))
+    
+    -<(@(x) x ->(@()[ x.Key.Name, $_.Name,  ]))
+    ->(@() $_
+         
+        |> @format('var {0}{1} = @()  aphid.InitialScope["{0}Obj"].{1}()')
+        |> parseExp)
+    ->f.Body.Add;
+f->console.code;
+f();

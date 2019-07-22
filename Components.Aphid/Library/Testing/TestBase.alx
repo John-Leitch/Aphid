@@ -1,4 +1,7 @@
-﻿using Components.Aphid.UnitTests;
+﻿    #'Std';
+    #'Meta\\Code\\Generation\\IL';
+
+using Components.Aphid.UnitTests;
 using Components.Aphid.UnitTests.Shared;
 
 var global = this;
@@ -10,16 +13,16 @@ var runTests;
 var isStandalone;
 var tryAction;
 
+
+
 if (!(global.childCreated defined )) {
     global.childCreated = false;
-    global.all = { success: 0, total: 0 };
+    global.allTests = { success: 0, total: 0 };
+    global.isAsync = false;
 }
 
 @{
-    #'Std';
-    #'Meta\\Code\\Generation\\IL';
 
-    using Components.Aphid.UI;
 
     getTestKeys = @{
         var s = global;
@@ -78,6 +81,7 @@ if (!(global.childCreated defined )) {
         global.isNull = makeAssert(@== null);
         global.notNull = makeAssert(@!= null);
         
+        
         global.isThrow = @(f) {
             try f();
             catch ret true;
@@ -94,7 +98,9 @@ if (!(global.childCreated defined )) {
             (args.Length == 2 || hasPath) &&
             Path.GetFileName(args[1].ToLower()) == 'test.alx') {
             global.childCreated = true;
-            
+            async.degree(8);
+            var eachFunc = true ? async.each : seq.each;
+            global.isAsync = eachFunc == async.each;
             _i = macro(@(n) {
                 Path
                     .GetFileNameWithoutExtension($_)
@@ -110,45 +116,55 @@ if (!(global.childCreated defined )) {
                 _i('testbase') &&
                 _i('aoptest') &&
                 $_.EndsWith('.alx'))
-            ->(@()
+            |> toArray
+            @eachFunc(@()
                 $_.Replace('\\', '\\\\')
-                @format('@{{ var curTest = "{0}"; #"{0}"; print() }}')
-                evalExp)
-            ->@()$_();
+                @format('@{{ var curTest = "{0}"; var curFunc=@{{}}; #"{0}"; curFunc(); print() }}()')
+                AphidParser.Parse)
+                |> toArray;
 
-            var failed = global.all.success < global.all.total;
+            var failed = global.allTests.success < global.allTests.total;
             print();
             subhead('Final Results');
             (failed ? printCriticalError : printSuccess)(
                 'Finished running all tests, ~{0}~{1:n0}/{2:n0}~R~ succeeded',
                 failed ? 'Red' : 'Green',
-                global.all.success,
-                global.all.total);
+                global.allTests.success,
+                global.allTests.total);
         } else {
+            // global.FlattenScope()-<@.Keys->print;
+            // repl.run();
             frame().Scope.{'$block'}.AddRange(@{ runTests(global) });
         }
     }
 
+
+
     runTests = @(scope){
         printQuery(
             'Searching for tests in {0}',
-            scope.curTest defined ? scope.curTest : 'script');
+            scope.curTest defined ? scope.curTest : 'script',
+            Thread.CurrentThread.ManagedThreadId);
 
         var testKeys = getTestKeys(scope);
 
         printSuccess('Found ~Cyan~{0}~R~ tests', testKeys.Length);        
         //testKeys->@format('  ~Cyan~-~R~ {0}') @join('\r\n') |> print;
-
-        printInfo('Executing tests');
+        
+        if (!global.isAsync) {
+            printInfo('Executing tests');
+        }
         var testResults = testKeys->@(k) {
             var r = { key: k, func: scope.{k}, result: null, success: true };
 
-            printQuery('Running test ~Magenta~{0}~R~', k);
+            if (!global.isAsync) {
+                printQuery('Running test ~Magenta~{0}~R~', k);
+            }
             //Todo: output exception details when tryAction returns false.
             if (!tryAction(@{
                 r.result = r.func();
-
-                if (Environment.UserInteractive && !Console.IsOutputRedirected) {
+                
+                if (!global.isAsync && Environment.UserInteractive && !Console.IsOutputRedirected) {
                     var len = format('Running test {0}', k).Length;
                     var x = len + 4;
 
@@ -160,19 +176,32 @@ if (!(global.childCreated defined )) {
                     }
                 }
 
-                if (r.result == null || r.result.GetType() != bool || r.result) {
-                    print(' -> ~Green~Successful~R~');
-                } else {
-                    r.success = false;
-                    print(' -> ~Red~Unsuccessful~R~');
-                    printError('Failed with return value: ~Yellow~{0}~R~', r.result |> serialize);
 
-                    if (global.lastException != null) {
-                        print(
-                            '    Underlying exception: ~Yellow~{0}~R~',
-                            global.lastException.message);
+                // lock global {
+                if (global.isAsync) {
+                    print('Test ~Magenta~{0}~R~ {1}' :: [
+                        k,
+                        r.result == null || r.result.GetType() != bool || r.result ?
+                            ' -> ~Green~Successful~R~' : 
+                            ' -> ~Red~Unsuccessful~R~'
+                    ]);
+                } else {
+
+                    if (r.result == null || r.result.GetType() != bool || r.result) {
+                        print(' -> ~Green~Successful~R~');
+                    } else {
+                        r.success = false;
+                        print(' -> ~Red~Unsuccessful~R~');
+                        printError('Failed with return value: ~Yellow~{0}~R~', r.result |> serialize);
+
+                        if (global.lastException != null) {
+                            print(
+                                '    Underlying exception: ~Yellow~{0}~R~',
+                                global.lastException.message);
+                        }
                     }
                 }
+                // }
             })) {
                 r.success = false;
                 r.error = AphidCli.LastException;
@@ -183,8 +212,8 @@ if (!(global.childCreated defined )) {
 
         var failed = testResults=?@()!$_.success;
         var success = testResults-#(@.success);
-        global.all.success += success;
-        global.all.total += testResults.Count;
+        global.allTests.success += success;
+        global.allTests.total += testResults.Count;
 
         (failed ? printCriticalError : printSuccess)(
             'Done, ~{0}~{1:n0}/{2:n0}~R~ tests succeeded',

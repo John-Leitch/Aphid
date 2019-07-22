@@ -1,6 +1,6 @@
-﻿var sharedObj = { foo: 10 };
+var sharedObj = { foo: 10 };
 
-#'Std';
+///*nostdheader*/
 #'Testing\\AopTest';
 using System.Collections.Generic;
 using System.Threading.Tasks;
