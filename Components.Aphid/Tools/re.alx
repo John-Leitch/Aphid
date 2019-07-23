@@ -9,7 +9,7 @@
     bool recurse: '-s',
     string out: '-o',
     bool write: '-w',
-    int indentSize: '-t',
+    int indentSize: '-i',
     int excerptLines: '-l',
 }
 | console.importArgs;
@@ -24,63 +24,167 @@ _da(dumpOut, false);
 var groupIndent = ' ' * indentSize;
 var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
 var context = {};
-var memoizer = new ArgLockingMemoizer[string, string]();
 
-var funcLocks = new Dictionary[IAphidCallable, Object]();
-var funcMemoizerTable = new Dictionary[IAphidCallable, Dictionary[Type, Object]]();
+var blinkHeader = @(y){
+    var sysColors = SystemColor.GetFields()->@.Name;
+    var distinctSysColors = sysColors-&(@()SystemColor.GetField($_).GetValue(null)|hex)->first;
+    var distinctSysColorValues = distinctSysColors->SystemColor.GetField->@()$_.GetValue(null);
+    var colorSets = 
+        [distinctSysColorValues,distinctSysColorValues]
+        | permutations;
 
-var lookupArgs = new ThreadLocal[Object.MakeArrayType()](@() 
-    [ null, null ]
-    @seq.array(Object));
+    var b = console.color.headerStyle.border;
+    var c = console.color.headerStyle.content;
+    var msgTmpl2 = 'Lycomorpha {0}' :: AphidExpression.Assembly.GetName().Version;
+    var msgTmpl = msgTmpl2.PadRight(Console.BufferWidth - 5, ' ');
+    var msgIndex = 0;
+    var msg = msgTmpl;
 
-var get = @(key, def, dict)
-    ($(def.GetType())
-        RuntimeType, Type: getOrNew,
-        getOrCreate)(key, def, dict);
-
-var getOrNew = @(key, type, dict) getOrCreate(key, @() new type(), dict);
-
-var getOrCreate = @(key, create, dict) {
-    var args = lookupArgs.Value;
-    args.Set(0, key);
+    _colorLoop = macro(@(ms, block) {
+        new AphidFunction(
+            [],
+            [
+                new WhileExpression(
+                    new BooleanExpression(true),
+                    [
+                        new ForEachExpression(
+                            'colorSets'
+                            | ast.id,
+                            block.Body @{
+                                [AphidExpression.IsAssignableFrom(ms.GetType())? ms : new NumberExpression(ms)]
+                                @seq.array(AphidExpression)
+                                |>toList
+                                @ast.call(ast.member('async' | ast.id, 'sleep' | ast.id))
+                                |> $_.Add;
+                                ret $_;
+                            },
+                            null)
+                    ]
+                    @seq.array(AphidExpression)
+                    |>toList)
+            ]
+            @seq.array(AphidExpression)
+            |>toList,
+            this)
+        | async.background;
+    });
     
-    if (!dict.TryGetValue.Members[0].Invoke(dict, args)) {
-        dict.Add(key, var result = create());
-        ret result;
-    } else {
-        ret args[1];
-    }
-};
+    Console.CursorVisible = false;
+    _colorLoop(50, @{  c.foreground = $_[0]});
+    var rnd = new Random();
+    
+    // _colorLoop(50, @{  msg = msgTmpl.Insert((msgIndex++)%msgTmpl.Length, (c.background | console.color.invert @seq.array(byte) VT100.Background) + rnd.Next(0x20, 0x80).char()) });
+    _colorLoop(
+        @{rnd.Next(0,200)}[0],
+        @{
+            msg = msgTmpl
+                .Remove((var ri = (msgIndex++)%msgTmpl2.Length), 1)
+                .Insert(ri, rnd.Next(0x20, 0x80).char())
+        });
+
+    _colorLoop(
+        @{rnd.Next(0,10)}[0],
+        @{
+            lock Console {
+                Console.SetCursorPosition(rnd.Next(0, Console.BufferWidth - 1), rnd.Next(0, 3));
+                Console.Write(
+                    // (c.foreground | console.color.invert @seq.array(byte) VT100.Foreground) +
+                    // (c.background | console.color.invert @seq.array(byte) VT100.Background) +
+                    (c.foreground | VT100.Foreground) +
+                    (c.background | VT100.Background) +
+                    rnd.Next(0x20, 0x80).char());
+            }
+        });
+    // _colorLoop(50, @{  msg = msgTmpl.Remove((var ri = (msgIndex++)%(msgTmpl.Length-msgTmpl2.Length + 1)), msgTmpl2.Length).Insert(ri, msgTmpl2) });
 
 
-
-var cache = @(retType, f){
-    var funcLockTable = funcLocks @get(f, LockTable[Type]);
-    // lock (funcLockTable
-
-    lock (funcMemoizerTable) {
-        if (!funcMemoizerTable.TryGetValue.Members[0].Invoke(funcMemoizerTable, args)) {
-            funcMemoizerTable.Add(f, funcMemoizers = new Dictionary[Type, Object]());
-        } else {
-            funcMemoizers = args[1];
+    
+    _colorLoop(10, @{
+        
+        
+        b.foreground = $_[0];
+        lock Console {
+            Console.SetCursorPosition(0, y);
+            console.color.header(msg);
         }
-    }
+    });
 
-    
+    _colorLoop(100, @{ b.background = $_[1]; c.background = $_[1] ; });
+
+    Console.ReadLine();
     
 };
-
-// cache(string, format);
-
-extend AphidFunction {
-    cache: @(callable, argType, retType) new ArgLockingMemoizer[argType, retType](),
-}
 
 if (!anyRemaining) {
+    SystemColor.DodgerBlue.CopyTo(SystemColor.CadetBlue, 0);
+    var y = Console.CursorTop;
+    console.color.header('Lycomorpha {0}' :: AphidExpression.Assembly.GetName().Version);
+    console.line();
     print(
-        're { -p [path] } { -f [filter] } { -r } { -s } { -o [out str] } ' +
-        '{ -t [group indent size] } { -d } [pattern] { -e evaluator statements ... }');
+'re pattern [-p path] [-f filter] [-s] [-l lines] [-d] [-t take] [-1] [-o replacement] [-w] ' +
+'[-n depth] [-m file count] [-a timeout] [-h] [-c] [-i indent size] [-e statements ...]' + 
+'       
 
+[pattern] (Required)
+$R$A .NET regular expression (Perl 5 compatible) used to search files.
+
+-p [path] (Optional)
+$R$An absolute or relative path to search. If not specified, the current working directory is used.
+
+-f [filter] (Optional)
+$R$A wildcard search pattern used to filter files prior to searching. If not specified, * is used.
+
+-s (Optional)
+$R$Performs a recursive search that includes all subdirectories and files matched by the filter.
+
+-l [lines] (Optional)
+$R$The number of lines above and below the match to include in the preview excerpt. Default is 3.
+
+-d (Optional)
+$R$Dump the complete contents of any files matched to std out with matches highlighted. When running in replacement mode, matches are updated with their respective replacement value. This feature can be used to preview replacements without modifying files.
+
+-t [take] (Optional) !Todo
+$R$Limit the maximum number of file matches returned to the specified value.
+
+-1 (Optional) !Todo
+$R$Track contents of files searched and skip any duplicates encountered.
+
+-o [replacement] (Optional)
+$R$A replacement used to update pattern mathes. Uses standard .NET syntax to reference capture groups e.g. $1 for capture group 1. Runs in preview mode, writing replacements to std out without modifying the matched file unless write mode is explicitly enabled with the -w flag.
+
+-w (Optional)
+$R$Write replacements to matched files. In general, this option should not be used until the changes have been confirmed by previewing them with the -d option. 
+
+-n [depth] (Optional) !Todo
+$R$The maximum depth to search when running in recursive mode.
+
+-m [file count] (Optional) !Todo
+$R$The maximum number of files to search.
+
+-a [timeout] (Optional) !Todo
+$R$The maximum time in milliseconds a file search is considered alive. If exceeded, the remainder of the file is ignored and the search proceeds to the next file.
+
+-h (Optional) !Todo
+$R$Only search non-binary, human readable files.
+
+-c (Optional) !Todo
+$R$Suppresses all default output to std out. Intented for completely custom output written by user defined evaluators.
+
+-i [indent size] (Optional)
+$R$The number of spaces to indent when writing capture groups to std out. Default is 2.
+
+-e [statements ...] (Optional)
+$R$A sequence of Aphid statements executed every time a pattern is matched. The entire Aphid programming language is supported, including seamless .NET interop and all Aphid headers. When running in replacement mode, an updated value for the current pattern match can be provided using a return statement, although a return value is not required. State can be persisted between matches by using the context object, and for more advanced scenarios, the internal state of the tool itself can be accessed and modified.
+'
+|console.highlight
+@()$_
+    .Split('\n')
+    ->(@()$_.Trim().Contains('$R$')?
+        $_~:'\\$R\\$'|>console.color.remove:
+        $_)
+    @join('\n')
+);
+    blinkHeader(y);
     exit(1);
 }
 
@@ -103,8 +207,16 @@ if (useEvaluator) {
 var pattern = remaining[0];
 
 func(path, filter) for (file){
-    file = file | io.full;
-    var text = file | io.txt;
+    var text;
+
+    try {
+        file = file | io.full;
+        text = file | io.txt;
+    } catch (e) {
+        console.fail('Could not read file: {0}', e.message);
+        continue;
+    }
+
     var matches = Regex.Matches(text, pattern, reOptions);
     var c = matches#!;
 
@@ -112,37 +224,21 @@ func(path, filter) for (file){
         continue;
     }
     
-    var matchHeader =
-        '{0} {1} in {2}' :: [
-            c,
-            'Match' |> c != 1 ? language.pluralize : @(x)x,
-            file
-        ]
-        // |> console.highlight
-        // |> console.color.clearResets
-        ;
+    var excerptColor = console.color.pair(
+        SystemColor.Cornsilk | console.color.darken,
+        SystemColor.DarkSlateGray | console.color.darken);
     
-    // Console.WriteLine(
-    //     '{0}{1}\r\n{2}{3}{4}{5}\r\n',
-    //     SystemColor.White | VT100.Background,
-    //     console.color.pad(''),
-    //     SystemColor.DarkBlue | VT100.Background,
-    //     matchHeader,
-    //     console.color.pad(matchHeader),
-    //     VT100.Reset);    
+    var highlightColor =console.color.pair(
+        SystemColor.Highlight,
+        SystemColor.Highlight | console.color.invert);
 
-    
-    var excerptFgColor = VT100.Foreground(SystemColor.Cornsilk | console.color.darken);
-    var excerptBgColor = VT100.Background(SystemColor.DarkSlateGray | console.color.darken);
-    var excerptColor = excerptFgColor + excerptBgColor;
-    
-    var highlightColor =
-        VT100.Foreground(SystemColor.Highlight) +
-        VT100.Background(SystemColor.Highlight | console.color.invert);
-
-    matchHeader | console.color.header;
-    //matchHeader @+ (100 @seq.init(@(x) x + ':' + (0x41 + x).char().ToString() * 16) |> concat) |> console.color.header;
-    Console.WriteLine();
+    '{0} {1} in {2}' :: [
+        c,
+        'Match' |> c != 1 ? language.pluralize : @(x)x,
+        file
+    ]
+    |> console.color.header;
+    console.line();
 
     // ('A' * (Console.BufferWidth + 0 - 5)) + 'foo' | colorHeader;
     // @{%>c:\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\source\Aphid\Components.Aphid\bin\Release64\Library\Meta\Code\Generation\StringEmitter.alx<%}[1].Text @format('{0} {0}') |> colorHeader;
@@ -173,6 +269,7 @@ func(path, filter) for (file){
                 continue;
             }
             var pos = TokenHelper.GetIndexPosition(text, $_.Index);
+            _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
             var newLen;
             Console.WriteLine('{0}\r\n{1}', 
                 ($(i2) 0: 'Match {0}', '{1}Capture Group {2}') +
@@ -180,13 +277,12 @@ func(path, filter) for (file){
                     matchNum,
                     groupIndent,
                     i2,
-                    pos.Item1 + 1,
-                    pos.Item2 + 1,
+                    _pi(Item1),
+                    _pi(Item2),
                     $_.Index,
                     $_.Length
                 ]
-                |> console.highlight
-                |> console.color.clearResets
+                |> console.highlight                
                 |> (@()format(
                     i2 == 0  ? '{0}{1}{0}{2}{3}' : '{1}',
                     SystemColor.DarkBlue | VT100.Background,
