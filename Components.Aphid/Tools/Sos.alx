@@ -7,7 +7,8 @@
     args: {
         string path: '-path',
         string filter: '-filter',
-        bool watch: '-watch'
+        bool watch: '-watch',
+        bool hide: '-hide',
     },
 };
 
@@ -35,24 +36,52 @@ if (args.filter | String.IsNullOrEmpty) {
 }
 
 if (args.watch) {
+    if (args.hide) {
+        console.hide();
+    }
+
+    var activeCount = 0;
+    var activeSync = new Object();
     var fsw = new FileSystemWatcher(args.path, args.filter);
     fsw.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime;
     fsw.IncludeSubdirectories = true;
     fsw.add_Created(@(o, e) {
-        printInfo('Crash dump detected: ~Yellow~{0}~R~', e.FullPath);
+        async.background(@{
+            lock (activeSync) {
+                if (args.hide && activeCount == 0) {
+                    console.show();
+                }
 
-        while (true) {
-            try using (io.open.read(e.FullPath)) { }
-            catch (e) {
-                printError('Dump locked, sleeping');
-                async.sleep(1000);
-                continue;
+                activeCount++;
             }
 
-            break;
-        }
+            try {
+                printInfo('Crash dump detected: ~Yellow~{0}~R~', e.FullPath);
 
-        e.FullPath | analyzeDump;
+                
+
+                while (true) {
+                    try using (io.open.read(e.FullPath)) { }
+                    catch (e) {
+                        printError('Dump locked, sleeping');
+                        async.sleep(1000);
+                        continue;
+                    }
+
+                    break;
+                }
+
+                e.FullPath | analyzeDump;
+            } finally {
+                lock (activeSync) {
+                    activeCount--;
+
+                    if (args.hide && activeCount == 0) {
+                        console.hide();
+                    }
+                }
+            }
+        });
     });
 
     fsw.EnableRaisingEvents = true;

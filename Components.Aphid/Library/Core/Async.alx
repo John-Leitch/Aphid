@@ -80,6 +80,10 @@ var wait;
 
             ret task;
         },
+        rand: new ThreadLocal[Random](
+            @(x) new Random(
+                Thread.CurrentThread.ManagedThreadId *
+                Environment.TickCount)),
     };
 
     _wo(when, When);

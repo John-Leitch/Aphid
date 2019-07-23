@@ -222,7 +222,7 @@ var resourceComment;
 
     
     if (!this.'$asm'.IsTypeDefined('VisitorFrame')) {
-        class VisitorFrame { node, context };
+        class VisitorFrame { node, frameContext };
     }
 
     transformBlock = @(f) aphid.OnInterpretBlock = f;
@@ -371,17 +371,17 @@ var resourceComment;
         depth: 0,
         indent: @() ' ' * ast.depth * 2,
 
-        walk: @(visit, node, context) {
+        walk: @(visit, node, frameContext) {
             _push = macro(@(_c, _n){
                 if (_n defined && _n != null) {
                     var f = new VisitorFrame();
                     f.node = _n;
-                    f.context = f;
+                    f.frameContext = f;
                     _c.stack.Push(f);
                 }
             });
 
-            var c = context defined ? context : { stack: new Stack[VisitorFrame]()};
+            var c = $args.Count >= 3 ? frameContext : { stack: new Stack[VisitorFrame]()};
             c.isRoot = ast.depth == 0;
             c.isBlock = node.GetType() |> IEnumerable[AphidExpression].IsAssignableFrom;
             c.hasChildren = node['GetChildren'] defined;
@@ -417,17 +417,17 @@ var resourceComment;
         },
 
         walkNodes: @(visit, node) {
-            node @ast.walk(@(node, context) {
-                if (!context.isRoot && !context.isBlock) {
-                    visit(node, context);
+            node @ast.walk(@(node, frameContext) {
+                if (!frameContext.isRoot && !frameContext.isBlock) {
+                    visit(node, frameContext);
                 }
             });
         },
 
         where: @(predicate, node) {
             var matches = [];
-            node @walk(@(innerNode, context) {
-                if (predicate(innerNode, context)) {
+            node @walk(@(innerNode, frameContext) {
+                if (predicate(innerNode, frameContext)) {
                     // print('Match: {0}, {1}', innerNode.Type, innerNode.ToString());
                     matches.add(innerNode);
                 }
@@ -437,11 +437,11 @@ var resourceComment;
         },
 
         whereNode: @(predicate, node)
-            node @where(@(innerNode, context)
+            node @where(@(innerNode, frameContext)
                 innerNode != null &&
-                !context.isRoot &&
-                !context.isBlock &&
-                predicate(innerNode, context)),
+                !frameContext.isRoot &&
+                !frameContext.isBlock &&
+                predicate(innerNode, frameContext)),
 
         id: @(name, attrs) $args.Count == 2 ?
             (new IdentifierExpression(name, attrs)) :
@@ -468,13 +468,13 @@ var resourceComment;
 
         first: @(predicate, rootNode) {
             var match = null;
-            rootNode @ast.walk(@(node, context){
+            rootNode @ast.walk(@(node, frameContext){
                 if (match != null) {
-                    context.isHandled = true;
+                    frameContext.isHandled = true;
                     ret null;
-                } else if (predicate(node, context)) {
+                } else if (predicate(node, frameContext)) {
                     match = node;
-                    context.isHandled = true;
+                    frameContext.isHandled = true;
                     ret null;
                 }
             });
@@ -511,10 +511,10 @@ var resourceComment;
     #'Meta/Meta.Ast.g';
 
     dumpAst = @(node) {
-        node @ast.walk(@(node, context) {
-            if (context.isRoot) {
+        node @ast.walk(@(node, frameContext) {
+            if (frameContext.isRoot) {
                 print('Root');
-            } else if (!context.isBlock) {
+            } else if (!frameContext.isBlock) {
                 (node |> getProps) -> (@.Name) +> (@+ ', ' + $args[1])
                 @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
                 // node |> toJson |> print;
@@ -524,10 +524,10 @@ var resourceComment;
 
     dumpAstJson = @(node){
         #'Data\\Serialization';
-        node @ast.walk(@(node, context) {
-            if (context != null &&
-                !context.isBlock &&
-                !context.isRoot &&
+        node @ast.walk(@(node, frameContext) {
+            if (frameContext != null &&
+                !frameContext.isBlock &&
+                !frameContext.isRoot &&
                 node != null) {
                 if (node @has('Code')) {
                     node.Code = null;

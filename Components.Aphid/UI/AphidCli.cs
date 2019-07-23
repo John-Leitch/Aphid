@@ -56,6 +56,39 @@ namespace Components.Aphid.UI
             Action action,
             bool allowErrorReporting)
         {
+            try
+            {
+                return TryActionCore(interpreter, getCode, action, allowErrorReporting);
+            }
+            catch (Exception e)
+            {
+                WriteCriticalErrorMessage(
+                    "Internal error encountered in script exception handler:\r\n\r\n{0}",
+                    Escape(e.ToString()));
+
+                LastException = e;
+            }
+
+            try
+            {
+                DumpException(LastException, interpreter);
+            }
+            catch (Exception e)
+            {
+                WriteCriticalErrorMessage(
+                    "Failed dumping internal error:\r\n\r\n{0}",
+                    Escape(e.ToString()));
+            }
+
+            return false;
+        }
+        
+        private static bool TryActionCore(
+            AphidInterpreter interpreter,
+            Func<string> getCode,
+            Action action,
+            bool allowErrorReporting)
+        {
             var backup = false;
 
             try
