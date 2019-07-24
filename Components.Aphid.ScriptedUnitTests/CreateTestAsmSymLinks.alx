@@ -1,0 +1,17 @@
+#'Std';
+#'System/Process';
+// [io.script.dir(),'bin','release']->io.cd;
+var asmName = 'Components.Aphid.ScriptedUnitTests';
+
+if (asmName @+ '.dll' |> io.not.file) {
+    asmName @console.fail('Could not find test assembly ~Yellow~{0}~R~');
+    exit(0xbad);
+}
+
+'ScriptedTests'
+@io.find.files('*.alx')
+->io.base
+->@format('cmd /c mklink /h "{0}\\{1}.{{0}}.dll" "{0}\\{1}.dll"' :: [ io.cd(), asmName ])
+->system;
+
+console.success('Done');

@@ -49,7 +49,7 @@
                     @format(
                         verbosity >= 3 ? 'Max depth of {0} reached' :
                         verbosity >= 2 ? 'Max depth reached' :
-                        '/*...*/')
+                        '...')
                     |> next,
 
                 getValue: @(t, p, e)

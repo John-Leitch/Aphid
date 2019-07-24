@@ -44,7 +44,10 @@ namespace Components.External.ConsolePlus
                 }
 
                 sb.Append(coloredText.Text);
+
+#if VT100_AUTO_RESET
                 sb.Append(Reset);
+#endif
             }
             else
             {

@@ -19,6 +19,9 @@ var minTokens = @(code, unsafePairs)
                 x.Lexeme == result[y].Lexeme &&
                 x.TokenType == result[y].TokenType,
             unsafe: !compare(lhs, 0) || !compare(rhs, 1),
+            msg: traceMinimizer defined ?
+                @() { dump(this); print('Check done for {0}', lhs.Index.int()); ret null; }() :
+                null,
         }))
         @(p) (p =?@.unsafe)  ? 
             (p-?@.unsafe->@.types)

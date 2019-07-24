@@ -9,7 +9,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
     <DefineConstants>$(DefineConstants);$(CommonDirectives);$(BitnessDirective)$(TraceDirective)$(AphidDbgDirective)</DefineConstants>
-    <AssemblyName>Components.Aphid$(TraceSuffix)$(IsAphidDbg)$(IsDebug)$(Bitness)</AssemblyName>
+    <AssemblyName>Components.Aphid$(Bitness)$(TraceSuffix)$(IsAphidDbg)$(IsDebug)</AssemblyName>
     <ProjectGuid>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Components.Aphid</RootNamespace>

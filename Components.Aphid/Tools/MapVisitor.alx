@@ -66,8 +66,8 @@ sb.AppendLine('}\r\n');
 
 var outFile =
     this.{'$script'}
-    |> Path.GetDirectoryName
-    @() Path.Combine($_, '..', 'Library', 'Visitor.g.alx');
+    |> io.up
+    @() io.join($_, '..', 'Library', 'Meta', 'Code', 'Syntax', 'Visitor.g.alx');
 
 print();
 printInfo('Writing to ~Cyan~{0}~R~', outFile);

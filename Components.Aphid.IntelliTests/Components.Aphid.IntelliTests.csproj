@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\NUnit.3.12.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" />
-  <Import Project="..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" />  
+  <Import Project="..\Components.Aphid\AphidBase.proj" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
     <ProjectGuid>{B1F43EE2-0572-49ED-92F4-905F43598426}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -24,57 +23,64 @@
     </NuGetPackageImportStamp>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <!--                                -->
+  <!-- DEBUG                          -->
+  <!--                                -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants></DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants></DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>none</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>    
+  <!--                                -->
+  <!-- RELEASE                        -->
+  <!--                                -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
+  </PropertyGroup>
+  <!--                                -->
+  <!-- APHID SCRIPT DEBUG             -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
+  </PropertyGroup>
+  <!--                                -->
+  <!-- TIME TRAVEL                    -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">
+  </PropertyGroup>
+  <!--                                -->
+  <!-- BINARY TRACE                   -->
+  <!--                                -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
+      <Project>{4249db75-bbb6-4cc4-b046-3170dd1d3bc1}</Project>
+      <Name>Components.Aphid</Name>
+    </ProjectReference>
     <Reference Include="Microsoft.ExtendedReflection">
       <HintPath>d:\program files (x86)\microsoft visual studio\2017\enterprise\common7\ide\extensions\microsoft\pex\Microsoft.ExtendedReflection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Pex.Framework, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.Serialization" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
-      <Project>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</Project>
-      <Name>Components.Aphid</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidLexerTest.GetAllTokensTest.g.cs">
@@ -87,9 +93,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\PexAssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -123,16 +126,25 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="NUnit">
+      <Version>3.12.0</Version>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter">
+      <Version>3.13.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props'))" />
-    <Error Condition="!Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.12.0\build\NUnit.props'))" />
-  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>::xcopy /d /y $(SolutionDir)Components.Aphid\bin\Debug\Components.Aphid.Debug.dll $(SolutionDir)Components.Aphid\bin\Debug\Components.Aphid64.dll
+::copy /y C:\source\Aphid\Components.Aphid\bin\Debug\Components.Aphid.Debug.dll C:\source\Aphid\Components.Aphid\bin\Debug\Components.Aphid64.dll
+copy /y C:\source\Aphid\Components.Aphid\bin\Debug64\Components.Aphid.Debug64.dll C:\source\Aphid\Components.Aphid\bin\Debug\Components.Aphid64.dll
+copy C:\source\Aphid\Components.Aphid\bin\Release32\Components.Aphid32.dll C:\source\Aphid\Components.Aphid\bin\Release32\Components.Aphid64.dll /y</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>::xcopy /d /y $(SolutionDir)Components.Aphid\bin\Debug\Components.Aphid.Debug.dll $(SolutionDir)Components.Aphid\bin\Debug\Components.Aphid64.dll
+copy C:\source\Aphid\Components.Aphid\bin\Release32\Components.Aphid32.dll C:\source\Aphid\Components.Aphid\bin\Release32\Components.Aphid64.dll /y</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

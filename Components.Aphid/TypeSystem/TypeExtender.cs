@@ -144,7 +144,6 @@ namespace Components.Aphid.TypeSystem
             return names.ToArray();
         }
 
-
         private static void FanInteropType(Type t, List<string> names)
         {
             if (!t.IsGenericType)

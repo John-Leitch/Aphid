@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -33,18 +34,56 @@ namespace Components.Aphid.UnitTests.Shared
         private static readonly string[] _ignoreScripts = new[] { "test.alx", "testbase.alx", "aoptest.alx" };
 
         private static IEnumerable<TestCaseData> Tests => _tests.Value.Memoize();
-            
+
+#if ALL_SCRIPTS
         private static Lazy<IEnumerable<TestCaseData>> _tests = new Lazy<IEnumerable<TestCaseData>>(() =>
             _aphidDirectory
                 .GetDirectories("ScriptedTests")
                 .Single()
                 .GetFiles("*.alx", SearchOption.AllDirectories)
+                .Where(x => x.Extension.Equals(".alx", StringComparison.OrdinalIgnoreCase))
                 .Except(x => _ignoreScripts.Contains(x.Name.ToLower()))
                 .AsParallel()
                 .WithDegreeOfParallelism(Environment.ProcessorCount)
                 .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
                 .SelectMany(GetTestsCasesFromFiles));
+#else
+        private static readonly string _asmName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
+
+        private static readonly string _targetScript =
+            _asmName.Count(x => x == '.') < 3 ?
+                null :
+                _asmName
+                    .SubstringAtIndexOf('.', 1)
+                    .SubstringAtIndexOf('.', 1)
+                    .SubstringAtIndexOf('.', 1);
+
+        private static Lazy<IEnumerable<TestCaseData>> _tests =
+            new Lazy<IEnumerable<TestCaseData>>(() =>
+            {
+                if (_targetScript == null)
+                {
+                    WriteInfoMessage($"No target script for assembly {_asmName}");
+                    return Array.Empty<TestCaseData>();
+                }
+                else
+                {
+                    WriteQueryMessage($"Finding companion scripts for assembly {_asmName}");
+                    return _aphidDirectory
+                        .GetDirectories("ScriptedTests")
+                        .Single()
+                        .GetFiles($"{_targetScript}.alx", SearchOption.AllDirectories)
+                        .Where(x => x.Extension.Equals(".alx", StringComparison.OrdinalIgnoreCase))
+                        .Except(x => _ignoreScripts.Contains(x.Name.ToLower()))
+                        .AsParallel()
+                        .WithDegreeOfParallelism(Environment.ProcessorCount)
+                        .WithMergeOptions(ParallelMergeOptions.NotBuffered)
+                        .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+                        .SelectMany(GetTestsCasesFromFiles);
+                }
+            });
+#endif
 
         private static IEnumerable<TestCaseData> GetTestsCasesFromFiles(FileInfo file) =>
             new Variations<bool>(new[] { true, false }, 3, GenerateOption.WithRepetition)

@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{78F55921-9815-4CF4-94E6-AD309D073AED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Components.Aphid.Tests</RootNamespace>
+    <AssemblyName>Components.Aphid.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
+    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Pex.Framework, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Threading.Thread" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Components.Aphid\Components.Aphid.csproj">
+      <Project>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</Project>
+      <Name>Components.Aphid</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AphidMutatorTest.cs" />
+    <Compile Include="AphidMutatorTest.Mutate.g.cs">
+      <DependentUpon>AphidMutatorTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidMutatorTest.MutateRecursively.g.cs">
+      <DependentUpon>AphidMutatorTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidMutatorTest.MutateSingle.g.cs">
+      <DependentUpon>AphidMutatorTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidMutatorTest.Reset.g.cs">
+      <DependentUpon>AphidMutatorTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidObjectTest.cs" />
+    <Compile Include="AphidObjectTest.GetPropertyInfo.g.cs">
+      <DependentUpon>AphidObjectTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidObjectTest.TryResolveParent.g.cs">
+      <DependentUpon>AphidObjectTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidParserTest.cs" />
+    <Compile Include="AphidParserTest.ParseFunctionExpression.g.cs">
+      <DependentUpon>AphidParserTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidParserTest.ParsePrefixUnaryOperatorExpression.g.cs">
+      <DependentUpon>AphidParserTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Factories\AphidObjectFactory.cs" />
+    <Compile Include="Factories\AphidPreprocessorDirectiveMutatorFactory.cs" />
+    <Compile Include="Factories\ArrayAccessExpressionFactory.cs" />
+    <Compile Include="Factories\ArrayExpressionFactory.cs" />
+    <Compile Include="Factories\BinaryOperatorBodyExpressionFactory.cs" />
+    <Compile Include="Factories\BinaryOperatorExpressionFactory.cs" />
+    <Compile Include="Factories\BooleanExpressionFactory.cs" />
+    <Compile Include="Factories\BreakExpressionFactory.cs" />
+    <Compile Include="Factories\CallExpressionFactory.cs" />
+    <Compile Include="Factories\CallIdentifierMutatorFactory.cs" />
+    <Compile Include="Factories\ContinueExpressionFactory.cs" />
+    <Compile Include="Factories\DoWhileExpressionFactory.cs" />
+    <Compile Include="Factories\DynamicMemberExpressionFactory.cs" />
+    <Compile Include="Factories\ExtendExpressionFactory.cs" />
+    <Compile Include="Factories\ForEachExpressionFactory.cs" />
+    <Compile Include="Factories\ForExpressionFactory.cs" />
+    <Compile Include="Factories\FunctionExpressionFactory.cs" />
+    <Compile Include="Factories\GatorCloseExpressionFactory.cs" />
+    <Compile Include="Factories\GatorEmitExpressionFactory.cs" />
+    <Compile Include="Factories\GatorOpenExpressionFactory.cs" />
+    <Compile Include="Factories\IdentifierExpressionFactory.cs" />
+    <Compile Include="Factories\IfExpressionFactory.cs" />
+    <Compile Include="Factories\ImplicitArgumentExpressionFactory.cs" />
+    <Compile Include="Factories\ImplicitArgumentsExpressionFactory.cs" />
+    <Compile Include="Factories\IndexTrackingMutatorFactory.cs" />
+    <Compile Include="Factories\LoadLibraryExpressionFactory.cs" />
+    <Compile Include="Factories\LoadScriptExpressionFactory.cs" />
+    <Compile Include="Factories\LockExpressionFactory.cs" />
+    <Compile Include="Factories\NullExpressionFactory.cs" />
+    <Compile Include="Factories\NumberExpressionFactory.cs" />
+    <Compile Include="Factories\ObjectExpressionFactory.cs" />
+    <Compile Include="Factories\PartialFunctionExpressionFactory.cs" />
+    <Compile Include="Factories\PartialOperatorExpressionFactory.cs" />
+    <Compile Include="Factories\PatternExpressionFactory.cs" />
+    <Compile Include="Factories\PatternMatchingExpressionFactory.cs" />
+    <Compile Include="Factories\StringExpressionFactory.cs" />
+    <Compile Include="Factories\SwitchCaseFactory.cs" />
+    <Compile Include="Factories\SwitchExpressionFactory.cs" />
+    <Compile Include="Factories\TernaryOperatorExpressionFactory.cs" />
+    <Compile Include="Factories\TextExpressionFactory.cs" />
+    <Compile Include="Factories\ThisExpressionFactory.cs" />
+    <Compile Include="Factories\TryExpressionFactory.cs" />
+    <Compile Include="Factories\UnaryOperatorExpressionFactory.cs" />
+    <Compile Include="Factories\UsingExpressionFactory.cs" />
+    <Compile Include="Factories\WhileExpressionFactory.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\PexAssemblyInfo.cs" />
+    <Compile Include="TypeExtenderTest.Constructor.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypeExtenderTest.cs" />
+    <Compile Include="TypeExtenderTest.Extend01.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypeExtenderTest.Extend02.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypeExtenderTest.GetCtorName.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypeExtenderTest.GetGenericInteropName.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypeExtenderTest.TryResolve01.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TypeExtenderTest.TryResolve02.g.cs">
+      <DependentUpon>TypeExtenderTest.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers">
+      <Version>3.2.0-beta4-final</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Choose>
+    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

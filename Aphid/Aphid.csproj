@@ -1,163 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\Components.Aphid\AphidBase.proj" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aphid</RootNamespace>
-    <!-- <AssemblyName>Aphid</AssemblyName> -->
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ErrorReport>prompt</ErrorReport>
-    <LangVersion>latest</LangVersion>
-    <ApplicationIcon>a.ico</ApplicationIcon>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="$(Configuration.EndsWith('32'))">
-      <PropertyGroup>
-        <PlatformTarget>x86</PlatformTarget>
-        <Bitness>32</Bitness>
-        <BitnessDirective>X86</BitnessDirective>
-      </PropertyGroup>
-    </When>
-    <When Condition="$(Configuration.EndsWith('64'))">
-      <PropertyGroup>
-        <PlatformTarget>x64</PlatformTarget>
-        <Bitness>64</Bitness>
-        <BitnessDirective>AMD64</BitnessDirective>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <Bitness>
-        </Bitness>
-        <BitnessDirective>ANY_CPU</BitnessDirective>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Choose>
-    <!--                                -->
-    <!-- Aphid Script Debug             -->
-    <!--                                -->
-    <When Condition="$(Configuration.StartsWith('AphidDebug'))">
-      <PropertyGroup>
-        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
-        <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
-      </PropertyGroup>
-    </When>
-    <!--                                -->
-    <!-- Aphid Time Travel Script Debug             -->
-    <!--                                -->
-    <When Condition="$(Configuration.StartsWith('TimeTravel'))">
-      <PropertyGroup>
-        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective>
-        <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <AphidDbgDirective>
-        </AphidDbgDirective>
-        <IsAphidDbg>
-        </IsAphidDbg>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Choose>
-    <When Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), `^Debug(32|64)?$`))">
-      <PropertyGroup>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <IsDebug>.Debug</IsDebug>
-        <DefineConstants>$(DefineConstants);TRACE;DEBUG;$(BitnessDirective)</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <DebugType>none</DebugType>
-        <Optimize>true</Optimize>
-        <IsDebug>
-        </IsDebug>
-        <DefineConstants>$(DefineConstants);RELEASE;$(BitnessDirective)</DefineConstants>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <!-- <PropertyGroup> -->
-  <!-- <Bitness>$([System.Text.RegularExpressions.Regex]::Match($(Configuration), `\d{2}$`))</Bitness>     -->
-  <!-- </PropertyGroup> -->
-  <Choose>
-    <When Condition="$(Configuration.Contains('BinaryTrace'))">
-      <PropertyGroup>
-        <AssemblyName>Aphid$(Bitness).BinaryTrace$(IsDebug)$(IsAphidDbg)</AssemblyName>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <AssemblyName>Aphid$(Bitness)$(IsDebug)$(IsAphidDbg)</AssemblyName>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <!-- <PropertyGroup Condition="'$(Platform)' == 'x64'"> -->
-  <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace64</AssemblyName> -->
-  <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid64</AssemblyName> -->
-  <!-- </PropertyGroup> -->
-  <!-- <PropertyGroup Condition="'$(Platform)' == 'x86'"> -->
-  <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace32</AssemblyName> -->
-  <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid32</AssemblyName> -->
-  <!-- </PropertyGroup> -->
-  <!-- <PropertyGroup Condition="'$(Platform)' != 'x86' And '$(Platform)' != 'x64'"> -->
-  <!-- <AssemblyName Condition="$(Configuration.Contains('BinaryTrace'))">Aphid.BinaryTrace</AssemblyName> -->
-  <!-- <AssemblyName Condition="!$(Configuration.Contains('BinaryTrace'))">Aphid</AssemblyName> -->
-  <!-- </PropertyGroup> -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Default' ">
-    <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
-    <OutputPath>bin\Debug32\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
-    <OutputPath>bin\Debug64\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Default' ">
-    <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
-    <OutputPath>bin\Release32\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-    <OutputPath>bin\Release64\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
-    <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
-    <OutputPath>bin\Release32\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">
-    <OutputPath>bin\Release64\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'">
-    <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'">
-    <OutputPath>bin\Release32\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">
-    <OutputPath>bin\Release64\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
-    <OutputPath>bin\Release\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
-    <OutputPath>bin\Release32\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
-    <OutputPath>bin\Release64\</OutputPath>
-  </PropertyGroup>
+    <AssemblyName>Aphid$(Bitness)$(TraceSuffix)$(IsAphidDbg)$(IsDebug)</AssemblyName>
+  </PropertyGroup>  
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -294,23 +146,12 @@
   <ItemGroup>
     <None Include="a.ico" />
   </ItemGroup>
-  <!-- <ItemGroup> -->
-  <!-- <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1"> -->
-  <!-- <Visible>False</Visible> -->
-  <!-- <ProductName>.NET Framework 3.5 SP1</ProductName> -->
-  <!-- <Install>false</Install> -->
-  <!-- </BootstrapperPackage> -->
-  <!-- </ItemGroup> -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>::taskkill /im aphid.exe /f
-::powershell -Command "&amp;{ Get-Process aphid -ErrorAction SilentlyContinue |? {$_.Modules.FileName -eq '$(TargetPath)'} | Stop-Process -Force }"
-</PreBuildEvent>
+    <PreBuildEvent></PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>::copy $(ProjectDir)..\AphidUI\$(OutDir)AphidUI.exe $(TargetDir)
-
-IF NOT EXIST "$(TargetDir)Aphid64.exe" (
+    <PostBuildEvent>IF NOT EXIST "$(TargetDir)Aphid64.exe" (
     IF NOT EXIST "$(TargetDir)Ngen.exe" (
         "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" -medusa "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" || exit 20
     )

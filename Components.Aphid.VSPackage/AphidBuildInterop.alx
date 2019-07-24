@@ -2,5 +2,7 @@
 #'c:/source/aphid/components.aphid/Library/meta/code/Compiler';      
 using Components.Aphid.VSPackage;  
 print('foo');   
-export string AphidBuildInterop.Compile = @(string path, string input, string namespace)
-	aphidCompiler.compileCode(namespace, input);      
+export string AphidBuildInterop.Compile = @(string path, string input, string namespace) {
+    preprocessor.inlineScripts = true;
+	ret aphidCompiler.compileCode(namespace, input);
+} 

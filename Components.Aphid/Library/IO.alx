@@ -154,6 +154,25 @@ var io = {
         path: join @> @head(dir()),
         files: @all.files(dir()),
     },
+
+    script: {
+        location: @() this.'$script' defined ? (this.'$script') : app.bin(),
+        dir: location @> up,
+        path: join @> @head(dir()),
+        files: dir @> files,
+        dirs: dir @> dirs,
+        all: { files: dir @> all.files, dirs: dir @> all.dirs },
+        find: {
+            files: @(pattern) io.find.files(pattern, dir()),
+            dirs: @(pattern) dir() @io.find.dirs(pattern),
+            file: @(pattern) dir() @io.find.file(pattern),
+            dir: @(pattern) dir() @io.find.dir(pattern)
+        },
+        first: {
+            file: @(pattern) dir() @io.first.file(pattern),
+            dir: @(pattern) dir() @io.first.dir(pattern)
+        },
+    },
     
     bytes: _f2(Bytes),
     lines: _f2(Lines),

@@ -303,6 +303,7 @@ namespace Components.External.ConsolePlus
                 VT100.Append(sb, t);
             }
 
+            sb.Append(VT100.Reset);
             Write(sb.ToString());
 
             if (!skipAutocomplete)

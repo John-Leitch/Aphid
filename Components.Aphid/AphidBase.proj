@@ -120,6 +120,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>    
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <ApplicationIcon>..\Components.Aphid\a.ico</ApplicationIcon>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers">

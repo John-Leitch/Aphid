@@ -32,7 +32,7 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
     
     using Components.PInvoke;
     using Components.ConsolePlus;
-
+    
     console = {
         vt100Supported: VT100.TryEnable(),
         writeLine: Console.WriteLine,
@@ -44,6 +44,11 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
         subheader,
         defaultHeaderStyle: '~|Blue~~White~',
         defaultSubheaderStyle: defaultHeaderStyle,
+        info: printInfo,
+        query: printQuery,
+        success: printSuccess,
+        error: printError,
+        fail: printCriticalError,
     
         free: @{            
             Cli.UseTrace = true;
@@ -259,6 +264,12 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             -> code,
 
         color: {
+            fg: VT100.Foreground,
+            bg: VT100.Background,
+            escape: VT100.GetString,
+            pair: @(fgColor, bgColor) (fgColor | fg) + (bgColor | bg),
+            runs: SyntaxHighlightingFormatter.Highlight,
+
             // invert = @(c) c->(@(b) (0xff - b).byte()) |> toArray,            
             invert: @(c) c->@+0->(@(b) ~b |> Decimal.GetBits ^! @+0 @&0xff @()$_.byte()) |> toArray,            
             invertText: @(t) {
@@ -271,7 +282,13 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             clearResets: @(t) t.Replace(VT100.Reset, ''),
             strLen: @(s) s | remove @.Length,
             pad: @(s) new string(' ', Math.Max(0, Console.BufferWidth - 1 - (s | console.color.strLen))),
-            darken: @(c) c->@()Math.Max(0, $_- 0x30).byte(),
+            add: @(v, c) c != null ?
+                c->@()$_ != null ?
+                    (v > 0 ? Math.Min : Math.Max)(v > 0 ? 0xff : 0x00, $_ + v).byte() :
+                    null :
+                null,
+            lighten: @add(30),
+            darken: @add(-30),
             wrapLines: @(maxLineLen, text)
                 text
                 @console.color.wrapItems(maxLineLen)
@@ -350,11 +367,11 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
             },
 
             style: {
-                tryGetValue: @(bg, v) v != null ? v | (bg ? VT100.Background : VT100.Foreground) : '',
+                tryGetValue: @(isBg, v) v != null ? v | (isBg ? bg : fg) : '',
                 
                 getValue: @(s)
                     [ s?.background @tryGetValue(true), s?.foreground @tryGetValue(false) ]
-                    | concat,
+                    | string.Concat,
             },
 
             line: @() ($($args.Count)
@@ -371,21 +388,9 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
                 var contentColor = console.color.headerStyle.content | console.color.style.getValue;
                 var cl = color.line;
 
-                cl(
-                    '{0}{1}{R}',
-                    borderColor,
-                    headerTop);
-
-                lines for (t) cl(
-                    '{0}║{R}{1} {2}{R}{1} {0}║{R}',
-                    borderColor,
-                    contentColor,
-                    t);
-
-                cl(
-                    '{0}{1}{R}',
-                    borderColor,
-                    headerBottom);
+                cl('{0}{1}{R}', borderColor, headerTop);
+                lines for (t) cl('{0}║{R}{1} {2}{R}{1} {0}║{R}', borderColor, contentColor, t);
+                cl('{0}{1}{R}', borderColor, headerBottom);
                 
                 // ret null;
                     
@@ -406,6 +411,98 @@ _bp = macro(@{ Console.SetCursorPosition(0, state.startPos + barYOffset) });
                 //         // console.color.pad(matchHeader),
                 //         VT100.Reset); 
                 // };
+            },
+
+            glitch: {
+                header: @(msg) {
+                    var sysColors = SystemColor.GetFields()->@.Name;
+                    var distinctSysColors = sysColors-&(@()SystemColor.GetField($_).GetValue(null)|hex)->first;
+                    var distinctSysColorValues = distinctSysColors->SystemColor.GetField->@()$_.GetValue(null);
+                    var colorSets = 
+                        [distinctSysColorValues,distinctSysColorValues]
+                        | permutations;
+
+                    var b = console.color.headerStyle.border;
+                    var c = console.color.headerStyle.content;
+                    var msgTmpl2 = 'Lycomorpha {0}' :: AphidExpression.Assembly.GetName().Version;
+                    var msgTmpl = msgTmpl2.PadRight(Console.BufferWidth - 5, ' ');
+                    var msgIndex = 0;
+                    var msg = msgTmpl;
+
+                    _colorLoop = macro(@(ms, block) {
+                        new AphidFunction(
+                            [],
+                            [
+                                new WhileExpression(
+                                    new BooleanExpression(true),
+                                    [
+                                        new ForEachExpression(
+                                            'colorSets'
+                                            | ast.id,
+                                            block.Body @{
+                                                [AphidExpression.IsAssignableFrom(ms.GetType())? ms : new NumberExpression(ms)]
+                                                @seq.array(AphidExpression)
+                                                |>toList
+                                                @ast.call(ast.member('async' | ast.id, 'sleep' | ast.id))
+                                                |> $_.Add;
+                                                ret $_;
+                                            },
+                                            null)
+                                    ]
+                                    @seq.array(AphidExpression)
+                                    |>toList)
+                            ]
+                            @seq.array(AphidExpression)
+                            |>toList,
+                            this)
+                        | async.background;
+                    });
+                    
+                    Console.CursorVisible = false;
+                    _colorLoop(50, @{  c.foreground = $_[0]});
+                    var rnd = new Random();
+                    
+                    // _colorLoop(50, @{  msg = msgTmpl.Insert((msgIndex++)%msgTmpl.Length, (c.background | console.color.invert @seq.array(byte) VT100.Background) + rnd.Next(0x20, 0x80).char()) });
+                    _colorLoop(
+                        @{rnd.Next(0,200)}[0],
+                        @{
+                            msg = msgTmpl
+                                .Remove((var ri = (msgIndex++)%msgTmpl2.Length), 1)
+                                .Insert(ri, rnd.Next(0x20, 0x80).char())
+                        });
+
+                    _colorLoop(
+                        @{rnd.Next(0,10)}[0],
+                        @{
+                            lock Console {
+                                Console.SetCursorPosition(rnd.Next(0, Console.BufferWidth - 1), rnd.Next(0, 3));
+                                Console.Write(
+                                    // (c.foreground | console.color.invert @seq.array(byte) VT100.Foreground) +
+                                    // (c.background | console.color.invert @seq.array(byte) VT100.Background) +
+                                    (c.foreground | VT100.Foreground) +
+                                    (c.background | VT100.Background) +
+                                    seq.rnd.Next(0x20, 0x80).char());
+                            }
+                        });
+                    // _colorLoop(50, @{  msg = msgTmpl.Remove((var ri = (msgIndex++)%(msgTmpl.Length-msgTmpl2.Length + 1)), msgTmpl2.Length).Insert(ri, msgTmpl2) });
+
+
+                    
+                    _colorLoop(10, @{
+                        
+                        
+                        b.foreground = $_[0];
+                        lock Console {
+                            Console.SetCursorPosition(0, y);
+                            console.color.header(msg);
+                        }
+                    });
+
+                    _colorLoop(100, @{ b.background = $_[1]; c.background = $_[1] ; });
+
+                    Console.ReadLine();
+    
+                },
             },
         },
 

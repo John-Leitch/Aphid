@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 // autoload using INI setting.
 
 @ :: (fmt, args) string.Format(fmt, args);
-@ :> (fmt, args) args defined ? fmt :: args : fmt |> print;
+@ :> (fmt, args) (args defined ? fmt :: args : fmt) |> print;
 @ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
 @ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
 @ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };
