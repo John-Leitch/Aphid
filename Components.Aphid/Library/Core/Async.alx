@@ -82,8 +82,9 @@ var wait;
         },
         rand: new ThreadLocal[Random](
             @(x) new Random(
-                (Thread.CurrentThread.ManagedThreadId * Environment.TickCount) &
-                0x7fffffff)),
+                ((Thread.CurrentThread.ManagedThreadId + 0) * 
+                (Environment.TickCount + 0)) &
+                    0x7fffffff)),
     };
 
     _wo(when, When);
