@@ -24,7 +24,7 @@ var nuget;
         exe: Path.Combine(AphidObject.Assembly.Location | Path.GetDirectoryName, 'nuget.exe'),
         exeUrls,
         localExes,
-
+        frameworks: ['.NETFramework', '.NETPortable', '.NETStandard', '.NETCore'],
         init: @{
             #'System/Config';            
             
@@ -132,16 +132,25 @@ var nuget;
             
             var refAsmGroups = p.AssemblyReferences
                 -<(@(r) $_.SupportedFrameworks->(@()({
-                    path: r, name: $_.FullName, version: $_.Version
+                    path: r, id: $_.Identifier, name: $_.FullName, version: $_.Version
                 })))
                 -&@.name;
+            
+            var refAsmPaths;
 
-            var filtered = refAsmGroups -? @() $_.Key.StartsWith('.NETFramework');
+            if (((var filtered = refAsmGroups -? @(r) frameworks=?r.Key.StartsWith) #!) != 0) {
+                0..(frameworks#!) for (i) {
+                    var f = $(i) 0: orderByDescending, thenByDescending;
+                    var n = frameworks[i];
+                    filtered = filtered @f(@(x) x[0].id == n);                    
+                };
+                
+                refAsmPaths = filtered | toArray;
+            } else {
+                refAsmPaths = refAsmGroups -/@.Key;
+            }
 
-            var refAsmPaths = ((filtered #!) != 0 ? filtered : refAsmGroups)
-                -/@.Key
-                ^!
-                ->@() Path.Combine(d, $_.path);
+            refAsmPaths = refAsmPaths ^! ->@() Path.Combine(d, $_.path);
 
             var badAsms = refAsmPaths-?(@(x) !File.Exists(x));
 

@@ -1,4 +1,12 @@
 ﻿#'Std';
+this @mix(console);
+head('Abstract Syntax Tree Example');
+line();
+
+var h = @{
+    $_ | subhead;
+    line();
+};
 
 var someFunc = @{
     using System;
@@ -17,12 +25,57 @@ var someFunc = @{
     'well hello world' ~? 'he[a-z]+' |> print;
 };
 
+h('Function Declaration Text');
+this.'$block' ~| '^var someFunc' |> code;
+
+var getName = @(n) 
+    (var t = n.GetType()) == AphidTokenType ? n :
+    t.GetProperty('Type') != null ? n.Type :
+    n;
+
+_full = macro(@(fmt) { shorten ? '{0}' : fmt });
+
+var fmtNode = @(shorten, n)  n
+    | getName
+    ~: [ '^StringExpression$', @() _full('String Literal {0}') :: n.Value ]
+    ~: [ '^(Identifier)Expression$', @() _full('Id {0}') :: n.Identifier ]
+    ~: [ '(Operator)?(Expression)$', ' Exp' ] 
+    ~: [ 'BinaryOperatorBody', 'Custom Binary' ]
+    ~: [ 'Partial', 'Partial ' ]
+    ~: [ 'Function', 'Func' ]
+    ~: [ 'Operator', ' Op' ]
+    ~: [ '(Keyword)$', ' $1' ];
+    
+
+line();
 // Dump someFunc AST
+
+var ignore =
+    '^(Identifier|Value|IsPostfix|Type|Context|Code|Filename|Index|Length
+    |Function|Args|Body|Attributes)$'
+    ~: '\\s';
+
+h('Function Declaration Syntax Tree');
 someFunc.Body @ast.walk(@(node, context) {
-    if (context.isRoot) {
-        print('Root');
-    } else if (!context.isBlock) {
-        node.GetType().GetProperties() -> (@.Name) +> (@+ ', ' + $args[1])
-        @print('{0}{1} {{ {2} }}', ast.indent(), node.Type);
+    if (!context.isBlock) {
+        node
+        .GetType()
+        .GetProperties()
+        -?(@()!($_.Name ~= ignore))
+        ->(@() node[$_.Name] @fmtNode(true))
+        @join(', ')
+        @format(
+            '{2}{0}{1} {{ {3} }}',
+            ast.indent(),
+            node @fmtNode(false),
+            TokenHelper
+                .GetIndexPosition(node.Code, node.Index)
+                @() '(line {1,2:n0}, col {2,3:n0})' :: [
+                    node.Index,
+                    ($_.Item1 + 1),
+                    ($_.Item2 + 1)
+                ])
+        @() $_ ~: '\\s*\\{\\s+\\}'
+        |> code;
     }
 });

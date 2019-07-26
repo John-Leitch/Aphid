@@ -65,7 +65,13 @@ var take = flip(Take);
 var takeWhile = flip(TakeWhile);
 var thenBy = flip(ThenBy);
 var thenByDescending = flip(ThenByDescending);
-var toDictionary = flip(ToDictionary);
+
+var toDictionary = @(keySelector, sourceOrValueSelector, source)
+    $($args.Count)
+        2: Enumerable.ToDictionary(sourceOrValueSelector, keySelector),
+        3: Enumerable.ToDictionary(source, keySelector, sourceOrValueSelector),
+        ex.args;
+        
 var toLookup = flip(ToLookup);
 var union = flip(Union);
 var where = flip(Where);
