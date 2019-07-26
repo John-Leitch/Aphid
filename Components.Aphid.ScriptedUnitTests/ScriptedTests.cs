@@ -1,4 +1,5 @@
-﻿using Combinatorics.Collections;
+﻿#define ALL_SCRIPTS
+using Combinatorics.Collections;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
