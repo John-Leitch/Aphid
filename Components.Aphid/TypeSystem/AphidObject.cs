@@ -599,13 +599,7 @@ namespace Components.Aphid.TypeSystem
         {
             unchecked
             {
-                var hash = base.GetHashCode();
-
-                if (hash == 0)
-                {
-                    hash = 0x100000;
-                }
-
+                var hash = 0x100000;
 
                 if (IsScalar)
                 {
@@ -613,7 +607,7 @@ namespace Components.Aphid.TypeSystem
                 }
                 else if (IsComplex)
                 {
-                    hash += 0x120;
+                    hash += 0x120 + Keys.Count.GetHashCode();
                 }
 
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
@@ -640,12 +634,7 @@ namespace Components.Aphid.TypeSystem
         {
             unchecked
             {
-                var hash = base.GetHashCode();
-
-                if (hash == 0)
-                {
-                    hash = 0x100000;
-                }
+                var hash = 0x100000;
 
                 if (IsScalar)
                 {
