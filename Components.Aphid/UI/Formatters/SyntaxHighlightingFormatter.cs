@@ -92,7 +92,7 @@ namespace Components.Aphid.UI.Formatters
                 }
             }
 
-            var colorStr = ct.ToVT100String();
+            var colorStr = ct.ToVT100String() + VT100.Reset;
 
             return escapeStyles ? StyleEscape(colorStr) : colorStr;
         }

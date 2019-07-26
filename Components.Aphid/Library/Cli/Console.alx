@@ -27,19 +27,21 @@ var fatal = @{
 _ci = macro(@(a) { if (isSafe()) { a } });
 _bp = macro(@{
     var curY = state.startPos + barYOffset;
+    var needed = curY - (Console.BufferHeight - 1);
+    head(needed.ToString());
 
-    // if (needed > (var needed = curY - 1 - Console.BufferHeight)) {
-    //     Console.MoveBufferArea(
-    //         0,
-    //         needed,
-    //         Console.BufferWidth,
-    //         Console.BufferHeight - needed,
-    //         0,
-    //         0);
+    if (needed > 0) {
+        Console.MoveBufferArea(
+            0,
+            needed,
+            Console.BufferWidth,
+            Console.BufferHeight - needed,
+            0,
+            0);
 
-    //     state.startPos -= needed;
-    //     curY = state.startPos + barYOffset;
-    // }
+        state.startPos -= needed;
+        curY = state.startPos + barYOffset;
+    }
 
     Console.SetCursorPosition(0, curY);
 });

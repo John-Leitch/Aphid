@@ -1,0 +1,175 @@
+#'Std';
+#'System/NuGet';
+#'System/Process';
+this @mix(console);
+this @mix(io);
+this @mix(color);
+
+header('Test Console Launcher {0}' :: AphidExpression.Assembly.GetName().Version);
+
+console.importArgs({ bool useNunit: '-nunit' });
+
+var testDlls =
+    //['ScriptedUnitTests','UnitTests','MSTest.IntelliTests']
+
+    //->@format('Components.Aphid.{0}')
+    script.dir()
+    |> up
+    // |> (@() ($_ | ?>(io.dirs($_, 'Com.*?Aphid'))) ?? [])
+    @() (io.dirs($_, 'Com*Test*'))
+
+    
+    -<@find.dirs('bin')
+    -<@find.files('*test*.dll')
+    |> toArray
+    -?((((AssemblyName.GetAssemblyName)) @> (@.ProcessorArchitecture) @> @()$_ == ProcessorArchitecture.MSIL || $_ == ProcessorArchitecture.x64))
+
+    // -?(@()$(?>?>AssemblyName.GetAssemblyName)?>@.ProcessorArchitecture == ProcessorArchitecture.x64)
+    // -?@!= nulll
+    // @{ $_ ?? [] }
+    //-?@!=null
+    // \!
+    // -?@() {
+    //     print($_);
+    // ret $_;
+    // //-?(@()$_~='Scripted')
+    // // @take(1)
+    // };
+    ;
+
+success('Found tests:');
+testDlls->code;
+    
+testDlls
+->AssemblyName.GetAssemblyName
+->AppDomain.CurrentDomain.Load
+->code;
+    
+testDlls = testDlls->@format('"{0}"');
+
+var testExe;
+
+var runCmd = @(fmt) {
+    if (testExe | file) {
+        success('Found at {0}', testExe |> highlight);
+    } else {
+        fail('Could not find {0}', testExe |> highlight);
+        exit(0xbad01);
+    }
+
+    var testCmd =
+        testDlls
+        @string.Join(' ')
+        @format(fmt, testExe, app.dir())
+        |> prepareCommand;
+
+    print(testCmd);
+    var testAsm = load testExe;
+
+    testCmd[1]
+    |> ArgLexer.Tokenize
+    @AppDomain.CurrentDomain.ExecuteAssemblyByName(testAsm.GetName())
+    |> exit;
+};
+
+runtime.resolve.trace = true;
+
+if (!useNunit) {
+    info('Installing MS Test Platform');
+    installPackage('Microsoft.TestPlatform');
+    query('Searching for vstest.console.exe');
+    testExe = app.path('packages') @find.file('vstest.console.exe');    
+
+    info('Searching for extended reflection asm');
+    var reflectionAsmPath =
+        'd:/program files (x86)'
+        @first.dir('*visual*')
+        @find.file('*microsoft.extendedreflection.dll');
+
+    if (reflectionAsmPath | file) {
+        success('Found {0}', reflectionAsmPath | highlight);
+
+        var reflectionAsm = load reflectionAsmPath;
+
+        if (reflectionAsm != null) {
+            success('Loaded asm');
+        } else {
+            fail('Failed loading asm');
+        }
+
+        reflectionAsm | runtime.resolve.name;
+
+        var privateAsm = testExe @sibling(reflectionAsmPath |> name);
+
+        if (privateAsm | not.file) {
+            printQuery('Copying private asm');
+            copy(reflectionAsmPath, privateAsm);
+        } else {
+            info('Private asm already exists');
+        }
+    }
+
+    
+
+    
+    
+// Configuration	Default	Values
+// ForcedLegacyMode	false	In Visual Studio 2012, the MSTest adapter has been optimized to make it faster and more scalable. Some behavior, such as the order in which tests are run, might not be exactly as it was in previous editions of Visual Studio. Set this value true to use the older test adapter.
+
+// For example, you might use this if you have an app.config file specified for a unit test.
+
+// We recommend that you consider refactoring your tests to allow you to use the newer adapter.
+// IgnoreTestImpact	false	The test impact feature prioritizes tests that are affected by recent changes, when run in MSTest or from Microsoft Test Manager. This setting deactivates the feature. For more information, see How to: Collect Data to Check Which Tests Should be Run After Code Changes.
+// SettingsFile		You can specify a test settings file to use with the MS Test adapter here. You can also specify a test settings file using the menu Test, Test Settings, Select Test Settings File.
+
+// If you specify this value, you must also set the ForcedlegacyMode to true.
+
+// <RunSettings> <MSTest> <SettingsFile>my.testsettings</SettingsFile> <ForcedLegacyMode>true</ForcedLegacyMode> </MSTest> </RunSettings>
+// KeepExecutorAliveAfterLegacyRun	false	After a test run is completed, MSTest is shut down. Any process that is launched as part of the test will also be killed at this time. If you want to keep the test executor alive, turn this configuration to true.
+
+// For example, you could use this to keep the browser running between coded UI tests.
+// DeploymentEnabled	true	If you set this to false, deployment items that you have specified in your test method will not be copied to the deployment directory.
+// CaptureTraceOutput	true	You can write to the debug trace from your Test method using Trace.WriteLine. Using this configuration, you can turn off these debug traces.
+// DeleteDeploymentDirectoryAfterTestRunIsComplete	true	You can retain the Deployment Directory after a test run by setting this value to false.
+// MapInconclusiveToFailed	false	If a test returns with an inconclusive status, it is usually mapped to Skipped status in Test Explorer. If you want Inconclusive tests to be showed as Failed, use this configuration.
+// InProcMode	false	If you want your tests to be run in the same process as the MS Test adapter, set this value to true. This setting provides a minor performance gain. But if a test exits with an exception, the other tests will not continue.
+// AssemblyResolution
+
+    runCmd('"{0}" {2} ' +
+        '/Parallel ' + 
+        '/Platform:x64 ' + 
+        '/Framework:.NETFramework,Version=v4.8 ' + 
+        '/logger:trx;LogFileName={1}\\TestResults.trx ' +
+        '/logger:console;verbosity=normal ' +
+        //'/ListDiscoverers ' +
+        // '/ListExecutors ' +
+        // '/ListLoggers ' +
+        // '/ListSettingsProviders ' +
+        ' -- ' +
+        'MSTest.InProcMode=true ' +
+        'RunConfiguration.DisableAppDomain=true');
+
+
+
+
+} else {
+    info('Installing NUnit ConsoleRunner');
+    installPackage('NUnit.ConsoleRunner');
+    query('Searching for console runner exe');
+    testExe = app.dir() @find.file('Nunit3-console.exe');
+
+    
+    // nunit3-console.exe ^
+    //     %b%.Aphid.IntelliTests\%bin%.Aphid.IntelliTests.dll ^
+    //     %b%.Aphid.UnitTests\%bin%.Aphid.UnitTests.dll ^
+    //     %b%.Aphid.ScriptedUnitTests\%bin%.Aphid.ScriptedUnitTests.dll ^
+    //     
+    
+
+    // nunit3-console.exe ^
+    //     %b%.Aphid.IntelliTests\%bin%.Aphid.IntelliTests.dll ^
+    //     %b%.Aphid.UnitTests\%bin%.Aphid.UnitTests.dll ^
+    //     %b%.Aphid.ScriptedUnitTests\%bin%.Aphid.ScriptedUnitTests.dll ^
+    //     --process=Single --agents=16 --workers=64 --labels=All --result=AphidTestResult.xml
+}
+

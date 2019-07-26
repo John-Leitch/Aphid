@@ -1,0 +1,32 @@
+@{
+    #'Std';
+
+    this @mix(console);
+    importArgs({ bool overwrite: '-y'});
+    var targets = io.cd() | io.up | io.dirs ~? 'Com.*Aphid.*Test' -< io.dirs -?(@()$_ ~= '\\\\(bin|obj)');
+
+    if ((targets#!) == 0) {
+        error('No dirs matched criteria');
+        exit(0);
+    }
+
+    line();
+    subhead('Folders matched:');
+    line();
+    targets->code;
+
+
+    if (!overwrite) {
+        out('Are you sure you want to delete these folders? [y/n]');
+        if (Console.ReadKey(true).Key != ConsoleKey.Y) {
+            error('Aborting delete');
+            exit(2);    
+        }
+    }
+
+
+    targets |> toArray @pipeline.parallel(@{
+        'Deleting {0}' :: $_ |> color |> p.setStatus;
+        async.sleep(500);
+    });
+}();

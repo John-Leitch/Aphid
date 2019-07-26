@@ -1,28 +1,28 @@
-@echo off
+REM @echo off
 
-REM set a=/E /Y /D /F /H /L
-set a=/E /Y /D /F /H
+REM REM set a=/E /Y /D /F /H /L
+REM set a=/E /Y /D /F /H
 
-set hr=call aphid64 *#'std';subhead('%%msg%%');
-set hr=
-set msg=Updating Application Scripts
-%hr%
+REM set hr=call aphid64 *#'std';subhead('%%msg%%');
+REM set hr=
+REM set msg=Updating Application Scripts
+REM %hr%
 
-for %%i in (Samples Benchmarks) do (
-    xcopy c:\source\aphid\Aphid\%%i\*.alx c:\tools\aphid\%%i\ %a%
-)
+REM for %%i in (Samples Benchmarks) do (
+REM     xcopy c:\source\aphid\Aphid\%%i\*.alx c:\tools\aphid\%%i\ %a%
+REM )
 
-set msg=Updating Library Scripts
-%hr%
+REM set msg=Updating Library Scripts
+REM %hr%
 
 
-for %%d in (c:\tools\aphid) do (
-    echo Cleaning %%d cache
-    del /s /ah %%d\*.cache*
-    for %%i in (Library Tools) do (
-        echo Updating %%d\%%i
-        xcopy c:\source\aphid\Components.Aphid\%%i\*.alx %%d\%%i\ %a%
-    )
-)
+REM for %%d in (c:\tools\aphid) do (
+REM     echo Cleaning %%d cache
+REM     del /s /ah %%d\*.cache*
+REM     for %%i in (Library Tools) do (
+REM         echo Updating %%d\%%i
+REM         xcopy c:\source\aphid\Components.Aphid\%%i\*.alx %%d\%%i\ %a%
+REM     )
+REM )
 
-@echo on
+REM @echo on

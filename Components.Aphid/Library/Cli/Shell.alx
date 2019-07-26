@@ -15,6 +15,7 @@
     // * Add ; support to command-line
 
     #'Std';
+    #'System/Stdio';
     #'Cli\\Powershell';
 
     using System.IO;
@@ -550,7 +551,8 @@
         ret $_
         |> psContext.restorePSObject
         |> psContext.outString
-        |> Cli.StyleEscape;
+        |> Cli.StyleEscape
+        |> console.highlight;
     } ;
 
     shell.inLine = Console.ReadLine;
@@ -571,7 +573,7 @@
         _stdExec = macro(@{
             command @traceExec('Executing standard command: {0}');
 
-            ret command |> shell.evalCommand |> shell.dumpObject |> shell.out;
+            ret command | shell.evalCommand | shell.dumpObject | shell.out;
         });
 
         if (peekTokens.Count >= 1 &&
@@ -836,7 +838,7 @@
 
     var args = getCommandLineArgs() |> Enumerable.ToList;
     
-    if (args =? @() Path.GetFileName($_).ToLower() == 'shell.alx') {
+    if (args =? @() 'shell'.Equals($_ | io.base, StringComparison.OrdinalIgnoreCase)) {
         if (args.Contains('-interactive')) {
             //shell.trace();
             shell.run();

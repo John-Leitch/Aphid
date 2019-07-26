@@ -73,6 +73,29 @@ _trace = macro(@(handlerName) {
 });
 
 @{
+    var lookupArgs = new ThreadLocal[Object.MakeArrayType()](@() 
+        [ null, null ]
+        @seq.array(Object));
+
+    var get = @(key, def, dict)
+        ($(def.GetType())
+            RuntimeType, Type: getOrNew,
+            getOrCreate)(key, def, dict);
+
+    var getOrNew = @(key, type, dict) getOrCreate(key, @() new type(), dict);
+
+    var getOrCreate = @(key, create, dict) {
+        var args = lookupArgs.Value;
+        args.Set(0, key);
+        
+        if (!dict.TryGetValue.Members[0].Invoke(dict, args)) {
+            dict.Add(key, var result = create());
+            ret result;
+        } else {
+            ret args[1];
+        }
+    };
+
     runtime = {
         '$internal': {
             initTrace: @(aphid) {
@@ -116,6 +139,78 @@ _trace = macro(@(handlerName) {
             },
             expressions: _trace(OnInterpretExpression),
             statements: _trace(OnInterpretStatement),
+        },
+        
+        map: {
+            tables: null,
+            create: @() tables = {
+                path: new Dictionary[string, AssemblyName](StringComparer.OrdinalIgnoreCase)(),
+                fullName: new Dictionary[string, AssemblyName]()(),
+                name: new Dictionary[string, Dictionary[Version, AssemblyName]]()(),
+            },
+            init: @() tables ?? crate(),
+            
+            asm: @(a){
+                var t = init();
+
+                if (!a.IsDynamic) {
+                    a |> (t.path @get(t.path)).Add;
+                }
+
+                a.FullName |> (t.fullName @get(t.FullName)).Add;
+                var name = a.GetName();
+                
+                name.Name @get(t.FullName) @get(name.Version);
+
+                ret a;
+            },
+
+            dir: @(d, pattern) {
+                try {
+                    ret (pattern != null ? io.files(pattern, d) : io.files(d))->asm;
+                } catch (e) {
+                    console.error('Failed walking stack: {0}', e.TOString());
+                    ret null;
+                }
+            },
+            // 'd:/program files (x86)' @io.first.dir('*visual*') @io.first.dir('Ide') @io.find.files('*.dll') @toDictionary(@(x) x | io.full, @(x) x | ?> AssemblyName.GetAssemblyName)
+        },
+        
+
+        resolve: {
+            trace: false,
+            name: @(asm, asmName) {
+                var other = asmName defined ? asmName : asm.GetName().Name;
+                
+                if (trace) {
+                    console.info(
+                        'Setting assembly {0} as resolution for name {1}',
+                        asm, other);
+                }
+
+                AppDomain.CurrentDomain.add_AssemblyResolve(@(o, e) {
+                    
+                    if (trace) {
+                        console.query(
+                            'Checking if {0} can be resolved to {1}', 
+                            e.Name | console.highlight,
+                            other | console.highlight);
+                    }
+
+                    var an = new AssemblyName(e.Name);
+
+                    if (an.Name == other) {
+                        if (trace) {
+                            console.success('Assembly resolved');
+                        }
+                        ret asm;
+                    } else {
+                        if (trace) {
+                            console.error('Assembly resolution failed');
+                        }
+                    }
+                });
+            },
         },
     }
 }();
