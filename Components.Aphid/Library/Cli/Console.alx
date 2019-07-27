@@ -27,8 +27,7 @@ var fatal = @{
 _ci = macro(@(a) { if (isSafe()) { a } });
 _bp = macro(@{
     var curY = state.startPos + barYOffset;
-    var needed = curY - (Console.BufferHeight - 1);
-    head(needed.ToString());
+    var needed = curY - (Console.BufferHeight - 1);    
 
     if (needed > 0) {
         Console.MoveBufferArea(
@@ -241,13 +240,14 @@ _bp = macro(@{
 
                         if (!isAsync) {
                             source for {
-                                next();
                                 result.add(func($_));
+                                next();
                             };
                         } else {
                             result = source @async.select(@{
+                                var res = func($_);                                
                                 next();
-                                ret func($_);                                
+                                ret res;
                             });
                         }
 
