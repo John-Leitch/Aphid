@@ -93,6 +93,33 @@ var singleOrDefault = flip2(SingleOrDefault);
 var sum = flip2(Sum);
 var toHashSet = flip2(ToHashSet);
 
+var before = @(source, element) prepend(element, source);
+
+var withStartRange = @(firstCount, firstSelector, thenSelector, source)
+    combine(
+        source
+        @take(firstCount)
+        @select(firstSelector),
+        source
+        @skip(firstCount)
+        @select(thenSelector));
+
+var withEndRange = @(firstSelector, endCount, thenSelector, source)
+    withStartRange(count(source) - endCount, firstSelector, thenSelector, source);
+
+var withFirst = @(firstSelector, thenSelector, source)
+    source
+    | first
+    | firstSelector @before(source @skip(1) @select(thenSelector));
+
+
+var withLast = @(firstSelector, thenSelector, source)
+    source
+    @take(count(source) - 1)
+    @select(firstSelector)
+    @append(source | last | thenSelector);
+
+
 // orDefault = macro(@(n, f) {
 //     var id(n) = flip2(f);
 //     var id(n, OrDefault) = flip2(id(f, OrDefault));
@@ -102,3 +129,9 @@ var toHashSet = flip2(ToHashSet);
 // orDefault(first, First);
 // orDefault(last, Last);
 // orDefault(single, Single);
+
+// withFirst test
+// c:\source\Malware>aphid64 !"#'std'; var res = 1..10 @withFirst(@(x) x+':first', @(x) x + ':other'); res|dump; res|dump;"
+// withLast test
+// aphid64 !"#'std'; var res = 1..10 @withLast(@(x) x+':first', @(x) x + ':other'); res|dump; res|dump;"
+//
