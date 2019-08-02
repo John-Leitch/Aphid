@@ -232,7 +232,7 @@ var cdb;
 
             loadExtension: @()
                 findModules()
-                ->@format('!load {0}')
+                -<(@() [ $_ @format('!load {0}'), $_ | io.up @format('.sympath+ {0}'), ])
                 ->pipe,
 
             dumpExceptions: @{
@@ -241,10 +241,10 @@ var cdb;
                 
                 var fan = @(c) [
                     c,
-                    c.Replace('!PrintException', '!PrintException -nested')
+                    c.Replace('!PrintException -lines', '!PrintException -lines -nested')
                 ];
 
-                '!PrintException' | fan -> pe.Enqueue;
+                '!PrintException -lines' | fan -> pe.Enqueue;
                 var known = new List[Object](pe);
 
                 while (pe.Count > 0) {

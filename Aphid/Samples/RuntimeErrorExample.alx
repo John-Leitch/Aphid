@@ -16,6 +16,8 @@ var fifthFunc = @{ 0xdeadbeef |> sixthFunc };
 var sixthFunc = @{ seventhFunc <| 'Hello world' };
 
 // Faulting function
-var seventhFunc = @{ 1/0 };
+//var seventhFunc = @{ var z = 'test'; 1/0 };
+var seventhFunc = @{ var z = 'test'; #'badfoo'; 1/0 };
+
 
 firstFunc();

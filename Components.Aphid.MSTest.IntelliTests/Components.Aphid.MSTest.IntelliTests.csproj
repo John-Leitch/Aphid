@@ -35,13 +35,18 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>latest</LangVersion>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.ExtendedReflection">
+      <HintPath>d:\program files (x86)\microsoft visual studio\2017\enterprise\common7\ide\extensions\microsoft\pex\Microsoft.ExtendedReflection.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Pex.Framework, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -60,7 +65,115 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AphidAliasTest.cs" />
+    <Compile Include="AphidCliTest.CaptureTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="AphidCliTest.cs" />
+    <Compile Include="AphidCliTest.DumpExceptionTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpExceptionTest01.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpExceptionTest02.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpExceptionTest03.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpScopeTest01.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpStackTraceTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpStackTraceTest01.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpStackTraceTest02.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.DumpValueTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetAphidObjectTypeNameGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetAphidObjectTypeNameSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetAphidTypeNameGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetAphidTypeNameSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetObjectTypeFullNameGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetObjectTypeFullNameSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetObjectTypeNameGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetObjectTypeNameSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetTypeFullNameGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetTypeFullNameSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetTypeNameGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetTypeNameSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetUnwrappedTypeGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.GetUnwrappedTypeSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.RedirectTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.SafeWriteSubheaderTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.TryActionTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.TryActionTest01.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.TryActionTest02.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.UnwrapGetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.UnwrapSetTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.WriteErrorMessageTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.WriteLineHighlightedTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.WriteLineHighlightedTest01.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.WriteMessageTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AphidCliTest.WriteSubheaderTest.g.cs">
+      <DependentUpon>AphidCliTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="AphidFunctionConverterTest.cs" />
     <Compile Include="AphidFunctionWrapperTest.cs" />
     <Compile Include="AphidInteropFunctionTest.cs" />
@@ -372,8 +485,11 @@
     <Compile Include="Factories\AphidInteropMethodInfoFactory.cs" />
     <Compile Include="Factories\AphidInterpreterFactory.cs" />
     <Compile Include="Factories\AphidLexerFactory.cs" />
+    <Compile Include="Factories\AphidLoadScriptExceptionFactory.cs" />
     <Compile Include="Factories\AphidObjectFactory.cs" />
+    <Compile Include="Factories\AphidParserExceptionFactory.cs" />
     <Compile Include="Factories\AphidPreprocessorDirectiveMutatorFactory.cs" />
+    <Compile Include="Factories\AphidRuntimeExceptionFactory.cs" />
     <Compile Include="Factories\ArrayAccessExpressionFactory.cs" />
     <Compile Include="Factories\ArrayExpressionFactory.cs" />
     <Compile Include="Factories\BinaryOperatorBodyExpressionFactory.cs" />
@@ -383,6 +499,7 @@
     <Compile Include="Factories\CallExpressionFactory.cs" />
     <Compile Include="Factories\CallIdentifierMutatorFactory.cs" />
     <Compile Include="Factories\ContinueExpressionFactory.cs" />
+    <Compile Include="Factories\CultureAwareRandomizedComparerFactory.cs" />
     <Compile Include="Factories\DoWhileExpressionFactory.cs" />
     <Compile Include="Factories\DynamicMemberExpressionFactory.cs" />
     <Compile Include="Factories\ExtendExpressionFactory.cs" />
@@ -411,8 +528,10 @@
     <Compile Include="Factories\PatternExpressionFactory.cs" />
     <Compile Include="Factories\PatternMatchingExpressionFactory.cs" />
     <Compile Include="Factories\StringExpressionFactory.cs" />
+    <Compile Include="Factories\StringFactory.cs" />
     <Compile Include="Factories\SwitchCaseFactory.cs" />
     <Compile Include="Factories\SwitchExpressionFactory.cs" />
+    <Compile Include="Factories\TargetInvocationExceptionFactory.cs" />
     <Compile Include="Factories\TernaryOperatorExpressionFactory.cs" />
     <Compile Include="Factories\TextExpressionFactory.cs" />
     <Compile Include="Factories\TextWriterFactory.cs" />

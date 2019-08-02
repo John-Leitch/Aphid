@@ -74,6 +74,8 @@ namespace Components.Aphid.UI.Formatters
                 {
                     ct[i] = Inverter.Apply(ct[i]);
                 }
+
+                ct[end - 1] = Inverter.Apply(ct[end - 1]);
             }
             else if (start != -1)
             {

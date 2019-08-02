@@ -698,20 +698,20 @@ namespace VSCodeDebug
                                     Scalar(c.Value.GetList()))));
 
                         //variables.Add(CreateVariable(c));
-                        foreach (var o in c.Value.GetList().Select(x => x.ToArray()))
-                        {
-                        }
+                        //foreach (var o in c.Value.GetList().Select(x => x.ToArray()))
+                        //{
+                        //}
                         //variables.Add(CreateVariable(c));
 
-                        foreach (var obj in c.Value.GetList())
-                        {
+                        //foreach (var obj in c.Value.GetList())
+                        //{
                             //new KeyValuePair<string, AphidObject>(c.Key, obj.Va
 
                             //foreach (var kvp in obj)
                             //{
                             //    variables.Add(CreateVariable(kvp));
                             //}
-                        }
+                        //}
                     }
                     else
                     {
@@ -936,6 +936,18 @@ namespace VSCodeDebug
         }
 
         private Variable CreateVariable(KeyValuePair<string, AphidObject> v)
+        {
+            try
+            {
+                return CreateVariableCore(v);
+            }
+            catch (Exception e)
+            {
+                return CreateVariableCore(new KeyValuePair<string, AphidObject>("$dbgInternalException", ValueHelper.Wrap(e)));
+            }
+        }
+
+        private Variable CreateVariableCore(KeyValuePair<string, AphidObject> v)
         {
             if (v.Value == null || (v.Value.IsScalar && v.Value.Value == null))
             {

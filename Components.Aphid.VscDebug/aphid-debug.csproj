@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
@@ -170,6 +170,6 @@ cmd /c start taskkill /im aphid-debug.exe /f</PreBuildEvent>
     <PostBuildEvent>cmd /c start taskkill /im aphid-debug.exe /f
 xcopy $(TargetDir)* C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug /d /y
 ::ngen.exe C:\Users\John\.vscode\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe
-::ngen.exe C:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
+ngen.exe c:\Users\John\.vscode-insiders\extensions\ast.aphid-debug-0.0.1\bin\Debug\aphid-debug.exe</PostBuildEvent>
   </PropertyGroup>
 </Project>

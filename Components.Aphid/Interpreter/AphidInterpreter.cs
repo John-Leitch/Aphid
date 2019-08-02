@@ -1,6 +1,7 @@
 //#define TRACE_SCOPE
 //#define TEXT_FRAME_PERFORMANCE_TRACE
 //#define BINARY_FRAME_PERFORMANCE_TRACE
+//#define STRICT_OWNER_THREAD_VALIDATION
 #define APHID_FRAME_ADD_DATA
 #define APHID_FRAME_CATCH_POP
 #define TRACK_PREVIOUS_SCOPE
@@ -553,7 +554,7 @@ namespace Components.Aphid.Interpreter
         public AphidObject GetReturnValue() => GetReturnValue(false);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject GetReturnValue(bool remove)
+        public AphidObject GetReturnValue(bool remove)
         {
             if (CurrentScope.TryGetValue(AphidName.Return, out var retVal) && remove)
             {
@@ -1527,6 +1528,10 @@ namespace Components.Aphid.Interpreter
             Lazy<string> name,
             IEnumerable<object> args)
         {
+#if STRICT_OWNER_THREAD_VALIDATION
+            VerifyOwnership();
+#endif
+
             while (_queuedFramePops > 0)
             {
                 _frames.Pop();
@@ -1558,6 +1563,9 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushFrame(AphidExpression callExpression, Lazy<string> name, object arg)
         {
+#if STRICT_OWNER_THREAD_VALIDATION
+            VerifyOwnership();
+#endif
             while (_queuedFramePops > 0)
             {
                 _frames.Pop();
@@ -1589,6 +1597,10 @@ namespace Components.Aphid.Interpreter
             string name,
             IEnumerable<object> args)
         {
+#if STRICT_OWNER_THREAD_VALIDATION
+            VerifyOwnership();
+#endif
+
             while (_queuedFramePops > 0)
             {
                 _frames.Pop();
@@ -1617,6 +1629,10 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushFrame(in AphidFrame frame)
         {
+#if STRICT_OWNER_THREAD_VALIDATION
+            VerifyOwnership();
+
+#endif
             while (_queuedFramePops > 0)
             {
                 _frames.Pop();
@@ -1815,6 +1831,10 @@ namespace Components.Aphid.Interpreter
             {
                 throw new InvalidOperationException("Invalid index/length.");
             }
+#endif
+
+#if STRICT_OWNER_THREAD_VALIDATION
+            VerifyOwnership();
 #endif
 
             if (OnInterpretExpression != null && !OnInterpretExpressionExecuting)
@@ -2057,7 +2077,7 @@ namespace Components.Aphid.Interpreter
 
                 child.Interpret(expressions);
 
-                var r = child.GetReturnValue();
+                var r = child.GetReturnValue(true);
 
                 if (r != null)
                 {
@@ -4410,7 +4430,46 @@ namespace Components.Aphid.Interpreter
                         argUnion[applied.Length + i] = Wrap(args[i]);
                     }
 
-                    return CallFunction(aphidPartial.Function, argUnion);
+                    PushFrame(callExpression, functionExpression, argUnion);
+
+                    try
+                    {
+                        return CallFunction(aphidPartial.Function, argUnion);
+                    }
+#if APHID_FRAME_ADD_DATA || APHID_FRAME_CATCH_POP
+#if APHID_FRAME_ADD_DATA
+                    catch (Exception e)
+#else
+                    catch
+#endif
+                    {
+                        if (e.Source != AphidName.DebugInterpreter)
+                        {
+                            e.Source = AphidName.DebugInterpreter;
+#if APHID_FRAME_CATCH_POP
+                            while (_queuedFramePops > 0)
+                            {
+                                _frames.Pop();
+                                _queuedFramePops--;
+                            }
+#endif
+
+#if APHID_FRAME_ADD_DATA
+                            e.Data.Add(AphidName.Interpreter, this);
+                            e.Data.Add(AphidName.FramesKey, GetRawStackTrace());
+#if TRACK_PREVIOUS_SCOPE
+                            e.Data.Add(AphidName.Scope, PreviousScope);
+#endif
+#endif
+                        }
+
+                        throw;
+                    }
+#endif
+                    finally
+                    {
+                        PopFrame();
+                    }
 
                 case AphidInteropPartialFunction interopPartial:
                     return InterpretInteropCallExpression(
@@ -6608,6 +6667,21 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidInterpreter CreateChild(bool createChildScope) => AphidThread.CreateChild(this, createChildScope);
+
+#if STRICT_OWNER_THREAD_VALIDATION
+        [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void VerifyOwnership()
+        {
+            if (OwnerThread != Thread.CurrentThread.ManagedThreadId)
+            {
+                CreateRuntimeException(
+                    string.Format(
+                        "Thread 0x{0:x4} attempted to use interpreter owned by thread 0x{1:x4}",
+                        Thread.CurrentThread.ManagedThreadId,
+                        OwnerThread));
+            }
+        }
+#endif
 
         #endregion
 

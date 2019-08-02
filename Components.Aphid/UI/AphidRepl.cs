@@ -232,7 +232,7 @@ namespace Components.Aphid.UI
             //new AphidCodeVisitor(code).VisitExpression(retExp);
             //Interpreter.TakeOwnership();
             Interpreter.Interpret(retExp.WithPositionFrom(exp));
-            var value = Interpreter.GetReturnValue();
+            var value = Interpreter.GetReturnValue(true);
 
             if (value != null &&
                 (value.IsComplex || (value.IsScalar && value.Value != null)))

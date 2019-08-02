@@ -14,12 +14,14 @@ namespace VSCodeDebug
         public Dictionary<int, AphidExpression> IndexTable { get; private set; }
 
         public static int[] GetLineIndexes(string code) =>
-            new[] { 0 }
-                .Concat(code
-                    .Select((x, i) => new { Char = x, Index = i })
-                    .Where(x => x.Char == '\n')
-                    .Select(x => x.Index))
-                .ToArray();
+            code != null ?
+                new[] { 0 }
+                    .Concat(code
+                        .Select((x, i) => new { Char = x, Index = i })
+                        .Where(x => x.Char == '\n')
+                        .Select(x => x.Index))
+                    .ToArray() :
+                Array.Empty<int>();
 
         public int[] ResolveLines(string code, int[] clientLines)
         {
@@ -52,10 +54,12 @@ namespace VSCodeDebug
             //var indexes = ResolveLines(code, clientLines);
             IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
 
-            return indexes
-                .Select(x => IndexTable.FirstOrDefault(y => y.Key >= x).Value)
-                .Where(x => x != null)
-                .ToArray();
+            return indexes.Length != 0 ?
+                indexes
+                    .Select(x => IndexTable.FirstOrDefault(y => y.Key >= x).Value)
+                    .Where(x => x != null)
+                    .ToArray() :
+                Array.Empty<AphidExpression>();
         }
 
         public (int, int) ResolvePosition(List<AphidExpression> ast, AphidExpression expression)
@@ -73,7 +77,11 @@ namespace VSCodeDebug
             //    JsonSerializer.Serialize(lineIndexes));
 
             IndexTable = new AphidIndexVisitor().GetIndexTable(ast);
-
+            
+            if (lineIndexes.Length == 0)
+            {
+                return (0, 0);
+            }
             //Program.Log(
             //    "Index table: {0}",
             //    JsonSerializer.Serialize(IndexTable.Select(x => x.Key).ToArray()));

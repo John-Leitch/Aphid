@@ -56,9 +56,7 @@ if (args.watch) {
             }
 
             try {
-                printInfo('Crash dump detected: ~Yellow~{0}~R~', e.FullPath);
-
-                
+                printInfo('Crash dump detected: ~Yellow~{0}~R~', e.FullPath);                
 
                 while (true) {
                     try using (io.open.read(e.FullPath)) { }

@@ -4,6 +4,7 @@ using System.Text;
 using Components.Aphid.Parser;
 using Components.Aphid.UI.Colors;
 using Components.External;
+using Components.External.ConsolePlus;
 using static Components.Aphid.UI.Formatters.SyntaxHighlightingFormatter;
 
 namespace Components.Aphid.UI.Formatters
@@ -43,7 +44,8 @@ namespace Components.Aphid.UI.Formatters
             return pos
                 .SelectMany(Highlight)
                 .Select(ColoredTextSaturator.Apply)
-                .ToVT100String();
+                .ToVT100String()
+                + VT100.Reset;
         }
     }
 }

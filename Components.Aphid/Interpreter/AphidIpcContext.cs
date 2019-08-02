@@ -37,7 +37,7 @@ namespace Components.Aphid.Interpreter
 
                 if (result == null)
                 {
-                    result = _interpreter.GetReturnValue();
+                    result = _interpreter.GetReturnValue(true);
                 }
 
                 var ao = ValueHelper.Wrap(result);

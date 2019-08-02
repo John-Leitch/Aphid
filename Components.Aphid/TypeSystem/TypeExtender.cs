@@ -90,7 +90,7 @@ namespace Components.Aphid.TypeSystem
             {
                 if (obj.Value != null)
                 {
-                    return _fanInteropTypeMemoizer.Call(FanInteropName, obj.Value.GetType());
+                    return _fanInteropTypeMemoizer.Call(FanAphidName, obj.Value.GetType());
                 }
 
                 return Array.Empty<string>();
@@ -99,20 +99,13 @@ namespace Components.Aphid.TypeSystem
             return new string[] { typeof(AphidObject).FullName, AphidType.Unknown };
         }
 
-        private static string[] FanInteropName(Type t)
-        {
-            var names = new List<string>();
+        //private static string[] FanInteropName(Type t)
+        //{
+        //    var names = new List<string>();
+        //    FanInteropType(t, names);
 
-            do
-            {
-                names.Add(GetInteropName(t));
-                t = t.BaseType;
-            } while (t != null);
-
-            names.Add(AphidType.Unknown);
-
-            return names.ToArray();
-        }
+        //    return names.ToArray();
+        //}
 
         private static string[] FanAphidName(Type t)
         {
@@ -120,7 +113,7 @@ namespace Components.Aphid.TypeSystem
             var curType = t;
             string aphidType;
 
-            do
+            while (curType != typeof(object))
             {
                 if ((aphidType = AphidAlias.Resolve(curType)) != null)
                 {
@@ -130,7 +123,7 @@ namespace Components.Aphid.TypeSystem
                 FanInteropType(curType, names);
 
                 curType = curType.BaseType;
-            } while (curType != null);
+            }
 
             var interfaces = t.GetInterfaces();
 
@@ -139,6 +132,7 @@ namespace Components.Aphid.TypeSystem
                 FanInteropType(interfaces[i], names);
             }
 
+            names.Add(typeof(object).FullName);
             names.Add(AphidType.Unknown);
 
             return names.ToArray();

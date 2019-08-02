@@ -130,7 +130,7 @@ namespace Components.Aphid.UI
                 var retExp = new UnaryOperatorExpression(AphidTokenType.retKeyword, exp);
                 //new AphidCodeVisitor(code).VisitExpression(retExp);
                 interpreter.Interpret(retExp);
-                result = interpreter.GetReturnValue();
+                result = interpreter.GetReturnValue(true);
 
                 if (result != null && (result.Value != null || result.Any()))
                 {

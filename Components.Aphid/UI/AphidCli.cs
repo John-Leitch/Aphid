@@ -22,12 +22,10 @@ namespace Components.Aphid.UI
         private const string _messageFormat = "[~{0}~{1}~R~] {2}";
 
         private const char _errorChar = '-';
-        
+
         public const string StackTraceHead = "Stack Trace";
 
         private static readonly object _redirectSync = new object();
-
-        private static readonly AphidSyntaxHighlighter _highlighter = new AphidSyntaxHighlighter();
 
         public static Action<string> WriteOut { get; set; } = Write;
 
@@ -82,7 +80,7 @@ namespace Components.Aphid.UI
 
             return false;
         }
-        
+
         private static bool TryActionCore(
             AphidInterpreter interpreter,
             Func<string> getCode,
@@ -252,12 +250,8 @@ namespace Components.Aphid.UI
         public static void DumpException(AphidRuntimeException exception, AphidInterpreter interpreter)
         {
             WriteErrorMessage(StyleEscape(ErrorFormatter.Format(exception)));
-
             DumpStackTrace(interpreter, exception);
-
-            DumpScope(
-                    exception.ExceptionScope,
-                    interpreter ?? new AphidInterpreter());
+            DumpScope(exception, interpreter);
         }
 
         public static void DumpException(AphidLoadScriptException exception, AphidInterpreter interpreter)
@@ -269,20 +263,7 @@ namespace Components.Aphid.UI
                         AphidScript.Read(exception.ScriptFile))));
 
             DumpStackTrace(interpreter, exception);
-
-            if (exception.LoadScriptExceptionType != AphidExceptionType.AphidRuntimeException)
-            {
-                if (interpreter != null)
-                {
-                    DumpScope(interpreter);
-                }
-            }
-            else
-            {
-                DumpScope(
-                    exception.AphidRuntimeException.ExceptionScope,
-                    interpreter ?? new AphidInterpreter());
-            }
+            DumpScope(exception, interpreter);
         }
 
         public static void DumpException(Exception exception, AphidInterpreter interpreter)
@@ -292,19 +273,51 @@ namespace Components.Aphid.UI
             if (interpreter != null)
             {
                 DumpStackTrace(interpreter, exception);
-                DumpScope(interpreter);
             }
+
+            DumpScope(exception, interpreter);
         }
 
-        public static void DumpScope(AphidInterpreter interpreter) =>
-            DumpScope(
-                interpreter.GetRawStackTrace().FirstOrDefault().Scope ?? interpreter.CurrentScope,
-                interpreter);
+        public static void DumpScope(Exception exception, AphidInterpreter interpreter)
+        {
+            AphidObject scope;
 
-        public static void DumpScope(AphidObject scope, AphidInterpreter interpreter) =>
-            DumpScope(scope, interpreter, 0);
+            if (exception.Data.Contains(AphidName.Scope))
+            {
+                scope = (AphidObject)exception.Data[AphidName.Scope];
+            }
+            else if (exception is AphidRuntimeException runtimeException)
+            {
+                scope = runtimeException.ExceptionScope;
+            }
+            else if (interpreter != null)
+            {
+                scope = interpreter.CurrentScope;
+            }
+            else
+            {
+                return;
+            }
 
-        public static void DumpScope(AphidObject scope, AphidInterpreter interpreter, int depth)
+            AphidInterpreter exInterpreter;
+
+            if (exception.Data.Contains(AphidName.Interpreter))
+            {
+                exInterpreter = (AphidInterpreter)exception.Data[AphidName.Interpreter];
+            }
+            else if (interpreter != null)
+            {
+                exInterpreter = interpreter;
+            }
+            else
+            {
+                exInterpreter = new AphidInterpreter();
+            }
+
+            DumpScope(scope, exInterpreter, 0);
+        }
+
+        private static void DumpScope(AphidObject scope, AphidInterpreter interpreter, int depth)
         {
             if (!AphidConfig.Current.ShowErrorScope)
             {
