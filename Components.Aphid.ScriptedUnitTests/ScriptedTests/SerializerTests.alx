@@ -24,13 +24,14 @@ var foo = {
 // var roundTrip = serialize @> deserialize;
 //var s = aphid.Serializer;
 
-var p = @(doubleQuote, quoteKeys, noSpecials, noLazyLists) {
+var p = @(doubleQuote, quoteKeys, noLazyLists) {
     var s = new AphidSerializer(aphid);
     s.UseDoubleQuotes = doubleQuote;
     s.AlwaysQuoteKeys = quoteKeys;
     s.QuoteToStringResults = true;
     s.IgnoreFunctions = true;
-    s.IgnoreSpecialVariables = noSpecials;
+    //s.IgnoreSpecialVariables = noSpecials;
+    s.IgnoreSpecialVariables = true;
     s.IgnoreLazyLists = noLazyLists;
 
     ret s;
@@ -76,16 +77,21 @@ c5 = macro(@(name, init, obj, check, name2, maxElements, name3, safeCollections,
 });
 
 r = macro(@(obj, check) {
-    c(withSingleQuoteWithSpecials, p(false, false, false, false), obj, check);
-    c(withDoubleQuoteWithSpecials, p(true, false, false, false), obj, check);
-    c(withDoubleQuoteAlwaysQuoteKeysWithSpecials, p(true, true, false, false), obj, check);
-    c(withSingleQuoteWithoutSpecials, p(false, false, true, false), obj, check);
-    c(withDoubleQuoteWithoutSpecials, p(true, false, true, false), obj, check);
-    c(withSingleQuoteWithSpecialsWithoutLazyLists, p(false, false, false, true), obj, check);
-    c(withDoubleQuoteWithSpecialsWithoutLazyLists, p(true, false, false, true), obj, check);
-    c(withDoubleQuoteAlwaysQuoteKeysWithSpecialsWithoutLazyLists, p(true, true, false, true), obj, check);
-    c(withSingleQuoteWithoutSpecialsWithoutLazyLists, p(false, false, true, true), obj, check);
-    c(withDoubleQuoteWithoutSpecialsWithoutLazyLists, p(true, false, true, true), obj, check);
+    //c(withSingleQuoteWithSpecials, p(false, false, false, false), obj, check);
+    //c(withDoubleQuoteWithSpecials, p(true, false, false, false), obj, check);    
+    c(withSingleQuoteWithoutSpecials, p(false, false, false), obj, check);
+    c(withDoubleQuoteWithoutSpecials, p(true, false, false), obj, check);    
+    
+    //c(withDoubleQuoteAlwaysQuoteKeysWithSpecials, p(true, true, false, false), obj, check);
+    c(withDoubleQuoteAlwaysQuoteKeysWithoutSpecials, p(true, true, false), obj, check);
+    
+    //c(withDoubleQuoteAlwaysQuoteKeysWithSpecialsWithoutLazyLists, p(true, true, false, true), obj, check);
+    c(withDoubleQuoteAlwaysQuoteKeysWithoutSpecialsWithoutLazyLists, p(true, true, true), obj, check);
+    
+    //c(withSingleQuoteWithSpecialsWithoutLazyLists, p(false, false, false, true), obj, check);
+    //c(withDoubleQuoteWithSpecialsWithoutLazyLists, p(true, false, false, true), obj, check);
+    c(withSingleQuoteWithoutSpecialsWithoutLazyLists, p(false, false, true), obj, check);
+    c(withDoubleQuoteWithoutSpecialsWithoutLazyLists, p(true, false, true), obj, check);
 });
 
 #'Testing\\AopTest';
@@ -95,20 +101,31 @@ r(1, $_ == 1);
 r('test', $_ == 'test');
 r(false, !$_);
 r(null, $_ == null);
-r(root, true);
-r(root, $_.foo defined);
-r(root, $_.foo.bar defined);
-r(root, $_.foo.bar == 9);
-r(root, $_.foo.test == 'foo');
-r(root, $_.foo.singleQuote == "'");
-r(root, $_.foo.doubleQuote == '"');
-r(root, $_.foo.backslash == '\\');
-r(root, $_.foo.backslashAlpha == '\\a');
-r(root, s.IgnoreLazyLists || ($_.foo.lazy #!) == 4);
+//r(root, true);
+//r(root, $_.foo defined);
+//r(root, $_.foo.bar defined);
+//r(root, $_.foo.bar == 9);
+//r(root, $_.foo.test == 'foo');
+//r(root, $_.foo.singleQuote == "'");
+//r(root, $_.foo.doubleQuote == '"');
+//r(root, $_.foo.backslash == '\\');
+//r(root, $_.foo.backslashAlpha == '\\a');
+//r(root, s.IgnoreLazyLists || ($_.foo.lazy #!) == 4);
+r(
+    root,
+    ($_.foo defined) &&
+    ($_.foo.bar defined) &&
+    ($_.foo.bar == 9) &&
+    ($_.foo.test == 'foo') &&
+    ($_.foo.singleQuote == "'") &&
+    ($_.foo.doubleQuote == '"') &&
+    ($_.foo.backslash == '\\') &&
+    ($_.foo.backslashAlpha == '\\a') &&
+    (s.IgnoreLazyLists || ($_.foo.lazy #!) == 4));
 
 fault;
 
-@{ /*nostdheader*/ this |> serialize @+ '~!%$' |> deserialize };
+@{ this |> serialize @+ '~!%$' |> deserialize };
 r(1, $_ == 2);
 r('test', $_ == 'testa');
 r(false, $_);

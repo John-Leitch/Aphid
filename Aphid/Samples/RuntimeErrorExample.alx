@@ -1,21 +1,21 @@
 ﻿#'Std';
 
 // Named function test
-var first = @{ second() };
+var firstFunc = @{ secondFunc() };
 
 // Anonymous function test
-var second = @{ @{ fourth() }() };
+var secondFunc = @{ @{ fourthFunc() }() };
 
 // Partial function application test
-var fourth = @{ (@sixth(0b10000001))() };
+var fourthFunc = @{ (@fifthFunc(0b10000001))(123) };
 
 // Pipeline test
-var sixth = @{ 0xdeadbeef |> seventh };
+var fifthFunc = @{ 0xdeadbeef |> sixthFunc };
 
 // Reverse pipeline (custom operator) test
-var seventh = @{ eighth <| 'Hello world' };
+var sixthFunc = @{ seventhFunc <| 'Hello world' };
 
 // Faulting function
-var eighth = @{ 1/0 };
+var seventhFunc = @{ 1/0 };
 
-first();
+firstFunc();

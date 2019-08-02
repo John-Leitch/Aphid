@@ -1,4 +1,4 @@
-﻿#define TRACE_SCRIPTED_TESTS
+﻿//#define TRACE_SCRIPTED_TESTS
 using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using NUnit.Framework;

@@ -1,4 +1,4 @@
-﻿#define ALL_SCRIPTS
+﻿//#define ALL_SCRIPTS
 using Combinatorics.Collections;
 using Components.Aphid.Interpreter;
 using Components.Aphid.Parser;
@@ -65,13 +65,14 @@ namespace Components.Aphid.UnitTests.Shared
             {
                 if (_targetScript == null)
                 {
+                    //throw new InvalidOperationException($"No target script for assembly {Assembly.GetExecutingAssembly().Location}, cwd {Directory.GetCurrentDirectory()}");
                     WriteInfoMessage($"No target script for assembly {_asmName}");
                     return Array.Empty<TestCaseData>();
                 }
                 else
                 {
-                    WriteQueryMessage($"Finding companion scripts for assembly {_asmName}");
-                    return _aphidDirectory
+                    WriteQueryMessage($"Finding companion scripts for assembly {_asmName}, cwd {Directory.GetCurrentDirectory()}");
+                    var result = _aphidDirectory
                         .GetDirectories("ScriptedTests")
                         .Single()
                         .GetFiles($"{_targetScript}.alx", SearchOption.AllDirectories)
@@ -81,7 +82,15 @@ namespace Components.Aphid.UnitTests.Shared
                         .WithDegreeOfParallelism(Environment.ProcessorCount)
                         .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                         .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                        .SelectMany(GetTestsCasesFromFiles);
+                        .SelectMany(GetTestsCasesFromFiles)
+                        .ToArray();
+
+                    //if (result.Length == 0)
+                    //{
+                    //    throw new InvalidOperationException($"No target script {_targetScript} found in {_aphidDirectory}");
+                    //}
+
+                    return result;
                 }
             });
 #endif

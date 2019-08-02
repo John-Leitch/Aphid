@@ -1,5 +1,9 @@
 #'Std';
 #'System/Process';
+#'System/Nuget';
+installPackage('ilmerge');
+var ilmerge = io.first.file('ilmerge.exe');
+var aphidAsm = getAssemblies()~|'Components.Aphid';
 // [io.script.dir(),'bin','release']->io.cd;
 var asmName = 'Components.Aphid.ScriptedUnitTests';
 
@@ -11,7 +15,9 @@ if (asmName @+ '.dll' |> io.not.file) {
 'ScriptedTests'
 @io.find.files('*.alx')
 ->io.base
-->@format('cmd /c mklink /h "{0}\\{1}.{{0}}.dll" "{0}\\{1}.dll"' :: [ io.cd(), asmName ])
-->system;
+// ->@format('cmd /c mklink /h "{0}\\{1}.{{0}}.dll" "{0}\\{1}.dll"' :: [ io.cd(), asmName ])
+->@format('"{0}" /out:"{1}\\{2}.{{0}}.dll" "{1}\\{2}.dll" "{3}"' :: [ ilmerge, io.cd(), asmName, aphidAsm.Location ])
+//->@format('cmd /c copy /y "{1}\\{2}.dll" "{1}\\{2}.{{0}}.dll"' :: [ ilmerge, io.cd(), asmName, aphidAsm.Location ])
+@async.select(system);
 
 console.success('Done');
