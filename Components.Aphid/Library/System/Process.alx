@@ -100,3 +100,18 @@ var startProcessSilent = false;
 };
 
 @ ~# (cmd) #> ('cmd /c {0}' :: cmd);
+// using Components.PInvoke;
+
+extend Process {
+    is32Bit: @(proc) {
+        var args = [ proc.Handle, null ] @seq.array(Object);
+        !Kernel32.IsWow64Process.Members[0].Invoke(null, args)
+        |> Win32.ThrowLastErrorIf;
+
+        ret args[1];        
+    },    
+    
+    is64Bit: @(proc) !proc.is32Bit(),    
+    isX86: is32Bit,
+    isAmd64: is64Bit,
+}

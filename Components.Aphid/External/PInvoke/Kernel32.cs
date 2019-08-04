@@ -7,6 +7,12 @@ namespace Components.PInvoke
     [SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#")]
     public static class Kernel32
     {
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenProcess(
             ProcessAccessFlags processAccess,
@@ -73,6 +79,22 @@ namespace Components.PInvoke
             IntPtr nSize,
             out int lpNumberOfBytesWritten);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool WriteProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            byte[] lpBuffer,
+            int nSize,
+            out IntPtr lpNumberOfBytesWritten);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool WriteProcessMemory(
+            IntPtr hProcess,
+            IntPtr lpBaseAddress,
+            [MarshalAs(UnmanagedType.AsAny)] object lpBuffer,
+            int dwSize,
+            out IntPtr lpNumberOfBytesWritten);
+
         [DllImport("kernel32.dll")]
         public static extern bool DebugActiveProcessStop(uint dwProcessId);
 
@@ -102,6 +124,14 @@ namespace Components.PInvoke
             IntPtr hProcess,
             IntPtr lpAddress,
             IntPtr dwSize,
+            AllocationType flAllocationType,
+            MemoryProtection flProtect);
+
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        public static extern IntPtr VirtualAllocEx(
+            IntPtr hProcess,
+            IntPtr lpAddress,
+            uint dwSize,
             AllocationType flAllocationType,
             MemoryProtection flProtect);
 
@@ -149,5 +179,21 @@ namespace Components.PInvoke
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr CreateRemoteThread(
+            IntPtr hProcess,
+            IntPtr lpThreadAttributes,
+            uint dwStackSize,
+            IntPtr lpStartAddress,
+            IntPtr lpParameter,
+            uint dwCreationFlags,
+            IntPtr lpThreadId);
+
+        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWow64Process(
+            [In] IntPtr processHandle,
+            [Out, MarshalAs(UnmanagedType.Bool)] out bool wow64Process);
     }
 }
