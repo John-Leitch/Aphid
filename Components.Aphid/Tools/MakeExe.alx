@@ -39,7 +39,7 @@ var asmName = args.remaining.Count >= 2 ?
 
 var extraRefs = args.remaining.Count > 2 ? args.remaining @skip(2) : [];
 
-if (args.noMerge && (extraRefs | Enumerable.Any)) {
+if (args.noMerge && (extraRefs | any)) {
     printCriticalError(
         'Merge assemblies and/or search paths cannot be used ' +
         'when -noMerge is enabled.');
@@ -145,7 +145,7 @@ if (!args.medusa) {
             
             var clonedAttrs = attrMerge.patterns-<@(p) srcAsm @asmAttrs.clone(p);
 
-            if (clonedAttrs | Enumerable.Any) {
+            if (clonedAttrs | any) {
                 clonedAttrs #! @printSuccess('Cloned ~Cyan~{0}~R~ assembly attributes');
                 clonedAttrs->asm.SetCustomAttribute;
             } else {
@@ -226,19 +226,30 @@ new FileInfo(outFile)
 @printSuccess('Created executable ~Green~{0}~R~ (~Cyan~{1:n0}~R~ bytes)', outFile);
 
 if (!args.noMerge) {
-    installPackage('ilmerge');
+    var ilMergeBin;
+    
+    0..2 for {
+        ilMergeBin = io.app.path('packages') @io.first.file('ilmerge.exe');
 
-    var ilMergeBin = io.app.path('packages') @io.first.file('ilmerge.exe');
-
-    if (ilMergeBin == null) {
-        printError('Could not find ilmerge.exe');
-        exit(0xbad81);
-    }
+        if (ilMergeBin == null) {
+            if ($_ == 0) {
+                installPackage('ilmerge');
+            } else {
+                printError('Could not find ilmerge.exe');
+                exit(0xbad81);
+            }            
+        } else {
+            break;
+        }
+    };
 
     var asm = load ilMergeBin;
 
     if (asm != null) {
         printSuccess('Loaded ~Cyan~{0}~R~:\r\n    {1}', asm, asm.Location);
+    } else {
+        printCriticalError('Could not load ~Yellow~{0}~R~', ilMergeBin);
+        exit(0xbad02);
     }
 
     using ILMerging;
@@ -252,31 +263,29 @@ if (!args.noMerge) {
     }
 
     var searchDirs = new List[string]();
+    var refPath = 'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.8';
 
     [
         // 'C:\\windows\\Microsoft.NET\\Framework\\v4.0.30319',
         // 'C:\\windows\\Microsoft.NET\\Framework64\\v4.0.30319',
-        'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2',
+        refPath,
     ]->searchDirs.Add;
 
     extraRefs-?io.dir->searchDirs.Add;
 
-    if (searchDirs | Enumerable.Any) {
-        il.SetSearchDirectories(searchDirs | Enumerable.ToArray);
+    if (searchDirs | any) {
+        searchDirs | toArray | il.SetSearchDirectories;
     }
 
-    il.SetTargetPlatform(
-        'v4',
-        'C:\\Program Files (x86)\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2');
-
+    il.SetTargetPlatform('v4', refPath);
     var extraAsms = new List[string]();
     extraRefs-?(@()!searchDirs.Contains($_))->extraAsms.Add;
 
     var inputAsms = 
-        Enumerable.Concat([
+        combine([
             properties.path, AphidObject.Assembly.Location ],
-            extraAsms | Enumerable.ToArray)
-        | Enumerable.ToArray;
+            extraAsms | toArray)
+        | toArray;
 
     [
         [ 'Merging assemblies', inputAsms ],
