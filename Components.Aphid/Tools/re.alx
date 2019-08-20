@@ -1,4 +1,7 @@
 #'Std';
+// #'re.db';
+
+this @mix(console);
 
 {
     string path: '-p',
@@ -11,8 +14,12 @@
     bool write: '-w',
     int indentSize: '-i',
     int excerptLines: '-l',
+    int threads: '-t',
+    bool uniqueFiles: '-1',
 }
-| console.importArgs;
+| importArgs;
+
+var normalizeLines = true;
 
 _da = macro(@(n, v) { if (n == null) { n = v } });
 _da(filter, '*');
@@ -35,20 +42,20 @@ if (!anyRemaining) {
         y = Console.CursorTop;
     }
 
-    console.color.header(hdr);    
+    color.header(hdr);    
     print(
         aphid.InitialScope.'$block'
         >$ast.is.text
-        |> console.highlight
+        |> highlight
         @()$_
             .Split('\n')
             ->(@()$_.Trim().Contains('$R$')?
-                $_~:'\\$R\\$'|>console.color.remove:
+                $_~:'\\$R\\$'|>color.remove:
                 $_)
             @join('\n'));
 
     if (Environment.UserInteractive) {
-        console.color.glitch.header(hdr, y);
+        color.glitch.header(hdr, y);
     }
 
     exit(1);
@@ -78,8 +85,12 @@ func(path, filter) for (file){
     try {
         file = file | io.full;
         text = file | io.txt;
+
+        if (normalizeLines) {
+            text = text.Replace('\r\n', '\n').Replace('\r', '\n').Replace('\n', '\r\n');
+        }
     } catch (e) {
-        console.fail('Could not read file: {0}', e.message);
+        fail('Could not read file: {0}', e.message);
         continue;
     }
 
@@ -90,26 +101,26 @@ func(path, filter) for (file){
         continue;
     }
     
-    var excerptColor = console.color.pair(
-        SystemColor.Cornsilk | console.color.darken,
-        SystemColor.DarkSlateGray | console.color.darken);
+    var excerptColor = color.pair(
+        SystemColor.Cornsilk | color.darken,
+        SystemColor.DarkSlateGray | color.darken);
     
-    var highlightColor =console.color.pair(
+    var highlightColor =color.pair(
         SystemColor.Highlight,
-        SystemColor.Highlight | console.color.invert);
+        SystemColor.Highlight | color.invert);
 
     '{0} {1} in {2}' :: [
         c,
         'Match' |> c != 1 ? language.pluralize : @(x)x,
         file
     ]
-    |> console.color.header;
-    console.line();
+    |> color.header;
+    line();
 
     // ('A' * (Console.BufferWidth + 0 - 5)) + 'foo' | colorHeader;
     // @{%>c:\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\source\Aphid\Components.Aphid\bin\Release64\Library\Meta\Code\Generation\StringEmitter.alx<%}[1].Text @format('{0} {0}') |> colorHeader;
     
-    // Console.WriteLine();
+    // line();
     // ('Foo1AAAA AAAA AAAA AAAA AAAA 
     // AAAA AAAA AAAA AAAA AAAA AAAA 
     // BBBBBBBBB 
@@ -123,20 +134,20 @@ func(path, filter) for (file){
     matches for (m) {        
         var i2 = 0;
         matchNum++;
-        m.Groups ->(@()$_) for (g) {
+        m.Groups for (g) {
             if (i2 > 0 && $_.Length == 0) {
                 '{0}Capture Group {1}: empty' :: [ groupIndent, i2++ ]
-                |> console.code;
+                |> code;
 
                 if (i2 == (m.Groups#!)) {
-                    Console.WriteLine();
+                    line();
                 }
                 continue;
             }
-            var pos = TokenHelper.GetIndexPosition(text, $_.Index);
+            var pos = TokenHelper.GetIndexPosition(text, g.Index);
             _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
             var newLen;
-            Console.WriteLine('{0}\r\n{1}', 
+            line('{0}\r\n{1}', 
                 ($(i2) 0: 'Match {0}', '{1}Capture Group {2}') +
                 ': Line {3:n0}, Column {4:n0}, Index {5:n0}, Length {6:n0}' :: [
                     matchNum,
@@ -144,41 +155,33 @@ func(path, filter) for (file){
                     i2,
                     _pi(Item1),
                     _pi(Item2),
-                    $_.Index,
-                    $_.Length
+                    g.Index,
+                    g.Length
                 ]
-                |> console.highlight                
+                |> highlight                
                 |> (@()format(
                     i2 == 0  ? '{0}{1}{0}{2}{3}' : '{1}',
                     SystemColor.DarkBlue | VT100.Background,
                     $_,
-                    new string(' ', Math.Max(0, Console.BufferWidth - 1 - ($_ | console.color.strLen))),
+                    new string(' ', Math.Max(0, Console.BufferWidth - 1 - ($_ | color.strLen))),
                     VT100.Reset)),
                 i2++ == 0 ?
                     TokenHelper
                         .GetCodeExcerpt(
-                            text
-                                @() [
-                                        g.Index | text.Remove |< @() newLen = $_.Length,
-                                        highlightColor,
-                                        text.Substring(g.Index, g.Length),
-                                        excerptColor,
-                                        g.Index + g.Length |> text.Substring
-                                    ]
-                                    | concat,                                
-                            newLen,
+                            text.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
+                            g.Index + highlightColor.Length,
                             excerptLines)
                         .TrimEnd()
                         .Split(['\r\n'],  StringSplitOptions.None)
                         ->(@(l) '{0}{1}{0}{2}{3}' :: [
                             excerptColor,
                             l,
-                            console.color.pad(l),
+                            color.pad(l),
                             VT100.Reset
                         ])
                         @join('\r\n')
                         @+ '\r\n' :
-                    '{0}{1}{2}\r\n' :: [ groupIndent, $_.Value | console.highlight, VT100.Reset ]);
+                    '{0}{1}{2}\r\n' :: [ groupIndent, g.Value | highlight, VT100.Reset ]);
         };
 
         var replacement;
@@ -195,9 +198,9 @@ func(path, filter) for (file){
         }
 
         if (out != null || useEvaluator) {
-            Console.WriteLine('{0}{1}\r\n{0}{2}\r\n',
+            line('{0}{1}\r\n{0}{2}\r\n',
                 groupIndent,
-                'Replacement {0}:' :: matchNum |> console.highlight,
+                'Replacement {0}:' :: matchNum |> highlight,
                 replacement);
         }
     };
@@ -219,14 +222,14 @@ func(path, filter) for (file){
                     .Insert($_.offset + $_.len, excerptColor)
                     .Insert($_.offset, highlightColor);
             };
-            tmp.Split(['\r\n'],  StringSplitOptions.None) for Console.WriteLine(
+            tmp.Split(['\r\n'],  StringSplitOptions.None) for line(
                 '{0}{1}{0}{2}{3}',
                 excerptColor,
                 $_,
-                console.color.pad($_),                            
+                color.pad($_),                            
                 VT100.Reset);
 
-            Console.WriteLine();
+            line();
 
         }
 

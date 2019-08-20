@@ -2,7 +2,10 @@ var msgpack;
 
 @{
     nuget.reference('MessagePack');
+    nuget.reference('System.Memory');
     nuget.reference('System.Threading.Tasks.Extensions');
+    nuget.reference('System.IO.Pipelines');
+    
 
     using MessagePack;
     using MessagePack.Resolvers;

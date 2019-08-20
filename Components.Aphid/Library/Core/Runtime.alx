@@ -169,7 +169,7 @@ _trace = macro(@(handlerName) {
                 try {
                     ret (pattern != null ? io.files(pattern, d) : io.files(d))->asm;
                 } catch (e) {
-                    console.error('Failed walking stack: {0}', e.TOString());
+                    console.error('Failed walking stack: {0}', e.ToString());
                     ret null;
                 }
             },
