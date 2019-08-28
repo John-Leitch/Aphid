@@ -1,5 +1,5 @@
 ﻿#'Std';
-#'Math';
+//#'Math';
 
 ConsoleColor.values()\!
 @(colors) '{{1,-{0}}} {{0,-{0}}} ~{{1}}~~|{{0}}~'

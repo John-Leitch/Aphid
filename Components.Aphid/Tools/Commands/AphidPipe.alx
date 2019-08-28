@@ -1,0 +1,6 @@
+#'Std';
+var line;
+var lines = new List[string]();
+while ((line = Console.In.ReadLine()) != null) {
+    line | lines.Add;
+}

@@ -1,0 +1,54 @@
+#'Std';
+#'System/Process';
+using System.Net;
+console.importArgs({ });
+
+if (!anyRemaining) {
+    console.error('Missing cmd format arg');
+    exit(1);
+}
+
+var cmdFormat = remaining | first;
+var tasks = new List[Object]();
+var files = new List[string]();
+console.stdIn.lines(@(l) {
+    //#'System/Stdio';
+    var cmd = cmdFormat :: l;
+    // cmd @print('Cmd: ~Yellow~{0}~R~');
+    // ret null;
+    var guidFile = Guid.NewGuid() + ".out" | io.full;
+    guidFile | files.Add;
+    var prepared = cmd.Replace('"', '^"') @format('/c "{0} > ^"' + guidFile + '^""');
+    prepared |> print;
+    var si = new ProcessStartInfo('cmd.exe', prepared);
+    si.UseShellExecute = false;
+    // si.RedirectStandardError = true;
+    // si.RedirectStandardInput = true;
+    // si.RedirectStandardOutput = true;
+    //si.CreateNoWindow = true;
+    si.WindowStyle = ProcessWindowStyle.Hidden;
+    var cdbProc = Process.Start(si);
+    // var stdIn = cdbProc.StandardInput;
+    cdbProc | tasks.Add;
+    // try {
+        // tasks.Add(async.long(@()
+        //     stdio.redirect(
+        //         cdbProc,
+        //         @(data, isError){
+// lock (Console.Out) {
+//                     (isError ? Console.Error : Console.Out)
+//                     @()$_.Write(data)
+// }
+                // })));
+
+
+        // [ redirectTask ] | wait.all;
+    // } catch (e) {
+    //     print(e);
+    // }
+});
+
+tasks->?>@()$_.WaitForExit();
+files for $_ | io.lines for Console.WriteLine($_);
+files for $_ | io.del;
+// // tasks |> wait.all;

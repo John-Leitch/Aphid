@@ -17,14 +17,40 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Components.Aphid.TypeSystem
 {
     [Serializable]
-    [DebuggerTypeProxy(typeof(AphidObjectDebugView))]
+    [DebuggerTypeProxy(typeof(AphidObjectDebugView))]    
+    [DefaultMember("Item")]
+    [DebuggerDisplay("{Details, nq}")]
     public sealed partial class AphidObject : Dictionary<string, AphidObject>
     {
+        private string Details => new AphidObjectDebugView(this).ToString();
+
+        internal class AphidObjectDebugView
+        {
+            private readonly AphidObject _aphidObject;            
+
+            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+            public AphidMember[] Items =>
+                _aphidObject
+                    .Select(x => new AphidMember(_aphidObject, x.Key, x.Value))
+                .ToArray();
+
+            public AphidObjectDebugView(AphidObject aphidObject) =>
+                _aphidObject = aphidObject;
+
+            public override string ToString() =>
+                _aphidObject.IsComplex ?
+                    $"Object (Count = {_aphidObject.Count.ToString()})" :
+                _aphidObject.Value != null ?
+                    $"Scalar {_aphidObject.Value.GetType().Name} = {_aphidObject.Value}" :
+                    "Scalar null";
+        }
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public const int MaxToStringMembers = 0x8;
 

@@ -17,6 +17,27 @@ stream.Write(arr, 0, arr.Length);^
 
 var initExps = new List[AphidExpression]();
 
+var tmpl = !(useLoop defined) || useLoop ?
+    '
+        using (var stream = Console.OpenStandardOutput()) {{
+            var line;
+            var number = -1;
+            while ((line = Console.In.ReadLine()) != null) {{
+                number++;
+                {0}            
+            }}
+        }}
+    ' :
+    '
+        using (var stream = Console.OpenStandardOutput()) {{
+            var line;
+            var number = -1;
+            while ((line = Console.In.ReadLine()) != null) {{
+                number++;                
+            }}
+            {0}
+        }}
+    ';
 
 var body =
     argTokens
@@ -26,16 +47,7 @@ var body =
     |> Environment.CommandLine.Substring
     |> (prepareBody defined ? prepareBody : @() $_)
     // testBody
-    @format('
-        using (var stream = Console.OpenStandardOutput()) {{
-            var line;
-            var number = -1;
-            while ((line = Console.In.ReadLine()) != null) {{
-                number++;
-                {0}            
-            }}
-        }}
-    ')
+    @format(tmpl)
     |> parse
     |> preprocessor.transform
     @mutate(@{

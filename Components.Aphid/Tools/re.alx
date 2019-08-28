@@ -6,6 +6,7 @@ this @mix(console);
 {
     string path: '-p',
     string filter: '-f',
+    string excludePattern: '-x',
     bool replace: '-r',    
     bool useEvaluator: '-e',
     bool dumpOut: '-d',
@@ -16,6 +17,7 @@ this @mix(console);
     int excerptLines: '-l',
     int threads: '-t',
     bool uniqueFiles: '-1',
+    int verbosity: '-v',
 }
 | importArgs;
 
@@ -23,10 +25,19 @@ var normalizeLines = true;
 
 _da = macro(@(n, v) { if (n == null) { n = v } });
 _da(filter, '*');
+_da(excludePattern, null);
 _da(path, '.');
 _da(indentSize, 2);
 _da(excerptLines, 3);
+_da(verbosity, 2);
 _da(dumpOut, false);
+
+var toPrintable = @(text, ignoreLines) $_  ~: [
+    ignoreLines defined && ignoreLines ?
+        '[\\x00-\\x09\\x0b-\\x0c\\x0e-\\x1f\\x7f-\xff]' :
+        '[\\x00-\\x1f\\x7f-\xff]',
+    '.'
+];
 
 var groupIndent = ' ' * indentSize;
 var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
@@ -78,8 +89,20 @@ if (useEvaluator) {
 }
 
 var pattern = remaining[0];
+var styleEscape = Cli.StyleEscape;
 
-func(path, filter) for (file){
+func(path, filter) for (file) {    
+    if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
+        if (verbosity >= 4) {
+            info('Skipping ~Yellow~{0}~R~ due to exclude pattern', file | styleEscape);
+        }
+        continue;
+    }
+
+    if (verbosity >= 3) {
+        info('Searching {0}', file | styleEscape);
+    }
+
     var text;
 
     try {
@@ -89,15 +112,17 @@ func(path, filter) for (file){
         if (normalizeLines) {
             text = text.Replace('\r\n', '\n').Replace('\r', '\n').Replace('\n', '\r\n');
         }
+
+        text = toPrintable(text, true);
     } catch (e) {
-        fail('Could not read file: {0}', e.message);
+        fail('Could not read file: {0}', e.message | styleEscape);
         continue;
     }
 
     var matches = Regex.Matches(text, pattern, reOptions);
     var c = matches#!;
 
-    if (c == 0 ) {
+    if (c == 0) {
         continue;
     }
     
@@ -112,7 +137,7 @@ func(path, filter) for (file){
     '{0} {1} in {2}' :: [
         c,
         'Match' |> c != 1 ? language.pluralize : @(x)x,
-        file
+        file | styleEscape
     ]
     |> color.header;
     line();
@@ -144,6 +169,7 @@ func(path, filter) for (file){
                 }
                 continue;
             }
+
             var pos = TokenHelper.GetIndexPosition(text, g.Index);
             _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
             var newLen;
@@ -181,7 +207,7 @@ func(path, filter) for (file){
                         ])
                         @join('\r\n')
                         @+ '\r\n' :
-                    '{0}{1}{2}\r\n' :: [ groupIndent, g.Value | highlight, VT100.Reset ]);
+                    '{0}{1}{2}\r\n' :: [ groupIndent, g.Value | toPrintable | highlight, VT100.Reset ]);
         };
 
         var replacement;
@@ -225,7 +251,7 @@ func(path, filter) for (file){
             tmp.Split(['\r\n'],  StringSplitOptions.None) for line(
                 '{0}{1}{0}{2}{3}',
                 excerptColor,
-                $_,
+                $_ | toPrintable,
                 color.pad($_),                            
                 VT100.Reset);
 

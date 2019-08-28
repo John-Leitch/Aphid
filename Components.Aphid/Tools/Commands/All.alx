@@ -1,0 +1,5 @@
+using System.Collections.Generic;
+var lines = new List[string]();
+var prepareBody = @String.Format('lines.Add(line)');
+#'Each';
+lines->console.line;
