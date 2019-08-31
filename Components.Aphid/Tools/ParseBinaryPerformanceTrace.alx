@@ -192,28 +192,16 @@ while (s.Position < len) {
  t.Join();
  reader.Dispose();
 
- #'system/nuget';
+#'system/nuget';
+#'data/msgpack';
 
-nuget.reference('MessagePack');
-nuget.reference('System.Threading.Tasks.Extensions');
-using MessagePack;
-using MessagePack.Resolvers;
-
-var pack = @(o) MessagePackSerializer.Serialize.Members[1].MakeGenericMethod([Object]).Invoke(
-    null,
-    [ o, ContractlessStandardResolver.Instance ]);
-
-var unpack = @(t, o) MessagePackSerializer.Deserialize.Members[1].MakeGenericMethod([t]).Invoke(
-    null,
-    [ o, ContractlessStandardResolver.Instance ]);
-
-var bytes = frameTotalsList | pack;
+var bytes = frameTotalsList | msgpack.pack;
 bytes @File.WriteAllBytes(trace + '.totals');
-// frameTotalsList = bytes @unpack(List[FrameProfile]);
+frameTotalsList = bytes @msgpack.unpack(List[FrameProfile]);
 
-bytes = root | pack;
+bytes = root | msgpack.pack;
 bytes @File.WriteAllBytes(trace + '.reconstructed');
-// root = bytes @unpack(List[FrameProfile]);
+root = bytes @msgpack.unpack(List[FrameProfile]);
 
 var printFrame = @(frame, indent, printFunc)
     (printFunc defined ? printFunc : Console.WriteLine)(

@@ -1,9 +1,9 @@
 var msgpack;
 
 @{
-    nuget.reference('MessagePack');
+    nuget.reference('MessagePack', '1.7.3.7');
     nuget.reference('System.Memory');
-    nuget.reference('System.Threading.Tasks.Extensions');
+    nuget.reference('System.Threading.Tasks.Extensions', '4.3.0');
     nuget.reference('System.IO.Pipelines');
     
 
