@@ -18,6 +18,7 @@ this @mix(console);
     int threads: '-t',
     bool uniqueFiles: '-1',
     int verbosity: '-v',
+    bool disableCaptures: '-c-',
 }
 | importArgs;
 
@@ -160,14 +161,18 @@ func(path, filter) for (file) {
         var i2 = 0;
         matchNum++;
         m.Groups for (g) {
-            if (i2 > 0 && $_.Length == 0) {
-                '{0}Capture Group {1}: empty' :: [ groupIndent, i2++ ]
-                |> code;
+            if (i2 > 0) {                
+                if (disableCaptures) {
+                    continue;
+                } else if ($_.Length == 0) {
+                    '{0}Capture Group {1}: empty' :: [ groupIndent, i2++ ]
+                    |> code;
 
-                if (i2 == (m.Groups#!)) {
-                    line();
+                    if (i2 == (m.Groups#!)) {
+                        line();
+                    }
+                    continue;
                 }
-                continue;
             }
 
             var pos = TokenHelper.GetIndexPosition(text, g.Index);

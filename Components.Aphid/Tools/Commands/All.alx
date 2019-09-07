@@ -1,5 +1,28 @@
-using System.Collections.Generic;
-var lines = new List[string]();
-var prepareBody = @String.Format('lines.Add(line)');
-#'Each';
-lines->console.line;
+#'Std';
+#'Meta/Code/Compiler';
+preprocessor.inlineScripts = true;
+var argTokens = Environment.CommandLine | ArgLexer.GetTokenInfo;
+var initExps = new List[AphidExpression]();
+
+var body =
+    argTokens
+    @skip(io.name(argTokens[0].Value).ToLower().Contains('aphid') ? 2 : 1)
+    ^!
+    @.Offset
+    |> Environment.CommandLine.Substring
+    @format('console.stdIn.txt() |> ({0}) |> console.line')
+    |> parse
+    |> preprocessor.transform
+    @mutate(@{
+        if (ast.is.binOp(var n = expression) &&
+            n.Operator == ast.token.assignmentOp &&
+            ast.is.identifier(n.LeftOperand) &&
+            (ast.attrs(n.LeftOperand) =?@=='init')) {
+            n | initExps.Add;
+            n.LeftOperand.Attributes.RemoveAt(0);
+            hasChanged = true;
+            ret new List[AphidExpression]();
+        }
+    });
+
+[initExps, body]-<(@()$_)->aphid.InitialScope.'$block'.Add;

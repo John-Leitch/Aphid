@@ -1,0 +1,2 @@
+#'Std';
+console.stdIn.lines(io.entropy @> console.line);

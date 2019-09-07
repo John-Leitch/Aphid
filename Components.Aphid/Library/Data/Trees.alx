@@ -17,6 +17,7 @@ var stringTree;
 
     stringTree = {
         defaultIndent: 2,
+        cycleDetetion: true,
         fromObjTree: @(root, name)
             stringTree.create(
                 { node: name defined ? name : root, children: root },
@@ -27,12 +28,12 @@ var stringTree;
 
         create: @(root, dumpNode, getChildren) {
             var sb = new StringBuilder();
-            createCore(root, dumpNode, getChildren, sb, 0, [], true);
+            createCore(root, dumpNode, getChildren, sb, 0, [], true, new List[Object]());
         
             ret sb.ToString();
         },
 
-        createCore: @(node, dumpNode, getChildren, sb, indent, depths, lastChild) {
+        createCore: @(node, dumpNode, getChildren, sb, indent, depths, lastChild, traversed) {
             this.'$internal'.CopyTo(this);
 
             0..indent->@(i) sb.Append(
@@ -43,14 +44,15 @@ var stringTree;
 
             node | dumpNode | sb.AppendLine;        
 
-            (var nodes = node | getChildren) -> @(c) createCore(
+            (var nodes = node | getChildren) |> toArray @except(traversed) -> @(c) createCore(
                 c,
                 dumpNode,
                 getChildren,
                 sb,
                 indent + 1,
                 (var lc = (nodes$!) | c.Equals) ? depths : aq.concat(depths, [ indent ]),                
-                lc);
+                lc,
+                traversed);
         },
 
         '$internal': {

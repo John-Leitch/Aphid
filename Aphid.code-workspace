@@ -49,6 +49,9 @@
         },
         {
             "path": "."
+        },
+        {
+            "path": "Components.Aphid/Tools/Commands"
         }
     ],
 	"settings": {        

@@ -1,0 +1,10 @@
+#'Std';
+#'System/Process';
+
+console.stdIn.lines(
+    splitCommand
+    @> @{
+        var si = new ProcessStartInfo($_[0], $_[1]);
+        si.UseShellExecute=false;
+        Process.Start(si);
+    });

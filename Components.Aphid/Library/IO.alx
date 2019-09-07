@@ -250,6 +250,25 @@ var io = {
 
     // entry: @() $args.Count == 0 ? _h(GetEntryDirectory)() : _h(GetEntryPath)($args),
     // executing: @() $args.Count == 0 ? _h(GetExecutingDirectory)() : _h(GetExecutingyPath)($args),
+
+    entropy: @(file) {
+        var counts = Array.CreateInstance(ulong, 0x100);
+        var len;
+
+        using (var reader = new BinaryReader(file | io.open.read)) {
+            if ((len = reader.BaseStream.Length) == 0) {
+                ret 1.0;
+            }
+
+            var buf;
+            while ((buf = reader.ReadBytes(0x1000000)).Length != 0) {
+                buf-&(@()$_) for counts[$_.Key] += $_#!;
+                // buf for counts[$_] += 1;
+            }
+        }
+        
+        ret counts-?@!=0->@/ len->(@(x) Math.Log(x) / Math.Log(2) * x)+>(@(x, y) x + y)@* -1;
+    },
 };
 
 var isDir = io.dir;

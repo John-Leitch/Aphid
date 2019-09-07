@@ -38,7 +38,6 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
             var cmd = connection.CreateCommand();
             cmd.CommandText = 'SELECT * FROM ' + escape.id(tableName);
             printQuery('Executing ~Cyan~{0}~R~', cmd.CommandText);
-            var t = byte.MakeArrayType();
 
             try {
                 using (var rows = cmd.ExecuteReader()) {
@@ -53,7 +52,8 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                             
                             o[n] = r.GetValue($_);
                             var vt = o[n].GetType();
-                            if (vt == t) {
+                            // vt | print;
+                            if (vt == byte.MakeArrayType()) {
                                 var v = o[n];
                                 o[n] = v | Encoding.ASCII.GetString;
                                 o[n + '__unicode'] = v | Encoding.Unicode.GetString;
@@ -61,15 +61,16 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
 
 
                             if ((vt == int || vt == long) && o[n] >= 500000000) {
-                                [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
-                                    try {
-                                        o[n + '__epoch_' + $_[0]] =
-                                            o[n] / $_[1]
-                                            | DateTimeOffset.FromUnixTimeSeconds
-                                            @() $_.ToLocalTime();
-                                    } catch {
+                                [ [ '', 0 ], [ '_cocoa',978307200] ] for (t)
+                                    [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
+                                        try {
+                                            o[n + '__epoch_' + $_[0] + t[0]] =
+                                                (o[n] / $_[1] - t[1])
+                                                | DateTimeOffset.FromUnixTimeSeconds
+                                                @() $_.ToLocalTime();
+                                        } catch {
 
-                                    }
+                                        }
                             }
                             
                         };

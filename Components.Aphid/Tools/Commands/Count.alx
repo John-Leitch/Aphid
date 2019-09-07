@@ -1,0 +1,2 @@
+#'std';
+console.stdIn.lines().Count |> console.line
