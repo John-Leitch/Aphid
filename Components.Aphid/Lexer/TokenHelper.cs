@@ -262,8 +262,8 @@ namespace Components.Aphid.Lexer
                 return null;
             }
 
-            code = code.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n", "\r\n");
-            var matches = Regex.Matches(code, @"\r\n").OfType<Match>().ToArray();
+            //code = code.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n", "\r\n");
+            var matches = Regex.Matches(code, @"\r\n|\n|\r").OfType<Match>().ToArray();
             var firstAfter = Array.Find(matches, x => x.Index > index);
             int line;
 
@@ -276,7 +276,7 @@ namespace Components.Aphid.Lexer
                 line = matches.Length;
             }
 
-            var lines = code.Split(new[] { "\r\n" }, StringSplitOptions.None);
+            var lines = code.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
             var sb = new StringBuilder();
 
             for (var i = line - surroundingLines; i < line + surroundingLines + 1; i++)

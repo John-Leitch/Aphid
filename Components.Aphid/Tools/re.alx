@@ -110,11 +110,11 @@ func(path, filter) for (file) {
         file = file | io.full;
         text = file | io.txt;
 
-        if (normalizeLines) {
-            text = text.Replace('\r\n', '\n').Replace('\r', '\n').Replace('\n', '\r\n');
-        }
+        // if (normalizeLines) {
+        //     text = text.Replace('\r\n', '\n').Replace('\r', '\n').Replace('\n', '\r\n');
+        // }
 
-        text = toPrintable(text, true);
+        // text = toPrintable(text, true);
     } catch (e) {
         fail('Could not read file: {0}', e.message | styleEscape);
         continue;
@@ -156,6 +156,7 @@ func(path, filter) for (file) {
     var matchNum = 0;
     var replacements = new List[AphidObject]();
     var updatedOffset = 0;
+    var displayText = null;
 
     matches for (m) {        
         var i2 = 0;
@@ -175,7 +176,11 @@ func(path, filter) for (file) {
                 }
             }
 
-            var pos = TokenHelper.GetIndexPosition(text, g.Index);
+            if (displayText == null) {
+                displayText = toPrintable(text, true);
+            }
+
+            var pos = TokenHelper.GetIndexPosition(displayText, g.Index);
             _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
             var newLen;
             line('{0}\r\n{1}', 
@@ -199,7 +204,7 @@ func(path, filter) for (file) {
                 i2++ == 0 ?
                     TokenHelper
                         .GetCodeExcerpt(
-                            text.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
+                            displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
                             g.Index + highlightColor.Length,
                             excerptLines)
                         .TrimEnd()
