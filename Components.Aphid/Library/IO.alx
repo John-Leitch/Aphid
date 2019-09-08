@@ -257,7 +257,7 @@ var io = {
 
         using (var reader = new BinaryReader(file | io.open.read)) {
             if ((len = reader.BaseStream.Length) == 0) {
-                ret 1.0;
+                ret 0;
             }
 
             var buf;

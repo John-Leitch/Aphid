@@ -685,7 +685,7 @@ namespace Components.Aphid.Serialization
             string.Format("{0}{1}{0}", _quoteChar, Escape(value));
 
         private string Escape(string s) =>
-            Regex.Replace(s, $@"([\\{_quoteChar}])", "\\$1").Replace("\r", "\\r").Replace("\n", "\\n");
+            Regex.Replace(s, $@"([\\{_quoteChar}])", "\\$1").Replace("\x1b", "\\x1b").Replace("\r", "\\r").Replace("\n", "\\n");
 
         private bool AppendChunks(StringBuilder sb, string str, int indent)
         {

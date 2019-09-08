@@ -42,8 +42,8 @@ var parseArgsFor = @{
         '32.debug',
         '64.debug',
         '.binarytrace',
-        '.binarytrace32',
-        '.binarytrace64',
+        '32.binarytrace',
+        '64.binarytrace',
         'ui',
         '-debug'
     ]

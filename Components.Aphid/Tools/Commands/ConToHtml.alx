@@ -1,0 +1,51 @@
+load System.Web;
+using System.Web;
+#'std';
+console.stdIn.lines(@(f) {
+    printInfo('Converting {0}', f);
+//var f = 'Z:\\phonedump3\\searches\\stones_637034158112649979.txt';
+    var i = 0;
+    f
+    | io.txt
+    | HttpUtility.HtmlEncode
+    ~:['\xef\xbf\xbd','─']
+    ~:[' ', '&nbsp;']
+    ~:['\r\n|\r|\n', '<br />\r\n']
+
+    ~:[
+        '\x1b\\[(\\d+)?;?(\\d+)?;?(\\d+)?;?(\\d+)?;?(\\d+)m',
+        @{
+            // print('foo');
+            var g= $_.Groups;
+
+            if (g[1].Value != '') {
+                i++;
+                ret "<span style=\"{0}: rgb({1}, {2}, {3})\">":: [
+                    ($(g[1].Value)
+                        '38':'color',
+                        '48':'background-color',
+                        'bad_' + g[1].Value),
+                    g[3].Value, g[4].Value, g[5].Value
+                ]
+            } else {
+                var t = i;
+                i = 0;
+                ret "</span>" * t;
+            }
+        }
+    ]
+    @format('
+    <html>
+    <body style="
+        background-color:black;
+        color:white;
+        font-family:\'Lucida Console\', Monaco, monospace;
+        font-size:12px;
+    ">
+    {0}
+    </body>
+    </html>
+    ')
+    @io.txt('{0}.html' :: f);
+    console.success('Done');
+});

@@ -664,7 +664,7 @@ var csharp;
 
         roslyn: {
             packages: {
-                compiler: { name: 'Microsoft.Net.Compilers', version: '3.2.0-beta3-final' },
+                compiler: { name: 'Microsoft.Net.Compilers', version: '3.3.1-beta3-final' },
                 codeDom: { name: 'Microsoft.CodeDom.Providers.DotNetCompilerPlatform', version: '2.0.1' },
             },
             getPackageDir: @(p) 'packages' | io.app.path @io.first.dir('{0}.{1}' :: p.Values), 
