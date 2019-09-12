@@ -1,0 +1,24 @@
+var principal;
+
+@{
+    using System.Security.Principal;
+    principal = {
+        identity: WindowsIdentity.GetCurrent(),
+        '$internal': new WindowsPrincipal(identity),
+        isAdmin: @() WindowsBuiltInRole.Administrator | principal.'$internal'.IsInRole,
+        elevate: @{
+            if (isAdmin()) {
+                ret null;
+            }
+
+            var cmd = Environment.CommandLine;
+            var tokens = cmd | ArgLexer.GetTokenInfo;
+            var filename = tokens[0].Value;
+            var args = tokens.Count > 1 ? tokens[1].Offset | cmd.Substring : null;
+            var si = new ProcessStartInfo(filename, args);
+            si.Verb = 'runas';
+            si | Process.Start;
+            0 | Environment.Exit;
+        },
+    };
+}();
