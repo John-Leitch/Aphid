@@ -6,6 +6,7 @@ using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.UI;
 using Components.Aphid.UI.Formatters;
+using Components.External.ConsolePlus;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -819,6 +820,7 @@ namespace VSCodeDebug
                         }
 
                         Interpreter.SetIsInTryCatchFinally(false);
+                        Cli.WriteInfoMessage("Thread ~Cyan~0x{0:x8}~R~ exited", _threadId);
                         SendEvent(new ThreadEvent("exited", _threadId));
                         //Terminate("target exited");
                     }).Start();
