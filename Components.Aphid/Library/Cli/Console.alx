@@ -105,7 +105,6 @@ _bp = macro(@{
 
         setTitle: @(title) _ci(Console.Title = title),
 
-
         progress: {
             create: @(total) {
                 var p = {
@@ -202,6 +201,7 @@ _bp = macro(@{
                 ret p;
             },
         },
+        
         pipeline: {            
             processCore: @(isAsync, func, source) {
                 Console.CursorVisible = false;

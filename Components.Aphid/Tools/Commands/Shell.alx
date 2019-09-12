@@ -1,8 +1,9 @@
 #'Std';
-#'System/Process';
 
-console.stdIn.lines(
-    @() new ProcessStartInfo('cmd', '/c "{0}"' :: ($_ ~: ['["^]', '^$0']))
-        |< @{ $_.UseShellExecute=false }
-        |> Process.Start
-        @() $_.WaitForExit());
+console.stdIn.lines(@{
+    var si = new ProcessStartInfo('cmd', '/S /C "{0}"' :: ($_ ~: ['["^]', '^$0']));
+    si.UseShellExecute = false;
+    si.RedirectStandardInput = true;
+    var p = Process.Start(si);
+    p.WaitForExit();
+});

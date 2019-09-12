@@ -1,0 +1,26 @@
+#'std';
+#'system/nuget';
+nuget.reference('SharpZipLib');
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
+var dir = 'C:\\source\\Damselfly\\Damselfly\\bin\\x64\\Release\\Crashes';
+var s = io.open.write(dir + 'Compressed3.zip');
+var zs = new ZipOutputStream(s);
+zs.SetLevel(9);
+
+dir | io.files -> @(f) {
+    var x = new ZipEntry('\\' | dir.TrimEnd @.Length @+ 1 | f.Substring | ZipEntry.CleanName);
+    x.DateTime = f | io.modified;
+    x.Size = f | io.len;
+    x | zs.PutNextEntry;
+    var buffer = Array.CreateInstance(byte, 0x1000);
+    
+    using (var s2 = f | io.open.read) {
+        StreamUtils.Copy(s2, zs, buffer);    
+    }
+
+    zs.CloseEntry();
+};
+    
+zs.IsStreamOwner = true;
+zs.Close();

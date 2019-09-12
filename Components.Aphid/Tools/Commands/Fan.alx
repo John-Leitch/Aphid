@@ -1,2 +1,2 @@
-var prepareBody = @String.Format('line |> ({0}) -> Console.WriteLine');
+var prepareBody = @String.Format('line |> ({0}) for Console.Out.WriteLine($_)');
 #'Each';

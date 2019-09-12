@@ -103,11 +103,11 @@
             ipc.listen();
 
             #'Core\\Threading';
-            var exe = 'c:\\source\\aphid\\aphid\\bin\\debug\\Aphid.exe';
-            var script = 'C:\\source\\aphid\\Components.Aphid\\Library\\Ipc.alx';
+            var exe = 'c:\\source\\aphid\\aphid\\bin\\release64\\Aphid64.exe';
+            var script = 'C:\\source\\aphid\\Components.Aphid\\Library\\Remoting\\Ipc.alx';
 
             var args = format(
-                '/c {0} {1} -client',
+                '/k {0} {1} -client',
                 exe,
                 script);
                 //getExe(),
@@ -143,4 +143,5 @@
         }
     };
 }();
-//ipc.test();
+// #'std';
+// ipc.test();

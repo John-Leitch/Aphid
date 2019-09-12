@@ -124,7 +124,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.3.0-beta4-final</Version>
+      <Version>3.3.1-beta3-final</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

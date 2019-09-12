@@ -2,19 +2,6 @@
 #'Meta/Code/Compiler';
 preprocessor.inlineScripts = true;
 var argTokens = Environment.CommandLine | ArgLexer.GetTokenInfo;
-// st.attrs =?@=='init';
-
-var testBody = "
-if (line.Length ^> 6 ^&^& line[4] == ' ' ^&^& line[5] == ' ') { ^
-var si = 6; ^
-var end = line.IndexOf('  ', si); ^
-var count = (end - si + 1) / 3; ^
-init var arr = Array.CreateInstance(byte, parts.Length); ^
-for (var i = 0; i ^< parts.Length; i++) arr.Set(i, Convert.ToByte(parts[i], 0x10)); ^
-stream.Write(arr, 0, arr.Length);^
-} ^
-"~: '\\^';
-
 var initExps = new List[AphidExpression]();
 
 var tmpl = !(useLoop defined) || useLoop ?
@@ -24,7 +11,8 @@ var tmpl = !(useLoop defined) || useLoop ?
             var number = -1;
             while ((line = Console.In.ReadLine()) != null) {{
                 number++;
-                {0}            
+                {0}
+                //Console.Out.Flush();
             }}
         }}
     ' :
@@ -36,17 +24,29 @@ var tmpl = !(useLoop defined) || useLoop ?
                 number++;                
             }}
             {0}
+            //Console.Out.Flush();
         }}
     ';
 
-var body =
+///ast.token.Keys~?'op'->ast.token.get_Item-?(@() !($_ ~='Function|Pipe'))->@format('AphidTokenType.{0}') @join(', ') printn
+var bodyStr =
     argTokens
     @skip(io.name(argTokens[0].Value).ToLower().Contains('aphid') ? 2 : 1)
     ^!
     @.Offset
-    |> Environment.CommandLine.Substring
+    |> Environment.CommandLine.Substring;
+
+var bodyTokens = bodyStr | tokenize;
+
+if (bodyTokens.Count > 0 &&
+    ((var ts = bodyTokens[0].TokenType.ToString()) ~= 'Operator') &&
+    !(ts ~= 'Function|Pipe')) {
+    bodyStr = bodyStr @format('@() ($_\r\n{0}\r\n)');
+}
+
+var body =
+    bodyStr
     |> (prepareBody defined ? prepareBody : @() $_)
-    // testBody
     @format(tmpl)
     |> parse
     |> preprocessor.transform

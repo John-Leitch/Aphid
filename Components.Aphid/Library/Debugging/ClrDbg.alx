@@ -1,0 +1,37 @@
+#'std';
+var clrDbg;
+
+@{
+    using Microsoft.Diagnostics.Runtime;
+
+    clrDbg = {
+        timeout: 10000,
+
+        init: @{
+            #'System/Nuget';
+            nuget.reference('Microsoft.Diagnostics.Runtime');
+        },
+
+        attach: @(pid)
+            DataTarget
+                .AttachToProcess(
+                    pid defined ? pid : Process.GetCurrentProcess().Id,
+                    timeout,
+                    AttachFlag.Passive)
+                .ClrVersions
+                ^!
+                @()$_.CreateRuntime(),    
+    };
+
+
+    if (!(DataTarget defined) || DataTarget == null) {    
+        clrDbg.init();    
+    }
+}();
+
+var dt = clrDbg.attach();
+print('test');
+dt.dir();
+// var dumpThreads = @(pid) 
+// DataTarget
+// .AttachToProcess(pid, (timeout ?? 10) * 1000, AttachFlag.Passive)
