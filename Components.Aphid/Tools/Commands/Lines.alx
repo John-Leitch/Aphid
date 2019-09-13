@@ -1,2 +1,2 @@
-var prepareBody = @String.Format('line |> ({0}) |> Console.Out.WriteLine');
+var prepareBody = @String.Format('if ((var r = ({0})(line)) != null) Console.Out.WriteLine(r)');
 #'Each';
