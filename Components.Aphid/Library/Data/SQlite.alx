@@ -6,6 +6,7 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
     #'system/nuget';
     nuget.reference('System.Data.SQLite.Core');
     using System.Data.SQLite;
+    var encoding = Encoding.GetEncoding("iso-8859-1");
 
     sqlite = {
         escape: {
@@ -55,7 +56,7 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                             // vt | print;
                             if (vt == byte.MakeArrayType()) {
                                 var v = o[n];
-                                o[n] = v | Encoding.ASCII.GetString;
+                                o[n] = v | encoding.GetString;
                                 o[n + '__unicode'] = v | Encoding.Unicode.GetString;
                             }
 
@@ -92,10 +93,12 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
             }
         },
         getTables: @getSchema('Tables'),
+        dumpRows: @(schema) schema->@() $_.TABLE_NAME | getRows,
         dump: @() ({
             file: connection.FileName,
-            schema: getTables(),
-            tables: schema-?(@()$_.TABLE_TYPE == 'table')->@() $_.TABLE_NAME | getRows,
+            schema: { tables: getTables(), views: getSchema('Views') },
+            tables: schema.tables | dumpRows,
+            views: schema.views | dumpRows,
         }),
     };
 }();
