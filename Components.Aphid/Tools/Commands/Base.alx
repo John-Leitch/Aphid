@@ -1,0 +1,22 @@
+var getBody = @()
+    Environment.CommandLine
+    | ArgLexer.GetTokenInfo
+    @(argTokens)
+    argTokens
+    @skip(io.name(argTokens[0].Value).ToLower().Contains('aphid') ? 2 : 1)
+    ^!
+    @.Offset
+    |> Environment.CommandLine.Substring;
+
+var getImplicitBody = @{
+    var bodyStr = getBody();
+    var bodyTokens = bodyStr | tokenize;
+
+    if (bodyTokens.Count > 0 &&
+        ((var ts = bodyTokens[0].TokenType.ToString()) ~= 'Operator') &&
+        !(ts ~= 'Function|Pipe')) {
+        bodyStr = bodyStr @format('@() ($_\r\n{0}\r\n)');
+    }
+
+    ret bodyStr;
+};

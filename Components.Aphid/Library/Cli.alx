@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 
 #'Cli\\Print';
+#'Cli\\StdIn';
 #'Cli\\Console';
 #'Cli\\CliArgBinding';
 #'Cli\\Dump';

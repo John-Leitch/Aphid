@@ -1,9 +1,8 @@
+#'Cli/StdIn';
 using System.Collections.Generic;
-#'Cli/Print';
-#'Cli/Console';
 var hs = new HashSet[string]();
 
-console.stdIn.lines(@{
+stdIn.lines(@{
     if (hs.Add($_)) {
         Console.Out.WriteLine($_);
     }

@@ -1,0 +1,29 @@
+var stdIn;
+
+@{
+    stdIn = {
+        any: Console.IsInputRedirected,
+        lines: @(handle){
+            var lines = new List[string]();
+
+            if (handle defined) {
+                var line;
+
+                while ((line = Console.In.ReadLine()) != null) {
+                    line | handle | lines.Add;
+                }
+            } else {
+                var line;
+                
+                while ((line = Console.In.ReadLine()) != null) {
+                    line | lines.Add;
+                }   
+            }
+
+            ret lines;
+        },
+
+        text: @() Console.In.ReadToEnd(),
+        txt: text,
+    };
+}();
