@@ -680,9 +680,9 @@ namespace VSCodeDebug
                 new ExceptionInfoResponseBody(
                     string.Format(
                         "{0} on thread 0x{1:x}",
-                        _exception.GetType().Name,
+                        ExceptionHelper.Unwrap(_exception).GetType().Name,
                         DynamicHelper.GetInt(arguments, "threadId")),
-                    _exception.Message,
+                    ExceptionHelper.Unwrap(_exception).Message,
                     details: CreateExceptionDetails(_exception)));
 
         private ExceptionDetails CreateExceptionDetails(Exception exception) =>

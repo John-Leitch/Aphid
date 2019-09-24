@@ -1,28 +1,35 @@
-﻿using Components.Aphid.Interpreter;
+﻿using Components;
+using Components.Aphid.Interpreter;
 using Components.Aphid.TypeSystem;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using static System.String;
 using static Components.Aphid.TypeSystem.AphidObject;
+using static Components.Aphid.TypeSystem.ValueHelper;
+using static Components.Aphid.UI.AphidCli;
+using static System.Reflection.BindingFlags;
+using Kvp = System.Collections.Generic.KeyValuePair<string, Components.Aphid.TypeSystem.AphidObject>;
 
 namespace VSCodeDebug
 {
     public class ObjectExplorer
     {
-        private Handles<KeyValuePair<string, AphidObject>[]> _variableHandles = new Handles<KeyValuePair<string, AphidObject>[]>();
+        private Handles<Kvp[]> _variableHandles = new Handles<Kvp[]>();
 
-        private static string GetObjectPreview(AphidObject obj) =>
-            obj.Keys.Count > 0 ? string.Format("{{ {0} }}", string.Join(", ", obj.Keys)) : "{ [Empty] }";
+        private static string GetObjectPreview(AphidObject obj) => Format(
+            "{{{0}}}",
+            obj.Select(x => Format("{0} {1}", GetAphidObjectTypeName(x.Value), x.Key)).Join(", "));
 
         private static string GetCollectionPreview(IEnumerable collection)
         {
             var c = collection.Cast<object>().Count();
-            return string.Format("[ {0:n0} element{1} ]", c, c != 1 ? "s" : "");
+            return Format("[ {0:n0} element{1} ]", c, c != 1 ? "s" : "");
         }
 
-        public Variable CreateVariable(KeyValuePair<string, AphidObject> v)
+        public Variable CreateVariable(Kvp v)
         {
             try
             {
@@ -30,11 +37,12 @@ namespace VSCodeDebug
             }
             catch (Exception e)
             {
-                return CreateVariableCore(new KeyValuePair<string, AphidObject>("$dbgInternalException", ValueHelper.Wrap(e)));
+                
+                return CreateVariableCore(new Kvp("$dbgInternalException", Wrap(e)));
             }
         }
 
-        private Variable CreateVariableCore(KeyValuePair<string, AphidObject> v)
+        private Variable CreateVariableCore(Kvp v)
         {
             if (v.Value == null || (v.Value.IsScalar && v.Value.Value == null))
             {
@@ -56,24 +64,10 @@ namespace VSCodeDebug
                         v.Key,
                         GetCollectionPreview((List<AphidObject>)v.Value.Value),
                         AphidType.List,
-                        _variableHandles.Create(((List<AphidObject>)v.Value.Value)
-                            .SelectMany((x, i) => x.Value == null ?
-                                x.ToArray() :
-                                new[]
-                                {
-                                    new KeyValuePair<string, AphidObject>(
-                                        i.ToString(),
-                                        ValueHelper.Wrap(x.Value))
-                                })
+                        _variableHandles.Create(
+                            ((List<AphidObject>)v.Value.Value)
+                            .Select((x, i) => new Kvp(i.ToString(), x))
                             .ToArray()));
-                }
-                else if (v.Value.Value.GetType() == typeof(AphidObject))
-                {
-                    return new Variable(
-                        v.Key,
-                        GetObjectPreview((AphidObject)v.Value.Value),
-                        AphidType.Object,
-                        _variableHandles.Create(((AphidObject)v.Value.Value).ToArray()));
                 }
                 //else if (v.Value.IsAphidType())
                 //{
@@ -84,13 +78,14 @@ namespace VSCodeDebug
                 //        0);
                 //}
                 else if (v.Value.Value.GetType() != typeof(string) &&
+                    v.Value.Value.GetType() != typeof(AphidObject) &&
                     v.Value.Value.GetType().GetInterface("IEnumerable") != null)
                 {
                     var l = new List<AphidObject>();
 
                     foreach (var o in (IEnumerable)v.Value.Value)
                     {
-                        l.Add(ValueHelper.Wrap(o));
+                        l.Add(Wrap(o));
                     }
 
                     return new Variable(
@@ -98,10 +93,18 @@ namespace VSCodeDebug
                         GetCollectionPreview(l),
                         "list",
                         _variableHandles.Create(l
-                            .Select((x, i) => new KeyValuePair<string, AphidObject>(
+                            .Select((x, i) => new Kvp(
                                 i.ToString(),
                                 x))
                             .ToArray()));
+                }
+                else if (v.Value.Value.GetType() == typeof(AphidObject))
+                {
+                    return new Variable(
+                        v.Key,
+                        GetObjectPreview((AphidObject)v.Value.Value),
+                        AphidType.Object,
+                        _variableHandles.Create(((AphidObject)v.Value.Value).ToArray()));
                 }
                 else
                 {
@@ -119,23 +122,17 @@ namespace VSCodeDebug
                         v.Value.Value.ToString(),
                         t.FullName,
                         _variableHandles.Create(t
-                            .GetProperties(BindingFlags.Public |
-                                    BindingFlags.Instance |
-                                    BindingFlags.Static |
-                                    BindingFlags.FlattenHierarchy)
+                            .GetProperties(Public | Instance | Static | FlattenHierarchy)
                             .Where(x => x.GetIndexParameters().Length == 0)
-                            .Select((x, i) => new KeyValuePair<string, AphidObject>(
+                            .Select((x, i) => new Kvp(
                                 x.Name,
-                                ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
+                                Wrap(TryGetValue(x, v.Value.Value))))
                             .Concat(
                                 t
-                                .GetFields(BindingFlags.Public |
-                                    BindingFlags.Instance |
-                                    BindingFlags.Static |
-                                    BindingFlags.FlattenHierarchy)
-                                .Select((y, j) => new KeyValuePair<string, AphidObject>(
+                                .GetFields(Public | Instance | Static | FlattenHierarchy)
+                                .Select((y, j) => new Kvp(
                                     y.Name,
-                                    ValueHelper.Wrap(TryGetValue(y, v.Value.Value)))))
+                                    Wrap(TryGetValue(y, v.Value.Value)))))
                             .ToArray()));
                 }
             }
@@ -265,7 +262,7 @@ namespace VSCodeDebug
                     {
                         variables.Add(
                             CreateVariable(
-                                new KeyValuePair<string, AphidObject>(
+                                new Kvp(
                                     c.Key,
                                     Scalar(c.Value.GetList()))));
 
@@ -277,7 +274,7 @@ namespace VSCodeDebug
 
                         //foreach (var obj in c.Value.GetList())
                         //{
-                        //new KeyValuePair<string, AphidObject>(c.Key, obj.Va
+                        //new Kvp(c.Key, obj.Va
 
                         //foreach (var kvp in obj)
                         //{
