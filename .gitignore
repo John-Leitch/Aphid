@@ -264,3 +264,4 @@ push
 *.exe.odm
 *.alx.out
 MigrationBackup/*
+VSIXProject1/*

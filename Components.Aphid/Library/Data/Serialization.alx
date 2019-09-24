@@ -1,5 +1,5 @@
-﻿load System.Runtime.Serialization;
-load System.Xml.Linq;
+﻿
+// load System.Xml.Linq;
 
 var toJson;
 var useNewtonsoftJson;
@@ -52,8 +52,15 @@ var dumpJsonDataContract;
             .MakeGenericMethod([ o.GetType() ])
             .Invoke(new Object(), [ o ]);
 
+    var rtsInitialized = false;
+
     _tdc = macro(@(id, name) {
         id = @(o) {
+            lock rtsInitialized if (!rtsInitialized) {
+                load System.Runtime.Serialization;
+                rtsInitialized = true;
+            }
+
             using System.IO;
             using System.Runtime.Serialization;
             using System.Runtime.Serialization.Json;

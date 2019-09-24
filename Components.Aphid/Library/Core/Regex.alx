@@ -1,0 +1,1 @@
+extend Match { dynamic get: @(o, m) o.Groups.get_Item(m) } 

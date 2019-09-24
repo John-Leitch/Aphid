@@ -36,5 +36,12 @@ var hex = @() ($(var t = $_.GetType())
     double: _i(16, ulong),
     decimal: (var u = $_.ulong()) == $_ ? _f(16, u) : _e(decimal, $_),
     t.GetInterface(IEnumerable) != null ? ($_->hex |> concat) : _e(type, $_.GetType()));
+
+var unhex = @()
+    '-,: \t\r\n'
+    | $_.Split
+    -<(@() ($($_.Length % 2) 0: $_, $_.PadLeft($_.Length + 1, '0')).ToCharArray() @every(2))
+    ->concat
+    ->@() Convert.ToByte($_, 16);
     
 //aphidupdatescripts.cmd & aphid64 * #'std'; this.dir('\\$ext\\.unknown'); ['uint', 'ulong', 'long']-^>@()0xdeadbeef.{$_}() @()print('{0} 0x{0:x8} {1}', $_, $_.GetType().Name)

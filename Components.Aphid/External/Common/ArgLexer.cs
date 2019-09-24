@@ -54,6 +54,11 @@ namespace Components
                                 state = lastState;
                                 break;
 
+                            case '^':
+                                buffer.Append('^');
+                                state = lastState;
+                                break;
+
                             default:
                                 throw new InvalidOperationException();
                         }

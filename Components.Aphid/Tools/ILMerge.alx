@@ -8,6 +8,7 @@ using System.Reflection;
 #'Meta';
 #'Core/Operators';
 #'Cli/Print';
+#'Cli/StdIn';
 #'Cli/Console';
 #'System/Nuget';
 #'System/Cryptography';
