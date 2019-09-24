@@ -86,6 +86,8 @@
     <Compile Include="src\AphidIndexVisitor.cs" />
     <Compile Include="src\AphidLineResolver.cs" />
     <Compile Include="src\AphidDebugSession.cs" />
+    <Compile Include="src\DynamicHelper.cs" />
+    <Compile Include="src\ObjectExplorer.cs" />
     <Compile Include="VSCodeDebug\ByteBuffer.cs" />
     <Compile Include="VSCodeDebug\Event.cs" />
     <Compile Include="VSCodeDebug\ProtocolMessage.cs" />

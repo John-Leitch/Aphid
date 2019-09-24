@@ -1,19 +1,14 @@
-﻿
-using Components.Aphid.Interpreter;
+﻿using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
-using Components.Aphid.Serialization;
 using Components.Aphid.TypeSystem;
-using Components.Aphid.UI;
 using Components.Aphid.UI.Formatters;
 using Components.External.ConsolePlus;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using static Components.Aphid.TypeSystem.AphidObject;
 
@@ -32,9 +27,9 @@ namespace VSCodeDebug
         private readonly object _lock = new object();
 
         private volatile bool _debuggeeKilled = true;
-        private SortedDictionary<long, AphidExpression> _breakpoints;
+        //private SortedDictionary<long, AphidExpression> _breakpoints;
+        private ObjectExplorer _explorer = new ObjectExplorer();
         private System.Diagnostics.Process _process;
-        private Handles<KeyValuePair<string, AphidObject>[]> _variableHandles;
         private Handles<StackFrame> _frameHandles;
         private Dictionary<int, AphidObject> _frameScopes = new Dictionary<int, AphidObject>();
         public AphidObject _exceptionScope;
@@ -52,7 +47,6 @@ namespace VSCodeDebug
         public AphidDebugSession()
             : base()
         {
-            _variableHandles = new Handles<KeyValuePair<string, AphidObject>[]>();
             _frameHandles = new Handles<StackFrame>();
             _seenThreads = new Dictionary<int, Thread>();
             Interpreter.CurrentScope.Add("$debugger", Scalar(this));
@@ -145,7 +139,7 @@ namespace VSCodeDebug
             //SetExceptionBreakpoints(args.__exceptionOptions);
 
             // validate argument 'program'
-            string programPath = getString(arguments, "program");
+            string programPath = DynamicHelper.GetString(arguments, "program");
             if (programPath == null)
             {
                 SendErrorResponse(response, 3001, "Property 'program' is missing or empty.", null);
@@ -190,7 +184,7 @@ namespace VSCodeDebug
 
             const string host = "127.0.0.1";
             var port = Utilities.FindFreePort(55555);
-            bool debug = !getBool(arguments, "noDebug", false);
+            bool debug = !DynamicHelper.GetBool(arguments, "noDebug", false);
 
             if (debug)
             {
@@ -215,7 +209,7 @@ namespace VSCodeDebug
         {
             _attachMode = true;
 
-            var host = getString(arguments, "address");
+            var host = DynamicHelper.GetString(arguments, "address");
             if (host == null)
             {
                 SendErrorResponse(response, 3007, "Property 'address' is missing or empty.");
@@ -223,7 +217,7 @@ namespace VSCodeDebug
             }
 
             // validate argument 'port'
-            var port = getInt(arguments, "port", -1);
+            var port = DynamicHelper.GetInt(arguments, "port", -1);
             if (port == -1)
             {
                 SendErrorResponse(response, 3008, "Property 'port' is missing.");
@@ -250,7 +244,7 @@ namespace VSCodeDebug
                 {
                     //if (_session != null) {
                     _debuggeeExecuting = true;
-                    _breakpoints.Clear();
+                    //_breakpoints.Clear();
                     //_session.Breakpoints.Clear();
                     //_session.Continue();
                     //_session = null;
@@ -588,74 +582,17 @@ namespace VSCodeDebug
 
         public override void Scopes(Response response, dynamic arguments)
         {
-            int frameId = getInt(arguments, "frameId", 0);
+            int frameId = DynamicHelper.GetInt(arguments, "frameId", 0);
             Program.Log($"Getting frame ID {frameId}");
             var frame = _frameHandles.Get(frameId, null);
-
-            var scopes = new List<Scope>();
-            var kvps = _frameScopes[frameId].ToArray();
-            
-            var localsHandle = _variableHandles.Create(kvps
-                .Where(x =>
-                    !x.Key.StartsWith("$") ||
-                    x.Key == "$args" ||
-                    x.Key == "$block" ||
-                    x.Key == "$_")
-                .ToArray());
-
-            var specialsHandle = _variableHandles.Create(kvps
-                .Where(x => x.Key.StartsWith("$"))
-                .ToArray());
-
-            scopes.Add(new Scope("Locals", localsHandle));
-            scopes.Add(new Scope("Special Variables", specialsHandle));
-
-            if (_exception != null)
-            {
-                var exScope = Complex();
-                exScope.Add("object", Scalar(_exception));
-                exScope.Add("message", Scalar(_exception.Message));
-                exScope.Add("clrStack", Scalar(_exception.StackTrace));
-                exScope.Add("inner", Scalar(_exception.InnerException));
-                exScope.Add("hresult", Scalar(_exception.HResult));
-
-                var exHandle = _variableHandles.Create(exScope.ToArray());
-                scopes.Add(new Scope("Exception", exHandle));
-            }
-
-#if EXPRESSION_HISTORY
-            var expRecords = Interpreter.ExpressionHistory.Take(Interpreter.ExpressionHistoryIndex);
-
-            if (Interpreter.ExpressionHistoryCount >= AphidInterpreter.ExpressionHistorySize)
-            {
-                expRecords = Interpreter.ExpressionHistory
-                    .Skip(Interpreter.ExpressionHistoryIndex)
-                    .Concat(expRecords);
-            }
-
-            var historyScope = Complex();
-            var i = 0;
-            foreach (var rec in expRecords.Take(Interpreter.ExpressionHistoryCount))
-            {
-                //var expRecordObj = Complex();
-                //expRecordObj.Add("statement", Scalar(rec.Statement));
-                //expRecordObj.Add("frames", Scalar(rec.Frames));
-                //expRecordObj.Add("block", Scalar(rec.Block));
-                //expRecordObj.Add("blockIndex", Scalar(rec.BlockIndex));
-                historyScope.Add($"[#{i++:x4},Depth={rec.Frames.Length:x2},Index={rec.BlockIndex:x2}]", Scalar(rec));
-            }
-
-            scopes.Add(new Scope(
-                "Statement Tracing",
-                _variableHandles.Create(historyScope.ToArray())));
-#endif
-
+            var scope = _frameScopes[frameId];
+            var scopes = _explorer.Scopes(Interpreter, frame, scope, _exception);
             SendResponse(response, new ScopesResponseBody(scopes));
         }
 
         public override void Variables(Response response, dynamic arguments)
         {
-            int reference = getInt(arguments, "variablesReference", -1);
+            int reference = DynamicHelper.GetInt(arguments, "variablesReference", -1);
             if (reference == -1)
             {
                 SendErrorResponse(response, 3009, "variables: property 'variablesReference' is missing", null, false, true);
@@ -665,113 +602,7 @@ namespace VSCodeDebug
             //Program.Log("[variables] Waiting for {0}", reference);
             WaitForSuspend();
             //Program.Log("[variables] Done waiting for {0}", reference);
-            var variables = new List<Variable>();
-
-            if (_variableHandles.TryGet(reference, out var children))
-            {
-                Program.Log("[variables] Got {0} children for {1}", children.Length, reference);
-                foreach (var c in children)
-                {
-                    //Program.Log(
-                    //    "[variables] Got child for {0}: {1}",
-                    //    reference,
-                    //    c.Value != null ? c.Value.GetType().FullName : c.ToString());
-
-                    if (c.Value == null)
-                    {
-                        variables.Add(CreateVariable(c));
-                    }
-                    else if (c.Value.Value == null)
-                    {
-                        variables.Add(CreateVariable(c));
-                        //c.Value.ToArray()
-                        //foreach (var kvp in c.Value)
-                        //{
-                        //    variables.Add(CreateVariable(kvp));
-                        //}
-                    }
-                    else if (false && c.Value.Value.GetType() == typeof(List<AphidObject>))
-                    {
-                        variables.Add(
-                            CreateVariable(
-                                new KeyValuePair<string, AphidObject>(
-                                    c.Key,
-                                    Scalar(c.Value.GetList()))));
-
-                        //variables.Add(CreateVariable(c));
-                        //foreach (var o in c.Value.GetList().Select(x => x.ToArray()))
-                        //{
-                        //}
-                        //variables.Add(CreateVariable(c));
-
-                        //foreach (var obj in c.Value.GetList())
-                        //{
-                            //new KeyValuePair<string, AphidObject>(c.Key, obj.Va
-
-                            //foreach (var kvp in obj)
-                            //{
-                            //    variables.Add(CreateVariable(kvp));
-                            //}
-                        //}
-                    }
-                    else
-                    {
-                        variables.Add(CreateVariable(c));
-                    }
-                }
-
-                //variables.AddRange(children
-                //    .Where(x => x != null)
-                //    .SelectMany(x => x
-                //        .Where(y => y.Key != null)
-                //        .Select(y => CreateVariable(y.Key, y.Value))));
-                //.GroupBy(x => x.Key)
-                //.Select(x => x.First().Key, x.First().Value)));
-                //variables.AddRange(children
-                //    .SelectMany(x => x.ToArray())
-                //    .GroupBy(x => x.Key)
-                //    .Select(x => CreateVariable(x.First().Key, x.First().Value)));
-            }
-            else if (false)
-            {
-                if (children?.Length > 0)
-                {
-                    var more = false;
-                    if (children.Length > _maxChildren)
-                    {
-                        children = children.Take(_maxChildren).ToArray();
-                        more = true;
-                    }
-
-                    if (children.Length < 20)
-                    {
-                        // Wait for all values at once.
-                        //WaitHandle.WaitAll(children.Select(x => x.WaitHandle).ToArray());
-                        foreach (var v in children)
-                        {
-                            //variables.Add(CreateVariable(v));
-                        }
-                    }
-                    else
-                    {
-                        foreach (var v in children)
-                        {
-                            //v.WaitHandle.WaitOne();
-                            //variables.Add(CreateVariable(v));
-                        }
-                    }
-
-                    if (more)
-                    {
-                        variables.Add(new Variable("...", null, null));
-                    }
-                }
-            }
-            else
-            {
-                Program.Log("No variable handle created");
-            }
-
+            var variables = _explorer.Variables(reference);
             SendResponse(response, new VariablesResponseBody(variables));
         }
 
@@ -822,21 +653,24 @@ namespace VSCodeDebug
                         Interpreter.SetIsInTryCatchFinally(false);
                         Cli.WriteInfoMessage("Thread ~Cyan~0x{0:x8}~R~ exited", _threadId);
                         SendEvent(new ThreadEvent("exited", _threadId));
+                        Stop();
                         //Terminate("target exited");
-                    }).Start();
+                    })
+                    {
+                        IsBackground = true
+                    }
+                    .Start();
                     _isRunning = true;
 
                     reset.WaitOne();
-                    var threads2 = new List<Thread>();
-                    threads2.Add(new Thread(_threadId, "Main Thread"));
+                    var threads2 = new List<Thread> { new Thread(_threadId, "Main Thread") };
                     SendResponse(response, new ThreadsResponseBody(threads2));
                 }
 
                 return;
             }
 
-            var threads = new List<Thread>();
-            threads.Add(new Thread(_threadId, "Main Thread"));
+            var threads = new List<Thread> { new Thread(_threadId, "Main Thread") };
             SendResponse(response, new ThreadsResponseBody(threads));
         }
 
@@ -847,7 +681,7 @@ namespace VSCodeDebug
                     string.Format(
                         "{0} on thread 0x{1:x}",
                         _exception.GetType().Name,
-                        getInt(arguments, "threadId")),
+                        DynamicHelper.GetInt(arguments, "threadId")),
                     _exception.Message,
                     details: CreateExceptionDetails(_exception)));
 
@@ -871,7 +705,7 @@ namespace VSCodeDebug
 
         public override void Evaluate(Response response, dynamic arguments)
         {
-            var expStr = (string)getString(arguments, "expression");
+            var expStr = (string)DynamicHelper.GetString(arguments, "expression");
             var exp = AphidParser.ParseExpression(expStr);
 
             var retExp =
@@ -900,7 +734,7 @@ namespace VSCodeDebug
                 return;
             }
 
-            var v = CreateVariable(new KeyValuePair<string, AphidObject>(expStr, value));
+            var v = _explorer.CreateVariable(new KeyValuePair<string, AphidObject>(expStr, value));
             SendResponse(response, new EvaluateResponseBody(v.value, v.variablesReference));
 
 
@@ -924,164 +758,10 @@ namespace VSCodeDebug
         private void Stopped()
         {
             _exception = null;
-            _variableHandles.Reset();
+            _explorer.Reset();
             _frameHandles.Reset();
         }
-
-        private static string GetObjectPreview(AphidObject obj) =>
-            obj.Keys.Count > 0 ? string.Format("{{ {0} }}", string.Join(", ", obj.Keys)) : "{ [Empty] }";
-
-        private static string GetCollectionPreview(IEnumerable collection)
-        {
-            var c = collection.Cast<object>().Count();
-            return string.Format("[ {0:n0} element{1} ]", c, c != 1 ? "s" : "");
-        }
-
-        private Variable CreateVariable(KeyValuePair<string, AphidObject> v)
-        {
-            try
-            {
-                return CreateVariableCore(v);
-            }
-            catch (Exception e)
-            {
-                return CreateVariableCore(new KeyValuePair<string, AphidObject>("$dbgInternalException", ValueHelper.Wrap(e)));
-            }
-        }
-
-        private Variable CreateVariableCore(KeyValuePair<string, AphidObject> v)
-        {
-            if (v.Value == null || (v.Value.IsScalar && v.Value.Value == null))
-            {
-                return new Variable(v.Key, "null", AphidType.Null);
-            }
-            else if (v.Value.Value == null)
-            {
-                return new Variable(
-                    v.Key,
-                    GetObjectPreview(v.Value),
-                    AphidType.Object,
-                    _variableHandles.Create(v.Value.ToArray()));
-            }
-            else
-            {
-                if (v.Value.Value.GetType() == typeof(List<AphidObject>))
-                {
-                    return new Variable(
-                        v.Key,
-                        GetCollectionPreview((List<AphidObject>)v.Value.Value),
-                        AphidType.List,
-                        _variableHandles.Create(((List<AphidObject>)v.Value.Value)
-                            .SelectMany((x, i) => x.Value == null ?
-                                x.ToArray() :
-                                new[]
-                                {
-                                    new KeyValuePair<string, AphidObject>(
-                                        i.ToString(),
-                                        ValueHelper.Wrap(x.Value))
-                                })
-                            .ToArray()));
-                }
-                else if (v.Value.Value.GetType() == typeof(AphidObject))
-                {
-                    return new Variable(
-                        v.Key,
-                        GetObjectPreview((AphidObject)v.Value.Value),
-                        AphidType.Object,
-                        _variableHandles.Create(((AphidObject)v.Value.Value).ToArray()));
-                }
-                //else if (v.Value.IsAphidType())
-                //{
-                //    return new Variable(
-                //        v.Key,
-                //        new AphidSerializer(Interpreter).Serialize(v.Value),
-                //        v.Value.GetValueType(),
-                //        0);
-                //}
-                else if (v.Value.Value.GetType() != typeof(string) &&
-                    v.Value.Value.GetType().GetInterface("IEnumerable") != null)
-                {
-                    var l = new List<AphidObject>();
-
-                    foreach (var o in (IEnumerable)v.Value.Value)
-                    {
-                        l.Add(ValueHelper.Wrap(o));
-                    }
-
-                    return new Variable(
-                        v.Key,
-                        GetCollectionPreview(l),
-                        "list",
-                        _variableHandles.Create(l
-                            .Select((x, i) => new KeyValuePair<string, AphidObject>(
-                                i.ToString(),
-                                x))
-                            .ToArray()));
-                }
-                else
-                {
-                    var t = v.Value.Value.GetType();
-
-                    //Program.Log("Reflecting type {0}", t.FullName);
-
-                    if (t.IsPrimitive || t.IsEnum)
-                    {
-                        return new Variable(v.Key, v.Value.Value.ToString(), t.FullName);
-                    }
-
-                    return new Variable(
-                        v.Key,
-                        v.Value.Value.ToString(),
-                        t.FullName,
-                        _variableHandles.Create(t
-                            .GetProperties(BindingFlags.Public |
-                                    BindingFlags.Instance |
-                                    BindingFlags.Static |
-                                    BindingFlags.FlattenHierarchy)
-                            .Where(x => x.GetIndexParameters().Length == 0)
-                            .Select((x, i) => new KeyValuePair<string, AphidObject>(
-                                x.Name,
-                                ValueHelper.Wrap(TryGetValue(x, v.Value.Value))))
-                            .Concat(
-                                t
-                                .GetFields(BindingFlags.Public |
-                                    BindingFlags.Instance |
-                                    BindingFlags.Static |
-                                    BindingFlags.FlattenHierarchy)
-                                .Select((y, j) => new KeyValuePair<string, AphidObject>(
-                                    y.Name,
-                                    ValueHelper.Wrap(TryGetValue(y, v.Value.Value)))))
-                            .ToArray()));
-                }
-            }
-        }
-
-        private object TryGetValue(FieldInfo field, object target)
-        {
-            try
-            {
-                return field.GetValue(target);
-            }
-            catch (Exception e)
-            {
-                Program.Log(e.ToString());
-                return $"Error evaluating field: {e.ToString()}";
-            }
-        }
-
-        private object TryGetValue(PropertyInfo property, object target)
-        {
-            try
-            {
-                return property.GetValue(target);
-            }
-            catch (Exception e)
-            {
-                Program.Log($"Property error: {e.InnerException}");
-                return $"Error evaluating property: {e.ToString()}";
-            }
-        }
-
+        
         private bool HasAphidExtension(string path)
         {
             foreach (var e in _fileExtensions)
@@ -1093,49 +773,6 @@ namespace VSCodeDebug
             }
             return false;
         }
-
-        private static bool getBool(dynamic container, string propertyName, bool dflt = false)
-        {
-            try
-            {
-                return (bool)container[propertyName];
-            }
-            catch (Exception)
-            {
-                // ignore and return default value
-            }
-            return dflt;
-        }
-
-        private static int getInt(dynamic container, string propertyName, int dflt = 0)
-        {
-            try
-            {
-                return (int)container[propertyName];
-            }
-            catch (Exception)
-            {
-                // ignore and return default value
-            }
-            return dflt;
-        }
-
-        private static string getString(dynamic args, string property, string dflt = null)
-        {
-            var s = (string)args[property];
-            if (s == null)
-            {
-                return dflt;
-            }
-            s = s.Trim();
-            if (s.Length == 0)
-            {
-                return dflt;
-            }
-            return s;
-        }
-
-        //-----------------------
 
         private void WaitForSuspend()
         {
