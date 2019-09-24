@@ -653,7 +653,7 @@ namespace VSCodeDebug
                         Interpreter.SetIsInTryCatchFinally(false);
                         Cli.WriteInfoMessage("Thread ~Cyan~0x{0:x8}~R~ exited", _threadId);
                         SendEvent(new ThreadEvent("exited", _threadId));
-                        Stop();
+                        //Stop();
                         //Terminate("target exited");
                     })
                     {

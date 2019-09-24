@@ -93,9 +93,7 @@ namespace VSCodeDebug
                         GetCollectionPreview(l),
                         "list",
                         _variableHandles.Create(l
-                            .Select((x, i) => new Kvp(
-                                i.ToString(),
-                                x))
+                            .Select((x, i) => new Kvp(i.ToString(), x))
                             .ToArray()));
                 }
                 else if (v.Value.Value.GetType() == typeof(AphidObject))
@@ -124,15 +122,10 @@ namespace VSCodeDebug
                         _variableHandles.Create(t
                             .GetProperties(Public | Instance | Static | FlattenHierarchy)
                             .Where(x => x.GetIndexParameters().Length == 0)
-                            .Select((x, i) => new Kvp(
-                                x.Name,
-                                Wrap(TryGetValue(x, v.Value.Value))))
-                            .Concat(
-                                t
+                            .Select((x, i) => new Kvp(x.Name, Wrap(TryGetValue(x, v.Value.Value))))
+                            .Concat(t
                                 .GetFields(Public | Instance | Static | FlattenHierarchy)
-                                .Select((y, j) => new Kvp(
-                                    y.Name,
-                                    Wrap(TryGetValue(y, v.Value.Value)))))
+                                .Select((y, j) => new Kvp(y.Name, Wrap(TryGetValue(y, v.Value.Value)))))
                             .ToArray()));
                 }
             }
