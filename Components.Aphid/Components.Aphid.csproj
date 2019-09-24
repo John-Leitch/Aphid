@@ -78,15 +78,15 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Runtime.InteropServices" />
-    <Reference Include="System.Runtime.Serialization" />
+    <!-- <Reference Include="System.Core" /> -->
+    <!-- <Reference Include="System.Runtime" /> -->
+    <!-- <Reference Include="System.Runtime.InteropServices" /> -->
+    <!-- <Reference Include="System.Runtime.Serialization" /> -->
     <!-- <Reference Include="System.Web" /> -->
     <!-- <Reference Include="System.Web.Extensions" Condition="!$(DefineConstants.Contains('NO_JSON'))" /> -->
     <!-- <Reference Include="System.Xml.Linq" /> -->
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Threading.Thread" />
+    <!-- <Reference Include="System.Threading.Thread" /> -->
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -554,7 +554,7 @@
     <None Include="Compiler\Medusa\LLex\LLexTemplates.alx">
       <Generator>AphidCodeDomGenerator</Generator>
       <LastGenOutput>LLexTemplates.cs</LastGenOutput>
-    </None>    
+    </None>
     <None Include="Library\*.alx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -643,7 +643,7 @@
     <None Include="External\ConsolePlus\Cli.alx" />
     <None Include="External\Json\Json.alx" />
     <None Include="External\Json\Json.Code.alx" />
-    <None Include="External\Json\Json.Tmpl.alx" />    
+    <None Include="External\Json\Json.Tmpl.alx" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Framework.NativeImageCompiler">
@@ -655,6 +655,9 @@
       <Version>3.2.0-beta4-final</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.Serialization.Primitives">
+      <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

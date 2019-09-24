@@ -99,7 +99,7 @@
     <!--                                -->
     <Otherwise>
       <PropertyGroup>
-        <DebugType>none</DebugType>
+        <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <IsDebug>
         </IsDebug>

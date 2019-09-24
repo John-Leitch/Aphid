@@ -15,13 +15,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <!-- <Reference Include="System.Core" /> -->
     <!-- <Reference Include="System.Xml.Linq" /> -->
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Runtime.InteropServices" />
-    <Reference Include="System.Threading.Thread" />
-    <Reference Include="System.Xml" />
+    <!-- <Reference Include="System.Runtime" /> -->
+    <!-- <Reference Include="System.Runtime.InteropServices" /> -->
+    <!-- <Reference Include="System.Threading.Thread" /> -->
+    <!-- <Reference Include="System.Xml" /> -->
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs">
