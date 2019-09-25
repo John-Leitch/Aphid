@@ -59,7 +59,17 @@ var toPrintable = @(text, ignoreLines) $_  ~: [
 var groupIndent = ' ' * indentSize;
 var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
 var context = {hashed: new HashSet[string](), list: []};
-var hash = context.hashed.Add;
+
+var hash = @{
+    if ($_ | context.hashed.Add) {
+        console.line($_);
+
+        ret true;
+    } else {
+        ret false;
+    }
+};
+
 var list = context.list.Add;
 
 if (!anyRemaining) {
@@ -110,7 +120,12 @@ if (useEvaluator) {
 var pattern = remaining[0];
 var styleEscape = Cli.StyleEscape;
 
-if (!Console.IsInputRedirected) {
+if (!Console.IsInputRedirected) {     
+    [ path, filter ]-?io.file->io.full for (f) {        
+        path = f | io.up;
+        filter = f | io.name;
+    };
+
     func(path, filter) for searchFile($_);
 } else {
     console.stdIn.txt() @searchFileText('CONIN$');

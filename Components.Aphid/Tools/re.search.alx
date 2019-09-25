@@ -35,16 +35,15 @@ var searchFileText = @(file, text) {
 
     if (bareMode) {
         if (!useEvaluator) {
+            _walkMatches = macro(@(f) { matches for $_ | getMatchValue | f });
             if (verbosity >= 1) {
-                if (!hashValues) {
-                    matches for $_ | getMatchValue | console.line;
+                if (hashValues) {
+                    _walkMatches(hash);
                 } else {
-                    matches for {
-                        if ((var v = $_ | getMatchValue) | hash) {
-                            v | console.line;
-                        }
-                    }
-                }
+                    _walkMatches(console.line);
+                }                
+            } else if (hashValues) {
+                _walkMatches(context.hashed.Add);                
             }
         } else {
             matches for (m) {

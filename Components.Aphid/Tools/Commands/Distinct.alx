@@ -1,5 +1,5 @@
-#'Cli/StdIn';
 using System.Collections.Generic;
+#'Cli/StdIn';
 var hs = new HashSet[string]();
 
 stdIn.lines(@{
