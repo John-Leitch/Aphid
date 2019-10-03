@@ -1,0 +1,2 @@
+#'std';
+stdIn.lines(console.highlight @> Console.Out.WriteLine);

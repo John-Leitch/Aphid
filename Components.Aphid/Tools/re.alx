@@ -1,8 +1,9 @@
 #'Std';
 #'Re.Search';
+#'Re.Evaluators';
 // #'re.db';
 
-this @mix(console);
+
 
 {
     string path: '-p',
@@ -23,6 +24,7 @@ this @mix(console);
     bool bareMode: '-b',
     int bareGroup: '-g',
     bool hashValues: '-hs',
+    bool treatAsCode: '-c',
 }
 | importArgs;
 
@@ -58,19 +60,9 @@ var toPrintable = @(text, ignoreLines) $_  ~: [
 
 var groupIndent = ' ' * indentSize;
 var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
-var context = {hashed: new HashSet[string](), list: []};
 
-var hash = @{
-    if ($_ | context.hashed.Add) {
-        console.line($_);
 
-        ret true;
-    } else {
-        ret false;
-    }
-};
 
-var list = context.list.Add;
 
 if (!anyRemaining) {
     SystemColor.DodgerBlue.CopyTo(SystemColor.CadetBlue, 0);

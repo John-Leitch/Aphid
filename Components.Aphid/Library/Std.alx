@@ -89,6 +89,7 @@ using System.Reflection;
 #'Core\\Internals';
 #'Meta\\Reflection';
 #'Core\\Operators';
+#'Core\\Timestamp';
 #'Core\\Enums';
 #'Core\\Linq';
 #'Core\\Seq';

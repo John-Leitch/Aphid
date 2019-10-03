@@ -22,20 +22,40 @@ var testArgs = args @aq.skip(2) ->(@() $_.Contains(' ') ? format('"{0}"', $_) : 
 var w = new FileSystemWatcher();
 _n = macro(@(f) { NotifyFilters.f });
 w.NotifyFilter = _n(LastWrite);
-w.Filter = "*";
+w.Filter = "*.alx";
 w.Path = args[1];
 w.EnableRaisingEvents = true;
 print('Waiting for change');
-
 var exe = Assembly.GetEntryAssembly().Location;
 
-while (true) {
-    var si = new ProcessStartInfo(exe, args[0] + (testArgs != '' ? ' ' + testArgs : ''));
+while (true) {    
+    var si = new ProcessStartInfo(
+        exe,
+        args[0] + (testArgs != '' ? ' ' + testArgs : ''));
+
     si.UseShellExecute = false;
     var p = Process.Start(si);
+
+    async.background(@{        
+        p.WaitForExit();
+        print('Process has exited with code ~Cyan~{0}~R~', p.ExitCode);
+    });
+
+    w.WaitForChanged(WatcherChangeTypes.All).Name
+    |> Cli.StyleEscape
+    @print("'{0}' changed");
+ 
+    try {
+        if (!p.HasExited) {
+            console.info('Killing process');
+            p.Kill(); 
+            console.success('Process killed');
+        }
+    } catch (e) {
+        print(e.message);
+    }
+
     p.WaitForExit();
-    print('Process has exited with code ~Cyan~{0}~R~', p.ExitCode);
-    w.WaitForChanged(WatcherChangeTypes.All).Name |> Cli.StyleEscape @print("'{0}' changed");
-}
+} 
 
 print('Done');

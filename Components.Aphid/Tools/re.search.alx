@@ -1,3 +1,5 @@
+this @mix(console);
+
 var searchFile = @(file) {    
     if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
         if (verbosity >= 4) {
@@ -25,7 +27,39 @@ var searchFile = @(file) {
 
 var getMatchValue = @() bareGroup == null ? $_.Value : $_.Groups[bareGroup].Value;
 
+
+var theme;
+var excerptColor;
+var highlightColor;
+
+var initTheme = @{
+    theme = {
+        excerpt: { fg: SystemColor.Cornsilk | color.darken, bg: SystemColor.DarkSlateGray | color.darken },
+        highlight: { fg: SystemColor.Highlight, bg: SystemColor.Highlight | color.invert },
+    };
+
+    if (treatAsCode) {
+        theme.excerpt.bg = [0x10.byte(),0x10.byte(),0x10.byte()];
+        theme.excerpt.bg = SystemColor.DarkYellow | darken;
+    }
+
+    excerptColor = color.pair(theme.excerpt.fg, theme.excerpt.bg);
+    highlightColor = color.pair(theme.highlight.fg, theme.highlight.bg);
+};
+
+// theme.darken.Keys
+// -?theme.darken.get_Item
+// for (t) [ 'fg', 'bg' ] for theme[t][$_] = theme[t][$_] | color.darken;
+
+
+
+
+
 var searchFileText = @(file, text) {
+    if (theme == null) {
+        initTheme();
+    }
+
     var matches = Regex.Matches(text, pattern, reOptions);
     var c = matches#!;
 
@@ -55,26 +89,13 @@ var searchFileText = @(file, text) {
         
         continue;
     }
-    
-    var excerptColor = color.pair(SystemColor.Cornsilk | color.darken, SystemColor.DarkSlateGray | color.darken);
-    var highlightColor = color.pair(SystemColor.Highlight, SystemColor.Highlight | color.invert);
 
     if (verbosity >= 2) {
         '{0} {1} in {2}' :: [ c, 'Match' |> c != 1 ? language.pluralize : @(x)x, file | styleEscape ]
         |> color.header;
-        line();
+        console.line();
     }
 
-    // ('A' * (Console.BufferWidth + 0 - 5)) + 'foo' | colorHeader;
-    // @{%>c:\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\AAAA\source\Aphid\Components.Aphid\bin\Release64\Library\Meta\Code\Generation\StringEmitter.alx<%}[1].Text @format('{0} {0}') |> colorHeader;
-    
-    // line();
-    // ('Foo1AAAA AAAA AAAA AAAA AAAA 
-    // AAAA AAAA AAAA AAAA AAAA AAAA 
-    // BBBBBBBBB 
-    // AAAA AAAA AAAA AAAA AAAA
-    //  AAAA AAAA AAAA AAAA AAAA '~:'\\s') * 4 |> colorHeader;
-// null | dumpe;
     var matchNum = 0;
     var replacements = new List[AphidObject]();
     var updatedOffset = 0;
@@ -94,7 +115,7 @@ var searchFileText = @(file, text) {
                         |> code;
 
                         if (i2 == (m.Groups#!)) {
-                            line();
+                            console.line();
                         }
                         continue;
                     }
@@ -102,46 +123,15 @@ var searchFileText = @(file, text) {
 
                 if (displayText == null && excerptLines > -1) {
                     displayText = toPrintable(text, true);
+                    
+                    if (treatAsCode) {
+                        displayText = displayText | console.highlight;
+                    }
                 }
 
-                var pos = TokenHelper.GetIndexPosition(displayText, g.Index);
-                _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
-                var newLen;
-                line('{0}\r\n{1}', 
-                    ($(i2) 0: 'Match {0}', '{1}Capture Group {2}') +
-                    ': Line {3:n0}, Column {4:n0}, Index {5:n0}, Length {6:n0}' :: [
-                        matchNum,
-                        groupIndent,
-                        i2,
-                        _pi(Item1),
-                        _pi(Item2),
-                        g.Index,
-                        g.Length
-                    ]
-                    |> highlight                
-                    |> (@()format(
-                        i2 == 0  ? '{0}{1}{0}{2}{3}' : '{1}',
-                        SystemColor.DarkBlue | VT100.Background,
-                        $_,
-                        new string(' ', Math.Max(0, Console.BufferWidth - 1 - ($_ | color.strLen))),
-                        VT100.Reset)),
-                    i2++ == 0 && excerptLines > -1 ?
-                        TokenHelper
-                            .GetCodeExcerpt(
-                                displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
-                                g.Index + highlightColor.Length,
-                                excerptLines)
-                            .TrimEnd()
-                            .Split(['\r\n'],  StringSplitOptions.None)
-                            ->(@(l) '{0}{1}{0}{2}{3}' :: [
-                                excerptColor,
-                                l,
-                                color.pad(l),
-                                VT100.Reset
-                            ])
-                            @join('\r\n')
-                            @+ '\r\n' :
-                        '{0}{1}{2}\r\n' :: [ groupIndent, g.Value | toPrintable | highlight, VT100.Reset ]);
+                printMatchGroup(displayText, g, i2, matchNum);
+
+                
             };
         }
 
@@ -159,13 +149,13 @@ var searchFileText = @(file, text) {
         }
 
         if ((out != null || useEvaluator) && verbosity >= 2) {
-            line('{0}{1}\r\n{0}{2}\r\n',
+            console.line('{0}{1}\r\n{0}{2}\r\n',
                 groupIndent,
                 'Replacement {0}:' :: matchNum |> highlight,
                 replacement);
         }
     };
-//source\aphid\components.aphid\tools\makeexe -f *.alx -s "#.*?std"; -o '/*nostdheader*/' -dump
+
     if ((matches#!) > 0 && (dumpOut || write) && (useEvaluator || out != null)) {
         var updated;
         
@@ -185,14 +175,14 @@ var searchFileText = @(file, text) {
                     .Insert($_.offset, highlightColor);
             };
 
-            tmp.Split(['\r\n'],  StringSplitOptions.None) for line(
+            tmp.Split(['\r\n'],  StringSplitOptions.None) for console.line(
                 '{0}{1}{0}{2}{3}',
                 excerptColor,
                 $_ | toPrintable,
                 color.pad($_),                            
                 VT100.Reset);
 
-            line();
+            console.line();
         }
 
         if (write) {
@@ -203,4 +193,46 @@ var searchFileText = @(file, text) {
             updated |> @io.txt(file);
         }
     }
+};
+
+var printMatchGroup = @(displayText, g, i2, matchNum) {
+    var pos = TokenHelper.GetIndexPosition(displayText, g.Index);
+    _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
+    var newLen;
+
+    console.line('{0}\r\n{1}', 
+        ($(i2) 0: 'Match {0}', '{1}Capture Group {2}') +
+        ': Line {3:n0}, Column {4:n0}, Index {5:n0}, Length {6:n0}' :: [
+            matchNum,
+            groupIndent,
+            i2,
+            _pi(Item1),
+            _pi(Item2),
+            g.Index,
+            g.Length
+        ]
+        |> highlight                
+        |> (@()format(
+            i2 == 0  ? '{0}{1}{0}{2}{3}' : '{1}',
+            SystemColor.DarkBlue | VT100.Background,
+            $_,
+            new string(' ', Math.Max(0, Console.BufferWidth - 1 - ($_ | color.strLen))),
+            VT100.Reset)),
+        i2++ == 0 && excerptLines > -1 ?
+            TokenHelper
+                .GetCodeExcerpt(
+                    displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
+                    g.Index + highlightColor.Length,
+                    excerptLines)
+                .TrimEnd()
+                .Split(['\r\n'],  StringSplitOptions.None)
+                ->(@(l) '{0}{1}{0}{2}{3}' :: [
+                    excerptColor,
+                    l,
+                    color.pad(l),
+                    VT100.Reset
+                ])
+                @join('\r\n')
+                @+ '\r\n' :
+            '{0}{1}{2}\r\n' :: [ groupIndent, toPrintable(g.Value, true) | highlight, VT100.Reset ]);
 };

@@ -1,0 +1,38 @@
+var context = {hashed: new HashSet[string](), list: []};
+
+if (line == console.line) {
+    delete line;
+} else {
+    console.error('Error creating line function');
+    exit(0xbad00007);
+}
+
+var line = @{
+    // repl.run();
+    // var curFrame = frame();
+    // repl.run();
+    var ge = TokenHelper.GetCodeExcerpt;
+    // line | dumpe;
+    var s = frame(1).Scope;
+    
+    ret ge(s.text, s.m.Index, 0) ~: "^^\\(\\d+\\)\\s" ~: "\r?\n?$";
+};
+
+var println = @()
+    line()
+    |> $($args.Count)
+        0: console.line,
+        1: @console.line($_),
+        throw new ArgumentException('Not supported yet');
+
+var hash = @{
+    if ($_ | context.hashed.Add) {
+        console.line($_);
+
+        ret true;
+    } else {
+        ret false;
+    }
+};
+
+var list = context.list.Add;

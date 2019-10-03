@@ -136,6 +136,7 @@ var resourceComment;
         }
 
         var p = kvps[0];
+        var t = p != null ? p.GetType() : null;
 
         if (p == AphidObject) {
             var k = p.Keys;
@@ -152,6 +153,8 @@ var resourceComment;
             } else {
                 kvps for (x) o[x.Key] = x.Value | selector;
             }
+        } else if (t != null && t != string && t.GetInterface('IEnumerable') != null && (kvps @all(@(x) (x#!) == 2))) {
+            kvps for (x) o[x[0].ToString()] = x[1];
         } else {
             throw new ArgumentException('Invalid arg passed to kvpsToObj');
         }
