@@ -102,6 +102,8 @@ var env = {
     get: _ev(Get),
     set: _ev(Set),
     vars: _evs(Get),
+    exists: @(key) vars()-.Key=?@== key,
+    has: exists,
     __test: @{%>
         #'Testing\\AopTest';        
         

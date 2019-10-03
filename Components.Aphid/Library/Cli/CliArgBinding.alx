@@ -40,6 +40,7 @@
         };
 
         boundArgs.remaining = new List[Object]();
+        boundArgs.remainingTokens = new List[ArgToken]();
         boundArgs.mapped = mapped;
         boundArgs.anyMapped = false;
         boundArgs.anyRemaining = false;
@@ -59,7 +60,8 @@
                 boundArgs.mapped[m.name] = true;
                 boundArgs.anyMapped = true;
             } else {
-                args[i].Value | boundArgs.remaining.Add;
+                (var a = args[i]) | boundArgs.remainingTokens.Add;
+                a.Value | boundArgs.remaining.Add;
                 boundArgs.anyRemaining = true;
             }
         }

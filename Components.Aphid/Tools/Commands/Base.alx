@@ -1,12 +1,21 @@
-var getBody = @()
-    Environment.CommandLine
-    | ArgLexer.GetTokenInfo
-    @(argTokens)
-    argTokens
-    @skip(io.name(argTokens[0].Value).ToLower().Contains('aphid') ? 2 : 1)
-    ^!
-    @.Offset
-    |> Environment.CommandLine.Substring;
+using Components;
+var tokenizeCmd = @() Environment.CommandLine | ArgLexer.GetTokenInfo;
+var skipAphid = @(tokens) tokens @skip(getRootFile(tokens).Contains('aphid') ? 2 : 1);
+var getRootFile = @(tokens) tokens ^! getTokenFile;
+var getTokenFile = @(token) io.name(token.Value).ToLower();
+var getScriptArgsCore = tokenizeCmd @> skipAphid;
+var cachedScriptArgs = null;
+var getScriptArgs = @() cachedScriptArgs ?? (cachedScriptArgs = getScriptArgsCore());
+var getCmdTail = @(off, token) token.Offset + off |> Environment.CommandLine.Substring;
+var getBody = @() getScriptArgs() ^! @getCmdTail(0);
+var getNamedBody = @(name) getScriptArgs() >^(@(x) x.Value == name) @getCmdTail(2);
+var getNamedHead = @(name) getScriptArgs() @takeWhile(@(x) x.Value != name);
+var argTokenComparer = new SelectorComparer[ArgToken,int](@.Offset);
+
+var getRemainingHead = @(name, remaining)
+    name
+    | getNamedHead
+    @() Enumerable.Intersect($_, remaining, argTokenComparer);
 
 var getImplicitBody = @{
     var bodyStr = getBody();

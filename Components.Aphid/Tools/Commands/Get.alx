@@ -1,0 +1,36 @@
+#'base';
+#'std';
+console.importArgs({
+    string defaultValue: '-d',
+    bool useEvaluator: '-e',
+});
+
+var resolveName = @(rawName) useEvaluator ?  rawName | evalName : rawName;
+var evalName = @(rawName) '-e' | getNamedBody | parseFunc <| rawName;
+var getValueCore = @(name) name | env.has ? name | env.get : defaultValue;
+var getValue = resolveName @> getValueCore;
+var writeVar = getValue @> Console.Out.WriteLine;
+var getRemaining = @() useEvaluator ? remainingTokens @getRemainingHead('-e') : remainingTokens;
+
+var getRawNameFromRemaining = @(r) {
+    var c = r#!;
+    var rawName = null;
+
+    if (c > 1) {
+        console.error('Unexpected args: {0}', r @skip(1)->@.Value @join(', '));
+        exit(0xbad009);
+    } else if (c == 1) {
+        rawName = r[0].Value;
+    }
+
+    ret rawName;
+};
+
+if (!stdIn.any) {
+    getRemaining() | getRawNameFromRemaining | writeVar;
+} else if (getRemaining() | any) {
+    console.error('Cannot specify env var name by positional argument when piping names via stdin');
+    exit(0xbad00a);
+} else {    
+    @staticMap(string).trimEnd(' ') @> writeVar |> stdIn.lines;
+}
