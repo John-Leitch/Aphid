@@ -1,6 +1,6 @@
 _tsInit = macro(@{
     if (deltas == null) {
-        deltas = [ [ 0, 978307200 ],  [ 1, 1000, 10000, 10000000 ] ] | permutations
+        deltas = [ [ 0, 978307200, -62135596800 ],  [ 1, 1000, 10000, 10000000, 1000000000 ] ] | permutations
     }
 });
 
@@ -12,7 +12,11 @@ var timestamp = {
         ret deltas
             ->?>(@(d)({
                 projected: ((stamp | decimal.Parse) + (d[0] * d[1])) / d[1],
-                time: projected |> DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime(),
+                time:
+                    projected
+                    |> DateTimeOffset.FromUnixTimeSeconds
+                    @() $_.ToLocalTime(),
+                    // @() d[0] >= 0 ? $_.ToLocalTime() : $_,
                 off: d[0],
                 mult: d[1],
                 conf: DateTime.Now.Ticks - time.Ticks |> Math.Abs,
@@ -22,5 +26,5 @@ var timestamp = {
             -\@.conf;
     },
     
-    guess = getPossibilities @> Enumerable.First @> @.time
+    guess = getPossibilities @> Enumerable.FirstOrDefault @> ?>@.time
 };

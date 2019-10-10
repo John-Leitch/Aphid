@@ -40,7 +40,7 @@ var initTheme = @{
 
     if (treatAsCode) {
         theme.excerpt.bg = [0x10.byte(),0x10.byte(),0x10.byte()];
-        theme.excerpt.bg = SystemColor.DarkYellow | darken;
+        theme.excerpt.bg = '0040a0' | unhex;
     }
 
     excerptColor = color.pair(theme.excerpt.fg, theme.excerpt.bg);
@@ -50,10 +50,6 @@ var initTheme = @{
 // theme.darken.Keys
 // -?theme.darken.get_Item
 // for (t) [ 'fg', 'bg' ] for theme[t][$_] = theme[t][$_] | color.darken;
-
-
-
-
 
 var searchFileText = @(file, text) {
     if (theme == null) {
@@ -125,7 +121,7 @@ var searchFileText = @(file, text) {
                     displayText = toPrintable(text, true);
                     
                     if (treatAsCode) {
-                        displayText = displayText | console.highlight;
+                        // displayText = displayText | console.highlight;
                     }
                 }
 
@@ -221,7 +217,20 @@ var printMatchGroup = @(displayText, g, i2, matchNum) {
         i2++ == 0 && excerptLines > -1 ?
             TokenHelper
                 .GetCodeExcerpt(
-                    displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
+                    treatAsCode ?
+                        [
+                            (g.Index
+                            |> displayText.Remove
+                            |> console.highlight),
+                            highlightColor,
+                            displayText.Substring(g.Index, g.Length),
+                            excerptColor,
+                            (g.Index + g.Length
+                            |> displayText.Substring
+                            |> console.highlight)
+                        ]
+                        |> concat
+                        : displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
                     g.Index + highlightColor.Length,
                     excerptLines)
                 .TrimEnd()

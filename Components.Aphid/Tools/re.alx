@@ -61,9 +61,6 @@ var toPrintable = @(text, ignoreLines) $_  ~: [
 var groupIndent = ' ' * indentSize;
 var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
 
-
-
-
 if (!anyRemaining) {
     SystemColor.DodgerBlue.CopyTo(SystemColor.CadetBlue, 0);
     var hdr = 'Lycomorpha {0}' :: AphidExpression.Assembly.GetName().Version;

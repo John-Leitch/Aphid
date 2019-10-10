@@ -684,7 +684,7 @@ var csharp;
 
                 if (csc == null || csc | io.not.file) {
                     packages.compiler 
-                    @() printError('Could not locate csc.exe from ~Yellow~{0}.{1}~R~ package', $_.name);
+                    @() printError('Could not locate csc.exe from ~Yellow~{0}.{1}~R~ package', $_.name, $_.version);
                     ret false;
                 }
 

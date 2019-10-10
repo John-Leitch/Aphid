@@ -1,3 +1,5 @@
+#'meta/code/tokenMinimizer';
+
 var context = {hashed: new HashSet[string](), list: []};
 
 if (line == console.line) {
@@ -36,3 +38,51 @@ var hash = @{
 };
 
 var list = context.list.Add;
+
+var dexp = @{
+    var s = frame(1).Scope;
+    console.color.header('{0}, offset {1}' :: [ s.file, s.m.Index]);
+    _exp();
+};
+
+var exp = @{
+    var s = frame(1).Scope;
+    _exp()
+};
+
+var parseMemoizer = new ArgLockingMemoizingContainer[string, List[AphidExpression]](parse);
+
+var findParentNode = @(m, b)
+    b
+    @ast.whereNode(@(x, c)
+        x != null &&
+        m.Index >= x.Index &&
+        m.Index < x.Index + x.Length)
+    -\@.Length
+    @() $($_#!)
+        0: b,
+        1: $_ | first,
+        $_ @skip(1) first;
+
+_expCore = macro(@{
+    s.text | ?>parseMemoizer.Call
+    @() $_ == null ? s.m : $_ @findParentNode(s.m);
+});
+
+_exp = macro(@{
+    _expCore()
+    @()$_.ToString()~:["(\r\n|\n|\r)(\\s{4}|\t)", "$1"]
+    |> console.code
+});
+
+var mexp = @{
+    var s = frame(0).Scope;    
+    _expCore() <? minTokens |> console.code;    
+};
+
+using Components.Json;
+
+var fexp = @{
+    var s = frame(0).Scope;
+    _expCore() <? (new JsonFormatter() @.Format) |> console.code
+};

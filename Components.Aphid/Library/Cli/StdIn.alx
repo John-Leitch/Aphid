@@ -23,7 +23,9 @@ var stdIn;
             ret lines;
         },
 
-        text: @() Console.In.ReadToEnd(),
+        text: @(handle) handle defined ?
+            Console.In.ReadToEnd() | Console.Out.WriteLine :
+            Console.In.ReadToEnd(),
         txt: text,
     };
 }();

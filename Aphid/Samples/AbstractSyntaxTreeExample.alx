@@ -26,7 +26,8 @@ var someFunc = @{
 };
 
 h('Function Declaration Text');
-this.'$block' ~| '^var someFunc' |> code;
+var funcDecl = this.'$block' ~| '^var someFunc';
+funcDecl |> code;
 
 var getName = @(n) 
     (var t = n.GetType()) == AphidTokenType ? n :
@@ -48,15 +49,16 @@ var fmtNode = @(shorten, n)  n
     
 
 line();
-// Dump someFunc AST
 
+// Dump someFunc AST
 var ignore =
     '^(Identifier|Value|IsPostfix|Type|Context|Code|Filename|Index|Length
     |Function|Args|Body|Attributes)$'
     ~: '\\s';
 
 h('Function Declaration Syntax Tree');
-someFunc.Body @ast.walk(@(node, context) {
+funcDecl
+@ast.walk(@(node, context)
     if (!context.isBlock) {
         node
         .GetType()
@@ -70,12 +72,11 @@ someFunc.Body @ast.walk(@(node, context) {
             node @fmtNode(false),
             TokenHelper
                 .GetIndexPosition(node.Code, node.Index)
-                @() '(line {1,2:n0}, col {2,3:n0})' :: [
+                @() '(line {1,2:n0}, col {2,2:n0}) ' :: [
                     node.Index,
                     ($_.Item1 + 1),
                     ($_.Item2 + 1)
                 ])
         @() $_ ~: '\\s*\\{\\s+\\}'
         |> code;
-    }
-});
+    });

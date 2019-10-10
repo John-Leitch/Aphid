@@ -8,6 +8,8 @@ using Components.Aphid.Interpreter;
 using System.Threading;
 using System.Diagnostics;
 
+// var printLegacyEscaping = true;
+
 var handler = @(line, fmt) {
 
 // if (Cli.WriteHandler == null || Cli.WriteHandler.GetType() != AphidFunction) {
@@ -175,10 +177,11 @@ _styleEscaped = macro(@(x6) {
     x6 == null ? 'null' :
     (x6.GetType() == AphidObject) ? (x6 |> serialize |> Cli.StyleEscape) :
     _nonPrimitiveToString(x6)
+    // (printLegacyEscaping ?
+    //     _nonPrimitiveToString(x6) :
+    //     (_nonPrimitiveToString(x6) | Cli.StyleEscape))
 });
 
-_nonPrimitiveToString = macro(@(value) {
-    !value.GetType().IsPrimitive ? value.ToString() : value
-});
+_nonPrimitiveToString = macro(@(value) { !value.GetType().IsPrimitive ? value.ToString() : value });
 
 

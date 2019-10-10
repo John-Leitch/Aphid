@@ -35,10 +35,10 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
 
             ret sqlite;
         },
-        getRows: @(tableName) {
+        query: @(command) {
             var cmd = connection.CreateCommand();
-            cmd.CommandText = 'SELECT * FROM ' + escape.id(tableName);
-            printQuery('Executing ~Cyan~{0}~R~', cmd.CommandText);
+            cmd.CommandText = command;
+            printQuery('Executing ~Cyan~{0}~R~', command);
 
             try {
                 using (var rows = cmd.ExecuteReader()) {
@@ -56,22 +56,25 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                             // vt | print;
                             if (vt == byte.MakeArrayType()) {
                                 var v = o[n];
-                                o[n] = v | encoding.GetString;
+                                o[n] = v | hex;
                                 o[n + '__unicode'] = v | Encoding.Unicode.GetString;
                             }
+                            
+                            if ((vt == int || vt == long || vt == float || vt == double) && o[n] >= 500000000) {
+                                if ((var g = o[n] | timestamp.guess) != null) {
+                                    o[n + '_timestamp_guess'] = g;
+                                }
 
+                                // [ [ '', 0 ], [ '_cocoa',978307200] ] for (t)
+                                //     [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
+                                //         try {
+                                //             o[n + '__epoch_' + $_[0] + t[0]] =
+                                //                 (o[n] / $_[1] - t[1])
+                                //                 | DateTimeOffset.FromUnixTimeSeconds
+                                //                 @() $_.ToLocalTime();
+                                //         } catch {
 
-                            if ((vt == int || vt == long) && o[n] >= 500000000) {
-                                [ [ '', 0 ], [ '_cocoa',978307200] ] for (t)
-                                    [ [ 'seconds', 1 ], [ 'ms', 1000 ], [ 'ticks', 10000000 ] ] for
-                                        try {
-                                            o[n + '__epoch_' + $_[0] + t[0]] =
-                                                (o[n] / $_[1] - t[1])
-                                                | DateTimeOffset.FromUnixTimeSeconds
-                                                @() $_.ToLocalTime();
-                                        } catch {
-
-                                        }
+                                //         }
                             }
                             
                         };
@@ -82,6 +85,7 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                 ret { error: e, query: cmd.CommandText };
             }
         },
+        getRows: @(tableName) tableName | escape.id @format('SELECT * FROM {0}') query,
         getSchema: @(tableName) {
             var table = connection.GetSchema(tableName);
             var cols = table.Columns;

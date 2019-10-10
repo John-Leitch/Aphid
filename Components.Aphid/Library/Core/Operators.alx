@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 @ ?: (string, defaultValue) !String.IsNullOrEmpty(string) ? string : defaultValue;
 @ ?| (func, defaultValue) { try ret func(); catch ret defaultValue };
 @ ?> (func, defaultValue) @{ try ret func($_); catch ret defaultValue };
+@ <? (arg, func) { try ret func($_); catch ret $_ };
 @ ?? (value, defaultValue) value != null ? value : defaultValue;
 @ <! (func) func ?> false;
 
