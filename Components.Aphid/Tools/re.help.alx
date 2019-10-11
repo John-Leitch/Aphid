@@ -1,0 +1,53 @@
+%>
+re pattern [-p path] [-f filter] [-s] [-l lines] [-d] [-t take] [-1] [-o replacement] [-w] [-n depth] [-m file count] [-a timeout] [-h] [-c] [-i indent size] [-e statements ...] 
+
+[pattern] (Required)
+$R$A .NET regular expression (Perl 5 compatible) used to search files.
+
+-p [path] (Optional)
+$R$An absolute or relative path to search. If not specified, the current working directory is used.
+
+-f [filter] (Optional)
+$R$A wildcard search pattern used to filter files prior to searching. If not specified, * is used.
+
+-s (Optional)
+$R$Performs a recursive search that includes all subdirectories and files matched by the filter.
+
+-l [lines] (Optional)
+$R$The number of lines above and below the match to include in the preview excerpt. Default is 3.
+
+-d (Optional)
+$R$Dump the complete contents of any files matched to std out with matches highlighted. When running in replacement mode, matches are updated with their respective replacement value. This feature can be used to preview replacements without modifying files.
+
+-t [take] (Optional) !Todo
+$R$Limit the maximum number of file matches returned to the specified value.
+
+-1 (Optional) !Todo
+$R$Track contents of files searched and skip any duplicates encountered.
+
+-o [replacement] (Optional)
+$R$A replacement used to update pattern mathes. Uses standard .NET syntax to reference capture groups e.g. $1 for capture group 1. Runs in preview mode, writing replacements to std out without modifying the matched file unless write mode is explicitly enabled with the -w flag.
+
+-w (Optional)
+$R$Write replacements to matched files. In general, this option should not be used until the changes have been confirmed by previewing them with the -d option. 
+
+-n [depth] (Optional) !Todo
+$R$The maximum depth to search when running in recursive mode.
+
+-m [file count] (Optional) !Todo
+$R$The maximum number of files to search.
+
+-a [timeout] (Optional) !Todo
+$R$The maximum time in milliseconds a file search is considered alive. If exceeded, the remainder of the file is ignored and the search proceeds to the next file.
+
+-h (Optional) !Todo
+$R$Only search non-binary, human readable files.
+
+-c (Optional) !Todo
+$R$Suppresses all default output to std out. Intented for completely custom output written by user defined evaluators.
+
+-i [indent size] (Optional)
+$R$The number of spaces to indent when writing capture groups to std out. Default is 2.
+
+-e [statements ...] (Optional)
+$R$A sequence of Aphid statements executed every time a pattern is matched. The entire Aphid programming language is supported, including seamless .NET interop and all Aphid headers. When running in replacement mode, an updated value for the current pattern match can be provided using a return statement, although a return value is not required. State can be persisted between matches by using the context object, and for more advanced scenarios, the internal state of the tool itself can be accessed and modified.

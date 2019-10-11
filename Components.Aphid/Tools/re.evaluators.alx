@@ -50,9 +50,18 @@ var exp = @{
     _exp()
 };
 
-var parseMemoizer = new ArgLockingMemoizingContainer[string, List[AphidExpression]](parse);
+var parseMemoizer = memoize(string, List[AphidExpression], parse);
+var findExp = new ExpressionFinder() @.Find;
 
 var findParentNode = @(m, b)
+    findExp(b, @(x) x.Index <= m.Index && (m.Index + m.Length) < x.Index + x.Length, false)
+    -\@.Length
+    @() $($_#!)
+        0: b,
+        1: $_ | first,
+        $_ @skip(1) first;
+
+var findParentNode2 = @(m, b)
     b
     @ast.whereNode(@(x, c)
         x != null &&
@@ -71,7 +80,7 @@ _expCore = macro(@{
 
 _exp = macro(@{
     _expCore()
-    @()$_.ToString()~:["(\r\n|\n|\r)(\\s{4}|\t)", "$1"]
+    // @()$_.ToString()~:["(\r\n|\n|\r)(\\s{4}|\t)", "$1"]
     |> console.code
 });
 

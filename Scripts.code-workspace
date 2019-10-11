@@ -29,7 +29,7 @@
             "**/*.alx.*": true,
             "**/*.cache": true,
             "**/*.cacheMetadata": true,
-            "**/*.cs": true,
+            // "**/*.cs": true,
             "**/*.csproj": true,
             "**/*.exe": true,
             "**/*.pdb": true,
@@ -45,7 +45,7 @@
             "**/Visitors":true,
             "**/Properties":true,
 
-		},
-		"typescript.disableAutomaticTypeAcquisition": true,
+		}
+		
     }
 }

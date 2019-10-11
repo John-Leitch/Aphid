@@ -1,0 +1,3 @@
+#'std';
+#'meta/code/tokenMinimizer';
+stdIn.txt(minTokens @> console.highlight);
