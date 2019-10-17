@@ -9,9 +9,11 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
     var encoding = Encoding.GetEncoding("iso-8859-1");
 
     sqlite = {
+        getString: Encoding.GetEncoding(1252).GetString,
         escape: {
             id: new SQLiteCommandBuilder() @.QuoteIdentifier,
         },
+        db: null,
         connection: null,
         version: 3,
         dateTimeFormat: 'CurrentCulture',
@@ -22,6 +24,7 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
             'CurrentCulture',
         ],
         open: @(file) {
+            db = file;
             connection = new SQLiteConnection(
                 [
                     'Data Source="{0}"' :: $_,
@@ -56,7 +59,8 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                             // vt | print;
                             if (vt == byte.MakeArrayType()) {
                                 var v = o[n];
-                                o[n] = v | hex;
+                                o[n] = v | getString;
+                                o[n + '__hex'] = v | hex;                                
                                 o[n + '__unicode'] = v | Encoding.Unicode.GetString;
                             }
                             
@@ -85,7 +89,36 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                 ret { error: e, query: cmd.CommandText };
             }
         },
-        getRows: @(tableName) tableName | escape.id @format('SELECT * FROM {0}') query,
+        getRows: @(tableName) {
+            var s = tableName | escape.id @format('SELECT * FROM {0}');
+            
+            var res = s | query;
+
+            if (res.error defined) {
+                console.error('Failed, trying with ticks workaround'); 
+                var backup = dateTimeFormat;
+                connection.Close();
+                dateTimeFormat = 'Ticks';
+                connection.Open();
+                res = s | query;
+                
+                var fixTicks = @(m)
+                    m.Keys
+                    -?(@()m[$_].GetType() == DateTime)
+                    toArray
+                    for (k) m[k] = m[k].Ticks | timestamp.guess;
+
+                if (!(res.error defined)) {
+                    res->fixTicks;
+                }
+
+                connection.Close();
+                dateTimeFormat = backup;
+                connection.Open();
+            }
+
+            ret res;
+        },
         getSchema: @(tableName) {
             var table = connection.GetSchema(tableName);
             var cols = table.Columns;

@@ -8,10 +8,11 @@ var timestamp = {
     deltas: null,
     getPossibilities: @(stamp) {
         _tsInit();
+        var s = stamp.GetType() == string ? stamp | decimal.Parse : stamp;
         
         ret deltas
             ->?>(@(d)({
-                projected: ((stamp | decimal.Parse) + (d[0] * d[1])) / d[1],
+                projected: (s + (d[0] * d[1])) / d[1],
                 time:
                     projected
                     |> DateTimeOffset.FromUnixTimeSeconds

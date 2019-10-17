@@ -1,0 +1,9 @@
+var userAgent;
+
+@{
+    nuget.reference('LinqBridge');
+    nuget.reference('UAParser');
+    using UAParser;
+    var uap = Parser.GetDefault(new ParserOptions());
+    userAgent = { parse: uap.Parse };    
+}();
