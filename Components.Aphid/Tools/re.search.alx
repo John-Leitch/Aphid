@@ -1,5 +1,56 @@
 this @mix(console);
 
+// AphidConfig.Current.ShowErrorScope = false;
+AphidConfig.Current.StackTraceParams = false;
+
+var lazyRegex = new Lazy[Regex](@() compileAsm ?
+    buildRegexAsm(pattern, reOptions) :
+    new Regex(pattern, reOptions));
+
+var getAsmDir = @()
+    (this.'$script' defined ? this.'$script' | io.up : env.get('temp'))
+    @io.end('LycomporphaCompiled');
+
+var getAsmName = @(pattern)
+    pattern
+    | Encoding.ASCII.GetBytes
+    | md5.hex
+    @format('LycomorphaRegexAssembly_{0}')
+    @io.prefix(getAsmDir());    
+
+var buildRegexAsm = @(pattern, reOptions) {
+    var asm = getAsmName();
+    var asm2 = asm + '.dll';
+
+    if (verbosity > 2) {
+        query('Checking for regex assembly ~Cyan~{0}~R~', asm2);
+    }
+
+    if (asm2 | io.file) {
+        if (verbosity > 2) {
+            success('Found regex assembly ~Cyan~{0}~R~', asm2);
+        }
+
+        loadFile(asm2);
+    } else {
+        var d = asm | io.up;
+
+        if (d | io.not.dir) {
+            io.mkdir(d);
+        }
+    
+        var wd = io.cd();
+        io.cd(d);
+        var rci = new RegexCompilationInfo(pattern, reOptions, 'LycomorphaRegex', 'Lycomorpha', true);
+        Regex.CompileToAssembly([rci], new AssemblyName(asm | io.name));
+        io.cd(wd);
+    }
+    
+    using Lycomorpha;
+
+    ret new LycomorphaRegex();
+};
+
 var searchFile = @(file) {    
     if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
         if (verbosity >= 4) {
@@ -56,7 +107,7 @@ var searchFileText = @(file, text) {
         initTheme();
     }
 
-    var matches = Regex.Matches(text, pattern, reOptions);
+    var matches = lazyRegex.Value.Matches(text);
     var c = matches#!;
 
     if (c == 0) {
@@ -134,9 +185,9 @@ var searchFileText = @(file, text) {
         var replacement;
         if (useEvaluator) {
             var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
-            replacement = Regex.Replace($_.Groups[0].Value, pattern, f, reOptions);
+            replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  f);
         } else if (out != null) {
-            replacement = Regex.Replace($_.Groups[0].Value, pattern, out, reOptions);
+            replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  out);
         }
 
         if (useEvaluator || out != null) {
@@ -157,9 +208,9 @@ var searchFileText = @(file, text) {
         
         if (useEvaluator) {
             var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
-            updated = Regex.Replace(text, pattern, f, reOptions);            
+            updated = lazyRegex.Value.Replace(text, f);
         } else if (out != null) {
-            updated = Regex.Replace(text, pattern, out, reOptions);
+            updated = lazyRegex.Value.Replace(text, out);
         }
 
         if (dumpOut) {

@@ -16,7 +16,7 @@ var line = @{
     var ge = TokenHelper.GetCodeExcerpt;
     // line | dumpe;
     var s = frame(1).Scope;
-    
+
     ret ge(s.text, s.m.Index, 0) ~: "^^\\(\\d+\\)\\s" ~: "\r?\n?$";
 };
 

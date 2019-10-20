@@ -66,7 +66,7 @@ var io = {
     concat: _p(Combine),
     join: concat,
 
-    cd: @(path) path defined ? _d(SetCurrentDirectory)(path) : _d(GetCurrentDirectory)(),
+    cd: @(path) $args.Count > 0 ? _d(SetCurrentDirectory)(path) : _d(GetCurrentDirectory)(),
 
     files: @()
         ($($args.Count)

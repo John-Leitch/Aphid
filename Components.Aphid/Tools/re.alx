@@ -1,9 +1,9 @@
 #'std';
+#'system/cryptography';
 var memoize = @(argType, retType, func) new ArgLockingMemoizingContainer[argType, retType](func);
 #'re.search';
 #'re.evaluators';
 // #'re.db';
-
 
 {
     string path: '-p',
@@ -25,6 +25,7 @@ var memoize = @(argType, retType, func) new ArgLockingMemoizingContainer[argType
     int bareGroup: '-g',
     bool hashValues: '-hs',
     bool treatAsCode: '-c',
+    bool compileAsm: '-asm',
 }
 | importArgs;
 
@@ -59,7 +60,7 @@ var toPrintable = @(text, ignoreLines) $_  ~: [
 ];
 
 var groupIndent = ' ' * indentSize;
-var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled;
+var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline;
 
 if (!anyRemaining) {
     SystemColor.DodgerBlue.CopyTo(SystemColor.CadetBlue, 0);
@@ -90,6 +91,10 @@ if (!anyRemaining) {
     exit(1);
 }
 
+if (verbosity >= 2) {
+    console.info('Initializing');
+}
+
 var func = recurse ? io.all.files : io.files;
 var execEvaluator;
 
@@ -116,13 +121,23 @@ if (!Console.IsInputRedirected) {
     };
 
     var i = 0;
+    
+    if (verbosity >= 2) {
+        console.query('Enumerating files in {0} using filter {1}', path, filter);
+    }
+
     var files = func(path, filter) | toArray;
     var t = files.Length;
+
+    if (verbosity >= 2) {
+        console.success('Found {0:n0} files', t);
+    }
+
     var titleBackup = Console.Title;
 
     files for {
+        Console.Title = '({0:n2}%) re' :: (++i / t.double() * 100);
         searchFile($_);
-        Console.Title = ('re {0}%' :: (++i / t * 100).int());
     }
 } else {
     console.stdIn.txt() @searchFileText('CONIN$');
