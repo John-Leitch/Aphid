@@ -95,3 +95,31 @@ var fexp = @{
     var s = frame(0).Scope;
     _expCore() <? (new JsonFormatter() @.Format) |> console.code
 };
+
+var back = @(pattern, f) {
+    var s = frame($args.Count == 1 ? 0 : f).Scope;
+    var i = s.m.Index;
+    while (s.text[i = i - 1] ~= pattern) { }
+    
+    ret s.text.Substring(i + 1, s.m.Index - i + s.m.Length - 1);
+};
+
+var pback = @() back('[\x0a\x0d\x20-\x7f]', 1);
+
+var fwd = @(pattern, f, skip) {
+    var s = frame($args.Count == 1 ? 0 : f).Scope;
+    var off = $args.Count == 3 ? skip : 0;
+    var i = s.m.Index + off;
+    while (s.text[i = i + 1] ~= pattern) { }
+    
+    ret s.text.Substring(s.m.Index + off, i - s.m.Index - off);
+};
+
+var pfwd = @() fwd('[\x0a\x0d\x20-\x7f]', 1);
+
+var scan = @(pattern, f) {
+    var f2 = $args.Count == 1 ? 1 : f + 1;
+    ret back(pattern, f2) + fwd(pattern, f2, 2);
+};
+
+var pscan = @() scan('[\x0a\x0d\x20-\x7f]', 1);

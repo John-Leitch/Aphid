@@ -12,8 +12,8 @@ var body =
     @.Offset
     |> Environment.CommandLine.Substring
     @format(useLinesCore ?
-        'console.stdIn.lines() |> ({0}) |> console.line' :
-        'console.stdIn.txt() |> ({0}) |> console.line')
+        'console.stdIn.lines() |> ({0}) |> Console.Out.Write' :
+        'console.stdIn.txt() |> ({0}) |> Console.Out.Write')
     |> parse
     |> preprocessor.transform
     @mutate(@{

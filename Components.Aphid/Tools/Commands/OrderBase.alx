@@ -1,0 +1,11 @@
+#'std';
+#'base';
+
+_order = macro(@(a, d) { (isAscending ? a : d) for Console.Out.WriteLine($_); });
+
+if (getScriptArgs() | any) {
+    var f = getImplicitBody() | evalExp;
+    _order(stdIn.lines()-\f, stdIn.lines()-/f);    
+} else {
+    _order(stdIn.lines()\!, stdIn.lines()/!);    
+}

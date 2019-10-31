@@ -293,6 +293,10 @@ namespace Components.Aphid.Serialization
                 s.Append(value.ToString().ToLower());
             }
             //else if (value is decimal)
+            else if (value is char c)
+            {
+                s.Append(Quote(c.ToString()));
+            }
             else if ((objType = value.GetType()).IsPrimitive || objType.IsEnum)
             {
                 s.Append(value.ToString());
@@ -308,7 +312,7 @@ namespace Components.Aphid.Serialization
                 {
                     s.Append(Quote(str)); ;
                 }
-            }
+            }            
             else if (value is List<AphidObject> list)
             {
                 if (list.Count > 0)

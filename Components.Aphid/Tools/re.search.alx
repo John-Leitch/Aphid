@@ -52,33 +52,31 @@ var buildRegexAsm = @(pattern, reOptions) {
 };
 
 var searchFile = @(file) {    
-    if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
-        if (verbosity >= 4) {
-            info('Skipping ~Yellow~{0}~R~ due to exclude pattern', file | styleEscape);
-        }
-        continue;
-    }
-
     if (verbosity >= 3) {
         info('Searching {0}', file | styleEscape);
     }
+
+    var textEncoding = Encoding.GetEncoding('Windows-1252');
 
     var text;
 
     try {
         file = file | io.full;
-        text = file | io.txt;
+        text = File.ReadAllText(file, textEncoding);
+        // text = io.txt(file);
+
+        // {len: text.Length, rawLen: io.len(file), delta: rawLen - len } | dumpe;
     } catch (e) {
-        fail('Could not read file: {0}', e.message | styleEscape);
+        fail('Could not read {0}: {1}', file, e.message | styleEscape);
         continue;
     }
 
-    searchFileText(file, text);
+    using (var r = new BinaryReader(io.open.read(file))) {
+        searchFileText(file, r, text);
+    }
 };
 
 var getMatchValue = @() bareGroup == null ? $_.Value : $_.Groups[bareGroup].Value;
-
-
 var theme;
 var excerptColor;
 var highlightColor;
@@ -102,7 +100,7 @@ var initTheme = @{
 // -?theme.darken.get_Item
 // for (t) [ 'fg', 'bg' ] for theme[t][$_] = theme[t][$_] | color.darken;
 
-var searchFileText = @(file, text) {
+var searchFileText = @(file, reader, text) {
     if (theme == null) {
         initTheme();
     }
@@ -177,8 +175,6 @@ var searchFileText = @(file, text) {
                 }
 
                 printMatchGroup(displayText, g, i2, matchNum);
-
-                
             };
         }
 

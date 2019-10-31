@@ -127,6 +127,14 @@ _trace = macro(@(handlerName) {
                 }
             },            
         },
+        log: @{
+            using System.Runtime.InteropServices;            
+            var cmd = Kernel32.GetCommandLine() | Marshal.PtrToStringAuto;
+            using (new CrossProcessLock((var f = this.'$script' ?? 'NoScript' @+'.cmd.log')~:['[:\\\\]','$'])) {
+                cmd @+ '\r\n' @io.out.append.txt(f);
+            }
+            
+        },
         trace: {
             options: {
                 showFilename: true,
@@ -188,7 +196,8 @@ _trace = macro(@(handlerName) {
                         asm, other);
                 }
 
-                AppDomain.CurrentDomain.add_AssemblyResolve(@(o, e) {
+                var d = AppDomain.CurrentDomain;
+                [d.add_ReflectionOnlyAssemblyResolve, d.add_AssemblyResolve] for $_(@(o, e) {
                     
                     if (trace) {
                         console.query(

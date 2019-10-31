@@ -1,8 +1,9 @@
 #'std';
 #'system/cryptography';
-var memoize = @(argType, retType, func) new ArgLockingMemoizingContainer[argType, retType](func);
 #'re.search';
 #'re.evaluators';
+
+runtime.log();
 // #'re.db';
 
 {
@@ -114,7 +115,7 @@ if (useEvaluator) {
 var pattern = remaining[0];
 var styleEscape = Cli.StyleEscape;
 
-if (!Console.IsInputRedirected) {     
+if (!Console.IsInputRedirected) {
     [ path, filter ]-?io.file->io.full for (f) {        
         path = f | io.up;
         filter = f | io.name;
@@ -126,7 +127,20 @@ if (!Console.IsInputRedirected) {
         console.query('Enumerating files in {0} using filter {1}', path, filter);
     }
 
-    var files = func(path, filter) | toArray;
+    var files = func(path, filter)
+        @where(@(file) {
+            if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
+                if (verbosity >= 4) {
+                    info('Skipping ~Yellow~{0}~R~ due to exclude pattern', file | styleEscape);
+                }
+                
+                ret false;
+            }
+
+            ret true;
+        })
+        |> toArray;    
+
     var t = files.Length;
 
     if (verbosity >= 2) {
@@ -135,12 +149,16 @@ if (!Console.IsInputRedirected) {
 
     var titleBackup = Console.Title;
 
-    files for {
-        Console.Title = '({0:n2}%) re' :: (++i / t.double() * 100);
-        searchFile($_);
+    try {
+        files for {
+            Console.Title = '({0:n2}%) {1} - re' :: [ ++i / t.double() * 100, $_ ];
+            searchFile($_);
+        }
+    } finally {
+        Console.Title = titleBackup;
     }
 } else {
-    console.stdIn.txt() @searchFileText('CONIN$');
+    console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()));
 }
 
 if (context.list.Count > 0) {

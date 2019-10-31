@@ -107,3 +107,12 @@ extend IntPtr {
 var format = string.Format;
 var join = string.Join;
 var concat = string.Concat;
+
+var strEntropy = @(s)
+    s-&(@()$_)
+    ->(@()$_#!)
+    -?@!=0
+    ->@/s.Length
+    ->(@(x) Math.Log(x) / Math.Log(2) * x)
+    +>(@(x,y) x + y)
+    |> @* -1;

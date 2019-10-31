@@ -26,11 +26,11 @@ var getRawNameFromRemaining = @(r) {
     ret rawName;
 };
 
-if (!stdIn.any) {
+if (!stdIn.any || getRemaining() | any) {
     getRemaining() | getRawNameFromRemaining | writeVar;
-} else if (getRemaining() | any) {
-    console.error('Cannot specify env var name by positional argument when piping names via stdin');
-    exit(0xbad00a);
+// } else if (getRemaining() | any) {
+//     console.error('Cannot specify env var name by positional argument when piping names via stdin');
+//     exit(0xbad00a);
 } else {    
     @staticMap(string).trimEnd(' ') @> writeVar |> stdIn.lines;
 }

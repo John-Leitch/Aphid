@@ -1,6 +1,6 @@
 ﻿using Components.Aphid.Interpreter;
 using System.Threading;
-
+var memoize = @(argType, retType, func) new ArgLockingMemoizingContainer[argType, retType](func);
 _aphid = macro(@{ this.{'$aphid'} defined ? this.{'$aphid'} : null });
 var aphid = _aphid();
 //var aphidLocal = new ThreadLocal[AphidInterpreter](@() _aphid());

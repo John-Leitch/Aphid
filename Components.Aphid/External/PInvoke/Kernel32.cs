@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Components.PInvoke
 {
@@ -195,5 +197,62 @@ namespace Components.PInvoke
         public static extern bool IsWow64Process(
             [In] IntPtr processHandle,
             [Out, MarshalAs(UnmanagedType.Bool)] out bool wow64Process);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr CreateFile(
+            [MarshalAs(UnmanagedType.LPTStr)] string filename,
+            [MarshalAs(UnmanagedType.U4)] FileAccess access,
+            [MarshalAs(UnmanagedType.U4)] FileShare share,
+            IntPtr securityAttributes, // optional SECURITY_ATTRIBUTES struct or IntPtr.Zero
+            [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
+            [MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
+            IntPtr templateFile);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+        public static extern IntPtr CreateFileA(
+            [MarshalAs(UnmanagedType.LPStr)] string filename,
+            [MarshalAs(UnmanagedType.U4)] FileAccess access,
+            [MarshalAs(UnmanagedType.U4)] FileShare share,
+            IntPtr securityAttributes,
+            [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
+            [MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
+            IntPtr templateFile);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr CreateFileW(
+            [MarshalAs(UnmanagedType.LPWStr)] string filename,
+            [MarshalAs(UnmanagedType.U4)] FileAccess access,
+            [MarshalAs(UnmanagedType.U4)] FileShare share,
+            IntPtr securityAttributes,
+            [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
+            [MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
+            IntPtr templateFile);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadFileEx(
+            IntPtr hFile,
+            [Out] byte [] lpBuffer,
+            uint nNumberOfBytesToRead,
+            [In] ref System.Threading.NativeOverlapped lpOverlapped,
+            System.Threading.IOCompletionCallback lpCompletionRoutine);
+
+        [DllImport("kernel32.dll", SetLastError=true)]
+        public static extern bool ReadFile(
+            IntPtr hFile,
+            [Out] byte[] lpBuffer,
+            uint nNumberOfBytesToRead,
+            out uint lpNumberOfBytesRead,
+            [In] ref System.Threading.NativeOverlapped lpOverlapped);
+
+        [DllImport("kernel32.dll", SetLastError=true)]
+        public static extern bool ReadFile(
+            IntPtr hFile,
+            [Out] IntPtr lpBuffer,
+            uint nNumberOfBytesToRead,
+            out uint lpNumberOfBytesRead,
+            [In] ref System.Threading.NativeOverlapped lpOverlapped);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr GetCommandLine();
     }
 }
