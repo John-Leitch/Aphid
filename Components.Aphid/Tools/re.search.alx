@@ -56,7 +56,7 @@ var searchFile = @(file) {
         info('Searching {0}', file | styleEscape);
     }
 
-    var textEncoding = Encoding.GetEncoding('Windows-1252');
+    var textEncoding = Encoding.GetEncoding('iso-8859-1');
 
     var text;
 

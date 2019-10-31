@@ -9,7 +9,7 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
     var encoding = Encoding.GetEncoding("iso-8859-1");
 
     sqlite = {
-        getString: Encoding.GetEncoding(1252).GetString,
+        getString: encoding.GetString,
         escape: {
             id: new SQLiteCommandBuilder() @.QuoteIdentifier,
         },

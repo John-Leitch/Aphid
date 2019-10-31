@@ -44,6 +44,6 @@ var unhex = @()
     ->concat
     ->@() Convert.ToByte($_, 16);
 
-var unhexStr = @() $_ | unhex | Encoding.GetEncoding(1252).GetString;
+var unhexStr = @() $_ | unhex | Encoding.GetEncoding("iso-8859-1").GetString;
     
 //aphidupdatescripts.cmd & aphid64 * #'std'; this.dir('\\$ext\\.unknown'); ['uint', 'ulong', 'long']-^>@()0xdeadbeef.{$_}() @()print('{0} 0x{0:x8} {1}', $_, $_.GetType().Name)
