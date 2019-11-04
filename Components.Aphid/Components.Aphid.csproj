@@ -240,6 +240,7 @@
     <Compile Include="Parser\AphidByteCodeCache.cs" />
     <Compile Include="Parser\AphidParent.cs" />
     <Compile Include="Parser\AphidScript.cs" />
+    <Compile Include="Parser\Mutators\AttributePipelineMutator.cs" />
     <Compile Include="Parser\Mutators\MutatorGroups.cs" />
     <Compile Include="Parser\Mutators\Mutators.cs" />
     <Compile Include="Parser\Mutators\IncludeMutator.cs" />

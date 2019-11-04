@@ -15,6 +15,7 @@ namespace LLex
         public static string Interpret(string file)
         {
             var tokenTable = new TokenTable();
+            tokenTable.Ignore = new[] { "Ignore" };
 
             var lexFileMode = LexFileMode.Normal;
 

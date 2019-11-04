@@ -19,12 +19,14 @@ var nuget;
 
     var localExes = new List[string]();
     [ 'c:/tools', 'c:/source/nuget', 'd:/source/nuget' ]->@io.end('nuget.exe')->localExes.Add;
+    var repoMemoizer;
 
     nuget = {
         exe: Path.Combine(AphidObject.Assembly.Location | Path.GetDirectoryName, 'nuget.exe'),
         exeUrls,
         localExes,
         frameworks: ['.NETFramework', '.NETPortable', '.NETStandard', '.NETCore'],
+        
         init: @{
             #'System/Config';            
             
@@ -90,6 +92,8 @@ var nuget;
             } /*else {
                 :> 'Nuget assembly loaded';
             }*/
+
+            repoMemoizer = memoize(string, IPackageRepository, @() PackageRepositoryFactory.Default.CreateRepository($_));
         },
 
         repoUrl: "https://packages.nuget.org/api/v2",
@@ -99,7 +103,7 @@ var nuget;
         ignoreDependencies: false,
         allowPrereleaseVersions: true,
         refMap: new Dictionary[string, string](),
-        createRepo: @() PackageRepositoryFactory.Default.CreateRepository(repoUrl),
+        createRepo: @() PackageRepositoryFactory.Default.CreateRepository(repoUrl), //repoMemoizer.Call(repoUrl),
         createPackageManager: @() new PackageManager(createRepo(), getEntryPath('packages')),
         getLocalPackages: @() createPackageManager().LocalRepository.GetPackages(),
         
@@ -111,30 +115,67 @@ var nuget;
             // printInfo('Referencing {0} {1}', packageId, version);
 
             var findPackage = @() version defined && version != null ?
-                getLocalPackages() -? @(x) x.Id == packageId && x.Version == parseVersion(version) :
-                getLocalPackages() -? (@(x) x.Id == packageId) -/ @.Version;
+                getLocalPackages()
+                    -? @(x)
+                        x.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase) &&
+                        x.Version == parseVersion(version) :
+                getLocalPackages()
+                    -? (@(x) x.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase))
+                    -/ @.Version;
+
+            if (trace) {
+                console.info('Searching for package');
+            }
 
             var packages = findPackage();
 
             if (packages #! @== 0) {
+                if (trace) {
+                    console.info('Package not found, installing');
+                }
+
                 version defined ?
                     installPackage(packageId, version) :
                     installPackage(packageId);
 
                 // getLocalPackages() -? (@(x) x.Id == packageId) |> dump;
                 packages = findPackage();
+
+                if (trace) {
+                    console.info('Searching for package');
+                }
+            } else if (trace) {
+                console.info('Package found');
             }
 
             var p = packages ^!;
+
+            if (trace) {
+                console.info('Selected package {0}', p);
+                console.info('Selected package refs {0}', p.AssemblyReferences);
+            }
             
             var fs = createPackageManager().FileSystem;
             var d = '{0}.{1}' :: [ p.Id, p.Version ] |> fs.GetFullPath;
-            
+
+            if (trace) {
+                console.info('Full package path: {0}', d);
+            }
+
             var refAsmGroups = p.AssemblyReferences
+                -?(@()io.name($_) != '_._')
                 -<(@(r) $_.SupportedFrameworks->(@()({
                     path: r, id: $_.Identifier, name: $_.FullName, version: $_.Version
                 })))
                 -&@.name;
+
+            if (trace) {
+                if (refAsmGroups | any) {
+                    refAsmGroups->@console.info('Ref group: {0}');
+                } else {
+                    console.error('No package ref groups');
+                }
+            }
             
             var refAsmPaths;
 
@@ -201,6 +242,9 @@ var nuget;
 
                 ret refAsmPaths->Assembly.LoadFrom;
         },
+
+        find: @(packageId, version) $args.Count == 1 ?
+        createRepo().FindPackagesById(packageId) : createRepo().FindPackage(packageId, version()),
     };
 
     installPackage = @(packageId, version)

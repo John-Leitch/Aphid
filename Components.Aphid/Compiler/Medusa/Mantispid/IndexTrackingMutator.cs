@@ -27,7 +27,7 @@ namespace Mantispid
                 (binOpExp = expression.ToBinaryOperator()).Operator != AphidTokenType.AssignmentOperator ||
                 binOpExp.LeftOperand.Type != AphidExpressionType.IdentifierExpression ||
                 binOpExp.RightOperand.Type != AphidExpressionType.CallExpression ||
-                binOpExp.RightOperand.ToCall().FunctionExpression.Type != AphidExpressionType.IdentifierExpression ||
+                ((CallExpression)binOpExp.RightOperand).FunctionExpression.Type != AphidExpressionType.IdentifierExpression ||
                 !_nonListRules.Contains(binOpExp.RightOperand.ToCall().FunctionExpression.ToIdentifier().Identifier))
             {
                 hasChanged = false;

@@ -1,0 +1,12 @@
+#'std';
+//#'cli/cliArgBinding';
+console.importArgs({});
+
+if (!anyRemaining) {
+    console.error('edit [file]');
+    exit(1);
+}
+
+remainingTokens[0].Offset
+| getCommand().Substring
+@Process.Start('C:/Program Files/Microsoft VS Code Insiders/Code - Insiders.exe')

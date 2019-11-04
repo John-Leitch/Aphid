@@ -1,10 +1,13 @@
 this @mix(console);
 
 // AphidConfig.Current.ShowErrorScope = false;
-AphidConfig.Current.StackTraceParams = false;
+// AphidConfig.Current.StackTraceParams = false;
+AphidConfig.Current.ExceptionHandlingClrStack = true;
 
-var lazyRegex = new Lazy[Regex](@() compileAsm ?
-    buildRegexAsm(pattern, reOptions) :
+
+var lazyRegex = new Lazy[AphidObject](@()
+    compileAsm ? buildRegexAsm(pattern, reOptions) :
+    compileLLex ? buildLLexAsm(pattern) :
     new Regex(pattern, reOptions));
 
 var getAsmDir = @()
@@ -51,6 +54,39 @@ var buildRegexAsm = @(pattern, reOptions) {
     ret new LycomorphaRegex();
 };
 
+var buildLLexAsm = @(pattern){
+    #'meta/code/compiler';
+    using LLex;
+    var tmpl = '
+LLex.LLexSearch
+
+LLexSearch 
+
+{0}
+
+%%
+    return LLexSearchTokenType.Ignore;
+%%
+';
+
+    var tmpFile = io.rnd();
+    pattern.Split('|')->(@+ ' Match') @join('\r\n') @format(tmpl) @io.txt(tmpFile);
+    var llFile = LLexFile.Interpret(tmpFile).Replace('LLexSearchTokenType.Unknown', 'LLexSearchTokenType.Ignore');
+    io.del(tmpFile);
+    csharp.roslyn.enable();
+    csharp.optimize();
+
+    ret {
+        res: llFile | csharp.compileAsm,
+        lt: res.CompiledAssembly.GetTypes() | last,
+        Matches: @(text) {
+            var lexer = new lt();
+            lexer.Text = text;
+            ret lexer.GetTokens()->@(m) ({ Index: m.Index, Length: m.Lexeme.Length, Value: m.Lexeme, Groups: [ this ]  });
+        }
+    };
+};
+// if (compileLLex) buildLLexAsm(pattern) |> dumpe;
 var searchFile = @(file) {    
     if (verbosity >= 3) {
         info('Searching {0}', file | styleEscape);

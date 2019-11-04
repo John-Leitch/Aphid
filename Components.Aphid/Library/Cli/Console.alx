@@ -1,5 +1,4 @@
 ﻿using Components;
-using Components.ConsolePlus;
 using Components.External.ConsolePlus;
 
 var cls;
@@ -46,9 +45,7 @@ _bp = macro(@{
 
 @{
     using Components.Aphid.UI.Formatters;
-    
     using Components.PInvoke;
-    using Components.ConsolePlus;
     
     console = {
         vt100Supported: VT100.TryEnable(),

@@ -27,6 +27,7 @@ runtime.log();
     bool hashValues: '-hs',
     bool treatAsCode: '-c',
     bool compileAsm: '-asm',
+    bool compileLLex: '-llex',
 }
 | importArgs;
 
