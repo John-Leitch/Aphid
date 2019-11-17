@@ -70,7 +70,13 @@ LLexSearch
 ';
 
     var tmpFile = io.rnd();
-    pattern.Split('|')->(@+ ' Match') @join('\r\n') @format(tmpl) @io.txt(tmpFile);
+    var kws = pattern.Split('|');
+
+    if (reOptions & RegexOptions.IgnoreCase == RegexOptions.IgnoreCase) {
+        kws = kws-< @()$_.ToLower().ToCharArray()->(@()[$_.ToString(), $_.ToString().ToUpper()]) |> permutations ->concat!?;
+    }
+
+    kws->(@+ ' Match') @join('\r\n') @format(tmpl) @io.txt(tmpFile);
     var llFile = LLexFile.Interpret(tmpFile).Replace('LLexSearchTokenType.Unknown', 'LLexSearchTokenType.Ignore');
     io.del(tmpFile);
     csharp.roslyn.enable();

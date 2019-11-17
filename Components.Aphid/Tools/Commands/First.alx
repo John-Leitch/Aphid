@@ -1,0 +1,15 @@
+// using System.Collections.Generic;
+// #'Cli/StdIn';
+
+if ((var line = Console.In.ReadLine()) != null) {
+    line | Console.Out.WriteLine;
+}
+
+// stdIn.lines(@{
+//     if (isFirst) {
+//         $_ | Console.Out.WriteLine;
+//         isFirst = false;
+//     } else {
+//          Console.In.ReadToEnd();
+//     }
+// });

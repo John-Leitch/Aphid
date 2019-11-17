@@ -1,0 +1,2 @@
+var prepareBody = @String.Format('if (!(line |> ({0}))) {{ line |> Console.WriteLine }}');
+#'Each';

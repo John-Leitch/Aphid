@@ -1,0 +1,10 @@
+var line;
+var tmp;
+
+while ((tmp = Console.In.ReadLine()) != null) {
+    line = tmp;
+}
+
+if (line != null) {
+    line | Console.Out.WriteLine;
+}
