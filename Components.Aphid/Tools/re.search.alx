@@ -113,8 +113,18 @@ var searchFile = @(file) {
         continue;
     }
 
+    var updated;
+
     using (var r = new BinaryReader(io.open.read(file))) {
-        searchFileText(file, r, text);
+        updated = searchFileText(file, r, text);
+    }
+
+    if (write && updated != null) {
+        if (verbosity >= 2) {
+            printInfo('Writing updated text');
+        }
+        
+        updated @io.txt(file);
     }
 };
 
@@ -220,24 +230,26 @@ var searchFileText = @(file, reader, text) {
             };
         }
 
-        var replacement;
-        if (useEvaluator) {
-            var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
-            replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  f);
-        } else if (out != null) {
-            replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  out);
-        }
+        if (previewReplacements) {
+            var replacement;
+            if (useEvaluator) {
+                var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
+                replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  f);
+            } else if (out != null) {
+                replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  out);
+            }
 
-        if (useEvaluator || out != null) {
-            replacements.Add({ offset: updatedOffset + $_.Index, len: replacement.Length });
-            updatedOffset += replacement.Length - $_.Length;
-        }
+            if (useEvaluator || out != null) {
+                replacements.Add({ offset: updatedOffset + $_.Index, len: replacement.Length });
+                updatedOffset += replacement.Length - $_.Length;
+            }
 
-        if ((out != null || useEvaluator) && verbosity >= 2) {
-            console.line('{0}{1}\r\n{0}{2}\r\n',
-                groupIndent,
-                'Replacement {0}:' :: matchNum |> highlight,
-                replacement);
+            if ((out != null || useEvaluator) && verbosity >= 2) {
+                console.line('{0}{1}\r\n{0}{2}\r\n',
+                    groupIndent,
+                    'Replacement {0}:' :: matchNum |> highlight,
+                    replacement);
+            }
         }
     };
 
@@ -268,15 +280,9 @@ var searchFileText = @(file, reader, text) {
                 VT100.Reset);
 
             console.line();
-        }
+        }        
 
-        if (write) {
-            if (verbosity >= 2) {
-                printInfo('Writing updated text');
-            }
-            
-            updated |> @io.txt(file);
-        }
+        ret updated;
     }
 };
 

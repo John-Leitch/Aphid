@@ -28,6 +28,7 @@ runtime.log();
     bool treatAsCode: '-c',
     bool compileAsm: '-asm',
     bool compileLLex: '-llex',
+    bool previewReplacements: '-pr',
 }
 | importArgs;
 
@@ -98,20 +99,16 @@ if (verbosity >= 2) {
 }
 
 var func = recurse ? io.all.files : io.files;
-var execEvaluator;
 
-if (useEvaluator) {
-    execEvaluator = 
-        Environment.CommandLine
+var execEvaluator = useEvaluator ? 
+    Environment.CommandLine
         | ArgLexer.GetTokenInfo
         >^(@(x) x.Value == '-e')
         @.Offset
         @+2
         |> Environment.CommandLine.Substring
-        |> parseFunc;
-} else {
-    execEvaluator = @{};
-}
+        |> parseFunc :
+    @{};
 
 var pattern = remaining[0];
 var styleEscape = Cli.StyleEscape;

@@ -45,5 +45,103 @@ var unhex = @()
     ->@() Convert.ToByte($_, 16);
 
 var unhexStr = @() $_ | unhex | Encoding.GetEncoding("iso-8859-1").GetString;
-    
+
+var hexDump = {
+    initialized: false,
+    init: @{
+        fmt = string.Format.Members[6].Invoke;
+
+        if (valueColor == null) {
+            valueColor = console.color.pair(
+                'a0d060' | unhex | @console.color.add(0x60),
+                '2050e0' | unhex | @console.color.add(-0x60));
+        }
+
+        if (nonPrintable == null) {
+            nonPrintable = console.color.fg(SystemColor.Gray) + '.' + VT100.Reset;
+        }
+
+        initialized = true;
+    },    
+    fmt: null,
+    valueColor: null,
+    nonPrintable: null,
+    label: true,
+    ascii: true,
+    getFormat: @(size, width)
+        (label ? 
+            console.color.fg(SystemColor.DarkGray) + '{0:x8}' +
+            VT100.Reset + 
+            ': ' :
+            '') +
+        valueColor +
+        (0..width
+            ->(@()$_*size..size
+                ->(@()'{{{0}:x2}}' :: $_ + 1)
+                |> reverse
+                |> concat)
+        @join(' ')) +
+        VT100.Reset,
+    fromFile: @(file, size, width, height) {
+        if (!initialized) {
+            init();
+        }
+
+        if ($args.Count < 2) {
+            size = 1;
+        }
+
+        if ($args.Count < 3) {
+            width = 32 / size;
+        }
+
+        if ($args.Count < 4) {
+            height = -1;
+        }
+
+        var rowSize = size * width;
+        var remaining = height > -1 ? Math.Min(file | io.len, rowSize * height) : file | io.len;        
+        var reader = new BinaryReader(file | io.open.read);
+        var tmpl = getFormat(size, width);
+        var objBuffer = Array.CreateInstance(Object, rowSize + 1);
+        var strWidth = (label ? 10 : 0) + (size * width) + width;
+        var sb = new StringBuilder();
+
+        do {
+            objBuffer[0] = reader.BaseStream.Position;
+            
+            var bytes = reader.ReadBytes(rowSize);
+            var t;
+            var fullLine = bytes.Length == rowSize;
+
+            if (fullLine) {
+                t = tmpl;
+            } else {
+                t = getFormat(size, bytes.Length / size | Math.Ceiling);
+                
+                for (var i = 1; i < objBuffer.Length; i++) {
+                    objBuffer[i] = 0.byte();
+                }
+            }
+
+            Array.Copy(bytes, 0, objBuffer, 1, bytes.Length);
+            sb.Append(fmt(null, [ t, objBuffer ]));
+            
+            if (ascii) {
+                if (!fullLine) {                
+                    var delta = (rowSize - bytes.Length) * 2;                
+                    ' ' * (delta + Math.Ceiling(delta / size / 2)) |> sb.Append
+                }            
+                
+                sb.Append(' ' + VT100.Reset);
+                bytes for sb.Append($_ > 0x1f && $_ < 0x80 ? Convert.ToChar($_) :  nonPrintable);
+            }
+            
+            console.line(sb);
+            sb.Clear();
+            
+            remaining -= rowSize;            
+        } while (remaining > 0);
+    },
+};    
 //aphidupdatescripts.cmd & aphid64 * #'std'; this.dir('\\$ext\\.unknown'); ['uint', 'ulong', 'long']-^>@()0xdeadbeef.{$_}() @()print('{0} 0x{0:x8} {1}', $_, $_.GetType().Name)

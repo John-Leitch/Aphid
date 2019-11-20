@@ -1,0 +1,61 @@
+#'std';
+
+// cls();
+// flip = macro(@(f) { @(x, y) f(y, x) });
+// var every = flip(EnumerableExtension.GroupEvery);
+// var reverse  = Enumerable.Reverse;
+// var toArray = Enumerable.ToArray;
+// var zip = @(second, selector, first) Enumerable.Zip(first, second, selector);
+
+// 1..100 @every(5) |> reverse |> dumpe;
+{
+    string inFile: '-f',
+    int size: '-s',
+    int width: '-w',
+    int height: '-h',
+    bool noLabels: '-nl',
+    bool noAscii: '-na',
+} | console.importArgs;
+
+if (anyRemaining && mapped.inFile) {
+    console.error('Cannot specify both stdin and -f');
+    exit(0xbad01);
+}
+
+if (!mapped.size) {
+    size = defaultSize defined ? defaultSize : 1;
+}
+
+if (!mapped.width) {
+    width = 16 / size;
+}
+
+if (!mapped.height) {
+    height = -1;
+}
+
+if (noLabels) {
+    hexDump.label = false;
+}
+
+if (noAscii) {
+    hexDump.ascii = false;
+}
+
+var du = @(header, file) {
+    if (header) {
+        console.line('File: {0}', file);
+    }
+
+    hexDump.fromFile(file, size, width, height);
+    console.line();
+};
+
+if (anyRemaining) {
+    remaining->@du((remaining#!) > 1);
+} else {
+    stdIn.lines(@du(true));
+}
+
+
+
