@@ -1,7 +1,10 @@
-#'Std';
+#'std';
+#'base';
 
 console.stdIn.lines(@{
-    var si = new ProcessStartInfo('cmd', '/S /C "{0}"' :: ($_ ~: ['["^]', '^$0']));
+    var body = getBody();
+    var cmd = body != '' ? body :: $_ : $_;
+    var si = new ProcessStartInfo('cmd', '/S /C "{0}"' :: (cmd ~: ['["^]', '^$0']));
     si.UseShellExecute = false;
     si.RedirectStandardInput = true;
     var p = Process.Start(si);

@@ -7,7 +7,7 @@ var getScriptArgsCore = tokenizeCmd @> skipAphid;
 var cachedScriptArgs = null;
 var getScriptArgs = @() cachedScriptArgs ?? (cachedScriptArgs = getScriptArgsCore());
 var getCmdTail = @(off, token) token.Offset + off |> Environment.CommandLine.Substring;
-var getBody = @() getScriptArgs() ^! @getCmdTail(0);
+var getBody = @() getScriptArgs() @() $_ | any ? $_ ^! @getCmdTail(0) : '';
 var getNamedBody = @(name) getScriptArgs() >^(@(x) x.Value == name) @getCmdTail(2);
 var getNamedHead = @(name) getScriptArgs() @takeWhile(@(x) x.Value != name);
 var argTokenComparer = new SelectorComparer[ArgToken,int](@.Offset);

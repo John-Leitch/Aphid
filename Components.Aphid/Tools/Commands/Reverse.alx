@@ -1,0 +1,12 @@
+using System.Collections.Generic;
+
+var stack = new Stack[string]();
+var line;
+
+while ((line = Console.In.ReadLine()) != null) {
+    line | stack.Push;
+}
+
+while (stack.Count != 0) {
+    stack.Pop() | Console.Out.WriteLine;
+}

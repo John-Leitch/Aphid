@@ -1,0 +1,7 @@
+#'std';
+#'base';
+var t = tokenizeCmd();
+t | skipAphid;
+getScriptArgs();
+var fmt = getBody();
+stdIn.lines(@format(fmt) @> Console.Out.WriteLine);
