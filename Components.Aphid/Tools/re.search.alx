@@ -12,7 +12,7 @@ var lazyRegex = new Lazy[AphidObject](@()
 
 var getAsmDir = @()
     (this.'$script' defined ? this.'$script' | io.up : env.get('temp'))
-    @io.end('LycomporphaCompiled');
+    @io.end('LycomorphaCompiled');
 
 var getAsmName = @(pattern)
     pattern
@@ -95,7 +95,7 @@ LLexSearch
 // if (compileLLex) buildLLexAsm(pattern) |> dumpe;
 var searchFile = @(file) {    
     if (verbosity >= 3) {
-        info('Searching {0}', file | styleEscape);
+        lock Console.Out info('Searching {0}', file | styleEscape);
     }
 
     var textEncoding = Encoding.GetEncoding('iso-8859-1');
@@ -109,8 +109,8 @@ var searchFile = @(file) {
 
         // {len: text.Length, rawLen: io.len(file), delta: rawLen - len } | dumpe;
     } catch (e) {
-        fail('Could not read {0}: {1}', file, e.message | styleEscape);
-        continue;
+        lock Console.Out fail('Could not read {0}: {1}', file, e.message | styleEscape);
+        ret null;
     }
 
     var updated;
@@ -121,7 +121,7 @@ var searchFile = @(file) {
 
     if (write && updated != null) {
         if (verbosity >= 2) {
-            printInfo('Writing updated text');
+            lock Console.Out printInfo('Writing updated text');
         }
         
         updated @io.txt(file);
@@ -161,9 +161,13 @@ var searchFileText = @(file, reader, text) {
     var c = matches#!;
 
     if (c == 0) {
-        continue;
+        ret null;
     }
+    
+    lock Console.Out handleMatches(file, reader, text, matches, c);
+};
 
+var handleMatches = @(file, reader, text, matches, c) {
     if (bareMode) {
         if (!useEvaluator) {
             _walkMatches = macro(@(f) { matches for $_ | getMatchValue | f });
@@ -184,7 +188,7 @@ var searchFileText = @(file, reader, text) {
             }
         }
         
-        continue;
+        ret null;
     }
 
     if (verbosity >= 2) {
@@ -257,7 +261,7 @@ var searchFileText = @(file, reader, text) {
         var updated;
         
         if (useEvaluator) {
-            var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
+            var f = new AphidFunction(['m'], execEvaluator.Body, this);
             updated = lazyRegex.Value.Replace(text, f);
         } else if (out != null) {
             updated = lazyRegex.Value.Replace(text, out);
@@ -310,26 +314,33 @@ var printMatchGroup = @(displayText, g, i2, matchNum) {
             new string(' ', Math.Max(0, Console.BufferWidth - 1 - ($_ | color.strLen))),
             VT100.Reset)),
         i2++ == 0 && excerptLines > -1 ?
-            TokenHelper
-                .GetCodeExcerpt(
-                    treatAsCode ?
-                        [
-                            (g.Index
-                            |> displayText.Remove
-                            |> console.highlight),
-                            highlightColor,
-                            displayText.Substring(g.Index, g.Length),
-                            excerptColor,
-                            (g.Index + g.Length
-                            |> displayText.Substring
-                            |> console.highlight)
-                        ]
-                        |> concat
-                        : displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
-                    g.Index + highlightColor.Length,
-                    excerptLines)
+            (fastExcerptSize == null ?
+                TokenHelper
+                    .GetCodeExcerpt(
+                        treatAsCode ?
+                            [
+                                (g.Index
+                                |> displayText.Remove
+                                |> console.highlight),
+                                highlightColor,
+                                displayText.Substring(g.Index, g.Length),
+                                excerptColor,
+                                (g.Index + g.Length
+                                |> displayText.Substring
+                                |> console.highlight)
+                            ]
+                            |> concat
+                            : displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
+                        g.Index + highlightColor.Length,
+                        excerptLines) :
+                displayText
+                    .Substring(
+                        var actualOffset = Math.Max(0, g.Index - fastExcerptSize / 2),
+                        g.Length + fastExcerptSize)
+                    .Insert(g.Index - actualOffset + g.Length, excerptColor)
+                    .Insert(g.Index - actualOffset, highlightColor))
                 .TrimEnd()
-                .Split(['\r\n'],  StringSplitOptions.None)
+                .Split(['\r\n', '\n'],  StringSplitOptions.None)
                 ->(@(l) '{0}{1}{0}{2}{3}' :: [
                     excerptColor,
                     l,

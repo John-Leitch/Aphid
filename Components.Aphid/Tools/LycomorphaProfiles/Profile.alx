@@ -1,0 +1,3 @@
+var s = staticMap(string);
+
+var exclude = @() excludePattern = '\\.({0})$' :: $_ @s.split('\r\n') ->s.trim -?@!='' @join('|');

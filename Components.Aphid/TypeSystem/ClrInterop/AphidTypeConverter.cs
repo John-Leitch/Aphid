@@ -68,10 +68,10 @@ namespace Components.Aphid.TypeSystem
                 if (isGeneric)
                 {
                     var targetGenericArgs = target.GetGenericArguments();
-                    var valGenericArgs = valType.GetGenericArguments();
+                    //var valGenericArgs = valType.GetGenericArguments();
 
-                    if (targetGenericArgs.Length > 0 && valGenericArgs.Length == 0)
-                    {
+                    //if (targetGenericArgs.Length > 0 && valGenericArgs.Length == 0)
+                    //{
                         for (var i = 0; i < targetGenericArgs.Length; i++)
                         {
                             if (targetGenericArgs[i].IsGenericParameter)
@@ -84,7 +84,7 @@ namespace Components.Aphid.TypeSystem
                             interopArg,
                             true,
                             targetGenericArgs);
-                    }
+                    //}
 
                     throw Interpreter.CreateRuntimeException(
                         "Converting from generic delegate {0} to {1} not yet supported.",
@@ -92,7 +92,65 @@ namespace Components.Aphid.TypeSystem
                         target);
                 }
 
-                return new AphidConversionInfo(interopArg, true, new Type[0]);
+                return new AphidConversionInfo(interopArg, true, Array.Empty<Type>());
+            }
+            else if (val is AphidInteropMember m &&
+                target.IsDerivedFrom(typeof(Delegate)))
+            {
+                //var methods = Array.FindAll(
+                //    m.Members,
+                //    x => x.MemberType == MemberTypes.Method);
+                
+                
+
+                //if (methods.Length == 0)
+                //{
+                //    var callable = Array.FindAll(
+                //        m.Members,
+                //        x => ((x.MemberType == MemberTypes.Field &&
+                //            ((FieldInfo)x).FieldType.IsDerivedFrom<Delegate>()) ||
+                //            x.MemberType == MemberTypes.Property &&
+                //            ((PropertyInfo)x).PropertyType.IsDerivedFrom<Delegate>()));
+
+                //    if (callable.Length == 0)
+                //    {
+                //        throw Interpreter.CreateRuntimeException(
+                //            "Converting from interop member {0} to delegate {1} not supported.",
+                //            valType,
+                //            target);
+                //    }
+                //}
+
+                var isGeneric = target.IsGenericType;
+
+                if (isGeneric)
+                {
+                    var targetGenericArgs = target.GetGenericArguments();
+                    //var valGenericArgs = valType.GetGenericArguments();
+
+                    //if (targetGenericArgs.Length > 0 && valGenericArgs.Length == 0)
+                    //{
+                    for (var i = 0; i < targetGenericArgs.Length; i++)
+                    {
+                        if (targetGenericArgs[i].IsGenericParameter)
+                        {
+                            targetGenericArgs[i] = typeof(object);
+                        }
+                    }
+
+                    return new AphidConversionInfo(
+                        interopArg,
+                        true,
+                        targetGenericArgs);
+                    //}
+
+                    throw Interpreter.CreateRuntimeException(
+                        "Converting from generic delegate {0} to {1} not yet supported.",
+                        valType,
+                        target);
+                }
+
+                return new AphidConversionInfo(interopArg, true, Array.Empty<Type>());
             }
             else
             {

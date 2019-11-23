@@ -10,7 +10,7 @@ runtime.log();
     string path: '-p',
     string filter: '-f',
     string excludePattern: '-x',
-    bool replace: '-r',    
+    bool replace: '-r',
     bool useEvaluator: '-e',
     bool dumpOut: '-d',
     bool recurse: '-s',
@@ -29,6 +29,8 @@ runtime.log();
     bool compileAsm: '-asm',
     bool compileLLex: '-llex',
     bool previewReplacements: '-pr',
+    int fastExcerptSize: '-fe',
+    string profile: '-profile',
 }
 | importArgs;
 
@@ -41,9 +43,17 @@ _da(excerptLines, 3);
 _da(verbosity, 2);
 _da(dumpOut, false);
 _da(hashValues, false);
+_da(profile, 'Default');
 
 if (out != null) {
     out = out @format('"{0}"') StringParser.Parse;
+}
+
+this.'$script' @io.sibling('LycomorphaProfiles') aphid.Loader.SearchPaths.Add;
+aphid.Loader.LoadScript('Profile', false);
+
+if (profile != null) {    
+    aphid.Loader.LoadScript(profile, false);
 }
 
 if (bareGroup != null) {
@@ -75,7 +85,7 @@ if (!anyRemaining) {
         y = Console.CursorTop;
     }
 
-    color.header(hdr);    
+    color.header(hdr);
     print(
         aphid.InitialScope.'$block'
         >$ast.is.text
@@ -94,13 +104,15 @@ if (!anyRemaining) {
     exit(1);
 }
 
+var startTime = DateTime.Now;
+
 if (verbosity >= 2) {
     console.info('Initializing');
 }
 
 var func = recurse ? io.all.files : io.files;
 
-var execEvaluator = useEvaluator ? 
+var execEvaluator = useEvaluator ?
     Environment.CommandLine
         | ArgLexer.GetTokenInfo
         >^(@(x) x.Value == '-e')
@@ -114,13 +126,11 @@ var pattern = remaining[0];
 var styleEscape = Cli.StyleEscape;
 
 if (!Console.IsInputRedirected) {
-    [ path, filter ]-?io.file->io.full for (f) {        
+    [ path, filter ]-?io.file->io.full for (f) {
         path = f | io.up;
         filter = f | io.name;
     };
 
-    var i = 0;
-    
     if (verbosity >= 2) {
         console.query('Enumerating files in {0} using filter {1}', path, filter);
     }
@@ -131,13 +141,13 @@ if (!Console.IsInputRedirected) {
                 if (verbosity >= 4) {
                     info('Skipping ~Yellow~{0}~R~ due to exclude pattern', file | styleEscape);
                 }
-                
+
                 ret false;
             }
 
             ret true;
         })
-        |> toArray;    
+        |> toArray;
 
     var t = files.Length;
 
@@ -147,11 +157,17 @@ if (!Console.IsInputRedirected) {
 
     var titleBackup = Console.Title;
 
+    var i = -1;
+    setTitle = macro(@{ Console.Title = '({0:n2}%) {1} - re' :: [ ++i / t.double() * 100, f ]; });
+    'Initializing...' @(f) setTitle();
+
     try {
-        files for {
-            Console.Title = '({0:n2}%) {1} - re' :: [ ++i / t.double() * 100, $_ ];
-            searchFile($_);
-        }
+        Parallel.ForEach(
+            files,
+            @(f){
+                searchFile(f);
+                setTitle();
+            });
     } finally {
         Console.Title = titleBackup;
     }
@@ -161,6 +177,10 @@ if (!Console.IsInputRedirected) {
 
 if (context.list.Count > 0) {
     context.list | dump;
+}
+
+if (verbosity >= 2) {
+    startTime | DateTime.Now.Subtract @printSuccess('Finished in ~Green~{0}~R~');
 }
 
 exit();

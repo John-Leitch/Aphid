@@ -1,0 +1,24 @@
+#'default';
+
+exclude('
+    swf
+    mp3
+    amr
+    ogg
+    mov
+    avi
+    mp4
+    m4v
+    m4a
+    3gp
+    flac
+    wav
+    gif
+    jpg
+    jpeg
+    ttf
+    wepb
+    png
+    ithmb
+    (thumbdata\\d--?\\d+)
+');

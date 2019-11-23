@@ -1,0 +1,3 @@
+recurse = true;
+compileAsm = true;
+fastExcerptSize = 800;
