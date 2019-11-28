@@ -1,0 +1,23 @@
+recurse = true;
+compileAsm = true;
+
+
+var rt = remainingTokens;
+// var keyLen = (rt #!) > 1 && rt[0].EndOffset == rt[1].Offset ? remaining[1] | int.Parse : 3;
+
+
+var keyLen =
+    (rt #!) > 1 &&
+    getCommand().Remove(rt[1].Offset).Substring(rt[0].EndOffset).Trim() == '' ?
+    remaining[1] | int.Parse :
+    3;
+    
+var key = keyLen == pattern.Length ? pattern : keyLen @Math.Min(pattern.Length - 1) pattern.Remove;
+
+if (key.Length > 3) {
+    console.error('Invalid key length {0}, must be between 1 and 3.', key.Length);
+    exit(0xbad40);
+}
+
+filter = 'Indexed_{0}*.sorted' :: key;
+// filter | dumpe

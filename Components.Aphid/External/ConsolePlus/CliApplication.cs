@@ -9,6 +9,10 @@ namespace Components.External.ConsolePlus
     {
         private const string _titleTimeFormat = "MM/dd/yy hh:mm:ss tt";
 
+        private static readonly object _originalTitleSync = new object();
+
+        private static string _originalTitle;
+
         public static void SetTitle() => SetTitle(name: null);
 
         public static void SetTitle(string name) => SetTitle(name, showHeader: true);
@@ -26,6 +30,16 @@ namespace Components.External.ConsolePlus
 
             if (Cli.HasConsole)
             {
+                lock (_originalTitleSync)
+                {
+                    if (_originalTitle == null)
+                    {
+                        _originalTitle = Console.Title;
+                        AppDomain.CurrentDomain.ProcessExit += (o, e) =>
+                            Console.Title = _originalTitle;
+                    }
+                }
+
                 Console.Title = title;
             }
 

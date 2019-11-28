@@ -28,6 +28,15 @@ namespace Aphid
             }
 
             var runRepl = args.Length == 0;
+
+            if (Cli.HasConsole)
+            {
+                var cursorVisible = Console.CursorVisible;
+                AppDomain.CurrentDomain.ProcessExit += (o, e) =>
+                Console.CursorVisible = cursorVisible;
+            }
+
+            AppDomain.CurrentDomain.ProcessExit += (o, e) => Console.ResetColor();
             CliApplication.SetTitle("Aphid", showHeader: runRepl);
 
             if (runRepl)

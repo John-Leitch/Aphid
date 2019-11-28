@@ -336,7 +336,7 @@ var printMatchGroup = @(displayText, g, i2, matchNum) {
                 displayText
                     .Substring(
                         var actualOffset = Math.Max(0, g.Index - fastExcerptSize / 2),
-                        g.Length + fastExcerptSize)
+                        Math.Min(displayText.Length - actualOffset, g.Length + fastExcerptSize))
                     .Insert(g.Index - actualOffset + g.Length, excerptColor)
                     .Insert(g.Index - actualOffset, highlightColor))
                 .TrimEnd()
