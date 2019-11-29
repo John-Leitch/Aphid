@@ -170,7 +170,7 @@ if (!Console.IsInputRedirected) {
         var titleBackup = Console.Title;
 
         var i = -1;
-        setTitle = macro(@{ Console.Title = '({0:n2}%) {1} - re' :: [ ++i / t.double() * 100, f ]; });
+        setTitle = macro(@{ lock Console.Title Console.Title = '({0:n2}%) {1} - re' :: [ ++i / t.double() * 100, f ]; });
         'Initializing...' @(f) setTitle();
 
         try {
