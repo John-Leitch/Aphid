@@ -1,0 +1,32 @@
+#'std';
+#'base';
+var args = getScriptArgs();
+var size = args[0].Lexeme | int.Parse;
+var buf = Array.CreateInstance(string, size);
+var func = args[1] @getCmdTail(0) |> parseExp |> aphid.Interpret;
+var number = 0;
+var line;
+
+_out = macro(@(bufName) {
+    var res = bufName | func;
+        
+    if (res != null)
+    {
+        res | Console.Out.WriteLine;
+    }
+});
+
+while ((line = Console.In.ReadLine()) != null) {
+    buf[number++] = line;
+
+    if (number == size) {
+        _out(buf);
+        number = 0;
+    }
+}
+
+if (number != 0) {
+    var buf2 = Array.CreateInstance(string, number);
+    Array.Copy(buf, buf2, number);
+    _out(buf2);
+}
