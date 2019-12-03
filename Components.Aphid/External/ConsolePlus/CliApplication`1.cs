@@ -143,7 +143,7 @@ namespace Components.External.ConsolePlus
             }
             catch (Exception e2)
             {
-                Console.WriteLine("Failed logging crash:\r\n{0}", e2.ToString());
+                Console.WriteLine("Failed logging crash:{0}{1}", Environment.NewLine, e2.ToString());
                 Environment.Exit(0xbad1);
             }
         }
@@ -152,7 +152,7 @@ namespace Components.External.ConsolePlus
         {
             if (IsProcessing)
             {
-                Cli.WriteLine("\r\n");
+                Cli.WriteLine(Environment.NewLine);
             }
 
             Cli.WriteSubheader(_fatalError, ErrorHeaderStyle);

@@ -71,8 +71,12 @@ _bp = macro(@{
 
         getWindow: Kernel32.GetConsoleWindow,
         exists: getWindow @> @!= IntPtr.Zero,
-        isSafe: @() exists() && Environment.UserInteractive && !Console.IsOutputRedirected,
-        runWindowCmd: @User32.ShowWindow(getWindow()),
+        isSafe: EnvironmentHelper.IsWindows ?
+            @() exists() && Environment.UserInteractive && !Console.IsOutputRedirected :
+            @() Cli.HasConsole,
+        runWindowCmd: EnvironmentHelper.IsWindows ?
+            @User32.ShowWindow(getWindow()) :
+            @() throw new NotImplementedException(),
         show: @() runWindowCmd(ShowWindowCommands.SW_SHOW),
         hide: @() runWindowCmd(ShowWindowCommands.SW_HIDE),
         highlight: @(text) SyntaxHighlightingFormatter.Format(text, false),
@@ -518,14 +522,15 @@ _bp = macro(@{
                 ->@(f)$_
                     .GetValue(null)
                     @(c) format(
-                        '{0}{1}{2}{3}\r\n{4}{5}{6}{3}',
+                        '{0}{1}{2}{3}{7}{4}{5}{6}{3}',
                         c | VT100.Foreground,
                         c | color.invert | VT100.Background,
                         Console.BufferWidth - 2 |> f.Name.PadRight,
                         VT100.Reset,
                         c | VT100.Background,
                         c | color.invert | VT100.Foreground,                        
-                        Console.BufferWidth - 2 |> (f.Name + ' Background').PadRight)
+                        Console.BufferWidth - 2 |> (f.Name + ' Background').PadRight,
+                        Environment.NewLine)
                         |> line;
         },
 

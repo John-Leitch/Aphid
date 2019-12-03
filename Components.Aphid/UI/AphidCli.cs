@@ -61,7 +61,8 @@ namespace Components.Aphid.UI
             catch (Exception e)
             {
                 WriteCriticalErrorMessage(
-                    "Internal error encountered in script exception handler:\r\n\r\n{0}",
+                    "Internal error encountered in script exception handler:{0}{0}{1}",
+                    Environment.NewLine,
                     Escape(e.ToString()));
 
                 LastException = e;
@@ -74,7 +75,8 @@ namespace Components.Aphid.UI
             catch (Exception e)
             {
                 WriteCriticalErrorMessage(
-                    "Failed dumping internal error:\r\n\r\n{0}",
+                    "Failed dumping internal error:{0}{0}{1}",
+                    Environment.NewLine,
                     Escape(e.ToString()));
             }
 
@@ -584,7 +586,7 @@ namespace Components.Aphid.UI
         {
             if (!Console.IsOutputRedirected && Console.CursorLeft != 0)
             {
-                WriteLineOut("\r\n");
+                WriteLineOut(Environment.NewLine);
             }
 
             WriteMessage(
@@ -667,8 +669,9 @@ namespace Components.Aphid.UI
                 {
                     WriteErrorMessage(
                         string.Format(
-                            "Error writing context for ~Yellow~{0}~R~\r\n{1}",
+                            "Error writing context for ~Yellow~{0}~R~{1}{2}",
                             kvp.Item2,
+                            Environment.NewLine,
                             e.Message));
                 }
 

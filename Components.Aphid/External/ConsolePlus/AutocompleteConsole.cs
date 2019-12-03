@@ -296,7 +296,8 @@ namespace Components.External.ConsolePlus
         {
             var backup = CursorVisible;
             CursorVisible = false;
-            var sb = new StringBuilder(string.Format("\r{0}", _prompt));
+            CursorLeft = 0;
+            var sb = new StringBuilder(_prompt);
 
             foreach (var t in Highlighter.Highlight(_consoleBuffer))
             {

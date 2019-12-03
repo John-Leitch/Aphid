@@ -94,7 +94,7 @@ namespace Components.Json
                     case JsonTokenType.RightBracket:
                         _currentIndent--;
                         var indent = new string(' ', _currentIndent * IndentSize);
-                        sb.Append("\r\n").Append(indent);
+                        sb.Append(Environment.NewLine).Append(indent);
                         break;
                 }
 
@@ -119,7 +119,7 @@ namespace Components.Json
                     case JsonTokenType.LeftBracket:
                     case JsonTokenType.Comma:
                         var indent = new string(' ', _currentIndent * IndentSize);
-                        sb.Append("\r\n").Append(indent);
+                        sb.Append(Environment.NewLine).Append(indent);
                         break;
                 }
             }

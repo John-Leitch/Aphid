@@ -31,9 +31,16 @@ namespace Aphid
 
             if (Cli.HasConsole)
             {
-                var cursorVisible = Console.CursorVisible;
-                AppDomain.CurrentDomain.ProcessExit += (o, e) =>
-                Console.CursorVisible = cursorVisible;
+                try
+                {
+                    var cursorVisible = Console.CursorVisible;
+                    AppDomain.CurrentDomain.ProcessExit += (o, e) =>
+                        Console.CursorVisible = cursorVisible;
+                }
+                catch
+                {
+
+                }
             }
 
             AppDomain.CurrentDomain.ProcessExit += (o, e) => Console.ResetColor();

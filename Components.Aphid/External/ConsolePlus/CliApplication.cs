@@ -74,7 +74,7 @@ namespace Components.External.ConsolePlus
 
             var title = (linkTime = asm.GetLinkTimeUtc()) == default ?
                 baseTitle :
-                $"{baseTitle} {linkTime.ToEasternStandardTime().ToString(_titleTimeFormat)}";
+                $"{baseTitle} {linkTime.ToString(_titleTimeFormat)}";
 
             return !Debugger.IsAttached ? title : $"{title} (under debugger)";
         }

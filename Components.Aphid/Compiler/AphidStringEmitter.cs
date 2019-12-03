@@ -81,7 +81,7 @@ namespace Components.Aphid.Compiler
 
         protected void AppendTabs() => Append(GetTabs());
 
-        protected void AppendLine() => Append("\r\n");
+        protected void AppendLine() => Append(Environment.NewLine);
 
         protected void Append(string format, params object[] args) => _out.AppendFormat(format, args);
 

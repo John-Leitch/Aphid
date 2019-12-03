@@ -59,7 +59,7 @@ namespace Components.External.ConsolePlus
             {
                 _useTrace = value;
 
-                if (value)
+                if (value && EnvironmentHelper.IsWindows)
                 {
                     WriteHandler = x => Trace.Write(x);
                     WriteLineHandler = x => Trace.WriteLine(x);
@@ -126,22 +126,52 @@ namespace Components.External.ConsolePlus
 
         public static int UserBufferHeight { get; set; } = BufferHeight;
 
-        public static Action<string> WriteHandler { get; set; } =
-            !Environment.UserInteractive ? x => { }
-        : (Action<string>)Console.Write;
+        private static Action<string> _writeHandler =
+            !Environment.UserInteractive && EnvironmentHelper.IsWindows ?
+            x => { } :
+            (Action<string>)Console.Write;
 
-        public static Action<string> WriteLineHandler { get; set; } =
-            !Environment.UserInteractive ? x => { }
-        : (Action<string>)Console.WriteLine;
+        public static Action<string> WriteHandler
+        {
+            get => _writeHandler;
+            set
+            {
+                if (EnvironmentHelper.IsWindows)
+                {
+                    _writeHandler = value;
+                }
+            }
+        }
 
-#if !LOW_SECURITY
-        public static bool HasConsole =>
-            Kernel32.GetConsoleWindow() != IntPtr.Zero;
-#else
+        private static Action<string> _writeLineHandler =
+            !Environment.UserInteractive && EnvironmentHelper.IsWindows ?
+            x => { } :
+            (Action<string>)Console.WriteLine;
+
+        public static Action<string> WriteLineHandler
+        {
+            get => _writeLineHandler;
+            set
+            {
+                if (EnvironmentHelper.IsWindows)
+                {
+                    _writeLineHandler = value;
+                }
+            }
+        }
+            
+
         public static bool HasConsole
         {
             get
             {
+#if !LOW_SECURITY
+                if (EnvironmentHelper.IsWindows)
+                {
+                    return Kernel32.GetConsoleWindow() != IntPtr.Zero;
+                }
+#endif
+
                 try
                 {
                     var x = Console.WindowWidth;
@@ -153,7 +183,6 @@ namespace Components.External.ConsolePlus
                 }
             }
         }
-#endif
 
         /// <summary>
         /// Writes a format string to the console.
@@ -232,7 +261,7 @@ namespace Components.External.ConsolePlus
             var totalLength = (paddingSize * 4) + 3 + longestNameLength + longestValueLength;
 
             //var newLine = totalLength == BufferWidth ? "" : "\r\n";
-            const string newLine = "\r\n";
+            var newLine = Environment.NewLine;
 
             string createRow(string name, string value, bool header)
             {
@@ -277,10 +306,11 @@ namespace Components.External.ConsolePlus
             foreach (var nvp in nameValuePairs)
             {
                 WriteLine(
-                    "~{0}~~|{1}~{2}~R~\r\n{3}\r\n",
+                    "~{0}~~|{1}~{2}~R~{3}{4}{3}",
                     ConsoleColor.White,
                     ConsoleColor.Blue,
                     nvp.Key,
+                    Environment.NewLine,
                     nvp.Value);
             }
         }
@@ -352,9 +382,9 @@ namespace Components.External.ConsolePlus
 #endif
         {
             var divider = new string('═', BufferWidth - 3).ToCharArray();
-            var hrTop = "╔" + new string(divider) + "╗\r\n";
-            var hrMiddle = "║" + style + " " + text.PadRight(BufferWidth - 4).Replace("~", "~~") + "~R~║\r\n";
-            var hrBottom = "╚" + new string(divider) + "╝\r\n";
+            var hrTop = "╔" + new string(divider) + "╗" + Environment.NewLine;
+            var hrMiddle = "║" + style + " " + text.PadRight(BufferWidth - 4).Replace("~", "~~") + "~R~║" + Environment.NewLine;
+            var hrBottom = "╚" + new string(divider) + "╝" + Environment.NewLine;
             Write(hrTop + hrMiddle + hrBottom);
         }
 

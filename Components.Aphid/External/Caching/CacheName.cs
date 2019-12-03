@@ -42,12 +42,25 @@ namespace Components.Aphid
 
         public static string Normalize(string filename)
         {
-            if (Path.IsPathRooted(filename))
+            char lhs, rhs;
+
+            if (EnvironmentHelper.IsWindows)
             {
-                return filename.Replace('/', '\\').ToLower();
+                lhs = '/';
+                rhs = '\\';
+            }
+            else
+            {
+                lhs = '\\';
+                rhs = '/';
             }
 
-            return Path.GetFullPath(filename.Replace('/', '\\')).ToLower();
+            if (Path.IsPathRooted(filename))
+            {
+                return filename.Replace(lhs, rhs).ToLower();
+            }
+
+            return Path.GetFullPath(filename.Replace(lhs, rhs)).ToLower();
         }
     }
 }

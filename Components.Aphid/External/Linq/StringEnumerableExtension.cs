@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Components
 {
@@ -11,6 +12,6 @@ namespace Components
             source.Join("");
 
         public static string JoinLines(this IEnumerable<string> source) =>
-            source.Join("\r\n");
+            source.Join(Environment.NewLine);
     }
 }

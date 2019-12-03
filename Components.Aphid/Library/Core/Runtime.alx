@@ -52,13 +52,15 @@ _trace = macro(@(handlerName) {
             if (o.syntaxHighlighting)
             {
                 sb.AppendFormat(
-                    ']\r\n{0}\r\n',
+                    ']{0}{1}{0}',
+                    Environment.NewLine,
                     hl(x.Expression));
             }
             else
             {
                 sb.AppendFormat(
-                    ']\r\n{0}\r\n',
+                    ']{0}{1}{0}',
+                    Environment.NewLine,
                     x.Expression);
             }
 
@@ -131,7 +133,7 @@ _trace = macro(@(handlerName) {
             using System.Runtime.InteropServices;            
             var cmd = Kernel32.GetCommandLine() | Marshal.PtrToStringAuto;
             using (new CrossProcessLock((var f = this.'$script' ?? 'NoScript' @+'.cmd.log')~:['[:\\\\]','$'])) {
-                cmd @+ '\r\n' @io.out.append.txt(f);
+                cmd @+ Environment.NewLine @io.out.append.txt(f);
             }
             
         },

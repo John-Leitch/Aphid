@@ -62,7 +62,7 @@ var handler = @(line, fmt) {
     }
 
     if (line)
-    sb.Append('\r\n');
+    sb.Append(Environment.NewLine);
 
     if (sb.Length > 0) {
         lock (Console.Out) 

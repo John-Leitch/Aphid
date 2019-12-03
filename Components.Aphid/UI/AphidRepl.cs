@@ -110,7 +110,8 @@ namespace Components.Aphid.UI
                         catch (Exception e)
                         {
                             Cli.WriteCriticalErrorMessage(
-                                "Internal error encountered in autocomplete console:\r\n{0}",
+                                "Internal error encountered in autocomplete console:{0}{1}",
+                                Environment.NewLine,
                                 e);
 
                             AphidErrorReporter.Report(e, Interpreter, passThrough: true);
@@ -118,7 +119,8 @@ namespace Components.Aphid.UI
                             if (e is ReflectionTypeLoadException le)
                             {
                                 Cli.WriteCriticalErrorMessage(
-                                    "Loader exceptions:\r\n{0}",
+                                    "Loader exceptions:{0}{1}",
+                                    Environment.NewLine,
                                     le.LoaderExceptions.Select(x => x.Message).JoinLines());
                             }
 

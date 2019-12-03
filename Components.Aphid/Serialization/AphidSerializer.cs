@@ -228,7 +228,7 @@ namespace Components.Aphid.Serialization
 
                     if (!hasAny)
                     {
-                        s.Append("{\r\n");
+                        s.Append("{" + Environment.NewLine);
                         hasAny = true;
                     }
 
@@ -253,7 +253,7 @@ namespace Components.Aphid.Serialization
                     Serialize(s, kvp.Value, indent + 1);
                     //ObjToString(kvp.Value, s, indent + 1);
                     _currentPath.Pop();
-                    s.Append(",\r\n");
+                    s.Append("," + Environment.NewLine);
                 }
 
                 if (hasAny)
@@ -317,7 +317,7 @@ namespace Components.Aphid.Serialization
             {
                 if (list.Count > 0)
                 {
-                    s.Append("[\r\n");
+                    s.Append("[" + Environment.NewLine);
 
                     if (MaxElements <= 0)
                     {
@@ -327,7 +327,7 @@ namespace Components.Aphid.Serialization
                             s.Append(new string(' ', (indent + 1) * 4));
                             //ObjToString(x, s, indent + 1);
                             Serialize(s, x, indent + 1);
-                            s.Append(",\r\n");
+                            s.Append("," + Environment.NewLine);
                         }
 
                     }
@@ -343,15 +343,16 @@ namespace Components.Aphid.Serialization
                             s.Append(new string(' ', (indent + 1) * 4));
                             //ObjToString(x, s, indent + 1);
                             Serialize(s, x, indent + 1);
-                            s.Append(",\r\n");
+                            s.Append("," + Environment.NewLine);
                         }
 
                         if (skip != 0)
                         {
                             s.AppendFormat(
-                                "{0}/* Skipped {1:n0} elements */\r\n",
+                                "{0}/* Skipped {1:n0} elements */{2}",
                                 new string(' ', (indent + 1) * 4),
-                                skip);
+                                skip,
+                                Environment.NewLine);
                         }
 
                         foreach (var x in list.Skip(first + skip))
@@ -359,7 +360,7 @@ namespace Components.Aphid.Serialization
                             s.Append(new string(' ', (indent + 1) * 4));
                             //ObjToString(x, s, indent + 1);
                             Serialize(s, x, indent + 1);
-                            s.Append(",\r\n");
+                            s.Append("," + Environment.NewLine);
                         }
                     }
 
@@ -377,17 +378,17 @@ namespace Components.Aphid.Serialization
 
                 if (function.Body.Count == 0)
                 {
-                    s.Append("{ },\r\n");
+                    s.Append("{ }," + Environment.NewLine);
                 }
                 else if (function.Body.Count == 1 &&
                     function.Body[0].Type == AphidExpressionType.UnaryOperatorExpression &&
                     function.Body[0].ToUnaryOperator().Operator == AphidTokenType.retKeyword)
                 {
-                    s.AppendFormat("{0},\r\n", function.Body[0].ToUnaryOperator().Operand);
+                    s.AppendFormat("{0},{1}", function.Body[0].ToUnaryOperator().Operand, Environment.NewLine);
                 }
                 else
                 {
-                    s.Append("{\r\n");
+                    s.Append("{" + Environment.NewLine);
 
                     var body = function.Body
                         .Select(x => x.IsStatement() ? x.ToString() : x.ToString() + ";")
@@ -402,7 +403,7 @@ namespace Components.Aphid.Serialization
                         .Select(x => new string(' ', ((indent + 1) * 4) + x[0].Length - trim) + x[1])
                         .JoinLines();
 
-                    s.AppendFormat("{0}\r\n{1}}}\r\n", block, new string(' ', indent * 4));
+                    s.AppendFormat("{0}{2}{1}}}{2}", block, new string(' ', indent * 4), Environment.NewLine);
                 }
             }
             else if (value is IEnumerable enumerable)
@@ -443,13 +444,13 @@ namespace Components.Aphid.Serialization
                 {
                     if (!hasAny)
                     {
-                        s.Append("[\r\n");
+                        s.Append("[" + Environment.NewLine);
                         hasAny = true;
                     }
 
                     s.Append(new string(' ', (indent + 1) * 4));
                     SerializeValue(s, x, indent + 1);
-                    s.Append(",\r\n");
+                    s.Append("," + Environment.NewLine);
                 }
             }
             else
@@ -487,13 +488,13 @@ namespace Components.Aphid.Serialization
 
                     if (!hasAny)
                     {
-                        s.Append("[\r\n");
+                        s.Append("[" + Environment.NewLine);
                         hasAny = true;
                     }
 
                     s.Append(new string(' ', (indent + 1) * 4));
                     SerializeValue(s, x, indent + 1);
-                    s.Append(",\r\n");
+                    s.Append("," + Environment.NewLine);
                 }
 
                 if (skipped > 0)
@@ -502,22 +503,23 @@ namespace Components.Aphid.Serialization
                     {
                         s.Append(new string(' ', (indent + 1) * 4));
                         SerializeValue(s, x, indent + 1);
-                        s.Append(",\r\n");
+                        s.Append("," + Environment.NewLine);
                     }
 
                     //if (head.Count + tail.Count > MaxElements)
                     {
                         s.AppendFormat(
-                            "{0}/* Skipped {1:n0} elements */\r\n",
+                            "{0}/* Skipped {1:n0} elements */{2}",
                             new string(' ', (indent + 1) * 4),
-                            skipped);
+                            skipped,
+                            Environment.NewLine);
                     }
 
                     foreach (var x in tail)
                     {
                         s.Append(new string(' ', (indent + 1) * 4));
                         SerializeValue(s, x, indent + 1);
-                        s.Append(",\r\n");
+                        s.Append("," + Environment.NewLine);
                     }
                 }
                 else
@@ -526,7 +528,7 @@ namespace Components.Aphid.Serialization
                     {
                         s.Append(new string(' ', (indent + 1) * 4));
                         SerializeValue(s, x, indent + 1);
-                        s.Append(",\r\n");
+                        s.Append("," + Environment.NewLine);
                     }
                 }
             }
@@ -724,7 +726,7 @@ namespace Components.Aphid.Serialization
                     "{0}{1}{2}",
                     tab,
                     Quote(str.Substring(y, Math.Min(str.Length - y, size))),
-                    ++x != count ? " +\r\n" : "");
+                    ++x != count ? " +" + Environment.NewLine : "");
             }
 
             return true;

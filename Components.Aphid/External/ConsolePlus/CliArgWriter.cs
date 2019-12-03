@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -53,7 +54,7 @@ namespace Components.External.ConsolePlus
             string valueStyle,
             string delimiterStyle) =>
             string.Format(
-                "~Cyan~{0}~R~{2}\r\n{1}\r\n",
+                "~Cyan~{0}~R~{2}{3}{1}{3}",
                 CreateArg(
                     arg,
                     argStyle,
@@ -61,7 +62,8 @@ namespace Components.External.ConsolePlus
                     delimiterStyle,
                     useOptionalDelimiters: false),
                 arg.Description,
-                arg.IsRequired ? " ~DarkYellow~(Required)~R~" : "");
+                arg.IsRequired ? " ~DarkYellow~(Required)~R~" : "",
+                Environment.NewLine);
 
         private static string[] CreateArgStrings(
             CliArgAttribute[] args,

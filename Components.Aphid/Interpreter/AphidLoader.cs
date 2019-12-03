@@ -1,3 +1,4 @@
+//#define TRACE_SCRIPT_RESOLUTION
 using Components.Aphid.Parser;
 using Components.Aphid.TypeSystem;
 using Components.Aphid.UI;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static Components.External.ConsolePlus.Cli;
 
 namespace Components.Aphid.Interpreter
 {
@@ -17,7 +19,7 @@ namespace Components.Aphid.Interpreter
 
         private static readonly string _libraryPath = Path.Combine(
             !string.IsNullOrEmpty(_location) ? Path.GetDirectoryName(_location) : ".\\",
-            "Library");
+            "library");
 
         private static readonly Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
             new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
@@ -122,29 +124,67 @@ namespace Components.Aphid.Interpreter
 
         public string FindScriptFile(string appDir, string scriptFile)
         {
+#if TRACE_SCRIPT_RESOLUTION
+            WriteQueryMessage("Searching for ~Cyan~{0}~R~, app dir ~Magenta~{1}~R~", scriptFile, appDir);
+#endif
             var extensionStrategies = new Func<string, string>[]
             {
                 x => x + ".alx",
                 x => x
             };
 
-            var files = extensionStrategies.Select(x => x(scriptFile)).ToArray();
+            string[] files;
+
+            if (EnvironmentHelper.IsWindows)
+            {
+                files = extensionStrategies.Select(x => x(scriptFile)).ToArray();
+            }
+            else
+            {
+                scriptFile = scriptFile.Replace('\\', '/');
+                files = extensionStrategies.Select(x => x(scriptFile).ToLower()).ToArray();
+            }
+
+#if TRACE_SCRIPT_RESOLUTION
+            WriteInfoMessage("Script expanded into ~Cyan~{0}~R~ possible paths:", files.Length);
+
+            foreach (var f in files)
+            {
+                WriteMessage(ConsoleColor.Yellow, '-', "{0}", f);
+            }
+#endif
 
             string match;
 
+
+#if TRACE_SCRIPT_RESOLUTION
+            WriteQueryMessage("Checking system search paths");
+#endif
             if ((match = FindScriptFile(SystemSearchPaths, files)) != null)
             {
+#if TRACE_SCRIPT_RESOLUTION
+                WriteSuccessMessage("Script found in system search path: ~Green~{0}~R~", match);
+#endif
                 return match;
             }
 
+#if TRACE_SCRIPT_RESOLUTION
+            WriteQueryMessage("Checking expanded list");
+#endif
             foreach (var file in files)
             {
                 if (File.Exists(file))
                 {
+#if TRACE_SCRIPT_RESOLUTION
+                    WriteSuccessMessage("Found in expanded list: ~Green~{0}~R~", file);
+#endif
                     return file;
                 }
             }
 
+#if TRACE_SCRIPT_RESOLUTION
+            WriteQueryMessage("Checking search paths");
+#endif
             var searchPathSets = new List<HashSet<string>> { SearchPaths };
 
             if (appDir != null)
@@ -156,6 +196,9 @@ namespace Components.Aphid.Interpreter
             {
                 if ((match = FindScriptFile(paths, files)) != null)
                 {
+#if TRACE_SCRIPT_RESOLUTION
+                    WriteSuccessMessage("Found in expanded search path: ~Green~{0}~R~", match);
+#endif
                     return match;
                 }
             }
@@ -170,6 +213,10 @@ namespace Components.Aphid.Interpreter
                 foreach (var p in paths)
                 {
                     var f = Path.Combine(p, file);
+
+#if TRACE_SCRIPT_RESOLUTION
+                    WriteQueryMessage("Checking ~Cyan~{0}~R~", f);
+#endif
 
                     if (File.Exists(f))
                     {

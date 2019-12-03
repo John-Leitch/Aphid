@@ -39,7 +39,7 @@ runtime.log();
 _da = macro(@(n, v) { if (n == null) { n = v } });
 _da(filter, '*');
 _da(excludePattern, null);
-_da(path, '.');
+_da(path, io.cd());
 _da(indentSize, 2);
 _da(excerptLines, 3);
 _da(verbosity, 2);
@@ -131,7 +131,11 @@ if (profile != null) {
 var func = recurse ? io.all.files : io.files;
 var styleEscape = Cli.StyleEscape;
 
-if (!Console.IsInputRedirected) {
+if (Console.IsInputRedirected) {
+    console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()));
+}
+
+if (!Console.IsInputRedirected || mapped.filter || mappped.path) {
     [ path, filter ]-?io.file->io.full for (f) {
         path = f | io.up;
         filter = f | io.name;
@@ -183,8 +187,6 @@ if (!Console.IsInputRedirected) {
         } finally {
             Console.Title = titleBackup;
         }
-    } else {
-        console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()));
     }
 
     if (context.list.Count > 0) {

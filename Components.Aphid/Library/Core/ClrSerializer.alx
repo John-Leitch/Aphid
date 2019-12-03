@@ -58,7 +58,7 @@
                         verbosity >= 4 ? t.FullName + '.' : verbosity >= 3 ? t.Name + '.' : '',
                         verbosity >= 2 ? p.Name + '.' : '',
                         verbosity >= 1 ? ', ' + camelCase(e.message) : '',
-                        verbosity >= 5 ? '\r\n' + e.exception : '')
+                        verbosity >= 5 ? Environment.NewLine + e.exception : '')
                     |> next,
             },
             

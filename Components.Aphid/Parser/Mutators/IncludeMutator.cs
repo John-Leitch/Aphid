@@ -76,6 +76,12 @@ namespace Components.Aphid.Parser
             }
 
             var scriptStr = StringParser.Parse(((StringExpression)scriptExp).Value);
+
+            if (!EnvironmentHelper.IsWindows)
+            {
+                scriptStr = scriptStr.ToLower();
+            }
+
             var script = Loader.FindScriptFile(_applicationDirectory, scriptStr);
 
             if (script == null && scriptExp.Filename != null)
