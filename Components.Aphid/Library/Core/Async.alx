@@ -51,8 +51,8 @@ var wait;
 
             ret source;
         },        
-        range: @(from, to, body) { _r(from, to, body) },
-        to: @(to, body) { _r(0, to, body) },
+        range: @(from, count, body) { _r(from, count, body) },
+        rep: @(count, body) { _r(0, count, body) },
         map: select,
         many: selectMany,
         reduce: selectMany,

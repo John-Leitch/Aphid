@@ -3023,10 +3023,7 @@ namespace Components.Aphid.Interpreter
                     case AphidTokenType.CustomOperator314:
                     case AphidTokenType.CustomOperator315:
                     case AphidTokenType.CustomOperator316:
-                    case AphidTokenType.CustomOperator317:
-                    case AphidTokenType.CustomOperator318:
-                    case AphidTokenType.CustomOperator319:
-                        #endregion
+                    #endregion
                         return InterpretCustomUnaryOperator(expression);
 
                     default:
@@ -5452,9 +5449,11 @@ namespace Components.Aphid.Interpreter
                         ToDecimal(InterpretExpression(expression.RightOperand).Value));
 
                 case AndOperator:
+                case andKeyword:
                     return InterpretAndExpression(expression);
 
                 case OrOperator:
+                case orKeyword:
                     return InterpretOrExpression(expression);
 
                 case ModulusOperator:
@@ -6029,10 +6028,7 @@ namespace Components.Aphid.Interpreter
                 case AphidTokenType.CustomOperator314:
                 case AphidTokenType.CustomOperator315:
                 case AphidTokenType.CustomOperator316:
-                case AphidTokenType.CustomOperator317:
-                case AphidTokenType.CustomOperator318:
-                case AphidTokenType.CustomOperator319:
-                    #endregion
+                #endregion
                     return InterpretCustomBinaryOperator(expression);
 
                 default:

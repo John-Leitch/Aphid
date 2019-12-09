@@ -44,6 +44,9 @@ Lexer({
                 'try',
                 'using',
                 'while',
+                'and',
+                'or',
+                'to',
             ],
             keywordDefault: getKeywordHelper('Identifier'),
             keywordTail: getKeywordHelper('{Keyword}')            
@@ -278,7 +281,7 @@ ParsePipelineExpression = @{
     inPipeline = false;
     while (true) {
         switch (TokenType) {
-            PipelineOperator: {
+            PipelineOperator, toKeyword: {
                 inPipeline = true;
                 TakeToken(op);
                 operand = BinaryOperatorExpression(
@@ -376,7 +379,9 @@ ParseConditionalExpression = @{
     }
 };
 
-ParseLogicalExpression = ParseBinOpExp(ParseComparisonExpression, AndOperator | OrOperator);
+ParseLogicalExpression = ParseBinOpExp(
+    ParseComparisonExpression,
+    AndOperator | OrOperator | andKeyword | orKeyword);
 
 ParseComparisonExpression = ParseBinOpExp(
     ParsePostfixUnaryOperationExpression, 
@@ -740,8 +745,7 @@ ParsePrefixUnaryOperatorExpression = @{
         CustomOperator313,
         CustomOperator314,
         CustomOperator315,
-        CustomOperator316,
-        CustomOperator317
+        CustomOperator316
         // CustomOperatorTup End
         : {
             TakeToken(t);
@@ -1592,8 +1596,7 @@ ParseFunctionExpression = @{
         CustomOperator313,
         CustomOperator314,
         CustomOperator315,
-        CustomOperator316,
-        CustomOperator317
+        CustomOperator316
         // CustomOperatorTup End
         : {
             TakeToken(op);
@@ -2065,6 +2068,5 @@ CustomOperatorOr = macro(@{
     | CustomOperator314
     | CustomOperator315
     | CustomOperator316
-    | CustomOperator317
     // CustomOperatorOr End
 });

@@ -1,0 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using Components;
+#'core/operators';
+#'core/internals';
+#'core/linq';
+var format=String.Format;
+parseArgsFor() | single @.Value |> double.Parse @* multiplier | Thread.Sleep;

@@ -27,6 +27,7 @@ var tokens = [
     { regex: ":", type: "ColonOperator" },
     { regex: "@", type: "FunctionOperator" },
     { regex: "@>", type: "CompositionOperator" },
+    { regex: "<@", type: "ReverseCompositionOperator" },    
     { regex: "\\?", type: "ConditionalOperator" },
     { regex: "..", type: "RangeOperator" },
 
@@ -79,6 +80,7 @@ var tokens = [
     { regex: ">=", type: "GreaterThanOrEqualOperator" },
 
     { regex: "\\|>", type: "PipelineOperator" },    
+    { regex: "<\\|", type: "ReversePipelineOperator" },    
                 
     { regex: "\\+>", type: "AggregateOperator" },
     { regex: "=\\?", type: "AnyOperator" },
@@ -129,18 +131,20 @@ var tokens = [
     { regex: "/\\*", code: commentCode }
 ];
 
-Console.WriteLine('Adding custom operators');
+printInfo('Generating custom operators');
 
 var reChars = '\\+*|?()[]';
 
 var customTokens =
     1..2
-    ->@seq.rep($_,'`~!#%^&*-=\\+:<>.|/?')
+    ->(@() seq.rep($_,'`~!#%^&*-=\\+:<>.|/?'))
     -<permutations
     ->concat
     ->(@()$_ ~: [ (reChars->@concat('\\'))-+'|', '\\$0' ])
     @except(tokens->?>@.regex-?@!= null @seq.array(string))
     @seq.iter(@(x,i) ({ regex: x, type: "CustomOperator{0:D3}" :: i.int() }));
+    
+printSuccess('Generated ~Cyan~{0:n0}~R~ custom operators', (customTokens#!).int());
 
 customTokens->tokens.Add;
 
@@ -161,7 +165,7 @@ if ((paths#!) == 0) {
 
 var updateCustomOperators = @(relCodeFile, regionBegin, regionEnd, getText) {
     var codeFile = relCodeFile @io.head(paths^!);
-    codeFile @printInfo('Updating ~Cyan~{0}~R~ with custom operators');
+    codeFile @printInfo('Updating ~Cyan~{0}~R~ with custom operator cases');
     var code = codeFile |> File.ReadAllText;
     var matches = @Regex.Matches(code);
     var ends = regionEnd |> matches;
@@ -199,6 +203,8 @@ var getCases = @(indent) customOps
 var getOr = @(indent)
     indent +
     (customOps ->(@+'\r\n') +>(@(x, y) x + indent + '| ' + y));
+
+//repl.run();
 
 var getTup = @(indent)
     indent +

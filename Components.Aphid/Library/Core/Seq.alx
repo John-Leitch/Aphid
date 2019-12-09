@@ -14,12 +14,12 @@ var seq;
                 source,
 
         inc: @(source, start) (start defined ? start : 0)..(source | count),
-        to: @(source, start) start defined ? start..((source | count) - start) : 0..(source | count),
-        from: @(source) source | to | reverse,    
-        rep: @(count, source) count | to -> @() source,
+        range: @(source, start) start defined ? start..((source | count) - start) : 0..(source | count),
+        from: @(source) source | range | reverse,    
+        rep: @(count, source) count | range -> @() source,
 
         each: @(func, source) {
-            source | to for (x) func(source[x], x);
+            source | range for (x) func(source[x], x);
             ret source;
         },
         
@@ -48,7 +48,7 @@ var seq;
         when: whileTrue,
         whenNot: whileFalse,
         
-        init: @(func, source) source | to -> func,
+        init: @(func, source) source | range -> func,
 
         array: @(type, source) {
             var a = source | count @Array.CreateInstance(type);
@@ -56,7 +56,7 @@ var seq;
 
             ret a;
         },
-        // fanReduce = @(set) set |> seq.to-< @(i) set |> toList @{ $_.RemoveAt(i); ret $_.Count > 1 ? $_ |> fanReduce : [$_] })<| (1..10) |> dump }()
+        // fanReduce = @(set) set |> seq.range-< @(i) set |> toList @{ $_.RemoveAt(i); ret $_.Count > 1 ? $_ |> fanReduce : [$_] })<| (1..10) |> dump }()
         
     }
 }();

@@ -50,6 +50,7 @@ namespace Components.Aphid.UI.Colors
                             return SystemColor.DodgerBlue;
                     }
 
+                case andKeyword:
                 case breakKeyword:
                 case catchKeyword:
                 case continueKeyword:
@@ -68,10 +69,12 @@ namespace Components.Aphid.UI.Colors
                 case lockKeyword:
                 case newKeyword:
                 case nullKeyword:
+                case orKeyword:
                 case retKeyword:
                 case switchKeyword:
                 case thisKeyword:
                 case throwKeyword:
+                case toKeyword:
                 case trueKeyword:
                 case tryKeyword:
                 case usingKeyword:

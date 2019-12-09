@@ -131,7 +131,11 @@ _trace = macro(@(handlerName) {
         },
         log: @{
             using System.Runtime.InteropServices;            
-            var cmd = Kernel32.GetCommandLine() | Marshal.PtrToStringAuto;
+            
+            var cmd = EnvironmentHelper.IsWindows ? 
+                Kernel32.GetCommandLine() | Marshal.PtrToStringAuto :
+                Environment.CommandLine;
+
             using (new CrossProcessLock((var f = this.'$script' ?? 'NoScript' @+'.cmd.log')~:['[:\\\\]','$'])) {
                 cmd @+ Environment.NewLine @io.out.append.txt(f);
             }

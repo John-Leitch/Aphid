@@ -50,8 +50,8 @@ _queryBody = macro(@(filter){
 @ ~| (input, pattern) Enumerable.Single(_rec());
 @ <- (selector, source) source -> selector;
 @ ?- (selector, source) source -? selector;
-@ <| (target, arg) target(arg);
-@ <@ (f1, f2) f2 @> f1;
+//@ <| (target, arg) target(arg);
+//@ <@ (f1, f2) f2 @> f1;
 @ &\ (file) _in(ReadAllBytes);
 @ |\ (file) _in(ReadAllText);
 @ \| (text, file) text.ToString() @File.WriteAllText(file.ToString());
