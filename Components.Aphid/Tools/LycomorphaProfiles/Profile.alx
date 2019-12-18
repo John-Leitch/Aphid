@@ -1,3 +1,8 @@
 var s = staticMap(string);
 
-var exclude = @() excludePattern = '\\.({0})$' :: $_ @s.split('\r\n') ->s.trim -?@!='' @join('|');
+var excludeList = [];
+
+var exclude = @(extensions)
+    excludePattern = '\\.({0})$' ::
+        (excludeList = excludeList @concat(extensions @s.split('\r\n') ->s.trim -?@!=''))
+        @join('|');

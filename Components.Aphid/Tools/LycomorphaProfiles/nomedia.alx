@@ -11,13 +11,16 @@ exclude('
     m4v
     m4a
     3gp
+    wmv
     flac
     wav
     gif
     jpg
     jpeg
     ttf
-    wepb
+    webp
+    psd
+    bmp
     png
     ithmb
     (thumbdata\\d--?\\d+)

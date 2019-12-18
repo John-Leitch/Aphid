@@ -93,12 +93,13 @@ LLexSearch
     };
 };
 // if (compileLLex) buildLLexAsm(pattern) |> dumpe;
-var searchFile = @(file) {    
+var searchFile = @(file, textEncoding) {    
     if (verbosity >= 3) {
-        lock Console.Out info('Searching {0}', file | styleEscape);
-    }
-
-    var textEncoding = Encoding.GetEncoding('iso-8859-1');
+        lock Console.Out info(
+            'Searching {0} using {1}',
+            file | styleEscape,
+            textEncoding.EncodingName);
+    }   
 
     var text;
 

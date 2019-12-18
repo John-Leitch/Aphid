@@ -32,6 +32,7 @@ runtime.log();
     int fastExcerptSize: '-fe',
     string profile: '-profile',
     int maxSize: '-max',
+    string decoderNames: '-decoders',
 }
 | importArgs;
 
@@ -46,6 +47,7 @@ _da(dumpOut, false);
 _da(hashValues, false);
 _da(profile, 'Default');
 _da(threads, Environment.ProcessorCount / 2 @Math.Min(1));
+_da(decoderNames, 'iso-8859-1');
 
 if (out != null) {
     out = out @format('"{0}"') StringParser.Parse;
@@ -104,6 +106,20 @@ var startTime = DateTime.Now;
 
 if (verbosity >= 2) {
     console.info('Initializing');
+}
+
+var decoders;
+
+try {
+    decoders = decoderNames.Split(',;')->(@()$_.Trim())->Encoding.GetEncoding |> toArray;
+} catch (e) {
+    console.error('Error getting decoder: {0}', e.message);
+    exit(0xbad88);
+}
+
+if ((replace || write || previewReplacements || out != null) && (decoders#!) != 1) {
+    console.error('Cannot perform text replacement when more than one decoder is specified');
+    exit(0xbad8a);
 }
 
 var execEvaluator = useEvaluator ?
@@ -179,7 +195,7 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path) {
             Parallel.ForEach(
                 files,
                 @(f){
-                    searchFile(f);
+                    decoders for searchFile(f, $_);
                     setTitle();
                 });
         } finally {
