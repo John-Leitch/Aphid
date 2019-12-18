@@ -290,6 +290,15 @@ ParsePipelineExpression = @{
                     ParseRangeExpression());
             }
 
+            ReversePipelineOperator: {
+                inPipeline = true;
+                TakeToken(op);
+                operand = BinaryOperatorExpression(
+                    operand, 
+                    ReversePipelineOperator, 
+                    ParseRangeExpression());
+            }
+
             InteropOperator: {
                 inPipeline = true;
                 operand = BinaryOperatorExpression(
@@ -358,6 +367,7 @@ ParseRangeExpression = ParseBinOpExp(
     ParseConditionalExpression,
     RangeOperator
     | CompositionOperator
+    | ReverseCompositionOperator
     | CustomOperatorOr());
 
 ParseConditionalExpression = @{
@@ -1273,6 +1283,7 @@ ParseFunctionExpression = @{
         LessThanOrEqualOperator,
         GreaterThanOrEqualOperator,
         PipelineOperator,
+        ReversePipelineOperator,
 
         MemberOperator: {
             TakeToken(op);

@@ -2032,7 +2032,7 @@ namespace Components.Aphid.Parser.Tests
             AphidToken s0 = new AphidToken(AphidTokenType.MinusOperator, "", default(int));
             aphidTokens[0] = s0;
             AphidToken s1
-               = new AphidToken(AphidTokenType.CustomOperator317, "", default(int));
+               = new AphidToken(AphidTokenType.CustomOperator315, "", default(int));
             aphidTokens[1] = s1;
             list = new List<AphidToken>((IEnumerable<AphidToken>)aphidTokens);
             aphidParser = new AphidParser(list);

@@ -32,12 +32,12 @@ _fun(BindingFlags.DeclaredOnly | f.CreateInstance, Convert.ToUInt32);
 _fun(f.DeclaredOnly | f.CreateInstance, Convert.ToUInt32);
 
 _flag = macro(@(x, y, z) {
-    equal to self begin;
+    equal with self begin;
     @{ x == x };
     @{ y == y };
     @{ z == z };
 
-    not equal to other begin;
+    not equal with other begin;
     @{ x != y };
     @{ x != z };
     @{ y != x };
@@ -45,7 +45,7 @@ _flag = macro(@(x, y, z) {
     @{ z != x };
     @{ z != y };
 
-    single bitwise or equal begin;
+    single bitwise pipe equal begin;
     @{ x | y == x | y };
     @{ x | z == x | z };
     @{ y | x == y | x };
@@ -53,7 +53,7 @@ _flag = macro(@(x, y, z) {
     @{ z | x == z | x };
     @{ z | y == z | y };
 
-    single bitwise or reverse equal begin;
+    single bitwise pipe reverse equal begin;
     @{ x | y == y | x };
     @{ x | z == z | x };
     @{ y | x == x | y };
@@ -61,7 +61,7 @@ _flag = macro(@(x, y, z) {
     @{ z | x == x | z };
     @{ z | y == y | z };
 
-    self bitwise or equal begin;
+    self bitwise pipe equal begin;
     @{ x | x == x | x };
     @{ y | y == y | y };
     @{ z | z == z | z };
@@ -69,12 +69,12 @@ _flag = macro(@(x, y, z) {
     @{ y | y | y == y | y | y };
     @{ z | z | z == z | z | z };
 
-    multi bitwise or equal begin;
+    multi bitwise pipe equal begin;
     @{ x | y | z == x | y | z };
     @{ z | y | x == x | y | z };
     @{ z | x | y == y | x | z };
 
-    multi bitwise or equal with func begin;
+    multi bitwise pipe equal with func begin;
 
     @{ x | y | z | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 };
     @{ z | y | x | Convert.ToUInt32 == x | y | z | Convert.ToUInt32 };

@@ -5505,6 +5505,13 @@ namespace Components.Aphid.Interpreter
                             expression.LeftOperand)
                                 .WithPositionFrom(expression));
 
+                case ReversePipelineOperator:
+                    return InterpretCallExpression(
+                        (CallExpression)new CallExpression(
+                            expression.LeftOperand,
+                            expression.RightOperand)
+                                .WithPositionFrom(expression));
+
                 case RangeOperator:
                     return OperatorHelper.Range(
                         InterpretExpression(expression.LeftOperand),
@@ -5709,6 +5716,13 @@ namespace Components.Aphid.Interpreter
 
                 case CompositionOperator:
                     return InterpretFunctionComposition(expression);
+
+                case ReverseCompositionOperator:
+                    return Scalar(new AphidFunctionComposition(
+                        expression.RightOperand,
+                        expression.LeftOperand,
+                        InterpretExpression(expression.RightOperand).Value,
+                        InterpretExpression(expression.LeftOperand).Value));
 
                 #region Custom Operator Cases
                 case AphidTokenType.CustomOperator000:

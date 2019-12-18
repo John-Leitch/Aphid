@@ -44,7 +44,14 @@
         boundArgs.mapped = mapped;
         boundArgs.anyMapped = false;
         boundArgs.anyRemaining = false;
-        var args = parseArgsFor();
+        var args;
+        
+        try {
+            args = parseArgsFor();
+        } catch (e) {
+            console.error('Error parsing args: {0}', e.message);
+            exit(0xbadf0);
+        }
 
         for (var i = 0; i < (args#!); i++) {
             if(argMap.names[var v = args[i].Value] defined) {

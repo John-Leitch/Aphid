@@ -164,7 +164,7 @@ var searchFileText = @(file, reader, text) {
         ret null;
     }
     
-    lock Console.Out handleMatches(file, reader, text, matches, c);
+    lock Console.Out ret handleMatches(file, reader, text, matches, c);
 };
 
 var handleMatches = @(file, reader, text, matches, c) {
@@ -237,8 +237,8 @@ var handleMatches = @(file, reader, text, matches, c) {
         if (previewReplacements) {
             var replacement;
             if (useEvaluator) {
-                var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
-                replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  f);
+                var f = new AphidFunction(['m'], execEvaluator.Body, this);                
+                replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  @() f($_).ToString());
             } else if (out != null) {
                 replacement = lazyRegex.Value.Replace($_.Groups[0].Value,  out);
             }
@@ -257,12 +257,14 @@ var handleMatches = @(file, reader, text, matches, c) {
         }
     };
 
+    // dump({ matchCount: matches#!, dumpOut, write, useEvaluator, outNull: out == null });
+
     if ((matches#!) > 0 && (dumpOut || write) && (useEvaluator || out != null)) {
         var updated;
         
         if (useEvaluator) {
             var f = new AphidFunction(['m'], execEvaluator.Body, this);
-            updated = lazyRegex.Value.Replace(text, f);
+            updated = lazyRegex.Value.Replace(text, @() f($_).ToString());
         } else if (out != null) {
             updated = lazyRegex.Value.Replace(text, out);
         }
@@ -285,6 +287,8 @@ var handleMatches = @(file, reader, text, matches, c) {
 
             console.line();
         }        
+
+        // dump({ updated });
 
         ret updated;
     }
