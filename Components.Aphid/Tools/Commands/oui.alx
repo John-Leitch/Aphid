@@ -1,0 +1,86 @@
+#'std';
+
+var nameFile = io.script.path('ouinames.alx');
+var nameSrc = 'https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf';
+var ouis;
+var s = staticMap(string);
+
+if (nameFile | io.not.file) {
+    #'net/web';
+    console.query('Could not find OUI list, downloading from ~Cyan~{0}~R~', nameSrc);
+    var manuFile = io.script.path('manuf');
+
+    try {
+        nameSrc | httpGet @io.txt(manuFile);
+    } catch (e){
+        console.error('Failed downloading OUI list: {0}', e.message);
+        exit(0xbad90);
+    }
+
+    console.info('Compiling list');   
+    ouis = manuFile | io.lines -?(@() !$_.StartsWith('#') && $_.Trim() != '')->@s.split('\t');
+
+    ouis for (x) {
+        x[0] = x[0].ToLower();
+        if (x[0].Contains('/')) {
+            var parts = x[0].Split('/');
+            x[0] = parts[0]~:':' @()$_.ToCharArray() @take(parts[1] | int.Parse @/ 4) @every(2)->concat @join(':') s.toLower;
+        }
+    };
+
+    aphid.Serializer.StringReferenceThreshold = int.MaxValue;
+    var ouiTable = {};
+    ouis-/(@()$_[0].Length) for ouiTable[$_[0]] = $_;
+    ouiTable | serialize @io.txt(nameFile);
+
+    // ouis-/(@()$_[0].Length) |> toArray |> serialize @io.txt(nameFile);
+    manuFile | io.del;
+
+    console.success('Succeeded, OUI list written to ~Green~{0}~R~', nameFile);
+} else {
+    ouis = nameFile | io.txt | deserialize;
+}
+
+var resolveOui = @(mac){
+    var patterns = 
+        mac
+        .ToLower()
+        | unhex
+        | hex
+        | (@(m) 0..m.Length
+            ->@()
+                ($_ != 0 ? m.Remove(m.Length - $_) : m)
+                @()$_.ToCharArray()
+                @every(2)
+                ->concat
+                @join(':'))
+                // @format('^({0})'))
+        for (p) {
+            // var result = ouis @firstOrDefault(@(x) x[0] ~= p);
+            
+            // if (result != null) {
+            //     ret result;
+            // }
+
+            if (ouis[p] defined) {
+                ret ouis[p];
+            }
+
+            
+        };
+
+    
+
+    ret null;
+};
+
+var unknownVendor = '{0}Unknown{1}' :: [
+    console.color.fg(SystemColor.Yellow),
+    VT100.Reset
+];
+
+stdIn.lines(
+    @(mac) console.line(
+        '{0} {1}',
+        mac,
+        mac | resolveOui @(x) x != null ? x | last : unknownVendor));

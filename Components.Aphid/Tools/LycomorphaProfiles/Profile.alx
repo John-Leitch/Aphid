@@ -3,6 +3,9 @@ var s = staticMap(string);
 var excludeList = [];
 
 var exclude = @(extensions)
+    // excludePattern = '\\.({0})$' ::
+    //     ((excludeList = excludeList @concat(extensions @s.split('\r\n') ->s.trim -?@!=''))
+    //     @join('|'));
+
     excludePattern = '\\.({0})$' ::
-        (excludeList = excludeList @concat(extensions @s.split('\r\n') ->s.trim -?@!=''))
-        @join('|');
+        extensions @s.split('\r\n') ->s.trim -?@!='' @join('|');

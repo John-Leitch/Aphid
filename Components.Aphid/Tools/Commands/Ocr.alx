@@ -1,0 +1,33 @@
+#'std';
+#'system/nuget';
+nuget.reference('Tesseract');
+var asmDir = getAssemblies()~|'Tesseract' @.Location |> io.up;
+
+if (asmDir @io.append('x86') io.not.dir) {
+    var srcFiles = asmDir | io.up | io.up | io.all.files ~? 'x86|x64';
+    srcFiles->io.up->io.name!?->@io.prepend(asmDir)->io.mkdir;
+    srcFiles for io.copy($_, asmDir @io.append($_ | io.up | io.name) @io.append($_ | io.name));
+}
+
+using Tesseract;
+var dataPath = io.script.path('tessdata');
+
+
+if (dataPath | io.not.dir) {
+    consol.error('Could not find Tesseract data at {0}', dataPath);
+    exit(0xbad01);
+}
+// repl.run();
+using (var engine = new TesseractEngine(dataPath, 'eng', EngineMode.Default)) {
+    stdIn.lines(@ (f){
+        head('Getting text from {0}' :: f);
+
+        try {
+            using (var img = f | Pix.LoadFromFile)
+            using (var page = engine.Process(img, null))
+            page.GetText().Trim() | Console.WriteLine;
+        } catch (e) {
+            console.error('Error OCRing {0}: {1}', f, e.message);
+        }
+    });
+}

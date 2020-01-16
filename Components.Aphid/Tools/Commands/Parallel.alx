@@ -5,6 +5,7 @@ var degrees = args[0].Value | parseExp | aphid.Interpret;
 var body = args | count > 1 ? args[1] @getCmdTail(0) : '';
 var queue = new Queue[string]();
 var queuePopulated = false;
+var queuePopulatedSync = new Object();
 
 var threads = 0..degrees
     ->(@() async.thread(@{
@@ -14,7 +15,14 @@ var threads = 0..degrees
             lock queue {
                 if (queue.Count != 0) {
                     cmd = queue.Dequeue();
-                } else if (!queuePopulated) {
+                }
+            }
+
+            if (cmd == null) {
+                var shouldSleep;  
+                lock queuePopulatedSync shouldSleep = !queuePopulated;
+
+                if (shouldSleep) {
                     async.sleep(10);
                     continue;
                 } else {
@@ -33,5 +41,5 @@ var threads = 0..degrees
     |> toArray;
 
 console.stdIn.lines(@() queue.Enqueue(body != '' ? body :: $_ : $_));
-queuePopulated = true;
+lock queuePopulatedSync queuePopulated = true;
 threads for $_.Join();
