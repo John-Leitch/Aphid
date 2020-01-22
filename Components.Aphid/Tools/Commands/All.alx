@@ -4,6 +4,7 @@ preprocessor.inlineScripts = true;
 var argTokens = Environment.CommandLine | ArgLexer.GetTokenInfo;
 var initExps = new List[AphidExpression]();
 var useLinesCore = useLines defined ? useLines : false;
+var fanCore = fan defined ? fan : false;
 
 var body =
     argTokens
@@ -11,9 +12,10 @@ var body =
     ^!
     @.Offset
     |> Environment.CommandLine.Substring
-    @format(useLinesCore ?
-        'console.stdIn.lines() |> ({0}) |> Console.Out.Write' :
-        'console.stdIn.txt() |> ({0}) |> Console.Out.Write')
+    @format((useLinesCore ?
+        'console.stdIn.lines() |> ({{0}}) {0}' :
+        'console.stdIn.txt() |> ({{0}}) {0}') ::
+        fanCore ? '-> Console.Out.WriteLine' : '|> Console.Out.Write')
     |> parse
     |> preprocessor.transform
     @mutate(@{

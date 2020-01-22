@@ -1,0 +1,35 @@
+nuget.reference('MaxMind.DB');
+using MaxMind.Db;
+
+
+var maxMind = {
+    reader: null,
+    init: @{
+        if (reader == null)  {
+            // #'system/nuget';
+            
+            reader = Reader;
+        }
+    },
+    open: @(dbFile) {
+        // init();
+        
+        ret new Reader(dbFile);
+    },
+};
+
+extend Reader {
+    read: @(db, ip) db.Find.Members[0]
+        .MakeGenericMethod(Dictionary[string, Object])
+        .Invoke(
+            db,
+            [
+                ip != null ?
+                    ($(ip.GetType())
+                        string: IPAddress.Parse(ip),
+                        IPAddress: ip,
+                        throw new ArgumentException('ip'))
+                    : null,
+                null
+            ])
+}

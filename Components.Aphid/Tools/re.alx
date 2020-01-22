@@ -172,7 +172,7 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path) {
         });
 
     if (maxSize != null) {
-        files = files-?@() io.len($_) <= maxSize;
+        files = files-?(@() io.len($_) <= maxSize) ?> true;
     }
 
     files = files->io.full |> toArray;
@@ -192,12 +192,21 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path) {
         'Initializing...' @(f) setTitle();
 
         try {
-            Parallel.ForEach(
-                files,
-                @(f){
+            if (threads > 1) {
+                Parallel.ForEach(
+                    files,
+                    @(f){
+                        decoders for searchFile(f, $_);
+                        setTitle();
+                    });
+            } else {
+                files for (f) {
                     decoders for searchFile(f, $_);
                     setTitle();
-                });
+                };
+            }
+        } catch (e) {
+            console.error('Error executing search: {0}', e.message);
         } finally {
             Console.Title = titleBackup;
         }

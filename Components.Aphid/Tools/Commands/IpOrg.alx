@@ -1,0 +1,22 @@
+#'std';
+#'system/nuget';
+#'data/maxMind';
+
+var asndb = this.'$script' @io.sibling('GeoLite2-ASN.mmdb');
+
+if (asndb | io.not.file) {
+    console.error('Could not find MaxMind database ~Yellow~{0}~R~', asndb);
+    exit(0xbad01);
+}
+
+var db = maxMind.open(asndb);
+var s = staticMap(string);
+
+stdIn.lines(@(l){
+    l
+    |> s.trim
+    |> (@(x) (x.Contains(':') && !x.Contains('::') ? x + '::' : x))
+    |> db.read
+    |> (@() $_ != null ? $_.get_Item('autonomous_system_organization') : 'Unknown')
+    |> console.line
+});
