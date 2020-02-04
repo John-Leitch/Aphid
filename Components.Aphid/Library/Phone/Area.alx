@@ -1,0 +1,46 @@
+var phoneAreaPrefix;
+
+@{
+    var script = this.'$block'[0].Filename;
+    var asmFile = script @io.sibling('PhoneAreaPrefix.dll');
+
+    if (asmFile | io.not.file) {
+        #'std';
+        #'meta/code/compiler';
+        csharp.roslyn.enable();
+        csharp.optimize();
+        csharp.params.GenerateInMemory = false;
+        csharp.params.OutputAssembly = asmFile;
+
+        script
+        @io.sibling('prefsnormalized.txt')
+        |> io.lines
+        ->@format('                "{0}",')
+        @join('\r\n')
+        @format('
+            namespace Components.Phone
+            {{
+                using System;
+                using System.Collections.Generic;
+
+                public static class PhoneAreaPrefix
+                {{
+                    private static HashSet<string> _prefs = new HashSet<string>(new string[]
+                    {{
+                        {0}
+                    }});               
+
+                    public static bool IsValid(string phone) =>
+                        phone.Length > 9 ?  _prefs.Contains(phone.Remove(9)) :
+                        phone.Length == 9 ? _prefs.Contains(phone) :
+                        false;
+                }}
+            }}
+        ')
+        |> csharp.compileAsm
+    }
+
+    load asmFile;
+    using Components.Phone;
+    phoneAreaPrefix = { isValid: PhoneAreaPrefix.IsValid };    
+}();

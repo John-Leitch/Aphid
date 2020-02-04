@@ -40,6 +40,10 @@ var threads = 0..degrees
     }))
     |> toArray;
 
-console.stdIn.lines(@() queue.Enqueue(body != '' ? body :: $_ : $_));
+console.stdIn.lines(@{
+    var b = body != '' ? body :: $_ : $_;
+    lock queue queue.Enqueue(b);
+});
+
 lock queuePopulatedSync queuePopulated = true;
 threads for $_.Join();
