@@ -9,6 +9,7 @@ runtime.log();
 {
     string path: '-p',
     string filter: '-f',
+    string searchIndex: '-si',
     string excludePattern: '-x',
     bool replace: '-r',
     bool useEvaluator: '-e',
@@ -48,6 +49,11 @@ _da(hashValues, false);
 _da(profile, 'Default');
 _da(threads, Environment.ProcessorCount / 2 @Math.Min(1));
 _da(decoderNames, 'iso-8859-1');
+
+if (searchIndex != null && io.not.file(searchIndex)) { 
+    console.error('Search index not found.');
+    exit(0xbad53);
+}
 
 if (out != null) {
     out = out @format('"{0}"') StringParser.Parse;
@@ -141,6 +147,10 @@ if (profile != null) {
     aphid.Loader.LoadScript(profile, false);
 }
 
+if (mapped.excerptLines && fastExcerptSize != null) {
+    fastExcerptSize = null;
+}
+
 var func = recurse ? io.all.files : io.files;
 var styleEscape = Cli.StyleEscape;
 
@@ -148,28 +158,38 @@ if (Console.IsInputRedirected) {
     console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()));
 }
 
-if (!Console.IsInputRedirected || mapped.filter || mapped.path) {
-    [ path, filter ]-?io.file->io.full for (f) {
-        path = f | io.up;
-        filter = f | io.name;
-    };
+if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchIndex) {
+    var files;
+    
+    if (!mapped.searchIndex) {
+        [ path, filter ]-?io.file->io.full for (f) {
+            path = f | io.up;
+            filter = f | io.name;
+        };
 
-    if (verbosity >= 2) {
-        console.query('Enumerating files in {0} using filter {1}', path, filter);
-    }
+        if (verbosity >= 2) {
+            console.query('Enumerating files in {0} using filter {1}', path, filter);
+        }
 
-    var files = func(path, filter)
-        @where(@(file) {
-            if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
-                if (verbosity >= 4) {
-                    info('Skipping ~Yellow~{0}~R~ due to exclude pattern', file | styleEscape);
+        files = func(path, filter)
+            @where(@(file) {
+                if (excludePattern != null && Regex.IsMatch(file, excludePattern, reOptions)) {
+                    if (verbosity >= 4) {
+                        info('Skipping ~Yellow~{0}~R~ due to exclude pattern', file | styleEscape);
+                    }
+
+                    ret false;
                 }
 
-                ret false;
-            }
-
-            ret true;
-        });
+                ret true;
+            });
+    } else {
+        if (verbosity >= 2) {
+            console.query('Reading search index {0}', searchIndex);
+        }
+        
+        files = searchIndex | io.lines;
+    }
 
     if (maxSize != null) {
         files = files-?(@() io.len($_) <= maxSize) ?> true;
@@ -205,8 +225,8 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path) {
                     setTitle();
                 };
             }
-        } catch (e) {
-            console.error('Error executing search: {0}', e.message);
+        // } catch (e) {
+        //     console.error('Error executing search: {0}', e.message);
         } finally {
             Console.Title = titleBackup;
         }
@@ -214,6 +234,10 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path) {
 
     if (context.list.Count > 0) {
         context.list | dump;
+    }
+
+    if (context.obj.Keys.Count > 0) {
+        context.obj | dump;
     }
 }
 

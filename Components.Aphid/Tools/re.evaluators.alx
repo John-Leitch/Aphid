@@ -1,6 +1,10 @@
 #'meta/code/tokenMinimizer';
 
-var context = {hashed: new HashSet[string](), list: []};
+var context = {hashed: new HashSet[string](), list: [], obj: {}};
+aphid.Serializer.AlwaysQuoteKeys = true;
+aphid.Serializer.UseDoubleQuotes = true;
+aphid.Serializer.SplitStrings = false;
+aphid.Serializer.StringReferenceThreshold = int.MaxValue;
 
 if (line == console.line) {
     delete line;
@@ -123,3 +127,31 @@ var scan = @(pattern, f) {
 };
 
 var pscan = @() scan('[\x0a\x0d\x20-\x7f]', 1);
+
+var guess = @(value) {
+    var o = null;
+    
+    set = macro(@(n, v) {
+        if (o == null) {
+            o = { value, n: v };
+        } else {
+            o.n = v;
+        }
+    });
+
+    if ((value ~= "^\\s*\\d{9,}(\\.\\d+)?\\s*$") &&
+        (var num = decimal.Parse(value)) > 500000000 &&
+        (var ts = num | timestamp.guess) != null) {
+        set(timestamp, ts);
+    }
+
+    
+    if ((var phones =
+        (value ~~ "(^|[^\\d])((\\+|%25)?1[ ._-]{0,3})?\\(?(\\d{3})\\)?[ ._-]{0,3}(\\d{3})[ ._-]{0,3}(\\d{4})($|[^\\d])")
+        -> @() '({0}) {1}-{2}' :: [ $_.Groups[4], $_.Groups[5], $_.Groups[6] ])
+        |> any) {
+        set(phoneNumber, $(phones#!) 1: phones[0], phones);
+    }
+
+    ret o == null ? value : (o | serialize);
+};

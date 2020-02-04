@@ -265,3 +265,6 @@ push
 *.alx.out
 MigrationBackup/*
 VSIXProject1/*
+Components.Aphid/Tools/Commands/tessdata/*
+Components.Aphid/Tools/Commands/ouinames.alx
+Components.Aphid/Tools/Commands/*.mmdb

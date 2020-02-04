@@ -1,0 +1,5 @@
+#'std';
+io.all.files()
+-&(@()io.ext($_).TrimStart('.').ToLower())
+-\(@()$_ #!)
+for console.line('{0, 12} {1}', $_ #!, $_.Key)
