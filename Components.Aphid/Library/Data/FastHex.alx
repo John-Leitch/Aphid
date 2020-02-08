@@ -1,0 +1,81 @@
+// #'std';
+var fastHex;
+
+@{
+    var script = this.'$block'[0].Filename;
+    var asmFile = script @io.sibling('FastHex.dll');
+
+    if (asmFile | io.not.file) {
+        #'std';
+        #'meta/code/compiler';
+        csharp.roslyn.enable();
+        csharp.optimize();
+        csharp.params.GenerateInMemory = false;
+        csharp.params.OutputAssembly = asmFile;
+        var margin = '                                    ';
+        var prefCase = @(x, i) margin + (i > 0x9 ? "case '{0:X}': " : "") + x;
+
+        
+        0..0x10
+            ->Convert.ToByte
+            ->(@(h)
+                format(h @prefCase("case '{0:x}':\r\n" + margin + "    switch (chars[i + 1]) {{\r\n{1}\r\n" + margin + "    }}\r\n" + margin + "    break;"),
+                    h,
+                    0..0x10
+                        ->Convert.ToByte
+                        ->(@(l)
+                            ('        ') +
+                            format(l @prefCase("case '{0:x}': buffer[j++] = 0x{1:x}{0:x}; break;"), l, h))
+                        @join('\r\n')))
+            @join('\r\n')            
+            @format('
+                namespace Components
+                {{
+                    using System;
+                    using System.Collections.Generic;
+
+                    public static class FastHex
+                    {{
+                        public static byte[] Parse(string hex)
+                        {{
+                            var chars = hex.ToCharArray();
+                            var len = chars.Length;
+                            var buffer = new byte[len / 2];
+                            var j = 0;
+
+                            for (var i = 0; i < len; i+= 2)
+                            {{
+                                switch (chars[i])
+                                {{
+{0}
+                                }}
+                            }}
+
+                            return buffer;
+                        }}
+                    }}
+                }}
+            ')
+            @{ 
+                $_ @io.txt(asmFile @io.ext('.cs'));
+                ret $_;
+            }
+            |> csharp.compileAsm
+    }
+
+    load asmFile;
+    using Components;
+    fastHex = { parse: FastHex.Parse };    
+}();
+
+// var parsed = 
+//     0..0x100
+//     ->Convert.ToByte
+//     ->@format('{0:x2}')
+//     ->fastHex.parse
+//     |> toArray;
+
+
+// 0..0x100 @seq.iter(@(x, i) x | Convert.ToByte == parsed[i][0])->print;
+
+// '41414141' | fastHex.parse | hex | print;

@@ -1,0 +1,8 @@
+#'std';
+#'cli/powershell';
+
+using (var pipe = psContext.engine.Runspace.CreatePipeline()) {
+    pipe.Commands.Add('Out-GridView');    
+    stdIn.lines(pipe.Input.Write);
+    pipe.Invoke();
+}

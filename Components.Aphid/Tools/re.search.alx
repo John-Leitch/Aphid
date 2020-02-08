@@ -92,6 +92,8 @@ LLexSearch
         }
     };
 };
+
+var tryAction = @AphidCli.TryAction(aphid, null);
 // if (compileLLex) buildLLexAsm(pattern) |> dumpe;
 var searchFile = @(file, textEncoding) {    
     if (verbosity >= 3) {
@@ -117,7 +119,7 @@ var searchFile = @(file, textEncoding) {
     var updated;
 
     using (var r = new BinaryReader(io.open.read(file))) {
-        updated = searchFileText(file, r, text);
+        updated = searchFileText(file, r, textEncoding, text);
     }
 
     if (write && updated != null) {
@@ -153,7 +155,7 @@ var initTheme = @{
 // -?theme.darken.get_Item
 // for (t) [ 'fg', 'bg' ] for theme[t][$_] = theme[t][$_] | color.darken;
 
-var searchFileText = @(file, reader, text) {
+var searchFileText = @(file, reader, encoding, text) {
     if (theme == null) {
         initTheme();
     }
@@ -165,10 +167,10 @@ var searchFileText = @(file, reader, text) {
         ret null;
     }
     
-    lock Console.Out ret handleMatches(file, reader, text, matches, c);
+    lock Console.Out ret handleMatches(file, reader, encoding, text, matches, c);
 };
 
-var handleMatches = @(file, reader, text, matches, c) {
+var handleMatches = @(file, reader, encoding, text, matches, c) {
     if (bareMode) {
         if (!useEvaluator) {
             _walkMatches = macro(@(f) { matches for $_ | getMatchValue | f });
@@ -184,8 +186,8 @@ var handleMatches = @(file, reader, text, matches, c) {
         } else {
             matches for (m) {
                 var value = m | getMatchValue;
-                var f = new AphidFunction(execEvaluator.Args, execEvaluator.Body, this);
-                f();
+                new AphidFunction(execEvaluator.Args, execEvaluator.Body, this)
+                |> tryAction;
             }
         }
         

@@ -1,0 +1,18 @@
+#'Std';
+var labels = ['b', 'KB', 'MB', 'GB', 'TB' ];
+
+var labelSize = @{
+    var index = 0;
+    var curSize = $_;
+
+    while (index < labels.Count - 1 && curSize > 1024) {
+        curSize /= 1024;
+        index++;
+    }
+
+    ret curSize @format(index == 0 ? '{1:n0}' : '{1:n4}{0}', labels[index]);
+};
+
+var fs = @(fsos) fsos -> (@(x) x | io.file ? x | io.len : x | io.all.files | fs) +> @(x, y) x + y;
+
+stdIn.lines() | fs | labelSize @Console.WriteLine('{0:n0}');

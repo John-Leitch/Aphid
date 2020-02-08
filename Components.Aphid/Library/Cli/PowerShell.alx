@@ -382,6 +382,29 @@ var initPSInterop = @{
         }
     });
 
+    psContext.gridView = {
+        invoke = @(values, enumerate) {
+            using (var pipe = psContext.engine.Runspace.CreatePipeline()) {
+                pipe.Commands.Add('Out-GridView');
+                if (enumerate defined && enumerate) {
+                    pipe.Input.Write(values, true);
+                } else  {
+                    values->pipe.Input.Write;
+                }
+
+                pipe.Invoke() 
+            }
+        }
+    };
+    
+    psContext.toNotes = @(src) src.Keys-?(@()$_.Length > 0 && $_[0]!='$')->@(k) new PSNoteProperty($_, src[$_]);
+    
+    psContext.toPso = @(src) {
+        var o = new PSObject();
+        src | toNotes -> o.Properties.Add;
+        ret o
+    };
+
     extend PSObject {
         dynamic funcHandler:@(psObj, name) {
             var method;
