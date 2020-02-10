@@ -1,0 +1,10 @@
+#'std';
+this.'$script'
+@io.sibling('ItuMobileNetworks.alx')
+|> io.txt
+|> deserialize
+-?(@()!$_.mnc.Contains('-'))
+->(@()([$_.mcc + $_.mnc, $_.operator ]))
+|> kvpsToObj
+|> serialize
+@io.txt(this.'$script' @io.sibling('ImsiPrefixMap.alx'));

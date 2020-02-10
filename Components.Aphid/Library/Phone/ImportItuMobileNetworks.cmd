@@ -1,0 +1,1 @@
+type c:\temp\MobileNetworkCodes.txt | skip 1 | filter ~= '\t' | lines .Replace('\x22', '\x5c\x22').Split('\t') @() format('    {{mcc:"{0}",mnc:"{1}",brand:"{2}",operator:"{3}",status:"{4}",bands:"{5}",notes:"{6}"}}',$_[0],$_[1],$_[2],$_[3],$_[4],$_[5],$_[6]) | fold @join(',\r\n') | all @format('[\r\n{0}\r\n]') > ItuMobileNetworks.alx

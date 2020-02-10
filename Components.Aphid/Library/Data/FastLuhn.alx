@@ -1,0 +1,135 @@
+var luhn;
+
+@{
+    var luhnDigit = @(isDouble)
+        0..10
+        ->(@() format($_ < 9 ? 'x == \'{0}\' ? {1}' : '{1}', $_, isDouble ? ($_ < 5 ? $_ * 2 : $_ * 2 - 9) : $_))
+        @join(' : ');
+
+    var jitLuhnCase = @(jitLen) {
+        var i = 0;
+        0..jitLen
+        |> reverse
+        @skip(1)
+        @every(2)
+        -<(@() $($_#!)
+            2: [luhnDigit(true), luhnDigit(false)],
+            [luhnDigit(true)])
+        |> reverse
+        for { %>
+            x = s[<%= i++ %>];
+            sum += <%= $_ %>;
+        <% };
+
+        %>
+            x = s[<%= jitLen - 1 %>];
+            sum = sum * 9 % 10;
+            return
+        <%
+        0..9 for { %>
+                x == '<%= $_ %>' ? sum == <%= $_ %> :
+        <% }; %>
+                sum == 9;
+        <%
+    };
+
+        
+    // var jitLen = cards[0].Length;
+    var jitLuhn2 = @(maxLength) { %>    
+
+    namespace Components.Luhn
+    {
+        using System;
+
+        public static class LuhnJit<%= maxLength %>
+        {
+            public static bool IsValid(string s)
+            {
+                var sum = 0;
+                char x;
+
+                switch (s.Length)
+                {
+                    <% 0..maxLength for { %>
+                        case <%= $_ %>:
+                            <% jitLuhnCase($_); %>
+                    <% }; %>
+                }
+                
+                throw new InvalidOperationException();
+            }
+        }
+    }
+
+    <% };
+
+    var generateLuhn = @(strLen) { %>    
+
+    namespace Components.Luhn
+    {
+        using System;
+
+        public static class LuhnJit<%= strLen %>
+        {
+            public static bool IsValid(string s)
+            {
+                if (s.Length != <%= strLen %>)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var sum = 0;
+                char x;
+
+                <% jitLuhnCase(strLen); %>
+            }
+        }
+    }
+
+    <% };
+
+    // var jitLuhn = @(l)
+    //     @{ l | generateLuhn }
+    //     |> strOut
+    //     @() $_.ToString()
+    //     |> csharp.compileAsm
+    //     @() $_.CompiledAssembly.GetTypes()[0].IsValid;
+
+    luhn = {
+        funcs: new Dictionary[int, AphidInteropMember](),
+        isValid: @(s) {
+            if (funcs.ContainsKey(s.Length)) {
+                ret funcs.get_Item(s.Length)(s);
+            }
+            var func;
+
+            var f =
+                this.'$block'[0].Filename
+                @io.sibling('Components.JitLuhn{0}.dll' :: s.Length)
+                |> io.full;
+
+            using (new CrossProcessLock(f.ToLower().Replace('\\', '$').Replace(':', '$'))) {
+                if (f | io.not.file) {
+                    #'meta/code/compiler';
+                    csharp.roslyn.enable();
+                    csharp.optimize();
+                    csharp.params.OutputAssembly = f;
+
+                    func =
+                        @{ s.Length | generateLuhn }
+                        |> strOut
+                        @() $_.ToString()
+                        |> csharp.compileAsm
+                        @() $_.CompiledAssembly.GetTypes()[0].IsValid;
+                } else {
+                    var asm = load f;
+                    func = asm.GetTypes()[0].IsValid;
+                }
+            }
+
+            funcs.Add(s.Length, func);
+            ret func(s);
+            
+        },
+    };
+}();

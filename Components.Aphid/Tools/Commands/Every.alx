@@ -5,6 +5,7 @@ var size = args[0].Lexeme | int.Parse;
 var buf = Array.CreateInstance(string, size);
 var func = args[1] @getCmdTail(0) |> parseExp |> aphid.Interpret;
 var number = 0;
+var index = 0;
 var line;
 
 _out = macro(@(bufName) {
@@ -17,16 +18,17 @@ _out = macro(@(bufName) {
 });
 
 while ((line = Console.In.ReadLine()) != null) {
-    buf[number++] = line;
+    number++;
+    buf[index++] = line;
 
-    if (number == size) {
+    if (index == size) {
         _out(buf);
-        number = 0;
+        index = 0;
     }
 }
 
-if (number != 0) {
-    var buf2 = Array.CreateInstance(string, number);
-    Array.Copy(buf, buf2, number);
+if (index != 0) {
+    var buf2 = Array.CreateInstance(string, index);
+    Array.Copy(buf, buf2, index);
     _out(buf2);
 }

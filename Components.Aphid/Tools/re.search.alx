@@ -1,7 +1,7 @@
 this @mix(console);
 
-// AphidConfig.Current.ShowErrorScope = false;
-// AphidConfig.Current.StackTraceParams = false;
+AphidConfig.Current.ShowErrorScope = false;
+AphidConfig.Current.StackTraceParams = true;
 AphidConfig.Current.ExceptionHandlingClrStack = true;
 
 
@@ -350,7 +350,7 @@ var printMatchGroup = @(displayText, g, i2, matchNum) {
                 .Split(['\r\n', '\n'],  StringSplitOptions.None)
                 ->(@(l) '{0}{1}{0}{2}{3}' :: [
                     excerptColor,
-                    l,
+                    l.Replace('\r', ''),
                     color.pad(l),
                     VT100.Reset
                 ])

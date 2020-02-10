@@ -155,7 +155,7 @@ var func = recurse ? io.all.files : io.files;
 var styleEscape = Cli.StyleEscape;
 
 if (Console.IsInputRedirected) {
-    console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()));
+    console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()), Console.InputEncoding);
 }
 
 if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchIndex) {
