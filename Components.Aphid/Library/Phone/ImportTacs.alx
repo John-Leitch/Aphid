@@ -1,0 +1,64 @@
+#'std';
+#'system/nuget';
+nuget.reference('System.Reflection.Emit', '4.3.0');
+nuget.reference('System.Reflection.Emit.Lightweight', '4.3.0');
+nuget.reference('System.Threading.Tasks.Extensions', '4.4.0');
+nuget.reference('System.ValueTuple', '4.4.0');
+nuget.reference('Utf8Json');
+using Utf8Json;
+
+var deserializeJson =
+    JsonSerializer.Deserialize.Members
+    -?(@()((var p = $_.GetParameters()).Length == 1) && p[0].ParameterType == Stream)
+    |> first
+    @()$_.MakeGenericMethod([Object]).CreateDelegate(Func[Stream, Object]);
+
+var tacdb;
+
+using (var s = io.open.read('C:\\Users\\John\\Downloads\\tacdb2.json')) {
+    tacdb = s |> deserializeJson;
+}
+
+
+
+extend IDictionary { dynamic get: @(dict, name) dict.get_Item(name) }
+
+var tacdbFlat = 
+    (tacdb.brands() |> toArray)
+    -<(@(b)(($_.Value.models() |> toArray)
+        -<@(p) $_.Keys
+        -<@(mk) p.get_Item(mk)
+        @(m) m.tacs()
+        // ->@(t) [t, b.Key.Trim(), m.alt_names() @prepend(mk.Trim()), (m.gsmarena() ?? b.Value.gsmarena()) ]));
+        ->@(t) ({tac:t, brand:b.Key.Trim(), model:mk.Trim(), alt:m.alt_names(), brandUrl:b.Value.gsmarena(),modelUrl:m.gsmarena()})));
+
+var tacTable = {};
+
+tacdbFlat for (x){
+    var k = x.tac;
+    if (tacTable[k] defined) {
+        throw new InvalidOperationException(k);
+    }
+    
+    x.Remove('tac');
+    tacTable[k] = x;
+};
+
+aphid.Serializer.SplitStrings = false;
+aphid.Serializer.SplitAtNewLine = false;
+aphid.Serializer.StringReferenceThreshold = int.MaxValue;
+aphid.Serializer.UseDoubleQuotes = true;
+aphid.Serializer.AlwaysQuoteKeys = true;
+
+
+var serialized = 
+    tacTable
+    | serialize
+    @() $_ ~:'\r\n\\s*' ~: [",([\\]\\}])", "$1"]
+    @() $_
+        .Insert($_.Length - 1, '\r\n')        
+        .Insert(1, '\r\n    ')
+        .Replace('},"', '},\r\n    "');
+        
+serialized | deserialize;
+serialized.Insert(0, 'var tacTable = ') @io.txt(this.'$script' @io.sibling('TacTable.alx'));
