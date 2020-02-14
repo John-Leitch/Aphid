@@ -129,3 +129,10 @@ var env = {
         _te('WinDir', '^[a-zA-Z]:(\\\\[a-zA-Z0-9]+)*$');        
     <%}
 };
+
+var useJsonLikeSerializer = @{
+    aphid.Serializer.AlwaysQuoteKeys = true;
+    aphid.Serializer.UseDoubleQuotes = true;
+    aphid.Serializer.SplitStrings = false;
+    aphid.Serializer.StringReferenceThreshold = int.MaxValue;
+};

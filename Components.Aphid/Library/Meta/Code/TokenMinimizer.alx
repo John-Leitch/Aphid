@@ -1,7 +1,8 @@
 var minTokens = @(code, unsafePairs)
     code
     | tokenize
-    @(t) t
+    @(t) t.Count > 1 ?
+        t
         @skip(1)
         @every(2)
         @combine(t @every(2) toArray)
@@ -27,7 +28,8 @@ var minTokens = @(code, unsafePairs)
             (p-?@.unsafe->@.types)
             @(p2) (unsafePairs defined ? p2 @concat(unsafePairs) : p2)
             @minTokens(code) :
-            (p->(@(x) x.lhs.Lexeme + x.delim) |> concat) + (p$! @(r) r.rhs.Lexeme);
+            (p->(@(x) x.lhs.Lexeme + x.delim) |> concat) + (p$! @(r) r.rhs.Lexeme) :
+        t[0].Lexeme;
 
 var testMinTokens = @{
     #'Std';

@@ -1,0 +1,104 @@
+var cityInfo;
+
+@{
+    #'meta/code/roslynJit';
+    _e = macro(@(s) { s.Replace('\\', '\\\\').Replace('"', '\\"') });
+    var sibling = @(e) this.'$block'[0].Filename @io.sibling('cities500.{0}' :: e);
+    roslynJit.saveCodeFile = true;
+    cityInfo = {
+        '$internal': {
+            cities: {},
+            importData: @()
+                roslynJit
+                    .compile(@{
+                        var sb = new StringBuilder('
+                            public class CityInfo
+                            {
+                                public string Name { get; }
+                                public string State { get; }
+                                public string Country { get; }
+                                public double Latitude { get; }
+                                public double Longitude { get; }
+
+                                public CityInfo(
+                                    string name,
+                                    string state,
+                                    string country,
+                                    double latitude,
+                                    double longitude)
+                                {
+                                    Name = name;
+                                    State = state;
+                                    Country = country;
+                                    Latitude = latitude;
+                                    Longitude = longitude;
+                                }
+                            }
+                        ');
+
+
+                        var rows = 'txt' |> sibling |> io.lines -?@!=''->@() _e($_).Split('\t');
+                        var countryCodes = rows->(@()$_[8])!?;
+
+                        countryCodes @prepend('')!? for (cc) {
+                            sb.AppendFormat(
+                                '
+                                    public static CityInfo[] {0}Cities = new[]
+                                    {{
+                                ',
+                                cc);
+                            
+                            cc != '' ? rows-?(@()$_[8] == cc) : rows for {
+                                ////////////////////////////////////////////////////////////////////////////////
+                                // http://download.geonames.org/export/dump/
+                                // geonameid          = integer id of record in geonames database
+                                // name               = name of geographical point (utf8) varchar(200)
+                                // asciiname          = name of geographical point in plain ascii characters, varchar(200)
+                                // alternatenames     = alternatenames, comma separated, ascii names automatically transliterated, convenience attribute from alternatename table, varchar(10000)
+                                // latitude           = latitude in decimal degrees (wgs84)
+                                // longitude          = longitude in decimal degrees (wgs84)
+                                // feature class      = see http =//www.geonames.org/export/codes.html, char(1)
+                                // feature code       = see http =//www.geonames.org/export/codes.html, varchar(10)
+                                // country code       = ISO-3166 2-letter country code, 2 characters
+                                // cc2                = alternate country codes, comma separated, ISO-3166 2-letter country code, 200 characters
+                                // admin1 code        = fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
+                                // admin2 code        = code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80) 
+                                // admin3 code        = code for third level administrative division, varchar(20)
+                                // admin4 code        = code for fourth level administrative division, varchar(20)
+                                // population         = bigint (8 byte int) 
+                                // elevation          = in meters, integer
+                                // dem                = digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
+                                // timezone           = the iana timezone id (see file timeZone.txt) varchar(40)
+                                // modification date  = date of last modification in yyyy-MM-dd format
+                                sb.AppendFormat(
+                                    '        new CityInfo("{0}", "{1}", "{2}", {3}, {4}),\r\n', 
+                                    $_[1],
+                                    $_[10],
+                                    $_[8],
+                                    $_[4],
+                                    $_[5]);
+                            };
+
+                            sb.AppendLine('    };');
+                        };
+
+                        ret sb.ToString()
+                    }),
+        },
+        distance: @(lat, lng, r) Math.Sqrt(Math.Abs(r.Latitude - lat) + Math.Abs(r.Longitude - lng)),        
+        getCities: @(country) cityInfo.'$internal'.cities[var k = (country ?? '$ALL').ToUpper()] defined ?
+            cityInfo.'$internal'.cities[k]
+            : cityInfo.'$internal'.cities[k] = 
+                (cityInfo.'$internal'.importData()
+                @() k != '$ALL' ?  $_.GetField('{0}Cities' :: k).GetValue(null) : $_.Cities),
+        
+        closestCore: @(lat, lng, country)
+            cityInfo.getCities(country)
+            -\@cityInfo.distance(lat, lng)
+            |> first
+            @() ({ distance: $_ @distance(lat, lng), details: $_ }),
+
+        memoized: memoize(Tuple[double, double, string], AphidObject, @(x) cityInfo.closestCore(x.Item1, x.Item2, x.Item3)),
+        closest: @(lat, lng, country) memoized.Call(new Tuple[double, double, string](lat, lng, country)),
+    };    
+}();

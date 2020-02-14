@@ -1,0 +1,80 @@
+
+var imeiInfo;
+aphid.Serializer.SplitStrings = false;
+aphid.Serializer.SplitAtNewLine = false;
+aphid.Serializer.StringReferenceThreshold = int.MaxValue;
+aphid.Serializer.UseDoubleQuotes = true;
+aphid.Serializer.AlwaysQuoteKeys = true;
+
+@{
+    var tt = null;
+
+    imeiInfo = {
+        tacLengths: [ 8, 7, 6 ],
+        init: @{
+            if (tt == null) {
+                #'TacTable';
+                tt = tacTable;
+            }
+        },
+        findTac: @(imei) {
+            init();
+
+            tacLengths for {
+                var k = imei.Remove($_);
+
+                if (tt[k] defined) {
+                    ret tt[k];
+                }
+            };
+
+            ret null;
+        },
+
+        guessTac: @(imei) {
+            init();
+            var pattern = '^' + imei.Remove(2) + '\\d{4}' + imei.Substring(6, 2);
+            
+            
+            var rows =
+                tt
+                |> toArray
+                -?(@() $_.Key ~=  pattern)
+                ->(@(o)[
+                    o.Key,
+                    o.Value,
+                    pattern,
+                    imei,
+                    o.Key,
+                    '  '+ imei.Substring(2, 4),
+                    '  ' + o.Key.Substring(2, 4),
+                    var deltas = (0..4
+                        // ->(@(i) Math.Pow(i + 1, 2) * (int.Parse(o.Key[2 + i]) - int.Parse(imei[2 + i]) |> Math.Abs  @(x) x > 5 ? 10 - x : x))),
+                        // ->(@(i) o.Key[2 + i] == '0' ? 0 : (int.Parse(o.Key[2 + i]) - int.Parse(imei[2 + i]) |> Math.Abs  @(x) x > 5 ? 10 - x : x))),
+                        // ->(@(i) (int.Parse(o.Key[2 + i]) - int.Parse(imei[2 + i]) |> Math.Abs  @(x) x > 5 ? 10 - x : x))),
+                        ->(@(i) (int.Parse(o.Key[2 + i]) - int.Parse(imei[2 + i])) |> Math.Abs)),
+
+
+                        // ->(@(i) (int.Parse(o.Key[2 + i]) - int.Parse(imei[2 + i]) |> Math.Abs))),
+
+
+                    deltas +>@(x,y) x + y,
+                ])
+                // @orderBy(@(x) x[x.Length - 2] @count(@() $_ == 0))
+                // @orderBy(@(x) x[x.Length - 1])
+                // @thenBy(@(x) x[x.Length - 2][5])
+                // @thenBy(@(x) x[x.Length - 2][4])
+                // @orderBy(@(x) x[x.Length - 2][3])
+                @orderBy(@(x) x[x.Length - 1])
+                @thenBy(@(x) x[x.Length - 2][3])
+                @thenBy(@(x) x[x.Length - 2][2])
+                @thenBy(@(x) x[x.Length - 2][1])
+                @thenBy(@(x) x[x.Length - 2][0])
+                // @thenBy(@(x) x[x.Length - 1]);
+                ;
+
+            ret rows @take(3);
+                
+        },
+    };
+}();

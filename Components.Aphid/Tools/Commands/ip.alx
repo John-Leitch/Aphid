@@ -1,0 +1,16 @@
+#'std';
+#'system/nuget';
+#'net/ipinfo';
+#'meta/code/tokenMinimizer';
+useJsonLikeSerializer();
+var s = staticMap(string);
+
+{ bool minOutput: '-m', bool colorOutput: '-c' } | console.importArgs;
+
+s.trim
+@> (@(x) (x.Contains(':') && !x.Contains('::') ? x + '::' : x))
+@> ipInfo.get
+@> serialize
+@> (minOutput ? minTokens : @() $_)
+@> (colorOutput ? console.code : Console.Out.WriteLine)
+|> stdIn.lines;

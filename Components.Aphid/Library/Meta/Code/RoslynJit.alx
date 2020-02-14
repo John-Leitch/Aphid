@@ -1,0 +1,44 @@
+var roslynJit;
+
+@{
+    roslynJit = {
+        saveCodeFile: false,
+        compile: @(generateMembers) {
+            var script = this.'$parent'.'$parent'.'$block'[0].Filename;
+            var asmFile = script @io.sibling(script @io.ext('dll'));
+
+            if (asmFile | io.not.file) {
+                #'meta/code/compiler';
+                csharp.roslyn.enable();
+                csharp.optimize();
+                csharp.params.GenerateInMemory = false;
+                csharp.params.OutputAssembly = asmFile;
+
+                strOut(@{ %>
+                    namespace Components.RoslynJit
+                    {
+                        using System;
+                        using System.Collections.Generic;
+
+                        public static class GeneratedContainer
+                        {
+                            <%= generateMembers() %>
+                        }
+                    }
+                <% })
+                .ToString()
+                @{
+                    if (saveCodeFile) {
+                        $_ @io.txt(asmFile @io.sibling(asmFile @io.ext('cs')));
+                    }
+
+                    ret $_
+                }
+                |> csharp.compileAsm
+            }
+
+            var asm = load asmFile;        
+            ret asm.GetTypes()[0];
+        }
+    }
+}();

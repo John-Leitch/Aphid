@@ -1,11 +1,10 @@
-var phoneAreaPrefix;
+var phoneArea;
 
 @{
     var script = this.'$block'[0].Filename;
-    var asmFile = script @io.sibling('PhoneAreaPrefix.dll');
+    var asmFile = script @io.sibling(script @io.ext('dll'));
 
     if (asmFile | io.not.file) {
-        #'std';
         #'meta/code/compiler';
         csharp.roslyn.enable();
         csharp.optimize();
@@ -13,34 +12,66 @@ var phoneAreaPrefix;
         csharp.params.OutputAssembly = asmFile;
 
         script
-        @io.sibling('prefsnormalized.txt')
+        @io.sibling('prefs.txt')
         |> io.lines
-        ->@format('                "{0}",')
-        @join('\r\n')
-        @format('
+        ->(@() $_.Remove(3))
+        !?
+        ->(@()$_.ToCharArray())
+        -&first
+        ->(@()({
+            d: $_.Key,
+            nodes: $_
+                -&(@()$_[1])
+                ->(@()({
+                    d: $_.Key,
+                    nodes: $_->last }))}))
+        @(x) strOut(@{ %>
             namespace Components.Phone
-            {{
+            {
                 using System;
                 using System.Collections.Generic;
 
-                public static class PhoneAreaPrefix
-                {{
-                    private static HashSet<string> _prefs = new HashSet<string>(new string[]
-                    {{
-                        {0}
-                    }});               
+                public static class PhoneArea
+                {
+                    public static bool IsValid(string p)
+                    {
+                        switch (p[0])
+                        {
+                            <% x for (a) { %>
+                                case '<%= a.d %>':
+                                    switch (p[1])
+                                    {
+                                        <% a.nodes for (b) { %>
+                                            case '<%= b.d %>':
+                                                switch (p[2])
+                                                {
+                                                    <% b.nodes for (c) { %>
+                                                        case '<%= c %>':                    
+                                                    <% }; %>
+                                                            return true;
+                                                        default:
+                                                            return false;
+                                                }
+                                        <% }; %>
+                                            default:
+                                                return false;
+                                    }
 
-                    public static bool IsValid(string phone) =>
-                        phone.Length > 9 ?  _prefs.Contains(phone.Remove(9)) :
-                        phone.Length == 9 ? _prefs.Contains(phone) :
-                        false;
-                }}
-            }}
-        ')
+                            <% }; %>
+                                default:
+                                    return false;
+                        }
+
+                        return false;
+                    }
+                }
+            }
+        <% })
+        .ToString()
         |> csharp.compileAsm
     }
 
     load asmFile;
     using Components.Phone;
-    phoneAreaPrefix = { isValid: PhoneAreaPrefix.IsValid };    
+    phoneArea = { isValid: PhoneArea.IsValid };    
 }();

@@ -1,0 +1,48 @@
+var ipInfo;
+
+@{
+    #'geo/cityInfo';
+    #'data/maxMind';
+    var open = @(name) this.'$block'[0].Filename @io.sibling('GeoLite2-{0}.mmdb' :: name) maxMind.open;
+    var db =  { asn: open('ASN'), city: open('City') };    
+
+    ipInfo = {
+        get: @(ip) {            
+            var ao = db.asn.read(ip);
+            var c = db.city.read(ip);            
+
+            var country;
+            var countryRecord;
+
+            if (c != null) {
+                countryRecord = 
+                    (c.ContainsKey('country') ? c.get_Item('country') :
+                    c.ContainsKey('registered_country') ? c.get_Item('registered_country') : 
+                    { names: { en: null } });
+
+                country = countryRecord.get_Item('names').get_Item('en');
+            }
+
+            var o = {
+                ip,
+                asn: ao != null ? ao.get_Item('autonomous_system_number') : null,
+                org: ao != null ? ao.get_Item('autonomous_system_organization') : null, 
+                
+                accuracy: (var loc = c != null && c.ContainsKey('location') ? c.get_Item('location') : null) != null ?
+                    loc.get_Item('accuracy_radius') : null,
+
+                lat: loc != null ? loc.get_Item('latitude') | double.Parse : null,
+                lng: loc != null ? loc.get_Item('longitude') | double.Parse : null,
+                city: lat != null ? (var ci = cityInfo.closest(lat, lng, countryRecord.get_Item('iso_code')).details).Name : null,
+                state: lat != null ? ci.State : null,
+                country,
+            };
+
+            o.Remove('ci');
+            o.Remove('loc');
+
+            ret o;
+        }
+    };    
+}();
+

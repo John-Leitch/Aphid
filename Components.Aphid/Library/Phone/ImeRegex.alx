@@ -1,0 +1,5 @@
+#'std';
+#'phone/tacTable';
+#'data/trees';
+// tacTable.Keys->(@()$_.Trim() @() $_.Length > 6? $_.Remove(6) : $_)!?->(@(s)0..$_.Length->@()s.ToCharArray()[$_].ToString()) |> objTree.fromArrays |> dump;
+tacTable.Keys->(@()$_.Trim() @() $_.Length > 2? $_.Remove(2) : $_)!?->@format('({0})') @join('|') |> console.line;

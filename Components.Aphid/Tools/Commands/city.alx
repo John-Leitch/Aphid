@@ -1,0 +1,21 @@
+#'std';
+#'base';
+#'geo/cityInfo';
+useJsonLikeSerializer();
+var t = tokenizeCmd();
+t | skipAphid;
+getScriptArgs();
+var country = getBody();
+var res = cityInfo.closest(42.6345101,-83.9214887, country);
+
+{
+    city: res.details.Name,
+    state: res.details.State,
+    country: res.details.Country,
+    lat: res.details.Latitude,
+    lng: res.details.Longitude,
+    distance: res.distance
+}
+|> serialize
+|> Console.Out.Write;
+

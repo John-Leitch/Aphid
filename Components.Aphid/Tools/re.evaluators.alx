@@ -128,6 +128,8 @@ var scan = @(pattern, f) {
 
 var pscan = @() scan('[\x0a\x0d\x20-\x7f]', 1);
 
+var isPhone;
+
 var guess = @(value) {
     var o = null;
     
@@ -140,18 +142,24 @@ var guess = @(value) {
     });
 
     if ((value ~= "^\\s*\\d{9,}(\\.\\d+)?\\s*$") &&
-        (var num = decimal.Parse(value)) > 500000000 &&
+        (var num = (value |> (double.Parse ?> null))) != null &&
+        num > 500000000 &&
         (var ts = num | timestamp.guess) != null) {
         set(timestamp, ts);
     }
 
+    if (isPhone == null) {
+        #'phone/area';
+        isPhone = phoneArea.isValid;
+    }
     
     if ((var phones =
         (value ~~ "(^|[^\\d])((\\+|%25)?1[ ._-]{0,3})?\\(?(\\d{3})\\)?[ ._-]{0,3}(\\d{3})[ ._-]{0,3}(\\d{4})($|[^\\d])")
+        -?(@()$_.Groups[4] to isPhone)
         -> @() '({0}) {1}-{2}' :: [ $_.Groups[4], $_.Groups[5], $_.Groups[6] ])
         |> any) {
         set(phoneNumber, $(phones#!) 1: phones[0], phones);
     }
 
-    ret o == null ? value : (o | serialize);
+    ret o == null ? value : o;
 };
