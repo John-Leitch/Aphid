@@ -21,6 +21,47 @@ var getAsmName = @(pattern)
     @format('LycomorphaRegexAssembly_{0}')
     @io.prefix(getAsmDir());    
 
+
+var getBuildRegexScript = @() this.'$script' | io.up @io.end('Commands') @io.end('buildregex.alx');
+var getAphidExe = @() Assembly.GetEntryAssembly().Location;
+
+var runRegexBuild = @(asm, useLLex) {
+    var tmpFile = Path.GetTempFileName();
+    pattern @io.txt(tmpFile);
+    var exe = getAphidExe();
+
+    var args = '"{0}" -v {1} -f "{2}" -i "{3}" -o "{4}"{5}' :: [
+        getBuildRegexScript(),
+        verbosity,
+        reOptions,
+        tmpFile,
+        asm,
+        useLLex ? ' -llex' : ''
+    ];
+
+    var si = new ProcessStartInfo(exe, args);
+    si.UseShellExecute = false;
+    var p = Process.Start(si);
+    p.WaitForExit();
+
+    if (p.ExitCode != 0) {
+        console.error(
+            'Regular expression compiler failed with exit code {0:x8}\r\n\r\nCommand: "{1}" {2}',
+            p.ExitCode,
+            exe,
+            args);
+
+        exit(0xbad81);
+    }
+
+    #'meta/code/nativeImage';
+    nativeImage.verbose = verbosity > 4;
+    asm | nativeImage.compile;    
+    var a = load asm;    
+    
+    ret a;
+};
+
 var buildRegexAsm = @(pattern, reOptions) {
     var asm = getAsmName();
     var asm2 = asm + '.dll';
@@ -36,17 +77,21 @@ var buildRegexAsm = @(pattern, reOptions) {
 
         loadFile(asm2);
     } else {
-        var d = asm | io.up;
+        runRegexBuild(asm2, false);
+        // var build = getBuildRegexScript();
 
-        if (d | io.not.dir) {
-            io.mkdir(d);
-        }
+
+        // var d = asm | io.up;
+
+        // if (d | io.not.dir) {
+        //     io.mkdir(d);
+        // }
     
-        var wd = io.cd();
-        io.cd(d);
-        var rci = new RegexCompilationInfo(pattern, reOptions, 'LycomorphaRegex', 'Lycomorpha', true);
-        Regex.CompileToAssembly([rci], new AssemblyName(asm | io.name));
-        io.cd(wd);
+        // var wd = io.cd();
+        // io.cd(d);
+        // var rci = new RegexCompilationInfo(pattern, reOptions, 'LycomorphaRegex', 'Lycomorpha', true);
+        // Regex.CompileToAssembly([rci], new AssemblyName(asm | io.name));
+        // io.cd(wd);
     }
     
     using Lycomorpha;
@@ -55,6 +100,18 @@ var buildRegexAsm = @(pattern, reOptions) {
 };
 
 var buildLLexAsm = @(pattern){
+    var tmpFile = Path.GetTempFileName();
+    var asm = runRegexBuild(tmpFile, true);
+    ret {
+        // res: llFile | csharp.compileAsm,
+        lt: asm.GetTypes() | last,
+        Matches: @(text) {
+            var lexer = new lt();
+            lexer.Text = text;
+            ret lexer.GetTokens()->@(m) ({ Index: m.Index, Length: m.Lexeme.Length, Value: m.Lexeme, Groups: [ this ]  });
+        }
+    };
+
     #'meta/code/compiler';
     using LLex;
     var tmpl = '

@@ -7,10 +7,13 @@ var s = staticMap(string);
 
 { bool minOutput: '-m', bool colorOutput: '-c' } | console.importArgs;
 
-s.trim
-@> (@(x) (x.Contains(':') && !x.Contains('::') ? x + '::' : x))
-@> ipInfo.get
-@> serialize
-@> (minOutput ? minTokens : @() $_)
-@> (colorOutput ? console.code : Console.Out.WriteLine)
-|> stdIn.lines;
+stdIn.lines(@(ip){
+    ip
+    |> s.trim
+    @> (@(x) (x.Contains(':') && !x.Contains('::') ? x + '::' : x))
+    @> ipInfo.get
+    ?> { ip, error: 'Error retrieving info' }    
+    |> serialize    
+    |> (minOutput ? minTokens : @() $_)
+    |> (colorOutput ? console.code : Console.Out.WriteLine)
+});

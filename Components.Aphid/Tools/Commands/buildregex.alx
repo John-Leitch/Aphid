@@ -1,0 +1,188 @@
+#'std';
+
+{
+    bool useLLex: '-llex',
+    string flags: '-f',
+    string inputFile: '-i',
+    string outputFile: '-o',
+    int verbosity: '-v',
+}
+| console.importArgs;
+
+if (!anyMapped) {
+    console.line('
+
+    buildregex {opts} -i [input file] {-o [output file]}
+
+    -llex   Use llex compiler
+    -f      Regex option nflags
+    -v      Verbosity
+    -i      Input file
+    -o      Output file        
+    ');
+    
+    exit(1);
+}
+
+if (verbosity == null) {
+    verbosity = 2;
+}
+
+if (inputFile == null) {
+    console.error('Input file must be specified via -i');
+    exit(0xbad01);
+} else if (inputFile | io.not.file) {
+    console.error('Could not find input file ~Yellow~{0}~R~', inputFile);
+    exit(0xbad02);
+}
+
+if (outputFile == null) {
+    outputFile = inputFile + '.dll';
+}
+
+['input', 'output']->@+'File' for '{0} = {0} | io.full' :: $_ |> evalExp;
+var reOptions = flags == null ? RegexOptions.None : flags @Enum.Parse(RegexOptions);
+var pattern = inputFile | io.txt;
+if (verbosity >= 1) {
+    console.info(
+        'Compiling pattern from ~Cyan~{0}~R~ with flags ~Magenta~"{1}"~R~ into assembly ~Green~{2}~R~',
+        inputFile,
+        reOptions,
+        outputFile);
+}
+
+var buildRegexAsm = @{
+    if (verbosity >= 1) {
+        console.info('Using .NET regular expression compiler');
+    }
+        var d = outputFile | io.up;
+
+        if (d | io.not.dir) {
+            if (verbosity >= 2) {
+                console.info('Making output dir ~Cyan~{0}~R~', d);
+            }
+
+            io.mkdir(d);
+        }
+    
+        if (verbosity >= 3) {
+            console.info('Changing to output dir ~Cyan~{0}~R~', d);
+        }
+        var wd = io.cd();
+        io.cd(d);
+        var rci = new RegexCompilationInfo(pattern, reOptions, 'LycomorphaRegex', 'Lycomorpha', true);
+        var name = new AssemblyName(outputFile | io.base);
+
+        if (verbosity >= 3) {
+            console.info('Compiling assembly with name ~Cyan~{0}~R~', name);
+        }
+
+        Regex.CompileToAssembly([rci], name);
+
+        if (verbosity >= 3) {
+            console.info('Changing to output dir ~Cyan~{0}~R~', wd);
+        }
+
+        io.cd(wd);
+
+        ret outputFile | io.file;
+};
+
+var buildLLexAsm = @{
+    if (verbosity >= 1) {
+        console.info('Using llex regular expression compiler');
+    }
+    
+    if (verbosity >= 2) {
+        console.info('Generating llex file', d);
+    }
+
+    #'meta/code/compiler';
+    
+    using LLex;
+    var tmpl = '
+LLex.LLexSearch
+
+LLexSearch 
+
+{0}
+
+%%
+    return LLexSearchTokenType.Ignore;
+%%
+';
+
+    var tmpFile = io.rnd();
+    var kws = pattern.Split('|');
+
+    if (reOptions & RegexOptions.IgnoreCase == RegexOptions.IgnoreCase) {
+        if (verbosity >= 3) {
+            console.info('Fanning characters');
+        }
+
+        kws = kws-< @()$_.ToLower().ToCharArray()->(@()[$_.ToString(), $_.ToString().ToUpper()]) |> permutations ->concat!?;
+    }
+
+    if (verbosity >= 3) {
+        console.info('Writing llex file to ~Cyan~{0}~R~', tmpFile);
+    }
+
+    kws->(@+ ' Match') @join('\r\n') @format(tmpl) @io.txt(tmpFile);
+
+    if (verbosity >= 2) {
+        console.info('Interpreting llex file', d);
+    }
+
+    var llFile = LLexFile.Interpret(tmpFile).Replace('LLexSearchTokenType.Unknown', 'LLexSearchTokenType.Ignore');
+    io.del(tmpFile);
+
+    if (verbosity >= 5) {
+        llFile | console.code;
+    }
+
+    if (verbosity >= 1) {
+        console.info('Compiling generated lexer using roslyn');
+    }
+
+    csharp.roslyn.enable();
+    csharp.optimize();
+    csharp.x64();
+    csharp.params.GenerateInMemory = false;
+    csharp.params.OutputAssembly = outputFile;
+
+    try {
+        var results = llFile | csharp.compileAsm;
+        
+        if (verbosity >= 4) {
+            clrSerializer.maxDepth = 2;
+            results | clrSerializer.dump;
+        }
+        
+        if (verbosity > 0) {
+            console.success('Lexer successfully compiled');
+        }
+
+        ret outputFile | io.file;
+    } catch (e) {
+        if (verbosity > 0) {
+            console.error('Failed compiling lexer:\r\n{0}', e.message);
+        }
+
+        ret false;
+    }
+};
+
+
+if ((useLLex ? buildLLexAsm : buildRegexAsm)() && outputFile | io.file) {
+    if (verbosity > 0) {
+        console.success('Compilation succeeded');
+    }
+
+    exit(0);
+} else {
+    if (verbosity > 0) {
+        console.error('Compilation failed');
+    }
+
+    exit(0xbad80);
+}

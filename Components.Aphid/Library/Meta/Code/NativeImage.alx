@@ -12,7 +12,8 @@ var nativeImage;
         ngenAsm: null,
         init: @{
             td = macro(@{ pkgName | nuget.local.resolve });
-            pkgDir = td();
+            try pkgDir = td();
+            catch { }
 
             if (pkgDir == null) {
                 installPackage(pkgName);
@@ -34,6 +35,8 @@ var nativeImage;
                 init();
             }
 
+            asm = asm | io.full;
+
             if (verbose) {
                 console.info('Compiling ~Cyan~{0}~R~ into native image', asm);
             }
@@ -52,8 +55,11 @@ var nativeImage;
                 console.query('Launching ~Cyan~{0}~R~', ngenAsm);
             }
             
-            var cmd = prepareArgs(asm, ao);
-            var si = new ProcessStartInfo(ngenAsm, cmd);
+            var args = prepareArgs(asm, ao);
+            if (verbose) {
+                console.info('Launching ngen:\r\n"{0}" {1}', ngenAsm, args);
+            }
+            var si = new ProcessStartInfo(ngenAsm, args);
             si.UseShellExecute = false;
             si.RedirectStandardError = true;
             si.RedirectStandardOutput = true;
@@ -82,7 +88,9 @@ var nativeImage;
                     }
                 });
 
-            var result = {  exitCode: p.ExitCode, out: sb.ToString() };
+            p.WaitForExit();
+
+            var result = { success: true, exitCode: p.ExitCode, out: sb.ToString() };
 
             if (verbose) {
                 ($(p.ExitCode) 0: console.success, console.error)
@@ -102,12 +110,16 @@ var nativeImage;
                 } else {
                     result.asmOut = ao;                    
                 }
-            } else { 
-                throw new InvalidOperationException(result.out);
-            }
-            
-            if (verbose) {
-                console.success('Native image written to ~Green~{0}~R~', result.asmOut);
+
+                if (verbose) {
+                    console.success('Native image written to ~Green~{0}~R~', result.asmOut);
+                }
+            } else {
+                if (verbose) {
+                    console.error('Compilation failed:\r\n{0}', result.out);
+                }
+
+                result.success = false;
             }
 
             ret result;
