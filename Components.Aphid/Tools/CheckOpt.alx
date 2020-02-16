@@ -1,0 +1,33 @@
+#'std';
+useJsonLikeSerializer();
+var am = Assembly;
+[@.add_AssemblyResolve, @.add_ReflectionOnlyAssemblyResolve]
+@zip([am.LoadWithPartialName, am.ReflectionOnlyLoad], @(x, y) [x, y])
+->@(h) h[0] <| AppDomain.CurrentDomain <| @(o, e) e.Name | ?>h[1];
+
+stdIn.lines(
+    io.full
+    @> @(asm) asm
+    @() $_ | ?>am.ReflectionOnlyLoadFrom ??
+        $_ | ?>am.LoadFile ??
+        (getAssemblies()
+            -?((@()$_.FullName == AssemblyName.GetAssemblyName(asm).FullName) ?> false)
+            |> firstOrDefault)
+    @{
+        try ret  $_ != null ?
+            $_.GetCustomAttributesData()
+            ~?'Debuggable'
+            |> first
+            @(attr) attr.Constructor.Invoke(attr.ConstructorArguments-.Value) 
+            @()({
+                asm,
+                jiTracking:
+                $_.IsJITTrackingEnabled,
+                jitDisabled: $_.IsJITOptimizerDisabled,
+                flags: $_.DebuggingFlags
+            }) :
+            { asm, error: 'Could not load {0}' :: asm };
+        catch (e) ret {asm, error: e.message};
+    }
+    |> serialize
+    |> Console.Out.WriteLine)

@@ -1,0 +1,45 @@
+var nativeImage;
+
+@{    
+    #'std';    
+    #'system/nuget';
+    var pkgName = 'runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler';
+    
+
+    nuget.convertVersion = @(value)
+        value == null ? null :
+        value.GetType() == SemanticVersion ? value :
+        SemanticVersion.Parse(value);
+
+    nuget.local = {
+        getRepo: @() nuget.createPackageManager().LocalRepository,
+        find:  @(id, version)
+            $args.Count == 1 || version == null ? getRepo().FindPackagesById(id) :
+            version | nuget.convertVersion @getRepo().FindPackage(id),
+
+        resolve: @(name, version) ($($args.Count)
+            1:  find(name)-/@.Version |> firstOrDefault,
+            2: find(name, version),
+            throw new ArgumentException()),
+    };
+
+    var localPkg = pkgName | nuget.local.resolve;
+    localPkg | console.line;
+    'c:\\aphid\\packages\\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\\tools\\ngenr2r.exe';
+    '/Platform_Assemblies_Paths'
+    'c:\\aphid\\packages\\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\\tools\\ref;c:\aphid Aphid64Portable.exe
+
+    if (localPkg == null) {
+        installPackage(pkgName);
+    }
+
+    pkgName | installPackage;
+    var pm = nuget.createPackageManager();
+    
+    var ngenPath = 
+        nuget.getLocalPackages()
+        ~| pkgName
+        |> pm.PathResolver.GetPackageDirectory
+        @io.prepend(pm.FileSystem.Root)
+        @() io.concat($_, 'tools', 'ngenr2r.exe');
+}();

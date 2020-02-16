@@ -3,14 +3,33 @@ var roslynJit;
 @{
     roslynJit = {
         saveCodeFile: false,
-        compile: @(generateMembers) {
-            var script = this.'$parent'.'$parent'.'$block'[0].Filename;
-            var asmFile = script @io.sibling(script @io.ext('dll'));
+        compile: @(generateMembers, tag) {
+            var script = frame(1).Scope.'$block'[0].Filename;
+            // var script = this.'$parent'.'$parent'.'$block'[0].Filename;
+            var arch;
+            var setArch;
+            
+            if (EnvironmentHelper.IsX86()) {
+                arch = 'x86';
+                setArch = @() $_.x86();
+            } else if (EnvironmentHelper.IsAmd64()) {
+                arch = 'amd64';
+                setArch = @() $_.x64();
+            } else {
+                arch = 'anycpu';
+                setArch = @{};
+            }
+            
+             
+            var asmFile = script @io.sibling(script @io.ext((tag != null ? tag + '.' : '') + arch + '.dll'));
 
             if (asmFile | io.not.file) {
                 #'meta/code/compiler';
                 csharp.roslyn.enable();
                 csharp.optimize();
+                csharp.noDebug();
+                csharp | setArch;
+                
                 csharp.params.GenerateInMemory = false;
                 csharp.params.OutputAssembly = asmFile;
 

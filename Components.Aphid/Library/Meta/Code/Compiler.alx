@@ -748,17 +748,23 @@ var csharp;
             },
         },
 
-        optimize = @{
+        // Todo: lazily evaluate to handle multiple conflicting calls
+        option: @(o){
             var p = getParams();
             
             if (p.CompilerOptions == null) {
                 p.CompilerOptions = '';
             }
 
-            p.CompilerOptions += '/optimize';
+            p.CompilerOptions += ' ' + o;
         },
 
-        exeCfg = @(asmNamespace, startupClass, asmOut) {
+        optimize: @option('/optimize'),
+        x86: @option('/platform:x86'),
+        x64: @option('/platform:x64'),
+        noDebug: @option('/debug-'),
+
+        exeCfg: @(asmNamespace, startupClass, asmOut) {
             var p = getParams();
             p.MainClass = '{0}.{1}' :: [ asmNamespace, startupClass ];
             p.GenerateExecutable = true;
@@ -766,7 +772,7 @@ var csharp;
             p.OutputAssembly = asmOut;
         },
 
-        '$internal' = {
+        '$internal': {
             getParams: @{
                 if (csharp.params == null) {
                     csharp.params = csharp.createDefaultParams();
