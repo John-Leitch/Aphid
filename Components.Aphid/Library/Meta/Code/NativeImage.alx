@@ -1,45 +1,116 @@
 var nativeImage;
 
 @{    
-    #'std';    
     #'system/nuget';
-    var pkgName = 'runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler';
-    
+    #'system/stdio';    
 
-    nuget.convertVersion = @(value)
-        value == null ? null :
-        value.GetType() == SemanticVersion ? value :
-        SemanticVersion.Parse(value);
+    nativeImage = {
+        initialized: false,
+        verbose: false,
+        pkgName: 'runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler',
+        pkgDir: null,
+        ngenAsm: null,
+        init: @{
+            td = macro(@{ pkgName | nuget.local.resolve });
+            pkgDir = td();
 
-    nuget.local = {
-        getRepo: @() nuget.createPackageManager().LocalRepository,
-        find:  @(id, version)
-            $args.Count == 1 || version == null ? getRepo().FindPackagesById(id) :
-            version | nuget.convertVersion @getRepo().FindPackage(id),
+            if (pkgDir == null) {
+                installPackage(pkgName);
+                pkgDir = td();
+            }            
+            
+            ngenAsm = pkgDir @io.append(io.concat(pkgDir, 'tools', 'ngenr2r.exe'));
+            initialized = true;
+        },
+        prepareArgs: @(asm, asmOut) '/Platform_Assemblies_Paths "{1};{2}" /in "{3}" /out "{4}"' :: [
+            ngenAsm,
+            ngenAsm @io.sibling('ref'),
+            asm | io.up,
+            asm,
+            asmOut
+        ],
+        compile: @(asm, asmOut) {
+            if (!initialized) {
+                init();
+            }
 
-        resolve: @(name, version) ($($args.Count)
-            1:  find(name)-/@.Version |> firstOrDefault,
-            2: find(name, version),
-            throw new ArgumentException()),
+            if (verbose) {
+                console.info('Compiling ~Cyan~{0}~R~ into native image', asm);
+            }
+            
+            var ao = (var overwrite = $args.Count < 2) ? asm + '.native' : asmOut;
+
+            if (verbose) {
+                if (overwrite) {
+                    console.query('Running in overwrite mode, replacing ~Cyan~{0}~R~', asm);
+                } else {
+                    console.query('Writing native image to ~Cyan~{0}~R~', asm);
+                }
+            }
+
+            if (verbose) {
+                console.query('Launching ~Cyan~{0}~R~', ngenAsm);
+            }
+            
+            var cmd = prepareArgs(asm, ao);
+            var si = new ProcessStartInfo(ngenAsm, cmd);
+            si.UseShellExecute = false;
+            si.RedirectStandardError = true;
+            si.RedirectStandardOutput = true;
+            var p = Process.Start(si);
+            var sb = new StringBuilder();
+            
+            stdio.redirect(
+                p,
+                @(data, isError) {
+                    sb.Append(data);
+
+                    if (verbose) {
+                        if (isError) {
+                            console.line('~Yellow~{0}~R~', data);
+                        } else {
+                            console.line(data);
+                        }
+                    } else {
+                        if (isError) {
+                            console.line(data);
+                        }
+                    }
+
+                    if (isError) {
+                        console.line(data);
+                    }
+                });
+
+            var result = {  exitCode: p.ExitCode, out: sb.ToString() };
+
+            if (verbose) {
+                ($(p.ExitCode) 0: console.success, console.error)
+                    <| 'Compiler exited with code {0}' :: p.ExitCode;
+            }
+            
+            if (result.exitCode == 0) {
+                if (overwrite) {
+                    var backup = '{0}.{1}.bak' :: [ asm, DateTime.Now.Ticks ];
+                    if (verbose) {
+                        console.info('Creating backup ~Cyan~{0}~R~', backup);
+                    }
+
+                    io.move(asm,  backup);
+                    io.move(ao, asm);
+                    result.asmOut = asm;
+                } else {
+                    result.asmOut = ao;                    
+                }
+            } else { 
+                throw new InvalidOperationException(result.out);
+            }
+            
+            if (verbose) {
+                console.success('Native image written to ~Green~{0}~R~', result.asmOut);
+            }
+
+            ret result;
+        },
     };
-
-    var localPkg = pkgName | nuget.local.resolve;
-    localPkg | console.line;
-    'c:\\aphid\\packages\\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\\tools\\ngenr2r.exe';
-    '/Platform_Assemblies_Paths'
-    'c:\\aphid\\packages\\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\\tools\\ref;c:\aphid Aphid64Portable.exe
-
-    if (localPkg == null) {
-        installPackage(pkgName);
-    }
-
-    pkgName | installPackage;
-    var pm = nuget.createPackageManager();
-    
-    var ngenPath = 
-        nuget.getLocalPackages()
-        ~| pkgName
-        |> pm.PathResolver.GetPackageDirectory
-        @io.prepend(pm.FileSystem.Root)
-        @() io.concat($_, 'tools', 'ngenr2r.exe');
 }();

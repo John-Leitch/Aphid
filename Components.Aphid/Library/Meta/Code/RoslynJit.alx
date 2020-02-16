@@ -19,7 +19,6 @@ var roslynJit;
                 arch = 'anycpu';
                 setArch = @{};
             }
-            
              
             var asmFile = script @io.sibling(script @io.ext((tag != null ? tag + '.' : '') + arch + '.dll'));
 

@@ -130,9 +130,9 @@
             }),
 
         pipeName: @(process, pipe) ($(pipe)
-            process.StandardInput: 'stdin',
-            process.StandardOutput: 'stdout',
-            process.StandardError: 'stderr',
+            process |> (@.StandardInput) ?> null: 'stdin',
+            process |> (@.StandardOutput) ?> null: 'stdout',
+            process |> (@.StandardError) ?> null: 'stderr',
             throw new InvalidOperationException('Not stdio pipe')),
     };
 }();

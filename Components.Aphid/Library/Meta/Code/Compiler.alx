@@ -702,7 +702,7 @@ var csharp;
                     throw new InvalidOperationException('Could not install Roslyn packages');
                 }
             },
-            enable: @{
+            enable: @(settingsCallback){
                 if (!verify()) {
                     update();
                 }
@@ -728,7 +728,15 @@ var csharp;
                 var getField = @(p, o) o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance) ~| p;
                 var f = csharp.provider @getField('_compilerSettings');        
                 var settings = f.GetValue(csharp.provider);
-                var f2 = settings @getField('_compilerFullPath');        
+                var f3 = settings @getField('_compilerServerTimeToLive');
+                f3.SetValue(settings, 100000.int());
+                env.set('VBCSCOMPILER_TTL', 100000.ToString());
+
+                if ($args.Count > 0) {
+                    settingsCallback(settings);
+                }
+
+                var f2 = settings @getField('_compilerFullPath');
                 var oldPath = f2.GetValue(settings);
                 var csc = getCsc();
 

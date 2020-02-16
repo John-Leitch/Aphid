@@ -9,10 +9,9 @@ var nuget;
 
     using NuGet;
 
-    var parseVersion = @(v) $(v.GetType())
-        SemanticVersion: v,
-        string: v | SemanticVersion.Parse,
-        throw new InvalidArgumentException('v');
+    
+
+    
 
     var exeUrls = new List[string]();
     'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' | exeUrls.Add;
@@ -243,8 +242,28 @@ var nuget;
                 ret refAsmPaths->Assembly.LoadFrom;
         },
 
-        find: @(packageId, version) $args.Count == 1 ?
-        createRepo().FindPackagesById(packageId) : createRepo().FindPackage(packageId, version()),
+        find: @(packageId, version) $args.Count == 1 || version == null ?
+            createRepo().FindPackagesById(packageId) :
+            createRepo().FindPackage(packageId, parseVersion(version)),
+
+        local: {
+            getRepo: @() nuget.createPackageManager().LocalRepository,
+            find:  @(id, version)
+                $args.Count == 1 || version == null ? getRepo().FindPackagesById(id) :
+                version | nuget.parseVersion @getRepo().FindPackage(id),
+
+            resolve: @(name, version) ($($args.Count)
+                1: find(name)-/@.Version |> firstOrDefault,
+                2: find(name, version),
+                throw new ArgumentException())
+                |> pm.PathResolver.GetPackageDirectory
+                @io.prepend((var pm = nuget.createPackageManager()).FileSystem.Root),
+        },
+
+        parseVersion: @(v) $(v.GetType())
+            SemanticVersion: v,
+            string: v | SemanticVersion.Parse,
+            throw new InvalidArgumentException('v')
     };
 
     installPackage = @(packageId, version)

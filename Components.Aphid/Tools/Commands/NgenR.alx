@@ -1,0 +1,4 @@
+#'std';    
+#'meta/code/nativeImage';
+nativeImage.verbose = true;
+parseArgsFor()-.Value->nativeImage.compile;
