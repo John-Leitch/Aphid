@@ -1,0 +1,22 @@
+#'Std';
+
+var args = console.bindArgs({});
+if (!args.anyRemaining) {
+    print('CheckBuild [asm files]');
+    exit(1);
+}
+VT100.Enable();
+aphid.Serializer.QuoteToStringResults = false;
+//args.remaining = [ 'c:\\source\\Damselfly\\Damselfly\\bin\\Release64\\Aphid64.exe' ];
+args.remaining->io.full->@(l) try l ~:['/','\\'] |> loadFile @(a)$_.GetCustomAttributes(true)
+    ~?'Debuggable' |> firstOrDefault
+    @()({
+        asm: a,
+        location: l,
+        debuggable: $_ != null,
+        flags: $_?.DebuggingFlags,
+        jit: { disabled: $_?.IsJITOptimizerDisabled, tracking: $_?.IsJITTrackingEnabled, }
+        
+    })
+    |> dump;
+    catch (e) printError('Could not load ~Yellow~{0}~R~', l);

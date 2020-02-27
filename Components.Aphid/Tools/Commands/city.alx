@@ -3,10 +3,49 @@
 #'geo/cityInfo';
 useJsonLikeSerializer();
 var t = tokenizeCmd();
-t | skipAphid;
+// t | skipAphid | dumpe;
 getScriptArgs();
 var country = getBody();
-var res = cityInfo.closest(42.6345101,-83.9214887, country);
+
+stdIn.lines(@{
+    var parts = $_.Trim().Split(' :,');
+
+    if (parts.Length != 2) {
+        console.error('Error parsing {0}', $_);
+
+        ret null;
+    }
+
+    var lat;
+    var lng;
+
+    try {
+        lat = parts[0] | double.Parse;
+        lng = parts[1] | double.Parse;
+    } catch (e) {
+        console.error('Error parsing {0}: {1}', $_, e.message);
+
+        ret null;
+    }
+
+    var res = cityInfo.closest(lat, lng);
+
+    {
+        city: res.details.Name,
+        state: res.details.State,
+        country: res.details.Country,
+        lat: res.details.Latitude,
+        lng: res.details.Longitude,
+        distance: res.distance
+    }
+    |> serialize
+    |> console.code;    
+});
+
+ret null;
+
+0..10->@*0.1->@{
+var res = cityInfo.closest(42.6345101 + $_,-83.9214887);
 
 {
     city: res.details.Name,
@@ -17,5 +56,7 @@ var res = cityInfo.closest(42.6345101,-83.9214887, country);
     distance: res.distance
 }
 |> serialize
-|> Console.Out.Write;
+|> console.code;
 
+
+}

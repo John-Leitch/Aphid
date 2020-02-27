@@ -12,10 +12,12 @@ var cityInfo;
                 
                 ret importDataCore(country);
             },
+            parseRows: @() 'txt' |> sibling |> io.lines -?@!=''->(@() _e($_).Split('\t')),
+            parseCountries: @() parseRows()->(@()$_[8])!?,
             importDataCore: @(country)
                 roslynJit
                     .compile(@{
-                        var rows = 'txt' |> sibling |> io.lines -?@!=''->(@() _e($_).Split('\t'))-?(@()$_[8] == country) |> toArray;
+                        var rows = parseRows()-?(@()$_[8] == country) |> toArray;
                         var sb = new StringBuilder();
                         
                         sb.AppendFormat('

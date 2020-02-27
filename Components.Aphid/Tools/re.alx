@@ -12,6 +12,7 @@ var cleanup = @{};
     string filter: '-f',
     string searchIndex: '-si',
     string excludePattern: '-x',
+    string flags: '-fl',
     bool replace: '-r',
     bool useEvaluator: '-e',
     bool dumpOut: '-d',
@@ -80,7 +81,10 @@ var toPrintable = @(text, ignoreLines) $_  ~: [
 
 async.degree(threads);
 var groupIndent = ' ' * indentSize;
-var reOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline;
+
+var reOptions = flags == null ? 
+    RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline :
+    Enum.Parse(RegexOptions, flags);
 
 if (!anyRemaining) {
     SystemColor.DodgerBlue.CopyTo(SystemColor.CadetBlue, 0);
@@ -114,11 +118,22 @@ if (!anyRemaining) {
 
 var startTime = DateTime.Now;
 
-if (verbosity >= 2) {
-    console.info('Initializing');
-}
+_t = macro(@(v, f, m) { 
+    if (verbosity >= v) {
+        console.f(m);
+    }
+});
+
+_i = macro(@(v, m) { _t(v, info, m) });
+
+_i(2, 'Initializing');
+// if (verbosity >= 2) {
+//     console.info('Initializing');
+// }
 
 var decoders;
+
+_i(5, 'Loading decoders');
 
 try {
     decoders = decoderNames.Split(',;')->(@()$_.Trim())->Encoding.GetEncoding |> toArray;
@@ -128,11 +143,15 @@ try {
     exit(0xbad88);
 }
 
+_i(5, 'Done loading decoders');
+
 if ((replace || write || previewReplacements || out != null) && (decoders#!) != 1) {
     console.error('Cannot perform text replacement when more than one decoder is specified');
     cleanup();
     exit(0xbad8a);
 }
+
+_i(5, 'Parsing evaluator');
 
 var execEvaluator = useEvaluator ?
     Environment.CommandLine
@@ -144,14 +163,19 @@ var execEvaluator = useEvaluator ?
         |> parseFunc :
     @{};
 
+_i(5, 'Done parsing evaluator');
+
 var pattern = remaining[0];
 
 this.'$script' @io.sibling('lycomorphaprofiles') aphid.Loader.SearchPaths.Add;
 aphid.Loader.LoadScript('profile', false);
 
+_i(5, 'Loading profile');
 if (profile != null) {    
     aphid.Loader.LoadScript(profile, false);
 }
+
+_i(5, 'Done loading profile');
 
 if (mapped.excerptLines && fastExcerptSize != null) {
     fastExcerptSize = null;
@@ -161,7 +185,10 @@ var func = recurse ? io.all.files : io.files;
 var styleEscape = Cli.StyleEscape;
 
 if (Console.IsInputRedirected) {
-    console.stdIn.txt() @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()), Console.InputEncoding);
+    _i(5, 'Reading stdin');
+    var t = console.stdIn.txt();
+    _i(5, 'Done reading stdin');
+    t @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()), Console.InputEncoding);
 }
 
 if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchIndex) {

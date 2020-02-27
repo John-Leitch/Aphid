@@ -15,7 +15,7 @@ var getAsmDir = @()
     @io.end('LycomorphaCompiled');
 
 var getAsmName = @(pattern)
-    pattern
+    (reOptions + "|" + pattern)
     | Encoding.ASCII.GetBytes
     | md5.hex
     @format('LycomorphaRegexAssembly_{0}')

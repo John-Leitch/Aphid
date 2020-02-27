@@ -1,0 +1,29 @@
+#'profile';
+#'default';
+context.bounds = {};
+pattern = "([\x80-\x8f]PNG\\r\\n\x1a\n)|(IEND(?:.|\n){0,4})";
+useEvaluator = true;
+name = macro(@(s, e) { '{0}_Carved_{1:X8}_{2:X8}.png' ::[file, s, e] });
+
+execEvaluator = @(m) {
+    if (!(context.bounds[file] defined)) {
+        context.bounds[file] = { starts: new List[int](), ends = new List[int]() };
+    }
+
+    var bounds = context.bounds[file];
+
+    if (m.Value.StartsWith("IEND")) {
+        bounds.ends.Clear();
+        bounds.ends.Add(m.Index + m.Length);
+
+        bounds.starts for {
+            reader.BaseStream.Position = $_.long();
+            var end = bounds.ends | last;
+            var n = name($_, end);
+            console.success('Writing ~Green~{0}~R~', n);            
+            end - $_ |> reader.ReadBytes @io.bytes(n);            
+        }
+    } else {
+        bounds.starts.Add(m.Index);
+    }
+};

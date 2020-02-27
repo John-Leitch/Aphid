@@ -271,7 +271,7 @@ var nuget;
             .createPackageManager()
             .InstallPackage(
                 packageId,
-                version defined && version != null ? version | parseVersion : null,
+                version defined && version != null ? version | nuget.parseVersion : null,
                 nuget.ignoreDependencies,
                 nuget.allowPrereleaseVersions);
 

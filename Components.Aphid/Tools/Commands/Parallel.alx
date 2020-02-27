@@ -1,8 +1,16 @@
 #'std';
 #'base';
 var args = getScriptArgs();
-var degrees = args[0].Value | parseExp | aphid.Interpret;
-var body = args | count > 1 ? args[1] @getCmdTail(0) : '';
+var argIndex = 0;
+var inline = false;
+
+if (args[0].Value.ToLower() == "nowindow") {
+    inline = true;
+    argIndex++;
+}
+
+var degrees = args[argIndex].Value | parseExp | aphid.Interpret;
+var body = args | count > 1 ? args[argIndex + 1] @getCmdTail(0) : '';
 var queue = new Queue[string]();
 var queuePopulated = false;
 var queuePopulatedSync = new Object();
@@ -31,8 +39,13 @@ var threads = 0..degrees
             }
 
             var si = new ProcessStartInfo('cmd.exe', '/S /C "{0}"' :: (cmd ~: ['["^]', '^$0']));
-            si.UseShellExecute = true;
-            // si.CreateNoWindow = false;
+            if (!inline) {
+                si.UseShellExecute = true;
+            } else {
+                si.UseShellExecute = false;
+                si.CreateNoWindow = false;
+            }
+            // 
             // si.RedirectStandardInput = true;
             var p = Process.Start(si);
             p.WaitForExit();

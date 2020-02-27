@@ -1,0 +1,42 @@
+#'std';
+#'base';
+var args = getScriptArgs();
+var argIndex = 0;
+var zero = false;
+var clear = false;
+
+if (args[0].Value.ToLower() == "zero") {
+    zero = true;
+    argIndex++;
+}
+
+if (args[0].Value.ToLower() == "clear") {
+    clear = true;
+    argIndex++;
+}
+
+var ms = args[argIndex].Value | parseExp | aphid.Interpret;
+var body = args | count > 1 ? args[argIndex + 1] @getCmdTail(0) : '';
+
+while (true) {
+    var si  = new ProcessStartInfo('cmd.exe', '/c ' + body);
+    si.UseShellExecute = false;
+    
+    if (zero) {
+        Console.SetCursorPosition(0, 0);
+    }
+
+    if (clear) {
+        cls();
+    }
+
+    var p = Process.Start(si);    
+    
+    p.WaitForExit();
+    // head('Done');
+    
+    async.sleep(ms);
+    
+}
+
+body | dumpe;

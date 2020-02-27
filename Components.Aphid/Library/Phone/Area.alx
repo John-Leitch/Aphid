@@ -6,6 +6,7 @@ var phoneArea;
 
     if (asmFile | io.not.file) {
         #'meta/code/compiler';
+        #'meta/code/nativeImage';
         csharp.roslyn.enable();
         csharp.optimize();
         csharp.params.GenerateInMemory = false;
@@ -68,7 +69,13 @@ var phoneArea;
             }
         <% })
         .ToString()
-        |> csharp.compileAsm
+        @{
+            $_ @io.txt(asmFile @io.ext('cs'));
+            ret $_;
+         }
+        |> csharp.compileAsm;
+
+        asmFile | nativeImage.compile;
     }
 
     load asmFile;

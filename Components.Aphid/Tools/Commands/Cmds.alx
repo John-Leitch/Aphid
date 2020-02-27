@@ -1,0 +1,25 @@
+#'std';
+#'base';
+#'system/machine';
+
+var pid = Process.GetCurrentProcess().Id;
+
+var dp =
+    @format('%{0}%')
+    @> machine.getProcCommandsLike
+    @> @where(@(x) x.ProcessId != pid)
+    @> serialize
+    @> (!Console.IsOutputRedirected ? console.highlight : @()$_)
+    @> Console.Out.WriteLine;
+
+var pattern = getBody().TrimEnd();
+
+if (pattern != '') {
+    pattern | dp;
+} else if (!stdIn.any) {
+    '' | dp;
+}
+
+if (stdIn.any) {
+    stdIn.lines(dp);
+}

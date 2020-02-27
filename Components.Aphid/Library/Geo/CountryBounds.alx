@@ -1,0 +1,23 @@
+mm = macro(@(i){ { min: min(p=$_.coords->(@()$_[i])), max: max(p) } });
+var p;
+
+#'std';
+#'geo/cityinfo';
+
+
+cityInfo.'$internal'
+    .parseRows()
+    -&(@()$_[8])
+    ->(@()({
+        country: $_.Key,
+        coords: $_->@()[
+            double.Parse($_[4]),
+            double.Parse($_[5])
+        ]}))
+    ->(@()({
+        country: $_.country,
+        lat: mm(0),
+        lng: mm(1),
+    }))
+    |> serialize
+    @io.txt('c:/temp/countrybounds.alx');

@@ -7,6 +7,7 @@ var phoneAreaPrefix;
     if (asmFile | io.not.file) {
         #'std';
         #'meta/code/compiler';
+        #'meta/code/nativeImage';
         csharp.roslyn.enable();
         csharp.optimize();
         csharp.params.GenerateInMemory = false;
@@ -37,7 +38,9 @@ var phoneAreaPrefix;
                 }}
             }}
         ')
-        |> csharp.compileAsm
+        |> csharp.compileAsm;
+
+        asmFile | nativeImage.compile;
     }
 
     load asmFile;
