@@ -4,7 +4,8 @@ _tsInit = macro(@{
             [
                 0,
                 978307200,
-                -62135596800
+                -62135596800,
+                
             ],
             [
                 1,
@@ -17,8 +18,8 @@ _tsInit = macro(@{
                 100000000000,
             ]
         ]
-        | permutations;
-        // deltas | dumpe;
+        | permutations
+        @append([ 259158429, 10000000 ]) ;        
     }
 });
 
