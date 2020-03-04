@@ -1,0 +1,7 @@
+load System.Windows.Forms;
+using System.Windows.Forms;
+using System.Threading;
+#'core/async';
+var o;
+async.staThread(@{  o = TextDataFormat.Text | Clipboard.GetData }).Join();
+Console.Out.WriteLine(o);

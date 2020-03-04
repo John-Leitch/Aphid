@@ -19,7 +19,7 @@ _tsInit = macro(@{
             ]
         ]
         | permutations
-        @append([ 259158429, 10000000 ]) ;        
+        @append([ -11644473600, 1000000 ]) ;        
     }
 });
 
