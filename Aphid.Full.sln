@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boxelder", "Boxelder\Boxeld
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coywolf", "Coywolf\Coywolf.csproj", "{61FFC3B9-5275-41B9-8380-1E370EF67A63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.IntelliTests", "Components.Aphid.IntelliTests\Components.Aphid.IntelliTests.csproj", "{B1F43EE2-0572-49ED-92F4-905F43598426}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.MSTest.IntelliTests", "Components.Aphid.MSTest.IntelliTests\Components.Aphid.MSTest.IntelliTests.csproj", "{B1F43EE2-0572-49ED-92F4-905F43598426}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components.Aphid.ScriptedUnitTests", "Components.Aphid.ScriptedUnitTests\Components.Aphid.ScriptedUnitTests.csproj", "{B05ADF1F-CDB5-4430-8C57-64C6AD2CF856}"
 EndProject
