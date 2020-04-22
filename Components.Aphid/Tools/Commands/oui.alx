@@ -1,9 +1,21 @@
 #'std';
 
 var nameFile = io.script.path('ouinames.alx');
+var userFile = io.script.path('oui.user.txt');
 var nameSrc = 'https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf';
 var ouis;
 var s = staticMap(string);
+
+var userDefs =
+    userFile | io.file ?
+        userFile
+        | io.lines
+        ->s.trim
+        -?(@()$_ != '' && !$_.StartsWith("//"))
+        ->(@(l)$_.IndexOf(' ') @() ({ mac: l.Remove($_).ToLower(), name: l.Substring($_).Trim() }))
+        @toDictionary(@(x) x.mac, @(x) [x.name])
+        |> kvpsToObj :
+    {};
 
 if (nameFile | io.not.file) {
     #'net/web';
@@ -42,9 +54,14 @@ if (nameFile | io.not.file) {
 }
 
 var resolveOui = @(mac){
+    var m = mac.ToLower();
+
+    if (userDefs[m] defined) {
+        ret userDefs[m];
+    }
+
     var patterns = 
-        mac
-        .ToLower()
+        m
         | unhex
         | hex
         | (@(m) 0..m.Length

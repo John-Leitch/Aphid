@@ -10,7 +10,7 @@ var s = staticMap(string);
 stdIn.lines(@(ip){
     ip
     |> s.trim
-    @> (@(x) (x.Contains(':') && !x.Contains('::') ? x + '::' : x))
+    @> (@(x) ((x.ToCharArray() @count(@(x) x == ':') @== 3) ? x + '::' : x))
     @> ipInfo.get
     ?> { ip, error: 'Error retrieving info' }    
     |> serialize    

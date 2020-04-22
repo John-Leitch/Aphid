@@ -3704,22 +3704,34 @@ namespace Components.Aphid.Interpreter
 
                 return Scalar(new AphidPartialFunction(partial.Function, applied2));
             }
+            else if (obj.Value is AphidInteropMember interopObj)
+            {
+                var applied = new object[expression.Call.Args.Count];
 
-            if (!(obj.Value is AphidInteropMember interopObj))
+                for (var i = 0; i < applied.Length; i++)
+                {
+                    applied[i] = DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
+                }
+
+                return Scalar(new AphidInteropPartialFunction(interopObj, applied));
+            }
+            else if (obj.Value is AphidFunctionComposition composition)
+            {
+                var applied = new AphidObject[expression.Call.Args.Count];
+
+                for (var i = 0; i < applied.Length; i++)
+                {
+                    applied[i] = InterpretExpression(expression.Call.Args[i]);
+                }
+
+                return Scalar(new AphidPartialComposition(composition, applied));
+            }
+            // Todo: Fix partial application bug seemingly caused
+            // by unwrapping Object[] when passed during call to partial.
+            else
             {
                 throw CreatePartialFunctionException(expression, obj);
             }
-
-            // Todo: Fix partial application bug seemingly caused
-            // by unwrapping Object[] when passed during call to partial.
-            var applied = new object[expression.Call.Args.Count];
-
-            for (var i = 0; i < applied.Length; i++)
-            {
-                applied[i] = DeepUnwrap(InterpretExpression(expression.Call.Args[i]));
-            }
-
-            return Scalar(new AphidInteropPartialFunction(interopObj, applied));
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]

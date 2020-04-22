@@ -1,0 +1,46 @@
+#'std';
+#'system/nuget';
+useJsonLikeSerializer();
+var d= AppDomain.CurrentDomain;
+d.add_AssemblyResolve(@(s,e) e.Name.Contains('XmpCore') ? Assembly.Load('XmpCore') : null);
+nuget.reference('MetadataExtractor');
+nuget.reference('XmpCore');
+using MetadataExtractor;
+
+stdIn.lines(@(file){
+    var exifFile = file + '.exifjs';
+
+    // var obj = { file };
+    // file @print('Dumping metadata for ~Cyan~{0}~R~');
+    try {
+        using Components.Json;
+        file | ImageMetadataReader.ReadMetadata | JsonSerializer.Serialize | console.code;
+        // file | ImageMetadataReader.ReadMetadata for (x) {
+            
+        //     if (obj[x.Name] defined == false) obj[x.Name] = {};
+        //     x.Tags for {
+        //         // $_.dir();
+        //         obj[x.Name][$_.TagName] =
+        //             $_.Description != null && $_.Description.GetType() == List[string] ?
+        //                 $_.Description->(@()$_) :
+        //                 $_.Description;
+        //     };
+
+        //     if (x.Errors | any) {
+        //         x.Errors | dumpe;
+        //     }
+        // };
+        // $_.Tags -> @() obj[$_.TagName] = $_.Description;
+        // {
+        //     file,
+        //     tags: md->@() ({
+        //         name: $_.Name,
+        //         tags: $_.Tags -> @() ({ name: $_.TagName, value: $_.Description })
+        //     })
+        // }
+    } catch (e) {
+        e | JsonSerializer.Serialize | console.code;
+    }
+    
+    // obj | serialize | Console.Out.WriteLine
+});

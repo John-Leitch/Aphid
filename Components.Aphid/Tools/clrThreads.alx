@@ -1,0 +1,174 @@
+
+#'Std';
+using Components.Aphid.UI.Formatters;
+
+
+// Color hack
+//var colors = SyntaxHighlightingFormatter.Highlight('a b');
+
+var walkTest = @{
+    async.degree(8);
+    #'system/cryptography';
+
+    // ast.is.binOp | dumpe;
+
+    var result = 
+    io.app.dir() @io.find.files('*.alx') @take(2)|> toArray
+    @console.pipeline.parallel(?>parseFile)
+    -?@!= null
+    |> toArray
+    @console.pipeline.parallel(@ast.whereNode(ast.is.binOp))
+    ->@.Operator
+    // -<(@()$_->@()$_->@.Operator)
+    !?;
+};
+//|> dumpe;
+// runtime.trace.options.typeFilter = ast.type.call;
+// runtime.trace.options.predicate =
+
+    
+    // @(x) (ast.is.binOp(x.Expression) && ast.isOp(ast.  && ast.  == ast.type.binOp &&
+// runtime.trace.options.dumpScope = true;
+// runtime.trace.expressions();
+
+
+VT100.Enable();
+var colors =
+'a b'
+| SyntaxHighlightingFormatter.Highlight
+->VT100.GetString
+->@()$_.Remove($_.IndexOf('m')+1);
+
+var find = colors $!;
+var replace = colors ^!;
+// @(t) t[2].ForegroundRgb.CopyTo(t[0].ForegroundRgb, 0);
+
+{
+    bool usePid: '-pid',
+    bool useName: '-name',
+    bool useImage: '-image',
+    bool useCmd: '-cmd',
+    bool isLike: '-like',
+    bool isMatch: '-pattern',
+    bool startsWith: '-start',
+    bool endsWith: '-end',
+    bool parent: '-parent',
+    bool child: '-child',
+    int timeout: '-timeout'
+}
+| console.bindArgs
+| toArray
+->@() aphid.InitialScope[$_.Key] = $_.Value;
+
+// anyMapped = true;
+// useName = true;
+// remaining = ['aphid'];
+// isLike = true;
+// mapped.useName = true;
+
+if (!anyMapped) {
+    aphid.OutFilter = @(x) {
+        //  var lines = x | console.highlight @(x) x.Split(['\r\n'], StringSplitOptions.None);
+        x | console.highlight
+        @(x) x.Split(['\r\n'], StringSplitOptions.None)
+        ->(@()$_.Split(' ') @seq.iter(@(x, i) i == 0 ? x : x.Replace(find, replace)) @join(' '))
+        @join('\r\n') 
+        |> Console.WriteLine
+        // lines->(@()$_.Split(find))|>(@()($_[0] =='' ? find + $_ @skip(1)  : $_) @join(replace))@join('\n');
+    };
+    getBlock() >$ ast.is.text |> evalNode;
+    exit(1);
+} else if (isLike && isMatch) {
+    printError('More than one process selection arg specified');
+    exit(0xbad01);
+}
+
+#'System/Machine';
+var procs = machine.getProcs();
+// procs | dump;
+
+var s = remaining[0];
+console.query('Searching for ~Cyan~{0}~R~', s);
+
+_sc = macro(@(n) { @(q) s.n(q, StringComparison.OrdinalIgnoreCase) });
+// like= true;
+
+var predicate =
+    isLike ? (_sc(IndexOf)) @> @()$_ >= 0 :
+    startsWith ? _sc(StartsWith) :
+    endsWith ? _sc(EndsWith) :
+    isMatch ? @(q) Regex.IsMatch(q, s, RegexOptions.IgnoreCase) :
+    _sc(Equals);
+
+var partialPred = predicate;
+
+var selector =
+    mapped.useName ? @(p) Process.GetProcessById(p.ProcessId.int()).ProcessName :
+    mapped.useImage ?  @(p) Process.GetProcessById(p.ProcessId.int()).MainModule.FileName :
+    mapped.useCmd ? @(p) p.CommandLine :
+    @.ProcessId;
+
+var f = @(x) x | selector | partialPred;
+        
+var matches = procs-?<!f;
+// var matchedProcs = procs->?>selector-?@!=null-?predicate;
+#'System/Nuget';
+nuget.reference('Microsoft.Diagnostics.Runtime');
+using Microsoft.Diagnostics.Runtime;
+
+clrSerializer.maxDepth = 1;
+using Components.Json;
+load System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+var s = new DataContractJsonSerializer(this.GetType());
+
+var dumpThreads = @(pid)
+    DataTarget
+        .AttachToProcess(pid.int(), (timeout ?? 10) * 1000, AttachFlag.Passive)
+        .ClrVersions
+        ->(@()$_.CreateRuntime())
+        ->@.Threads
+        ->(@() s.WriteObject(new MemoryStream(), $_))
+        // -> clrSerializer.serialize
+        ->console.code;
+
+matches->@.ProcessId->dumpThreads;
+
+
+// rt.Threads->@.StackTrace -> print;
+exit(0);
+
+%>
+========================================================================
+[CLR Thread Dump Utility]
+========================================================================
+
+clrThreads [query mode] {query option} query [
+
+[Query Mode]
+
+-pid: Search by process ID.
+-name: Search by process name.
+-image: Search by main module name.
+-cmd: Search by process command line.
+
+[Query Options]
+
+like: Accept partial matches e.g. "thr" matches "clrThreads".
+start: Accept partial matches at the beginning of the string e.g. "clr" matches "clrThreads".
+end: Accept partial matches at the end of the string e.g. "trheads" matches "clrThreads".
+pattern: Treat the query as a regular expression.    
+parent: Selects the parent processes of those that match the query criteria.
+child: Selects the child processes of those that match the query criteria.
+timeout: Max time in seconds the debugger is allowed to attempt attaching to a process.
+
+[Examples]
+
+clrThreads -pid 5230
+
+clrThreads -name Aphid32 -child
+
+clrThreads -imge -pattern Aphid(32|64)\.exe
+
+clrThreads -cmd -pattern \.alx -timeout 30
+<%

@@ -3,4 +3,4 @@
 ::set B=msbuild.exe /r /m /p:BuildInParallel=true %MSBUILD_FIX%
 set MSBUILD_FIX=/m
 set B=msbuild.exe /r %MSBUILD_FIX%
-IF NOT DEFINED VisualStudioVersion call "d:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\Tools\VsDevCmd.bat" 
+IF NOT DEFINED VisualStudioVersion call "c:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" 

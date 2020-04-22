@@ -254,6 +254,7 @@
     </Compile>
     <Compile Include="Debugging\AphidObjectDebugView.cs" />
     <Compile Include="Parser\StringParser.cs" />
+    <Compile Include="TypeSystem\AphidPartialComposition.cs" />
     <Compile Include="TypeSystem\AphidPartialFunction.cs" />
     <Compile Include="TypeSystem\ClrInterop\AphidInteropCallContext.cs" />
     <Compile Include="TypeSystem\ClrInterop\InteropTypeContextExactComparer.cs" />
@@ -649,11 +650,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Framework.NativeImageCompiler">
       <Version>1.0.0</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.2.0-beta4-final</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

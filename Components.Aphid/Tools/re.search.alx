@@ -227,6 +227,10 @@ var searchFileText = @(file, reader, encoding, text) {
     lock Console.Out ret handleMatches(file, reader, encoding, text, matches, c);
 };
 
+_runEvaluator = macro(@{
+    new AphidFunction(execEvaluator.Args, execEvaluator.Body, this) |> tryAction;
+});
+
 var handleMatches = @(file, reader, encoding, text, matches, c) {
     if (bareMode) {
         if (!useEvaluator) {
@@ -243,8 +247,7 @@ var handleMatches = @(file, reader, encoding, text, matches, c) {
         } else {
             matches for (m) {
                 var value = m | getMatchValue;
-                new AphidFunction(execEvaluator.Args, execEvaluator.Body, this)
-                |> tryAction;
+                _runEvaluator();
             }
         }
         
@@ -314,6 +317,8 @@ var handleMatches = @(file, reader, encoding, text, matches, c) {
                     'Replacement {0}:' :: matchNum |> highlight,
                     replacement);
             }
+        } else if (useEvaluator) {
+            _runEvaluator();
         }
     };
 
