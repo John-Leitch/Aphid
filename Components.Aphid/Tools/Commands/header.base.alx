@@ -1,0 +1,14 @@
+#'std';
+#'base';
+var writeFunc = frame(1).Scope.'$block' | last | evalExp;
+var t = tokenizeCmd();
+t | skipAphid;
+getScriptArgs();
+var fmt = getBody();
+var w = @() writeFunc($_, Cli.DefaultHeaderStyle);
+
+if (stdIn.any) {
+    stdIn.lines(!string.IsNullOrEmpty(fmt) ? @format(fmt) @> w : w);
+} else {
+    fmt | w;
+}
