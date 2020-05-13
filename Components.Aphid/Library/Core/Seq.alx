@@ -58,5 +58,37 @@ var seq;
         },
         // fanReduce = @(set) set |> seq.range-< @(i) set |> toList @{ $_.RemoveAt(i); ret $_.Count > 1 ? $_ |> fanReduce : [$_] })<| (1..10) |> dump }()
         
+        bind: @() {
+            // Todo: support beyond partial application
+            var map =
+                frame(0)
+                .Expression
+                .FunctionExpression
+                .Call
+                .Args
+                -.Identifier
+                @seq.array(string);
+
+            var source = $args$!;
+            var bound = [];
+
+            source for (x) {
+                var o = {};
+                _r = macro(@{ o.'$remaining' });
+                _p = macro(@(v){ o[q.Dequeue()] = v });
+                _c = macro(@{ q.Count > 0 });
+                _r() = [];
+                var q = new Queue[string](map);                
+                x for (y) _c() ? _p(y) : _r().add(y);
+
+                while (_c()) {
+                    _p(null);
+                }
+
+                bound.add(o);
+            };
+
+            ret bound;
+        },
     }
 }();
