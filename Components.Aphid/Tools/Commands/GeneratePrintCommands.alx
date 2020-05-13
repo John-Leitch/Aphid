@@ -1,0 +1,12 @@
+#'std';
+Cli
+    .GetMethods()
+    -.Name
+    !?
+    ~^(var a = 'Write')
+    ~$(var b = 'Message')
+    ->(@()$_~: a ~: b)
+    -?@!= ''
+    for $_
+        @format("#'header.base';\r\nCli.{0}{2}{1};", a, b)
+        @io.txt(io.script.path('print{0}.alx' :: $_));

@@ -183,8 +183,10 @@ var searchFile = @(file, textEncoding) {
         if (verbosity >= 2) {
             lock Console.Out printInfo('Writing updated text');
         }
+
+        var f = writeFormat != null ? writeFormat :: file : file;
         
-        updated @io.txt(file);
+        updated @io.txt(f);
     }
 };
 

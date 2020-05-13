@@ -1,11 +1,11 @@
 #'std';
 #'base';
-var writeFunc = frame(1).Scope.'$block' | last | evalExp;
+var f = frame(1).Scope.'$block' | last | evalExp;
 var t = tokenizeCmd();
 t | skipAphid;
 getScriptArgs();
 var fmt = getBody();
-var w = @() writeFunc($_, Cli.DefaultHeaderStyle);
+var w = (f.Members[0].Name~='head') ? @() f($_, Cli.DefaultHeaderStyle) : f;
 
 if (stdIn.any) {
     stdIn.lines(!string.IsNullOrEmpty(fmt) ? @format(fmt) @> w : w);

@@ -19,6 +19,7 @@ var cleanup = @{};
     bool recurse: '-s',
     string out: '-o',
     bool write: '-w',
+    string writeFormat: '-wf',
     int indentSize: '-i',
     int excerptLines: '-l',
     int threads: '-t',
