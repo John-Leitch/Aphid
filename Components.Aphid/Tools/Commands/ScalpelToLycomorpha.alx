@@ -1,0 +1,53 @@
+#'std';
+#'net/web';
+
+var carveTemplate = @(p){%>
+    @re ^
+        %* ^
+        "<%= p.pattern %>" ^
+        -fl Singleline ^
+        -asm ^
+        -b ^
+        -s ^
+        -e ^
+            var e = file ^| io.ext @()$_.ToLower(); ^
+            if (m.Index == 0 ^&^& (e == '.<%= p.ext %>')) ret null; ^
+            console.success('Found <%= p.ext %> in {0} at offset 0x{1:x8}', file, m.Index); ^
+            reader.BaseStream.Position = m.Index.long(); ^
+            reader.ReadBytes(m.Length) @io.bytes('{0}_Carved_{1}.<%= p.ext %>' ::[file, m.Index]);
+<%};
+
+
+var s = staticMap(string);
+'https://raw.githubusercontent.com/machn1k/Scalpel-2.0/master/conf/s_media.conf'
+| httpGet
+@s.split('\r\n')
+@() $_ ~? '^[^#]'
+->(@()$_~~"[^\\s]+"->@.Value)
+@seq.bind(fileExt, case, size, header, footer, extension, sensitive)
+->@{
+    if ($_.size != null) {
+        $_.size = $_.size | int.Parse;        
+    }
+
+    $_.fileExt = $_.fileExt.ToLower() ~: "\\|.*";
+    $_.case = $_.case == 'y';
+
+    _fixRegex = macro(@(x) {
+        if ($_.x != null) {
+            $_.x = $_.x.Replace('.', '\\.').Replace('?', '.');
+        }
+    });
+
+    _fixRegex(header);
+    _fixRegex(footer);
+
+    $_.re = '{0}.{{0,{1}}}{2}' :: [ $_.header, $_.size, $_.footer != null ? '?' + $_.footer : ''  ];
+
+    ret $_;
+}
+-&@.fileExt
+->(@() ({ ext: $_.Key, pattern: $_-.re->@format('({0})') @join('|') }))
+for (x) strOut(@{ x | carveTemplate }) @io.txt('ResCarve{0}.cmd' :: x.ext)
+
+

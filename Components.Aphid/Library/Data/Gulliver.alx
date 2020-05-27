@@ -1,0 +1,16 @@
+var bin;
+using Gulliver;
+nuget.reference('gulliver');
+
+bin = {
+    bitFan: @(b, write){
+        0..(b.Length * 8 + 1) for (x) {
+            var b2 = ByteArrayUtils.ShiftBitsRight(b, x);
+                0..(b.Length * 8 - x) for (y) {
+                    var b3  = ByteArrayUtils.ShiftBitsLeft(b2, x + y);
+
+                    write(b3, b3.Length - Math.Floor((x + y) / 8));
+            }
+        }
+    }
+};
