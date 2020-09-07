@@ -1,0 +1,8 @@
+using Components.PInvoke;
+_closeStd = macro(@(n) { _closeStdCore(id(STD_, n, _HANDLE)) });
+_closeStdCore = macro(@(n) { Win32.n | Kernel32.GetStdHandle | Kernel32.CloseHandle });
+_closeStd(INPUT);
+Console.Out.Flush();
+_closeStd(OUTPUT);
+Console.Error.Flush();
+_closeStd(ERROR);

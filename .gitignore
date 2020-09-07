@@ -226,6 +226,7 @@ Components.Aphid/Tools/*.exe
 /Components.Aphid/Library/*Test*.alx
 /Components.Aphid/Library/Gui/*Test*.alx
 /Components.Aphid/Tools/*.cmd
+/Components.Aphid/Tools/LycomorphaCompiled/*
 /PerfTrace*.txt
 /Components.Aphid/Library/bak
 Aphid/Test/*
@@ -263,6 +264,8 @@ push
 *.exe.sdb
 *.exe.odm
 *.alx.out
+*.bak
+*.mmdb
 MigrationBackup/*
 VSIXProject1/*
 Components.Aphid/Tools/Commands/tessdata/*

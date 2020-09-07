@@ -1,15 +1,8 @@
 // using System.Collections.Generic;
 // #'Cli/StdIn';
 
-if ((var line = Console.In.ReadLine()) != null) {
-    line | Console.Out.WriteLine;
+if (Console.IsInputRedirected) {
+    Console.Out.WriteLine(Console.In.ReadLine());
 }
 
-// stdIn.lines(@{
-//     if (isFirst) {
-//         $_ | Console.Out.WriteLine;
-//         isFirst = false;
-//     } else {
-//          Console.In.ReadToEnd();
-//     }
-// });
+#'DisposeStd';

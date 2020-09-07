@@ -1,2 +1,3 @@
-var prepareBody = @String.Format('if ((number < ({0}))) {{ line |> Console.WriteLine }}');
+#'DisposeStdDelayed';
+var prepareBody = @String.Format('if ((number < ({0}))) {{ line |> Console.WriteLine }} else {{ disposeStd(); break }}');
 #'Each';

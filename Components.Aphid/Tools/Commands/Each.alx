@@ -9,7 +9,7 @@ var body =
     |> (prepareBody defined ? prepareBody : @() $_)
     @format(!(useLoop defined) || useLoop ?
     '
-        using (var stream = Console.OpenStandardOutput()) {{
+        // using (var stream = Console.OpenStandardOutput()) {{
             var line;
             var number = -1;
             while ((line = Console.In.ReadLine()) != null) {{
@@ -17,10 +17,10 @@ var body =
                 {0}
                 //Console.Out.Flush();
             }}
-        }}
+        // }}
     ' :
     '
-        using (var stream = Console.OpenStandardOutput()) {{
+        // using (var stream = Console.OpenStandardOutput()) {{
             var line;
             var number = -1;
             while ((line = Console.In.ReadLine()) != null) {{
@@ -28,7 +28,7 @@ var body =
             }}
             {0}
             //Console.Out.Flush();
-        }}
+        // }}
     ')
     |> parse
     |> preprocessor.transform

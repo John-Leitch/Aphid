@@ -24,7 +24,7 @@ var stdIn;
         },
 
         text: @(handle) handle defined ?
-            Console.In.ReadToEnd() | handle | Console.Out.WriteLine :
+            Console.In.ReadToEnd() | handle | Console.Out.Write :
             Console.In.ReadToEnd(),
         txt: text,
     };

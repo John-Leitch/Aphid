@@ -1,6 +1,6 @@
 @re ^
     "\x1f\x8b" ^
-    -p %* ^
+    %* ^
     -b ^
     -e ^
         if (!(gzip defined)) { ^

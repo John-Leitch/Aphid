@@ -5,4 +5,8 @@ using Components;
 #'core/internals';
 #'core/linq';
 var format=String.Format;
-parseArgsFor() | single @.Value |> double.Parse @* multiplier | Thread.Sleep;
+parseArgsFor()->@.Value->double.Parse->@* multiplier->Thread.Sleep;
+
+if (Console.IsInputRedirected) {
+    Console.OpenStandardInput().CopyTo <| Console.OpenStandardOutput();
+}
