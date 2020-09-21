@@ -75,30 +75,12 @@ namespace Components.Aphid.Parser
             string filename,
             out string[] sources)
         {
-            List<AphidExpression> ast;
-
-            if ((Flags & 0x1) == 0)
-            {
-                ast = AphidParser.ParseFile(filename);
-            }
-            else
-            {
-                ast = AphidParser.ParseFile(filename, useImplicitReturns: false);
-            }
-
+            List<AphidExpression> ast = (Flags & 0x1) == 0 ? AphidParser.ParseFile(filename) : AphidParser.ParseFile(filename, useImplicitReturns: false);
             if (InlineScripts)
             {
-                IncludeMutator includeMutator;
-
-                if ((Flags & 0x1) == 0)
-                {
-                    includeMutator = new IncludeMutator { PerformCommonTransformations = false };
-                }
-                else
-                {
-                    includeMutator = new IncludeMutator(false) { PerformCommonTransformations = false };
-                }
-
+                IncludeMutator includeMutator = (Flags & 0x1) == 0
+                    ? new IncludeMutator { PerformCommonTransformations = false }
+                    : new IncludeMutator(false) { PerformCommonTransformations = false };
                 foreach (var p in _searchPaths)
                 {
                     includeMutator.Loader.SearchPaths.Add(p);

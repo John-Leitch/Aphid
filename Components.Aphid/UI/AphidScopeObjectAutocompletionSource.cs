@@ -157,17 +157,7 @@ namespace Components.Aphid.UI
             //catch { }
             expTokens = tokens;
 
-            IEnumerable<AC> words;
-
-            if (expTokens != null)
-            {
-                words = ResolveAphidObject(expTokens, inLastToken);
-            }
-            else
-            {
-                words = GetGlobalWords();
-            }
-
+            IEnumerable<AC> words = expTokens != null ? ResolveAphidObject(expTokens, inLastToken) : GetGlobalWords();
             if (inLastToken)
             {
                 words = words.Where(x => x.Text != lastToken.Lexeme && x.Text.StartsWith(lastToken.Lexeme));
@@ -336,13 +326,9 @@ namespace Components.Aphid.UI
                                 scope = CreateTypeMemberScope(scope.Value.GetType());
                             }
                         }
-                        else if (scope.Value == null && scope.Keys.Count == 0)
-                        {
-                            scope = _currentScope;
-                        }                        
                         else
                         {
-                            throw new NotImplementedException();
+                            scope = scope.Value == null && scope.Keys.Count == 0 ? _currentScope : throw new NotImplementedException();
                         }
 
                         break;
@@ -565,15 +551,9 @@ namespace Components.Aphid.UI
                 .Distinct(x => x.View)
                 .OrderBy(x => x.Text);
 
-        private HashSet<string> GetImports()
-        {
-            if (!_currentScope.TryResolve(AphidName.Imports, out var importObj))
-            {
-                return new HashSet<string>(AphidConfig.Current.Imports);
-            }
-
-            return (HashSet<string>)importObj.Value;
-        }
+        private HashSet<string> GetImports() => !_currentScope.TryResolve(AphidName.Imports, out var importObj)
+                ? new HashSet<string>(AphidConfig.Current.Imports)
+                : (HashSet<string>)importObj.Value;
 
         public void Dispose() => _loader.Dispose();
     }

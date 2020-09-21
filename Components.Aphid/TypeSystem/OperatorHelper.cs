@@ -12,56 +12,38 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public AphidObject Add(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("addition");
-            }
-            else if (x.Value is decimal dx && y.Value is decimal dy)
-            {
-                return AphidObject.Scalar(dx + dy);
-            }
-            else if ((x.Value is sbyte ||
-                x.Value is short ||
-                x.Value is int ||
-                x.Value is long ||
-                x.Value is byte ||
-                x.Value is ushort ||
-                x.Value is uint ||
-                x.Value is ulong ||
-                x.Value is float ||
-                x.Value is double ||
-                x.Value is decimal) &&
-                (y.Value is sbyte ||
-                y.Value is short ||
-                y.Value is int ||
-                y.Value is long ||
-                y.Value is byte ||
-                y.Value is ushort ||
-                y.Value is uint ||
-                y.Value is ulong ||
-                y.Value is float ||
-                y.Value is double ||
-                y.Value is decimal))
-            {
-                return AphidObject.Scalar(Convert.ToDecimal(x.Value) + Convert.ToDecimal(y.Value));
-            }
-            else
-            {
-                return AphidObject.Scalar(Convert.ToString(x.Value) + Convert.ToString(y.Value));
-            }
-        }
+        public AphidObject Add(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("addition")
+                : x.Value is decimal dx && y.Value is decimal dy
+                    ? AphidObject.Scalar(dx + dy)
+                    : (x.Value is sbyte ||
+                                                x.Value is short ||
+                                                x.Value is int ||
+                                                x.Value is long ||
+                                                x.Value is byte ||
+                                                x.Value is ushort ||
+                                                x.Value is uint ||
+                                                x.Value is ulong ||
+                                                x.Value is float ||
+                                                x.Value is double ||
+                                                x.Value is decimal) &&
+                                                (y.Value is sbyte ||
+                                                y.Value is short ||
+                                                y.Value is int ||
+                                                y.Value is long ||
+                                                y.Value is byte ||
+                                                y.Value is ushort ||
+                                                y.Value is uint ||
+                                                y.Value is ulong ||
+                                                y.Value is float ||
+                                                y.Value is double ||
+                                                y.Value is decimal)
+                                    ? AphidObject.Scalar(Convert.ToDecimal(x.Value) + Convert.ToDecimal(y.Value))
+                                    : AphidObject.Scalar(Convert.ToString(x.Value) + Convert.ToString(y.Value));
 
-        public AphidObject Mod(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("modulo");
-            }
-
-            return AphidObject.Scalar(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
-        }
+        public AphidObject Mod(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("modulo")
+                : AphidObject.Scalar(Convert.ToDecimal(x.Value) % Convert.ToDecimal(y.Value));
 
         public AphidObject BinaryOr(AphidObject x, AphidObject y)
         {
@@ -98,77 +80,56 @@ namespace Components.Aphid.TypeSystem
             else if ((xType = x.Value.GetType()).IsEnum &&
                 (yType = y.Value.GetType()).IsEnum)
             {
-                if ((xBaseType = Enum.GetUnderlyingType(xType)) !=
-                    (yBaseType = Enum.GetUnderlyingType(yType)))
-                {
-                    throw Interpreter.CreateRuntimeException(
+                return (xBaseType = Enum.GetUnderlyingType(xType)) !=
+                    (yBaseType = Enum.GetUnderlyingType(yType))
+                    ? throw Interpreter.CreateRuntimeException(
                         "Enum type mismatch, cannot perform binary operations on " +
                             "enums with different underlying ytpes: {0} and {1}",
                         xBaseType.FullName,
-                        yBaseType.FullName);
-                }
-                else if (xBaseType == typeof(byte))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (byte)x.Value & (byte)y.Value));
-                }
-                else if (xBaseType == typeof(ushort))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (ushort)x.Value & (ushort)y.Value));
-                }
-                else if (xBaseType == typeof(uint))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (uint)x.Value & (uint)y.Value));
-                }
-                else if (xBaseType == typeof(ulong))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (ulong)x.Value & (ulong)y.Value));
-                }
-                else if (xBaseType == typeof(sbyte))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (sbyte)x.Value & (sbyte)y.Value));
-                }
-                else if (xBaseType == typeof(short))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (short)x.Value & (short)y.Value));
-                }
-                else if (xBaseType == typeof(int))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (int)x.Value & (int)y.Value));
-                }
-                else if (xBaseType == typeof(long))
-                {
-                    return AphidObject.Scalar(
-                        Enum.ToObject(
-                            xType,
-                            (long)x.Value & (long)y.Value));
-                }
-                else
-                {
-                    throw Interpreter.CreateRuntimeException(
-                        "Unsupported underlying type: {0}",
-                        xBaseType);
-                }
+                        yBaseType.FullName)
+                    : xBaseType == typeof(byte)
+                        ? AphidObject.Scalar(
+                                            Enum.ToObject(
+                                                xType,
+                                                (byte)x.Value & (byte)y.Value))
+                        : xBaseType == typeof(ushort)
+                                            ? AphidObject.Scalar(
+                                                                Enum.ToObject(
+                                                                    xType,
+                                                                    (ushort)x.Value & (ushort)y.Value))
+                                            : xBaseType == typeof(uint)
+                                                                ? AphidObject.Scalar(
+                                                                                    Enum.ToObject(
+                                                                                        xType,
+                                                                                        (uint)x.Value & (uint)y.Value))
+                                                                : xBaseType == typeof(ulong)
+                                                                                    ? AphidObject.Scalar(
+                                                                                                        Enum.ToObject(
+                                                                                                            xType,
+                                                                                                            (ulong)x.Value & (ulong)y.Value))
+                                                                                    : xBaseType == typeof(sbyte)
+                                                                                                        ? AphidObject.Scalar(
+                                                                                                                            Enum.ToObject(
+                                                                                                                                xType,
+                                                                                                                                (sbyte)x.Value & (sbyte)y.Value))
+                                                                                                        : xBaseType == typeof(short)
+                                                                                                                            ? AphidObject.Scalar(
+                                                                                                                                                Enum.ToObject(
+                                                                                                                                                    xType,
+                                                                                                                                                    (short)x.Value & (short)y.Value))
+                                                                                                                            : xBaseType == typeof(int)
+                                                                                                                                                ? AphidObject.Scalar(
+                                                                                                                                                                    Enum.ToObject(
+                                                                                                                                                                        xType,
+                                                                                                                                                                        (int)x.Value & (int)y.Value))
+                                                                                                                                                : xBaseType == typeof(long)
+                                                                                                                                                                    ? AphidObject.Scalar(
+                                                                                                                                                                                        Enum.ToObject(
+                                                                                                                                                                                            xType,
+                                                                                                                                                                                            (long)x.Value & (long)y.Value))
+                                                                                                                                                                    : throw Interpreter.CreateRuntimeException(
+                                                                                                                                                                                        "Unsupported underlying type: {0}",
+                                                                                                                                                                                        xBaseType);
             }
             else
             {
@@ -178,45 +139,21 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public AphidObject BinaryShiftLeft(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("binary shift left");
-            }
+        public AphidObject BinaryShiftLeft(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("binary shift left")
+                : AphidObject.Scalar((decimal)((int)(decimal)x.Value << (int)(decimal)y.Value));
 
-            return AphidObject.Scalar((decimal)((int)(decimal)x.Value << (int)(decimal)y.Value));
-        }
+        public AphidObject BinaryShiftRight(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("binary shift right")
+                : AphidObject.Scalar((decimal)((int)(decimal)x.Value >> (int)(decimal)y.Value));
 
-        public AphidObject BinaryShiftRight(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("binary shift right");
-            }
+        public AphidObject Xor(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("exclusive or")
+                : AphidObject.Scalar((decimal)((int)(decimal)x.Value ^ (int)(decimal)y.Value));
 
-            return AphidObject.Scalar((decimal)((int)(decimal)x.Value >> (int)(decimal)y.Value));
-        }
-
-        public AphidObject Xor(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("exclusive or");
-            }
-
-            return AphidObject.Scalar((decimal)((int)(decimal)x.Value ^ (int)(decimal)y.Value));
-        }
-
-        public AphidObject Subtract(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("subtraction");
-            }
-
-            return AphidObject.Scalar(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
-        }
+        public AphidObject Subtract(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("subtraction")
+                : AphidObject.Scalar(Convert.ToDecimal(x.Value) - Convert.ToDecimal(y.Value));
 
         private static AphidObject Repeat(string value, decimal count)
         {
@@ -239,17 +176,17 @@ namespace Components.Aphid.TypeSystem
 
             object val;
 
-            if (x.Value is decimal && y.Value is decimal)
+            if (x.Value is decimal @decimal && y.Value is decimal decimal1)
             {
-                val = ((decimal)x.Value) * (decimal)y.Value;
+                val = @decimal * decimal1;
             }
-            else if (x.Value is string && y.Value is decimal)
+            else if (x.Value is string @string && y.Value is decimal decimal2)
             {
-                return Repeat((string)x.Value, (decimal)y.Value);
+                return Repeat(@string, decimal2);
             }
-            else if (x.Value is decimal && y.Value is string)
+            else if (x.Value is decimal decimal3 && y.Value is string string1)
             {
-                return Repeat((string)y.Value, (decimal)x.Value);
+                return Repeat(string1, decimal3);
             }
             else
             {
@@ -263,39 +200,19 @@ namespace Components.Aphid.TypeSystem
             return AphidObject.Scalar(val);
         }
 
-        public AphidObject Divide(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("division");
-            }
+        public AphidObject Divide(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("division")
+                : AphidObject.Scalar(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
 
-            return AphidObject.Scalar(Convert.ToDecimal(x.Value) / Convert.ToDecimal(y.Value));
-        }
-
-        public AphidObject Range(AphidObject x, AphidObject y)
-        {
-            if (x == null || y == null)
-            {
-                throw CreateOperationException("range");
-            }
-
-            return AphidObject
+        public AphidObject Range(AphidObject x, AphidObject y) => x == null || y == null
+                ? throw CreateOperationException("range")
+                : AphidObject
                 .Scalar(
                     Enumerable
                         .Range(Convert.ToInt32(x.Value), Convert.ToInt32(y.Value))
                         .Select(Convert.ToDecimal));
-        }
 
-        public static bool EqualsCore(AphidObject x, AphidObject y)
-        {
-            if (x.Value != null)
-            {
-                return x.Value.Equals(y.Value);
-            }
-
-            return null == y.Value && x.Count == 0 && y.Count == 0;
-        }
+        public static bool EqualsCore(AphidObject x, AphidObject y) => x.Value != null ? x.Value.Equals(y.Value) : null == y.Value && x.Count == 0 && y.Count == 0;
 
         public static AphidObject Equals(AphidObject x, AphidObject y) =>
             AphidObject.Scalar(EqualsCore(x, y));
@@ -349,9 +266,10 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.UInt64 r:
-                        {
-                            throw instance.CreateRuntimeException(
+                        case System.UInt64 _:
+
+                                {
+                                    throw instance.CreateRuntimeException(
                                 "Cannot compare System.SByte to System.UInt64");
                         }
                         case System.Single r:
@@ -460,9 +378,10 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.UInt64 r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Int16 to System.UInt64");
+                        case System.UInt64 _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Int16 to System.UInt64");
                         }
                         case System.Single r:
                         {
@@ -570,9 +489,10 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.UInt64 r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Int32 to System.UInt64");
+                        case System.UInt64 _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Int32 to System.UInt64");
                         }
                         case System.Single r:
                         {
@@ -728,9 +648,10 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.UInt64 r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Int64 to System.UInt64");
+                        case System.UInt64 _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Int64 to System.UInt64");
                         }
                         case System.Single r:
                         {
@@ -755,33 +676,37 @@ namespace Components.Aphid.TypeSystem
                 {
                     switch (right)
                     {
-                        case System.SByte r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.SByte");
+                        case System.SByte _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.SByte");
                         }
                         case System.Byte r:
                         {
                             return l == r;
                         }
-                        case System.Int16 r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.Int16");
+                        case System.Int16 _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.Int16");
                         }
                         case System.UInt16 r:
                         {
                             return l == r;
                         }
-                        case System.Int32 r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.Int32");
+                        case System.Int32 _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.Int32");
                         }
                         case System.UInt32 r:
                         {
                             return l == r;
                         }
-                        case System.Int64 r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.Int64");
+                        case System.Int64 _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.UInt64 to System.Int64");
                         }
                         case System.UInt64 r:
                         {
@@ -850,9 +775,10 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.Decimal r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Single to System.Decimal");
+                        case System.Decimal _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Single to System.Decimal");
                         }
                         default:
                         {
@@ -905,9 +831,10 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.Decimal r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Double to System.Decimal");
+                        case System.Decimal _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Double to System.Decimal");
                         }
                         default:
                         {
@@ -952,13 +879,15 @@ namespace Components.Aphid.TypeSystem
                         {
                             return l == r;
                         }
-                        case System.Single r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Decimal to System.Single");
+                        case System.Single _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Decimal to System.Single");
                         }
-                        case System.Double r:
-                        {
-                            throw instance.CreateRuntimeException("Cannot compare System.Decimal to System.Double");
+                        case System.Double _:
+
+                                {
+                                    throw instance.CreateRuntimeException("Cannot compare System.Decimal to System.Double");
                         }
                         case System.Decimal r:
                         {

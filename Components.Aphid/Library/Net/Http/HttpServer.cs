@@ -288,12 +288,7 @@ namespace Components.Aphid.Library.Net
             }
 
             // Just in case.
-            if (Regex.IsMatch(p, @"([\\/]\.\.)|(\.\.[\\/])"))
-            {
-                throw new SecurityException("Invalid characters in path.");
-            }
-
-            return p;
+            return Regex.IsMatch(p, @"([\\/]\.\.)|(\.\.[\\/])") ? throw new SecurityException("Invalid characters in path.") : p;
         }
 
         private static void WriteResponse(HttpListenerContext context, byte[] response)
@@ -347,7 +342,7 @@ namespace Components.Aphid.Library.Net
                     lastWriteObj = AphidObject.Scalar(DateTime.MinValue));
             }
 
-            var lastWrite = (DateTime)lastWriteObj.Value;
+            _ = (DateTime)lastWriteObj.Value;
             var config = GetConfigFile();
 
             //if (config.LastWriteTime == lastWrite)
@@ -460,27 +455,17 @@ namespace Components.Aphid.Library.Net
 
             var content = scope["content"];
 
-            if (content.Value == null)
-            {
-                return _encoding.GetBytes(scriptOut);
-            }
-
-            if (content.Value is byte[] buffer)
-            {
-                return buffer;
-            }
-            else if (content.Value is string text)
-            {
-                return _encoding.GetBytes(text);
-            }
-            else
-            {
-                return SetError(
-                    context,
-                    500,
-                    "500 internal server error: unsupported Aphid response type: {0}",
-                    content.Value.GetType().FullName);
-            }
+            return content.Value == null
+                ? _encoding.GetBytes(scriptOut)
+                : content.Value is byte[] buffer
+                ? buffer
+                : content.Value is string text
+                    ? _encoding.GetBytes(text)
+                    : SetError(
+                                    context,
+                                    500,
+                                    "500 internal server error: unsupported Aphid response type: {0}",
+                                    content.Value.GetType().FullName);
         }
     }
 }

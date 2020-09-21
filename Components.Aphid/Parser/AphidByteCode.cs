@@ -84,13 +84,10 @@ namespace Components.Aphid.Parser
         {
             using (var s = Assembly.GetEntryAssembly().GetManifestResourceStream(name))
             {
-                if (s == null)
-                {
-                    throw new InvalidOperationException(
-                        string.Format("Could not find resource stream {0}.", name));
-                }
-
-                return Decode(s);
+                return s == null
+                    ? throw new InvalidOperationException(
+                        string.Format("Could not find resource stream {0}.", name))
+                    : Decode(s);
             }
         }
     }

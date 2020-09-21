@@ -57,24 +57,8 @@ namespace Components
             return _input;
         }
 
-        public TResult Else(Func<TInput, TResult> func)
-        {
-            if (_conditionFunc == null)
-            {
-                if (_condition)
-                {
-                    return _ifResultFunc(_input);
-                }
-
-                return func(_input);
-            }
-
-            if (_conditionFunc(_input))
-            {
-                return _ifResultFunc(_input);
-            }
-
-            return func(_input);
-        }
+        public TResult Else(Func<TInput, TResult> func) => _conditionFunc == null
+                ? _condition ? _ifResultFunc(_input) : func(_input)
+                : _conditionFunc(_input) ? _ifResultFunc(_input) : func(_input);
     }
 }

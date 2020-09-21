@@ -375,14 +375,7 @@ namespace Components.Aphid.Interpreter
             AphidErrorReporter.Init();
             StrictMode = AphidConfig.Current.StrictMode;
 
-            if (createLoader)
-            {
-                Loader = new AphidLoader(this);
-            }
-            else
-            {
-                Loader = loader;
-            }
+            Loader = createLoader ? new AphidLoader(this) : loader;
 
             InitialScope = CurrentScope = currentScope ?? Scope();
 
@@ -584,17 +577,11 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string GetScriptFilename()
-        {
-            if (CurrentScope != null)
-            {
-                return CurrentScope.TryResolve(AphidName.Script, out var scriptObj) ?
+        public string GetScriptFilename() => CurrentScope != null
+                ? CurrentScope.TryResolve(AphidName.Script, out var scriptObj) ?
                     scriptObj?.GetString() :
-                    null;
-            }
-
-            return null;
-        }
+                    null
+                : null;
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool SetIsInTryCatchFinally(bool value)
@@ -943,14 +930,7 @@ namespace Components.Aphid.Interpreter
 
             if (Unwrap(value) is AphidFunction func)
             {
-                if (interopRef.Object is AphidObject ao)
-                {
-                    func.ParentScope = ao;
-                }
-                else
-                {
-                    func.ParentScope = CurrentScope;
-                }
+                func.ParentScope = interopRef.Object is AphidObject ao ? ao : CurrentScope;
             }
 
             return true;
@@ -1189,17 +1169,9 @@ namespace Components.Aphid.Interpreter
             AphidInteropMethodInfo methodInfo,
             AphidInteropMember interopMembers)
         {
-            MethodBase method;
-
-            if (!methodInfo.Method.IsGenericMethod)
-            {
-                method = methodInfo.Method;
-            }
-            else
-            {
-                method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
-            }
-
+            MethodBase method = !methodInfo.Method.IsGenericMethod
+                ? methodInfo.Method
+                : ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
             var convertedArgs = TypeConverter.Convert(
                 methodInfo.Arguments,
                 methodInfo.GenericArguments);
@@ -1440,15 +1412,10 @@ namespace Components.Aphid.Interpreter
 
             var func = obj.GetFunction();
 
-            if (func == null)
-            {
-                throw CreateRuntimeException(
+            return func ?? throw CreateRuntimeException(
                     "Custom operator '{0}' should be function, was '{1}'.",
                     op,
                     obj.GetValueType());
-            }
-
-            return func;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2393,14 +2360,7 @@ namespace Components.Aphid.Interpreter
 
                             result = ((ConstructorInfo)ctor.Method).Invoke(convertedArgs);
 
-                            if (type != typeof(AphidObject))
-                            {
-                                obj = Scalar(result);
-                            }
-                            else
-                            {
-                                obj = (AphidObject)result;
-                            }
+                            obj = type != typeof(AphidObject) ? Scalar(result) : (AphidObject)result;
                         }
                         else
                         {
@@ -3050,14 +3010,7 @@ namespace Components.Aphid.Interpreter
                         switch (expression.Operand.Type)
                         {
                             case Exp.IdentifierExpression:
-                                if (CurrentScope.IsDefined(((IdentifierExpression)expression.Operand).Identifier))
-                                {
-                                    return InternedTrue;
-                                }
-                                else
-                                {
-                                    return InternedFalse;
-                                }
+                                return CurrentScope.IsDefined(((IdentifierExpression)expression.Operand).Identifier) ? InternedTrue : InternedFalse;
 
 
                             case Exp.BinaryOperatorExpression:
@@ -3073,24 +3026,10 @@ namespace Components.Aphid.Interpreter
                                         case AphidRef memberRef:
                                             var o = memberRef.Object;
 
-                                            if (o.IsComplex && o.IsDefined(memberRef.Name))
-                                            {
-                                                return InternedTrue;
-                                            }
-                                            else
-                                            {
-                                                return InternedFalse;
-                                            }
+                                            return o.IsComplex && o.IsDefined(memberRef.Name) ? InternedTrue : InternedFalse;
 
                                         default:
-                                            if (memberRefObj is AphidInteropReference)
-                                            {
-                                                return InternedTrue;
-                                            }
-                                            else
-                                            {
-                                                return InternedFalse;
-                                            }
+                                            return memberRefObj is AphidInteropReference ? InternedTrue : InternedFalse;
 
                                     }
                                 }
@@ -3115,15 +3054,10 @@ namespace Components.Aphid.Interpreter
 
                                     if (aphidObj.IsScalar)
                                     {
-                                        if (aphidObj.Value != null &&
-                                            aphidObj.Value.GetType().GetMember(key).Length != 0)
-                                        {
-                                            return InternedTrue;
-                                        }
-                                        else
-                                        {
-                                            return InternedFalse;
-                                        }
+                                        return aphidObj.Value != null &&
+                                            aphidObj.Value.GetType().GetMember(key).Length != 0
+                                            ? InternedTrue
+                                            : InternedFalse;
                                     }
                                     else if (aphidObj.ContainsKey(key))
                                     {
@@ -3254,26 +3188,20 @@ namespace Components.Aphid.Interpreter
 
                         var members = GetInteropInstanceMembers(aphidObj.Value, key);
 
-                        if (members.Length == 0)
-                        {
-                            throw CreateRuntimeException(
+                        return members.Length == 0
+                            ? throw CreateRuntimeException(
                                 "Cannot get member {0} from {1}.",
                                 key,
-                                aphidObj.Value.GetType());
-                        }
-
-                        return InterpretMemberInteropExpression(
+                                aphidObj.Value.GetType())
+                            : InterpretMemberInteropExpression(
                             aphidObj.Value,
                             members,
                             expression);
                     }
 
-                    if (aphidObj.TryGetValue(key, out var val))
-                    {
-                        return val.IsScalar ? Scalar(val.Value) : val;
-                    }
-
-                    throw CreateRuntimeException(
+                    return aphidObj.TryGetValue(key, out var val)
+                        ? val.IsScalar ? Scalar(val.Value) : val
+                        : throw CreateRuntimeException(
                         "Cannot get member {0} from {1}",
                         key,
                         aphidObj);
@@ -3573,9 +3501,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadScriptExpression(LoadScriptExpression expression)
         {
-            var file = Unwrap(InterpretExpression(expression.FileExpression)) as string;
-
-            if (Loader == null || file == null)
+            if (Loader == null || !(Unwrap(InterpretExpression(expression.FileExpression)) is string file))
             {
                 throw CreateRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
@@ -3641,9 +3567,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadLibraryExpression(LoadLibraryExpression expression)
         {
-            var library = Unwrap(InterpretExpression(expression.LibraryExpression)) as string;
-
-            if (Loader == null || library == null)
+            if (Loader == null || !(Unwrap(InterpretExpression(expression.LibraryExpression)) is string library))
             {
                 throw CreateRuntimeException("Cannot load script {0}", expression.LibraryExpression);
             }
@@ -3815,14 +3739,11 @@ namespace Components.Aphid.Interpreter
                 .Select(x => x.LeftOperand.ToIdentifier().Identifier)
                 .ToArray();
 
-            if (modified.Length > 1)
-            {
-                throw CreateRuntimeException(
+            return modified.Length > 1
+                ? throw CreateRuntimeException(
                     "Only one extension can be marked as {0}.",
-                    modifier);
-            }
-
-            return modified;
+                    modifier)
+                : modified;
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4097,26 +4018,14 @@ namespace Components.Aphid.Interpreter
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretAndExpression(BinaryOperatorExpression expression)
-        {
-            if (!(bool)InterpretExpression(expression.LeftOperand).Value)
-            {
-                return InternedFalse;
-            }
-
-            return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
-        }
+        private AphidObject InterpretAndExpression(BinaryOperatorExpression expression) => !(bool)InterpretExpression(expression.LeftOperand).Value
+                ? InternedFalse
+                : Scalar((bool)InterpretExpression(expression.RightOperand).Value);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidObject InterpretOrExpression(BinaryOperatorExpression expression)
-        {
-            if ((bool)InterpretExpression(expression.LeftOperand).Value)
-            {
-                return InternedTrue;
-            }
-
-            return Scalar((bool)InterpretExpression(expression.RightOperand).Value);
-        }
+        private AphidObject InterpretOrExpression(BinaryOperatorExpression expression) => (bool)InterpretExpression(expression.LeftOperand).Value
+                ? InternedTrue
+                : Scalar((bool)InterpretExpression(expression.RightOperand).Value);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretEqualityExpression(BinaryOperatorExpression expression)
@@ -4128,69 +4037,23 @@ namespace Components.Aphid.Interpreter
             {
                 //bool val;
 
-                if (left == null)
-                {
-                    throw CreateUndefinedMemberException(expression, expression.LeftOperand);
-                }
-                else if (right == null)
-                {
-                    throw CreateUndefinedMemberException(expression, expression.RightOperand);
-                }
-                else if (left.IsScalar)
-                {
-                    if (right.IsScalar && OperatorHelper.Equals(this, left.Value, right.Value))
-                    {
-                        return InternedTrue;
-                    }
-
-                    return InternedFalse;
-                }
-                else if (left.IsComplex)
-                {
-                    if (left == right)
-                    {
-                        return InternedTrue;
-                    }
-
-                    return InternedFalse;
-                }
-                else
-                {
-                    return InternedFalse;
-                }
+                return left == null
+                    ? throw CreateUndefinedMemberException(expression, expression.LeftOperand)
+                    : right == null
+                        ? throw CreateUndefinedMemberException(expression, expression.RightOperand)
+                        : left.IsScalar
+                                            ? right.IsScalar && OperatorHelper.Equals(this, left.Value, right.Value) ? InternedTrue : InternedFalse
+                                            : left.IsComplex ? left == right ? InternedTrue : InternedFalse : InternedFalse;
             }
             else
             {
-                if (left == null)
-                {
-                    throw CreateUndefinedMemberException(expression, expression.LeftOperand);
-                }
-                else if (right == null)
-                {
-                    throw CreateUndefinedMemberException(expression, expression.RightOperand);
-                }
-                else if (left.IsScalar)
-                {
-                    if (right.IsScalar && OperatorHelper.Equals(this, left.Value, right.Value))
-                    {
-                        return InternedFalse;
-                    }
-
-                    return InternedTrue;
-                }
-                else if (left.IsComplex)
-                {
-                    if (left == right)
-                    {
-                        return InternedFalse;
-                    }
-
-                    return InternedTrue;
-                }
-                else
-                {
-                    return InternedTrue;
-                }
+                return left == null
+                    ? throw CreateUndefinedMemberException(expression, expression.LeftOperand)
+                    : right == null
+                        ? throw CreateUndefinedMemberException(expression, expression.RightOperand)
+                        : left.IsScalar
+                                            ? right.IsScalar && OperatorHelper.Equals(this, left.Value, right.Value) ? InternedFalse : InternedTrue
+                                            : left.IsComplex ? left == right ? InternedFalse : InternedTrue : InternedTrue;
             }
 
             //if (expression.Operator == NotEqualOperator)
@@ -4288,56 +4151,31 @@ namespace Components.Aphid.Interpreter
 
                 if (propInfo != null)
                 {
-                    if (!returnRef)
-                    {
-                        if (propInfo.PropertyType != typeof(AphidObject))
-                        {
-                            if (!propInfo.PropertyType.IsAssignableFrom(typeof(AphidObject)))
-                            {
-                                return Scalar(propInfo.GetValue(lhs));
-                            }
-
-                            return Wrap(propInfo.GetValue(lhs));
-                        }
-
-                        return (AphidObject)propInfo.GetValue(lhs);
-                    }
-
-                    return Scalar(new AphidInteropReference(lhs, propInfo));
+                    return !returnRef
+                        ? propInfo.PropertyType != typeof(AphidObject)
+                            ? !propInfo.PropertyType.IsAssignableFrom(typeof(AphidObject)) ? Scalar(propInfo.GetValue(lhs)) : Wrap(propInfo.GetValue(lhs))
+                            : (AphidObject)propInfo.GetValue(lhs)
+                        : Scalar(new AphidInteropReference(lhs, propInfo));
                 }
 
                 var fieldInfo = members[0] as FieldInfo;
 
                 if (fieldInfo != null)
                 {
-                    if (!returnRef)
-                    {
-                        if (fieldInfo.FieldType != typeof(AphidObject))
-                        {
-                            if (!fieldInfo.FieldType.IsAssignableFrom(typeof(AphidObject)))
-                            {
-                                return Scalar(fieldInfo.GetValue(lhs));
-                            }
-
-                            return Wrap(fieldInfo.GetValue(lhs));
-                        }
-
-                        return (AphidObject)fieldInfo.GetValue(lhs);
-                    }
-
-                    return Scalar(new AphidInteropReference(lhs, fieldInfo));
+                    return !returnRef
+                        ? fieldInfo.FieldType != typeof(AphidObject)
+                            ? !fieldInfo.FieldType.IsAssignableFrom(typeof(AphidObject)) ? Scalar(fieldInfo.GetValue(lhs)) : Wrap(fieldInfo.GetValue(lhs))
+                            : (AphidObject)fieldInfo.GetValue(lhs)
+                        : Scalar(new AphidInteropReference(lhs, fieldInfo));
                 }
             }
             else if (members.Length == 0)
             {
-                if (dynamicHandler == null)
-                {
-                    throw CreateRuntimeException(
+                return dynamicHandler == null
+                    ? throw CreateRuntimeException(
                         "Could not find property '{0}'",
-                        expression);
-                }
-
-                return dynamicHandler();
+                        expression)
+                    : dynamicHandler();
             }
 
             return Scalar(new AphidInteropMember(expression, lhs, members));
@@ -4588,7 +4426,6 @@ namespace Components.Aphid.Interpreter
 
                 default:
                     object refObj;
-                    AphidInteropReference memberRef;
                     AphidObject extObj;
                     AphidFunction func2;
 
@@ -4596,7 +4433,7 @@ namespace Components.Aphid.Interpreter
                         (refObj = InterpretMemberExpression(
                             (BinaryOperatorExpression)functionExpression,
                             returnRef: true)) != null &&
-                        (memberRef = Unwrap(refObj) as AphidInteropReference) != null)
+                        Unwrap(refObj) is AphidInteropReference memberRef)
                     {
                         if (((extObj = TryResolve(
                                 CurrentScope,
@@ -4690,17 +4527,9 @@ namespace Components.Aphid.Interpreter
                 interopMembers.Members.OfType<MethodInfo>().ToArray(),
                 arguments);
 
-            MethodBase method;
-
-            if (!methodInfo.Method.IsGenericMethod)
-            {
-                method = methodInfo.Method;
-            }
-            else
-            {
-                method = ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
-            }
-
+            MethodBase method = !methodInfo.Method.IsGenericMethod
+                ? methodInfo.Method
+                : ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
             var convertedArgs = TypeConverter.Convert(
                 methodInfo.Arguments,
                 methodInfo.GenericArguments);
@@ -4928,17 +4757,14 @@ namespace Components.Aphid.Interpreter
 
                             if (members.Length != 0)
                             {
-                                if (!(members[0] is Type nestedType))
-                                {
-                                    return InterpretMemberInteropExpression(
+                                return !(members[0] is Type nestedType)
+                                    ? InterpretMemberInteropExpression(
                                         null,
                                         members,
                                         expression,
                                         returnRef,
-                                        null);
-                                }
-
-                                return Scalar(nestedType);
+                                        null)
+                                    : Scalar(nestedType);
                             }
 
                             members = GetInteropInstanceMembers(type, key);
@@ -4971,17 +4797,14 @@ namespace Components.Aphid.Interpreter
 
                             if (members.Length != 0)
                             {
-                                if (!(members[0] is Type nestedType))
-                                {
-                                    return InterpretMemberInteropExpression(
+                                return !(members[0] is Type nestedType)
+                                    ? InterpretMemberInteropExpression(
                                         null,
                                         members,
                                         expression,
                                         returnRef,
-                                        null);
-                                }
-
-                                return Scalar(nestedType);
+                                        null)
+                                    : Scalar(nestedType);
                             }
                         }
 
@@ -4994,12 +4817,7 @@ namespace Components.Aphid.Interpreter
                             isDynamic: false,
                             returnRef: returnRef);
 
-                        if (ext == null)
-                        {
-                            throw CreateMemberException(key, obj, expression);
-                        }
-
-                        return ext;
+                        return ext ?? throw CreateMemberException(key, obj, expression);
                     }
                     else if (returnRef)
                     {
@@ -5024,72 +4842,57 @@ namespace Components.Aphid.Interpreter
                     {
                         var aphidType = obj.IsAphidType();
 
-                        if ((val = TryResolve(
+                        return (val = TryResolve(
                             CurrentScope,
                             obj,
                             key,
                             isAphidType: aphidType,
                             isCtor: false,
                             isDynamic: false,
-                            returnRef: returnRef)) != null)
-                        {
-                            return val;
-                        }
-                        else if ((val = InterpretMemberInteropExpression(
-                            obj.Value,
-                            expression,
-                            returnRef,
-                            () => TryResolve(
-                                CurrentScope,
-                                obj,
-                                key,
-                                isAphidType: aphidType,
-                                isCtor: false,
-                                isDynamic: true,
-                                returnRef: returnRef))) != null)
-                        {
-                            return val;
-                        }
-                        else
-                        {
-                            throw CreateMemberException(key, obj, expression);
-                        }
-                    }
-                    else if (expression.LeftOperand.Type == Exp.IdentifierExpression)
-                    {
-                        return InterpretMemberInteropExpression(null, expression, returnRef);
+                            returnRef: returnRef)) != null
+                            ? val
+                            : (val = InterpretMemberInteropExpression(
+                                                        obj.Value,
+                                                        expression,
+                                                        returnRef,
+                                                        () => TryResolve(
+                                                            CurrentScope,
+                                                            obj,
+                                                            key,
+                                                            isAphidType: aphidType,
+                                                            isCtor: false,
+                                                            isDynamic: true,
+                                                            returnRef: returnRef))) != null
+                                ? val
+                                : throw CreateMemberException(key, obj, expression);
                     }
                     else
                     {
-                        throw CreateRuntimeException("Null reference exception: {0}.", expression);
+                        return expression.LeftOperand.Type == Exp.IdentifierExpression
+                            ? InterpretMemberInteropExpression(null, expression, returnRef)
+                            : throw CreateRuntimeException("Null reference exception: {0}.", expression);
                     }
-                }
-                else if (returnRef)
-                {
-                    return new AphidRef { Name = key, Object = obj };
-                }
-                else if (obj.TryResolve(key, out val))
-                {
-                    return val;
-                }
-                else if ((val = InterpretMemberInteropExpression(
-                    obj,
-                    expression,
-                    returnRef,
-                    () => TryResolve(
-                        CurrentScope,
-                        obj,
-                        key,
-                        isAphidType: true,
-                        isCtor: false,
-                        isDynamic: false,
-                        returnRef: returnRef))) != null)
-                {
-                    return val;
                 }
                 else
                 {
-                    throw CreateMemberException(key, obj, expression);
+                    return returnRef
+                        ? new AphidRef { Name = key, Object = obj }
+                        : (object)(obj.TryResolve(key, out val)
+                                            ? val
+                                            : (val = InterpretMemberInteropExpression(
+                                                                                obj,
+                                                                                expression,
+                                                                                returnRef,
+                                                                                () => TryResolve(
+                                                                                    CurrentScope,
+                                                                                    obj,
+                                                                                    key,
+                                                                                    isAphidType: true,
+                                                                                    isCtor: false,
+                                                                                    isDynamic: false,
+                                                                                    returnRef: returnRef))) != null
+                                                                ? val
+                                                                : throw CreateMemberException(key, obj, expression));
                 }
             }
             else
@@ -5196,7 +4999,7 @@ namespace Components.Aphid.Interpreter
                 {
                     if (value2.Count == 0 && value2.Value != null)
                     {
-                        value = value2 = Scalar(value2.Value);
+                        value2 = Scalar(value2.Value);
                     }
 
                     targetAphidList[ToInt32(keyObj)] = value2;
@@ -5341,14 +5144,7 @@ namespace Components.Aphid.Interpreter
 
                     if (value2.Value is AphidFunction func)
                     {
-                        if (interopRef.Object is AphidObject ao)
-                        {
-                            func.ParentScope = ao;
-                        }
-                        else
-                        {
-                            func.ParentScope = CurrentScope;
-                        }
+                        func.ParentScope = interopRef.Object is AphidObject ao ? ao : CurrentScope;
                     }
 
                     return value2;
@@ -6181,12 +5977,9 @@ namespace Components.Aphid.Interpreter
             //var f = _frames.ToArray().Select(x => x.ToString()).JoinLines();
             var c = _frames.Count - 2;
 
-            if (offset < 0 || offset > c)
-            {
-                throw new IndexOutOfRangeException($"Frame index out of range: {offset.ToString()}");
-            }
-
-            return GetFrameArray()[c - offset];
+            return offset < 0 || offset > c
+                ? throw new IndexOutOfRangeException($"Frame index out of range: {offset.ToString()}")
+                : GetFrameArray()[c - offset];
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -6653,15 +6446,7 @@ namespace Components.Aphid.Interpreter
                 "null";
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AphidObject WrapInteropValue(object value)
-        {
-            if (IsAphidType(value))
-            {
-                return Wrap(value);
-            }
-
-            throw CreateValueException(value, "Cannot wrap value");
-        }
+        public AphidObject WrapInteropValue(object value) => IsAphidType(value) ? Wrap(value) : throw CreateValueException(value, "Cannot wrap value");
 
         #endregion
 

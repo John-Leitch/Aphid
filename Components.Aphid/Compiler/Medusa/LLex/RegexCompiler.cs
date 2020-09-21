@@ -46,12 +46,7 @@ namespace LLex
                 {
                     var combinedStrings = leftLiterals.SelectMany(x => rightLiterals.Select(y => x + y));
 
-                    if (binExp.Operator == RegexTokenType.OrOperator)
-                    {
-                        return leftLiterals.Concat(rightLiterals).ToArray();
-                    }
-
-                    return combinedStrings.ToArray();
+                    return binExp.Operator == RegexTokenType.OrOperator ? leftLiterals.Concat(rightLiterals).ToArray() : combinedStrings.ToArray();
                 }
 
                 return leftLiterals;
@@ -72,19 +67,14 @@ namespace LLex
 
                 return literals;
             }
-            else if (exp is CharExpression charExp)
-            {
-                if (charExp.Quantifier == RegexTokenType.None)
-                {
-                    return new string[] { seed + charExp.Char.ToString() };
-                }
-
-                throw new InvalidOperationException(
-                    string.Format("Unsupported quantifier: {0}", charExp.Quantifier));
-            }
             else
             {
-                throw new InvalidOperationException();
+                return exp is CharExpression charExp
+                    ? charExp.Quantifier == RegexTokenType.None
+                                    ? (new string[] { seed + charExp.Char.ToString() })
+                                    : throw new InvalidOperationException(
+                                    string.Format("Unsupported quantifier: {0}", charExp.Quantifier))
+                    : throw new InvalidOperationException();
             }
         }
 

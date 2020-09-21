@@ -13,24 +13,13 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("__stream.write", PassInterpreter = true)]
         public static void StreamWrite(AphidInterpreter interpreter, Stream stream, object buffer)
         {
-            byte[] bytes;
-            string str;
-
-            if (buffer is List<AphidObject> objects)
-            {
-                bytes = objects.Select(x => (byte)(decimal)x.Value).ToArray();
-            }
-            else if ((str = buffer as string) != null)
-            {
-                bytes = StandardLibrary.Encoding.GetBytes(str);
-            }
-            else
-            {
-                throw interpreter.CreateRuntimeException(
-                    "Invalid object passed as buffer: {0}",
-                    buffer);
-            }
-
+            byte[] bytes = buffer is List<AphidObject> objects
+                ? objects.Select(x => (byte)(decimal)x.Value).ToArray()
+                : buffer is string str
+                    ? StandardLibrary.Encoding.GetBytes(str)
+                    : throw interpreter.CreateRuntimeException(
+                                    "Invalid object passed as buffer: {0}",
+                                    buffer);
             stream.Write(bytes, 0, bytes.Length);
         }
 

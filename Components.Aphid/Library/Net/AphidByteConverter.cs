@@ -15,23 +15,13 @@ namespace Components.Aphid.Library
         public byte[] ToBytes(AphidObject obj)
         {
             var v = obj.Value;
-            byte[] bytes;
-
-            if (v is List<AphidObject> objects)
-            {
-                bytes = objects.Select(x => (byte)(decimal)x.Value).ToArray();
-            }
-            else if (v is string str)
-            {
-                bytes = StandardLibrary.Encoding.GetBytes(str);
-            }
-            else
-            {
-                throw Interpreter.CreateRuntimeException(
-                    "Invalid object passed as buffer: {0}",
-                    v);
-            }
-
+            byte[] bytes = v is List<AphidObject> objects
+                ? objects.Select(x => (byte)(decimal)x.Value).ToArray()
+                : v is string str
+                    ? StandardLibrary.Encoding.GetBytes(str)
+                    : throw Interpreter.CreateRuntimeException(
+                                    "Invalid object passed as buffer: {0}",
+                                    v);
             return bytes;
         }
     }

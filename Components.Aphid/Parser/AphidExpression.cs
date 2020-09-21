@@ -31,15 +31,7 @@ namespace Components.Aphid.Parser
         public bool HasBreakpoint { get; set; }
 #endif
 
-        public override string ToString()
-        {
-            if (Code != null && Index != -1 && Length != -1)
-            {
-                return Code.Substring(Index, Length);
-            }
-
-            return base.ToString();
-        }
+        public override string ToString() => Code != null && Index != -1 && Length != -1 ? Code.Substring(Index, Length) : base.ToString();
 
         public AphidExpression WithPositionFrom(AphidExpression expression)
         {

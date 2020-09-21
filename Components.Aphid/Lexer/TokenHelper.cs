@@ -265,17 +265,7 @@ namespace Components.Aphid.Lexer
             //code = code.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n", "\r\n");
             var matches = Regex.Matches(code, @"\r\n|\n|\r").OfType<Match>().ToArray();
             var firstAfter = Array.Find(matches, x => x.Index > index);
-            int line;
-
-            if (firstAfter != null)
-            {
-                line = Array.IndexOf(matches, firstAfter);
-            }
-            else
-            {
-                line = matches.Length;
-            }
-
+            int line = firstAfter != null ? Array.IndexOf(matches, firstAfter) : matches.Length;
             var lines = code.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
             var sb = new StringBuilder();
 

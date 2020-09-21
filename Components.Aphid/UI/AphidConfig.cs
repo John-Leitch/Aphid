@@ -103,17 +103,7 @@ namespace Components.Aphid.UI
             //try
             //{
             var l = typeof(AphidConfig).Assembly.Location;
-            string path;
-
-            if (l != null)
-            {
-                path = Combine(GetDirectoryName(l), FileName);
-            }
-            else
-            {
-                path = FileName;
-            }
-
+            string path = l != null ? Combine(GetDirectoryName(l), FileName) : FileName;
             return ConfigurationManager.OpenMappedExeConfiguration(
                 new ExeConfigurationFileMap { ExeConfigFilename = path },
                 ConfigurationUserLevel.None);

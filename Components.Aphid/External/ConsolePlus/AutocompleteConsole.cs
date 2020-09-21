@@ -10,7 +10,7 @@ namespace Components.External.ConsolePlus
 {
     public class AutocompleteConsole
     {
-        private ConsoleGraphics _gfx;
+        private readonly ConsoleGraphics _gfx;
 
         private readonly string _prompt;
 

@@ -301,21 +301,9 @@ namespace Components.Aphid.UI
                 return;
             }
 
-            AphidInterpreter exInterpreter;
-
-            if (exception.Data.Contains(AphidName.Interpreter))
-            {
-                exInterpreter = (AphidInterpreter)exception.Data[AphidName.Interpreter];
-            }
-            else if (interpreter != null)
-            {
-                exInterpreter = interpreter;
-            }
-            else
-            {
-                exInterpreter = new AphidInterpreter();
-            }
-
+            AphidInterpreter exInterpreter = exception.Data.Contains(AphidName.Interpreter)
+                ? (AphidInterpreter)exception.Data[AphidName.Interpreter]
+                : interpreter ?? new AphidInterpreter();
             DumpScope(scope, exInterpreter, 0);
         }
 

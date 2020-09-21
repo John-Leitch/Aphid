@@ -53,9 +53,7 @@ namespace Components.Cypress
             {
                 case ExceptionCode.EXCEPTION_BREAKPOINT:
                     var addr = (IntPtr)e.DebugEvent.Exception.ExceptionRecord.ExceptionAddress;
-                    byte originalByte;
-
-                    if (!BreakpointTable.TryGetValue(addr, out originalByte))
+                    if (!BreakpointTable.TryGetValue(addr, out _))
                     {
                         return false;
                     }

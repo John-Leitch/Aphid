@@ -188,7 +188,7 @@ namespace Components.Aphid.Library.Net.Http
                 {
                     var bytesRemaining = contentLen - bodyBytesRead;
                     var readSize = buffer.Length < bytesRemaining ? buffer.Length : bytesRemaining;
-                    var bytesRead = Stream.Read(buffer, 0, readSize);
+                    _ = Stream.Read(buffer, 0, readSize);
                 }
             }
             else if (resp.FieldContains(HttpField.TransferEncoding, "chunked"))

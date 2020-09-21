@@ -244,7 +244,7 @@ namespace Components.ObjectDatabase
         }
 
         private MemoryManager ReadVersionedMemoryManagerUnsafe() =>
-            ReadVersionedMemoryManagerUnsafe(out var version);
+            ReadVersionedMemoryManagerUnsafe(out _);
 
         public override TElement ReadUnsafe(long offset)
         {
@@ -259,9 +259,8 @@ namespace Components.ObjectDatabase
             }
 #endif
 
-            IObjectDatabaseEntity entity;
 
-            if (SetEntityMetaData && (entity = element as IObjectDatabaseEntity) != null)
+            if (SetEntityMetaData && element is IObjectDatabaseEntity entity)
             {
                 entity.Offset = offset;
                 entity.Filename = Filename;
@@ -463,17 +462,7 @@ namespace Components.ObjectDatabase
 
             LockMemoryManager(() =>
             {
-                if (!UseUnsafeMemoryManager)
-                {
-                    count = MemoryManagerSerializer.DeserializeCount(_memoryManagerStream);
-                    //count = ReadVersion() != _memoryManagerVersion ? 
-                    //    MemoryManagerSerializer.DeserializeCount(_memoryManagerStream) :
-                    //    _lastSafeMemoryManager.Allocations.Count;
-                }
-                else
-                {
-                    count = _memoryManager.Allocations.Count;
-                }
+                count = !UseUnsafeMemoryManager ? MemoryManagerSerializer.DeserializeCount(_memoryManagerStream) : _memoryManager.Allocations.Count;
             });
 
             return count;

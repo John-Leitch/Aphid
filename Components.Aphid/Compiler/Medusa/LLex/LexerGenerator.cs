@@ -91,18 +91,12 @@ namespace LLex
 
         private string CreateCase(string charString) => string.Format("case '{0}':", charString);
 
-        private string CreateCases(string charString)
-        {
-            if (!IgnoreCase || charString.Length != 1)
-            {
-                return CreateCase(charString);
-            }
-
-            return new[] { charString, charString.ToUpper(), charString.ToLower() }
+        private string CreateCases(string charString) => !IgnoreCase || charString.Length != 1
+                ? CreateCase(charString)
+                : new[] { charString, charString.ToUpper(), charString.ToLower() }
                 .Distinct()
                 .Select(CreateCase)
                 .Aggregate((x, y) => x + "\r\n" + y);
-        }
 
         public string EmitState(LexerState state, bool root, IEnumerable<string> defaults = null)
         {

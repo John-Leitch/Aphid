@@ -11,7 +11,7 @@ namespace Components.Aphid.UI
 {
     public class AphidSyntaxHighlighter : ISyntaxHighlighter
     {
-        private IAphidColorTheme _theme = new DefaultAphidColorTheme();
+        private readonly IAphidColorTheme _theme = new DefaultAphidColorTheme();
 
         public IEnumerable<ColoredText> Highlight(string text)
         {

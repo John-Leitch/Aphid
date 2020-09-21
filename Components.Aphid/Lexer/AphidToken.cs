@@ -9,17 +9,11 @@ namespace Components.Aphid.Lexer
         public static AphidToken GetNone(int index) =>
             new AphidToken(AphidTokenType.None, null, index);
 
-        public override bool Equals(object obj)
-        {
-            if (!(obj is AphidToken token))
-            {
-                return false;
-            }
-
-            return TokenType == token.TokenType &&
+        public override bool Equals(object obj) => !(obj is AphidToken token)
+                ? false
+                : TokenType == token.TokenType &&
                    Lexeme == token.Lexeme &&
                    Index == token.Index;
-        }
 
         public override int GetHashCode()
         {

@@ -50,7 +50,7 @@ namespace Mantispid
             const string argName = "collection";
             var methodTypeName = "System.Collections.Generic.IEnumerable<" + _baseTypeName + ">";
             var methodType = TypeRef(methodTypeName);
-            var t = Type.GetType(methodTypeName);
+            _ = Type.GetType(methodTypeName);
 
             var method = new CodeMemberMethod
             {

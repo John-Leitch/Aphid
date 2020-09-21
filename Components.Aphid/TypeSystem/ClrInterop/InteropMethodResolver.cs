@@ -43,15 +43,12 @@ namespace Components.Aphid.TypeSystem
                 }
             }
 
-            if (obj?.IsAphidType() == false)
-            {
-                return TryResolveInstanceMember(
+            return obj?.IsAphidType() == false
+                ? TryResolveInstanceMember(
                     expression,
                     obj,
-                    returnRef);
-            }
-
-            return null;
+                    returnRef)
+                : null;
         }
 
         public object TryResolveStaticMember(BinaryOperatorExpression expression, bool returnRef)
@@ -183,16 +180,13 @@ namespace Components.Aphid.TypeSystem
 
             Array.Resize(ref matches, j);
 
-            if (matches.Length == 0)
-            {
-                throw Interpreter.CreateRuntimeException(
+            return matches.Length == 0
+                ? throw Interpreter.CreateRuntimeException(
                     "Type {0} does not declare a method that matches signature {1}({2}).",
                     targetType,
                     methodName,
-                    string.Join(", ", args.Select(x => x.GetType().ToString())));
-            }
-
-            return ResolveCore(matches, args);
+                    string.Join(", ", args.Select(x => x.GetType().ToString())))
+                : ResolveCore(matches, args);
         }
 
         public AphidInteropMethodInfo Resolve(MethodBase[] nameMatches, object[] args)
@@ -214,12 +208,7 @@ namespace Components.Aphid.TypeSystem
 
             //var signatureMatches = nameMatches.Where(x => CheckArgumentCount(x, args)).ToArray();
 
-            if (signatureMatches.Length == 0)
-            {
-                throw CreateSignatureException(args, nameMatches);
-            }
-
-            return ResolveCore(signatureMatches, args);
+            return signatureMatches.Length == 0 ? throw CreateSignatureException(args, nameMatches) : ResolveCore(signatureMatches, args);
         }
 
         private AphidInteropMethodInfo ResolveCore(MethodBase[] signatureMatches, object[] args)
@@ -348,80 +337,24 @@ namespace Components.Aphid.TypeSystem
             return u;
         }
 
-        private static uint WeightInference(AphidInteropMethodArg arg)
-        {
-            if (arg.IsExactBasicTypeMatch)
-            {
-                return 0x1;
-            }
-            else if (arg.IsExactUserReferenceTypeMatch)
-            {
-                return 0x2;
-            }
-            else if (arg.IsDerivedFromUserReferenceType)
-            {
-                return 0x4;
-            }
-            else if (arg.IsNonRootImplementationOfTarget)
-            {
-                return 0x10;
-            }
-            else if (arg.IsSafeConvertibleNumberPair)
-            {
-                return 0x20;
-            }
-            else if (arg.HasImplicitConversion)
-            {
-                return 0x40;
-            }
-            else if (arg.IsGeneric)
-            {
-                return 0x80;
-            }
-            else if (arg.TargetType == typeof(object))
-            {
-                return 0x100;
-            }
-            else if (arg.TargetType == typeof(object[]))
-            {
-                if (arg.ConstructsParamArray)
-                {
-                    return 0x400;
-                }
-                else if (!arg.ArgumentType.IsArray)
-                {
-                    return 0x200;
-                }
-                else
-                {
-                    return 0x100;
-                }
-            }
-            else if (arg.ArgumentType == null)
-            {
-                return 0x10000;
-            }
-            //else if (arg.HasImplicitConversion)
-            //{
-            //    return 0x100000;
-            //}
-            else if (arg.HasExplicitConversion)
-            {
-                return 0x1000000;
-            }
-            else if (arg.IsUnsafeConvertibleNumberPair)
-            {
-                return 0x10000000;
-            }
-            else if (arg.HasToStringConversion)
-            {
-                return 0x80000000;
-            }
-            else
-            {
-                return 0x800;
-            }
-        }
+        private static uint WeightInference(AphidInteropMethodArg arg) =>
+            arg.IsExactBasicTypeMatch ? 0x1 :
+                arg.IsExactUserReferenceTypeMatch ? 0x2 :
+                arg.IsDerivedFromUserReferenceType ? 0x4 :
+                arg.IsNonRootImplementationOfTarget ? 0x10 :
+                arg.IsSafeConvertibleNumberPair ? 0x20 :
+                arg.HasImplicitConversion ? 0x40 :
+                arg.IsGeneric ? 0x80 :
+                arg.TargetType == typeof(object) ? 0x100 :
+                arg.TargetType == typeof(object[]) ?
+                    arg.ConstructsParamArray ? 0x400 : !arg.ArgumentType.IsArray ?
+                    0x200 :
+                    (uint)0x100 :
+                arg.ArgumentType == null ? 0x10000 :
+                arg.HasExplicitConversion ? 0x1000000 :
+                arg.IsUnsafeConvertibleNumberPair ? 0x10000000 :
+                arg.HasToStringConversion ? 0x80000000 :
+                0x800;
 
         private AphidRuntimeException CreateSignatureException(object[] args, MethodBase[] matches) =>
             Interpreter.CreateRuntimeException(
@@ -438,7 +371,6 @@ namespace Components.Aphid.TypeSystem
         private static string CreateArgumentString(object[] args)
         {
             var sb = new StringBuilder();
-            IEnumerable enumerable;
 
             for (var i = 0; i < args.Length; i++)
             {
@@ -447,7 +379,7 @@ namespace Components.Aphid.TypeSystem
 
                 if (arg == null ||
                     arg is string ||
-                    (enumerable = arg as IEnumerable) == null)
+                    !(arg is IEnumerable enumerable))
                 {
                     sb.AppendFormat("{0}\r\n", arg);
                 }
@@ -495,19 +427,11 @@ namespace Components.Aphid.TypeSystem
             var p = method.GetParameters();
             ParameterInfo lp;
 
-            if (p.Length == argCount)
-            {
-                return true;
-            }
-            else if (p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute)))
-            {
-                return lp.ParameterType.IsArray && argCount >= p.Length - 1;
-            }
-            else
-            {
-                return false;
-                //return p.Length == args.Length;
-            }
+            return p.Length == argCount
+                ? true
+                : p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute))
+                    ? lp.ParameterType.IsArray && argCount >= p.Length - 1
+                    : false;
         }
 
         private AphidInteropMethodArg CreateMethodArg(ParameterInfo parameter, int index, object[] args)

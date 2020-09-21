@@ -19,9 +19,8 @@ namespace Components.External.ConsolePlus
         {
             var name = arg.Names[0];
 
-            if (!string.IsNullOrEmpty(arg.ValueName))
-            {
-                return string.Format(
+            return !string.IsNullOrEmpty(arg.ValueName)
+                ? string.Format(
                     "{10}{6}{11}{0}{1}{2} {10}{8}{11}{3}{4}{5}{10}{9}{11}{10}{7}{11}",
                     argStyle,
                     name,
@@ -34,10 +33,8 @@ namespace Components.External.ConsolePlus
                     Cli.Escape(_valueDelimterLeft),
                     Cli.Escape(_valueDelimterRight),
                     delimiterStyle,
-                    GetReset(delimiterStyle));
-            }
-
-            return string.Format(
+                    GetReset(delimiterStyle))
+                : string.Format(
                 "{5}{3}{6}{0}{1}{2}{5}{4}{6}",
                 argStyle,
                 name,

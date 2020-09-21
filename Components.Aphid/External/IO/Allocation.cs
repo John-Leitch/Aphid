@@ -30,7 +30,7 @@ namespace Components.IO
 
         public void Write(byte[] buffer, int length) => _manager.Write(this, buffer, length);
 
-        public override bool Equals(object obj) => obj is Allocation && Equals((Allocation)obj);
+        public override bool Equals(object obj) => obj is Allocation allocation && Equals(allocation);
 
         public override int GetHashCode()
         {

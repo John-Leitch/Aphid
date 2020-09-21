@@ -11,21 +11,7 @@ namespace Mantispid
 
         public SymbolTable<TValue> Parent { get; }
 
-        public bool TryResolve(string key, out TValue value)
-        {
-            if (_table.TryGetValue(key, out value))
-            {
-                return true;
-            }
-            else if (Parent != null)
-            {
-                return Parent.TryResolve(key, out value);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public bool TryResolve(string key, out TValue value) => _table.TryGetValue(key, out value) ? true : Parent != null ? Parent.TryResolve(key, out value) : false;
 
         public void Add(string key, TValue value) => _table.Add(key, value);
 

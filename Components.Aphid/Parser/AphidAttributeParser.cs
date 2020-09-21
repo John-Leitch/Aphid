@@ -11,12 +11,7 @@ namespace Components.Aphid.Parser
         {
             var attributes = Parse<TAttributes>(identifierExpression, out var unparsed);
 
-            if (unparsed.Length > 0)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return attributes;
+            return unparsed.Length > 0 ? throw new InvalidOperationException() : attributes;
         }
 
         public static TAttributes Parse<TAttributes>(IdentifierExpression identifierExpression, out string[] unparsed)

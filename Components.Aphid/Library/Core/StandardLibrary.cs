@@ -86,61 +86,29 @@ namespace Components.Aphid.Library
         private static string ReadLine() => Console.ReadLine();
 
         [AphidInteropFunction("num", PassInterpreter = true)]
-        public static decimal CovertToNumber(AphidInterpreter interpreter, object obj)
-        {
-            if (obj is string str)
-            {
-                return decimal.Parse(str);
-            }
-
-            throw interpreter.CreateRuntimeException(
+        public static decimal CovertToNumber(AphidInterpreter interpreter, object obj) => obj is string str
+                ? decimal.Parse(str)
+                : throw interpreter.CreateRuntimeException(
                 "Could not parse number: {0}",
                 obj);
-        }
 
         [AphidInteropFunction("str")]
         private static string ConvertToString(object obj) => Convert.ToString(obj);
 
         [AphidInteropFunction("asc")]
-        private static decimal ConvertToCharCode(object obj)
-        {
-            if (obj is string str)
-            {
-                if (str.Length != 0)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                return (decimal)str[0];
-            }
-
-            throw new InvalidOperationException();
-        }
+        private static decimal ConvertToCharCode(object obj) => obj is string str
+                ? str.Length != 0 ? throw new InvalidOperationException() : (decimal)str[0]
+                : throw new InvalidOperationException();
 
         [AphidInteropFunction("chr")]
         private static string ConvertToCharCode(decimal obj) => ((char)obj).ToString();
 
         [AphidInteropFunction("hexb")]
-        private static string ConvertToHexByteString(object value)
-        {
-            if (value is decimal dec)
-            {
-                return ConvertToHexByteString(dec);
-            }
-            else if (value is string s)
-            {
-                if (s.Length != 1)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                return Convert.ToString(s[0], 16).PadLeft(2, '0');
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
+        private static string ConvertToHexByteString(object value) => value is decimal dec
+                ? ConvertToHexByteString(dec)
+                : value is string s
+                    ? s.Length != 1 ? throw new InvalidOperationException() : Convert.ToString(s[0], 16).PadLeft(2, '0')
+                    : throw new InvalidOperationException();
 
         private static string ConvertToHexByteString(decimal value) =>
             Convert.ToString((byte)value, 16).PadLeft(2, '0');
@@ -232,23 +200,13 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("__string.split", PassInterpreter = true)]
         private static List<AphidObject> StringSplit(AphidInterpreter interpreter, string str, object separator)
         {
-            string[] s;
-
-            if (separator is string separatorString)
-            {
-                s = new[] { separatorString };
-            }
-            else if (separator is List<AphidObject> separatorList)
-            {
-                s = separatorList.Select(x => x.GetString()).ToArray();
-            }
-            else
-            {
-                throw interpreter.CreateRuntimeException(
-                    "Invalid string split separator: {0}",
-                    separator);
-            }
-
+            string[] s = separator is string separatorString
+                ? (new[] { separatorString })
+                : separator is List<AphidObject> separatorList
+                    ? separatorList.Select(x => x.GetString()).ToArray()
+                    : throw interpreter.CreateRuntimeException(
+                                    "Invalid string split separator: {0}",
+                                    separator);
             return str
                 .Split(s, StringSplitOptions.None)
                 .Select(AphidObject.Scalar)

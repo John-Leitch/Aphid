@@ -77,23 +77,14 @@ namespace Components.Aphid.Parser
 
                     var t = retVal.Value.GetType();
 
-                    if (t == typeof(List<AphidExpression>))
-                    {
-                        mutated = (List<AphidExpression>)retVal.Value;
-                    }
-                    else if (t == typeof(AphidFunction))
-                    {
-                        mutated = ((AphidFunction)retVal.Value).Body;
-                    }
-                    else if (t.IsDerivedFrom<AphidExpression>())
-                    {
-                        mutated = new List<AphidExpression> { (AphidExpression)retVal.Value };
-                    }
-                    else
-                    {
-                        throw Interpreter.CreateRuntimeException(
-                            "Mutator returned invalid type, expected expression, block, or function.");
-                    }
+                    mutated = t == typeof(List<AphidExpression>)
+                        ? (List<AphidExpression>)retVal.Value
+                        : t == typeof(AphidFunction)
+                            ? ((AphidFunction)retVal.Value).Body
+                            : t.IsDerivedFrom<AphidExpression>()
+                                                    ? new List<AphidExpression> { (AphidExpression)retVal.Value }
+                                                    : throw Interpreter.CreateRuntimeException(
+                                                                            "Mutator returned invalid type, expected expression, block, or function.");
                 }
                 else
                 {

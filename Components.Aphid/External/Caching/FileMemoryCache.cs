@@ -23,17 +23,7 @@ namespace Components.Aphid
 
             using (CreateLock(cacheName))
             {
-                DateTime time;
-
-                if (fileInfoCache != null)
-                {
-                    time = fileInfoCache.GetFileInfo(cacheName).LastWriteTimeUtc;
-                }
-                else
-                {
-                    time = new FileInfo(cacheName).LastWriteTimeUtc;
-                }
-
+                DateTime time = fileInfoCache != null ? fileInfoCache.GetFileInfo(cacheName).LastWriteTimeUtc : new FileInfo(cacheName).LastWriteTimeUtc;
                 lock (_cache)
                 {
                     if (!_cache.TryGetValue(cacheName, out var bytes))

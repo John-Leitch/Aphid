@@ -23,70 +23,28 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
-        public static object Unwrap(AphidObject obj)
-        {
-            if (obj?.IsScalar == true)
-            {
-                return obj.Value;
-            }
+        public static object Unwrap(AphidObject obj) => obj?.IsScalar == true ? obj.Value : obj;
 
-            return obj;
-        }
-
-        public static object Unwrap(object obj)
-        {
-            if (obj is AphidObject aphidObj && aphidObj.IsScalar)
-            {
-                return aphidObj.Value;
-            }
-
-            return obj;
-        }
+        public static object Unwrap(object obj) => obj is AphidObject aphidObj && aphidObj.IsScalar ? aphidObj.Value : obj;
 
         //public static AphidObject Wrap(AphidObject obj) => obj ?? AphidObject.InternedNull;
 
-        public static AphidObject Wrap(object obj)
-        {
-            if (obj is AphidObject aphidObj)
-            {
-                return aphidObj;
-            }
+        public static AphidObject Wrap(object obj) => obj is AphidObject aphidObj ? aphidObj : AphidObject.Scalar(obj);
 
-            return AphidObject.Scalar(obj);
-        }
-
-        public static object DeepUnwrap(object obj)
-        {
-            if (obj is List<AphidObject> list)
-            {
-                return list.Select(DeepUnwrap).ToArray();
-            }
-
-            if (!(obj is AphidObject aphidObj))
-            {
-                return obj;
-            }
-            else if ((list = aphidObj.Value as List<AphidObject>) != null)
-            {
-                return list.Select(DeepUnwrap).ToArray();
-            }
-            else
-            {
-                return aphidObj.IsScalar ? aphidObj.Value : aphidObj;
-            }
-        }
+        public static object DeepUnwrap(object obj) => obj is List<AphidObject> list
+                ? (object)list.Select(DeepUnwrap).ToArray()
+                : !(obj is AphidObject aphidObj)
+                ? obj
+                : (list = aphidObj.Value as List<AphidObject>) != null
+                    ? list.Select(DeepUnwrap).ToArray()
+                    : aphidObj.IsScalar ? aphidObj.Value : aphidObj;
 
         public object WrapNonNull(object obj)
         {
             var unwrapped = Unwrap(obj);
 
-            if (unwrapped == null)
-            {
-                throw Interpreter.CreateRuntimeException(
+            return unwrapped ?? throw Interpreter.CreateRuntimeException(
                     "Expression evaluated to null, value expected.");
-            }
-
-            return unwrapped;
         }
 
         public IEnumerable<object> UnwrapIEnumerableObject(object obj) =>

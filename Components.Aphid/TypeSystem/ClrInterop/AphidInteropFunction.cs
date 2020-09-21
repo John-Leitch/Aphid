@@ -28,7 +28,9 @@ namespace Components.Aphid.TypeSystem
 
             if (l == 0)
             {
+#pragma warning disable IDE0045 // Convert to conditional expression
                 if (!attribute.PassInterpreter)
+#pragma warning restore IDE0045 // Convert to conditional expression
                 {
                     InvokeDelegate = (callerScope, x) => method.Invoke(null, Array.Empty<object>());
                 }
@@ -39,7 +41,9 @@ namespace Components.Aphid.TypeSystem
             }
             else if (!parameters[l - 1].IsDefined(typeof(ParamArrayAttribute)))
             {
+#pragma warning disable IDE0045 // Convert to conditional expression
                 if (!attribute.PassInterpreter)
+#pragma warning restore IDE0045 // Convert to conditional expression
                 {
                     InvokeDelegate = (callerScope, x) => method.Invoke(null, x);
                 }

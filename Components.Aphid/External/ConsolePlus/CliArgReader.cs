@@ -172,12 +172,7 @@ namespace Components.External.ConsolePlus
                     {
                         var f = new FileInfo(Arguments[i]);
 
-                        if (arg.Item1.IsInputFile && !f.Exists)
-                        {
-                            throw new ArgumentException(string.Format("Could not find file {0}.", f.FullName));
-                        }
-
-                        return f;
+                        return arg.Item1.IsInputFile && !f.Exists ? throw new ArgumentException(string.Format("Could not find file {0}.", f.FullName)) : f;
                     };
                 }
                 else

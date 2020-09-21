@@ -23,14 +23,7 @@ namespace Components.Aphid.Library.Net.Http
                 Filename = Filename
             };
 
-            if (Text != null)
-            {
-                upload.Stream = new MemoryStream(Encoding.UTF8.GetBytes(Text));
-            }
-            else
-            {
-                upload.Stream = File.OpenRead(Filename);
-            }
+            upload.Stream = Text != null ? new MemoryStream(Encoding.UTF8.GetBytes(Text)) : (Stream)File.OpenRead(Filename);
 
             return upload;
         }

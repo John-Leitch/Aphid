@@ -104,21 +104,13 @@ namespace Components.Aphid.Parser
 
             if (AphidConfig.Current.ScriptCaching && !DisableCaching)
             {
-                AphidByteCodeCache cache;
-
-                if (UseImplicitReturns)
-                {
-                    cache = new AphidByteCodeCache(Loader.SearchPaths.ToArray())
+                AphidByteCodeCache cache = UseImplicitReturns
+                    ? new AphidByteCodeCache(Loader.SearchPaths.ToArray())
                     {
                         DisableConstantFolding = false,
                         InlineScripts = true,
-                    };
-                }
-                else
-                {
-                    cache = new AphidByteCodeCache(Loader.SearchPaths.ToArray(), 0x1);
-                }
-
+                    }
+                    : new AphidByteCodeCache(Loader.SearchPaths.ToArray(), 0x1);
                 ast = cache.Read(script, out var cacheSources);
 
                 for (var i = 0; i < cacheSources.Length; i++)

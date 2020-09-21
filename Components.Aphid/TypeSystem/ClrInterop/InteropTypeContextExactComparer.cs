@@ -113,12 +113,7 @@ namespace Components.Aphid.TypeSystem
                 x ^= obj.Path[i].GetHashCode();
             }
 
-            if (obj.IsType)
-            {
-                return x & ~0x1;
-            }
-
-            return x | 0x1;
+            return obj.IsType ? x & ~0x1 : x | 0x1;
         }
     }
 }

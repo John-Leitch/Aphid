@@ -139,15 +139,7 @@ namespace Components.Aphid.Compiler
             return _out.ToString();
         }
 
-        protected static string GetOperator(TokenMap table, AphidTokenType op)
-        {
-            if (!table.TryGetValue(op, out var s))
-            {
-                throw new NotImplementedException();
-            }
-
-            return s;
-        }
+        protected static string GetOperator(TokenMap table, AphidTokenType op) => !table.TryGetValue(op, out var s) ? throw new NotImplementedException() : s;
 
         protected virtual string GetUnaryPrefixOperator(AphidTokenType op) =>
             GetOperator(_unaryPrefixOperators, op);

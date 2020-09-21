@@ -29,12 +29,7 @@ namespace Mantispid
                     break;
             }
 
-            if (property.IsList)
-            {
-                return GetListTypeRef(typeRef);
-            }
-
-            return typeRef;
+            return property.IsList ? GetListTypeRef(typeRef) : typeRef;
         }
 
 

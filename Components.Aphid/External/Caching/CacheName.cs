@@ -21,7 +21,7 @@ namespace Components.Aphid
 
         public static string Sanitize(string filename)
         {
-            string SanitizeCore(string innerFilename)
+            static string SanitizeCore(string innerFilename)
             {
                 for (var i = 0; i < _replacements.Length; i++)
                 {
@@ -32,12 +32,9 @@ namespace Components.Aphid
                 return innerFilename.ToLower();
             }
 
-            if (Path.IsPathRooted(filename))
-            {
-                return _sanitizeMemoizer.Call(SanitizeCore, filename);
-            }
-
-            return _sanitizeMemoizer.Call(SanitizeCore, Path.GetFullPath(filename));
+            return Path.IsPathRooted(filename)
+                ? _sanitizeMemoizer.Call(SanitizeCore, filename)
+                : _sanitizeMemoizer.Call(SanitizeCore, Path.GetFullPath(filename));
         }
 
         public static string Normalize(string filename)
@@ -55,12 +52,7 @@ namespace Components.Aphid
                 rhs = '/';
             }
 
-            if (Path.IsPathRooted(filename))
-            {
-                return filename.Replace(lhs, rhs).ToLower();
-            }
-
-            return Path.GetFullPath(filename.Replace(lhs, rhs)).ToLower();
+            return Path.IsPathRooted(filename) ? filename.Replace(lhs, rhs).ToLower() : Path.GetFullPath(filename.Replace(lhs, rhs)).ToLower();
         }
     }
 }

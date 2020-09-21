@@ -40,25 +40,16 @@ namespace Components.Aphid.TypeSystem
             {
                 object value;
 
-                if ((value = result.Value) == null)
-                {
-                    return default;
-                }
-                else if (typeof(TResult).IsAssignableFrom(value.GetType()))
-                {
-                    return (TResult)value;
-                }
-                else if (typeof(TResult) == typeof(AphidObject))
-                {
-                    return (TResult)(object)result;
-                }
-                else
-                {
-                    throw Interpreter.CreateRuntimeException(
-                        "Could not convert return value from {0} to {1}",
-                        Interpreter.GetStackTrace()[0].Name,
-                        typeof(TResult));
-                }
+                return (value = result.Value) == null
+                    ? default
+                    : typeof(TResult).IsAssignableFrom(value.GetType())
+                        ? (TResult)value
+                        : typeof(TResult) == typeof(AphidObject)
+                                            ? (TResult)(object)result
+                                            : throw Interpreter.CreateRuntimeException(
+                                                                "Could not convert return value from {0} to {1}",
+                                                                Interpreter.GetStackTrace()[0].Name,
+                                                                typeof(TResult));
             }
             else
             {

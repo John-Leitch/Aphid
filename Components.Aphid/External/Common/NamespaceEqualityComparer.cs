@@ -14,12 +14,7 @@ namespace Components
             {
                 return x == null;
             }
-            if (x.Count != y.Count)
-            {
-                return false;
-            }
-
-            return x.SetEquals(y);
+            return x.Count != y.Count ? false : x.SetEquals(y);
         }
 
         public int GetHashCode(HashSet<string> obj)

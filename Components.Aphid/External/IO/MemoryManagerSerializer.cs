@@ -83,14 +83,7 @@ namespace Components.IO
                 // Read MemoryManager.ZeroMemory
                 zeroMemory = reader.ReadBoolean();
 
-                if (stream.Position + 4 <= streamLen)
-                {
-                    startingPosition = reader.ReadInt32();
-                }
-                else
-                {
-                    startingPosition = 0;
-                }
+                startingPosition = stream.Position + 4 <= streamLen ? reader.ReadInt32() : 0;
             }
             else
             {

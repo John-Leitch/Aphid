@@ -151,16 +151,14 @@ namespace Components.Aphid.Compiler
                             {
                                 interfaces.Add(superType);
                             }
-                            else if (baseType == null)
-                            {
-                                baseType = superType;
-                            }
                             else
                             {
-                                throw Interpreter.CreateRuntimeException(
-                                    "Type is already subclass of {0}, cannot inherit from {1}.",
-                                    baseType,
-                                    superType);
+                                baseType = baseType == null
+                                    ? superType
+                                    : throw Interpreter.CreateRuntimeException(
+                                                                    "Type is already subclass of {0}, cannot inherit from {1}.",
+                                                                    baseType,
+                                                                    superType);
                             }
                         }
                         else
@@ -185,30 +183,20 @@ namespace Components.Aphid.Compiler
 
             var name = type.Identifier.Identifier;
 
-            TypeBuilder typeBuilder;
-
-            if (baseType == null && interfaces.Count == 0)
-            {
-                typeBuilder = _moduleBuilder.Value.DefineType(
+            TypeBuilder typeBuilder = baseType == null && interfaces.Count == 0
+                ? _moduleBuilder.Value.DefineType(
                     name,
-                    TypeAttributes.Public);
-            }
-            else if (interfaces.Count == 0)
-            {
-                typeBuilder = _moduleBuilder.Value.DefineType(
-                       name,
-                       TypeAttributes.Public,
-                       baseType);
-            }
-            else
-            {
-                typeBuilder = _moduleBuilder.Value.DefineType(
-                       name,
-                       TypeAttributes.Public,
-                       baseType,
-                       interfaces.ToArray());
-            }
-
+                    TypeAttributes.Public)
+                : interfaces.Count == 0
+                    ? _moduleBuilder.Value.DefineType(
+                                       name,
+                                       TypeAttributes.Public,
+                                       baseType)
+                    : _moduleBuilder.Value.DefineType(
+                                       name,
+                                       TypeAttributes.Public,
+                                       baseType,
+                                       interfaces.ToArray());
             foreach (var kvp in type.Pairs)
             {
                 if (kvp.LeftOperand.Type != AphidExpressionType.IdentifierExpression)
@@ -333,49 +321,31 @@ namespace Components.Aphid.Compiler
             scanner.Next();
             var typeName = InteropTypeResolver.Unalias(scanner.CurrentAttribute);
 
-            Type t;
-
-            if (typeName == typeBuilder.Name)
-            {
-                t = typeBuilder;
-            }
-            else
-            {
-                t = Interpreter.InteropTypeResolver.ResolveType(
+            Type t = typeName == typeBuilder.Name
+                ? typeBuilder
+                : Interpreter.InteropTypeResolver.ResolveType(
                     imports,
                     _importsLock,
                     new[] { typeName },
                     isType: true);
-            }
-
             if (!scanner.Next())
             {
                 return t;
             }
 
-            if (scanner.Match("list"))
-            {
-                t = typeof(List<>).MakeGenericType(t);
-            }
-            else if (scanner.Match("set"))
-            {
-                t = t.MakeArrayType();
-            }
-            else
-            {
-                throw new AphidParserException(
-                    "Invalid property attribute '{0}'.",
-                    scanner.CurrentAttribute);
-            }
+            t = scanner.Match("list")
+                ? typeof(List<>).MakeGenericType(t)
+                : scanner.Match("set")
+                    ? t.MakeArrayType()
+                    : throw new AphidParserException(
+                                    "Invalid property attribute '{0}'.",
+                                    scanner.CurrentAttribute);
 
-            if (!scanner.EndOfStream())
-            {
-                throw new AphidParserException(
+            return !scanner.EndOfStream()
+                ? throw new AphidParserException(
                         "Unexpected property attribute '{0}'.",
-                        scanner.CurrentAttribute);
-            }
-
-            return t;
+                        scanner.CurrentAttribute)
+                : t;
         }
 
         public string[] GetTypeNames() => _types.ToArray();

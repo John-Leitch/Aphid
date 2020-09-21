@@ -98,9 +98,7 @@ namespace Components.Aphid
             }
             else
             {
-                var fileCacheInfo = info as FileCacheInfo;
-
-                cacheSources = fileCacheInfo != null ?
+                cacheSources = info is FileCacheInfo fileCacheInfo ?
                     fileCacheInfo.Sources :
                     new FileCacheSource[0];
 

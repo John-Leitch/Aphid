@@ -6,21 +6,9 @@ namespace Components.External
 {
     public static class TypeExtension
     {
-        public static bool IsDerivedFrom(this Type type, Type baseType)
-        {
-            if (type.BaseType != null && type.BaseType == baseType)
-            {
-                return true;
-            }
-            else if (type.BaseType != null)
-            {
-                return type.BaseType.IsDerivedFrom(baseType);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public static bool IsDerivedFrom(this Type type, Type baseType) => type.BaseType != null && type.BaseType == baseType
+                ? true
+                : type.BaseType != null ? type.BaseType.IsDerivedFrom(baseType) : false;
 
         public static bool IsDerivedFrom<TBaseType>(this Type type) => type.IsDerivedFrom(typeof(TBaseType));
 

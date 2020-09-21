@@ -43,7 +43,7 @@ namespace Components.Aphid.Serialization
 
         private List<object> _traversed;
 
-        private HashSet<string> _strings = new HashSet<string>();
+        private readonly HashSet<string> _strings = new HashSet<string>();
 
         private readonly Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
 
@@ -543,17 +543,10 @@ namespace Components.Aphid.Serialization
             }
         }
 
-        private void SerializeToString(StringBuilder sb, object value, int indent)
-        {
-            //try
-            //{
-                SerializeToStringCore(sb, value, indent);
-            //}
-            //catch (Exception e)
-            //{
-            //    sb.Append(Quote($"Error: {e}"));
-            //}
-        }
+        private void SerializeToString(StringBuilder sb, object value, int indent) =>
+                //try
+                //{
+                SerializeToStringCore(sb, value, indent);//}//catch (Exception e)//{//    sb.Append(Quote($"Error: {e}"));//}
 
         private void SerializeToStringCore(StringBuilder sb, object value, int indent)
         {

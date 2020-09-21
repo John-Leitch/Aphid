@@ -54,17 +54,12 @@ namespace Components.Json
 
             for (var i = 0; i < tokensCopy.Length; i++)
             {
-                if (tokens[i].TokenType == JsonTokenType.Number && !tokens[i].Lexeme.Contains('.'))
-                {
-                    tokensCopy[i] = new JsonToken(
+                tokensCopy[i] = tokens[i].TokenType == JsonTokenType.Number && !tokens[i].Lexeme.Contains('.')
+                    ? new JsonToken(
                         JsonTokenType.HexNumber,
                         "0x" + Convert.ToString(long.Parse(tokens[i].Lexeme), 16),
-                        -1);
-                }
-                else
-                {
-                    tokensCopy[i] = tokens[i];
-                }
+                        -1)
+                    : tokens[i];
             }
 
             return tokensCopy;

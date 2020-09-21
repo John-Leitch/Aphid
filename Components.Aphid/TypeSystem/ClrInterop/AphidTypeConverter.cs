@@ -52,7 +52,6 @@ namespace Components.Aphid.TypeSystem
             Type target)
         {
             Type valType;
-
             if (val == null)
             {
                 return new AphidConversionInfo(
@@ -72,18 +71,18 @@ namespace Components.Aphid.TypeSystem
 
                     //if (targetGenericArgs.Length > 0 && valGenericArgs.Length == 0)
                     //{
-                        for (var i = 0; i < targetGenericArgs.Length; i++)
+                    for (var i = 0; i < targetGenericArgs.Length; i++)
+                    {
+                        if (targetGenericArgs[i].IsGenericParameter)
                         {
-                            if (targetGenericArgs[i].IsGenericParameter)
-                            {
-                                targetGenericArgs[i] = typeof(object);
-                            }
+                            targetGenericArgs[i] = typeof(object);
                         }
+                    }
 
-                        return new AphidConversionInfo(
-                            interopArg,
-                            true,
-                            targetGenericArgs);
+                    return new AphidConversionInfo(
+                        interopArg,
+                        true,
+                        targetGenericArgs);
                     //}
 
                     throw Interpreter.CreateRuntimeException(
@@ -94,14 +93,14 @@ namespace Components.Aphid.TypeSystem
 
                 return new AphidConversionInfo(interopArg, true, Array.Empty<Type>());
             }
-            else if (val is AphidInteropMember m &&
+            else if (val is AphidInteropMember &&
                 target.IsDerivedFrom(typeof(Delegate)))
             {
                 //var methods = Array.FindAll(
                 //    m.Members,
                 //    x => x.MemberType == MemberTypes.Method);
-                
-                
+
+
 
                 //if (methods.Length == 0)
                 //{
@@ -276,87 +275,33 @@ namespace Components.Aphid.TypeSystem
             {
                 var s = ((string)srcValue);
 
-                if (targetType == typeof(char))
-                {
-                    if (s.Length != 1)
-                    {
-                        throw Interpreter.CreateRuntimeException(
-                            "Cannot convert string '{0}' to char due to length.",
-                            s);
-                    }
-
-                    return s[0];
-                }
-                else if (targetType == typeof(char[]))
-                {
-                    return s.ToCharArray();
-                }
-                else
-                {
-                    throw GetConversionError(srcValue, srcType, targetType);
-                }
-            }
-            else if (targetType == typeof(string))
-            {
-                return srcValue.ToString();
+                return targetType == typeof(char) ?
+                    s.Length != 1 ?
+                        throw Interpreter.CreateRuntimeException("Cannot convert string '{0}' to char due to length.",s) :
+                        s[0] :
+                    (object)(targetType == typeof(char[]) ?
+                        s.ToCharArray() :
+                        throw GetConversionError(srcValue, srcType, targetType));
             }
             else
             {
-                throw GetConversionError(srcValue, srcType, targetType);
+                return targetType == typeof(string) ? srcValue.ToString() : throw GetConversionError(srcValue, srcType, targetType);
             }
         }
 
-        public static object Convert(Type targetType, decimal value)
-        {
-            if (targetType == typeof(byte))
-            {
-                return ToByte(value);
-            }
-            else if (targetType == typeof(ushort))
-            {
-                return ToUInt16(value);
-            }
-            else if (targetType == typeof(uint))
-            {
-                return ToUInt32(value);
-            }
-            else if (targetType == typeof(ulong))
-            {
-                return ToUInt64(value);
-            }
-            else if (targetType == typeof(short))
-            {
-                return ToInt16(value);
-            }
-            else if (targetType == typeof(int))
-            {
-                return ToInt32(value);
-            }
-            else if (targetType == typeof(long))
-            {
-                return ToInt64(value);
-            }
-            else if (targetType == typeof(float))
-            {
-                return ToFloat(value);
-            }
-            else if (targetType == typeof(double))
-            {
-                return ToFloat(value);
-            }
-            else if (targetType == typeof(decimal))
-            {
-                return value;
-            }
-            else if (targetType == typeof(string))
-            {
-                return value.ToString();
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public static object Convert(Type targetType, decimal value) => 
+            targetType == typeof(byte) ? (byte)value : 
+            targetType == typeof(ushort) ? (ushort)value : 
+            targetType == typeof(uint) ? (uint)value : 
+            targetType == typeof(ulong) ? (ulong)value : 
+            targetType == typeof(short) ? (short)value :
+            targetType == typeof(int) ? (int)value :
+            targetType == typeof(long) ? (long)value :
+            targetType == typeof(float) ? (float)value :
+            targetType == typeof(double) ? (double)value :
+            targetType == typeof(decimal) ? value :
+            (object)(targetType == typeof(string) ? value.ToString() :
+                throw new NotImplementedException());
 
         public static object ConvertArray(Type targetType, Type srcArrayType, Array srcArray)
         {

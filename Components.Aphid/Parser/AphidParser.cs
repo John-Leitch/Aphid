@@ -147,14 +147,11 @@ namespace Components.Aphid.Parser
         {
             var ast = Parse(tokens, code);
 
-            if (ast.Count != 1)
-            {
-                throw new AphidParserException(
+            return ast.Count != 1
+                ? throw new AphidParserException(
                     "Expected end of expression, found: {0}",
-                    code.Substring(ast[1].Index));
-            }
-
-            return ast[0];
+                    code.Substring(ast[1].Index))
+                : ast[0];
         }
 
         public static List<AphidExpression> Parse(string code) =>

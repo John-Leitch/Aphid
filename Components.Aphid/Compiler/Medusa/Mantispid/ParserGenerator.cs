@@ -609,8 +609,7 @@ namespace Mantispid
             if (node.LeftOperand.Type == AphidExpressionType.IdentifierExpression)
             {
                 var id = ((IdentifierExpression)node.LeftOperand).Identifier;
-
-                if (!_scope.TryResolve(id, out var obj))
+                if (!_scope.TryResolve(id, out _))
                 {
                     _scope.Add(id, AphidObject.Complex());
 
@@ -794,12 +793,9 @@ namespace Mantispid
                     {
                         var exp = (CodeExpression)GetTokenTypeRef(node.Identifier);
 
-                        if (!isCondition)
-                        {
-                            return exp;
-                        }
-
-                        return CodeHelper.BinOpExp(
+                        return !isCondition
+                            ? exp
+                            : CodeHelper.BinOpExp(
                             GetCurrentTokenType(),
                             CodeBinaryOperatorType.ValueEquality,
                             exp);
@@ -808,13 +804,10 @@ namespace Mantispid
                     {
                         var attr = node.Attributes.Single().Identifier;
 
-                        if (attr == "list")
-                        {
-                            return new CodeObjectCreateExpression(
-                                ParserCode.GetListTypeRef(CodeHelper.TypeRef(node.Identifier)));
-                        }
-
-                        throw new NotImplementedException();
+                        return attr == "list"
+                            ? new CodeObjectCreateExpression(
+                                ParserCode.GetListTypeRef(CodeHelper.TypeRef(node.Identifier)))
+                            : throw new NotImplementedException();
                     }
                     else
                     {

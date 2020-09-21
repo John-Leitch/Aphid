@@ -45,17 +45,11 @@ namespace Components.Aphid.Library.Net.Http
             Uploads = Files
         };
 
-        private static FieldValuePair[] GetPairs(AphidObject source, string property)
-        {
-            if (source.ContainsKey(property))
-            {
-                return source[property]
+        private static FieldValuePair[] GetPairs(AphidObject source, string property) => source.ContainsKey(property)
+                ? source[property]
                     .Select(x => new FieldValuePair(x.Key, x.Value.Value.ToString()))
-                    .ToArray();
-            }
-
-            return null;
-        }
+                    .ToArray()
+                : null;
 
         private HttpUpload CreateUpload(KeyValuePair<string, AphidObject> obj)
         {
@@ -64,17 +58,11 @@ namespace Components.Aphid.Library.Net.Http
             return file.ToHttpUpload();
         }
 
-        private HttpUpload[] GetFiles(AphidObject source)
-        {
-            if (source.ContainsKey("files"))
-            {
-                return source["files"]
+        private HttpUpload[] GetFiles(AphidObject source) => source.ContainsKey("files")
+                ? source["files"]
                     .Select(CreateUpload)
-                    .ToArray();
-            }
-
-            return null;
-        }
+                    .ToArray()
+                : null;
 
         public void OnBinding(AphidObject source)
         {

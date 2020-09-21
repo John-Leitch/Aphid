@@ -168,7 +168,6 @@ namespace Components.Aphid.Debugging
             StringBuilder sb)
         {
             var tag = number >= 0 ? $"{number.ToString()}." : "";
-            AphidRuntimeException are;
             AphidInterpreter exInterpreter = null;
 
             if (exception is AphidLoadScriptException ale)
@@ -176,7 +175,7 @@ namespace Components.Aphid.Debugging
                 exInterpreter = ale.Interpreter;
                 AphidCli.DumpException(ale, ale.Interpreter);
             }
-            else if ((are = exception as AphidRuntimeException) != null)
+            else if (exception is AphidRuntimeException are)
             {
                 exInterpreter = are.Interpreter;
                 AphidCli.DumpException(are, are.Interpreter);

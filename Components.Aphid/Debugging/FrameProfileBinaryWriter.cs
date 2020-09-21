@@ -10,7 +10,7 @@ namespace Components.Aphid.Debugging
 {
     public sealed class FrameProfileBinaryWriter : IDisposable
     {
-        private static ArgLockingMemoizer<string, (BinaryWriter, BinaryWriter)> _writerMemoizer = new ArgLockingMemoizer<string, (BinaryWriter, BinaryWriter)>();
+        private static readonly ArgLockingMemoizer<string, (BinaryWriter, BinaryWriter)> _writerMemoizer = new ArgLockingMemoizer<string, (BinaryWriter, BinaryWriter)>();
 
         private readonly List<string> _names = new List<string>(0x1000);
 

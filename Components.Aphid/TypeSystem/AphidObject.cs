@@ -264,18 +264,7 @@ namespace Components.Aphid.TypeSystem
                     var t = Value.GetType();
                     var name = AphidAlias.Resolve(t);
 
-                    if (name != null)
-                    {
-                        return name;
-                    }
-                    else if (includeClrTypes)
-                    {
-                        return t.FullName;
-                    }
-                    else
-                    {
-                        return AphidType.Unknown;
-                    }
+                    return name ?? (includeClrTypes ? t.FullName : AphidType.Unknown);
                 }
                 else
                 {
@@ -420,8 +409,6 @@ namespace Components.Aphid.TypeSystem
 
         public static AphidObject ConvertFrom(Type t, object o, bool allProperties)
         {
-            IEnumerable enumerable;
-
             if (t.IsPrimitive ||
                 t == typeof(string) ||
                 t == typeof(decimal) ||
@@ -438,7 +425,7 @@ namespace Components.Aphid.TypeSystem
             {
                 return Scalar(o);
             }
-            else if ((enumerable = o as IEnumerable) != null)
+            else if (o is IEnumerable enumerable)
             {
                 var items = new List<AphidObject>();
 
@@ -479,8 +466,7 @@ namespace Components.Aphid.TypeSystem
                     this,
                     errorMessage ?? $"Could not resolve property {key}");
 
-        public bool TryResolve(string key, out AphidObject value)
-        {
+        public bool TryResolve(string key, out AphidObject value) =>
 #if STRICT_APHID_OBJECT_TYPE_CHECKS
             if (IsScalar)
             {
@@ -488,19 +474,7 @@ namespace Components.Aphid.TypeSystem
             }
 #endif
 
-            if (TryGetValue(key, out value))
-            {
-                return true;
-            }
-            else if (Parent != null)
-            {
-                return Parent.TryResolve(key, out value);
-            }
-            else
-            {
-                return false;
-            }
-        }
+            TryGetValue(key, out value) ? true : Parent != null ? Parent.TryResolve(key, out value) : false;
 
         public bool TryResolveAndRemove(string key)
         {
@@ -509,47 +483,15 @@ namespace Components.Aphid.TypeSystem
                 Remove(key);
                 return true;
             }
-            else if (Parent != null)
-            {
-                return Parent.TryResolveAndRemove(key);
-            }
             else
             {
-                return false;
+                return Parent?.TryResolveAndRemove(key) == true;
             }
         }
 
-        public AphidObject TryResolveParent(string key)
-        {
-            if (TryGetValue(key, out var value))
-            {
-                return this;
-            }
-            else if (Parent != null)
-            {
-                return Parent.TryResolveParent(key);
-            }
-            else
-            {
-                return null;
-            }
-        }
+        public AphidObject TryResolveParent(string key) => TryGetValue(key, out _) ? this : Parent?.TryResolveParent(key);
 
-        public bool IsDefined(string key)
-        {
-            if (ContainsKey(key))
-            {
-                return true;
-            }
-            else if (Parent != null)
-            {
-                return Parent.IsDefined(key);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public bool IsDefined(string key) => ContainsKey(key) ? true : Parent != null ? Parent.IsDefined(key) : false;
 
         public bool ResolveBool(string key) =>
             TryResolve(key, out var value) &&
@@ -571,21 +513,7 @@ namespace Components.Aphid.TypeSystem
             return scopes.ToArray();
         }
 
-        public string GetTypeName()
-        {
-            if (IsComplex)
-            {
-                return AphidType.Object;
-            }
-            else if (Value != null)
-            {
-                return GetValueType();
-            }
-            else
-            {
-                return AphidType.Null;
-            }
-        }
+        public string GetTypeName() => IsComplex ? AphidType.Object : Value != null ? GetValueType() : AphidType.Null;
 
 #if CHECK_WRAPPED_NULL
         public new void Add(string key, AphidObject value)
@@ -757,15 +685,7 @@ namespace Components.Aphid.TypeSystem
             return obj;
         }
 
-        public static AphidObject Scope(AphidObject parentScope)
-        {
-            if (parentScope != null)
-            {
-                return new AphidObject(parentScope);
-            }
-
-            return new AphidObject();
-        }
+        public static AphidObject Scope(AphidObject parentScope) => parentScope != null ? new AphidObject(parentScope) : new AphidObject();
 
         public static List<AphidObject> GetScopeAncestors(AphidObject scope)
         {

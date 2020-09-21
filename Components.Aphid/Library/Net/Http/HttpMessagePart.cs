@@ -79,12 +79,7 @@ namespace Components.Aphid.Library.Net.Http
             value = 0;
             var values = GetField(field);
 
-            if (values.Count != 0)
-            {
-                return int.TryParse(values[0], out value);
-            }
-
-            return false;
+            return values.Count != 0 ? int.TryParse(values[0], out value) : false;
         }
 
         public string GetAttributeString() => string.Join(

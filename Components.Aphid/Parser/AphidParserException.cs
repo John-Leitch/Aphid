@@ -51,14 +51,7 @@ namespace Components.Aphid.Parser
 
         public AphidParserException(string format, params object[] args)
         {
-            if (args?.Length > 0)
-            {
-                _message = string.Format(format, args);
-            }
-            else
-            {
-                _message = format;
-            }
+            _message = args?.Length > 0 ? string.Format(format, args) : format;
         }
 
         public AphidParserException() : base()

@@ -16,7 +16,7 @@ namespace Components.Aphid.UI.Colors
                 .GroupToArrayDictionary(a => a)
                 .First();
 
-            byte increase(byte a) => Math.Max(a, (byte)(a * 1.4));
+            static byte increase(byte a) => Math.Max(a, (byte)(a * 1.4));
 
             byte[] color;
 

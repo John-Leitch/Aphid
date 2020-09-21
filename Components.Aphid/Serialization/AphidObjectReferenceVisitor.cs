@@ -39,15 +39,10 @@ namespace Components.Aphid.Serialization
 
             foreach (var x in _currentPath.Reverse())
             {
-                if (lhs != null)
-                {
-                    lhs = new BinaryOperatorExpression(lhs, AphidTokenType.MemberOperator, x)
-                        .WithPositionFrom(x);
-                }
-                else
-                {
-                    lhs = x;
-                }
+                lhs = lhs != null
+                    ? new BinaryOperatorExpression(lhs, AphidTokenType.MemberOperator, x)
+                        .WithPositionFrom(x)
+                    : x;
             }
 
             _refAssignments.Add(

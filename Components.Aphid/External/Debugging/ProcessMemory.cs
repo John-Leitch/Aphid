@@ -52,7 +52,7 @@ namespace Components.Cypress
         public MEMORY_BASIC_INFORMATION ReadMemoryInfo(IntPtr address)
         {
             //Todo: check result
-            var result = Kernel32.VirtualQueryEx(
+            _ = Kernel32.VirtualQueryEx(
                 Handle,
                 address,
                 out var m,
@@ -76,7 +76,7 @@ namespace Components.Cypress
         {
             var threadHandle = Kernel32.OpenThread(ThreadAccess.THREAD_GET_CONTEXT, false, threadId);
             var context = new CONTEXT { ContextFlags = CONTEXT_FLAGS.CONTEXT_ALL };
-            var success = Kernel32.GetThreadContext(threadHandle, ref context);
+            _ = Kernel32.GetThreadContext(threadHandle, ref context);
             Kernel32.CloseHandle(threadHandle);
             return context;
         }

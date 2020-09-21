@@ -60,8 +60,7 @@ namespace Components.Aphid.UI.Formatters
 
         public static AphidSerializer CreateSerializer(AphidInterpreter interpreter) =>
             interpreter.CurrentScope.TryResolve(AphidName.DumpSerializer, out var dumpSerializerObj) &&
-            dumpSerializerObj != null &&
-            dumpSerializerObj.IsScalar &&
+            dumpSerializerObj?.IsScalar == true &&
             dumpSerializerObj.Value is AphidSerializer dumpSerializer ? dumpSerializer :
             new AphidSerializer(interpreter)
             {
