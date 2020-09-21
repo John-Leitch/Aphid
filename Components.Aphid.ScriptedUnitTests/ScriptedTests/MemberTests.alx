@@ -105,7 +105,7 @@ _aoc = macro(@(name, objPrologue, path) {
         @{ path.ToString() != null };
         @{ path.GetType() != null };
         
-        name equal to same begin;
+        name equal with same begin;
         @{ path == path };
         @{ path.ToString() == path.ToString() };
         @{ path.GetType() == path.GetType() };
@@ -115,7 +115,7 @@ _aoc = macro(@(name, objPrologue, path) {
         @{ var indirect = path; indirect.ToString() != null };
         @{ var indirect = path; indirect.GetType() != null };
 
-        indirect name equal to same begin;
+        indirect name equal with same begin;
         @{ var indirect = path; indirect == indirect };
         @{ var indirect = path; indirect.ToString() == indirect.ToString() };
         @{ var indirect = path; indirect.GetType() == indirect.GetType() };
@@ -126,7 +126,7 @@ _aoc = macro(@(name, objPrologue, path) {
         @{ path.ToString() == null };
         @{ path.GetType() == null };
 
-        name not equal to same begin;
+        name not equal with same begin;
         @{ path != path };
         @{ path.ToString() != path.ToString() };
         @{ path.GetType() != path.GetType() };

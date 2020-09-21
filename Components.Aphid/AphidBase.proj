@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Compile">
-  <Import Project="..\packages\Microsoft.Net.Compilers.9.9.0-beta3-19305-01\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.9.9.0-beta3-19305-01\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props" Condition="Exists('..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props')" />
   <Import Project="..\packages\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x64.microsoft.dotnet.framework.nativeimagecompiler.props" Condition="Exists('..\packages\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x64.microsoft.dotnet.framework.nativeimagecompiler.props')" />
   <Choose>
@@ -125,13 +124,6 @@
     <ApplicationIcon>..\Components.Aphid\a.ico</ApplicationIcon>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>9.9.0-beta3-19305-01</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
   <!--                                -->
   <!-- DEBUG                          -->
   <!--                                -->

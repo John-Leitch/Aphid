@@ -17,7 +17,7 @@ var nuget;
     'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' | exeUrls.Add;
 
     var localExes = new List[string]();
-    [ 'c:/tools', 'c:/source/nuget', 'd:/source/nuget' ]->@io.end('nuget.exe')->localExes.Add;
+    [ ]->@io.end('nuget.exe')->localExes.Add;
     var repoMemoizer;
 
     nuget = {

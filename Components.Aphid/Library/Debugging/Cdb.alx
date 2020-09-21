@@ -11,6 +11,7 @@ var cdb;
         stdIn: null,
         redirectTask: null,
         consoleOut: true,    
+        highlight: false,
         serializer: null,
         quote: null,
         verbose: true,
@@ -69,7 +70,11 @@ var cdb;
                         }
                         
                         if (consoleOut) {
-                            Console.Write(data);
+                            if (!highlight) {
+                                Console.Write(data);
+                            } else {
+                                Console.Write(console.highlight(data));
+                            }
                         }
                     }));
         },
