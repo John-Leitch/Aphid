@@ -1,0 +1,51 @@
+<Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<!-- <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup> -->
+    <ItemGroup>
+        <LibraryFiles Include="..\..\Components.Aphid\Library\*.alx"/>
+        <AutomationFiles Include="..\..\Components.Aphid\Library\Automation\*.alx" />
+        <CoreFiles Include="..\..\Components.Aphid\Library\Core\*.alx" />
+        <CliFiles Include="..\..\Components.Aphid\Library\Cli\*.alx" />
+        <DataFiles Include="..\..\Components.Aphid\Library\Data\*.alx" />
+        <DebuggingFiles Include="..\..\Components.Aphid\Library\Debugging\*.alx" />
+        <GuiFiles Include="..\..\Components.Aphid\Library\Gui\*.alx" />
+        <HtmlFiles Include="..\..\Components.Aphid\Library\Html\*.alx" />
+        <InteropFiles Include="..\..\Components.Aphid\Library\Interop\*.alx" />
+        <IOFiles Include="..\..\Components.Aphid\Library\IO\*.alx" />
+        <NetFiles Include="..\..\Components.Aphid\Library\Net\*.alx" />
+        <MetaFiles Include="..\..\Components.Aphid\Library\Meta\*.alx" />
+        <MetaCodeFiles Include="..\..\Components.Aphid\Library\Meta\Code\*.alx" />
+        <MetaCodeAphidFiles Include="..\..\Components.Aphid\Library\Meta\Code\Aphid\*.alx" />
+        <MetaCodeGenerationFiles Include="..\..\Components.Aphid\Library\Meta\Code\Generation\*.alx" />
+        <MetaCodeSyntaxFiles Include="..\..\Components.Aphid\Library\Meta\Code\Syntax\*.alx" />
+        <NaturalLanguageFiles Include="..\..\Components.Aphid\Library\NaturalLanguage\*.alx" />
+        <SystemFiles Include="..\..\Components.Aphid\Library\System\*.alx" />
+        <TestingFiles Include="..\..\Components.Aphid\Library\Testing\*.alx" />
+        <RemotingFiles Include="..\..\Components.Aphid\Library\Remoting\*.alx" />
+        <ToolsFiles Include="..\..\Components.Aphid\Tools\*.alx" />
+    </ItemGroup>
+    <Target Name="CopyCustomContent" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="@(LibraryFiles)" DestinationFolder="$(OutDir)\Library" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(AutomationFiles)" DestinationFolder="$(OutDir)\Library\Automation" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(CoreFiles)" DestinationFolder="$(OutDir)\Library\Core" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(CliFiles)" DestinationFolder="$(OutDir)\Library\Cli" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(DataFiles)" DestinationFolder="$(OutDir)\Library\Data" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(DebuggingFiles)" DestinationFolder="$(OutDir)\Library\Debugging" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(GuiFiles)" DestinationFolder="$(OutDir)\Library\Gui" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(HtmlFiles)" DestinationFolder="$(OutDir)\Library\Html" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(InteropFiles)" DestinationFolder="$(OutDir)\Library\Interop" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(IOFiles)" DestinationFolder="$(OutDir)\Library\IO" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(NetFiles)" DestinationFolder="$(OutDir)\Library\Net" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(MetaFiles)" DestinationFolder="$(OutDir)\Library\Meta" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(MetaCodeFiles)" DestinationFolder="$(OutDir)\Library\Meta\Code" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(MetaCodeAphidFiles)" DestinationFolder="$(OutDir)\Library\Meta\Code\Aphid" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(MetaCodeGenerationFiles)" DestinationFolder="$(OutDir)\Library\Meta\Code\Generation" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(MetaCodeSyntaxFiles)" DestinationFolder="$(OutDir)\Library\Meta\Code\Syntax" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(NaturalLanguageFiles)" DestinationFolder="$(OutDir)\Library\NaturalLanguage" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(SystemFiles)" DestinationFolder="$(OutDir)\Library\System" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(TestingFiles)" DestinationFolder="$(OutDir)\Library\Testing" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(RemotingFiles)" DestinationFolder="$(OutDir)\Library\Remoting" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(ToolsFiles)" DestinationFolder="$(OutDir)\Tools" SkipUnchangedFiles="true" />
+    </Target>
+</Project>
