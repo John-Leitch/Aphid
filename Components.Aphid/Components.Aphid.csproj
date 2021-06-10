@@ -2,24 +2,29 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="AphidBase.proj" />
-  <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE'))">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants>
   </PropertyGroup>
+    
+  
+  <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE')) and !$(DefineConstants.Contains('LOW_SECURITY'))"> 
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup> 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
-    <DefineConstants>$(DefineConstants);$(CommonDirectives);$(BitnessDirective)$(TraceDirective)$(AphidDbgDirective)</DefineConstants>
+    <!-- <DefineConstants>$(DefineConstants);$(CommonDirectives);$(BitnessDirective)$(TraceDirective)$(AphidDbgDirective)</DefineConstants> -->
     <AssemblyName>Components.Aphid$(Bitness)$(TraceSuffix)$(IsAphidDbg)$(IsDebug)</AssemblyName>
     <ProjectGuid>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Components.Aphid</RootNamespace>
-    <FileAlignment>512</FileAlignment>
+    <FileAlignment>512</FileAlignment> 
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>latest</LangVersion>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis> 
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -273,7 +278,7 @@
     </Compile>
     <Compile Include="UI\AphidConfig.cs" />
     <Compile Include="UI\AphidEvaluator.cs" />
-    <Compile Include="UI\AphidReplInterop.cs">
+    <Compile Condition="!$(DefineConstants.Contains('LOW_SECURITY'))" Include="UI\AphidReplInterop.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AphidReplInterop.alx</DependentUpon>
@@ -657,13 +662,12 @@
       <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="a.ico" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>::$(ProjectDir)..\Mantispid\bin\$(ConfigurationName)\mantispid.exe $(ProjectDir)Library\Meta\Code\Aphid\Aphid.alx $(ProjectDir)\Parser\AphidParser.g.cs
+
 ::$(ProjectDir)..\Llex\bin\$(ConfigurationName)\llex.exe $(ProjectDir)\External\Json\json.alx $(ProjectDir)\External\Json\JsonLexer.cs
+
 ::$(SolutionDir)Aphid\$(OutDir)Aphid.exe $(ProjectDir)External\ConsolePlus\Cli.alx &gt; $(ProjectDir)External\ConsolePlus\Cli.g.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

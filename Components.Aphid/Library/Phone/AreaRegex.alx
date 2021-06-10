@@ -1,0 +1,33 @@
+
+#'std';
+    var script = this.'$block'[0].Filename;
+
+    script
+        @io.sibling('prefs.txt')
+        |> io.lines
+        ->(@() $_.Remove(3))
+        !?
+        ->(@()$_.ToCharArray())
+        -&first
+        ->(@()({
+            d: $_.Key,
+            nodes: $_
+                -&(@()$_[1])
+                ->(@()({
+                    d: $_.Key,
+                    nodes: $_->last }))}))
+        @(x) { %>
+            <% x for (a) { %>
+              (<%= a.d %>
+              (<% a.nodes for (b) { %>
+                (<%= b.d %>[
+                <% b.nodes for (c) { %>
+                  <%= c %>
+                <% }; %>
+                ])|
+              <% }; %>
+              )|
+            <% }; %>
+              )
+        <% }
+        

@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Compile">
-  <Import Project="..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props" Condition="Exists('..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props')" />
-  <Import Project="..\packages\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x64.microsoft.dotnet.framework.nativeimagecompiler.props" Condition="Exists('..\packages\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x64.microsoft.dotnet.framework.nativeimagecompiler.props')" />
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants>
+    
+  </PropertyGroup>
+  <Import Project="..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props"
+          Condition="Exists('..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props') and !$(DefineConstants.Contains('LOW_SECURITY'))" />
+  <Import Project="..\packages\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x64.microsoft.dotnet.framework.nativeimagecompiler.props"
+          Condition="Exists('..\packages\runtime.win10-x64.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x64.microsoft.dotnet.framework.nativeimagecompiler.props') and !$(DefineConstants.Contains('LOW_SECURITY'))" />
   <Choose>
     <!--                                -->
     <!-- 32 Bit                         -->
@@ -10,7 +16,8 @@
       <PropertyGroup>
         <PlatformTarget>x86</PlatformTarget>
         <Bitness>32</Bitness>
-        <BitnessDirective>FULL_DBG;X86</BitnessDirective>
+        <!-- <BitnessDirective>FULL_DBG;X86</BitnessDirective> -->
+        <DefineConstants>FULL_DBG;X86</DefineConstants>
       </PropertyGroup>
     </When>
     <!--                                -->
@@ -31,7 +38,8 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <Bitness>
         </Bitness>
-        <BitnessDirective>FULL_DBG;ANY_CPU</BitnessDirective>
+        <!-- <BitnessDirective>FULL_DBG;ANY_CPU</BitnessDirective> -->
+        <DefineConstants>FULL_DBG;ANY_CPU</DefineConstants>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -42,7 +50,8 @@
     <When Condition="$(Configuration.Contains('BinaryTrace'))">
       <PropertyGroup>
         <TraceSuffix>.BinaryTrace</TraceSuffix>
-        <TraceDirective>;BINARY_FRAME_PERFORMANCE_TRACE</TraceDirective>
+        <DefineConstants>$(DefineConstants);BINARY_FRAME_PERFORMANCE_TRACE</DefineConstants>
+        <!-- <TraceDirective>;BINARY_FRAME_PERFORMANCE_TRACE</TraceDirective> -->
       </PropertyGroup>
     </When>
     <Otherwise>
@@ -60,7 +69,8 @@
     <!--                                -->
     <When Condition="$(Configuration.StartsWith('AphidDebug'))">
       <PropertyGroup>
-        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective>
+        <DefineConstants>$(DefineConstants);APHID_DEBUGGING_ENABLED</DefineConstants>
+        <!-- <AphidDbgDirective>;APHID_DEBUGGING_ENABLED</AphidDbgDirective> -->
         <IsAphidDbg>.ScriptDebugger</IsAphidDbg>
       </PropertyGroup>
     </When>
@@ -69,7 +79,8 @@
     <!--                                -->
     <When Condition="$(Configuration.StartsWith('TimeTravel'))">
       <PropertyGroup>
-        <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective>
+        <DefineConstants>$(DefineConstants);APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</DefineConstants>
+        <!-- <AphidDbgDirective>;APHID_DEBUGGING_ENABLED;EXPRESSION_HISTORY</AphidDbgDirective> -->
         <IsAphidDbg>.ScriptDebugger.TimeTravel</IsAphidDbg>
       </PropertyGroup>
     </When>
@@ -92,7 +103,8 @@
         <Optimize>false</Optimize>
         <IsDebug>.Debug</IsDebug>
         <OutputPath>bin\Debug\</OutputPath>
-        <CommonDirectives>TRACE;DEBUG</CommonDirectives>
+        <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+        <!-- <CommonDirectives>TRACE;DEBUG</CommonDirectives> -->
         <DebugSymbols>True</DebugSymbols>
       </PropertyGroup>
     </When>
@@ -106,15 +118,15 @@
         <IsDebug>
         </IsDebug>
         <OutputPath>bin\Release\</OutputPath>
-        <CommonDirectives>RELEASE</CommonDirectives>
+        <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+        <!-- <CommonDirectives>RELEASE</CommonDirectives> -->
         <DebugSymbols>False</DebugSymbols>
       </PropertyGroup>
     </Otherwise>
   </Choose>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
-    <DefineConstants>$(DefineConstants);$(CommonDirectives);$(BitnessDirective)$(TraceDirective)$(AphidDbgDirective)</DefineConstants>
+    <Platform Condition=" '$(Platform)' == '' ">Default</Platform>    
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>    
     <ErrorReport>prompt</ErrorReport>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -124,51 +136,7 @@
     <ApplicationIcon>..\Components.Aphid\a.ico</ApplicationIcon>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <!--                                -->
-  <!-- DEBUG                          -->
-  <!--                                -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Default' ">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|Default'">
-  </PropertyGroup>
-  <!--                                -->
-  <!-- RELEASE                        -->
-  <!--                                -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Default' ">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release64|Default'">
-  </PropertyGroup>
-  <!--                                -->
-  <!-- APHID SCRIPT DEBUG             -->
-  <!--                                -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AphidDebug64|Default'">    
-  </PropertyGroup>
-  <!--                                -->
-  <!-- TIME TRAVEL                    -->
-  <!--                                -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TimeTravel64|Default'">    
-  </PropertyGroup>
-  <!--                                -->
-  <!-- BINARY TRACE                   -->
-  <!--                                -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'">
-  </PropertyGroup>
+  
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Default' "><OutputPath>bin\Debug\</OutputPath></PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug32|Default'"><OutputPath>bin\Debug32\</OutputPath></PropertyGroup>
@@ -185,5 +153,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace|Default'"><OutputPath>bin\Release\</OutputPath></PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace32|Default'"><OutputPath>bin\Release32\</OutputPath></PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BinaryTrace64|Default'"><OutputPath>bin\Release64\</OutputPath></PropertyGroup>
-  <Import Project="..\packages\Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\Microsoft.DotNet.Framework.NativeImageCompiler.targets" Condition="Exists('..\packages\Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\Microsoft.DotNet.Framework.NativeImageCompiler.targets')" />
+  <Import Project="..\packages\Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\Microsoft.DotNet.Framework.NativeImageCompiler.targets"
+          Condition="Exists('..\packages\Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\Microsoft.DotNet.Framework.NativeImageCompiler.targets') and !$(DefineConstants.Contains('LOW_SECURITY'))" />
 </Project>

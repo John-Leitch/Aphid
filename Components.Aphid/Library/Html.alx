@@ -1,0 +1,195 @@
+using HtmlAgilityPack;
+
+var htmlDocument = { };
+// var doc = null;
+
+_hm = macro(@(n, n2){
+    htmlDocument.n =  @(html) {
+        var d = new HtmlDocument();
+        d.n2(html);
+        // doc = d;
+
+        ret d;
+    }
+});
+
+_hm(parse, LoadHtml);
+_hm(get, Load);
+
+_d = macro(@(f, n) { n defined ? f(n) : f() });
+
+extend HtmlDocument {
+    parse: @(d, html) {
+        d.LoadHtml(html);
+
+        ret d;
+    },
+
+    element: @(d, name) name defined ?
+        d.DocumentNode.Element(name) :
+        d.DocumentNode.Element(),
+
+    elements: @(d, name) name defined ?
+        d.DocumentNode.Elements(name) :
+        d.DocumentNode.Elements(),
+
+    // descendants: @(d, name) name defined ?
+    //     d.DocumentNode.Descendants(name) :
+    //     d.DocumentNode.Descendants(),
+
+    descendants: @(d, name) _d(d.DocumentNode.Descendants, name),
+
+    nodes: @(d, p) d.DocumentNode.SelectNodes(p),
+    node: @(d, p) d.DocumentNode.SelectSingleNode(p),
+}
+
+extend HtmlDocument {
+    all: @(d, selector) { 
+        if (selector defined) {
+            parseAttrs = @(n) ({
+                method: n.attrs()[0],
+                value: n.attrs()[1],
+                prop: n.id(),
+            });
+
+            desc = d.descendants();
+            stack = null;
+
+            getParent = @() stack
+                .ToArray()
+                @aq.first(@() $_.node @is('IEnumerable'));
+
+            mutations = [];
+            
+            selector.Body @ast.walk(@(node, context) {
+                if (context.isRoot) {
+                    stack = context.stack;
+                } else if (context.isBlock) {
+                    ret null;
+                } else if (node.isId() && node.attrs().Count > 0) {
+                    ////////////////////////////////////////////////////////////////
+                    //class SmallTextHeader symbol;
+                    //if (n.class('SmallTextHeader')) {
+                    //    quote.symbol = n.text();
+                    ////////////////////////////////////////////////////////////////
+                    a = parseAttrs(node);                    
+                    ifStmt =
+                        format(
+                            'if (n.{0}("{1}"))' + 
+                            '{{ quote.{2} = n.text() }}',
+                            a.method,
+                            a.value,
+                            a.prop)
+                        |> parseExp;
+
+                    mutations.add({
+                        block: getParent(),
+                        original: node,
+                        replacement: ifStmt
+                    });
+
+                    context.isHandled = true;
+                
+                } else if (node.isBinOp() &&
+                    node.isOp(getToken('=')) &&
+                    node.lhs().isId() &&
+                    node.lhs().attrs().Count == 2) {
+                    ////////////////////////////////////////////////////////////////
+                    // id quoteLastData lastTick = n.text().removeAt('[').dec();
+                    ////////////////////////////////////////////////////////////////
+                    a = parseAttrs(node.lhs());                    
+                    getName = format('get{0}', a.prop);
+
+                    ifStmt =
+                        format(
+                            '@{{' + 
+                            'if (n.{0}("{1}"))' + 
+                            '{{ quote.{2} = {3}() }}' + 
+                            '}}',
+                            [ a.method, a.value, a.prop, getName ])
+                        |> parseExp;
+
+                    funcExp = parseExp('@(){}');
+                    node.rhs() |> ast.return |> funcExp.Body.Add;
+                        
+                    ifStmt.Body.Insert(
+                        0, 
+                        new BinaryOperatorExpression(
+                            parseExp(getName),
+                            getToken('='),
+                            funcExp));
+
+                    c = new CallExpression(ifStmt, parseExp('x()').Args);
+
+                    mutations.add({
+                        block: getParent(),
+                        original: node,
+                        replacement: c,
+                    });
+
+                    context.isHandled = true;
+                }
+            });
+            
+            dump(mutations);
+            mutations->@{
+                i = $_.block.node.IndexOf($_.original);
+                $_.block.node.RemoveAt(i);
+                $_.block.node.Insert(i, $_.replacement);
+            };
+
+
+            ret desc->selector;
+        } else {
+            ret desc;
+        }
+    },
+}
+
+extend HtmlNode {
+    has: @(node, key) node.Attributes.get_Item(key) != null,
+    attr: @(node, key) node.Attributes.get_Item(key) != null ?
+        node.Attributes.get_Item(key).Value :
+        null,
+
+    attrIs: @(n, key, value) n.has(key) && n.attr(key) == value,
+
+    text: @(n) $_.InnerText |> HtmlEntity.DeEntitize @() $_.Trim(),
+    next: @(n) n.NextSibling,
+    
+    isElement: @(n) n.NodeType == HtmlNodeType.Element,
+    element: @(n, name) n.Element(name),
+    nodes: @(n, p) n.SelectNodes(p),
+    node: @(n, p) n.SelectSingleNode(p),
+    
+    following: @(n, elementName)
+        elementName
+        @format('following-sibling::{0}')
+        n.node,
+}
+
+_ai = macro(@(name){
+    extend HtmlNode {
+        name: @(n, value) n.attrIs(
+            frame(1).exp().func().rhs().id(),
+            value),
+    }
+});
+
+_ai(id);
+_ai(class);
+_ai(type);
+
+extend HtmlNode {
+    money: @(n) $_
+        .text()
+        .TrimStart('$')
+        .Replace(',', '')
+        |> Decimal.Parse
+}
+
+_im = macro(@(n, v) { 
+    if ($_.id(v)) {
+        quote.n = $_.money();
+    }
+});

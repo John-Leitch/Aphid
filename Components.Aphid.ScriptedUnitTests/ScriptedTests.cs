@@ -48,7 +48,8 @@ namespace Components.Aphid.UnitTests.Shared
                 .WithDegreeOfParallelism(Environment.ProcessorCount)
                 .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                 .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-                .SelectMany(GetTestsCasesFromFiles));
+                .SelectMany(GetTestsCasesFromFiles)
+                .ToArray());
 #else
         private static readonly string _asmName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
 
@@ -165,7 +166,7 @@ namespace Components.Aphid.UnitTests.Shared
         }
 
         [Test, TestCaseSource("Tests")]
-        public void RunTestScript(AphidInterpreter interpreter, string funcName, AphidFunction function)
+        public static void RunTestScript(AphidInterpreter interpreter, string funcName, AphidFunction function)
         {
             WriteQueryMessage($"Calling {funcName} method");
             interpreter.TakeOwnership();

@@ -25,10 +25,12 @@ namespace Components.Aphid.Interpreter
         {
         }
 
+#if !LOW_SECURITY
         protected AphidInternalException(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
         }
+#endif
 
         public AphidInternalException(
             AphidInterpreter interpreter,

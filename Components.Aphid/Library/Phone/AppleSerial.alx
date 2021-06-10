@@ -1,0 +1,40 @@
+#'std';
+// Old PP Y WW SSS CCC
+// New PPP Y W SSS CCCC
+var serial = 'FK1YH3Q3HFLQ';
+var splitSerial = @()  $($_.Length)
+    11: splitSerialOld($_),
+    12: splitSerialNew($_),
+    throw new ArgumentException('serial');
+
+var splitSerialOld = @() ({ loc: $_.Remove(2), year: $_.Substring(2, 1), week: $_.Substring(3, 2), id: $_.Substring(5,3), model: $_.Substring(8) });
+var splitSerialNew = @() ({
+    loc: $_.Remove(3),
+    year: $_.Substring(3, 1),
+    week: $_.Substring(4, 1),
+    id: $_.Substring(5,3),
+    model: $_.Substring(8)
+});
+
+var yearCodeMap =
+    this.'$block'[0].Filename
+    @io.sibling('AppleSerialYear.csv')
+    |> io.lines
+    ->(@()$_.Split(',') @zip(['key', 'year', 'offset'], @(y,x )x+':'+y) @join(','))
+    ->@format('{{{0}}}')
+    ->deserialize@kvpsToObj(@(x) x.key);
+
+var weekCodeMap =
+    seq.range('Y'.byte(), 'C'.byte())
+    ->(@()$_.char())
+    @except('AEIOUS'.ToCharArray())
+    @combine(1..9->(@()$_.ToString()))
+    @seq.iter(@(x,i) ([x, i ]))
+    |> kvpsToObj;
+
+var parts = splitSerial(serial);
+{parts,
+yearInfo:yearCodeMap[parts.year],
+manufactureDate: (new DateTime()).AddYears(yearInfo.year - 1).AddDays((yearInfo.offset + weekCodeMap[parts.week])* 7 - 1),
+
+}| dumpe;

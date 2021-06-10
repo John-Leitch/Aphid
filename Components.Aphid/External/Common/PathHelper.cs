@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -6,8 +7,15 @@ namespace Components.External
 {
     public static class PathHelper
     {
-        public static string GetEntryDirectory() =>
-            new FileInfo(Assembly.GetEntryAssembly().Location).DirectoryName;
+        public static string GetLocation() =>
+            (Assembly.GetEntryAssembly() ??
+            Assembly.GetExecutingAssembly() ??
+            throw new ArgumentNullException(
+                "fileName",
+                "Could not resolve fileName using Assembly.GetEntryAssembly or Assembly.GetExecutingAssembly."))
+                .Location;
+
+        public static string GetEntryDirectory() => new FileInfo(GetLocation()).DirectoryName;
 
         public static string GetEntryPath(params string[] paths) =>
             Path.Combine(new[] { GetEntryDirectory() }.Concat(paths).ToArray());

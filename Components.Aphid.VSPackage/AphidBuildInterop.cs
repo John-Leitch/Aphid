@@ -10,13 +10,13 @@ namespace Components.Aphid.VSPackage {
         
         public static CompileDelegate Compile {
             get {
-                if ((_Compile == null)) {
-                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_bc79b1c90375a7efa721519452f6737c());
+                if ((AphidBuildInterop._Compile == null)) {
+                    new AphidInterpreter().Interpret(AphidCompilerResources.ByteCode_2f0f0c4cd802a69c613461c6f0091e01());
                 }
-                return _Compile;
+                return AphidBuildInterop._Compile;
             }
             set {
-                _Compile = value;
+                AphidBuildInterop._Compile = value;
             }
         }
         
@@ -24,167 +24,192 @@ namespace Components.Aphid.VSPackage {
     }
 }
 
-namespace Components.Aphid.VSPackage
-{
-    using global::Components.Aphid.Lexer;
-    using global::Components.Aphid.Parser;
-    using System.Collections.Generic;
-    
-    public static partial class AphidCompilerResources
-    {
-        public static List<AphidExpression> ByteCode_bc79b1c90375a7efa721519452f6737c() => new List<AphidExpression>
+
+            namespace Components.Aphid.VSPackage
             {
-                new LoadScriptExpression(
-                    new StringExpression(
-                        "'Std'"
-                    )
+                /* Test */
+                using global::Components.Aphid.Lexer;
+                using global::Components.Aphid.Parser;
+                using System;
+                using System.Collections.Generic;
+            
+                public static partial class AphidCompilerResources
+                {
+                    
+                    /*fmt*/
+
+                    public static List<AphidExpression> ByteCode_2f0f0c4cd802a69c613461c6f0091e01() =>
+                        ByteCode_2f0f0c4cd802a69c613461c6f0091e01Lazy.Value;
+
+                    private static readonly List<AphidExpression> _empty = new List<AphidExpression>();                    
+
+                    private static System.Lazy<List<AphidExpression>> ByteCode_2f0f0c4cd802a69c613461c6f0091e01Lazy =>
+                        new System.Lazy<List<AphidExpression>>(() =>
+                            new List<AphidExpression>
+{
+    new LoadScriptExpression(
+        new StringExpression(
+            "'std'"
+        )
+    ),
+    new LoadScriptExpression(
+        new StringExpression(
+            "'meta/code/Compiler'"
+        )
+    ),
+    new UnaryOperatorExpression(
+        AphidTokenType.usingKeyword,
+        new BinaryOperatorExpression(
+            new BinaryOperatorExpression(
+                new IdentifierExpression(
+                    "Components",
+                    _IdentifierExpressions
                 ),
-                new LoadScriptExpression(
-                    new StringExpression(
-                        "'Meta/Code/Compiler'"
-                    )
-                ),
-                new UnaryOperatorExpression(
-                    AphidTokenType.usingKeyword,
-                    new BinaryOperatorExpression(
-                        new BinaryOperatorExpression(
-                            new IdentifierExpression(
-                                "Components",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            ),
-                            AphidTokenType.MemberOperator,
-                            new IdentifierExpression(
-                                "Aphid",
-                                new List<IdentifierExpression>
-                                {
-                                }
-                            )
-                        ),
-                        AphidTokenType.MemberOperator,
-                        new IdentifierExpression(
-                            "VSPackage",
-                            new List<IdentifierExpression>
-                            {
-                            }
-                        )
+                AphidTokenType.MemberOperator,
+                new IdentifierExpression(
+                    "Aphid",
+                    _IdentifierExpressions
+                )
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "VSPackage",
+                _IdentifierExpressions
+            )
+        ),
+        false
+    ),
+    new CallExpression(
+        new IdentifierExpression(
+            "print",
+            _IdentifierExpressions
+        ),
+        new List<AphidExpression>
+        {
+            new StringExpression(
+                "'foo'"
+            ),
+        }
+    ),
+    new BinaryOperatorExpression(
+        new BinaryOperatorExpression(
+            new IdentifierExpression(
+                "AphidBuildInterop",
+                new List<IdentifierExpression>
+                {
+                    new IdentifierExpression(
+                        "export",
+                        _IdentifierExpressions
                     ),
-                    false
+                    new IdentifierExpression(
+                        "string",
+                        _IdentifierExpressions
+                    ),
+                }
+            ),
+            AphidTokenType.MemberOperator,
+            new IdentifierExpression(
+                "Compile",
+                _IdentifierExpressions
+            )
+        ),
+        AphidTokenType.AssignmentOperator,
+        new FunctionExpression(
+            new List<AphidExpression>
+            {
+                new IdentifierExpression(
+                    "path",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
                 ),
+                new IdentifierExpression(
+                    "input",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+                new IdentifierExpression(
+                    "namespace",
+                    new List<IdentifierExpression>
+                    {
+                        new IdentifierExpression(
+                            "string",
+                            _IdentifierExpressions
+                        ),
+                    }
+                ),
+            },
+            new List<AphidExpression>
+            {
                 new BinaryOperatorExpression(
                     new BinaryOperatorExpression(
                         new IdentifierExpression(
-                            "AphidBuildInterop",
-                            new List<IdentifierExpression>
-                            {
-                                new IdentifierExpression(
-                                    "export",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                                new IdentifierExpression(
-                                    "string",
-                                    new List<IdentifierExpression>
-                                    {
-                                    }
-                                ),
-                            }
+                            "preprocessor",
+                            _IdentifierExpressions
                         ),
                         AphidTokenType.MemberOperator,
                         new IdentifierExpression(
-                            "Compile",
-                            new List<IdentifierExpression>
-                            {
-                            }
+                            "inlineScripts",
+                            _IdentifierExpressions
                         )
                     ),
                     AphidTokenType.AssignmentOperator,
-                    new FunctionExpression(
+                    new BooleanExpression(
+                        true
+                    )
+                ),
+                new UnaryOperatorExpression(
+                    AphidTokenType.retKeyword,
+                    new CallExpression(
+                        new BinaryOperatorExpression(
+                            new IdentifierExpression(
+                                "aphidCompiler",
+                                _IdentifierExpressions
+                            ),
+                            AphidTokenType.MemberOperator,
+                            new IdentifierExpression(
+                                "compileCode",
+                                _IdentifierExpressions
+                            )
+                        ),
                         new List<AphidExpression>
                         {
                             new IdentifierExpression(
-                                "path",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
+                                "namespace",
+                                _IdentifierExpressions
                             ),
                             new IdentifierExpression(
                                 "input",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                            new IdentifierExpression(
-                                "namespace",
-                                new List<IdentifierExpression>
-                                {
-                                    new IdentifierExpression(
-                                        "string",
-                                        new List<IdentifierExpression>
-                                        {
-                                        }
-                                    ),
-                                }
-                            ),
-                        },
-                        new List<AphidExpression>
-                        {
-                            new UnaryOperatorExpression(
-                                AphidTokenType.retKeyword,
-                                new CallExpression(
-                                    new BinaryOperatorExpression(
-                                        new IdentifierExpression(
-                                            "aphidCompiler",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        AphidTokenType.MemberOperator,
-                                        new IdentifierExpression(
-                                            "compileCode",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        )
-                                    ),
-                                    new List<AphidExpression>
-                                    {
-                                        new IdentifierExpression(
-                                            "namespace",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                        new IdentifierExpression(
-                                            "input",
-                                            new List<IdentifierExpression>
-                                            {
-                                            }
-                                        ),
-                                    }
-                                ),
-                                false
+                                _IdentifierExpressions
                             ),
                         }
-                    )
+                    ),
+                    false
                 ),
             }
-;
-    }
+        )
+    ),
 }
 
+                        );
+
+                    
+                        private static readonly List<IdentifierExpression> _IdentifierExpressions = new List<IdentifierExpression>();
+                    
+
+                    
+                    
+                
+                }
+            }
+            
 

@@ -1,0 +1,29 @@
+#'Std';
+var targetType = string;
+targetType
+    .GetMethods()
+    -?(@() !$_.IsStatic)
+    ->(@(m)({
+        method: m,
+        name: m.Name,
+        importName: name | convention.camelCase,
+        params: method.GetParameters(),
+        paramCount: params.Length,  
+        paramTup: params->@.Name @join(', '),
+    }))
+    -&@.importName
+    ->(@(m)({ importName: m.Key, name: m[0].name, countGroups: m-&@.paramCount }))
+    ->(@(s) '{0} = @() ($($args.Count)\r\n{1})' :: [
+        s.importName,
+        s.countGroups
+            ->(@()format(
+                '    {0}: $args[{3}].{1}({2})',
+                $_.Key + 1,
+                s.name,
+                0..$_.Key ->@format('$args[{0}]') @join(', '),
+                $_.Key))
+            @append('    throw new ArgumentException()')
+            @join(',\r\n'),
+    ])
+    @join(',\r\n')
+    |> console.code

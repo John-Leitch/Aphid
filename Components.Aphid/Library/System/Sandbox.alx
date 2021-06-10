@@ -1,5 +1,6 @@
 ﻿using Components.External.ConsolePlus;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -21,21 +22,23 @@ sandbox.exec = @(userScript) {
     
     var getBin = @() sandbox.bin == null ?
         ($($args.Count) 0: getEntryPath(), 1: getEntryPath($args[0]), getEntryPath($args)) :
-        Path.Combine(sandbox.bin, $args @join('\\'));
+        Path.Combine(sandbox.bin, $args @String.Join('\\'));
     
-    aq.concat(
-        [ 'Aphid.exe', 'Components.Aphid.dll', 'Components.Aphid.dll.config' ]->getBin,
-        [ 'Library' ]->getBin-<Directory.GetFiles)
+Enumerable.Concat(
+        [ 'Aphid.exe','Aphid.exe.config', 'Components.Aphid.dll', 'Components.Aphid.dll.config' ]->getBin,
+        [ 'Library' ]->getBin-<@() Directory.GetFiles($_, '*', SearchOption.AllDirectories))
     ->(@() [ $_, $_.Substring(getBin().Length + 1) |> getSandboxPath ])
     ->(@(x) {
         x[1] |> Path.GetDirectoryName |> Directory.CreateDirectory;
-        // Console.WriteLine("Copying {0} to {1}", x[0], x[1]);
+Cli.WriteLine("Copying {0} to {1}", x[0], x[1]);
         File.Copy(x[0], x[1]);
     });
 
     var dst = Path.GetFileName(userScript) |> getSandboxPath;
-    File.Move(userScript, dst);
+Cli.WriteLine('Configuring user script {0}', dst);
 
+    File.Move(userScript, dst);
+Cli.WriteLine('Configuring permissionts');
     var ps = new PermissionSet(PermissionState.None);
 
     [ 
@@ -49,18 +52,32 @@ sandbox.exec = @(userScript) {
 
 
     var evidence = new Evidence([ new Zone(SecurityZone.Internet) ], []);
+Cli.WriteLine('Creating appdomain');
     var ads = new AppDomainSetup();
     ads.ApplicationBase = sandboxDir;
     var ad = AppDomain.CreateDomain('Sandbox', evidence, ads, ps, []);
-    
+
+Cli.WriteLine('Unwrapping\r\n\t{0}\r\n\t{1}',         RemoteConsoleListener.Assembly.FullName, RemoteConsoleListener.FullName);    
     var proxy = ad.CreateInstanceAndUnwrap(
         RemoteConsoleListener.Assembly.FullName,
         RemoteConsoleListener.FullName);
 
     proxy.SetOut();
     var oldCwd = Directory.GetCurrentDirectory();
+Cli.WriteLine('Old cwd: {0}', oldCwd);
     sandboxDir |> Directory.SetCurrentDirectory;
+Cli.WriteLine('Sandbox working dir: {0}', sandboxDir);
+
     //Console.WriteLine('Executing sandboxed code');
+Cli.WriteLine('Sandbox appdomain: {0}', ad);
+
+Cli.WriteLine('Sandbox exe: {0}', sandboxExe);
+
+Cli.WriteLine('Sandbox exe exists: {0}', File.Exists(sandboxExe));
+Cli.WriteLine('Sandbox script: {0}', dst);
+Cli.WriteLine('Sandbox script exists: {0}', File.Exists(dst));
+
+
     ad.ExecuteAssembly(sandboxExe, [ dst ]);
     // Console.WriteLine('Done Executing sandboxed code');
     proxy.Flush() |> Console.Write;

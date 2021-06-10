@@ -14,6 +14,7 @@ using System.Threading;
 
 namespace Components.Aphid.UI
 {
+#if !LOW_SECURITY
     public partial class AphidRepl
     {
         private bool _isSerializerShared;
@@ -255,4 +256,5 @@ namespace Components.Aphid.UI
             //}
         }
     }
+#endif
 }

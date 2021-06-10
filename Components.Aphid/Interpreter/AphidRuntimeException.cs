@@ -35,6 +35,7 @@ namespace Components.Aphid.Interpreter
             ToStringClrTypes = true
         };
 
+#if !LOW_SECURITY
         protected AphidRuntimeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -54,6 +55,7 @@ namespace Components.Aphid.Interpreter
             info.AddValue(nameof(CurrentExpression), CurrentExpression);
             info.AddValue(nameof(Details), Details);
         }
+#endif
 
         public AphidRuntimeException(
             AphidInterpreter interpreter,

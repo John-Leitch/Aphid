@@ -74,13 +74,20 @@ namespace Components.External.ConsolePlus
 
         public static bool TryEnable()
         {
-            try
+            if (Cli.HasConsole)
             {
-                Enable();
+                try
+                {
+                    Enable();
 
-                return true;
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
-            catch
+            else
             {
                 return false;
             }

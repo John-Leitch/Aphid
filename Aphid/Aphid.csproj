@@ -3,6 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\Components.Aphid\AphidBase.proj" />
   <PropertyGroup>
+  <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -10,7 +11,7 @@
     <RootNamespace>Aphid</RootNamespace>
     <AssemblyName>Aphid$(Bitness)$(TraceSuffix)$(IsAphidDbg)$(IsDebug)</AssemblyName>
   </PropertyGroup>
-  <PropertyGroup>
+  <PropertyGroup Condition="!$(DefineConstants.Contains('LOW_SECURITY'))">
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
@@ -160,7 +161,7 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <PropertyGroup>
+  <PropertyGroup Condition="!$(DefineConstants.Contains('LOW_SECURITY'))">
     <PostBuildEvent>IF NOT EXIST "$(TargetDir)Aphid64.exe" (
     IF NOT EXIST "$(TargetDir)Ngen.exe" (
         "$(TargetDir)$(AssemblyName).exe" "$(TargetDir)Tools\MakeExe.alx" -medusa "$(TargetDir)Tools\Ngen.alx" "$(TargetDir)Ngen.exe" || exit 20

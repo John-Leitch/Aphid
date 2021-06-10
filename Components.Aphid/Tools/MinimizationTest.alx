@@ -1,0 +1,31 @@
+#'Std';
+var traceMinimizer;
+#'Meta/Code/TokenMinimizer';
+VT100.Enable();
+head('Starting');
+
+
+var remoteBlock = @{
+    #'Std';
+    var indent = 0;
+    var margin = @() '  ' * indent;
+    print('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>');
+    print('<CmdOut>');
+
+    var line = null;
+    while ((line = Console.In.ReadLine()) != null) {
+        print('{0}<{1}>{2}</{1}>', margin(), 'CmdLineOut', line);
+    }
+
+    print('</CmdOut>');
+};
+
+var startOff = remoteBlock.Body^!@.Index;
+var endOff = remoteBlock.Body$! @() $_.Index + $_.Length;
+var len = endOff - startOff;
+var remoteCode = remoteBlock[0].Context.Code.Substring(remoteBlock.Body^!@.Index, len);
+// [[1,2],[AphidTokenType.Identifier,AphidTokenType.Identifier]]=? @seqEqual([AphidTokenType.Identifier,AphidTokenType.Identifier])
+
+
+    
+remoteCode | minTokens | SyntaxHighlightingFormatter.Format | Console.WriteLine;

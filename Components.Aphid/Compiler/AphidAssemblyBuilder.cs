@@ -75,28 +75,47 @@ namespace Components.Aphid.Compiler
 
             if (dir != null)
             {
+#if NET5_0
+                throw new NotImplementedException("AphidAssemblyBuilder dir not supported in .NET 5.0.");
+#else
                 SetModuleBuilder(AssemblyBuilderAccess.RunAndSave, dir);
+#endif
             }
             else
             {
+#if NET5_0
+                SetModuleBuilder(AssemblyBuilderAccess.RunAndCollect);
+#else
                 SetModuleBuilder(AssemblyBuilderAccess.RunAndSave);
+#endif
             }
         }
 
         private void SetModuleBuilder(AssemblyBuilderAccess access) => _moduleBuilder = new Lazy<ModuleBuilder>(
-                () => (Assembly = AppDomain.CurrentDomain
-                    .DefineDynamicAssembly(
-                        new AssemblyName(AssemblyName),
-                        access))
-                    .DefineDynamicModule(AssemblyName));
+                () => (Assembly =
+#if NET5_0
+                    AssemblyBuilder
+#else
+                    AppDomain.CurrentDomain
+#endif
+                        .DefineDynamicAssembly(
+                            new AssemblyName(AssemblyName),
+                            access))
+                        .DefineDynamicModule(AssemblyName));
 
-        private void SetModuleBuilder(AssemblyBuilderAccess access, string dir) => _moduleBuilder = new Lazy<ModuleBuilder>(
-                () => (Assembly = AppDomain.CurrentDomain
-                    .DefineDynamicAssembly(
-                        new AssemblyName(AssemblyName),
-                        access,
-                        dir))
-                    .DefineDynamicModule(AssemblyName));
+        private void SetModuleBuilder(AssemblyBuilderAccess access, string dir) =>
+#if NET5_0
+                throw new NotImplementedException("AphidAssemblyBuilder dir not supported in .NET 5.0.");
+#else
+                 _moduleBuilder = new Lazy<ModuleBuilder>(
+                    () => (Assembly = AppDomain.CurrentDomain
+                        .DefineDynamicAssembly(
+                            new AssemblyName(AssemblyName),
+                            access,
+                            dir))
+                        .DefineDynamicModule(AssemblyName));
+#endif
+
 
         public Type CreateType(ObjectExpression type, HashSet<string> imports)
         {
@@ -231,11 +250,11 @@ namespace Components.Aphid.Compiler
 
             //try
             //{
-                type = resolver.TryResolveType(
-                    Interpreter.GetImports(),
-                    _importsLock,
-                    path,
-                    isType: true);
+            type = resolver.TryResolveType(
+                Interpreter.GetImports(),
+                _importsLock,
+                path,
+                isType: true);
             //}
             //finally
             //{

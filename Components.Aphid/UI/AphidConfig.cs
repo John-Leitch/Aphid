@@ -93,25 +93,25 @@ namespace Components.Aphid.UI
                 new LA(() => defaultValue);
 
         private static string GetSetting(string name) =>
-            _config.Value.AppSettings.Settings[name]?.Value;
+            _config.Value?.AppSettings.Settings[name]?.Value;
 
         //private static string GetSettingOverride(string name) =>
         //    Environment.GetCommandLineArgs
 
         private static Configuration LoadConfig()
         {
-            //try
-            //{
-            var l = typeof(AphidConfig).Assembly.Location;
+            try
+            {
+                var l = typeof(AphidConfig).Assembly.Location;
             string path = l != null ? Combine(GetDirectoryName(l), FileName) : FileName;
             return ConfigurationManager.OpenMappedExeConfiguration(
                 new ExeConfigurationFileMap { ExeConfigFilename = path },
                 ConfigurationUserLevel.None);
-            //}
-            //catch
-            //{
-            //    return null;
-            //}
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

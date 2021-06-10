@@ -1,0 +1,21 @@
+#'std';
+cls();
+var tokenTypes =
+    AphidTokenType
+    | getEnums
+    -? @() !($_ ~= 'CustomOperator');
+
+var ops = tokenTypes~?'Operator$'->str;
+
+
+
+
+var mappedOps =
+    ops
+    ->(@()$_.Remove(($_#!)-('Operator'#!)));
+
+    mappedOps | dump;
+
+
+ops#! |> print;
+mappedOps#! |> print;

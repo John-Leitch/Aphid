@@ -28,6 +28,14 @@ namespace Aphid
             }
 
             var runRepl = args.Length == 0;
+#if LOW_SECURITY
+            if (runRepl)
+            {
+                Cli.WriteCriticalErrorMessage("REPL not available in LOW_SECURITY mode.");
+
+                Environment.Exit(0xbad523f);
+            }
+#endif
 
             if (Cli.HasConsole)
             {
@@ -46,9 +54,12 @@ namespace Aphid
             AppDomain.CurrentDomain.ProcessExit += (o, e) => Console.ResetColor();
             CliApplication.SetTitle("Aphid", showHeader: runRepl);
 
+
             if (runRepl)
             {
+#if !LOW_SECURITY
                 RunRepl();
+#endif
             }
             else if (args[0][0] == '?')
             {
@@ -124,10 +135,12 @@ namespace Aphid
                     interpreter.Interpret(code, file, isTextDocument);
                 }
 
+#if !LOW_SECURITY
                 if (interpreter.CurrentScope.ResolveBool(AphidName.OpenRepl))
                 {
                     new AphidRepl { Interpreter = interpreter }.Run();
                 }
+#endif
 #if !APHID_DEBUGGING_ENABLED
             }
 #endif
@@ -153,6 +166,8 @@ namespace Aphid
             return index != -1 ? Environment.CommandLine.Substring(index + 1) : null;
         }
 
+#if !LOW_SECURITY
         private static void RunRepl() => new AphidRepl().Run();
+#endif
     }
 }

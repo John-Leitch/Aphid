@@ -8,10 +8,12 @@ namespace Components.Aphid.TypeSystem
     [Serializable]
     public class AphidOperationException : AphidRuntimeException
     {
+#if !LOW_SECURITY
         protected AphidOperationException(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
         }
+#endif
 
         public AphidOperationException(
             AphidInterpreter interpreter,
