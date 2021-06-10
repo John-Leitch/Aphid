@@ -178,6 +178,10 @@ if ((useLLex ? buildLLexAsm : buildRegexAsm)() && outputFile | io.file) {
         console.success('Compilation succeeded');
     }
 
+    #'meta/code/nativeImage';
+    nativeImage.verbose = verbosity > 4;
+    outputFile | nativeImage.compile;    
+
     exit(0);
 } else {
     if (verbosity > 0) {

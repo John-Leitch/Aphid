@@ -1,6 +1,11 @@
 #'std';
 #'system/nuget';
 nuget.reference('Tesseract');
+nuget.reference('Magick.NET.Core');
+nuget.reference('Magick.NET-Q16-AnyCPU');
+
+using ImageMagick;
+
 var asmDir = getAssemblies()~|'Tesseract' @.Location |> io.up;
 console.importArgs({ bool quiet: '-q' });
 
@@ -22,16 +27,24 @@ if (dataPath | io.not.dir) {
 var isQuiet = mapped.quiet && quiet;
 
 // repl.run();
-using (var engine = new TesseractEngine(dataPath, 'eng', EngineMode.Default)) {
+using (var engine = new TesseractEngine(dataPath, 'eng', EngineMode.LstmOnly)) {
+    // engine.DefaultPageSegMode = PageSegMode.AutoOsd;
+    engine.DefaultPageSegMode = PageSegMode.SparseText;
+
     stdIn.lines(@ (f){
         if (!isQuiet) {
             head('Getting text from {0}' :: f);
         }
 
         try {
-            using (var img = f | Pix.LoadFromFile)
-            using (var page = engine.Process(img, null))
-            page.GetText().Trim() | Console.WriteLine;
+            using (var mi = new MagickImage(f)) {
+                mi.Density = new Density(600, DensityUnit.PixelsPerInch);
+                mi.Resize(mi.Width * 2, mi.Height * 2);
+                //using (var img = f | Pix.LoadFromFile)
+                using (var img = mi.ToByteArray() | Pix.LoadFromMemory)
+                using (var page = engine.Process(img, null))
+                page.GetText().Trim() | Console.WriteLine;
+            }
         } catch (e) {
             if (!isQuiet) {
                 console.error('Error OCRing {0}: {1}', f, e.message);

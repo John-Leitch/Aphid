@@ -1,6 +1,6 @@
 #'std';
 #'base';
-var f = frame(1).Scope.'$block' | last | evalExp;
+var f = frame(0).Scope.'$block' | last | evalExp;
 var t = tokenizeCmd();
 t | skipAphid;
 getScriptArgs();

@@ -1,0 +1,163 @@
+#'profile';
+#'default';
+
+context.carveJpgAtPosition = @(reader) {
+    var verbosity = 0;
+    if (verbosity >= 5) console.query('Scanning for jpg tags');
+    var readSize = @() reader.ReadByte() * 256 + reader.ReadByte() - 2 @() $_ == -2 ? 0 : $_;
+    var start = reader.BaseStream.Position;
+    var len = -1;
+    reader.BaseStream.Position += 2;
+    var state = 0;
+    do {
+        var tagPrefix = reader.ReadByte();
+        if (tagPrefix == 0xff) {
+            var tag = reader.ReadByte();
+            switch (tag) {
+                0xc0, 0xc2, 0xc4, 0xdb, 0xdd,0xfe,
+                0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xeb,0xec,0xed,0xee,0xef: {
+                    var size = readSize();
+                    if (verbosity >= 2) console.code('[t] 0xff 0x{0:x2} (s1 * 256 + s2 - 2) = {1}' :: [ tag, size ]);
+                    reader.ReadBytes(size);
+                }
+                0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7: {
+                    console.info('0xff 0xdd -> 0xff 0x{0:x2}' :: tag);
+                    state = -100;
+                    head('Not implemented');
+                    break;
+                    // expected after 0xdd
+                }
+                0xda: {
+                    if (verbosity >= 3) console.info('0xff 0xda ->');
+                    
+
+                    do {
+                        if (state == 0) {
+                            if (reader.ReadByte() == 0xff) {
+                                state = 1;
+                                if (verbosity >= 6) console.info('          -> 0xff matched, looking for 0xd9 next');
+                            }
+                        } 
+                        
+                        if (state == 1) {
+                            if (reader.ReadByte() == 0xd9) {
+                                if (verbosity >= 3) console.info('          -> 0xd9 matched, done scanning for tag');
+                                state = 2;
+                                break;
+                            } else {
+                                if (verbosity >= 6) console.info('          -> 0xd9 not matched, scanning for 0xff again');
+                                state = 0;
+                            }
+                        }
+                    } while (state != 2);
+                    //head('Not implemented 0xda'); ret null;
+                    // scan until 0xffd9
+                }
+                // 0xd9: {
+                //     head('Not implemented'); ret null;
+
+                // }
+                default: {
+                    if (verbosity >= 1) console.error('Unknown tag 0x{0:x2}' :: tag);
+                    state = -5;
+                    break;
+                }
+            }
+            
+        } else {
+            if (verbosity >= 1) console.error('Unknown tag prefix 0x{0:x2}' :: tagPrefix);
+                state = -1;
+                break;
+        }
+    } while(state >= 0 && state < 2);
+
+    if (state == 2) {
+        len = reader.BaseStream.Position - start;
+        reader.BaseStream.Position = start;
+        ret { start, len, buffer: reader.ReadBytes(len) };
+    } else {
+        ret null;
+    }
+
+    
+    //reader.dir();
+};
+
+// #'std';
+// var jpg = 'E:/phonedump3/Indexed/livedump/fffe98d0b8bb5a11b17fb11a435e571be23a1cbfdc840d73a61be088b9e87a41.jpg';
+
+// var carveJpgAtPosition = @(reader) {
+//     var readSize = @() reader.ReadByte() * 256 + reader.ReadByte() - 2;
+//     var start = reader.BaseStream.Position;
+//     var len = -1;
+//     reader.BaseStream.Position += 2;
+//     var state = 0;
+//     while(state >= 0 && state < 2) {
+//         if ((var tagPrefix = reader.ReadByte()) == 0xff) {
+//             switch (var tag = reader.ReadByte()) {
+//                 0xc0, 0xc2, 0xc4, 0xdb, 0xdd,0xfe,
+//                 0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xeb,0xec,0xed,0xee,0xef: {
+//                     console.code('[t] 0xff 0x{0:x2} (s1 * 256 + s2 - 2)' :: tag);
+//                     var size = readSize();
+//                     console.code('    size: {0}' :: size);
+//                     reader.ReadBytes(size);
+//                 }
+//                 0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7: {
+//                     console.info('0xff 0xdd -> 0xff 0x{0:x2}' :: tag);
+//                     state = -100;
+//                     head('Not implemented');
+//                     break;
+//                     // expected after 0xdd
+//                 }
+//                 0xda: {
+//                     console.info('0xff 0xda ->');
+                    
+
+//                     do {
+//                         if (state == 0) {
+//                             if (reader.ReadByte() == 0xff) {
+//                                 state = 1;
+//                                 console.info('          -> 0xff matched, looking for 0xd9 next');
+//                             }
+//                         } else {
+//                             if (reader.ReadByte() == 0xd9) {
+//                                 console.info('          -> 0xd9 matched, done scanning for tag');
+//                                 state = 2;
+//                             } else {
+//                                 console.info('          -> 0xd9 not matched, scanning for 0xff again');
+//                                 state = 0;
+//                             }
+//                         }
+//                     } while (state != 2);
+//                     //head('Not implemented 0xda'); ret null;
+//                     // scan until 0xffd9
+//                 }
+//                 // 0xd9: {
+//                 //     head('Not implemented'); ret null;
+
+//                 // }
+//                 default: {
+//                     console.error('Unknown tag 0x{0:x2}' :: tag);
+//                     state = -5;
+//                     break;
+//                 }
+//             }
+            
+//         } else {
+//             console.error('Unknown tag prefix 0x{0:x2}' :: tagPrefix);
+//                 state = -1;
+//                 break;
+//         }
+//     }
+
+//     if (state == 2) {
+//         len = reader.BaseStream.Position - start;
+//     }
+
+//     reader.BaseStream.Position = start;
+//     { start, len, buffer: reader.ReadBytes(len) } |> serialize @io.txt('f:/temp/jpg.alx');
+//     //reader.dir();
+// };
+// using (var reader = new BinaryReader(jpg | io.open.share)) {
+//     carveJpgAtPosition(reader);
+// }

@@ -7,7 +7,7 @@ var t = tokenizeCmd();
 getScriptArgs();
 var country = getBody();
 
-stdIn.lines(@{
+var resolveGpsCoords = @{
     var parts = $_.Trim().Split(' :,');
 
     if (parts.Length != 2) {
@@ -28,7 +28,7 @@ stdIn.lines(@{
         ret null;
     }
 
-    var res = cityInfo.closest(lat, lng);
+    var res = cityInfo.closestCore(lat, lng, 'US');
 
     {
         city: res.details.Name,
@@ -39,8 +39,15 @@ stdIn.lines(@{
         distance: res.distance
     }
     |> serialize
+    @() $_ ~: '[\r\n]'
     |> console.code;    
-});
+};
+
+if (stdIn.any) {
+    stdIn.lines(resolveGpsCoords);
+} else {
+    cachedScriptArgs->@.Value |> concat |> resolveGpsCoords;
+}
 
 ret null;
 

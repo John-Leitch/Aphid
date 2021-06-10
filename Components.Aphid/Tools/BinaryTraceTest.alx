@@ -4,7 +4,7 @@ var forceCache = DateTime.Now.Ticks;
 var forceCache2 = Thread.Sleep;
 
 var sleep10ms = @{
-    Thread.Sleep(10);
+    forceCache2(10);
 };
 
 var nop = @{ };
@@ -38,3 +38,6 @@ inclusive1000ticks();
 rep(5);
 rep2();
 all();
+for (var i = 0; i < 10; i++) {
+    sleep10ms();
+}

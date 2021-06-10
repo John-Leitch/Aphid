@@ -32,6 +32,7 @@ var cleanup = @{};
     bool treatAsCode: '-c',
     bool compileAsm: '-asm',
     bool compileLLex: '-llex',
+    bool useFastLocks: '-fastlock',
     bool previewReplacements: '-pr',
     int fastExcerptSize: '-fe',
     string profile: '-profile',
@@ -49,9 +50,10 @@ _da(excerptLines, 3);
 _da(verbosity, 2);
 _da(dumpOut, false);
 _da(hashValues, false);
+_da(useFastLocks, false);
 _da(profile, 'Default');
 _da(threads, Environment.ProcessorCount / 2 @Math.Min(1));
-_da(decoderNames, 'iso-8859-1');
+_da(decoderNames, 'windows-1252');
 
 if (searchIndex != null && io.not.file(searchIndex)) { 
     console.error('Search index not found.');
@@ -126,11 +128,8 @@ _t = macro(@(v, f, m) {
 });
 
 _i = macro(@(v, m) { _t(v, info, m) });
-
+_s = macro(@(v, m) { _t(v, success, m) });
 _i(2, 'Initializing');
-// if (verbosity >= 2) {
-//     console.info('Initializing');
-// }
 
 var decoders;
 
@@ -144,7 +143,7 @@ try {
     exit(0xbad88);
 }
 
-_i(5, 'Done loading decoders');
+_s(5, 'Done loading decoders');
 
 if ((replace || write || previewReplacements || out != null) && (decoders#!) != 1) {
     console.error('Cannot perform text replacement when more than one decoder is specified');
@@ -164,19 +163,19 @@ var execEvaluator = useEvaluator ?
         |> parseFunc :
     @{};
 
-_i(5, 'Done parsing evaluator');
+_s(5, 'Done parsing evaluator');
 
 var pattern = remaining[0];
-
 this.'$script' @io.sibling('lycomorphaprofiles') aphid.Loader.SearchPaths.Add;
 aphid.Loader.LoadScript('profile', false);
 
 _i(5, 'Loading profile');
+
 if (profile != null) {    
     aphid.Loader.LoadScript(profile, false);
 }
 
-_i(5, 'Done loading profile');
+_s(5, 'Done loading profile');
 
 if (mapped.excerptLines && fastExcerptSize != null) {
     fastExcerptSize = null;
@@ -188,7 +187,7 @@ var styleEscape = Cli.StyleEscape;
 if (Console.IsInputRedirected) {
     _i(5, 'Reading stdin');
     var t = console.stdIn.txt();
-    _i(5, 'Done reading stdin');
+    _s(5, 'Done reading stdin');
     t @searchFileText('CONIN$', new BinaryReader(Console.OpenStandardInput()), Console.InputEncoding);
 }
 
@@ -226,10 +225,13 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchI
     }
 
     if (maxSize != null) {
+        
         files = files-?(@() io.len($_) <= maxSize) ?> true;
     }
 
-    files = files->io.full |> toArray;
+    // files = files->io.full-?@!=null |> toArray;
+    files = files |> toArray;
+
 
     var t = files.Length;
 
@@ -242,7 +244,7 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchI
 
         var i = -1;
         var titleFmt = '({0:n2}%) {1} - re' + Environment.NewLine;
-        setTitle = macro(@{ lock Console.Out Console.Title = titleFmt :: [ ++i / t.double() * 100, f ]; });
+        setTitle = macro(@{ lock Console.Out Console.Title = titleFmt :: [ ++i / t * 100, f ]; });
         'Initializing...' @(f) setTitle();
 
         try {

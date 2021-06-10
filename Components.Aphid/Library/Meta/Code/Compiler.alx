@@ -664,13 +664,19 @@ var csharp;
 
         roslyn: {
             packages: {
-                compiler: { name: 'Microsoft.Net.Compilers.Toolset', version: '3.8.0-2.final' },
-                codeDom: { name: 'Microsoft.CodeDom.Providers.DotNetCompilerPlatform', version: '2.0.1' },
+                compiler: { name: 'Microsoft.Net.Compilers.Toolset', version: '3.9.0' },
+                codeDom: { name: 'Microsoft.CodeDom.Providers.DotNetCompilerPlatform', version: '3.6.0' },
             },
-            getPackageDir: @(p) 'packages' | io.app.path @io.first.dir('{0}.{1}' :: p.Values), 
+            getPackageRoot: @() 'packages' | io.app.path,
+            getPackageDir: @(p) getPackageRoot() @io.first.dir('{0}.{1}' :: p.Values), 
             getCsc: @() packages.compiler | getPackageDir @io.first.file('csc.exe'),
             verify: @{
                 printQuery('Verifying Roslyn installation');
+
+                if (getPackageRoot() | io.no.dir) {
+                    ret false;
+                }
+
                 var missing = packages.Values -? getPackageDir @> io.no.dir;
 
                 if ((missing#!) > 0) {
@@ -680,7 +686,7 @@ var csharp;
 
                 printSuccess('Packages found');
 
-                var csc = getCsc();
+                var csc = ?| getCsc;
 
                 if (csc == null || csc | io.not.file) {
                     packages.compiler 
@@ -719,16 +725,43 @@ var csharp;
 
                 if (domAsm == null) {
                     throw new InvalidOperationException('Could not find {0} assembly' :: n);
+                } else {
+                    domAsm @console.success('Successfully loaded assembly: ~Cyan~{0}~R~');
                 }
                 
                 // nuget.reference(p.name, p.version);
                 printInfo('Looking for CSharpCodeProvider');
-                var t = domAsm.GetType('{0}.CSharpCodeProvider' :: n);
+                var tn = '{0}.CSharpCodeProvider' :: n;
+                var t = domAsm.GetType(tn);
+                
+                if (t == null) {
+                    throw new InvalidOperationException('Could not load type "{0}" from assembly "{1}"' :: [ tn, p ]);
+                } else {
+                    console.success('Loaded code provider type');
+                }
+
+
+                //repl.run();
+
                 csharp.provider = new t();
-                var getField = @(p, o) o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance) ~| p;
-                var f = csharp.provider @getField('_compilerSettings');        
+                var getField = @(p, o) {
+                    var fields = o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+                    
+                    var fieldMatches = fields -?@() $_ ~= p;
+                    
+                     if (fieldMatches | any) {
+                         ret fieldMatches | first;
+                     } else {
+                         throw new InvalidOperationException(
+                            'Could not find private field that ended with "{0}", fields found:\r\n{1}' :: [
+                                p,
+                                fields->@format('    {0}\r\n') |> concat
+                            ]);
+                     }
+                };
+                var f = csharp.provider @getField('_providerOptions');        
                 var settings = f.GetValue(csharp.provider);
-                var f3 = settings @getField('_compilerServerTimeToLive');
+                var f3 = settings @getField('compilerServerTimeToLive');
                 f3.SetValue(settings, 100000.int());
                 env.set('VBCSCOMPILER_TTL', 100000.ToString());
 
@@ -736,7 +769,7 @@ var csharp;
                     settingsCallback(settings);
                 }
 
-                var f2 = settings @getField('_compilerFullPath');
+                var f2 = settings @getField('compilerFullPath');
                 var oldPath = f2.GetValue(settings);
                 var csc = getCsc();
 

@@ -5,6 +5,7 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
 @{
     #'system/nuget';
     nuget.reference('System.Data.SQLite.Core');
+    //load "f:\\source\\sqlite\\bin\\2017\\x64\\ReleaseStatic\\System.Data.SQLite.dll";
     using System.Data.SQLite;
     var encoding = Encoding.GetEncoding("iso-8859-1");
 
@@ -62,6 +63,15 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                                 o[n] = v | getString;
                                 o[n + '__hex'] = v | hex;                                
                                 o[n + '__unicode'] = v | Encoding.Unicode.GetString;
+
+                                if (PList != null && o[n].StartsWith('bplist')) {
+                                    console.info('PList decoding enabled');
+                                    using (var s = new MemoryStream(v)) {
+                                        o[n + '__plist'] = s | PList.Load | fixObj
+                                    }
+                                } else {
+                                    console.error('PList decoding not enabled');
+                                }
                             }
                             
                             if ((vt == int || vt == long || vt == float || vt == double) && o[n] >= 500000000) {
@@ -95,13 +105,18 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
             var res = s | query;
 
             if (res.error defined) {
+                //console.error('Failed, trying with Cocoa workaround'); 
                 console.error('Failed, trying with ticks workaround'); 
                 var backup = dateTimeFormat;
                 connection.Close();
                 dateTimeFormat = 'Ticks';
-                connection.Open();
+                // dateTimeFormat = 'Cocoa';
+                open(db);
+                console.info('Running query');
                 res = s | query;
+                console.info('Fixing query');
                 
+                /*
                 var fixTicks = @(m)
                     m.Keys
                     -?(@()m[$_].GetType() == DateTime)
@@ -111,10 +126,11 @@ var fromEpoch = @(x) x | DateTimeOffset.FromUnixTimeSeconds @() $_.ToLocalTime()
                 if (!(res.error defined)) {
                     res->fixTicks;
                 }
+                */
 
                 connection.Close();
                 dateTimeFormat = backup;
-                connection.Open();
+                open(db);
             }
 
             ret res;

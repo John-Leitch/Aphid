@@ -4,6 +4,14 @@ AphidConfig.Current.ShowErrorScope = false;
 AphidConfig.Current.StackTraceParams = true;
 AphidConfig.Current.ExceptionHandlingClrStack = true;
 
+var fileLockTable = new LockTable[string]();
+
+var lockFile = @(action, file) {
+    ret action();
+    // lock (fileLockTable.get_Item(file)) {
+    //     ret action();
+    // }
+};
 
 var lazyRegex = new Lazy[AphidObject](@()
     compileAsm ? buildRegexAsm(pattern, reOptions) :
@@ -23,7 +31,7 @@ var getAsmName = @(pattern)
 
 
 var getBuildRegexScript = @() this.'$script' | io.up @io.end('Commands') @io.end('buildregex.alx');
-var getAphidExe = @() Assembly.GetEntryAssembly().Location;
+var getAphidExe = @() ((var loc = Assembly.GetEntryAssembly().Location).ToLower() |> io.name @io.ext(null)) != 're' ? loc : (loc | io.up @io.sibling('aphid64.exe'));
 
 var runRegexBuild = @(asm, useLLex) {
     var tmpFile = Path.GetTempFileName();
@@ -54,9 +62,9 @@ var runRegexBuild = @(asm, useLLex) {
         exit(0xbad81);
     }
 
-    #'meta/code/nativeImage';
-    nativeImage.verbose = verbosity > 4;
-    asm | nativeImage.compile;    
+    // #'meta/code/nativeImage';
+    // nativeImage.verbose = verbosity > 4;
+    // asm | nativeImage.compile;    
     var a = load asm;    
     
     ret a;
@@ -185,7 +193,6 @@ var searchFile = @(file, textEncoding) {
         }
 
         var f = writeFormat != null ? writeFormat :: file : file;
-        
         updated @io.txt(f);
     }
 };
@@ -201,13 +208,19 @@ var initTheme = @{
         highlight: { fg: SystemColor.Highlight, bg: SystemColor.Highlight | color.invert },
     };
 
+    highlightColor = color.pair(theme.highlight.fg, theme.highlight.bg);
+    excerptColor = color.pair(theme.excerpt.fg, theme.excerpt.bg);
+
     if (treatAsCode) {
         theme.excerpt.bg = [0x10.byte(),0x10.byte(),0x10.byte()];
-        theme.excerpt.bg = '0040a0' | unhex;
+        theme.excerpt.bg = '000047' | unhex;
+        //highlightColor = color.pair(theme.highlight.fg, theme.highlight.bg);
+        // highlightColor = color.bg(theme.highlight.bg);
+        // excerptColor = color.bg(theme.excerpt.bg);
     }
 
-    excerptColor = color.pair(theme.excerpt.fg, theme.excerpt.bg);
-    highlightColor = color.pair(theme.highlight.fg, theme.highlight.bg);
+    //excerptColor = color.pair(theme.excerpt.fg, theme.excerpt.bg);
+    //highlightColor = color.pair(theme.highlight.fg, theme.highlight.bg);
 };
 
 // theme.darken.Keys
@@ -220,13 +233,20 @@ var searchFileText = @(file, reader, encoding, text) {
     }
 
     var matches = lazyRegex.Value.Matches(text);
-    var c = matches#!;
+    var c = matches.Count;
 
     if (c == 0) {
         ret null;
     }
     
-    lock Console.Out ret handleMatches(file, reader, encoding, text, matches, c);
+    if (useFastLocks) {
+        lock (fileLockTable.get_Item(file)) { ret handleMatches(file, reader, encoding, text, matches, c); }
+        //lock Console.Out ret handleMatches(file, reader, encoding, text, matches, c);
+        
+        //ret file @lockFile(@() handleMatches(file, reader, encoding, text, matches, c));
+    } else {
+        lock Console.Out ret handleMatches(file, reader, encoding, text, matches, c);
+    }
 };
 
 _runEvaluator = macro(@{
@@ -361,11 +381,22 @@ var handleMatches = @(file, reader, encoding, text, matches, c) {
     }
 };
 
+var startMarker = '\tSTART' + DateTime.Now.Ticks.ToString() + 'I' + Guid.NewGuid().ToString('N') + 'TRATS\t';
+var endMarker = '\tEND' + DateTime.Now.Ticks.ToString() + 'I' + Guid.NewGuid().ToString('N') + 'DNE\t';
+// var startMarker = '\tSTARTTRATS\t';
+// var endMarker = '\tENDDNE\t';
+var ctlRegex = '(\\x1b\\[[\\x30-\\x3f]*?[\\x20-\\x2f]*[\\x40-\\x7e])*?';
+//ctlRegex = '([^\t]*?)';
+var startRe = new Regex('\\t' + ctlRegex + startMarker.Trim() + ctlRegex + '\\t', RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+var endRe = new Regex('\\t' + ctlRegex + endMarker.Trim() + ctlRegex + '\\t', RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
+var ctlPref = new Regex('(\\x1b\\[38[\\x20-\\x2f]*[\\x40-\\x7e])', RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
 var printMatchGroup = @(displayText, g, i2, matchNum) {
     var pos = TokenHelper.GetIndexPosition(displayText, g.Index);
     _pi = macro(@(n) { (pos != null ? pos.n + 1 : 'Error calculating position') });
     var newLen;
-
+    var startMarkerOffset = 0;
     console.line('{0}\r\n{1}', 
         ($(i2) 0: 'Match {0}', '{1}Capture Group {2}') +
         ': Line {3:n0}, Column {4:n0}, Index {5:n0}, Length {6:n0}' :: [
@@ -386,30 +417,80 @@ var printMatchGroup = @(displayText, g, i2, matchNum) {
             VT100.Reset)),
         i2++ == 0 && excerptLines > -1 ?
             (fastExcerptSize == null ?
-                TokenHelper
-                    .GetCodeExcerpt(
-                        treatAsCode ?
-                            [
-                                (g.Index
-                                |> displayText.Remove
-                                |> console.highlight),
-                                highlightColor,
-                                displayText.Substring(g.Index, g.Length),
-                                excerptColor,
-                                (g.Index + g.Length
-                                |> displayText.Substring
-                                |> console.highlight)
-                            ]
-                            |> concat
-                            : displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
+                (treatAsCode ?
+                    TokenHelper.GetCodeExcerpt(
+                        displayText
+                        @(ss){
+                            // var startMarker = ' START' + DateTime.Now.Ticks.ToString() + 'I' + g.Index + 'L' + Guid.NewGuid().ToString('N') + 'TRATS ';
+                            // var endMarker = ' END' + DateTime.Now.Ticks.ToString() + 'I' + g.Index + 'L' + Guid.NewGuid().ToString('N') + 'DNE ';
+                            var ssTmp = ss
+                                .Insert(g.Index + g.Length, endMarker)
+                                .Insert(g.Index, startMarker)
+                                |> console.highlight;
+
+                            startMarkerOffset = ssTmp.IndexOf(startMarker.Trim());
+
+                            if (startMarkerOffset < 0) {
+                                dumpe({startMarkerOffset, startMarker:startMarker  |> console.highlight, endMarker:endMarker  |> console.highlight});
+                            }
+
+            
+            //var ssTmp2 = ssTmp.Remove(0, startMarkerOffset);
+            
+            
+            var prefStyle = '';
+            // var markerTabIndex = ssTmp.IndexOf('\t', startMarkerOffset);
+            // var isFirstPostTab = 0;
+            // if (markerTabIndex >= 1) {
+            //     ctlPref.Matches(ssTmp) for {
+            //         if ($_.Index > markerTabIndex) {
+            //             head('foo');
+            //             if (++isFirstPostTab > 1) {
+            //                 prefStyle = $_.Value;
+                            
+            //                 break;
+            //             }
+            //         }
+            //     };
+            // }
+
+                            ret ssTmp
+                                @() startRe.Replace(endRe.Replace($_, excerptColor + (prefStyle)), highlightColor)
+                                //~: [ '\\s(\\x1b\\[[\\x30-\\x3f]*[\\x20-\\x2f]*[\\x40-\\x7e])*' + endMarker.Trim() + '(\\x1b\\[[\\x30-\\x3f]*[\\x20-\\x2f]*[\\x40-\\x7e])*\\s', excerptColor]
+                                 //~: [ '\\s.*?' + startMarker.Trim() + '.*?\\s' + '(\\x1b\\[0m)*', highlightColor]
+                                 
+                                ;
+                            
+                        },                        
+                    startMarkerOffset + highlightColor.Length,
+                    excerptLines) :
+                    TokenHelper.GetCodeExcerpt(
+                        displayText.Insert(g.Index + g.Length, excerptColor).Insert(g.Index, highlightColor),
                         g.Index + highlightColor.Length,
-                        excerptLines) :
-                displayText
+                        excerptLines)) :
+                (displayText
                     .Substring(
                         var actualOffset = Math.Max(0, g.Index - fastExcerptSize / 2),
                         Math.Min(displayText.Length - actualOffset, g.Length + fastExcerptSize))
-                    .Insert(g.Index - actualOffset + g.Length, excerptColor)
-                    .Insert(g.Index - actualOffset, highlightColor))
+                    @(ss){
+                        if (!treatAsCode) {
+                            ret ss
+                                .Insert(g.Index - actualOffset + g.Length, excerptColor)
+                                .Insert(g.Index - actualOffset, highlightColor)
+                        } else {
+                            
+                            ret ss
+                                .Insert(g.Index - actualOffset + g.Length, endMarker)
+                                .Insert(g.Index - actualOffset, startMarker)
+                                |> console.highlight
+                                @()
+                                startRe.Replace(endRe.Replace($_, excerptColor), highlightColor)
+                                // ~: [ startMarker + '(\\x1b\\[0m)*', highlightColor]
+                                // ~: [ endMarker, excerptColor]
+                                ;
+                        }
+                    }))
+                    
                 .TrimEnd()
                 .Split(['\r\n', '\n'],  StringSplitOptions.None)
                 ->(@(l) '{0}{1}{0}{2}{3}' :: [
