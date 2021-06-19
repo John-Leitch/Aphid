@@ -1,0 +1,31 @@
+var serialPorts;
+
+@{
+    _q = macro(@{ serialPorts.'$wmi' });
+    _a = macro(@{ (_q() = wmi) });
+
+    serialPorts = {
+        '$wmi': null,
+        '$getQuery': @{            
+            if (_q() == null) {                
+                if (wmi.query defined) {
+                    _a();
+                } else {
+                    #'system/wmi';
+                    _a();
+                }
+            }
+
+            ret _q().query;
+        },
+        getDevices: @()
+            @{
+                SELECT *
+                FROM Win32_PnPEntity
+                WHERE ClassGuid="{4d36e978-e325-11ce-bfc1-08002be10318}"
+            }
+            | serialPorts.'$getQuery'(),
+        fromDevice: @(pattern) getDevices()-?(@()$_.Name ~= pattern)-<(@() $_.Name ~~ 'COM\\d+' ),
+        
+    };
+}();
