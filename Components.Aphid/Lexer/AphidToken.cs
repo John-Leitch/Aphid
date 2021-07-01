@@ -7,7 +7,7 @@ namespace Components.Aphid.Lexer
         public static readonly AphidToken None = GetNone(-1);
 
         public static AphidToken GetNone(int index) =>
-            new AphidToken(AphidTokenType.None, null, index);
+            new(AphidTokenType.None, null, index);
 
         public override bool Equals(object obj) => !(obj is AphidToken token)
                 ? false

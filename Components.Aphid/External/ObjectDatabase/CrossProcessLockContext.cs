@@ -8,7 +8,7 @@ namespace Components
     {
         public const string DefaultLockName = "Global";
 
-        private readonly Dictionary<string, CrossProcessLock> _locks = new Dictionary<string, CrossProcessLock>();
+        private readonly Dictionary<string, CrossProcessLock> _locks = new();
 
         public void AcquireLock() => AcquireLock(DefaultLockName);
 
@@ -52,7 +52,7 @@ namespace Components
         public static CrossProcessLock CreateLock(string key) => CreateLock(key, false);
 
         public static CrossProcessLock CreateLock(string key, bool initialState) =>
-            new CrossProcessLock(
+            new(
                 "SnowFlea_" + key.Replace(Path.DirectorySeparatorChar, '$'),
                 initialState);
 

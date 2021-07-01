@@ -24,7 +24,7 @@ namespace Components
         private static List<string> _partialNames = new List<string>();
 #endif
 
-        private static readonly ArgLockingMemoizer<string, EventWaitHandle> _handleMemoizer = new ArgLockingMemoizer<string, EventWaitHandle>();
+        private static readonly ArgLockingMemoizer<string, EventWaitHandle> _handleMemoizer = new();
 
         public EventWaitHandle Handle { get; }
 
@@ -86,7 +86,7 @@ namespace Components
 #endif
             bool isHandleNew = false;
 
-            EventWaitHandle createHandle(string innerName) => new EventWaitHandle(
+            EventWaitHandle createHandle(string innerName) => new(
                 initialState,
                 EventResetMode.AutoReset,
                 innerName,

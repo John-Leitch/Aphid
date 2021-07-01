@@ -24,7 +24,7 @@ namespace Components.Aphid.Compiler
 
         private Lazy<ModuleBuilder> _moduleBuilder;
 
-        private readonly HashSet<string> _types = new HashSet<string>();
+        private readonly HashSet<string> _types = new();
 
         private readonly ReaderWriterLockSlim _importsLock;
 
@@ -244,13 +244,12 @@ namespace Components.Aphid.Compiler
         {
             var resolver = Interpreter.InteropTypeResolver;
             var path = new[] { name };
-            Type type;
-
+            
             //_importsLock.EnterReadLock();
 
             //try
             //{
-            type = resolver.TryResolveType(
+            Type type = resolver.TryResolveType(
                 Interpreter.GetImports(),
                 _importsLock,
                 path,

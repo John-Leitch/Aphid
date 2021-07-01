@@ -8,7 +8,7 @@ namespace Components.Aphid.Library.Net
     [AphidLibrary("tcp")]
     public static class TcpLibrary
     {
-        private static readonly Dictionary<NetworkStream, TcpClient> _clients = new Dictionary<NetworkStream, TcpClient>();
+        private static readonly Dictionary<NetworkStream, TcpClient> _clients = new();
 
         [AphidInteropFunction("__tcp.connect")]
         public static NetworkStream TcpConnect(string host, decimal port)

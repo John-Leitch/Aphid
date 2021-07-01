@@ -4,7 +4,7 @@ namespace Components.Aphid.Parser
 {
     public class AphidMacroMutator : AphidMutator
     {
-        private readonly Dictionary<string, AphidMacro> _macros = new Dictionary<string, AphidMacro>();
+        private readonly Dictionary<string, AphidMacro> _macros = new();
 
         protected override List<AphidExpression> OnMutate(List<AphidExpression> ast)
         {
@@ -89,6 +89,6 @@ namespace Components.Aphid.Parser
         }
 
         protected virtual AphidMacroBodyMutator CreateBodyMutator(
-            Dictionary<string, AphidExpression> argTable) => new AphidMacroBodyMutator(argTable);
+            Dictionary<string, AphidExpression> argTable) => new(argTable);
     }
 }

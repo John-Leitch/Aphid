@@ -38,9 +38,9 @@ namespace Components.ObjectDatabase
 
         private bool _isCommitted;
 
-        private readonly Dictionary<long, ObjectDatabaseRecord<TElement>> _entityOffsetTable = new Dictionary<long, ObjectDatabaseRecord<TElement>>();
+        private readonly Dictionary<long, ObjectDatabaseRecord<TElement>> _entityOffsetTable = new();
 
-        private readonly Dictionary<TElement, ObjectDatabaseRecord<TElement>> _recordTable = new Dictionary<TElement, ObjectDatabaseRecord<TElement>>(new ReferenceEqualityComparer<TElement>());
+        private readonly Dictionary<TElement, ObjectDatabaseRecord<TElement>> _recordTable = new(new ReferenceEqualityComparer<TElement>());
 
         public bool UseUnsafeMemoryManager { get; }
 
@@ -128,7 +128,7 @@ namespace Components.ObjectDatabase
         }
 
         private FileStream CreateMemoryManagerStream() =>
-            new FileStream(
+            new(
                 MemoryManagerFilename,
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
@@ -273,14 +273,7 @@ namespace Components.ObjectDatabase
                 {
                     var record = new ObjectDatabaseRecord<TElement>(element, offset, this);
 
-                    if (!_recordTable.ContainsKey(element))
-                    {
-                        _recordTable.Add(element, record);
-                    }
-                    else
-                    {
-                        _recordTable[element] = record;
-                    }
+                    _recordTable[element] = record;
                 }
             }
 

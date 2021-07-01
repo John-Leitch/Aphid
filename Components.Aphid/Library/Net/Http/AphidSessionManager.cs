@@ -10,9 +10,9 @@ namespace Components.Aphid.Library.Net.Http
     public class AphidSessionManager
     {
         private readonly Dictionary<string, AphidObject> _sessions =
-            new Dictionary<string, AphidObject>();
+            new();
 
-        private readonly RNGCryptoServiceProvider _rng = new RNGCryptoServiceProvider();
+        private readonly RNGCryptoServiceProvider _rng = new();
 
         public const string CookieName = "AphidSession";
 
@@ -31,7 +31,7 @@ namespace Components.Aphid.Library.Net.Http
         }
 
         public Cookie CreateCookie() =>
-            new Cookie(CookieName, NextSessionId()) { Expires = DateTime.Now.AddMinutes(60) };
+            new(CookieName, NextSessionId()) { Expires = DateTime.Now.AddMinutes(60) };
 
         public static Cookie GetCookie(HttpListenerContext context) =>
             context.Request.Cookies[CookieName];

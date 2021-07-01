@@ -155,8 +155,8 @@ namespace Components.Aphid.Interpreter
         //[ThreadStatic]        
 
         private static readonly Dictionary<Type, Dictionary<string, MemberInfo[]>>
-            _instanceMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>(),
-            _staticMemberNameCache = new Dictionary<Type, Dictionary<string, MemberInfo[]>>();
+            _instanceMemberNameCache = new(),
+            _staticMemberNameCache = new();
 
         private static readonly FieldInfo _frameArray = typeof(Stack<AphidFrame>)
             .GetField("_array", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -169,7 +169,7 @@ namespace Components.Aphid.Interpreter
 
         private readonly Stack<AphidFrame> _frames;
 
-        private readonly ReaderWriterLockSlim _importsLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _importsLock = new();
 
         #endregion
 
@@ -986,6 +986,7 @@ namespace Components.Aphid.Interpreter
             }
         }
 
+        //Todo: add variations that eliminate params usage by having hardcoded arg counts.
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunction(AphidFunction function, params object[] parms) =>
             CallFunctionWithScope(function, null, parms);
@@ -993,7 +994,14 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunctionWithScope(AphidFunction function, AphidObject scope, params object[] parms)
         {
-            var parmsWrapped = parms.Select(Wrap).ToArray();
+            var parmsWrapped = new AphidObject[parms.Length];
+
+            for (var i = 0; i < parms.Length; i++)
+            {
+                parmsWrapped[i] = Wrap(parms[i]);
+            }
+
+            //var parmsWrapped = parms.Select(Wrap).ToArray();
 
             //PushFrame(CurrentExpression, CurrentExpression, parms);
 
@@ -1711,7 +1719,7 @@ namespace Components.Aphid.Interpreter
         private string GetEntryName() => Format("[Entrypoint (Thread 0x{0:X})]", OwnerThread);
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AphidFrame CreateNameFrame(string name) => new AphidFrame(
+        private AphidFrame CreateNameFrame(string name) => new(
             this,
             CurrentScope,
             CurrentExpression,
@@ -3287,7 +3295,7 @@ namespace Components.Aphid.Interpreter
 
             if (indexExpressions.Count == 0)
             {
-                return new AphidObject[0];
+                return Array.Empty<AphidObject>();
             }
 
             var indexes = new AphidObject[indexExpressions.Count];
@@ -6258,7 +6266,7 @@ namespace Components.Aphid.Interpreter
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidRuntimeException CreateRuntimeException(string message, params object[] args) =>
-            new AphidRuntimeException(
+            new(
                 this,
                 CurrentScope,
                 CurrentStatement,

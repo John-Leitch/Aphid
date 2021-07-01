@@ -57,7 +57,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     return (TResult)(object)result;
                 }
-                else if (typeof(TResult).GetConstructor(new Type[0]).IsPublic)
+                else if (typeof(TResult).GetConstructor(Array.Empty<Type>()).IsPublic)
                 {
                     var obj = Activator.CreateInstance<TResult>();
                     result.Bind(obj, true);

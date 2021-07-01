@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Choose>
     <When Condition="$(Configuration.EndsWith('32'))">
@@ -67,7 +67,7 @@
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <OutputPath>bin\Release$(Bitness)\</OutputPath>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>

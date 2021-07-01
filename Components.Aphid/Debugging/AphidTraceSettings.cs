@@ -6,7 +6,7 @@ namespace Components.Aphid.Debugging
     {
         public const string DefaultTimestampFormat = "[MM-dd-yy.HH:mm:ss]";
 
-        private static AphidTraceSettings _default = new AphidTraceSettings
+        private static AphidTraceSettings _default = new()
         {
             TraceTimestamp = true,
             TimestampFormat = DefaultTimestampFormat,

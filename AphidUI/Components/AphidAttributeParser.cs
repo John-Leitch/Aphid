@@ -9,7 +9,7 @@ namespace Components.Aphid.Wpf
     {
         private static readonly AphidTokenType _tickType = AphidLexer.GetTokenType("`");
 
-        private static readonly Memoizer<string, AphidExpression> _memoizer = new Memoizer<string, AphidExpression>();        
+        private static readonly Memoizer<string, AphidExpression> _memoizer = new();        
 
         public static AphidExpression Parse(string expression) => _memoizer.Call(ParseCore, expression);
 

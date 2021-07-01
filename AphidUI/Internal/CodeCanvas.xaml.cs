@@ -29,7 +29,7 @@ namespace AphidUI.Internal
 
         private GlyphTypeface glyphFace;
 
-        private List<List<TextCell>> _document = new List<List<TextCell>> { new List<TextCell>() };
+        private List<List<TextCell>> _document = new() { new List<TextCell>() };
 
         private int _currentRow = 0, _currentColumn = 0;
 

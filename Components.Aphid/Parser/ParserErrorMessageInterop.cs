@@ -159,7 +159,7 @@ namespace Components.Aphid.Parser {
                     //private static readonly List<AphidExpression> _empty = new List<AphidExpression>();                    
 
                     private static System.Lazy<List<AphidExpression>> ByteCode_c30ca71051b15c3d6b7fe56936b22b37Lazy =>
-                        new System.Lazy<List<AphidExpression>>(() =>
+                        new(() =>
                             new List<AphidExpression>
 {
     new UnaryOperatorExpression(
@@ -1498,7 +1498,7 @@ namespace Components.Aphid.Parser {
                     
 
                     
-                        private static readonly NullExpression _NullExpression = new NullExpression();
+                        private static readonly NullExpression _NullExpression = new();
                     
                     
                 

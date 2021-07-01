@@ -16,7 +16,7 @@ namespace Components.Aphid.Debugging
 {
     public static class AphidErrorReporter
     {
-        private static readonly object _sync = new object();
+        private static readonly object _sync = new();
 
         private static bool _isEnabledSet;
 

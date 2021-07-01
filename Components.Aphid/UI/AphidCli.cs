@@ -25,7 +25,7 @@ namespace Components.Aphid.UI
 
         public const string StackTraceHead = "Stack Trace";
 
-        private static readonly object _redirectSync = new object();
+        private static readonly object _redirectSync = new();
 
         public static Action<string> WriteOut { get; set; } = Write;
 

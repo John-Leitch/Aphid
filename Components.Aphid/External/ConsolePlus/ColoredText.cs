@@ -34,7 +34,7 @@ namespace Components.External.ConsolePlus
             Text = text;
         }
 
-        public ColoredText Clone() => new ColoredText(
+        public ColoredText Clone() => new(
                 ForegroundRgb != null ? (byte[])ForegroundRgb.Clone() : null,
                 BackgroundRgb != null ? (byte[])BackgroundRgb.Clone() : null,
                 Text);

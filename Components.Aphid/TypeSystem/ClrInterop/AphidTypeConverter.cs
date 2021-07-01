@@ -57,7 +57,7 @@ namespace Components.Aphid.TypeSystem
                 return new AphidConversionInfo(
                     interopArg,
                     !target.IsPrimitive && !target.IsEnum,
-                    new Type[0]);
+                    Array.Empty<Type>());
             }
             else if ((valType = val.GetType()) == typeof(AphidFunction) &&
                 target.IsDerivedFrom(typeof(Delegate)))

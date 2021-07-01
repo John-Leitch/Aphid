@@ -13,8 +13,7 @@ namespace Boxelder
 {
     public class AphidPythonEmitter : AphidStringEmitter
     {
-        private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>
-        {
+        private Dictionary<AphidTokenType, string> _unaryPrefixOperators = new Dictionary<AphidTokenType, string>        {
             { AphidTokenType.retKeyword, "return " },
             { AphidTokenType.NotOperator, "not " },
             { AphidTokenType.throwKeyword, "raise " },

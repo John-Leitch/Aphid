@@ -41,7 +41,7 @@ namespace Components.Aphid.Compiler
             AphidErrorReporter.Init();
         }
 
-        private readonly Memoizer<string, string[]> _inputFileMemoizer = new Memoizer<string, string[]>();
+        private readonly Memoizer<string, string[]> _inputFileMemoizer = new();
 
         private void WriteHeader()
         {

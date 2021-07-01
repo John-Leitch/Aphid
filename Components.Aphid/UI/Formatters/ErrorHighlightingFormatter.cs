@@ -16,9 +16,9 @@ namespace Components.Aphid.UI.Formatters
     public static class ErrorHighlightingFormatter
     {
         private static readonly RE
-            _stackTraceRegex = new RE($@"^(\[.\]\s+)?{StackTraceHead}", Compiled),
-            _stackTraceEndRegex = new RE(@"^\[[a-fA-F0-9]{2}\]\s+\[Entrypoint\s+\(Thread", Compiled),
-            _varRegex = new RE(@"^\[[a-fA-F0-9]{2,4}\]", Compiled);
+            _stackTraceRegex = new($@"^(\[.\]\s+)?{StackTraceHead}", Compiled),
+            _stackTraceEndRegex = new(@"^\[[a-fA-F0-9]{2}\]\s+\[Entrypoint\s+\(Thread", Compiled),
+            _varRegex = new(@"^\[[a-fA-F0-9]{2,4}\]", Compiled);
 
         public static IEnumerable<ColoredText> Highlight(string text)
         {

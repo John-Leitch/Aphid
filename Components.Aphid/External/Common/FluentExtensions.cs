@@ -137,13 +137,13 @@ namespace Components
             this TInput input,
             bool condition,
             Func<TInput, TResult> ifResult) =>
-            new IfContext<TInput, TResult>(input, condition, ifResult);
+            new(input, condition, ifResult);
 
         public static IfContext<TInput, TResult> If<TInput, TResult>(
             this TInput input,
             Func<TInput, bool> condition,
             Func<TInput, TResult> ifResult) =>
-            new IfContext<TInput, TResult>(input, condition, ifResult);
+            new(input, condition, ifResult);
 
         public static void Using<TDisposable>(this TDisposable obj, Action action)
             where TDisposable : IDisposable

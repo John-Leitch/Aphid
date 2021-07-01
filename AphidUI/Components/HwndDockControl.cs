@@ -52,7 +52,7 @@ namespace Components.Aphid.Wpf
 
         private IntPtr _childHwnd, _parentHwnd, _originalParentHwnd;
 
-        private Int32Rect _childPos = new Int32Rect();        
+        private Int32Rect _childPos = new();        
 
         public Window ParentWindow { get; private set; }
 

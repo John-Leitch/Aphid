@@ -29,14 +29,14 @@ namespace Components.Aphid.Library.Net
 
         private readonly Encoding _encoding = Encoding.GetEncoding(1252);
 
-        private readonly AphidSessionManager _sessionManager = new AphidSessionManager();
+        private readonly AphidSessionManager _sessionManager = new();
 
         private readonly AphidObject _globals = AphidObject.Scope();
 
         //private string _config = "Config.alx";
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly Lazy<Func<string, NameValueCollection>> _parseQueryString = new Lazy<Func<string, NameValueCollection>>(() =>
+        private static readonly Lazy<Func<string, NameValueCollection>> _parseQueryString = new(() =>
             (Func<string, NameValueCollection>)Assembly
                 .LoadWithPartialName("System.Web")
                 .GetType("System.Web.HttpUtility")
@@ -364,14 +364,7 @@ namespace Components.Aphid.Library.Net
         {
             var obj = AphidObject.Scalar(interpreter);
 
-            if (session.ContainsKey(AphidName.Interpreter))
-            {
-                session[AphidName.Interpreter] = obj;
-            }
-            else
-            {
-                session.Add(AphidName.Interpreter, obj);
-            }
+            session[AphidName.Interpreter] = obj;
         }
 
         private static AphidInterpreter GetSessionInterpreter(AphidObject session) => (AphidInterpreter)session[AphidName.Interpreter].Value;
@@ -380,7 +373,7 @@ namespace Components.Aphid.Library.Net
 
         private FileInfo GetHeaderFile() => GetWebRootFile("HttpServer.alx");
 
-        private FileInfo GetWebRootFile(string name) => new FileInfo(Path.Combine(_webRoot, name));
+        private FileInfo GetWebRootFile(string name) => new(Path.Combine(_webRoot, name));
 
         private void SetupInterpreterScope(
             AphidInterpreter interpreter,

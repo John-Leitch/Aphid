@@ -6,6 +6,6 @@ namespace Components
     {
         public static SelectorComparer<TSource, TResult> Create<TSource, TResult>(
             Func<TSource, TResult> selector) =>
-            new SelectorComparer<TSource, TResult>(selector);
+            new(selector);
     }
 }

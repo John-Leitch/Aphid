@@ -33,7 +33,7 @@ namespace Mantispid
     {
         private string[] _ruleNames;
 
-        private readonly RuleTypeTable _ruleTypes = new RuleTypeTable();
+        private readonly RuleTypeTable _ruleTypes = new();
 
         private ParserGeneratorConfig _config;
 
@@ -339,7 +339,7 @@ namespace Mantispid
                 _ruleTypes.ContainsKey(typeName) ? ReferenceType.RuleClass :
                 ReferenceType.TokenType;
 
-        private CodeMemberField GenerateContextField() => new CodeMemberField(
+        private CodeMemberField GenerateContextField() => new(
                 CodeHelper.TypeRef(_config.ExpressionContextClass),
                 ParserName.ContextField)
         { Attributes = MemberAttributes.Private };
@@ -569,7 +569,7 @@ namespace Mantispid
             }
         }
 
-        private CodeStatementCollection GenerateImperativeRetStatement(UnaryOperatorExpression node) => new CodeStatementCollection(new[] { CodeHelper.Return(GenerateImperativeExpression(node.Operand)) });
+        private CodeStatementCollection GenerateImperativeRetStatement(UnaryOperatorExpression node) => new(new[] { CodeHelper.Return(GenerateImperativeExpression(node.Operand)) });
 
         private CodeStatementCollection GenerateImperativeStatement(BinaryOperatorExpression node)
         {
@@ -722,7 +722,7 @@ namespace Mantispid
         }
 
         private static CodeStatementCollection GenerateImperativeStatement(BreakExpression node) =>
-            new CodeStatementCollection(new[] { new CodeSnippetStatement("break;") });
+            new(new[] { new CodeSnippetStatement("break;") });
 
         private CodeStatementCollection GenerateImperativeStatements(List<AphidExpression> nodes)
         {

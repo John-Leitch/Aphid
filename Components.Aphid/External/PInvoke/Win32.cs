@@ -6,7 +6,7 @@ namespace Components.PInvoke
 {
     public static class Win32
     {
-        public static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+        public static readonly IntPtr INVALID_HANDLE_VALUE = new(-1);
 
         public const int
             STD_INPUT_HANDLE = -10,
@@ -15,7 +15,7 @@ namespace Components.PInvoke
 
         public static int GetLastError() => Marshal.GetLastWin32Error();
 
-        public static Win32Exception CreateWin32Exception() => new Win32Exception(GetLastError());
+        public static Win32Exception CreateWin32Exception() => new(GetLastError());
 
         public static void ThrowWin32Exception() => throw CreateWin32Exception();
 

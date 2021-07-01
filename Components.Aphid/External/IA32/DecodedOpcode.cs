@@ -12,7 +12,7 @@
 
         public OpcodeSize Size { get; set; }
 
-        public static DecodedOpcode Decode(byte opcode) => new DecodedOpcode
+        public static DecodedOpcode Decode(byte opcode) => new()
         {
             Opcode = (Opcode)opcode,
             OriginalByte = opcode,

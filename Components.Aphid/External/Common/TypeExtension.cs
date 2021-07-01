@@ -8,12 +8,12 @@ namespace Components.External
     {
         public static bool IsDerivedFrom(this Type type, Type baseType) => type.BaseType != null && type.BaseType == baseType
                 ? true
-                : type.BaseType != null ? type.BaseType.IsDerivedFrom(baseType) : false;
+                : (type.BaseType?.IsDerivedFrom(baseType)) ?? false;
 
         public static bool IsDerivedFrom<TBaseType>(this Type type) => type.IsDerivedFrom(typeof(TBaseType));
 
         private static bool ShouldDeconstructTypes(Type type) => !type.IsConstructedGenericType ||
-                type.GetGenericArguments().All(x => x.IsGenericParameter);
+                type.GetGenericArguments().Any(x => x.IsGenericParameter);
 
         private static Type[] GetComparableType(Type sourceType, Type targetType, List<Type> genericArguments)
         {
@@ -31,7 +31,11 @@ namespace Components.External
             {
                 if (genericArguments.Count > 0)
                 {
-                    throw new NotImplementedException();
+                    throw new NotImplementedException(
+                        $"Could not find type comparable to target type '{targetType}' for " +
+                        $"source type '{sourceType}' using the following generic arguments: " +
+                        $"{string.Join(", ", genericArguments.Select(x => x.ToString()))}. " +
+                        "Support for source types with no generic parameters not implemented.");
                 }
 
                 Type targetStripped = targetType.GetGenericTypeDefinition(),

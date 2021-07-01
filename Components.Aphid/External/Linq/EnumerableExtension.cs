@@ -466,7 +466,7 @@ namespace Components
             }
         }
 
-        private static readonly Random _random = new Random();
+        private static readonly Random _random = new();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Shuffle
@@ -497,14 +497,11 @@ namespace Components
                 var sourceList = source.ToList();
                 var dstList = new List<T>();
 
-                var taken = 0;
-
-                while (taken < count && sourceList.Count != 0)
+                for (var taken = 0; taken < count && sourceList.Count != 0; taken++)
                 {
                     var item = sourceList.TakeRandom();
                     sourceList.Remove(item);
                     dstList.Add(item);
-                    taken++;
                 }
                 // 
                 return dstList;

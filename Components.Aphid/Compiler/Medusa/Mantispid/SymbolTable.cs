@@ -5,7 +5,7 @@ namespace Mantispid
 {
     public class SymbolTable<TValue>
     {
-        private readonly Dictionary<string, TValue> _table = new Dictionary<string, TValue>();
+        private readonly Dictionary<string, TValue> _table = new();
 
         private readonly Func<TValue> _init;
 
@@ -31,6 +31,6 @@ namespace Mantispid
         {
         }
 
-        public SymbolTable<TValue> ToChild() => new SymbolTable<TValue>(_init, this);
+        public SymbolTable<TValue> ToChild() => new(_init, this);
     }
 }

@@ -10,7 +10,7 @@ namespace Components
 
         private readonly LockTable<TArg> _locks;
 
-        private readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _cacheLock = new();
 
         private readonly Func<TArg, TResult> _func;
 

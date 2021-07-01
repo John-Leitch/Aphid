@@ -16,7 +16,7 @@ namespace Components.Aphid.Wpf
 {
     public static class AphidExtensionTypeConverter
     {
-        private static readonly Memoizer<Type, AphidObject> _memoizer = new Memoizer<Type, AphidObject>();
+        private static readonly Memoizer<Type, AphidObject> _memoizer = new();
 
         public static object Interpret(AphidInterpreter interpreter, Type targetType)
         {

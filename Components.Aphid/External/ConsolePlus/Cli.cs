@@ -34,7 +34,7 @@ namespace Components.External.ConsolePlus
             _maxNameLength = Environment.UserInteractive ? (int)Math.Floor(((double)BufferWidth - 3) / 2) : 100,
             _maxValueLength = Environment.UserInteractive ? (int)Math.Ceiling(((double)BufferWidth - 4) / 2) : 100;
 
-        private static readonly object _syncObject = new object();
+        private static readonly object _syncObject = new();
 
 #if UNSAFE_CONSOLE
         private static object _messageSyncObject = new object();

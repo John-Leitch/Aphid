@@ -20,12 +20,12 @@ namespace Components.Cypress
         private readonly Dictionary<IntPtr, string> _breakpointModules = new Dictionary<IntPtr, string>();
         private readonly Dictionary<IntPtr, IntPtr> _breakpointBases = new Dictionary<IntPtr, IntPtr>();
 #endif
-        private readonly Dictionary<IntPtr, string> _moduleTable = new Dictionary<IntPtr, string>();
+        private readonly Dictionary<IntPtr, string> _moduleTable = new();
         private Thread _debugThread;
         private bool _killProcesses;
         private readonly Dictionary<IntPtr, ProcessMemory> _readers;
-        private readonly Dictionary<uint, bool> _loaderBreakpointTable = new Dictionary<uint, bool>();
-        private readonly Dictionary<uint, Process> _processTable = new Dictionary<uint, Process>();
+        private readonly Dictionary<uint, bool> _loaderBreakpointTable = new();
+        private readonly Dictionary<uint, Process> _processTable = new();
 
         public bool IsStarted { get; set; }
         public bool HideWindows { get; set; }

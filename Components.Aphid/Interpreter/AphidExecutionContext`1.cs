@@ -10,6 +10,6 @@
         public AphidExecutionContext(TExpression expression, bool isModified, bool isHandled)
             : base(isModified, isHandled) => Expression = expression;
 
-        public static implicit operator AphidExecutionContext<TExpression>(TExpression expression) => new AphidExecutionContext<TExpression>(expression);
+        public static implicit operator AphidExecutionContext<TExpression>(TExpression expression) => new(expression);
     }
 }

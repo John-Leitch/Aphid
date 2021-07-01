@@ -23,7 +23,7 @@ namespace Components.Aphid.Parser
                 new BinaryFormatter(null, CreateContext());
 
         private static StreamingContext CreateContext() =>
-            new StreamingContext(
+            new(
                 StreamingContextStates.Persistence,
                 new AphidByteCodeSerializationContext());
 

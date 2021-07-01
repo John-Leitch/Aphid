@@ -17,7 +17,7 @@ namespace Components.Aphid.UI.Colors
             GetColoredText(token, None);
 
         public ColoredText GetColoredText(in AphidToken token, AphidTokenType nextType) =>
-            new ColoredText(GetColor(token.TokenType, nextType), token.Lexeme);
+            new(GetColor(token.TokenType, nextType), token.Lexeme);
 
         public byte[] GetColor(AphidTokenType type) =>
             GetColor(type, None);

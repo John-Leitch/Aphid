@@ -8,7 +8,7 @@
 
         public byte Base { get; set; }
 
-        public static SibByte Decode(byte sib) => new SibByte
+        public static SibByte Decode(byte sib) => new()
         {
             Scale = (byte)(sib >> 6),
             Index = (byte)((sib >> 3) & 7),

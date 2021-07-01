@@ -8,25 +8,25 @@ namespace Components.Aphid.Compiler
     public static class CodeHelper
     {
         public static CodeVariableReferenceExpression VarRef(string name) =>
-             new CodeVariableReferenceExpression(name);
+             new(name);
 
         public static CodeVariableDeclarationStatement VarDecl(Type type, string name) =>
-             new CodeVariableDeclarationStatement(type, name);
+             new(type, name);
 
         public static CodeVariableDeclarationStatement VarDecl(Type type, string name, CodeExpression init) =>
-             new CodeVariableDeclarationStatement(type, name, init);
+             new(type, name, init);
 
         public static CodeVariableDeclarationStatement VarDecl(string type, string name) =>
-             new CodeVariableDeclarationStatement(type, name);
+             new(type, name);
 
         public static CodeVariableDeclarationStatement VarDecl(string type, string name, CodeExpression init) =>
-             new CodeVariableDeclarationStatement(type, name, init);
+             new(type, name, init);
 
         public static CodeVariableDeclarationStatement VarDecl(string name) =>
-             new CodeVariableDeclarationStatement("var", name);
+             new("var", name);
 
         public static CodeVariableDeclarationStatement VarDecl(string name, CodeExpression init) =>
-             new CodeVariableDeclarationStatement("var", name, init);
+             new("var", name, init);
 
         public static CodePropertyReferenceExpression PropRef(CodeExpression targetObject, params string[] propertyNames)
         {
@@ -59,7 +59,7 @@ namespace Components.Aphid.Compiler
              FieldRef(This(), propertyNames);
 
         public static CodeBinaryOperatorExpression BinOpExp(CodeExpression left, CodeBinaryOperatorType op, CodeExpression right) =>
-             new CodeBinaryOperatorExpression(left, op, right);
+             new(left, op, right);
 
         public static CodeExpression BinOpExpJoin(this IEnumerable<CodeExpression> expressions, CodeBinaryOperatorType op)
         {
@@ -74,58 +74,58 @@ namespace Components.Aphid.Compiler
         }
 
         public static CodeArgumentReferenceExpression Arg(string name) =>
-             new CodeArgumentReferenceExpression(name);
+             new(name);
 
         public static CodeTypeReference TypeRef(Type type) =>
-             new CodeTypeReference(type);
+             new(type);
 
         public static CodeTypeReference TypeRef<T>() =>
              TypeRef(typeof(T));
 
         public static CodeTypeReference TypeRef(string typeName) =>
-             new CodeTypeReference(typeName);
+             new(typeName);
 
         public static CodeTypeReferenceExpression TypeRefExp(Type type) =>
-             new CodeTypeReferenceExpression(type);
+             new(type);
 
         public static CodeTypeReferenceExpression TypeRefExp(string typeName) =>
-             new CodeTypeReferenceExpression(typeName);
+             new(typeName);
 
         public static CodeTypeReferenceExpression TypeRefExp<T>() =>
              TypeRefExp(typeof(T));
 
         public static CodeTypeOfExpression TypeOf(string type) =>
-             new CodeTypeOfExpression(type);
+             new(type);
 
         public static CodeTypeOfExpression TypeOf(Type type) =>
-             new CodeTypeOfExpression(type);
+             new(type);
 
         public static CodeMethodReturnStatement Return(CodeExpression expression) =>
-             new CodeMethodReturnStatement(expression);
+             new(expression);
 
         public static CodeMethodReturnStatement Return(string variableName) =>
              Return(VarRef(variableName));
 
         public static CodePrimitiveExpression True() =>
-             new CodePrimitiveExpression(true);
+             new(true);
 
         public static CodePrimitiveExpression False() =>
-             new CodePrimitiveExpression(false);
+             new(false);
 
         public static CodePrimitiveExpression Null() =>
-             new CodePrimitiveExpression();
+             new();
 
         public static CodeThisReferenceExpression This() =>
-             new CodeThisReferenceExpression();
+             new();
 
         public static CodeObjectCreateExpression New(Type createType, params CodeExpression[] parameters) =>
-             new CodeObjectCreateExpression(createType, parameters);
+             new(createType, parameters);
 
         public static CodeObjectCreateExpression New(CodeTypeReference createType, params CodeExpression[] parameters) =>
-             new CodeObjectCreateExpression(createType, parameters);
+             new(createType, parameters);
 
         public static CodeAssignStatement Assign(CodeExpression left, CodeExpression right) =>
-             new CodeAssignStatement(left, right);
+             new(left, right);
 
         public static CodeAssignStatement Assign(string variableName, CodeExpression right) =>
              Assign(VarRef(variableName), right);
@@ -134,10 +134,10 @@ namespace Components.Aphid.Compiler
              Assign(VarRef(leftVariableName), VarRef(rightVariableName));
 
         public static CodeMethodInvokeExpression Invoke(CodeExpression targetObject, string methodName, params CodeExpression[] parameters) =>
-             new CodeMethodInvokeExpression(targetObject, methodName, parameters);
+             new(targetObject, methodName, parameters);
 
         public static CodeMethodInvokeExpression Invoke(CodeExpression targetObject, string methodName, CodeTypeReference[] typeParameters, params CodeExpression[] parameters) =>
-             new CodeMethodInvokeExpression(new CodeMethodReferenceExpression(targetObject, methodName, typeParameters), parameters);
+             new(new CodeMethodReferenceExpression(targetObject, methodName, typeParameters), parameters);
 
         public static CodeMethodInvokeExpression Invoke(CodeExpression targetObject, string methodName, string[] typeParameters, params CodeExpression[] parameters) =>
              Invoke(
@@ -149,14 +149,14 @@ namespace Components.Aphid.Compiler
              Invoke(null, methodName, parameters);
 
         public static CodeIterationStatement While(CodeExpression testExpression, params CodeStatement[] statements) =>
-             new CodeIterationStatement(
+             new(
                 new CodeSnippetStatement(""),
                 testExpression,
                 new CodeSnippetStatement(""),
                 statements);
 
         public static CodeExpressionStatement Stmt(CodeExpression expression) =>
-             new CodeExpressionStatement(expression);
+             new(expression);
 
         public static CodeExpression Eq(CodeExpression left, CodeExpression right) =>
              BinOpExp(left, CodeBinaryOperatorType.ValueEquality, right);
@@ -201,10 +201,10 @@ namespace Components.Aphid.Compiler
              Assign(exp, BinOpExp(exp, op, new CodePrimitiveExpression(1)));
 
         public static CodePrimitiveExpression Value(int value) =>
-             new CodePrimitiveExpression(value);
+             new(value);
 
         public static CodePrimitiveExpression Value(string value) =>
-             new CodePrimitiveExpression(value);
+             new(value);
 
         public static void AddRange(this CodeStatementCollection collection, params CodeStatement[] statements) =>
              collection.AddRange(statements);

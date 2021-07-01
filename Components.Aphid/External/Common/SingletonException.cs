@@ -52,13 +52,13 @@ namespace Components
         {
         }
 
-        public static SE Create<T>() => new SE(typeof(T));
+        public static SE Create<T>() => new(typeof(T));
 
-        public static SE Create<T>(string message) => new SE(typeof(T), message);
+        public static SE Create<T>(string message) => new(typeof(T), message);
 
-        public static SE Create<T>(E innerException) => new SE(typeof(T), innerException);
+        public static SE Create<T>(E innerException) => new(typeof(T), innerException);
 
-        public static SE Create<T>(string message, E innerException) => new SE(typeof(T), message, innerException);
+        public static SE Create<T>(string message, E innerException) => new(typeof(T), message, innerException);
 
         public static SE Throw<T>() => throw Create<T>();
 

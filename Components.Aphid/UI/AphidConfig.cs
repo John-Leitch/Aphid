@@ -18,7 +18,7 @@ namespace Components.Aphid.UI
     {
         public const string FileName = "Components.Aphid.dll.config";
 
-        private static readonly Lazy<Configuration> _config = new Lazy<Configuration>(LoadConfig);
+        private static readonly Lazy<Configuration> _config = new(LoadConfig);
 
         private LS
             _sourcePath = GetSetting(AS.SourcePath);

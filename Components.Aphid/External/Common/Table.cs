@@ -12,7 +12,7 @@ namespace Components
         private readonly Func<TValue> _createValue;
 
         [DataMember]
-        private Dictionary<TKey, TValue> _table = new Dictionary<TKey, TValue>();
+        private Dictionary<TKey, TValue> _table = new();
 
         [IgnoreDataMember]
         public Dictionary<TKey, TValue>.KeyCollection Keys => _table.Keys;
@@ -43,14 +43,7 @@ namespace Components
             }
             set
             {
-                if (!_table.ContainsKey(key))
-                {
-                    _table.Add(key, value);
-                }
-                else
-                {
-                    _table[key] = value;
-                }
+                _table[key] = value;
             }
         }
 
@@ -60,6 +53,6 @@ namespace Components
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_table).GetEnumerator();
 
-        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary) => new Table<TKey, TValue> { _table = dictionary };
+        public static Table<TKey, TValue> Convert(Dictionary<TKey, TValue> dictionary) => new() { _table = dictionary };
     }
 }

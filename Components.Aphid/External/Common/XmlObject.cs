@@ -5,7 +5,7 @@ namespace Components
 {
     public static class XmlObject
     {
-        private static XmlSerializer GetSerializer<T>() => new XmlSerializer(typeof(T));
+        private static XmlSerializer GetSerializer<T>() => new(typeof(T));
 
         public static void Serialize<T>(T o, Stream stream) => GetSerializer<T>().Serialize(stream, o);
 

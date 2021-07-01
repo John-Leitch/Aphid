@@ -3,7 +3,8 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\Components.Aphid\AphidBase.proj" />
   <PropertyGroup>
-  <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants>
+    <!-- <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants> -->
+    <DefineConstants>$(DefineConstants)</DefineConstants>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{EFDE894B-FA3D-4202-9A08-C9F69C0B0799}</ProjectGuid>
     <OutputType>Exe</OutputType>

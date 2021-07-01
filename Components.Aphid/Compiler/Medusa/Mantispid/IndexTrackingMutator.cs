@@ -10,7 +10,7 @@ namespace Mantispid
     {
         private readonly string[] _nonListRules;
 
-        private readonly List<AphidExpression> _mutated = new List<AphidExpression>();
+        private readonly List<AphidExpression> _mutated = new();
 
         private int _indexNumber;
 

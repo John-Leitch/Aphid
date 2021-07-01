@@ -11,15 +11,15 @@ namespace Components.Aphid.TypeSystem
     public class TypeExtender : AphidRuntimeComponent
     {
         private static readonly DirectArgLockingMemoizer<Type, string[]>
-            _staticTypeMemoizer = new DirectArgLockingMemoizer<Type,string[]>(),
-            _fanInteropTypeMemoizer = new DirectArgLockingMemoizer<Type, string[]>(),
-            _fanAphidTypeMemoizer = new DirectArgLockingMemoizer<Type, string[]>();
+            _staticTypeMemoizer = new(),
+            _fanInteropTypeMemoizer = new(),
+            _fanAphidTypeMemoizer = new();
 
         private static bool _isUnknownExtended;
 
-        private static readonly HashSet<string> _typesExtended = new HashSet<string>(),
-            _typesCtorExtended = new HashSet<string>(),
-            _typesDynamicallyExtended = new HashSet<string>();
+        private static readonly HashSet<string> _typesExtended = new(),
+            _typesCtorExtended = new(),
+            _typesDynamicallyExtended = new();
 
         private readonly ReaderWriterLockSlim _importsLock;
 
@@ -173,12 +173,11 @@ namespace Components.Aphid.TypeSystem
             if (AphidAlias.Resolve(type) == null)
             {
                 var path = new[] { type };
-                Type interopType;
-                //_importsLock.EnterReadLock();
+                                //_importsLock.EnterReadLock();
 
                 //try
                 //{
-                    interopType = Interpreter.InteropTypeResolver.ResolveType(
+                    Type interopType = Interpreter.InteropTypeResolver.ResolveType(
                         Interpreter.GetImports(),
                         _importsLock,
                         path,
@@ -244,14 +243,7 @@ namespace Components.Aphid.TypeSystem
 
                 foreach (var key in keys)
                 {
-                    if (Interpreter.CurrentScope.ContainsKey(key))
-                    {
-                        Interpreter.CurrentScope[key] = extension.Value;
-                    }
-                    else
-                    {
-                        Interpreter.CurrentScope.Add(key, extension.Value);
-                    }
+                    Interpreter.CurrentScope[key] = extension.Value;
                 }
             }
         }

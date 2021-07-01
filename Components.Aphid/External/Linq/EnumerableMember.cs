@@ -8,6 +8,6 @@ namespace Components
         public static EnumerableMember<TSource, TMember> Create<TSource, TMember>(
             IEnumerable<TSource> source,
             Func<TSource, TMember> selector) =>
-                new EnumerableMember<TSource, TMember>(source, selector);
+                new(source, selector);
     }
 }

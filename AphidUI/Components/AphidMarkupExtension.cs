@@ -186,7 +186,7 @@ namespace Components.Aphid.Wpf
 
             if (parameter == null)
             {
-                throw new ArgumentNullException("parameter");
+                throw new ArgumentNullException(nameof(parameter));
             }
 
             EnsureInit();
@@ -227,7 +227,7 @@ namespace Components.Aphid.Wpf
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             parameter != null ?
                 Convert(value, targetType, parameter, culture) :
-                throw new ArgumentNullException("parameter");
+                throw new ArgumentNullException(nameof(parameter));
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
             new[] { value };

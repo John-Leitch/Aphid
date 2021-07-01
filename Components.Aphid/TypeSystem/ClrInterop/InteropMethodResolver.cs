@@ -265,7 +265,7 @@ namespace Components.Aphid.TypeSystem
 
                 if (!x.Method.IsGenericMethod)
                 {
-                    return new AphidInteropMethodInfo(x.Method, new Type[0], x.Args);
+                    return new AphidInteropMethodInfo(x.Method, Array.Empty<Type>(), x.Args);
                 }
 
                 var genericArgs = ZipGenericParameters(x.Method, x.ConversionInfo);
@@ -283,7 +283,7 @@ namespace Components.Aphid.TypeSystem
         {
             if (!method.IsGenericMethod)
             {
-                return new Type[0];
+                return Array.Empty<Type>();
             }
 
             var methodParams = method.GetParameters();

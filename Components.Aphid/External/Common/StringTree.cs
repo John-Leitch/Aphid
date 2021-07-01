@@ -13,7 +13,7 @@ namespace Components.External
             Func<TNode, IEnumerable<TNode>> getChildren)
         {
             var sb = new StringBuilder();
-            Create(root, dumpNode, getChildren, sb, 0, new int[] { }, true);
+            Create(root, dumpNode, getChildren, sb, 0, Array.Empty<int>(), true);
 
             return sb.ToString();
         }

@@ -11,11 +11,11 @@ namespace Components.Aphid
     {
         private readonly FileCacheInfoSerializer _serializer;
 
-        private static readonly Dictionary<string, T> _inMemoryCache = new Dictionary<string, T>();
+        private static readonly Dictionary<string, T> _inMemoryCache = new();
 
-        private static readonly ReaderWriterLockSlim _inMemoryCacheLock = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim _inMemoryCacheLock = new();
 
-        private readonly FileInfoCache _fileInfoCache = new FileInfoCache();
+        private readonly FileInfoCache _fileInfoCache = new();
 
         public uint Flags { get; protected set; }
 
@@ -63,14 +63,7 @@ namespace Components.Aphid
 
                 try
                 {
-                    if (_inMemoryCache.ContainsKey(cacheName))
-                    {
-                        _inMemoryCache[cacheName] = cache;
-                    }
-                    else
-                    {
-                        _inMemoryCache.Add(cacheName, cache);
-                    }
+                    _inMemoryCache[cacheName] = cache;
                 }
                 finally
                 {
@@ -100,7 +93,7 @@ namespace Components.Aphid
             {
                 cacheSources = info is FileCacheInfo fileCacheInfo ?
                     fileCacheInfo.Sources :
-                    new FileCacheSource[0];
+                    Array.Empty<FileCacheSource>();
 
                 _inMemoryCacheLock.EnterUpgradeableReadLock();
 
@@ -152,7 +145,7 @@ namespace Components.Aphid
         }
 
         private static CrossProcessLock CreateLock(string filename) =>
-            new CrossProcessLock($"FileSerializationCache_{CacheName.Sanitize(filename)}");
+            new($"FileSerializationCache_{CacheName.Sanitize(filename)}");
 
         private void SaveCacheInfoUnsafe(string filename, FileCacheInfo cacheInfo)
         {

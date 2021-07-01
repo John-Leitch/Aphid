@@ -10,7 +10,7 @@ namespace Components.Aphid.Wpf
 {
     public static class ExpressionHelper
     {
-        private static Memoizer<Exp, string> _memoizer = new Memoizer<Exp, string>();
+        private static Memoizer<Exp, string> _memoizer = new();
 
         public static bool IsMemberPath(Exp exp) => GetMemberPath(exp) != null;
 

@@ -79,9 +79,7 @@ namespace AphidHdl
         private TExpression TryCast<TExpression>(object expression)
             where TExpression : class
         {
-            var t = expression as TExpression;
-
-            if (t == null)
+            if (!(expression is TExpression t))
             {
                 throw new NotImplementedException();
             }

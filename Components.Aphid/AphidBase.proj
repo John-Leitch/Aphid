@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Compile">
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants>
+    <!-- <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants> -->
+    <DefineConstants>$(DefineConstants)</DefineConstants>
     
   </PropertyGroup>
   <Import Project="..\packages\runtime.win10-x86.Microsoft.DotNet.Framework.NativeImageCompiler.1.0.0\build\net462\runtime.win10-x86.microsoft.dotnet.framework.nativeimagecompiler.props"

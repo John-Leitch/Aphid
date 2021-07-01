@@ -11,7 +11,7 @@ namespace Boxelder
 {
     public class UnaryExpressionMutator : AphidMutator
     {
-        private Dictionary<AphidTokenType, AphidTokenType> _operatorTable = new Dictionary<AphidTokenType,AphidTokenType>
+        private Dictionary<AphidTokenType, AphidTokenType> _operatorTable = new Dictionary<AphidTokenType, AphidTokenType>
         {
             { AphidTokenType.IncrementOperator, AphidTokenType.AdditionOperator },
             { AphidTokenType.DecrementOperator, AphidTokenType.MinusOperator },            

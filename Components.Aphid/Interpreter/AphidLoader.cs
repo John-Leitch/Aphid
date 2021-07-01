@@ -14,6 +14,10 @@ namespace Components.Aphid.Interpreter
 {
     public class AphidLoader : AphidRuntimeComponent
     {
+        //public static string Separator = Path.DirectorySeparatorChar.ToString();
+
+        //public static string SeparatorReplacement = Path.DirectorySeparatorChar == '/' ? "\\" : "/";
+
         private static readonly string _location =
             Assembly.GetExecutingAssembly().Location;
 
@@ -22,7 +26,7 @@ namespace Components.Aphid.Interpreter
             "library");
 
         private static readonly Memoizer<Type, Tuple<string, AphidInteropFunction>[]> _libraryMemoizer =
-            new Memoizer<Type, Tuple<string, AphidInteropFunction>[]>();
+            new();
 
         private readonly List<Assembly> _modules;
 
@@ -339,14 +343,7 @@ namespace Components.Aphid.Interpreter
                         o = AphidObject.Scalar(o.Value);
                     }
 
-                    if (!currentObj.ContainsKey(m))
-                    {
-                        currentObj.Add(m, o);
-                    }
-                    else
-                    {
-                        currentObj[m] = o;
-                    }
+                    currentObj[m] = o;
                 }
             }
 
@@ -364,7 +361,7 @@ namespace Components.Aphid.Interpreter
         }
 
         public AphidLoader CreateChild(AphidInterpreter interpreter) =>
-            new AphidLoader(
+            new(
                 interpreter,
                 _modules,
                 SystemSearchPaths,

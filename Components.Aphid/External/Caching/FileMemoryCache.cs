@@ -7,7 +7,7 @@ namespace Components.Aphid
     public static class FileMemoryCache
     {
         private static readonly Dictionary<string, CacheBlob<byte[]>> _cache =
-            new Dictionary<string, CacheBlob<byte[]>>();
+            new();
 
         public static Stream OpenRead(string filename) =>
             new MemoryStream(ReadAllBytes(filename, null));
@@ -86,7 +86,7 @@ namespace Components.Aphid
         }
 
         private static CrossProcessLock CreateLock(string filename) =>
-            new CrossProcessLock($"FileCache_{CacheName.Sanitize(filename)}");
+            new($"FileCache_{CacheName.Sanitize(filename)}");
 
         private static void SetHiddenFlag(string filename) => File.SetAttributes(
                 filename,

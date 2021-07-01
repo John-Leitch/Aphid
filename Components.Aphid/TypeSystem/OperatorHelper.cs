@@ -221,7 +221,7 @@ namespace Components.Aphid.TypeSystem
             AphidObject.Scalar(!EqualsCore(x, y));
 
         private AphidOperationException CreateOperationException(string op) =>
-            new AphidOperationException(
+            new(
                 Interpreter,
                 Interpreter.CurrentScope,
                 Interpreter.CurrentStatement,

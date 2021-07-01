@@ -389,14 +389,7 @@ namespace Components.Aphid.TypeSystem
             {
                 foreach (var nvp in this)
                 {
-                    if (obj.ContainsKey(nvp.Key))
-                    {
-                        obj[nvp.Key] = nvp.Value;
-                    }
-                    else
-                    {
-                        obj.Add(nvp.Key, nvp.Value);
-                    }
+                    obj[nvp.Key] = nvp.Value;
                 }
             }
             else
@@ -491,7 +484,7 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject TryResolveParent(string key) => TryGetValue(key, out _) ? this : Parent?.TryResolveParent(key);
 
-        public bool IsDefined(string key) => ContainsKey(key) ? true : Parent != null ? Parent.IsDefined(key) : false;
+        public bool IsDefined(string key) => ContainsKey(key) ? true : (Parent?.IsDefined(key)) ?? false;
 
         public bool ResolveBool(string key) =>
             TryResolve(key, out var value) &&
@@ -646,7 +639,7 @@ namespace Components.Aphid.TypeSystem
             }
         }
 
-        public AphidObject CreateChild() => new AphidObject(this);
+        public AphidObject CreateChild() => new(this);
 
         public static bool IsAphidType(object obj)
         {
@@ -667,11 +660,11 @@ namespace Components.Aphid.TypeSystem
                 t == typeof(AphidInteropFunction);
         }
 
-        public static AphidObject Scalar(object value) => new AphidObject(value: value);
+        public static AphidObject Scalar(object value) => new(value: value);
 
-        public static AphidObject Scope() => new AphidObject();
+        public static AphidObject Scope() => new();
 
-        public static AphidObject Complex() => new AphidObject();
+        public static AphidObject Complex() => new();
 
         public static AphidObject Complex(IEnumerable<KeyValuePair<string, AphidObject>> members)
         {

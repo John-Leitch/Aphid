@@ -7,7 +7,7 @@ namespace Components.Aphid
     public static class CacheName
     {
         private static readonly ArgLockingMemoizer<string, string> _sanitizeMemoizer =
-            new ArgLockingMemoizer<string, string>(StringComparer.OrdinalIgnoreCase);
+            new(StringComparer.OrdinalIgnoreCase);
 
         private static readonly (string, string)[] _replacements = new[]
             {

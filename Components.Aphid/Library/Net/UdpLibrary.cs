@@ -10,7 +10,7 @@ namespace Components.Aphid.Library.Net
     [AphidLibrary("udp")]
     public static class UdpLibrary
     {
-        private static readonly List<UdpClient> _clients = new List<UdpClient>();
+        private static readonly List<UdpClient> _clients = new();
 
         [AphidInteropFunction("__udp.create")]
         public static UdpClient UdpCreate()
@@ -25,7 +25,7 @@ namespace Components.Aphid.Library.Net
             return client;
         }
 
-        private static readonly Dictionary<string, IPAddress> _ipv4DnsCache = new Dictionary<string, IPAddress>();
+        private static readonly Dictionary<string, IPAddress> _ipv4DnsCache = new();
 
         private static IPAddress GetIPV4Address(string host)
         {

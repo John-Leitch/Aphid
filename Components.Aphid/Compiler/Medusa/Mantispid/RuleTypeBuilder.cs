@@ -31,7 +31,7 @@ namespace Mantispid
             _resolver = new RuleStructResolver(_ruleTypes = ruleTypes);
         }
 
-        public CodeTypeDeclarationCollection CreateRuleTypeClasses() => new CodeTypeDeclarationCollection(
+        public CodeTypeDeclarationCollection CreateRuleTypeClasses() => new(
                 _ruleTypes
                     .Select(CreateCodeType)
                     .Concat(new[] { CreateHelperType(), CreateParserContextType() })
@@ -200,7 +200,7 @@ namespace Mantispid
                             new CodeAttributeDeclaration(
                                 TypeRef<DataMemberAttribute>())
                         } :
-                        new CodeAttributeDeclaration[0])
+                        Array.Empty<CodeAttributeDeclaration>())
             };
 
             prop.GetStatements.Add(Return(fieldName));

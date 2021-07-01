@@ -12,7 +12,7 @@ namespace Components.Aphid.Compiler
 {
     public abstract partial class AphidStringEmitter
     {
-        private readonly TokenMap _unaryPrefixOperators = new TokenMap
+        private readonly TokenMap _unaryPrefixOperators = new()
         {
             { retKeyword, "ret " },
             { NotOperator, "!" },
@@ -20,13 +20,13 @@ namespace Components.Aphid.Compiler
             { ComplementOperator, "~" }
         };
 
-        private readonly TokenMap _unaryPostfixOperators = new TokenMap
+        private readonly TokenMap _unaryPostfixOperators = new()
         {
             { IncrementOperator, "++" },
             { DecrementOperator, "--" }
         };
 
-        private readonly TokenMap _binaryOperators = new TokenMap
+        private readonly TokenMap _binaryOperators = new()
         {
             { AdditionOperator, " + " },
             { MinusOperator, " - " },
@@ -67,9 +67,9 @@ namespace Components.Aphid.Compiler
             { XorEqualOperator, " ^= " }
         };
 
-        private readonly Stack<string> _tabs = new Stack<string>();
+        private readonly Stack<string> _tabs = new();
 
-        protected StringBuilder _out = new StringBuilder();
+        protected StringBuilder _out = new();
 
         protected Stack<IEnumerable<AphidExpression>> Scope { get; } = new Stack<IEnumerable<AphidExpression>>();
 

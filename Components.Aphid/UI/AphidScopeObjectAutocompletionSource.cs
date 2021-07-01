@@ -16,7 +16,7 @@ namespace Components.Aphid.UI
 {
     public class AphidScopeObjectAutocompletionSource : IAutocompletionSource, IDisposable
     {
-        private static readonly Lazy<AC[]> _keywords = new Lazy<AC[]>(() =>
+        private static readonly Lazy<AC[]> _keywords = new(() =>
             Enum
                 .GetValues(typeof(AphidTokenType))
                 .OfType<AphidTokenType>()
@@ -58,7 +58,7 @@ namespace Components.Aphid.UI
 
         private readonly AphidObject _currentScope;
 
-        private readonly TypeLoader _loader = new TypeLoader();
+        private readonly TypeLoader _loader = new();
 
         public AphidScopeObjectAutocompletionSource(AphidObject currentScope) => _currentScope = currentScope;
 
@@ -136,8 +136,7 @@ namespace Components.Aphid.UI
             }
 
             AphidExpression exp = null;
-            AphidToken[] expTokens = null;
-
+            
             //try
             //{
             //    var parseTokens = inLastToken ?
@@ -155,7 +154,7 @@ namespace Components.Aphid.UI
             //    }
             //}
             //catch { }
-            expTokens = tokens;
+            AphidToken[] expTokens = tokens;
 
             IEnumerable<AC> words = expTokens != null ? ResolveAphidObject(expTokens, inLastToken) : GetGlobalWords();
             if (inLastToken)

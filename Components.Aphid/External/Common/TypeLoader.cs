@@ -10,19 +10,19 @@ namespace Components
 {
     public sealed class TypeLoader : IDisposable
     {
-        private readonly object _cacheSync = new object();
+        private readonly object _cacheSync = new();
 
         private readonly RevertibleLazy<Dictionary<string, Assembly[]>> _assemblies =
-            new RevertibleLazy<Dictionary<string, Assembly[]>>(() =>
+            new(() =>
                 AppDomain.CurrentDomain
                     .GetAssemblies()
                     .GroupToArrayDictionary(x => x.FullName.RemoveAtIndexOf(',')));
 
         private readonly Memoizer<HashSet<string>, IEnumerable<Type>>
-            _getAllTypesMemoizer = new Memoizer<HashSet<string>, IEnumerable<Type>>(
+            _getAllTypesMemoizer = new(
                 new NamespaceEqualityComparer()),
 
-            _getStaticTypesMemoizer = new Memoizer<HashSet<string>, IEnumerable<Type>>(
+            _getStaticTypesMemoizer = new(
                 new NamespaceEqualityComparer());
 
         public TypeLoader() => AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;

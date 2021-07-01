@@ -8,7 +8,7 @@ namespace Components.Aphid.Parser
         private int _id;
 
         private IdentifierExpression GetNextId() =>
-            new IdentifierExpression($"___p_op_{_id++.ToString()}");
+            new($"___p_op_{_id++.ToString()}");
 
         protected override List<AphidExpression> MutateCore(AphidExpression expression, out bool hasChanged)
         {

@@ -14,7 +14,7 @@ namespace Components.Aphid.Debugging
 
         private StreamWriter _writer;
 
-        private readonly object _sync = new object();
+        private readonly object _sync = new();
 
         public AphidTraceSettings Settings { get; set; } = AphidTraceSettings.Default;
 

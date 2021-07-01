@@ -24,7 +24,7 @@ namespace LLex
     {
         private readonly RegexToken[] _tokens;
 
-        private readonly List<RegexToken> _expressionTokens = new List<RegexToken>();
+        private readonly List<RegexToken> _expressionTokens = new();
 
         private int _tokenIndex = -1;
 

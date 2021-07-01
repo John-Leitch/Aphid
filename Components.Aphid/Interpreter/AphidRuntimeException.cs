@@ -26,7 +26,7 @@ namespace Components.Aphid.Interpreter
 
         public virtual string Details { get; set; }
 
-        private readonly AphidSerializer _serializer = new AphidSerializer(new AphidInterpreter())
+        private readonly AphidSerializer _serializer = new(new AphidInterpreter())
         {
             IgnoreLazyLists = false,
             IgnoreFunctions = false,

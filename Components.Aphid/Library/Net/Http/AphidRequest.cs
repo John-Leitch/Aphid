@@ -36,7 +36,7 @@ namespace Components.Aphid.Library.Net.Http
             Host = "localhost";
         }
 
-        public HttpRequest ToHttpRequest() => new HttpRequest
+        public HttpRequest ToHttpRequest() => new()
         {
             Path = Path,
             Method = Method,

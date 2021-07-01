@@ -113,7 +113,7 @@ namespace Components.Aphid.Library
         private static string ConvertToHexByteString(decimal value) =>
             Convert.ToString((byte)value, 16).PadLeft(2, '0');
 
-        private static readonly Random _random = new Random();
+        private static readonly Random _random = new();
 
         [AphidInteropFunction("randInt")]
         public static decimal RandomInt(decimal minValue, decimal maxValue)

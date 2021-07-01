@@ -133,10 +133,10 @@ namespace Components.Aphid.Compiler.Medusa.LLex {
                     public static List<AphidExpression> ByteCode_e8ed93e607ead4dccb8ec914ea0d52c8() =>
                         ByteCode_e8ed93e607ead4dccb8ec914ea0d52c8Lazy.Value;
 
-                    private static readonly List<AphidExpression> _empty = new List<AphidExpression>();                    
+                    private static readonly List<AphidExpression> _empty = new();                    
 
                     private static System.Lazy<List<AphidExpression>> ByteCode_e8ed93e607ead4dccb8ec914ea0d52c8Lazy =>
-                        new System.Lazy<List<AphidExpression>>(() =>
+                        new(() =>
                             new List<AphidExpression>
 {
     new UnaryOperatorExpression(
@@ -448,9 +448,9 @@ namespace Components.Aphid.Compiler.Medusa.LLex {
                         );
 
                     
-                        private static readonly List<IdentifierExpression> _IdentifierExpressions = new List<IdentifierExpression>();
+                        private static readonly List<IdentifierExpression> _IdentifierExpressions = new();
                     
-                        private static readonly List<AphidExpression> _AphidExpressions = new List<AphidExpression>();
+                        private static readonly List<AphidExpression> _AphidExpressions = new();
                     
 
                     

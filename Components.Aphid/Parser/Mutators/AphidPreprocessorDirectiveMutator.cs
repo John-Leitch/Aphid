@@ -47,7 +47,7 @@ namespace Components.Aphid.Parser
 
         private List<Exp> CreateIdentifer(
             CallExpression callExp,
-            IdentifierExpression callIdExp) => new List<Exp>
+            IdentifierExpression callIdExp) => new()
             {
                 new IdentifierExpression(
                     string.Concat(callExp.Args.Select(x => ParseArgument(callExp, x))),

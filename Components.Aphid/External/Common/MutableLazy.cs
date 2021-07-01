@@ -41,7 +41,7 @@ namespace Components
             _value = default;
         }
 
-        public static implicit operator MutableLazy<T>(T value) => new MutableLazy<T>(value);
+        public static implicit operator MutableLazy<T>(T value) => new(value);
 
         public static implicit operator T(MutableLazy<T> value) => value.Value;
     }

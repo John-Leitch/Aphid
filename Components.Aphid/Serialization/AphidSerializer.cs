@@ -43,11 +43,11 @@ namespace Components.Aphid.Serialization
 
         private List<object> _traversed;
 
-        private readonly HashSet<string> _strings = new HashSet<string>();
+        private readonly HashSet<string> _strings = new();
 
-        private readonly Dictionary<object, string> _traversedPaths = new Dictionary<object, string>();
+        private readonly Dictionary<object, string> _traversedPaths = new();
 
-        private readonly Stack<string> _currentPath = new Stack<string>();
+        private readonly Stack<string> _currentPath = new();
         
         private bool _useDoubleQuotes = false;
 
@@ -459,7 +459,7 @@ namespace Components.Aphid.Serialization
                 var i = 0;
                 var h = MaxElements / 2f;
                 int first = (int)Math.Ceiling(h), last = (int)Math.Floor(h);
-                List<object> head = new List<object>(), tail = new List<object>();
+                List<object> head = new(), tail = new();
 
                 foreach (var x in tmpEnumerable)
                 {
@@ -561,7 +561,7 @@ namespace Components.Aphid.Serialization
 
             var hasToString =
                 (valueType = value.GetType())
-                .GetMethod("ToString", new Type[0])
+                .GetMethod("ToString", Array.Empty<Type>())
                 .DeclaringType != typeof(object);
 
             if (valueType.IsPrimitive ||

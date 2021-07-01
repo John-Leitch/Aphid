@@ -7,7 +7,7 @@ namespace Components
     public static class AutoSingleton
     {
         private readonly static Dictionary<Type, object> _instances =
-            new Dictionary<Type, object>();
+            new();
 
         public static void Init<T>(this IAutoSingleton<T> singleton)
         {

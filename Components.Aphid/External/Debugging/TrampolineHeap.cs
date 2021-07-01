@@ -8,7 +8,7 @@ namespace Components.Cypress
     {
         private readonly ProcessMemory _memory;
 
-        private readonly List<IntPtr> _blocks = new List<IntPtr>();
+        private readonly List<IntPtr> _blocks = new();
 
         private IntPtr _currentPointer = IntPtr.Zero;
 

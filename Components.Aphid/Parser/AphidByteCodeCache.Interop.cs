@@ -41,10 +41,10 @@ namespace Components.Aphid.Parser {
                     public static List<AphidExpression> ByteCode_1dbb56881cdd987eea05a4de1af605a0() =>
                         ByteCode_1dbb56881cdd987eea05a4de1af605a0Lazy.Value;
 
-                    private static readonly List<AphidExpression> _empty = new List<AphidExpression>();                    
+                    private static readonly List<AphidExpression> _empty = new();                    
 
                     private static System.Lazy<List<AphidExpression>> ByteCode_1dbb56881cdd987eea05a4de1af605a0Lazy =>
-                        new System.Lazy<List<AphidExpression>>(() =>
+                        new(() =>
                             new List<AphidExpression>
 {
     new UnaryOperatorExpression(
@@ -589,9 +589,9 @@ namespace Components.Aphid.Parser {
                         );
 
                     
-                        private static readonly List<IdentifierExpression> _IdentifierExpressions = new List<IdentifierExpression>();
+                        private static readonly List<IdentifierExpression> _IdentifierExpressions = new();
                     
-                        private static readonly List<AphidExpression> _AphidExpressions = new List<AphidExpression>();
+                        private static readonly List<AphidExpression> _AphidExpressions = new();
                     
 
                     

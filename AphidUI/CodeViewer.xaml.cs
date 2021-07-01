@@ -37,7 +37,7 @@ namespace AphidUI
 
         private Task _scrollTask;
 
-        private Memoizer<ColoredText, (SolidColorBrush, SolidColorBrush)> _colorMemoizer = new Memoizer<ColoredText, (SolidColorBrush, SolidColorBrush)>();
+        private Memoizer<ColoredText, (SolidColorBrush, SolidColorBrush)> _colorMemoizer = new();
 
         public string Code
         {

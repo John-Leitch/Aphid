@@ -9,7 +9,7 @@ namespace Components.External.ConsolePlus
     {
         private const string _titleTimeFormat = "MM/dd/yy hh:mm:ss tt";
 
-        private static readonly object _originalTitleSync = new object();
+        private static readonly object _originalTitleSync = new();
 
         private static string _originalTitle;
 

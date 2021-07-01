@@ -34,7 +34,7 @@ namespace AphidUI.ViewModels
         [ThreadStatic]
         private static List<Task> _dumpTasks;
 
-        private List<string> _codeHistory = new List<string>();
+        private List<string> _codeHistory = new();
 
         private int _codeHistoryIndex = 0, _maxQueueSize = 32;
 
@@ -42,13 +42,13 @@ namespace AphidUI.ViewModels
 
         private Action _callback;
 
-        private AutoResetEvent _interpreterReset = new AutoResetEvent(false);
+        private AutoResetEvent _interpreterReset = new(false);
 
-        private object _autoSaveSync = new object();
+        private object _autoSaveSync = new();
 
         private int _autoSaveTimer = 250;
 
-        private AutoResetEvent _autoSaveEvent = new AutoResetEvent(false);
+        private AutoResetEvent _autoSaveEvent = new(false);
 
         private bool _shouldSave = false;
 

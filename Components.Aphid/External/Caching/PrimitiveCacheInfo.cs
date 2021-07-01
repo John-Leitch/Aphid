@@ -3,8 +3,8 @@
     public readonly struct PrimitiveCacheInfo : ICacheInfo
     {
         public static readonly PrimitiveCacheInfo
-            Outdated = new PrimitiveCacheInfo(true),
-            Valid = new PrimitiveCacheInfo(false);
+            Outdated = new(true),
+            Valid = new(false);
         
         private readonly bool _isOutdated;
 

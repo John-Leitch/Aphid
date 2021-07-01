@@ -7,7 +7,7 @@ namespace Components.Cypress
 {
     public class StringTable : IEnumerable<string>
     {
-        private readonly List<string> _values = new List<string>();
+        private readonly List<string> _values = new();
 
         public int this[string value]
         {
@@ -46,7 +46,7 @@ namespace Components.Cypress
 
         public StringTable(List<string> values) => _values = values;
 
-        public static implicit operator StringTable(List<string> value) => new StringTable(value);
+        public static implicit operator StringTable(List<string> value) => new(value);
 
         public IEnumerator<string> GetEnumerator() => _values.GetEnumerator();
 

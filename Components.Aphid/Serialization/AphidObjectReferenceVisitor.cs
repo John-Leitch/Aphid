@@ -60,7 +60,7 @@ namespace Components.Aphid.Serialization
                 new BinaryOperatorExpression(
                     _member.LeftOperand,
                     _member.Operator,
-                    AphidParser.Parse("null").First()));
+                    AphidParser.Parse("null")[0]));
         }
 
         protected override void BeginVisit(List<AphidExpression> ast)

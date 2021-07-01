@@ -13,7 +13,7 @@ namespace Components.Json
     {
 #if !EAGER_JSON
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly Lazy<dynamic> _lazySerializer = new Lazy<dynamic>(() =>
+        private static readonly Lazy<dynamic> _lazySerializer = new(() =>
             Activator.CreateInstance(
                 Assembly
                     .LoadWithPartialName("System.Web.Extensions")

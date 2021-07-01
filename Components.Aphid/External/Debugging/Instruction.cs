@@ -21,7 +21,7 @@ namespace Components.Cypress
             writer.Write(table.GetKey(ByteString));
         }
 
-        public static Instruction Deserialize(StringTable table, BinaryReader reader) => new Instruction
+        public static Instruction Deserialize(StringTable table, BinaryReader reader) => new()
         {
             Address = reader.ReadUInt32(),
             Mnemonic = table[reader.ReadInt32()],

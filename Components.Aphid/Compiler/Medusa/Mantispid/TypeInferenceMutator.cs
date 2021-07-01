@@ -7,9 +7,9 @@ namespace Mantispid
 {
     public class TypeInferenceMutator : AphidMutator
     {
-        private readonly SymbolTable<ParserIdentifier> _idTable = new SymbolTable<ParserIdentifier>();
+        private readonly SymbolTable<ParserIdentifier> _idTable = new();
 
-        private readonly List<string> _returnIds = new List<string>();
+        private readonly List<string> _returnIds = new();
 
         private readonly ParserGeneratorConfig _config;
 

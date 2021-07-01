@@ -11,7 +11,7 @@ namespace Components.Aphid.UI.Formatters
 {
     public static class SyntaxHighlightingFormatter
     {
-        private static readonly AphidSyntaxHighlighter _highlighter = new AphidSyntaxHighlighter();
+        private static readonly AphidSyntaxHighlighter _highlighter = new();
 
         public static IEnumerable<ColoredText> Highlight(string text) =>
             _highlighter.Highlight(text);

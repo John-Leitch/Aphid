@@ -17,10 +17,10 @@ namespace Components.PInvoke
             LLKHF_INJECTED = 0x00000010;
 
         public static readonly IntPtr
-            HWND_TOPMOST = new IntPtr(-1),
-            HWND_NOTOPMOST = new IntPtr(-2),
-            HWND_TOP = new IntPtr(0),
-            HWND_BOTTOM = new IntPtr(1);
+            HWND_TOPMOST = new(-1),
+            HWND_NOTOPMOST = new(-2),
+            HWND_TOP = new(0),
+            HWND_BOTTOM = new(1);
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);

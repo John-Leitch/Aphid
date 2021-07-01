@@ -8,9 +8,9 @@ namespace Components.Aphid.TypeSystem
     public class AphidInteropMethodArg
     {
         public static Dictionary<ParameterInfo, ParameterInfoCache> ParamCache =
-            new Dictionary<ParameterInfo, ParameterInfoCache>();
+            new();
 
-        private static readonly LockTable<ParameterInfoCache> _paramInfoLocks = new LockTable<ParameterInfoCache>();
+        private static readonly LockTable<ParameterInfoCache> _paramInfoLocks = new();
 
         private readonly ParameterInfoCache _paramInfo;
 

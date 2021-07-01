@@ -18,7 +18,7 @@ namespace Components.Aphid.Wpf
     [ContentProperty("Script")]
     public partial class Binding : System.Windows.Data.MultiBinding
     {
-        private static Memoizer<string, AphidBindingContext> _memoizer = new Memoizer<string, AphidBindingContext>();
+        private static Memoizer<string, AphidBindingContext> _memoizer = new();
 
         private AphidBindingContext _context;
 

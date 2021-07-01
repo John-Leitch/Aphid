@@ -10,7 +10,7 @@ namespace Components.ObjectDatabase
 {
     public class BinaryObjectDatabase<T> : ObjectDatabase<T>
     {
-        private static readonly BinaryFormatter _formatter = new BinaryFormatter();
+        private static readonly BinaryFormatter _formatter = new();
 
         public BinaryObjectDatabase()
             : this(PathHelper.GetExecutingPath(typeof(T).FullName + ".odb"))

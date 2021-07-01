@@ -28,7 +28,7 @@ namespace Components.Aphid.Compiler
         }
 
         private static XmlSerializer GetSerializer() =>
-            new XmlSerializer(typeof(BuildNumber[]));
+            new(typeof(BuildNumber[]));
 
         private static Dictionary<string, BuildNumber> ReadBuildNumberTable()
         {

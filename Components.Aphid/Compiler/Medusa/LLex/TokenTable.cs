@@ -6,16 +6,16 @@ namespace LLex
     {
         public string[] Ignore { get; set; }
 
-        private readonly List<string> _keywordTokens = new List<string>();
+        private readonly List<string> _keywordTokens = new();
 
         public List<string> KeywordTokens => _keywordTokens;
 
-        private readonly List<string> _keywords = new List<string>();
+        private readonly List<string> _keywords = new();
 
         public List<string> Keywords => _keywords;
 
         private readonly Dictionary<int, List<TokenEntry>> _lists =
-            new Dictionary<int, List<TokenEntry>>();
+            new();
 
         public Dictionary<int, List<TokenEntry>> Lists => _lists;
 

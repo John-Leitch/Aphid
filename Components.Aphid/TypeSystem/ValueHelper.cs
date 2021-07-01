@@ -8,7 +8,7 @@ namespace Components.Aphid.TypeSystem
 {
     public class ValueHelper : AphidRuntimeComponent
     {
-        private readonly Dictionary<Type, string> _typeName = new Dictionary<Type, string>
+        private readonly Dictionary<Type, string> _typeName = new()
         {
             { typeof(string), "string" },
             { typeof(decimal), "number" },

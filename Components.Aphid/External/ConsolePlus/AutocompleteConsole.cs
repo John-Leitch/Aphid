@@ -14,7 +14,7 @@ namespace Components.External.ConsolePlus
 
         private readonly string _prompt;
 
-        private readonly List<string> _history = new List<string>();
+        private readonly List<string> _history = new();
 
         private bool _autocompleteActive, _forceAutocomplete;
 
