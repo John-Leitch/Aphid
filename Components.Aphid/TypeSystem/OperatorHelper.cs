@@ -902,39 +902,25 @@ namespace Components.Aphid.TypeSystem
 
                 case string l:
                 {
-                    switch (right)
-                    {
-                        case string r:
-                            return r == l;
-
-                        case char r:
-                            return l.Length == 1 && r == l[0];
-
-                        case null:
-                            return false;
-
-                        default:
-                            return left.Equals(right);
+                        return right switch
+                        {
+                            string r => r == l,
+                            char r => l.Length == 1 && r == l[0],
+                            null => false,
+                            _ => left.Equals(right),
+                        };
                     }
-                }
 
                 case char l:
                 {
-                    switch (right)
-                    {
-                        case char r:
-                            return r == l;
-
-                        case string r:
-                            return r.Length == 1 && l == r[0];
-
-                        case null:
-                            return false;
-
-                        default:
-                            return left.Equals(right);
-                    }
-                }                
+                        return right switch
+                        {
+                            char r => r == l,
+                            string r => r.Length == 1 && l == r[0],
+                            null => false,
+                            _ => left.Equals(right),
+                        };
+                    }                
 
                 case null:
                 {

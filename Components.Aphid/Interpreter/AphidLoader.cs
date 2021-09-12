@@ -334,7 +334,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else
                 {
-                    if (!(value is AphidObject o))
+                    if (value is not AphidObject o)
                     {
                         o = AphidObject.Scalar(value);
                     }

@@ -9,7 +9,7 @@ namespace Components.Aphid.Lexer
         public static AphidToken GetNone(int index) =>
             new(AphidTokenType.None, null, index);
 
-        public override bool Equals(object obj) => !(obj is AphidToken token)
+        public override bool Equals(object obj) => obj is not AphidToken token
                 ? false
                 : TokenType == token.TokenType &&
                    Lexeme == token.Lexeme &&

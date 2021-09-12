@@ -467,7 +467,7 @@ namespace Components.Aphid.TypeSystem
             }
 #endif
 
-            TryGetValue(key, out value) ? true : Parent != null ? Parent.TryResolve(key, out value) : false;
+            TryGetValue(key, out value) || Parent != null && Parent.TryResolve(key, out value);
 
         public bool TryResolveAndRemove(string key)
         {
@@ -484,7 +484,7 @@ namespace Components.Aphid.TypeSystem
 
         public AphidObject TryResolveParent(string key) => TryGetValue(key, out _) ? this : Parent?.TryResolveParent(key);
 
-        public bool IsDefined(string key) => ContainsKey(key) ? true : (Parent?.IsDefined(key)) ?? false;
+        public bool IsDefined(string key) => ContainsKey(key) || ((Parent?.IsDefined(key)) ?? false);
 
         public bool ResolveBool(string key) =>
             TryResolve(key, out var value) &&

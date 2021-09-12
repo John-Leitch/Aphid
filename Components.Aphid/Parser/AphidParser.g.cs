@@ -4212,7 +4212,7 @@ break;
         }
         
         private AphidExpression ParseNumberExpression() {
-            var exp = new NumberExpression(this._context, decimal.Parse(CurrentToken.Lexeme));
+            var exp = new NumberExpression(this._context, decimal.Parse(CurrentToken.Lexeme, System.Globalization.NumberStyles.AllowExponent | System.Globalization.NumberStyles.Float));
             NextToken();
             return exp;
         }

@@ -1,4 +1,6 @@
-﻿namespace Components.Aphid.Interpreter
+﻿using Components.Aphid.TypeSystem;
+
+namespace Components.Aphid.Interpreter
 {
     public static class AphidName
     {
@@ -27,5 +29,7 @@
             Var = "var",
             Class = "class",
             Of = "of";
+
+        public static readonly string ClrObject = typeof(AphidObject).FullName;
     }
 }

@@ -156,9 +156,9 @@ namespace Components.Aphid.TypeSystem
                 var genericArguments = new List<Type>();
 
                 var canConvert =
-                    valType == target ? true :
-                    interopArg.ImplicitConversionOperator != null ? true :
-                    valType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)val, target) :
+                    valType == target ||
+                        (interopArg.ImplicitConversionOperator != null ||
+                        (valType == typeof(decimal) ? CanConvertOrBoxDecimal((decimal)val, target) :
                     //valType == typeof(sbyte) ? CanConvertOrBoxSByte((decimal)val, target) :
                     //valType == typeof(short) ? CanConvertOrBoxShort((decimal)val, target) :
                     //valType == typeof(int) ? CanConvertOrBoxInt((decimal)val, target) :
@@ -171,12 +171,11 @@ namespace Components.Aphid.TypeSystem
                     //valType == typeof(double) ? CanConvertOrBoxDouble((decimal)val, target) :
                     valType == typeof(string) &&
                         (target == typeof(char[]) ||
-                        (target == typeof(char) && ((string)val).Length == 1)) ? true :
-                    valType.IsDerivedFromOrImplements(target, genericArguments) ? true :
-                    target.IsArray ? CanConvertArray(val, valType, target) :
-                    interopArg.ExplicitConversionOperator != null ? true :
-                    target == typeof(string) ? true :
-                    false;
+                        (target == typeof(char) && ((string)val).Length == 1)) ||
+                    (valType.IsDerivedFromOrImplements(target, genericArguments) ||
+                        (target.IsArray ?
+                            CanConvertArray(val, valType, target) :
+                            interopArg.ExplicitConversionOperator != null || (target == typeof(string))))));
 
                 return new AphidConversionInfo(
                     interopArg,
@@ -213,7 +212,7 @@ namespace Components.Aphid.TypeSystem
             //    return true;
             //}
 
-            if (!(value is IEnumerable valueCollection))
+            if (value is not IEnumerable valueCollection)
             {
                 return false;
             }

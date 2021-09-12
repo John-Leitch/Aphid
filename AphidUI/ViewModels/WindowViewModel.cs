@@ -307,7 +307,7 @@ namespace AphidUI.ViewModels
 
             var exp = ast[0];
 
-            if (!(exp is UnaryOperatorExpression unary) ||
+            if (exp is not UnaryOperatorExpression unary ||
                 unary.Operator != AphidTokenType.retKeyword)
             {
                 ast.Clear();

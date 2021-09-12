@@ -24,135 +24,108 @@ namespace Components.Aphid.UI.Colors
 
         public byte[] GetColor(AphidTokenType type, AphidTokenType nextType)
         {
-            switch (type)
+            return type switch
             {
-                case AphidTokenType.String:
-                    return SystemColor.Coral;
-
-                case Number:
-                case HexNumber:
-                case BinaryNumber:
-                    return SystemColor.PaleGoldenrod;
-
-                case Identifier:
-                    switch (nextType)
-                    {
-                        default:
-                            return SystemColor.CadetBlue;
-
-                        case Identifier:
-                        case ImplicitArgumentOperator:
-                        case ImplicitArgumentsOperator:
-                        case PatternMatchingOperator:
-                        case BinaryNumber:
-                        case Number:
-                        case HexNumber:
-                            return SystemColor.DodgerBlue;
-                    }
-
-                case andKeyword:
-                case breakKeyword:
-                case catchKeyword:
-                case continueKeyword:
-                case defaultKeyword:
-                case definedKeyword:
-                case deleteKeyword:
-                case doKeyword:
-                case elseKeyword:
-                case extendKeyword:
-                case falseKeyword:
-                case finallyKeyword:
-                case forKeyword:
-                case ifKeyword:
-                case inKeyword:
-                case loadKeyword:
-                case lockKeyword:
-                case newKeyword:
-                case nullKeyword:
-                case orKeyword:
-                case retKeyword:
-                case switchKeyword:
-                case thisKeyword:
-                case throwKeyword:
-                case toKeyword:
-                case trueKeyword:
-                case tryKeyword:
-                case usingKeyword:
-                case whileKeyword:
-
-                case ImplicitArgumentOperator:
-                case ImplicitArgumentsOperator:
-
-                case FunctionOperator:
-                case InteropOperator:
-                case LoadLibraryOperator:
-                case LoadScriptOperator:
-                case PatternMatchingOperator:
-
-                    return SystemColor.DodgerBlue;
-
-                case AdditionOperator:
-                case AggregateOperator:
-                case AndOperator:
-                case AnyOperator:
-                case AssignmentOperator:
-                case BinaryAndEqualOperator:
-                case BinaryAndOperator:
-                case BinaryOrOperator:
-                case ColonOperator:
-                case ComplementOperator:
-                case ConditionalOperator:
-                case DecrementOperator:
-                case DistinctOperator:
-                case DivisionEqualOperator:
-                case DivisionOperator:
-                case EqualityOperator:
-                case GreaterThanOperator:
-                case GreaterThanOrEqualOperator:
-                case IncrementOperator:
-                case LessThanOperator:
-                case LessThanOrEqualOperator:
-                case MinusEqualOperator:
-                case MinusOperator:
-                case ModulusEqualOperator:
-                case ModulusOperator:
-                case MultiplicationEqualOperator:
-                case MultiplicationOperator:
-                case NotEqualOperator:
-                case NotOperator:
-                case OrEqualOperator:
-                case OrOperator:
-                case PipelineOperator:
-                case PlusEqualOperator:
-                case RangeOperator:
-                case SelectManyOperator:
-                case SelectOperator:
-                case ShiftLeftEqualOperator:
-                case ShiftRightEqualOperator:
-                case WhereOperator:
-                case XorEqualOperator:
-                case XorOperator:
-                    return SystemColor.Silver;
-
-                case LeftBrace:
-                case RightBrace:
-                case LeftBracket:
-                case RightBracket:
-                    return SystemColor.LightGray;
-
-                case MemberOperator:
-                    return SystemColor.White;
-
-                case RightParenthesis:
-                case LeftParenthesis:
-                    return SystemColor.LightGray;
-
-                case Comment:
-                    return SystemColor.DarkGreen;
-
-                default:
-                    return SystemColor.White;
-            }
+                AphidTokenType.String => SystemColor.Coral,
+                Number or HexNumber or BinaryNumber => SystemColor.PaleGoldenrod,
+                Identifier => nextType switch
+                {
+                    Identifier or
+                        ImplicitArgumentOperator or
+                        ImplicitArgumentsOperator or
+                        PatternMatchingOperator or
+                        BinaryNumber or
+                        Number or
+                        HexNumber => SystemColor.DodgerBlue,
+                    _ => SystemColor.CadetBlue,
+                },
+                andKeyword or
+                    breakKeyword or
+                    catchKeyword or
+                    continueKeyword or
+                    defaultKeyword or
+                    definedKeyword or
+                    deleteKeyword or
+                    doKeyword or
+                    elseKeyword or
+                    extendKeyword or
+                    falseKeyword or
+                    finallyKeyword or
+                    forKeyword or
+                    ifKeyword or
+                    inKeyword or
+                    loadKeyword or
+                    lockKeyword or
+                    newKeyword or
+                    nullKeyword or
+                    orKeyword or
+                    retKeyword or
+                    switchKeyword or
+                    thisKeyword or
+                    throwKeyword or
+                    toKeyword or
+                    trueKeyword or
+                    tryKeyword or
+                    usingKeyword or
+                    whileKeyword or
+                    ImplicitArgumentOperator or
+                    ImplicitArgumentsOperator or
+                    FunctionOperator or
+                    InteropOperator or
+                    LoadLibraryOperator or
+                    LoadScriptOperator or
+                    PatternMatchingOperator => SystemColor.DodgerBlue,
+                AdditionOperator or
+                    AggregateOperator or
+                    AndOperator or
+                    AnyOperator or
+                    AssignmentOperator or
+                    BinaryAndEqualOperator or
+                    BinaryAndOperator or
+                    BinaryOrOperator or
+                    ColonOperator or
+                    ComplementOperator or
+                    ConditionalOperator or
+                    DecrementOperator or
+                    DistinctOperator or
+                    DivisionEqualOperator or
+                    DivisionOperator or
+                    EqualityOperator or
+                    GreaterThanOperator or
+                    GreaterThanOrEqualOperator or
+                    IncrementOperator or
+                    LessThanOperator or
+                    LessThanOrEqualOperator or
+                    MinusEqualOperator or
+                    MinusOperator or
+                    ModulusEqualOperator or
+                    ModulusOperator or
+                    MultiplicationEqualOperator or
+                    MultiplicationOperator or
+                    NotEqualOperator or
+                    NotOperator or
+                    OrEqualOperator or
+                    OrOperator or
+                    PipelineOperator or
+                    PlusEqualOperator or
+                    RangeOperator or
+                    SelectManyOperator or
+                    SelectOperator or
+                    ShiftLeftEqualOperator or
+                    ShiftRightEqualOperator or
+                    WhereOperator or
+                    XorEqualOperator or
+                    XorOperator => SystemColor.Silver,
+                LeftBrace or
+                    RightBrace or
+                    LeftBracket or
+                    RightBracket => SystemColor.LightGray,
+                MemberOperator => SystemColor.White,
+                RightParenthesis or
+                    LeftParenthesis => SystemColor.LightGray,
+                Comment => SystemColor.DarkGreen,
+                _ => SystemColor.White,
+            };
         }
     }
 }

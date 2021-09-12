@@ -1,0 +1,91 @@
+#'std';
+
+console.importArgs({});
+
+if (!anyRemaining) {
+    console.line('transcript [media file]');
+    exit(1);
+} else if ((remaining#!) != 1) {
+    console.error('Invalid args');
+    exit(0xbad01);
+}
+
+#'system/process';
+
+if ((var ffmpegPath = this.'$script' @io.sibling('ffmpeg.exe')) | io.not.file) {    
+    #'io/zip';
+    startProcessSilent = true;
+
+    <#'curl -s https://api.github.com/repos/BtbN/FFmpeg-Builds/releases?sort=created'
+    @() $_.out.ToString()
+    |> deserialize
+    -<@.assets
+    ->@.browser_download_url
+    ~$'win64-gpl-4.4.zip'
+    ^!
+    @{
+        startProcessSilent = false;
+        
+        printQuery(
+            'Downloading FFMPEG from ~Cyan~{0}~R~ to ~Magenta~{1}~R~',
+            $_,
+            var t = Guid.NewGuid()+".zip" | io.script.path);
+
+        ~#('curl -L -o {0} "{1}"' :: [ t, $_ ]) | dump;
+        printSuccess('Download complete');
+
+        printInfo('Opening zip file');
+        
+        using (var zf = t | ZipFile.OpenRead) {
+            printQuery('Searching archive for ffmpeg.exe');
+            var ffmpegEntry = zf.Entries >^(@()$_.Name.ToLower() == 'ffmpeg.exe');
+            printSuccess('ffmpeg.exe found');
+            var ffmpegOutPath = 'ffmpeg.exe' | io.script.path;
+            printInfo('Extracting archive entry to ~Cyan~{0}~R~', ffmpegOutPath);
+
+            using (var ffmpegStreamOut = ffmpegEntry.Open())
+            using (var ffmpegStreamIn = ffmpegOutPath | io.open.create) {
+                ffmpegStreamOut.CopyTo <| ffmpegStreamIn;
+            }
+
+            printInfo('Deleting temporary zip file ~Magenta{0}~R~', t);
+            try t | io.del;
+            catch (e) printError('Unable to delete temporary file ~Yellow~{0}~R~: {1}', t, e.message);
+        }
+
+        printSuccess('Finished extracting ffmpeg.exe');
+    };
+}
+
+var f = remaining[0];
+var dst = f @io.ext('wav');
+
+if (var createWave = dst | io.not.file) {
+    ~#('"{0}" -i "{1}" "{2}"' :: [ ffmpegPath, f, dst ]) |> dump;
+}
+
+var recognizer = new SpeechRecognitionEngine(new CultureInfo("en-US"));
+recognizer.LoadGrammar(new DictationGrammar());
+
+using (var s =  dst | io.open.read) {
+    recognizer.SetInputToWaveStream(s);
+
+    while (s.Position < s.Length) {
+        var pos = recognizer.AudioPosition;
+        var r = recognizer.Recognize();
+        // if (r != null) r.dir();
+        if (r != null) {
+            print('{{ confidence: {0:0.00000000}, phrase: "{1}" }}', r.Confidence, r.Text);
+            r.Words for  print('{{ confidence: {0:0.00000000}, word: "{1}" }}', $_.Confidence, $_.Text);
+            // print('{ confidence: 0.00000000, text: null }');
+            print();
+            // print('{{ confidence: {0:0.00000000}, position: {1}, duration: {2}, text: "{3}" }}', r.Confidence, recognizer.AudioPosition.Ticks, r.Audio.Duration.Ticks, r.Text);
+        } else { 
+            // print('{ confidence: 0.00000000, text: null }');
+        }
+    }
+}
+
+if (createWave) {
+    dst | io.del;
+}

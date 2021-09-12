@@ -191,7 +191,7 @@ namespace Components.Aphid.Wpf
 
             EnsureInit();
 
-            if (!(parameter is AphidExpression exp))
+            if (parameter is not AphidExpression exp)
             {
                 exp = AphidAttributeParser.Parse(parameter.ToString());
             }

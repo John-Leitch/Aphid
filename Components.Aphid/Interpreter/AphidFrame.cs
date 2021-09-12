@@ -148,15 +148,12 @@ namespace Components.Aphid.Interpreter
 
         private string CreateObjectString(object value)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    return "null";
-                case AphidObject aphidObj:
-                    return Interpreter.Serializer.Serialize(aphidObj);
-                default:
-                    return value.ToString();
-            }
+                null => "null",
+                AphidObject aphidObj => Interpreter.Serializer.Serialize(aphidObj),
+                _ => value.ToString(),
+            };
         }
 
         public override bool Equals(object obj)

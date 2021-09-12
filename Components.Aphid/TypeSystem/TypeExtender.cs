@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using AT = Components.Aphid.TypeSystem.AphidType;
 
 namespace Components.Aphid.TypeSystem
 {
@@ -20,6 +21,10 @@ namespace Components.Aphid.TypeSystem
         private static readonly HashSet<string> _typesExtended = new(),
             _typesCtorExtended = new(),
             _typesDynamicallyExtended = new();
+
+        private static readonly string[]
+            _aphidObjectName = new string[] { AT.Object, AphidName.ClrObject, AT.Unknown },
+            _aphidObjectInteropName = new string[] { AphidName.ClrObject, AT.Unknown };
 
         private readonly ReaderWriterLockSlim _importsLock;
 
@@ -48,18 +53,16 @@ namespace Components.Aphid.TypeSystem
             return names.ToArray();
         }
 
-        private static string[] FanAphidName(AphidObject obj) => obj.IsScalar
-                ? obj.Value != null ? _fanAphidTypeMemoizer.Call(FanAphidName, obj.Value.GetType()) : Array.Empty<string>()
-                : (new string[]
-            {
-                    AphidType.Object,
-                    typeof(AphidObject).FullName,
-                    AphidType.Unknown
-            });
+        private static string[] FanAphidName(AphidObject obj) =>
+                obj.IsScalar ?
+                    obj.Value != null ?
+                        _fanAphidTypeMemoizer.Call(FanAphidName, obj.Value.GetType()) :
+                        Array.Empty<string>() :
+                    (_aphidObjectName);
 
         private static string[] FanInteropName(AphidObject obj) => obj.IsScalar
                 ? obj.Value != null ? _fanInteropTypeMemoizer.Call(FanAphidName, obj.Value.GetType()) : Array.Empty<string>()
-                : (new string[] { typeof(AphidObject).FullName, AphidType.Unknown });
+                : (_aphidObjectInteropName);
 
         //private static string[] FanInteropName(Type t)
         //{
@@ -95,7 +98,7 @@ namespace Components.Aphid.TypeSystem
             }
 
             names.Add(typeof(object).FullName);
-            names.Add(AphidType.Unknown);
+            names.Add(AT.Unknown);
 
             return names.ToArray();
         }
@@ -192,7 +195,7 @@ namespace Components.Aphid.TypeSystem
                 {
                     if (attributes.Length == 1)
                     {
-                        interopType = attributes[0] == AphidType.List
+                        interopType = attributes[0] == AT.List
                             ? typeof(List<>).MakeGenericType(interopType)
                             : throw GetInteropTypeException(attributes, type);
                     }
@@ -205,7 +208,7 @@ namespace Components.Aphid.TypeSystem
                 type = GetInteropName(interopType);
             }
 
-            if (type == AphidType.Unknown || type == typeof(object).FullName)
+            if (type == AT.Unknown || type == typeof(object).FullName)
             {
                 _isUnknownExtended = true;
             }
@@ -348,8 +351,8 @@ namespace Components.Aphid.TypeSystem
                     {
                         isFirst = false;
                     }
-                    else if (c != AphidType.Unknown &&
-                        c != typeof(AphidObject).FullName &&
+                    else if (c != AT.Unknown &&
+                        c != AphidName.ClrObject &&
                         !types.Contains(c))
                     {
                         continue;
@@ -378,8 +381,8 @@ namespace Components.Aphid.TypeSystem
                     {
                         isFirst = false;
                     }
-                    else if (c != AphidType.Unknown &&
-                        c != typeof(AphidObject).FullName &&
+                    else if (c != AT.Unknown &&
+                        c != AphidName.ClrObject &&
                         !types.Contains(c))
                     {
                         continue;
@@ -408,8 +411,8 @@ namespace Components.Aphid.TypeSystem
                     {
                         isFirst = false;
                     }
-                    else if (c != AphidType.Unknown &&
-                        c != typeof(AphidObject).FullName &&
+                    else if (c != AT.Unknown &&
+                        c != AphidName.ClrObject &&
                         !types.Contains(c))
                     {
                         continue;

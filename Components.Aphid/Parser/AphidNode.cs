@@ -11,21 +11,18 @@ namespace Components.Aphid.Parser
 
         public bool IsStatement()
         {
-            switch (Type)
+            return Type switch
             {
-                case AphidExpressionType.IfExpression:
-                case AphidExpressionType.ForExpression:
-                case AphidExpressionType.ForEachExpression:
-                case AphidExpressionType.WhileExpression:
-                case AphidExpressionType.DoWhileExpression:
-                case AphidExpressionType.ExtendExpression:
-                case AphidExpressionType.TryExpression:
-                case AphidExpressionType.SwitchExpression:
-                    return true;
-
-                default:
-                    return false;
-            }
+                AphidExpressionType.IfExpression or
+                    AphidExpressionType.ForExpression or
+                    AphidExpressionType.ForEachExpression or
+                    AphidExpressionType.WhileExpression or
+                    AphidExpressionType.DoWhileExpression or
+                    AphidExpressionType.ExtendExpression or
+                    AphidExpressionType.TryExpression or
+                    AphidExpressionType.SwitchExpression => true,
+                _ => false,
+            };
         }
     }
 }

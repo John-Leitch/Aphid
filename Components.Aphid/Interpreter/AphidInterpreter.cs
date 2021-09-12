@@ -1160,15 +1160,12 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AphidObject CallFunction(AphidObject function, params object[] args)
         {
-            switch (function.Value)
+            return function.Value switch
             {
-                case AphidFunction func:
-                    return CallFunction(func, args);
-                case AphidInteropFunction func2:
-                    return CallInteropFunction(func2, (AphidObject[])args);
-                default:
-                    throw CreateRuntimeException("Object is not function: {0}", function);
-            }
+                AphidFunction func => CallFunction(func, args),
+                AphidInteropFunction func2 => CallInteropFunction(func2, (AphidObject[])args),
+                _ => throw CreateRuntimeException("Object is not function: {0}", function),
+            };
         }
 
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1324,29 +1321,14 @@ namespace Components.Aphid.Interpreter
             {
                 try
                 {
-                    switch (argExpressions[i])
+                    args[i] = argExpressions[i] switch
                     {
-                        case IdentifierExpression exp:
-                            args[i] = InterpretIdentifierExpression(exp);
-                            break;
-
-                        case BinaryOperatorExpression exp:
-                            args[i] = InterpretMemberExpression(exp, false);
-                            break;
-
-                        case NumberExpression exp:
-                            args[i] = InterpretNumberExpression(exp);
-                            break;
-
-                        case StringExpression exp:
-                            args[i] = InterpretStringExpression(exp);
-                            break;
-
-                        default:
-                            //args[i] = CreateUnsafeArgument(argExpressions[i]);
-                            args[i] = argExpressions[i];
-                            break;
-                    }
+                        IdentifierExpression exp => InterpretIdentifierExpression(exp),
+                        BinaryOperatorExpression exp => InterpretMemberExpression(exp, false),
+                        NumberExpression exp => InterpretNumberExpression(exp),
+                        StringExpression exp => InterpretStringExpression(exp),
+                        _ => argExpressions[i],//args[i] = CreateUnsafeArgument(argExpressions[i]);
+                    };
                 }
                 catch (Exception e)
                 {
@@ -2498,38 +2480,30 @@ namespace Components.Aphid.Interpreter
                     case MinusOperator:
                         var val = Unwrap(InterpretExpression(expression.Operand));
 
-                        if (!(val is decimal))
-                        {
-                            throw CreateRuntimeException(
+                        return val is decimal d
+                            ? Scalar(d * -1)
+                            : throw CreateRuntimeException(
                                 "Unary operator '-' expects number, {0} was provided instead.",
                                 val.GetType());
-                        }
 
-                        return Scalar((decimal)val * -1);
 
                     case ComplementOperator:
                         val = InterpretAndUnwrap(expression.Operand);
-                        ValueHelper.AssertNumber(val, "unary operator '~'");
-
-                        return Scalar((decimal)~ToUInt64(val));
+                        return Scalar((decimal)~ToUInt64(ValueHelper.AssertNumber(val, "unary operator '~'")));
 
                     case throwKeyword:
                         var exceptionObj = Unwrap(InterpretExpression(expression.Operand));
 
-                        switch (exceptionObj)
+                        throw exceptionObj switch
                         {
-                            case Exception exception:
-                                throw exception;
-                            case string message:
-                                throw CreateRuntimeException(message);
-                            default:
-                                throw CreateRuntimeException(
-                            "Cannot throw value of type {0}, from expression {1} " +
+                            Exception exception => exception,
+                            string message => CreateRuntimeException(message),
+                            _ => CreateRuntimeException(
+                                "Cannot throw value of type {0}, from expression {1} " +
                                 "expected Exception or string.",
                                 exceptionObj ?? "null",
-                                expression);
-                        }
-
+                                expression),
+                        };
                     case retKeyword:
                         SetReturnValue(InterpretExpression(expression.Operand));
                         _isReturning = true;
@@ -2651,27 +2625,19 @@ namespace Components.Aphid.Interpreter
                         return Scalar(asm);
 
                     case InteropOperator:
-                        switch (GetInteropAttribute(expression.Operand))
+                        return GetInteropAttribute(expression.Operand) switch
                         {
-                            case null:
-                                switch (expression.Operand.Type)
-                                {
-                                    case Exp.CallExpression:
-                                        return CallStaticInteropFunction(
-                                            (CallExpression)expression.Operand);
-
-                                    case Exp.BinaryOperatorExpression:
-                                        return InterpretMemberInteropExpression(
-                                            null,
-                                            (BinaryOperatorExpression)expression.Operand);
-
-                                    default:
-                                        throw new NotImplementedException();
-                                }
-
-                            default:
-                                throw new NotImplementedException();
-                        }
+                            null => expression.Operand.Type switch
+                            {
+                                Exp.CallExpression => CallStaticInteropFunction(
+                                    (CallExpression)expression.Operand),
+                                Exp.BinaryOperatorExpression => InterpretMemberInteropExpression(
+                                    null,
+                                    (BinaryOperatorExpression)expression.Operand),
+                                _ => throw new NotImplementedException(),
+                            },
+                            _ => throw new NotImplementedException(),
+                        };
 
                     #region Custom Operator Cases
                     case AphidTokenType.CustomOperator000:
@@ -3419,7 +3385,7 @@ namespace Components.Aphid.Interpreter
         {
             var result = Unwrap(InterpretExpression(expression.Disposable));
 
-            if (!(result is IDisposable disposable))
+            if (result is not IDisposable disposable)
             {
                 throw CreateRuntimeException(
                     "{0} does not implement IDisposable.",
@@ -3509,7 +3475,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadScriptExpression(LoadScriptExpression expression)
         {
-            if (Loader == null || !(Unwrap(InterpretExpression(expression.FileExpression)) is string file))
+            if (Loader == null || Unwrap(InterpretExpression(expression.FileExpression)) is not string file)
             {
                 throw CreateRuntimeException("Cannot load script {0}", expression.FileExpression);
             }
@@ -3575,7 +3541,7 @@ namespace Components.Aphid.Interpreter
         [TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries"), MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AphidObject InterpretLoadLibraryExpression(LoadLibraryExpression expression)
         {
-            if (Loader == null || !(Unwrap(InterpretExpression(expression.LibraryExpression)) is string library))
+            if (Loader == null || Unwrap(InterpretExpression(expression.LibraryExpression)) is not string library)
             {
                 throw CreateRuntimeException("Cannot load script {0}", expression.LibraryExpression);
             }
@@ -4105,10 +4071,9 @@ namespace Components.Aphid.Interpreter
                     path);
 
                 members = GetInteropStaticMembers(type, path);
-                TypeInfo nestedTypeInfo;
-
+                
                 if (members.Length == 1 &&
-                    (nestedTypeInfo = members[0] as TypeInfo) != null)
+                    members[0] is TypeInfo nestedTypeInfo)
                 {
                     return Scalar(nestedTypeInfo);
                 }
@@ -4765,7 +4730,7 @@ namespace Components.Aphid.Interpreter
 
                             if (members.Length != 0)
                             {
-                                return !(members[0] is Type nestedType)
+                                return members[0] is not Type nestedType
                                     ? InterpretMemberInteropExpression(
                                         null,
                                         members,
@@ -4805,7 +4770,7 @@ namespace Components.Aphid.Interpreter
 
                             if (members.Length != 0)
                             {
-                                return !(members[0] is Type nestedType)
+                                return members[0] is not Type nestedType
                                     ? InterpretMemberInteropExpression(
                                         null,
                                         members,
@@ -5014,7 +4979,7 @@ namespace Components.Aphid.Interpreter
                 }
                 else if (targetObjUnwrapped is AphidObject aphidObj)
                 {
-                    if (keyObj == null || !(keyObj is string key))
+                    if (keyObj == null || keyObj is not string key)
                     {
                         throw CreateRuntimeException(
                             "Expected string for object key, encountered {0}.",
@@ -5125,7 +5090,7 @@ namespace Components.Aphid.Interpreter
                     return value2;
                 }
 
-                if (!(Unwrap(obj) is AphidInteropReference interopRef))
+                if (Unwrap(obj) is not AphidInteropReference interopRef)
                 {
                     obj = InterpretMemberInteropExpression(null, destBinOp, returnRef: true);
                     interopRef = Unwrap(obj) as AphidInteropReference;

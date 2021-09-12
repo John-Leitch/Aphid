@@ -8,27 +8,13 @@ namespace Mantispid
     {
         public static CodeTypeReference GetTypeRef(ParserIdentifier property)
         {
-            CodeTypeReference typeRef;
-
-            switch (property.Type)
+            CodeTypeReference typeRef = property.Type switch
             {
-                case "bool":
-                    typeRef = CodeHelper.TypeRef<bool>();
-                    break;
-
-                case "string":
-                    typeRef = CodeHelper.TypeRef<string>();
-                    break;
-
-                case "decimal":
-                    typeRef = CodeHelper.TypeRef<decimal>();
-                    break;
-
-                default:
-                    typeRef = CodeHelper.TypeRef(property.Type);
-                    break;
-            }
-
+                "bool" => CodeHelper.TypeRef<bool>(),
+                "string" => CodeHelper.TypeRef<string>(),
+                "decimal" => CodeHelper.TypeRef<decimal>(),
+                _ => CodeHelper.TypeRef(property.Type),
+            };
             return property.IsList ? GetListTypeRef(typeRef) : typeRef;
         }
 

@@ -48,7 +48,7 @@ namespace Components.Aphid.Parser
 
             if (!_ignoreChildren)
             {
-                if (!(expression is IParentNode parent))
+                if (expression is not IParentNode parent)
                 {
                     return;
                 }

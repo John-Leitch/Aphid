@@ -53,17 +53,13 @@ namespace Components.Aphid.Library
         [AphidInteropFunction("type")]
         public static string GetObjectType(object obj)
         {
-            switch (obj.GetType().Name)
+            return obj.GetType().Name switch
             {
-                case "List`1":
-                    return "list";
-                case "Decimal":
-                    return "number";
-                case "String":
-                    return "string";
-                default:
-                    return "Unknown";
-            }
+                "List`1" => "list",
+                "Decimal" => "number",
+                "String" => "string",
+                _ => "Unknown",
+            };
         }
 
         [AphidInteropFunction("print", PassInterpreter = true)]

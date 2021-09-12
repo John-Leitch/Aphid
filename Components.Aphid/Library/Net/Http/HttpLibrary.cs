@@ -13,7 +13,7 @@ namespace Components.Aphid.Library.Net
             try
             {
                 var req2 = req.ToHttpRequest();
-                using (var client = HttpClient.Connect(req.Host, req.Port))
+                using (var client = Components.Aphid.Library.Net.Http.HttpClient.Connect(req.Host, req.Port))
                 {
                     client.Write(req2);
                     var resp = client.Read().GetBodyString();

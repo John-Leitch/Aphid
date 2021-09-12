@@ -10,20 +10,13 @@ namespace Components.Aphid.UI.Formatters
     {
         public static string FormatByType(Exception exception, string code)
         {
-            switch (exception)
+            return exception switch
             {
-                case AphidLoadScriptException lse:
-                    return Format(lse, code);
-
-                case AphidRuntimeException re:
-                    return Format(re);
-
-                case AphidParserException pe:
-                    return Format(pe, code);
-
-                default:
-                    return Format(exception);
-            }
+                AphidLoadScriptException lse => Format(lse, code),
+                AphidRuntimeException re => Format(re),
+                AphidParserException pe => Format(pe, code),
+                _ => Format(exception),
+            };
         }
 
         public static string Format(AphidParserException exception, string code) =>

@@ -75,15 +75,15 @@ namespace Components.Aphid.Compiler
 
             if (dir != null)
             {
-#if NET5_0
-                throw new NotImplementedException("AphidAssemblyBuilder dir not supported in .NET 5.0.");
+#if NET5_0_OR_GREATER
+                throw new NotImplementedException("AphidAssemblyBuilder dir not supported in .NET 5.0+.");
 #else
                 SetModuleBuilder(AssemblyBuilderAccess.RunAndSave, dir);
 #endif
             }
             else
             {
-#if NET5_0
+#if NET5_0_OR_GREATER
                 SetModuleBuilder(AssemblyBuilderAccess.RunAndCollect);
 #else
                 SetModuleBuilder(AssemblyBuilderAccess.RunAndSave);
@@ -93,7 +93,7 @@ namespace Components.Aphid.Compiler
 
         private void SetModuleBuilder(AssemblyBuilderAccess access) => _moduleBuilder = new Lazy<ModuleBuilder>(
                 () => (Assembly =
-#if NET5_0
+#if NET5_0_OR_GREATER
                     AssemblyBuilder
 #else
                     AppDomain.CurrentDomain
@@ -104,8 +104,8 @@ namespace Components.Aphid.Compiler
                         .DefineDynamicModule(AssemblyName));
 
         private void SetModuleBuilder(AssemblyBuilderAccess access, string dir) =>
-#if NET5_0
-                throw new NotImplementedException("AphidAssemblyBuilder dir not supported in .NET 5.0.");
+#if NET5_0_OR_GREATER
+                throw new NotImplementedException("AphidAssemblyBuilder dir not supported in .NET 5.0+.");
 #else
                  _moduleBuilder = new Lazy<ModuleBuilder>(
                     () => (Assembly = AppDomain.CurrentDomain

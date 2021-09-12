@@ -17,7 +17,7 @@ var nuget;
     'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' | exeUrls.Add;
 
     var localExes = new List[string]();
-    [ ]->@io.end('nuget.exe')->localExes.Add;
+    [ 'c:/tools', 'c:/source/nuget', 'd:/source/nuget' ]->@io.end('nuget.exe')->localExes.Add;
     var repoMemoizer;
 
     nuget = {
@@ -166,7 +166,8 @@ var nuget;
                 -<(@(r) $_.SupportedFrameworks->(@()({
                     path: r, id: $_.Identifier, name: $_.FullName, version: $_.Version
                 })))
-                -&@.name;
+                -&@.name
+                -/@.Key;
 
             if (trace) {
                 if (refAsmGroups | any) {
@@ -188,6 +189,10 @@ var nuget;
                 refAsmPaths = filtered | toArray;
             } else {
                 refAsmPaths = refAsmGroups -/@.Key;
+            }
+
+            if (trace) {
+                dump(refAsmPaths);
             }
 
             refAsmPaths = refAsmPaths ^! ->@() Path.Combine(d, $_.path);

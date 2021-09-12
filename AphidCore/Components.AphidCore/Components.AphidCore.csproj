@@ -1,0 +1,486 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Components.Aphid</AssemblyName>
+    <RootNamespace>Components.Aphid</RootNamespace>
+    <PackageIcon>a.png</PackageIcon>
+  </PropertyGroup>
+  <ItemGroup>
+      <!-- F:\source\aphid\AphidCore\Components.AphidCore\Components.AphidCore.csproj -->
+      <!-- F:\source\aphid\Components.Aphid\External\Common\ArgLexer.cs -->
+
+      <Compile Include="..\..\Components.Aphid\Compiler\AphidObjectGenerator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\CodeExpressionExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\CodeHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\CodeMemberMethodExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\CodeMethodReferenceExpressionExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\CSharpHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\IAphidCodeObject.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\AlxFile.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\BinaryExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\CharExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\GroupExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\LexerGenerator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\LexerState.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\LexFileMode.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\LLexFile.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\LLexNameInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\LLexTemplates.cs">
+      <!-- <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LLexTemplates.alx</DependentUpon> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\OperatorExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\RegexCompiler.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\RegexExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\RegexLexer.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\RegexNode.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\RegexParser.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ParserGeneratorDirective.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ParserName.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidBreakpointVisitor.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidErrorHandling.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidMember.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidMemoryDump.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidErrorReporter.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\FrameProfileBinaryWriter.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\FrameProfileInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\CacheBlob.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\CacheName.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\FileInfoCache.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\PrimitiveCacheInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\FileMemoryCache.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\FileCacheInfoSerializer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\FileSerializationCache.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\FileCacheSource.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\FileCacheInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Caching\ICacheInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgLexerState.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgLockingMemoizationWrapper.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgLockingMemoizer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgLockingMemoizingContainer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgToken.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgTokenType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\DirectArgLockingMemoizer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\IAutoSingleton.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ObjectLockTable.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\DateTimeExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\AssemblyExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\DefaultSingleton.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\FluentExtensions.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\IfContext.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\PathCachingWrapper.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\SelectorComparer`2.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\SingletonException.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\AutoSingleton.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\Singleton`1.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliApplication`1.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliApplication`2.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\StringTable.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Json\ScriptIgnoreAttribute.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Linq\EnumerableMember`2.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Linq\ParallelEnumerableExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Linq\EnumerableMember.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\NamespaceEqualityComparer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\SelectorComparer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\Singleton.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\StreamExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\Table.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Linq\TraversableEnumerable.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliWriteMessage.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\Autocomplete.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ConsoleDataEventArgs.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ConsoleGraphics.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ConsoleTextWriter.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\RemoteConsoleListener.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\SystemColor.g.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\VT100.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\MemoryDump.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IO\Allocation.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IO\MemoryManager.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IO\MemoryManagerSerializer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IO\NetworkShares.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\BinaryObjectDatabase.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\BinaryObjectDatabase`1.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\CrossProcessLockContext.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\IDatabaseContext.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\IDatabaseContext`1.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\IndexPredicateEvaluator.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\IndexSerializer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\IObjectDatabaseEntity.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\ObjectDatabase.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\ObjectDatabaseBase.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\ObjectDatabaseEntityBase.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\ObjectDatabaseRecord.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ReferenceEqualityComparer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ObjectDatabase\ObjectDatabase`1.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\AdvApi32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CharAttributes.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CharInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CharUnion.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ConsoleMode.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\Coord.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\FIXED.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\GWL.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\HotkeyFlags.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\LogonFlags.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MouseEventDataXButtons.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MouseEventFlags.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\NetApi32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\POINTFX.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ProcessAccessFlags.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SECURITY_ATTRIBUTES.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SECURITY_IMPERSONATION_LEVEL.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SHARE_INFO_0.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\Shell32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SHFILEINFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ShowWindowCommands.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SmallRect.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SWP.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\TokenAccess.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\TOKEN_TYPE.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MapType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\UserEnv.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\Win32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\WindowStyle.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidExecutionContext`1.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidIpcContext.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidThread.cs" />
+    <Compile Include="..\..\Components.Aphid\Lexer\AphidToken.cs" />
+    <!-- <Compile Include="..\..\Components.Aphid\Library\std.cs" /> -->
+    <Compile Include="..\..\Components.Aphid\Parser\AphidByteCode.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidByteCodeCache.Interop.cs">
+      <!-- <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidByteCodeCache.Interop.alx</DependentUpon> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidDirective.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidExpressionBinder.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidByteCodeCache.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidParent.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidScript.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AttributePipelineMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\MutatorGroups.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\Mutators.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\IncludeMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\PartialOperatorMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\PipelineToCallMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\ScriptMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\ParserErrorMessageInterop.cs">
+      <!-- <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ParserErrorMessageInterop.alx</DependentUpon> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidObjectDebugView.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\StringParser.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidPartialComposition.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidPartialFunction.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropCallContext.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\InteropTypeContextExactComparer.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\ParameterInfoCache.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropReferenceType.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\InteropTypeContext.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\InteropTypeContextComparer.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\PathTailComparer.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\TargetTypeCache.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\IAphidCallable.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidAutocompleteConsole.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidCliInterop.cs">
+      <!-- <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidCliInterop.alx</DependentUpon> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\UI\AphidConfig.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidEvaluator.cs" />
+    <Compile Condition="!$(DefineConstants.Contains('LOW_SECURITY'))" Include="..\..\Components.Aphid\UI\AphidReplInterop.cs">
+      <!-- <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AphidReplInterop.alx</DependentUpon> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\UI\AphidScanner.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidScopeObjectAutocompletionSource.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidSyntaxHighlighter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidSettings.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Colors\DefaultAphidColorTheme.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Colors\ColoredTextExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Colors\ColoredTextInverter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Colors\ColoredTextSaturator.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Colors\IAphidColorTheme.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\CodeMarker.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\ErrorFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\ErrorHighlightingFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\ExcerptFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\FrameFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\LineNumberFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\LocalFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\MemberFilter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\SerializingFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\SourcePositionFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\Formatters\SyntaxHighlightingFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\MutableLazy.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\TokenEntry.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\LLex\TokenTable.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\CallIdentifierMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\DeclarativeStatementAttributes.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\DeclarativeStatementMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\EnumBuilder.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\IndexTrackingMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ParserCode.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ParserGenerator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ParserGeneratorConfig.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ParserIdentifier.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\PlusEqualMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\ReferenceType.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\RuleStruct.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\RuleStructResolver.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\RuleTypeBuilder.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\RuleTypeTable.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\SymbolScope.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\SymbolTable.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\Medusa\Mantispid\TypeInferenceMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidTrace.cs" />
+    <Compile Include="..\..\Components.Aphid\Debugging\AphidTraceSettings.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ArgLexer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\ByteArrayExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliApplication.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliArgAttribute.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliArgProperty.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliArgReader.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliArgWriter.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ColoredText.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CommandString.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\Cli.g.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\AutocompleteConsole.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\IAutocompletionSource.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\InteractiveConsole.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\IScanner.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ISyntaxHighlighter.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ScannerToken.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\CrossProcessLock.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\BreakpointManager.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\Cache.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\DebuggerEventArgs.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\DebugProcess.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\ExceptionType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\HookManager.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\Instruction.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\NativeContext.cs">
+      <!-- <SubType>Code</SubType> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\External\Debugging\NativeDebugger.cs">
+      <!-- <SubType>Code</SubType> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\External\Debugging\NativeFunction.cs">
+      <!-- <SubType>Code</SubType> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\External\Debugging\ProcessExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\StackDumper.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\EnvironmentHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Linq\EnumerableExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Json\JsonFormatter.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Json\JsonLexer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Json\JsonSerializer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\AccessViolationFlag.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\DbgHelp.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\EnumWindowsProc.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ExceptionCode.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\HookType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\KeyboardHook.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\LASTINPUTINFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MiniDumpType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MINIDUMP_EXCEPTION_INFORMATION.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\NTDll.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\SetWindowPosFlags.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\User32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\WindowsHookCallback.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\RevertibleLazy.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\ScannerTokenType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Linq\StringEnumerableExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\StringExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\StringTree.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\TypeLoader.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\XmlObject.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\XmlSerializerExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\IAphidException.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidInternalException.cs" />
+    <Compile Include="..\..\Components.Aphid\Serialization\AphidObjectThisKeywordMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Serialization\AphidObjectReferenceVisitor.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidAlias.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\AphidAssemblyBuilder.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidConversionInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidExecutionContext.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidFunctionConverter.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidRuntimeComponent.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidLoadScriptException.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidName.cs" />
+    <Compile Include="..\..\Components.Aphid\AphidExceptionType.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidInterpreter.Events.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\NativeHook.cs">
+      <!-- <SubType>Code</SubType> -->
+    </Compile>
+    <Compile Include="..\..\Components.Aphid\External\Debugging\ProcessMemory.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\ThreadContext.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Debugging\TrampolineHeap.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\DecodedInstruction.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\DecodedModRMByte.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\DecodedOpcode.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\IA32Disassembler.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\Mod.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\Opcode.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\OpcodeDirection.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\OpcodeSize.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\Register32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\IA32\SibByte.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\AphidRequest.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\AphidSessionManager.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\AphidUpload.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Datagram.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\ChunkedTransferEncoding.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\ContentDisposition.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\FieldValuePair.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\FormData.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\FormUrlEncoder.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpClient.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpConnection.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpField.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpMessagePart.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpMethod.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpRequest.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpResponse.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpUpload.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpVersion.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\MimeType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\AllocationProtect.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\AllocationType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CONTEXT.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CONTEXT_FLAGS.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ContinueStatus.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CREATE_PROCESS_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\CREATE_THREAD_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\DebugEventType.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\DEBUG_EVENT.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\EXCEPTION_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\EXCEPTION_RECORD.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\EXIT_PROCESS_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\EXIT_THREAD_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\FLOATING_SAVE_AREA.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\Kernel32.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\LOAD_DLL_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MemoryProtection.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\MEMORY_BASIC_INFORMATION.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\OUTPUT_DEBUG_STRING_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ProcessCreationFlags.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\PROCESS_BASIC_INFORMATION.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\PROCESS_INFORMATION.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\PTHREAD_START_ROUTINE.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\RIP_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\STARTUPINFO.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\ThreadAccess.cs" />
+    <Compile Include="..\..\Components.Aphid\External\PInvoke\UNLOAD_DLL_DEBUG_INFO.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidAttributeScanner.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidPreprocessorDirectiveMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidCodeVisitor.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidFunctionWrapper.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidTypeConverter.Numbers.g.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ConversionOperator.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidCli.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\AphidStringEmitter.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\AphidStringEmitter.g.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\BuildNumber.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\BuildNumberRepository.cs" />
+    <Compile Include="..\..\Components.Aphid\Compiler\StringCompilerCli.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\Cli.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliLexerState.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\CliProgressBar.cs" />
+    <Compile Include="..\..\Components.Aphid\External\ConsolePlus\DumpMode.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\Memoizer.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\PathHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\External\Common\TypeExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidFrame.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidFunctionComposition.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropMember.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropMethodArg.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropMethodInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropPartialFunction.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropReference.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidInterpreter.g.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidOperationException.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidPropertyAttribute.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidObject.g.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidPropertyInfo.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidPropertyValuePair.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidExitCode.cs" />
+    <Compile Include="..\..\Components.Aphid\UI\AphidRepl.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidRuntimeException.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidScriptOptimizer.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidType.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidTypeConverter.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\ExceptionHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\IAphidBindable.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\InteropMethodResolver.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\InteropTypeResolver.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidFunction.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\OperatorHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\TypeExtender.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ValueHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\Lexer\AphidLexer.cs" />
+    <Compile Include="..\..\Components.Aphid\Serialization\AphidObjectLexer.cs" />
+    <Compile Include="..\..\Components.Aphid\Lexer\TokenHelper.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\AphidByteConverter.cs" />
+    <Compile Include="..\..\Components.Aphid\Serialization\AphidSerializer.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\Http\HttpServer.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\UdpLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\IO\StreamLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Net\TcpLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Debugging\DebugLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\System\EnvironmentLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\System\ExecOptions.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Core\ThreadingLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidAttributeAttribute.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidAttributeParser.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidMacro.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidMacroBodyMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidMacroMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\AphidMutatorGroup.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidVisitor.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\BinaryNumber.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\BuildConstMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\CallExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Mutators\ConstantFoldingMutator.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidParser.g.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\ExpressionFinder.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\Fluent\AphidExpressionExtension.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\IParentNode.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\IdentifierExpression.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropFunction.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidInterpreter.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidObject.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\AphidRef.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidParser.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidNode.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\AphidParserException.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\ParserErrorMessage.cs" />
+    <Compile Include="..\..\Components.Aphid\Parser\PartialFunctionExpression.cs" />
+    <!-- <Compile Include="..\..\Components.Aphid\Properties\AssemblyInfo.cs" /> -->
+    <Compile Include="..\..\Components.Aphid\Library\IO\IOLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\TypeSystem\ClrInterop\AphidInteropFunctionAttribute.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidLoader.cs" />
+    <Compile Include="..\..\Components.Aphid\Library\Core\StandardLibrary.cs" />
+    <Compile Include="..\..\Components.Aphid\Interpreter\AphidLibraryAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\a.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CodeDom" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0-preview.7.21377.19" />
+  </ItemGroup>
+</Project>

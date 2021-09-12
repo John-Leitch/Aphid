@@ -1,3 +1,8 @@
-recurse = true;
-compileAsm = true;
-fastExcerptSize = 800;
+if (!mapped.recurse)
+    recurse = true;
+
+if (!mapped.compileAsm)
+    compileAsm = true;
+
+if (!mapped.fastExcerptSize && !mapped.excerptLines)
+    fastExcerptSize = 800;

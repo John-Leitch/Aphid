@@ -8,50 +8,20 @@ namespace Components.Aphid.TypeSystem
 
         public static string Resolve(string name)
         {
-            switch (name)
+            return name switch
             {
-                case "List`1":
-                case AphidType.List:
-                    return AphidType.List;
-
-                case "Decimal":
-                case AphidType.Number:
-                    return AphidType.Number;
-
-                case "String":
-                case AphidType.String:
-                    return AphidType.String;
-
-                case "Boolean":
-                case AphidType.Boolean:
-                    return AphidType.Boolean;
-
-                case "AphidObject":
-                case AphidType.Object:
-                    return AphidType.Object;
-
-                case "AphidFunction":
-                case AphidType.Function:
-                    return AphidType.Function;
-
-                case "AphidInteropFunction":
-                case AphidType.InteropFunction:
-                    return AphidType.InteropFunction;
-
-                case "AphidInteropPartialFunction":
-                case AphidType.PartialFunction:
-                    return AphidType.PartialFunction;
-
-                case "AphidFunctionComposition":
-                case AphidType.FunctionComposition:
-                    return AphidType.FunctionComposition;
-
-                case AphidType.Unknown:
-                    return AphidType.Unknown;
-
-                default:
-                    return null;
-            }
+                "List`1" or AphidType.List => AphidType.List,
+                "Decimal" or AphidType.Number => AphidType.Number,
+                "String" or AphidType.String => AphidType.String,
+                "Boolean" or AphidType.Boolean => AphidType.Boolean,
+                "AphidObject" or AphidType.Object => AphidType.Object,
+                "AphidFunction" or AphidType.Function => AphidType.Function,
+                "AphidInteropFunction" or AphidType.InteropFunction => AphidType.InteropFunction,
+                "AphidInteropPartialFunction" or AphidType.PartialFunction => AphidType.PartialFunction,
+                "AphidFunctionComposition" or AphidType.FunctionComposition => AphidType.FunctionComposition,
+                AphidType.Unknown => AphidType.Unknown,
+                _ => null,
+            };
         }
     }
 }

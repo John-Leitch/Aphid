@@ -149,30 +149,24 @@ namespace Components.Aphid.Lexer
             var tokens = new AphidLexer(str).GetTokens();
             var startBrace = tokens[0].TokenType;
 
-            AphidTokenType[] braces;
+            var braces =
 
-#pragma warning disable ERP031 // Some enum cases are not covered by switch statement.
-            switch (tokens[0].TokenType)
-#pragma warning restore ERP031 // Some enum cases are not covered by switch statement.
+            tokens[0].TokenType switch
             {
-                case AphidTokenType.LeftBrace:
-                case AphidTokenType.RightBrace:
-                    braces = new[] { AphidTokenType.LeftBrace, AphidTokenType.RightBrace };
-                    break;
+                AphidTokenType.LeftBrace or AphidTokenType.RightBrace =>
+                    new[] { AphidTokenType.LeftBrace, AphidTokenType.RightBrace },
+                    
 
-                case AphidTokenType.LeftParenthesis:
-                case AphidTokenType.RightParenthesis:
-                    braces = new[] { AphidTokenType.LeftParenthesis, AphidTokenType.RightParenthesis };
-                    break;
+                AphidTokenType.LeftParenthesis or AphidTokenType.RightParenthesis =>
+                    new[] { AphidTokenType.LeftParenthesis, AphidTokenType.RightParenthesis },
 
-                case AphidTokenType.LeftBracket:
-                case AphidTokenType.RightBracket:
-                    braces = new[] { AphidTokenType.LeftBracket, AphidTokenType.RightBracket };
-                    break;
+                AphidTokenType.LeftBracket or AphidTokenType.RightBracket =>
+                    new[] { AphidTokenType.LeftBracket, AphidTokenType.RightBracket },
+                    
 
-                default:
-                    throw new InvalidOperationException();
-            }
+                _ =>
+                    throw new InvalidOperationException()
+            };
 
             var depth = 1;
 

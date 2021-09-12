@@ -136,11 +136,10 @@ namespace Components.Aphid.UnitTests.Shared
         protected static MemberExpression GetMemberExp(LambdaExpression expr)
         {
             var curExp = expr.Body;
-            MemberExpression m;
 
             while (true)
             {
-                if ((m = curExp as MemberExpression) != null)
+                if (curExp is MemberExpression m)
                 {
                     return m;
                 }

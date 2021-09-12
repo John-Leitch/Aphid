@@ -165,25 +165,25 @@ namespace Components.Aphid.TypeSystem
 
         public static string Unalias(string name)
         {
-            switch (name)
+            return name switch
             {
-                case "char": return "System.Char";
-                case "string": return "System.String";
-                case "bool": return "System.Boolean";
-                case "byte": return "System.Byte";
-                case "ushort": return "System.UInt16";
-                case "uint": return "System.UInt32";
-                case "ulong": return "System.UInt64";
-                case "sbyte": return "System.SByte";
-                case "short": return "System.Int16";
-                case "int": return "System.Int32";
-                case "long": return "System.Int64";
-                case "float": return "System.Single";
-                case "double": return "System.Double";
-                case "decimal": return "System.Decimal";
-                case "void": return "System.Void";
-                default: return name;
-            }
+                "char" => "System.Char",
+                "string" => "System.String",
+                "bool" => "System.Boolean",
+                "byte" => "System.Byte",
+                "ushort" => "System.UInt16",
+                "uint" => "System.UInt32",
+                "ulong" => "System.UInt64",
+                "sbyte" => "System.SByte",
+                "short" => "System.Int16",
+                "int" => "System.Int32",
+                "long" => "System.Int64",
+                "float" => "System.Single",
+                "double" => "System.Double",
+                "decimal" => "System.Decimal",
+                "void" => "System.Void",
+                _ => name,
+            };
         }
     }
 }

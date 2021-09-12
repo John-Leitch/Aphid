@@ -9,9 +9,7 @@ namespace Coywolf.Visitors
 
         protected override IEnumerable<AphidExpression> GetChildren(IParentNode parent)
         {
-            var callExp = parent as FunctionExpression;
-
-            if (callExp == null)
+            if (parent is not FunctionExpression callExp)
             {
                 return base.GetChildren(parent);
             }

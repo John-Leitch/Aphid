@@ -106,24 +106,19 @@ namespace Components.Aphid.Parser
 
         private string ParseArgument(CallExpression call, Exp argument)
         {
-            switch (argument.Type)
+            return argument.Type switch
             {
-                case ET.IdentifierExpression:
-                    return argument.ToIdentifier().Identifier;
-
-                case ET.StringExpression:
-                    return StringParser.Parse(((StringExpression)argument).Value);
-
-                default:
-                    throw new AphidParserException(
-                        string.Format(
-                            "Unexpected {0} {1} in id() directive {2}, expected " +
-                                "IdentifierExpression or StringExpression",
-                            argument.Type,
-                            argument,
-                            call),
-                        argument);
-            }
+                ET.IdentifierExpression => argument.ToIdentifier().Identifier,
+                ET.StringExpression => StringParser.Parse(((StringExpression)argument).Value),
+                _ => throw new AphidParserException(
+                    string.Format(
+                    "Unexpected {0} {1} in id() directive {2}, expected " +
+                    "IdentifierExpression or StringExpression",
+                    argument.Type,
+                    argument,
+                    call),
+                    argument),
+            };
         }
     }
 }

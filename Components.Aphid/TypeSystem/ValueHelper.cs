@@ -33,7 +33,7 @@ namespace Components.Aphid.TypeSystem
 
         public static object DeepUnwrap(object obj) => obj is List<AphidObject> list
                 ? (object)list.Select(DeepUnwrap).ToArray()
-                : !(obj is AphidObject aphidObj)
+                : obj is not AphidObject aphidObj
                 ? obj
                 : (list = aphidObj.Value as List<AphidObject>) != null
                     ? list.Select(DeepUnwrap).ToArray()
@@ -77,35 +77,32 @@ namespace Components.Aphid.TypeSystem
                 unwrapped.GetType());
         }
 
-        public void AssertString(object value, string operation) =>
+        public string AssertString(object value, string operation) =>
             AssertValue<string>(value, operation);
 
-        public void AssertNumber(object value, string operation) =>
+        public decimal AssertNumber(object value, string operation) =>
             AssertValue<decimal>(value, operation);
 
-        public void AssertBool(object value, string operation) =>
+        public bool AssertBool(object value, string operation) =>
             AssertValue<bool>(value, operation);
 
-        public void AssertList(object value, string operation) =>
+        public List<AphidObject> AssertList(object value, string operation) =>
             AssertValue<List<AphidObject>>(value, operation);
 
-        public void AssertObject(object value, string operation) =>
+        public AphidObject AssertObject(object value, string operation) =>
             AssertValue<AphidObject>(value, operation);
 
-        public void AssertFunction(object value, string operation) =>
+        public AphidFunction AssertFunction(object value, string operation) =>
             AssertValue<AphidFunction>(value, operation);
 
-        public void AssertValue<TExpected>(object value, string operation)
-        {
-            if (!(value is TExpected))
-            {
-                throw Interpreter.CreateRuntimeException(
-                    "{0} expects {1}, {2} was provided instead.",
-                    operation,
-                    GetTypeName<TExpected>(),
-                    GetTypeName(value));
-            }
-        }
+        public TExpected AssertValue<TExpected>(object value, string operation) =>
+            value is TExpected v ?
+            v
+            : throw Interpreter.CreateRuntimeException(
+                "{0} expects {1}, {2} was provided instead.",
+                operation,
+                GetTypeName<TExpected>(),
+                GetTypeName(value));
 
         public string GetTypeName(Type type) => _typeName[type];
 

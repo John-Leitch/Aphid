@@ -136,7 +136,7 @@ namespace Mantispid
                 throw new InvalidOperationException();
             }
 
-            if (!(lexerCall.ToCall().Args.SingleOrDefault() is ObjectExpression lexerObj))
+            if (lexerCall.ToCall().Args.SingleOrDefault() is not ObjectExpression lexerObj)
             {
                 throw new InvalidOperationException();
             }
@@ -150,7 +150,7 @@ namespace Mantispid
 
             if (initKvp != null)
             {
-                if (!(initKvp.RightOperand is FunctionExpression initFunc))
+                if (initKvp.RightOperand is not FunctionExpression initFunc)
                 {
                     throw new InvalidOperationException();
                 }
@@ -346,35 +346,24 @@ namespace Mantispid
 
         private CodeMemberMethod Generate(AphidExpression node)
         {
-            switch (node.Type)
+            return node.Type switch
             {
-                case AphidExpressionType.BinaryOperatorExpression:
-                    return Generate((BinaryOperatorExpression)node);
-
-                default:
-                    throw new NotImplementedException();
-            }
+                AphidExpressionType.BinaryOperatorExpression => Generate((BinaryOperatorExpression)node),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private CodeMemberMethod Generate(BinaryOperatorExpression node)
         {
-            switch (node.Operator)
+            return node.Operator switch
             {
-                case AphidTokenType.AssignmentOperator:
-
-                    switch (node.RightOperand.Type)
-                    {
-                        case AphidExpressionType.FunctionExpression:
-                            return GenerateImperativeMethod(node);
-
-                        default:
-                            throw new NotImplementedException();
-                        //return GenerateParseRuleFunction(node);
-                    }
-
-                default:
-                    throw new NotImplementedException();
-            }
+                AphidTokenType.AssignmentOperator => node.RightOperand.Type switch
+                {
+                    AphidExpressionType.FunctionExpression => GenerateImperativeMethod(node),
+                    _ => throw new NotImplementedException(),
+                },//return GenerateParseRuleFunction(node);
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private CodeMemberMethod GenerateImperativeMethod(BinaryOperatorExpression node)
@@ -454,38 +443,19 @@ namespace Mantispid
 
         private CodeStatementCollection GenerateImperativeStatement(AphidExpression node)
         {
-            switch (node.Type)
+            return node.Type switch
             {
-                case AphidExpressionType.IdentifierExpression:
-                    return GenerateImperativeStatement((IdentifierExpression)node);
-
-                case AphidExpressionType.SwitchExpression:
-                    return GenerateImperativeStatement((SwitchExpression)node);
-
-                case AphidExpressionType.UnaryOperatorExpression:
-                    return GenerateImperativeStatement((UnaryOperatorExpression)node);
-
-                case AphidExpressionType.BinaryOperatorExpression:
-                    return GenerateImperativeStatement((BinaryOperatorExpression)node);
-
-                case AphidExpressionType.CallExpression:
-                    return GenerateImperativeStatement((CallExpression)node);
-
-                case AphidExpressionType.IfExpression:
-                    return GenerateImperativeStatement((IfExpression)node);
-
-                case AphidExpressionType.WhileExpression:
-                    return GenerateImperativeStatement((WhileExpression)node);
-
-                case AphidExpressionType.DoWhileExpression:
-                    return GenerateImperativeStatement((DoWhileExpression)node);
-
-                case AphidExpressionType.BreakExpression:
-                    return GenerateImperativeStatement((BreakExpression)node);
-
-                default:
-                    throw new NotImplementedException();
-            }
+                AphidExpressionType.IdentifierExpression => GenerateImperativeStatement((IdentifierExpression)node),
+                AphidExpressionType.SwitchExpression => GenerateImperativeStatement((SwitchExpression)node),
+                AphidExpressionType.UnaryOperatorExpression => GenerateImperativeStatement((UnaryOperatorExpression)node),
+                AphidExpressionType.BinaryOperatorExpression => GenerateImperativeStatement((BinaryOperatorExpression)node),
+                AphidExpressionType.CallExpression => GenerateImperativeStatement((CallExpression)node),
+                AphidExpressionType.IfExpression => GenerateImperativeStatement((IfExpression)node),
+                AphidExpressionType.WhileExpression => GenerateImperativeStatement((WhileExpression)node),
+                AphidExpressionType.DoWhileExpression => GenerateImperativeStatement((DoWhileExpression)node),
+                AphidExpressionType.BreakExpression => GenerateImperativeStatement((BreakExpression)node),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private CodeStatementCollection GenerateImperativeStatement(IdentifierExpression node)
@@ -514,14 +484,11 @@ namespace Mantispid
 
         private CodeStatementCollection GenerateImperativeStatement(UnaryOperatorExpression node)
         {
-            switch (node.Operator)
+            return node.Operator switch
             {
-                case AphidTokenType.retKeyword:
-                    return GenerateImperativeRetStatement(node);
-
-                default:
-                    throw new NotImplementedException();
-            }
+                AphidTokenType.retKeyword => GenerateImperativeRetStatement(node),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private CodeStatementCollection GenerateImperativeStatement(CallExpression node)
@@ -531,24 +498,18 @@ namespace Mantispid
                 case AphidExpressionType.IdentifierExpression:
                     var name = ((IdentifierExpression)node.FunctionExpression).Identifier;
 
-                    switch (name)
+                    return name switch
                     {
-                        case ParserGeneratorDirective.NextTokenFunc:
-                            return new CodeStatementCollection(new[] { GetNextTokenStatement() });
-
-                        case ParserGeneratorDirective.MatchFunc:
-                            return new CodeStatementCollection(new[]
-                            {
+                        ParserGeneratorDirective.NextTokenFunc => new CodeStatementCollection(new[] { GetNextTokenStatement() }),
+                        ParserGeneratorDirective.MatchFunc => new CodeStatementCollection(new[]
+{
                                 CodeHelper.Stmt(
                                     CodeHelper.Invoke(
                                         ParserGeneratorDirective.MatchFunc,
                                         GenerateImperativeExpression(node.Args.Single())))
-                            });
-
-                        default:
-                            return new CodeStatementCollection(new[] { new CodeExpressionStatement(GenerateImperativeExpression(node)) });
-                    }
-
+                            }),
+                        _ => new CodeStatementCollection(new[] { new CodeExpressionStatement(GenerateImperativeExpression(node)) }),
+                    };
                 default:
                     var funcExp = GenerateImperativeExpression(node.FunctionExpression);
 
@@ -573,14 +534,11 @@ namespace Mantispid
 
         private CodeStatementCollection GenerateImperativeStatement(BinaryOperatorExpression node)
         {
-            switch (node.Operator)
+            return node.Operator switch
             {
-                case AphidTokenType.AssignmentOperator:
-                    return GenerateImperativeAssignStatement(node);
-
-                default:
-                    throw new NotImplementedException();
-            }
+                AphidTokenType.AssignmentOperator => GenerateImperativeAssignStatement(node),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private CodeStatementCollection GenerateImperativeAssignStatement(BinaryOperatorExpression node)
@@ -741,38 +699,19 @@ namespace Mantispid
 
         private CodeExpression GenerateImperativeExpression(AphidExpression node, bool isCondition = false)
         {
-            switch (node.Type)
+            return node.Type switch
             {
-                case AphidExpressionType.IdentifierExpression:
-                    return GenerateImperativeExpression((IdentifierExpression)node, isCondition);
-
-                case AphidExpressionType.CallExpression:
-                    return GenerateImperativeExpression((CallExpression)node);
-
-                case AphidExpressionType.UnaryOperatorExpression:
-                    return GenerateImperativeExpression((UnaryOperatorExpression)node, isCondition);
-
-                case AphidExpressionType.BinaryOperatorExpression:
-                    return GenerateImperativeExpression((BinaryOperatorExpression)node, isCondition);
-
-                case AphidExpressionType.BooleanExpression:
-                    return GenerateImperativeExpression((BooleanExpression)node);
-
-                case AphidExpressionType.NullExpression:
-                    return CodeHelper.Null();
-
-                case AphidExpressionType.ArrayAccessExpression:
-                    return GenerateImperativeExpression((ArrayAccessExpression)node);
-
-                case AphidExpressionType.NumberExpression:
-                    return GenerateImperativeExpression((NumberExpression)node);
-
-                case AphidExpressionType.StringExpression:
-                    return CodeHelper.Value(StringParser.Parse(((StringExpression)node).Value));
-
-                default:
-                    throw new NotImplementedException();
-            }
+                AphidExpressionType.IdentifierExpression => GenerateImperativeExpression((IdentifierExpression)node, isCondition),
+                AphidExpressionType.CallExpression => GenerateImperativeExpression((CallExpression)node),
+                AphidExpressionType.UnaryOperatorExpression => GenerateImperativeExpression((UnaryOperatorExpression)node, isCondition),
+                AphidExpressionType.BinaryOperatorExpression => GenerateImperativeExpression((BinaryOperatorExpression)node, isCondition),
+                AphidExpressionType.BooleanExpression => GenerateImperativeExpression((BooleanExpression)node),
+                AphidExpressionType.NullExpression => CodeHelper.Null(),
+                AphidExpressionType.ArrayAccessExpression => GenerateImperativeExpression((ArrayAccessExpression)node),
+                AphidExpressionType.NumberExpression => GenerateImperativeExpression((NumberExpression)node),
+                AphidExpressionType.StringExpression => CodeHelper.Value(StringParser.Parse(((StringExpression)node).Value)),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private static CodeExpression GenerateImperativeExpression(BooleanExpression node) =>
@@ -845,24 +784,17 @@ namespace Mantispid
 
             var args = node.Args.Select(x => GenerateImperativeExpression(x)).ToArray();
 
-            switch (funcType)
+            return funcType switch
             {
-                case ReferenceType.RuleClass:
-                    return new CodeObjectCreateExpression(
-                        id,
-                        args
-                            .Prepend(CodeHelper.FieldRef(ParserName.ContextField))
-                            .ToArray());
-
-                case ReferenceType.RuleDeclaration:
-                    return CodeHelper.Invoke(id, args);
-
-                case ReferenceType.ExternalFunction:
-                    return CodeHelper.Invoke(id, args);
-
-                default:
-                    throw new NotImplementedException();
-            }
+                ReferenceType.RuleClass => new CodeObjectCreateExpression(
+                                       id,
+                                       args
+                                           .Prepend(CodeHelper.FieldRef(ParserName.ContextField))
+                                           .ToArray()),
+                ReferenceType.RuleDeclaration => CodeHelper.Invoke(id, args),
+                ReferenceType.ExternalFunction => CodeHelper.Invoke(id, args),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private CodeExpression GenerateImperativeExpression(UnaryOperatorExpression node, bool isCondition = false)

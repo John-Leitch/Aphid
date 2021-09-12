@@ -379,7 +379,7 @@ namespace Components.Aphid.TypeSystem
 
                 if (arg == null ||
                     arg is string ||
-                    !(arg is IEnumerable enumerable))
+                    arg is not IEnumerable enumerable)
                 {
                     sb.AppendFormat("{0}\r\n", arg);
                 }
@@ -427,11 +427,10 @@ namespace Components.Aphid.TypeSystem
             var p = method.GetParameters();
             ParameterInfo lp;
 
-            return p.Length == argCount
-                ? true
-                : p.Length > 0 && (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute))
-                    ? lp.ParameterType.IsArray && argCount >= p.Length - 1
-                    : false;
+            return p.Length == argCount ||
+                (p.Length > 0 &&
+                    (lp = p[p.Length - 1]).IsDefined(typeof(ParamArrayAttribute)) &&
+                    lp.ParameterType.IsArray && argCount >= p.Length - 1);
         }
 
         private AphidInteropMethodArg CreateMethodArg(ParameterInfo parameter, int index, object[] args)

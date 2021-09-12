@@ -21,7 +21,6 @@ namespace Boxelder
             AphidExpression expression,
             Func<AphidExpression, bool> predicate)
         {
-            IParentNode parent;
             _expressions.Push(expression);
 
             try
@@ -30,7 +29,7 @@ namespace Boxelder
                 {
                     return _expressions.ToArray();
                 }
-                else if ((parent = expression as IParentNode) != null)
+                else if (expression is IParentNode parent)
                 {
                     return parent
                         .GetChildren()
