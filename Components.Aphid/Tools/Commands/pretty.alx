@@ -1,0 +1,3 @@
+#'std';
+using Components.Json;
+stdIn.txt((new JsonFormatter()).Format @> Console.Out.WriteLine);

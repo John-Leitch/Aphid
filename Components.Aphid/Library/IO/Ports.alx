@@ -1,6 +1,8 @@
 var serialPorts;
 
 @{
+    using System.IO.Ports;
+
     _q = macro(@{ serialPorts.'$wmi' });
     _a = macro(@{ (_q() = wmi) });
 
@@ -26,6 +28,19 @@ var serialPorts;
             }
             | serialPorts.'$getQuery'(),
         fromDevice: @(pattern) getDevices()-?(@()$_.Name ~= pattern)-<(@() $_.Name ~~ 'COM\\d+' ),
+        openDevice: @(pattern, baudrate) {
+            var ports = pattern | serialPorts.fromDevice;
+
+            if ((ports #!) != 1) {
+                throw new ArgumentException(
+                    'Serial device pattern "{0}" matched {1} device(s), expected one.'
+                    :: [ pattern, ports #!]);
+            }
+
+            var port = new SerialPort(ports | first, baudrate);
+            port.Open();
+            ret port;
+        },
         
     };
 }();

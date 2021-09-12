@@ -1,0 +1,7 @@
+#'std';
+#'system/cryptography';
+stdIn.lines(@{
+
+    $_ to print;
+    $_ | Encoding.ASCII.GetBytes | sha256.hash | hex | print;
+});

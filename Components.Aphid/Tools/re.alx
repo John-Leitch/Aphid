@@ -15,6 +15,8 @@ var cleanup = @{};
     string flags: '-fl',
     bool replace: '-r',
     bool useEvaluator: '-e',
+    bool useEvaluatorPrologue: '-ep',
+    bool useEvaluatorEpilogue: '-ee',
     bool dumpOut: '-d',
     bool recurse: '-s',
     string out: '-o',
@@ -48,7 +50,8 @@ _da(path, io.cd());
 _da(indentSize, 2);
 _da(excerptLines, 3);
 _da(verbosity, 2);
-_da(dumpOut, false);
+_da(useEvaluatorPrologue, false);
+_da(useEvaluatorEpilogue, false);
 _da(hashValues, false);
 _da(useFastLocks, false);
 _da(profile, 'Default');
@@ -266,8 +269,12 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchI
         } finally {
             Console.Title = titleBackup;
         }
-    }
+    }    
+}
 
+_dumpStoredResults();
+
+_dumpStoredResults = macro(@{
     if (context.list.Count > 0) {
         context.list | dump;
     }
@@ -275,7 +282,20 @@ if (!Console.IsInputRedirected || mapped.filter || mapped.path || mapped.searchI
     if (context.obj.Keys.Count > 0) {
         context.obj | dump;
     }
-}
+
+    if (context.matchCount.Count > 0) {
+        Console.WriteLine('{');
+        context.matchCount
+        -\@.Value
+        for Console.WriteLine(
+            '    "{0}": {1},',
+            $_.Key
+                .Replace('\\', '\\\\')
+                .Replace('\x22', '\\\x22'),
+                $_.Value);
+        Console.WriteLine('}');        
+    }
+});
 
 cleanup();
 

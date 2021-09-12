@@ -1,0 +1,18 @@
+#'std';
+#'io/compression';
+#'base';
+
+
+stdIn.lines(@(x){
+    if (x | io.not.file) {
+        Console.Error.WriteLine('{0} not found', x);        
+    } else {
+        try {
+            var outFile = x + '.deflate';
+            x | io.bytes | deflate.decompress @io.bytes(outFile);
+            Console.Out.WriteLine(outFile);
+        } catch {
+            Console.Error.WriteLine('{0} not deflated', x);
+        }
+    }
+});

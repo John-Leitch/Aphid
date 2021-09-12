@@ -1,6 +1,15 @@
 #'meta/code/tokenMinimizer';
 
-var context = {hashed: new HashSet[string](), list: [], obj: {}};
+var context = {
+    hashed: new HashSet[string](),
+    list: [],
+    obj: {},
+    saved: {},
+    matchCount: new Dictionary[string, int](),
+    cache: @(key, f) context.saved.ContainsKey(key) ?
+        context.saved.get_Item(key) :
+        (context.saved[key] = f()),
+};
 aphid.Serializer.AlwaysQuoteKeys = true;
 aphid.Serializer.UseDoubleQuotes = true;
 aphid.Serializer.SplitStrings = false;
@@ -41,7 +50,18 @@ var hash = @{
     }
 };
 
+var inc = @(k){
+    if (context.matchCount.ContainsKey(k)) {
+        context.matchCount.set_Item(k, context.matchCount.get_Item(k) + 1);
+    } else {
+        context.matchCount.Add(k, 1);
+    }
+
+    
+};
+
 var list = context.list.Add;
+var cache = context.cache;
 
 var dexp = @{
     var s = frame(1).Scope;

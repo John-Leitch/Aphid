@@ -1,0 +1,39 @@
+#'std';
+
+
+
+var phoneNumberGenerator;
+
+@{
+    using System.Security.Cryptography;
+    var carriers = 'AreaCarriers.alx' | io.script.path | io.txt | deserialize;
+    phoneNumberGenerator = {
+        create: @(area) {
+            // var matches = carriers-?(@()$_.area == area);
+            var matches = carriers-?(@()$_.state == 'MI');
+
+            var subscribers = 0..10000->Convert.ToInt32->@string.Format('{0:D4}');
+            matches
+                // ->@.pref
+                // ->@format('1{0}{1}', area)
+                ->(@() concat('1', $_.area, $_.pref))
+                !?
+                @async.each(@(x) {
+                    using (var provider = new SHA256CryptoServiceProvider()) {
+                        print(x);
+                    //for (x) {
+                        using (var w = new BinaryWriter('{0}.sha256' :: x |> io.script.path |> io.open.create)) {
+                            subscribers for (y) {
+                                var z = x + y;
+                                // print(z);
+                                w.Write(z |> Encoding.ASCII.GetBytes |> provider.ComputeHash, 0, 3);
+                            }
+                        }
+                    }
+                //};
+                });
+        },
+    };
+}();
+
+231 | phoneNumberGenerator.create;
