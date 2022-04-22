@@ -1,0 +1,136 @@
+﻿#'std';
+#'meta/code/viewModelCompiler';
+#'meta/code/compiler';
+#'gui/wpf';
+
+using System.Net;
+using Components.Json;
+using Components.ObjectDatabase;
+using System.Collections.ObjectModel;
+
+class of string Metrics {
+    // DateTimeOffset Date,
+    int Channel,
+    int Frequency,
+    int Signal,
+    SenderAddress,
+    SenderAddressResolved,
+    Bssid,
+    BssidResolved,
+    Ssid,    
+    DateTime InitialDetection,
+    DateTime LastUpdateTime,
+    SolidColorBrush Background,
+    bool IsKnown,
+};
+
+var aui = load AphidUI64;
+
+if (aui == null) {
+    console.error('Failed loading AphidUI');
+    exit(0xbad02);
+}
+
+'SpringPeeper Metrics Server' | console.setTitle;
+
+
+
+var MetricsViewModel = viewModel.buildForType('AphidUI.ViewModels', Metrics);
+
+var table = new Dictionary[string, MetricsViewModel]();
+var ssidTable = {};
+var items = new ObservableCollection[MetricsViewModel]();
+var getScriptDir = @() this.{'$script'} |> Path.GetDirectoryName;
+var getScriptPath = @() Path.Combine(getScriptDir(), $_);
+var loadXaml =  @() 'DataGrid.xaml' |> getScriptPath |> File.ReadAllText |> XamlReader.Parse;
+
+using System.Diagnostics;
+
+
+var app = wpf
+    .createXamlAppAsync(
+        loadXaml,
+        @{
+            using Components.Aphid.Wpf;
+            //Aphid.Interpreter = this.{'$aphid'};
+            $_.window.Title = 'Metrics Server';
+            $_.window.DataContext = items;
+        })
+    .setMain();
+
+var add = @(m) {
+    if (m.Signal == 0 ||
+        string.IsNullOrEmpty(m.SenderAddress) ||
+        (m.SenderAddress.StartsWith('DA:A1:19') && m.Bssid == 'FF:FF:FF:FF:FF:FF')) {
+        ret null;
+    }
+
+    if (m.Bssid != 'FF:FF:FF:FF:FF:FF') {
+        if (string.IsNullOrEmpty(m.Ssid) && ssidTable[m.Bssid] defined) {
+            // console.query('BSSID {0} mapped to {1}', m.Bssid, ssidTable[m.Bssid]);
+            m.Ssid = ssidTable[m.Bssid];
+        } else if (!string.IsNullOrEmpty(m.Ssid)) {
+            // console.info('Updating BSSID mapping {0} to {1}', m.Bssid, m.Ssid);
+            ssidTable[m.Bssid] = m.Ssid;
+        }/* else {
+            console.error('Could not find SSID for BSSID {0}', m.Bssid);
+        }*/
+    }
+
+    if (config.known[m.Bssid] defined) {            
+        m.BssidResolved = config.known[m.Bssid];
+    }
+
+    if (table.ContainsKey(m.SenderAddress)) {
+        var cur = table.get_Item(m.SenderAddress);        
+
+        app.invokeAsync(@{
+            _p = macro(@(n) { cur.n = m.n });
+            // _p(Date);
+            _p(Channel);
+            _p(Frequency);
+
+            if (m.Signal != -5230) {
+                _p(Signal);
+            }
+            // _p(SenderAddress);
+            // _p(SenderAddressResolved);
+            _p(Bssid);
+            _p(BssidResolved);
+            _p(Ssid);
+            _p(LastUpdateTime);
+            cur.Background = cur.IsKnown ? metricColor.known : metricColor.active;
+        });        
+    } else {
+        table.Add(m.SenderAddress, m);
+
+        if (config.known[m.SenderAddress] defined) {
+            m.IsKnown = true;
+            m.SenderAddressResolved = config.known[m.SenderAddress];
+        } else {
+            m.IsKnown = false;
+        }
+
+        m.InitialDetection = m.LastUpdateTime;
+        app.invokeAsync(@() items.Add(m));
+    }
+};
+
+var metricColor;
+
+app.invokeAsync(@()
+    metricColor = {
+        known: new SolidColorBrush(Colors.LightGreen),
+        unknown: new SolidColorBrush(Colors.Red),
+        active: new SolidColorBrush(Colors.LightBlue),
+        delayed: new SolidColorBrush(Colors.LightYellow),
+        inactive: new SolidColorBrush(Colors.LightGray),
+    });
+
+
+var metricsFromJson = JsonSerializer.Deserialize.Members[0].MakeGenericMethod([ MetricsViewModel ]).CreateDelegate(Func[string, MetricsViewModel]);
+
+
+
+runTap();
+async.sleep(-1);

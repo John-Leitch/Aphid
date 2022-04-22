@@ -24,6 +24,10 @@ using System.Windows.Threading;
 using static Components.Aphid.UI.Formatters.SyntaxHighlightingFormatter;
 using static Components.Aphid.UI.AphidCli;
 using Components.Aphid.UI.Colors;
+using RgbBrushMemoizer = Components.External.Memoizer<(byte, byte, byte), System.Windows.Media.SolidColorBrush>;
+using Components.Aphid.Wpf;
+using static Components.Aphid.Wpf.BrushHelper;
+using System.Threading;
 
 namespace AphidUI
 {
@@ -33,11 +37,9 @@ namespace AphidUI
     /// </summary>
     public partial class CodeViewer : RichTextBox
     {
-        private IAphidColorTheme _theme = new DefaultAphidColorTheme();
+        private IAphidTokenColorTheme _theme = new DefaultAphidColorTheme();
 
         private Task _scrollTask;
-
-        private Memoizer<ColoredText, (SolidColorBrush, SolidColorBrush)> _colorMemoizer = new();
 
         public string Code
         {
@@ -57,15 +59,19 @@ namespace AphidUI
         {
             Loaded += (o, e) =>
             {
-                Document.Background = GetBrush(_theme.GetBackground());
-                Document.Foreground = GetBrush(_theme.GetColor(AphidTokenType.Text));
+                Document.Background = FromRgb(_theme.Background);
+                Document.Foreground = FromRgb(_theme.Foreground);
             };
             InitializeComponent();
         }
 
-        public void Add(Block item) => Document.Async(() => Document.Blocks.Add(item));
+        public void Add(Block item) => Document.Invoke(() => Document.Blocks.Add(item));
 
-        public void Clear() => Document.Async(Document.Blocks.Clear);
+        public void Clear() => Document.Invoke(Document.Blocks.Clear);
+
+        public async Task AddAsync(Block item) => await Document.Async(() => Document.Blocks.Add(item));
+
+        public async Task ClearAsync() => await Document.Async(Document.Blocks.Clear);
 
         public void QueueScrollToEnd()
         {
@@ -75,17 +81,13 @@ namespace AphidUI
             }
         }
 
-        private SolidColorBrush GetBrush(byte[] rgbBytes) => rgbBytes != null ?
-            new SolidColorBrush(Color.FromRgb(rgbBytes[0], rgbBytes[1], rgbBytes[2])) :
-            null;
-
         private Paragraph AddBlock() => AddBlock(null);
 
         private Paragraph AddBlock(string text) => Document.Sync(() => AddBlockCore(text));
 
-        private Task BeginAddBlock() => BeginAddBlock(null);
+        private async Task AddBLockAsync() => await AddBlockAsync(null);
 
-        private Task BeginAddBlock(string text) => Document.Run(() => AddBlockCore(text));
+        private async Task AddBlockAsync(string text) => await Document.Run(() => AddBlockCore(text));
 
         private Paragraph AddBlockCore(string text) => NextBlock(text).Do(Add);
 
@@ -93,41 +95,62 @@ namespace AphidUI
 
         private Paragraph NextBlock(string text) =>
             (text != null ? new Paragraph(new Run(text)) : new Paragraph())
-            .Do(x => x.Background = GetBrush(_theme.GetBackground()));
+            .Do(x => x.Background = FromRgb(_theme.Background));
 
-        public async void SetCode(string code)
-        {
-            Clear();
-            var colored = await HighlightAsync(code);
-            AppendCode(colored);
-        }
+        public void SetCode(string code) =>
+            ThreadPool.QueueUserWorkItem(async x =>
+            {
+                var colored = Highlight(code);
+                Document.Invoke(() =>
+                {
+                    using (Document.DisableProcessing())
+                    {
+                        Document.Blocks.Clear();
+
+                        AddParagraphRuns(null, colored, scrollToEnd: false);
+                    }
+                });
+            });
 
         public static Task<IEnumerable<ColoredText>> HighlightAsync(string code) => Task.Run(() => Highlight(code));
 
-        public void AppendCode(IEnumerable<ColoredText> coloredText) => AppendCode(null, coloredText);
+        public void AppendCode(IEnumerable<ColoredText> coloredText) =>
+            AppendCode(null, coloredText, scrollToEnd: true);
 
         public void AppendCode(Paragraph paragraph, IEnumerable<ColoredText> coloredText) =>
-            Document
-               .Run(() =>
-               {
-                   var p = paragraph ?? new Paragraph().Do(Document.Blocks.Add);
+            AppendCode(paragraph, coloredText, scrollToEnd: true);
 
-                   //using (paragraph.Dispatcher.DisableProcessing())
-                   //{
-                   foreach (var t in coloredText)
-                   {
-                       var (fg, bg) = _colorMemoizer.Call(x =>
-                            (GetBrush(x.ForegroundRgb), GetBrush(x.BackgroundRgb ?? _theme.GetBackground())),
-                            t);
+        private void AppendCode(Paragraph paragraph, IEnumerable<ColoredText> coloredText, bool scrollToEnd)
+        {
+            using (Document.DisableProcessing())
+            {
+                AddParagraphRuns(paragraph, coloredText, scrollToEnd);                
+            }
+        }
 
-                       p.Inlines.Add(new Run(t.Text) { Foreground = fg, Background = bg });
-                   }
-                   //}
+        private void AddParagraphRuns(Paragraph paragraph, IEnumerable<ColoredText> coloredText, bool scrollToEnd)
+        {
+            var p = paragraph ?? new Paragraph();
+            p.Inlines.AddRange(coloredText.Select(CreateRun));
 
-                   QueueScrollToEnd();
-               });
+            if (p.Parent == null)
+            {
+                Document.Blocks.Add(p);
+            }
 
-        public void AppendOutput(string output) => BeginAddBlock(output).ContinueWith(QueueScrollToEnd);
+            if (scrollToEnd)
+            {
+                QueueScrollToEnd();
+            }
+        }
+
+        private Run CreateRun(ColoredText t) => new Run(t.Text)
+        {
+            Foreground = FromRgb(t.ForegroundRgb),
+            Background = FromRgb(t.BackgroundRgb ?? _theme.Background)
+        };
+
+        public async Task AppendOutputAsync(string output) => await AddBlockAsync(output).ContinueWith(x => QueueScrollToEnd());
 
         public void AppendColoredOutput(IEnumerable<ColoredText> output) => AppendCode(AddBlock(), output);
 
@@ -135,7 +158,7 @@ namespace AphidUI
         {
             var b = AddBlock();
             AppendCode(b, code);
-            b.Async(() => b.Inlines.Add(new Run(" => ") { FontWeight = FontWeights.ExtraBlack, Foreground = GetBrush(_theme.GetColor(AphidTokenType.Text)) }));
+            b.Async(() => b.Inlines.Add(new Run(" => ") { FontWeight = FontWeights.ExtraBlack, Foreground = FromRgb(_theme.GetColor(AphidTokenType.Text)) }));
             AppendCode(b, output);
         }
 

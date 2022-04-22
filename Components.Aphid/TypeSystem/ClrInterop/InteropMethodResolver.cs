@@ -263,7 +263,7 @@ namespace Components.Aphid.TypeSystem
             {
                 var x = contexts[i];
 
-                if (!x.Method.IsGenericMethod)
+                if (!x.Method.IsGenericMethodDefinition)
                 {
                     return new AphidInteropMethodInfo(x.Method, Array.Empty<Type>(), x.Args);
                 }

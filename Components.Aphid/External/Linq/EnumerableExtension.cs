@@ -390,11 +390,13 @@ namespace Components
                 Range(0, (int)Math.Ceiling((double)source.Count() / groupSize))
                 .Select(x => source.Skip(x * groupSize).Take(groupSize));
 
+#if !NETCOREAPP
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // TakeLast
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public static IEnumerable<TSource> TakeLast<TSource>(this IEnumerable<TSource> source, int count) =>
             source.Skip(source.Count() - count);
+#endif
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         // Iter/ForEach/For

@@ -23,6 +23,7 @@ namespace Components.Aphid.TypeSystem
         {
         }
 
+        //public static object Unwrap(AphidObject obj) => obj != null ? (obj.IsScalar ? obj.Value : obj) : null;//return obj?.IsScalar == true ? obj.Value : obj;
         public static object Unwrap(AphidObject obj) => obj?.IsScalar == true ? obj.Value : obj;
 
         public static object Unwrap(object obj) => obj is AphidObject aphidObj && aphidObj.IsScalar ? aphidObj.Value : obj;

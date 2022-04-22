@@ -9,9 +9,31 @@ using static Components.Aphid.Lexer.AphidTokenType;
 
 namespace Components.Aphid.UI.Colors
 {
-    public class DefaultAphidColorTheme : IAphidColorTheme
+    public abstract class AphidSyntaxColorTheme : IAphidTokenColorTheme
     {
-        public byte[] GetBackground() => SystemColor.Black;
+        public abstract byte[] Foreground { get; }
+
+        public abstract byte[] Background { get; }
+
+        public abstract byte[] StringLiteral { get; }
+
+        public abstract byte[] Number { get; }
+
+        public abstract byte[] Keyword { get; }
+
+        public virtual byte[] AttributeColor => Keyword;
+
+        public abstract byte[] Identifier { get; }
+
+        public abstract byte[] Operator { get; }
+
+        public virtual byte[] MemberOperatorColor => Operator;
+
+        public abstract byte[] Bracket { get; }
+
+        public virtual byte[] ParenthesisColor => Bracket;
+
+        public abstract byte[] Comment { get; }
 
         public ColoredText GetColoredText(in AphidToken token) =>
             GetColoredText(token, None);
@@ -22,23 +44,21 @@ namespace Components.Aphid.UI.Colors
         public byte[] GetColor(AphidTokenType type) =>
             GetColor(type, None);
 
-        public byte[] GetColor(AphidTokenType type, AphidTokenType nextType)
-        {
-            return type switch
+        public byte[] GetColor(AphidTokenType type, AphidTokenType nextType) =>
+            type switch
             {
-                AphidTokenType.String => SystemColor.Coral,
-                Number or HexNumber or BinaryNumber => SystemColor.PaleGoldenrod,
-                Identifier => nextType switch
-                {
-                    Identifier or
-                        ImplicitArgumentOperator or
-                        ImplicitArgumentsOperator or
-                        PatternMatchingOperator or
-                        BinaryNumber or
-                        Number or
-                        HexNumber => SystemColor.DodgerBlue,
-                    _ => SystemColor.CadetBlue,
-                },
+                AphidTokenType.String => StringLiteral,
+                AphidTokenType.Number or HexNumber or BinaryNumber => Number,
+                AphidTokenType.Identifier => nextType switch
+                    {
+                        AphidTokenType.Identifier or ImplicitArgumentOperator or
+                            ImplicitArgumentsOperator or
+                            PatternMatchingOperator or
+                            BinaryNumber or
+                            AphidTokenType.Number or
+                            HexNumber => AttributeColor,
+                        _ => Identifier,
+                    },
                 andKeyword or
                     breakKeyword or
                     catchKeyword or
@@ -74,7 +94,7 @@ namespace Components.Aphid.UI.Colors
                     InteropOperator or
                     LoadLibraryOperator or
                     LoadScriptOperator or
-                    PatternMatchingOperator => SystemColor.DodgerBlue,
+                    PatternMatchingOperator => Keyword,
                 AdditionOperator or
                     AggregateOperator or
                     AndOperator or
@@ -115,17 +135,37 @@ namespace Components.Aphid.UI.Colors
                     ShiftRightEqualOperator or
                     WhereOperator or
                     XorEqualOperator or
-                    XorOperator => SystemColor.Silver,
+                    XorOperator => Operator,
                 LeftBrace or
                     RightBrace or
                     LeftBracket or
-                    RightBracket => SystemColor.LightGray,
-                MemberOperator => SystemColor.White,
+                    RightBracket => Bracket,
+                MemberOperator => MemberOperatorColor,
                 RightParenthesis or
-                    LeftParenthesis => SystemColor.LightGray,
-                Comment => SystemColor.DarkGreen,
-                _ => SystemColor.White,
+                    LeftParenthesis => ParenthesisColor,
+                AphidTokenType.Comment => Comment,
+                _ => Foreground,
             };
-        }
+    }
+
+    public class DefaultAphidColorTheme : AphidSyntaxColorTheme
+    {
+        public override byte[] Foreground => SystemColor.White;
+
+        public override byte[] Background => SystemColor.Black;
+
+        public override byte[] StringLiteral => SystemColor.Coral;
+
+        public override byte[] Number => SystemColor.PaleGoldenrod;
+
+        public override byte[] Keyword => SystemColor.DodgerBlue;
+
+        public override byte[] Identifier => SystemColor.CadetBlue;
+
+        public override byte[] Operator => SystemColor.Silver;
+
+        public override byte[] Bracket => SystemColor.LightGray;
+
+        public override byte[] Comment => SystemColor.DarkGreen;
     }
 }

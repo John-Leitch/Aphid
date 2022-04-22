@@ -1,34 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Components.External
 {
-    public class Memoizer<TArg, TResult>
+    public abstract class MemoizerBase<TArg, TResult>
     {
-        private readonly Dictionary<TArg, TResult> _cache;
+        private readonly Dictionary<TArg, TResult> _cache = new Dictionary<TArg, TResult>();
 
-        public Memoizer() => _cache = new Dictionary<TArg, TResult>();
+        protected abstract TResult Create(TArg arg);
 
-        public Memoizer(IEqualityComparer<TArg> comparer) => _cache = new Dictionary<TArg, TResult>(comparer);
-
-        public TResult Call(Func<TArg, TResult> func, TArg arg)
+        public TResult Call(TArg arg)
         {
             lock (_cache)
             {
                 if (!_cache.TryGetValue(arg, out var val))
                 {
-                    _cache.Add(arg, val = func(arg));
+                    _cache.Add(arg, val = Create(arg));
                 }
 
                 return val;
             }
         }
 
-        public TResult Overwite(Func<TArg, TResult> func, TArg arg)
+        public TResult Overwite(TArg arg)
         {
             lock (_cache)
             {
-                return _cache[arg] = func(arg);
+                return _cache[arg] = Create(arg);
             }
         }
 

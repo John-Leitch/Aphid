@@ -451,7 +451,7 @@ namespace AphidUI.ViewModels
         {
             ResetInterpreter();
             await CodeViewer.Document.BeginInvoke(CodeViewer.Document.Blocks.Clear);
-            CodeViewer.AppendOutput("Running script...");
+            await CodeViewer.AppendOutputAsync("Running script...");
 
             if (string.IsNullOrEmpty(code))
             {
@@ -546,8 +546,7 @@ namespace AphidUI.ViewModels
 
             await ExecuteWatchExpressionsAsync();
             await WaitDumpTasksAsync();
-
-            CodeViewer.AppendOutput("Done");
+            await CodeViewer.AppendOutputAsync("Done");
         }
 
         public void Execute(Action callback = null)
@@ -605,7 +604,7 @@ namespace AphidUI.ViewModels
         {
             IsExecuting = false;
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 if (_interpreterThread != null)
                 {
@@ -618,9 +617,9 @@ namespace AphidUI.ViewModels
                     _interpreterThread = null;
                 }
 
-                CodeViewer.AppendOutput("Stopped");
-                CodeViewer.BeginInvoke(() => Status = "Script stopped");
-            });
+                await CodeViewer.AppendOutputAsync("Stopped");
+                await CodeViewer.BeginInvoke(() => Status = "Script stopped");
+            }).Wait();
         }
 
         //private Task ExecuteWatchExpressionAsync(ExpressionViewModel vm) =>

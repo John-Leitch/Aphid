@@ -1,0 +1,62 @@
+<Grid
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="450"
+    xmlns:c="clr-namespace:Components.Aphid.Wpf;assembly=AphidUI"
+    d:DesignWidth="800">
+    <Grid.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="C:\source\SpringPeeper\SpringPeeper\Styles\SpringPeeperDataGridResources.xaml">
+                    <!--<ResourceDictionary.Source>
+                        <c:Aphid>getScriptPath('Styles/SpringPeeperDataGridResources.xaml')</c:Aphid>
+                    </ResourceDictionary.Source>-->
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Grid.Resources>
+    <Grid>
+        <Grid.Resources>
+            <CollectionViewSource 
+                Source="{Binding}" 
+                IsLiveSortingRequested="True" 
+                x:Key="CollectionView" />
+        </Grid.Resources>
+        <DataGrid Name="MetricsDataGrid"
+            ItemsSource="{Binding Source={StaticResource CollectionView} }"
+            AutoGenerateColumns="False"
+            IsReadOnly="true">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{Binding Background}" />
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <!-- <DataGridTextColumn Header="Date" Binding="{Binding Date}" /> -->
+                <DataGridTextColumn Header="Initial Detection" Binding="{Binding InitialDetection}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Last Update" Binding="{Binding LastUpdateTime}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Channel" Binding="{Binding Channel}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Frequency" Binding="{Binding Frequency}" Visibility="Hidden" IsReadOnly="True" />
+                <DataGridTextColumn Header="Signal" Binding="{Binding Signal}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Sender" Binding="{Binding SenderAddress}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Sender Resolved" Binding="{Binding SenderAddressResolved}" IsReadOnly="True" />
+                <DataGridTextColumn Header="BSSID" Binding="{Binding Bssid}" IsReadOnly="True" />
+                <DataGridTextColumn Header="BSSID Resolved" Binding="{Binding BssidResolved}" IsReadOnly="True" />
+                <DataGridTextColumn Header="SSID" Binding="{Binding Ssid}" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="Known">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Center"
+                            IsChecked="{Binding IsKnown, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <!-- <DataGridCheckBoxColumn Header="Known" Binding="{Binding IsKnown, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="false" /> -->
+                
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Grid>
