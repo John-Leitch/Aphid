@@ -3091,53 +3091,117 @@ namespace Components.Aphid.Interpreter
 
             if (isTypeArgument)
             {
-                if (expression.ArrayExpression.Type != Exp.IdentifierExpression)
+                var arrayType = expression.ArrayExpression.Type;
+                switch (arrayType)
                 {
-                    throw CreateRuntimeException("Expected identifier in generic type expression.");
+                    case Exp.IdentifierExpression:
+                        var id = ((IdentifierExpression)expression.ArrayExpression).Identifier;
+
+                        Type genericType;
+                        var path = new[] { Format("{0}`{1}", id, indexes.Length) };
+
+                        //_importsLock.EnterReadLock();
+
+                        //try
+                        //{
+                        genericType = InteropTypeResolver.TryResolveType(
+                            GetImports(),
+                            _importsLock,
+                            path,
+                            isType: true);
+                        //}
+                        //finally
+                        //{
+                        //    _importsLock.ExitReadLock();
+                        //}
+
+                        if (genericType == null)
+                        {
+                            throw CreateRuntimeException("Could not resolve generic type {0}<>", id);
+                        }
+
+                        var typeArgs = new Type[indexes.Length];
+
+                        for (var i = 0; i < indexes.Length; i++)
+                        {
+                            typeArgs[i] = indexes[i].Value as Type;
+
+                            if (typeArgs[i] == null)
+                            {
+                                throw CreateRuntimeException(
+                                    "Invalid type parameter '{0}'.",
+                                    indexes[i].Value);
+                            }
+                        }
+
+                        var constructedGenericType = genericType.MakeGenericType(typeArgs);
+
+                        return Scalar(constructedGenericType);
+                    default:
+                        
+                        var arrayValue = InterpretExpression(expression.ArrayExpression);
+
+                        if (arrayValue != null && arrayValue.IsScalar && arrayValue.Value is AphidInteropMember interopMember)
+                        {
+                            typeArgs = new Type[indexes.Length];
+
+                            for (var i = 0; i < indexes.Length; i++)
+                            {
+                                typeArgs[i] = indexes[i].Value as Type;
+
+                                if (typeArgs[i] == null)
+                                {
+                                    throw CreateRuntimeException(
+                                        "Invalid type parameter '{0}'.",
+                                        indexes[i].Value);
+                                }
+                            }
+                            
+                            var memberMethods = interopMember.Members;
+                            var constructedMembers = new MemberInfo[memberMethods.Length];
+                            var constructedMemberCount = 0;
+                            
+                            for (var i = 0; i < memberMethods.Length; i++)
+                            {
+                                var curMember = memberMethods[i];
+                                if (curMember.MemberType == MemberTypes.Method)
+                                {
+                                    var curMemberMethod = (MethodInfo)curMember;
+                                    if (curMemberMethod.ContainsGenericParameters)
+                                    {
+                                        var curMemberGenericArgs = curMemberMethod.GetGenericArguments();
+                                        var genericParameterCount = 0;
+
+                                        for (var j = 0; j < curMemberGenericArgs.Length; j++)
+                                        {
+                                            var curGenericArg = curMemberGenericArgs[j];
+
+                                            if (curGenericArg.IsGenericParameter)
+                                            {
+                                                //Todo: curGenericArg.GetGenericParameterConstraints();
+                                                genericParameterCount++;
+                                            }
+                                        }
+
+                                        if (genericParameterCount == typeArgs.Length)
+                                        {
+                                            constructedMembers[constructedMemberCount++] = curMemberMethod.MakeGenericMethod(typeArgs);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (constructedMemberCount > 0)
+                            {
+                                Array.Resize(ref constructedMembers, constructedMemberCount);
+                                return Scalar(new AphidInteropMember(interopMember.Expression, interopMember.Target, constructedMembers));
+                            }
+                            
+                            //((MethodInfo)((AphidInteropMember)arrayValue.Value).Members[0]).ContainsGenericParameters
+                        }
+
+                        throw CreateRuntimeException("Expected identifier in generic type expression.");
                 }
-
-                var id = ((IdentifierExpression)expression.ArrayExpression).Identifier;
-
-                Type genericType;
-                var path = new[] { Format("{0}`{1}", id, indexes.Length) };
-
-                //_importsLock.EnterReadLock();
-
-                //try
-                //{
-                genericType = InteropTypeResolver.TryResolveType(
-                    GetImports(),
-                    _importsLock,
-                    path,
-                    isType: true);
-                //}
-                //finally
-                //{
-                //    _importsLock.ExitReadLock();
-                //}
-
-                if (genericType == null)
-                {
-                    throw CreateRuntimeException("Could not resolve generic type {0}<>", id);
-                }
-
-                var typeParams = new Type[indexes.Length];
-
-                for (var i = 0; i < indexes.Length; i++)
-                {
-                    typeParams[i] = indexes[i].Value as Type;
-
-                    if (typeParams[i] == null)
-                    {
-                        throw CreateRuntimeException(
-                            "Invalid type parameter '{0}'.",
-                            indexes[i].Value);
-                    }
-                }
-
-                var constructedGenericType = genericType.MakeGenericType(typeParams);
-
-                return Scalar(constructedGenericType);
             }
             else if (indexes.Length == 1 &&
                 indexes[0]?.Value != null &&
@@ -3274,10 +3338,7 @@ namespace Components.Aphid.Interpreter
                 {
                     var obj = Unwrap(index);
                     Type t;
-                    isTypeArgument = obj != null &&
-                        (((t = obj.GetType()) == typeof(Type)) ||
-                        (t.BaseType == typeof(Type)) ||
-                        (t.BaseType != null && t.BaseType.BaseType == typeof(Type)));
+                    isTypeArgument = obj is Type;
                 }
 
                 indexes[i] = Wrap(index);
@@ -4500,7 +4561,7 @@ namespace Components.Aphid.Interpreter
                 interopMembers.Members.OfType<MethodInfo>().ToArray(),
                 arguments);
 
-            MethodBase method = !methodInfo.Method.IsGenericMethod
+            MethodBase method = !methodInfo.Method.IsGenericMethodDefinition
                 ? methodInfo.Method
                 : ((MethodInfo)methodInfo.Method).MakeGenericMethod(methodInfo.GenericArguments);
             var convertedArgs = TypeConverter.Convert(
