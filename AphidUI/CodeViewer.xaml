@@ -6,6 +6,7 @@
              IsReadOnly="True"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
+             Padding="0,4,0,4"
              FontFamily="Lucida console">
     <RichTextBox.Resources>
         <Style TargetType="{x:Type Paragraph}">

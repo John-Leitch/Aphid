@@ -16,6 +16,9 @@ using Components.Aphid.UI.Colors;
 using static Components.Aphid.Wpf.BrushHelper;
 using System.Threading;
 using Components.Aphid.UI;
+using System.Windows.Media;
+using System.Text;
+using System.Globalization;
 
 namespace AphidUI
 {
@@ -55,15 +58,101 @@ namespace AphidUI
             new PropertyMetadata(
                 null,
                 (sender, args) => ((CodeViewer)sender).SetCode((string)args.NewValue)));
-        
+
+        public bool Wrapping
+        {
+            get => (bool)GetValue(WrappingProperty);
+            set => SetValue(WrappingProperty, value);
+        }
+
+        public static readonly DependencyProperty WrappingProperty = DependencyProperty.Register(
+            nameof(Wrapping),
+            typeof(bool),
+            typeof(CodeViewer),
+            new PropertyMetadata(
+                true,
+                (sender, args) =>
+                {
+                    var viewer = (CodeViewer)sender;
+                    if ((bool)args.NewValue)
+                    {
+                        viewer.SetMinWidthForText();
+                    }
+                    else
+                    {
+                        viewer.ResetMinWidth();
+                    }
+                }));
+
         public CodeViewer()
         {
-            Loaded += (o, e) =>
-            {
-                Document.Background = FromRgb(Theme.Background);
-                Document.Foreground = FromRgb(Theme.Foreground);
-            };
+            Loaded += CodeViewer_Loaded;
+            TextChanged += CodeViewer_TextChanged;
+            //SizeChanged += CodeViewer_SizeChanged;
             InitializeComponent();
+        }
+
+        //private void CodeViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        //{
+            
+        //}
+
+        private void CodeViewer_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (Wrapping)
+            {
+                SetMinWidthForText();
+            }
+        }
+
+        private void ResetMinWidth()
+        {
+            //Document.SetValue(FlowDocument.PageWidthProperty, Document, )
+            //Document.PageWidth
+            Document.PageWidth = double.NaN;
+        }
+
+        private void SetMinWidthForText()
+        {
+            var inlines = Document.Blocks.SelectMany(x => ((Paragraph)x).Inlines).Cast<Run>().ToArray();
+            var sb = new StringBuilder();
+            for (var i = 0; i < inlines.Length; i++)
+            {
+                sb.Append(inlines[i].Text);
+            }
+
+            var formatted = new FormattedText(
+                sb.ToString(),
+                CultureInfo.CurrentCulture,
+                Document.FlowDirection,
+                new Typeface(Document.FontFamily, Document.FontStyle, Document.FontWeight, Document.FontStretch),
+                Document.FontSize,
+                Document.Foreground);
+
+            var offset = 0;
+
+            for (var i = 0; i < inlines.Length; i++)
+            {
+                var run = inlines[i];
+                var count = run.Text.Length;
+                formatted.SetFontFamily(run.FontFamily, offset, count);
+                formatted.SetFontStyle(run.FontStyle, offset, count);
+                formatted.SetFontWeight(run.FontWeight, offset, count);
+                formatted.SetFontSize(run.FontSize, offset, count);
+                formatted.SetForegroundBrush(run.Foreground, offset, count);
+                formatted.SetFontStretch(run.FontStretch, offset, count);
+                formatted.SetTextDecorations(run.TextDecorations, offset, count);
+                offset += count;
+
+            }
+
+            Document.PageWidth = formatted.WidthIncludingTrailingWhitespace + 20;
+        }
+
+        private void CodeViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            Document.Background = FromRgb(Theme.Background);
+            Document.Foreground = FromRgb(Theme.Foreground);
         }
 
         public void Add(Block item) => Document.Invoke(() => Document.Blocks.Add(item));
