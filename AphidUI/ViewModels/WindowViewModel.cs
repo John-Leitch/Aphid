@@ -235,17 +235,20 @@ namespace AphidUI.ViewModels
         }
 
         [AphidInteropFunction("dump", PassInterpreter = true, UnwrapParameters = false)]
-        public static void Dump(AphidInterpreter interpreter, object obj) =>
-            SerializingFormatter
-                .Format(interpreter, obj)
-                .Then(CodeViewer.HighlightAsync)
-                .ContinueWith(x =>
-                    interpreter.CurrentScope
-                        .Resolve(interpreter, ViewModelName)
-                        .Get<AphidReplViewModel>()
-                        .CodeViewer
-                        .AppendColoredOutput(x.Result))
+        public static void Dump(AphidInterpreter interpreter, object obj)
+        {
+            var serialized = SerializingFormatter.Format(interpreter, obj);
+
+            var viewer = interpreter.CurrentScope
+                .Resolve(interpreter, ViewModelName)
+                .Get<AphidReplViewModel>()
+                .CodeViewer;
+
+            Task
+                .Run(() => viewer.Highlighter.Highlight(serialized).ToArray())
+                .Then(x => viewer.Async(() => viewer.AppendColoredOutput(x.Result)).Task)
                 .Do(DumpTasks.Add);
+        }
 
         private static Task WaitDumpTasksAsync() =>
             Task.Run(() =>

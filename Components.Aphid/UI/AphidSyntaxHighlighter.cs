@@ -13,6 +13,13 @@ namespace Components.Aphid.UI
     {
         private readonly IAphidTokenColorTheme _theme = new DefaultAphidColorTheme();
 
+        public AphidSyntaxHighlighter()
+        {
+
+        }
+
+        public AphidSyntaxHighlighter(IAphidTokenColorTheme theme) => _theme = theme;
+
         public IEnumerable<ColoredText> Highlight(string text)
         {
             var isFirst = true;
@@ -27,6 +34,10 @@ namespace Components.Aphid.UI
                     fg = t.ForegroundRgb;
                     bg = t.BackgroundRgb;
                     isFirst = false;
+                }
+                else if (t.ForegroundRgb == null && t.BackgroundRgb == null)
+                {
+                    sb.Append(t.Text);
                 }
                 else
                 {

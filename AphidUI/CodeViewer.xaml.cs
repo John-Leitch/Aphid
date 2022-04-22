@@ -2,32 +2,20 @@
 using Components.Aphid.Interpreter;
 using Components.Aphid.Lexer;
 using Components.Aphid.Parser;
-using Components.Aphid.UI;
 using Components.Aphid.UI.Formatters;
-using Components.External;
 using Components.External.ConsolePlus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using static Components.Aphid.UI.Formatters.SyntaxHighlightingFormatter;
 using static Components.Aphid.UI.AphidCli;
 using Components.Aphid.UI.Colors;
-using RgbBrushMemoizer = Components.External.Memoizer<(byte, byte, byte), System.Windows.Media.SolidColorBrush>;
-using Components.Aphid.Wpf;
 using static Components.Aphid.Wpf.BrushHelper;
 using System.Threading;
+using Components.Aphid.UI;
 
 namespace AphidUI
 {
@@ -38,6 +26,19 @@ namespace AphidUI
     public partial class CodeViewer : RichTextBox
     {
         private IAphidTokenColorTheme _theme = new DefaultAphidColorTheme();
+
+        public IAphidTokenColorTheme Theme
+        {
+            get => _theme;
+            set => _highlighter = new AphidSyntaxHighlighter(_theme = value);
+        }
+
+        private AphidSyntaxHighlighter _highlighter;
+
+        public AphidSyntaxHighlighter Highlighter =>
+            _highlighter ??= new AphidSyntaxHighlighter(_theme);
+
+        private AphidSyntaxHighlighter NextHighlighter() => new AphidSyntaxHighlighter(_theme);
 
         private Task _scrollTask;
 
@@ -54,13 +55,13 @@ namespace AphidUI
             new PropertyMetadata(
                 null,
                 (sender, args) => ((CodeViewer)sender).SetCode((string)args.NewValue)));
-
+        
         public CodeViewer()
         {
             Loaded += (o, e) =>
             {
-                Document.Background = FromRgb(_theme.Background);
-                Document.Foreground = FromRgb(_theme.Foreground);
+                Document.Background = FromRgb(Theme.Background);
+                Document.Foreground = FromRgb(Theme.Foreground);
             };
             InitializeComponent();
         }
@@ -95,12 +96,13 @@ namespace AphidUI
 
         private Paragraph NextBlock(string text) =>
             (text != null ? new Paragraph(new Run(text)) : new Paragraph())
-            .Do(x => x.Background = FromRgb(_theme.Background));
+            .Do(x => x.Background = FromRgb(Theme.Background));
 
         public void SetCode(string code) =>
             ThreadPool.QueueUserWorkItem(async x =>
             {
-                var colored = Highlight(code);
+                
+                var colored = Highlighter.Highlight(code).ToArray();
                 Document.Invoke(() =>
                 {
                     using (Document.DisableProcessing())
@@ -111,8 +113,6 @@ namespace AphidUI
                     }
                 });
             });
-
-        public static Task<IEnumerable<ColoredText>> HighlightAsync(string code) => Task.Run(() => Highlight(code));
 
         public void AppendCode(IEnumerable<ColoredText> coloredText) =>
             AppendCode(null, coloredText, scrollToEnd: true);
@@ -147,7 +147,7 @@ namespace AphidUI
         private Run CreateRun(ColoredText t) => new Run(t.Text)
         {
             Foreground = FromRgb(t.ForegroundRgb),
-            Background = FromRgb(t.BackgroundRgb ?? _theme.Background)
+            Background = FromRgb(t.BackgroundRgb ?? Theme.Background)
         };
 
         public async Task AppendOutputAsync(string output) => await AddBlockAsync(output).ContinueWith(x => QueueScrollToEnd());
@@ -158,15 +158,15 @@ namespace AphidUI
         {
             var b = AddBlock();
             AppendCode(b, code);
-            b.Async(() => b.Inlines.Add(new Run(" => ") { FontWeight = FontWeights.ExtraBlack, Foreground = FromRgb(_theme.GetColor(AphidTokenType.Text)) }));
+            b.Async(() => b.Inlines.Add(new Run(" => ") { FontWeight = FontWeights.ExtraBlack, Foreground = FromRgb(Theme.GetColor(AphidTokenType.Text)) }));
             AppendCode(b, output);
         }
 
         public void AppendOutput(string code, string output, bool isError = false) =>
             AppendColoredOutput(
-                Highlight(code),
+                Highlighter.Highlight(code),
                 //!isError ? Highlight(output) : new[] { new ColoredText(SystemColor.Red, "\r\n" + output) });
-                (!isError ? Highlight(output) : ErrorHighlightingFormatter.Highlight(output)));
+                (!isError ? Highlighter.Highlight(output) : ErrorHighlightingFormatter.Highlight(output)));
 
         private static IEnumerable<ColoredText> FormatSuffixedLabel(IEnumerable<ColoredText> x, string tag) => x
             .TakeWhile(y => !y.Text.Contains(tag))
