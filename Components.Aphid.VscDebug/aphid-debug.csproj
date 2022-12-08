@@ -169,7 +169,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3-beta1</Version>
+      <Version>13.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup>
