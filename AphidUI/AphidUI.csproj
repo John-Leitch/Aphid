@@ -39,6 +39,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Components\BrushHelper.cs" />
     <Compile Include="Components\HwndDockControl.cs" />
     <Compile Include="AphidRepl.xaml.cs">
       <DependentUpon>AphidRepl.xaml</DependentUpon>

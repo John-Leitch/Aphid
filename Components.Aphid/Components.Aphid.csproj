@@ -5,13 +5,10 @@
   <PropertyGroup>
     <!-- <DefineConstants>$(DefineConstants);LOW_SECURITY</DefineConstants> -->
     <DefineConstants>$(DefineConstants)</DefineConstants>
-
   </PropertyGroup>
-    
-  
-  <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE')) and !$(DefineConstants.Contains('LOW_SECURITY'))"> 
+  <PropertyGroup Condition="$(DefineConstants.Contains('UNSAFE_CONSOLE')) and !$(DefineConstants.Contains('LOW_SECURITY'))">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup> 
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">Default</Platform>
@@ -20,13 +17,13 @@
     <ProjectGuid>{4249DB75-BBB6-4CC4-B046-3170DD1D3BC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Components.Aphid</RootNamespace>
-    <FileAlignment>512</FileAlignment> 
+    <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <DebugSymbols>True</DebugSymbols>
     <ErrorReport>prompt</ErrorReport>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>preview</LangVersion>
-    <RunCodeAnalysis>false</RunCodeAnalysis> 
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -231,6 +228,7 @@
     <Compile Include="External\PInvoke\UserEnv.cs" />
     <Compile Include="External\PInvoke\Win32.cs" />
     <Compile Include="External\PInvoke\WindowStyle.cs" />
+    <Compile Include="External\Threading\DefaultThreadLocal.cs" />
     <Compile Include="Interpreter\AphidExecutionContext`1.cs" />
     <Compile Include="Interpreter\AphidIpcContext.cs" />
     <Compile Include="Interpreter\AphidThread.cs" />
@@ -289,11 +287,16 @@
     <Compile Include="UI\AphidScopeObjectAutocompletionSource.cs" />
     <Compile Include="UI\AphidSyntaxHighlighter.cs" />
     <Compile Include="UI\AphidSettings.cs" />
+    <Compile Include="UI\Colors\AphidSyntaxColorTheme.cs" />
     <Compile Include="UI\Colors\DefaultAphidColorTheme.cs" />
     <Compile Include="UI\Colors\ColoredTextExtension.cs" />
     <Compile Include="UI\Colors\ColoredTextInverter.cs" />
     <Compile Include="UI\Colors\ColoredTextSaturator.cs" />
+    <Compile Include="UI\Colors\DefaultAphidLightColorTheme.cs" />
     <Compile Include="UI\Colors\IAphidColorTheme.cs" />
+    <Compile Include="UI\Colors\IAphidTokenColorTheme.cs" />
+    <Compile Include="UI\Colors\InvertedSyntaxColorTheme.cs" />
+    <Compile Include="UI\Colors\RgbHelper.cs" />
     <Compile Include="UI\Formatters\CodeMarker.cs" />
     <Compile Include="UI\Formatters\ErrorFormatter.cs" />
     <Compile Include="UI\Formatters\ErrorHighlightingFormatter.cs" />
